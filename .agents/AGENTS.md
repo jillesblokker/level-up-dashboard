@@ -1,6 +1,6 @@
 # Thrivehaven — Product vision & rules
 
-> Source: Creator interview, July 2026 (Updated late July 2026)
+> Source: Creator interview, July 2026 (Expanded & Refined late July 2026)
 
 ## Core promise
 
@@ -23,63 +23,74 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 - Sweet spot: **5/day = "Great"**, 10 = "Awesome", 15+ = "Super", 20+ = "Amazing"
 - Mix simple habits (wake before 10) with aspirational ones (10 push-ups)
 - Must feel **fun and "laagdrempelig" (low barrier)** — NOT a task list
-- Categories (Might, Knowledge, Honor, etc.) should **meaningfully affect gameplay**
+- Categories (`Might`, `Knowledge`, `Honor`, `Castle`, `Craft`, `Vitality`, `Wellness`) **meaningfully affect gameplay** (granting dynamic Dungeon combat buffs, House Cup virtue energy, and crafting materials)
 
 ## House Cup & Seasons
 
 - **Real-time 7 Virtue Hourglasses**: `Might`, `Knowledge`, `Honor`, `Castle`, `Craft`, `Vitality`, `Wellness`.
 - **Monthly Recap**: In-between monthly stats displayed in a dedicated recap modal.
 - **End of Year Celebration**: Celebratory modal showing house winners and scaling rewards (scaling based on how many allies/circle members participated).
-- **Friend Dares & Virtue Duels**: "I dare you" friend quests and virtue duels award bonus House Cup virtue points and competitive trophies.
+- **Season Transitions & Archival**: When a new season/year starts, standings reset to 0, past winners are permanently archived in the **Chronicle**, and participating players receive permanent **legacy titles & trophy badges**.
+- **Friend Dares & Virtue Duels**: "I dare you" friend quests and virtue duels award bonus House Cup virtue points (+10 to both issuer & recipient) and competitive rivalry trophies.
 
 ## Daily Opening Routine Sequence
 
-1. **Recap of last day**
-2. **Checking off quests**
-3. **House Cup toast, taxes, and then the pet gift**
+1. **Recap of last day** — Streak status, completed habit count, XP & Gold earned yesterday.
+2. **Today's habit focus & target** — Preview fresh habit focus (aim for 5/10 target) and set daily intentions.
+3. **House Cup toast, taxes, and pet gift** — Toast virtue standings, collect kingdom tile taxes, and claim daily guardian pet bounty (+50 Gold & +1 Essence).
 
 ## Kingdom & Dungeon Loop
 
 - **Visual diary of progress** — real-life growth mirrored in-game
 - **Gameplay loop**: Completing habits/quests yields Gold & Essences → used to train citizens/fighters → trained citizens clear higher floors in the Dungeon.
+- **Habit Combat Buffs**: Completing today's habits grants immediate combat stat multipliers in the Dungeon Keep (e.g. `Might` habits = +5% ATK per habit up to +25% max; `Knowledge` habits = +5% Spell Power).
 - Tile types have specific roles:
-  - **Kingdom tiles** → give rewards
-  - **Settlement tiles** (Abbey etc.) → user can enter and perform actions
-  - **Minigame tiles** → trigger modal with interactive minigame
+  - **Kingdom tiles** → give rewards & taxes
+  - **Settlement tiles** (Abbey, Apotheca, Barracks) → user can enter and perform actions
+  - **Minigame tiles** → trigger modal with interactive minigames (Plank Labyrinth, Riddles, Tarot)
   - **Realm tiles** → trigger events
 - **Endgame**: Huge, detailed map styled to the player's liking. Activity level determines how much they've built.
 - **Realm page**: Friends can visit to see your progress ("showing off")
 
-## Characters, citizens, creatures
+## Airship Harbor & Real-World Habit Engine
+
+- **Real-World Activity Connection**: Airship voyages are propelled directly by completing daily habits (which generate Ether fuel), NOT passive countdown timers.
+- **Voyage Cargo**: Propelling airships to distant trading ports unlocks rare building blueprints, citizen training gear, and alchemy reagents.
+
+## Characters, Citizens & Guardian Pets
 
 - Citizens: **both functional AND narrative** — world feels alive, interactive, explorable. Upgradeable with gold & alchemy essences earned from habits.
-- Guardian pets: **strategic choice** (affects gameplay, not just cosmetic)
-- Mythic cards: **both collectible AND usable as citizens** — make the world feel alive
+- Guardian pets: **strategic choice with dual mechanics**:
+  - **Passive Yields**: Grant passive daily kingdom resource yields (+10% Gold & Essences).
+  - **Dungeon Support**: As pets level up alongside player habits, they join Dungeon Keep battles as active support strikers, executing elemental signature moves.
+- Mythic cards: **both collectible AND usable as citizens** — make the world feel alive.
 
 ## Economy & Progression
 
 - Primary gold sink: **realm tiles** (feels most like a game → wonder & exploration)
 - Leveling pace: ~1 month to level 10 with normal activity. Level 1→2 easy, 99→100 very hard
-- **Infinite progression** with post-game content after level 100
+- **Infinite Progression & Prestige System**:
+  - Reaching Level 100 unlocks **Prestige Ranks** (Prestige I, II, III...) with distinct Paragon crest borders.
+  - Unlocks exclusive **Legendary Realm Tile Blueprints** and **Mythic Pet Evolutions** (e.g. Astral Wyrm, Solar Gryphon).
 - Streak system: **streak freezes + holiday mode** — never punish sickness or vacation
 
 ## Social
 
 - **Solo must be fun and complete.** But social pressure is scientifically proven to help habits
 - Friend quest dynamic: **competition** ("I dare you") + virtue duels for House Cup bonus points
-- Alliance system: nice-to-have layer on top
+- Alliance system: nice-to-have layer on top with daily alliance chests and Titan Wyrm raid bosses.
 
-## Page purposes
+## Page Purposes
 
 | Page | Role |
 |------|------|
 | **Daily hub** | First thing you see every day — the "home" |
-| **Chronicle** | Passive journal (auto-generated from activity). Separate diary system for active writing |
-| **Dungeon** | Mini-game that gets harder. Need to train fighters with gold/essences to keep up |
-| **Airship harbor** | Tied to **real-world activity** (not passive timers) |
-| **Market** | Mostly shopping (consumables, tiles) |
+| **Chronicle** | Passive journal (auto-generated from activity & season winners archive). Separate diary system for active writing |
+| **Dungeon** | Turn-based elemental mini-game that gets harder. Need to train fighters with gold/essences and complete daily habits for combat buffs to keep up |
+| **Airship harbor** | Tied directly to **real-world habit activity** (completing habits generates Ether fuel to propel voyages) |
+| **Market** | Mostly shopping (consumables, packs, tiles, material exchange) |
 | **Realm** | Creative sandbox + friend-visitable showpiece |
-| **Kingdom** | Strategic board + dopamine interactions |
+| **Kingdom** | Strategic board + dopamine tile interactions & property timers |
 
 ## Data & Sync rules
 
