@@ -955,6 +955,21 @@ export const KINGDOM_TILES: KingdomTile[] = [
     image: '/images/kingdom-tiles/AstralCitadelMonument.webp',
     cost: 1500,
     levelRequired: 1
+  },
+  {
+    id: 'serene_lake',
+    name: 'Serene Lake',
+    timerMinutes: 30,
+    normalGoldRange: [10, 25],
+    luckyGoldAmount: 75,
+    luckyChance: 0.15,
+    clickMessage: 'A calm, shimmering aquamarine lake tile.',
+    possibleItems: ['/images/items/materials/material-water.webp'],
+    itemType: 'material',
+    rarity: 'common',
+    image: '/images/kingdom-tiles/SereneLake.webp',
+    cost: 25,
+    levelRequired: 1
   }
 ]
 

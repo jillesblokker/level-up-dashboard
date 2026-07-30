@@ -183,6 +183,8 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
         return '/images/kingdom-tiles/WaterwayCanal.webp'
       case 'astral_citadel_monument':
         return '/images/kingdom-tiles/AstralCitadelMonument.webp'
+      case 'serene_lake':
+        return '/images/kingdom-tiles/SereneLake.webp'
       default:
         return `/images/tiles/${type}-tile.webp`
     }

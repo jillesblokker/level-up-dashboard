@@ -194,6 +194,7 @@ export function KingdomGridWithTimers({
       apotheca: { category: 'advanced', levelRequired: 5 },
       waterway_canal: { category: 'basic', levelRequired: 1 },
       astral_citadel_monument: { category: 'prestige', levelRequired: 1 },
+      serene_lake: { category: 'basic', levelRequired: 1 },
     };
 
     return KINGDOM_TILES.map(tile => {

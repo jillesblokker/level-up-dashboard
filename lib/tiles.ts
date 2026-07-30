@@ -87,6 +87,7 @@ export function getTileName(type: TileType): string {
     abbey: 'Silent Abbey',
     waterway_canal: 'Waterway Canal & Stone Bridge',
     astral_citadel_monument: 'Astral Citadel Monument',
+    serene_lake: 'Serene Lake',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -178,6 +179,7 @@ export function getDefaultConnections(type: TileType): string[] {
     abbey: ['grass', 'forest', 'mountain'],
     waterway_canal: ['grass', 'water', 'city', 'town'],
     astral_citadel_monument: ['grass', 'city', 'town', 'castle'],
+    serene_lake: ['water', 'grass'],
   };
   return defaultConnections[type] || [];
 }

@@ -883,6 +883,21 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     isDefault: false,
     isEquippable: false,
     isConsumable: false,
+  },
+  {
+    id: 'serene_lake',
+    name: 'Serene Lake',
+    description: 'A tranquil aquamarine lake tile with pure shimmering water ripples',
+    type: 'building',
+    category: 'building',
+    rarity: 'common',
+    stats: { experience: 10 },
+    emoji: '🌊',
+    image: '/images/kingdom-tiles/SereneLake.webp',
+    cost: 25,
+    isDefault: true,
+    isEquippable: false,
+    isConsumable: false,
   }
 ];
 

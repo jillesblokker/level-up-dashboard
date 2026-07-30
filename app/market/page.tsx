@@ -34,6 +34,7 @@ const MATERIALS = [
   { id: 'material-crystal', name: 'Crystal', icon: '🔮', buyPrice: 1000, sellPrice: 500, description: 'Rare magical resource.' },
   { id: 'waterway_canal', name: 'Waterway Canal & Stone Bridge', icon: '🌉', buyPrice: 750, sellPrice: 375, description: 'Serene stone canal tile with vertical aquamarine waters and arched stone bridge.' },
   { id: 'astral_citadel_monument', name: 'Astral Citadel Monument', icon: '🔮', buyPrice: 1500, sellPrice: 750, description: 'Colossal monument crowned with a glowing floating purple crystal orb.' },
+  { id: 'serene_lake', name: 'Serene Lake', icon: '🌊', buyPrice: 25, sellPrice: 12, description: 'Tranquil aquamarine lake tile with pure shimmering water ripples.' },
 ]
 
 export default function MarketPage() {

@@ -43,6 +43,7 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'abbey') image = '/images/tiles/abbey-tile.png';
     if (type === 'waterway_canal') image = '/images/kingdom-tiles/WaterwayCanal.webp';
     if (type === 'astral_citadel_monument') image = '/images/kingdom-tiles/AstralCitadelMonument.webp';
+    if (type === 'serene_lake') image = '/images/kingdom-tiles/SereneLake.webp';
 
     let name = type.charAt(0).toUpperCase() + type.slice(1);
     if (type === 'coral_reef') name = 'Mermaid';
@@ -66,6 +67,7 @@ export const defaultTile = (type: TileType): Tile => {
     if (type === 'abbey') name = 'Silent Abbey';
     if (type === 'waterway_canal') name = 'Waterway Canal & Stone Bridge';
     if (type === 'astral_citadel_monument') name = 'Astral Citadel Monument';
+    if (type === 'serene_lake') name = 'Serene Lake';
 
     return {
         id: type,
@@ -170,6 +172,7 @@ export const initialInventory: Record<TileType, Tile> = {
     abbey: { ...defaultTile('abbey'), cost: 600, owned: 0 },
     waterway_canal: { ...defaultTile('waterway_canal'), cost: 750, owned: 1 },
     astral_citadel_monument: { ...defaultTile('astral_citadel_monument'), cost: 1500, owned: 1 },
+    serene_lake: { ...defaultTile('serene_lake'), cost: 25, owned: 2 },
 };
 
 function safeCheck(obj: any, key: any) {
@@ -209,6 +212,7 @@ export const getTileImage = (type: TileType): string => {
     if (type === 'abbey') return '/images/tiles/abbey-tile.png';
     if (type === 'waterway_canal') return '/images/kingdom-tiles/WaterwayCanal.webp';
     if (type === 'astral_citadel_monument') return '/images/kingdom-tiles/AstralCitadelMonument.webp';
+    if (type === 'serene_lake') return '/images/kingdom-tiles/SereneLake.webp';
     return `/images/tiles/${type}-tile.webp`;
 };
 
