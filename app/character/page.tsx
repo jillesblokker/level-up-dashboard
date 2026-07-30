@@ -1109,11 +1109,14 @@ export default function CharacterPage() {
                 </div>
               </div>
 
-              {/* 2D RPG Paperdoll Equipment Grid */}
+              {/* Merged 2D RPG Paperdoll Equipment & Title Vault */}
               <div className="mt-8 pt-6 border-t border-zinc-800">
                 <PaperdollEquipmentGrid
                   avatarImage={`/images/character/${((characterStats as any).title || 'count').toLowerCase()}.webp`}
                   heroName={(characterStats as any).title || 'Count'}
+                  heroDescription="A powerful noble, ruling over a large county in Thrivehaven."
+                  nextTitle="Marquis (Level 50)"
+                  titleProgress={Math.round(calculateLevelProgress(characterStats.experience))}
                 />
               </div>
             </CardContent>
