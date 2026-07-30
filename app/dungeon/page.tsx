@@ -1557,6 +1557,21 @@ export default function DungeonPage() {
                               </Button>
                             </div>
 
+                            {/* Active Guardian Pet Striker Support Button */}
+                            <div className="pt-1">
+                              <Button
+                                onClick={() => {
+                                  toast({
+                                    title: "🐾 Guardian Pet Summoned!",
+                                    description: "Ember Drake unleashed Flame Breath! Dealt +120 elemental strike damage to monster room!",
+                                  });
+                                }}
+                                className="w-full h-10 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 text-white font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2 border border-amber-400/50"
+                              >
+                                🐾 Summon Guardian Pet Striker (Flame Breath Strike)
+                              </Button>
+                            </div>
+
                             {/* Safe Flee Action Button */}
                             <div className="flex justify-center pt-1">
                               <Button

@@ -12,12 +12,14 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { SeasonArchivalModal } from '@/components/chronicle/SeasonArchivalModal'
+import { Crown } from 'lucide-react'
 
 export default function ChroniclePage() {
     const [entries, setEntries] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [isJournalOpen, setIsJournalOpen] = useState(false)
+    const [isArchivalOpen, setIsArchivalOpen] = useState(false)
     const [journalEntry, setJournalEntry] = useState<any | null>(null)
     const [filterDate, setFilterDate] = useState<string>('') // YYYY-MM format
     const supabase = (typeof window !== 'undefined' ? (require('@/lib/supabase/client').supabase) : null);
@@ -115,14 +117,26 @@ export default function ChroniclePage() {
                         </div>
                     </div>
 
-                    <Button
-                        onClick={handleCreate}
-                        className="bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl px-6 h-12 shadow-lg shadow-amber-900/20 border-t border-white/10 flex items-center gap-2"
-                    >
-                        <PenTool className="w-4 h-4" />
-                        Scribe Entry
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            onClick={() => setIsArchivalOpen(true)}
+                            variant="outline"
+                            className="border-amber-500/40 text-amber-300 hover:bg-amber-950/40 font-bold rounded-xl px-4 h-12 flex items-center gap-2"
+                        >
+                            <Crown className="w-4 h-4 text-amber-400" />
+                            Past Champions
+                        </Button>
+                        <Button
+                            onClick={handleCreate}
+                            className="bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl px-6 h-12 shadow-lg shadow-amber-900/20 border-t border-white/10 flex items-center gap-2"
+                        >
+                            <PenTool className="w-4 h-4" />
+                            Scribe Entry
+                        </Button>
+                    </div>
                 </div>
+
+                <SeasonArchivalModal isOpen={isArchivalOpen} onClose={() => setIsArchivalOpen(false)} />
 
                 {/* Filters */}
                 <div className="flex items-center gap-4 mb-6 bg-zinc-900 p-3 rounded-xl border border-amber-900/10 w-fit">

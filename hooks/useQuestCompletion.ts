@@ -218,6 +218,18 @@ export function useQuestCompletion() {
             console.warn('[Quest Completion] Failed to rush timers:', tErr);
           }
 
+          // Deal Alliance Titan Wyrm raid damage (1 dmg for daily quest) & generate Ether fuel (+5)
+          try {
+            const currentTitanHp = parseInt(localStorage.getItem('thrivehaven_titan_hp') || '6450', 10);
+            const currentDmg = parseInt(localStorage.getItem('thrivehaven_user_titan_dmg') || '14', 10);
+            const currentEther = parseInt(localStorage.getItem('thrivehaven_ether_fuel') || '35', 10);
+            localStorage.setItem('thrivehaven_titan_hp', Math.max(0, currentTitanHp - 1).toString());
+            localStorage.setItem('thrivehaven_user_titan_dmg', (currentDmg + 1).toString());
+            localStorage.setItem('thrivehaven_ether_fuel', (currentEther + 5).toString());
+          } catch (tWyrmErr) {
+            console.warn('[Quest Completion] Failed to update Titan Wyrm / Ether fuel stats:', tWyrmErr);
+          }
+
           // Trigger random encounter check for quest completion
           try {
             const { checkAndTriggerEncounter } = await import('@/lib/encounter-trigger-service');

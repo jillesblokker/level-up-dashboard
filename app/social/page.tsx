@@ -34,6 +34,7 @@ import { MoreHorizontal } from "lucide-react"
 import { getCharacterStats } from "@/lib/character-stats-service"
 import { calculateLevelFromExperience } from "@/types/character"
 import dynamic from 'next/dynamic'
+import { AllianceTitanRaidModal } from "@/components/social/AllianceTitanRaidModal";
 
 // Dynamically import heavy components to prevent initialization order issues (ReferenceError)
 const AllianceDashboard = dynamic(() => import("@/components/alliance-dashboard"), { 
@@ -169,6 +170,7 @@ export default function AlliesPage() {
     });
     const [coverImage, setCoverImage] = useState<string>('');
     const [giftModalOpen, setGiftModalOpen] = useState(false);
+    const [titanModalOpen, setTitanModalOpen] = useState(false);
 
     // Import achievement catch-up hook
     const { triggerCatchUp } = require('@/hooks/use-achievement-catch-up').useAchievementCatchUp();

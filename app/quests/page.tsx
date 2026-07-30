@@ -25,6 +25,7 @@ import { useCharacterStats } from '@/hooks/use-character-stats'
 import { toast, useToast } from '@/components/ui/use-toast'
 import { ToastAction } from "@/components/ui/toast";
 import QuestCard from '@/components/quest-card'
+import { FriendDareModal } from '@/components/quests/FriendDareModal'
 import React from 'react'
 import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
 import { useSearchParams } from 'next/navigation'
