@@ -410,7 +410,7 @@ export function DailyHubClient() {
             {/* Header Section with CTA */}
             <HeaderSection
                 title={getTimeBasedGreeting()}
-                subtitle="Your Quick Morning Habit Focus — Aim for 5/10 habits today to propel your kingdom!"
+                subtitle="Another fine day to do at least 5-10 habits to rebuild the kingdom and improve your life!"
                 imageSrc="/images/daily-hub-hero.webp"
                 defaultBgColor="bg-gradient-to-b from-amber-900/40 to-black"
                 className="h-[300px] md:h-[400px]"

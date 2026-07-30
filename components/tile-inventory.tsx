@@ -88,7 +88,7 @@ const tileCategories = [
     minLevel: 0,
     maxLevel: 20,
     description: 'Basic terrain and natural features',
-    tiles: ['grass', 'water', 'forest', 'mountain', 'desert', 'ice', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'farmland', 'jungle', 'oasis', 'coral_reef', 'graveyard', 'ruins', 'crystal_cavern', 'floating_island']
+    tiles: ['grass', 'water', 'serene_lake', 'waterway_canal', 'forest', 'mountain', 'desert', 'ice', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'farmland', 'jungle', 'oasis', 'coral_reef', 'graveyard', 'ruins', 'crystal_cavern', 'floating_island', 'astral_citadel_monument']
   },
   {
     id: 'settlement',

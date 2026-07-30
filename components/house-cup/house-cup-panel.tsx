@@ -326,7 +326,7 @@ export function HouseCupPanel() {
               className="bg-amber-500 hover:bg-amber-600 text-black font-semibold mt-2"
             >
               <UserPlus className="w-4 h-4 mr-2" />
-              Invite an Ally
+              Invite an ally
             </Button>
           </Card>
         ) : (
