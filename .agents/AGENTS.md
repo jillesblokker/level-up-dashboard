@@ -83,15 +83,15 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 
 ## Page Purposes
 
-| Page | Role |
-|------|------|
-| **Daily hub** | First thing you see every day — the "home" |
+| Page | Role & Key Features |
+|------|---------------------|
+| **Daily hub** | First thing you see every morning — top hero card displays daily streak + habit target (5/10), followed by favorite daily habits checklist and quick links to Kingdom & Dungeon |
 | **Chronicle** | **Dual system**: passive journal (auto-generated from habit milestones & season winners archive) + private reflection diary for active writing |
-| **Dungeon** | Turn-based elemental mini-game that gets harder. Need to train fighters with gold/essences and complete daily habits for combat buffs to keep up |
-| **Airship harbor** | Tied directly to **real-world habit activity** (completing habits generates Ether fuel to propel voyages) |
-| **Market** | Mostly shopping (consumables, packs, tiles, material exchange) |
-| **Realm** | Creative sandbox + friend-visitable showpiece |
-| **Kingdom** | Strategic board + dopamine tile interactions & property timers |
+| **Dungeon** | Turn-based elemental mini-game that gets harder floor by floor. Need to train fighters with gold/essences and complete daily habits for combat stat multipliers (+5% ATK/HP) to handle scaling monster rooms |
+| **Airship harbor** | Tied directly to **real-world habit activity** (completing habits generates Ether fuel to propel voyages to distant trading ports) |
+| **Market** | Royal Exchange & Bazaar with dual tabs: Trading Post (buying/selling construction materials with Gold) and Mystic Shop (opening free Chrono Chests & Mythic Card packs) |
+| **Realm** | Creative sandbox + friend-visitable showpiece for custom building layout |
+| **Kingdom** | Strategic board + dopamine tile interactions, passive tax collection & settlement tile action drawers (Abbey, Apotheca, Barracks) |
 
 ## Data & Sync rules
 
