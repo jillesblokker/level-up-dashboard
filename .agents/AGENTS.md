@@ -25,6 +25,17 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 - Must feel **fun and "laagdrempelig" (low barrier)** — NOT a task list
 - Categories (`Might`, `Knowledge`, `Honor`, `Castle`, `Craft`, `Vitality`, `Wellness`) **meaningfully affect gameplay** (granting dynamic Dungeon combat buffs, House Cup virtue energy, and crafting materials)
 
+## Notification Center Action Feed Rules
+
+- **High-Value Action Filtering**: The topbar Notification Bell only alerts on actionable events:
+  - **Social**: Friend Dares & Virtue Duels received
+  - **Raid & Rewards**: Titan Wyrm Victory Chests ready
+  - **Progression**: Level Gained & Achievements Unlocked
+  - **Protection**: Streak Freeze & Rest Day alerts
+- **Noise Suppression**: Minor routine logs (such as +10 XP per habit) are suppressed to prevent spam.
+- **One-Tap Action Cards**: Notification cards feature immediate action buttons (`Accept Dare`, `Claim Chest`, `View Title`).
+- **24-Hour Auto-Archiving**: Read notifications automatically archive after 24 hours to maintain a clean, zero-clutter inbox.
+
 ## Master Systems Evaluation & Completeness Matrix
 
 | System # | Game System Name | System Description & Primary Role | Visual Assets (1-10) | Rewards & Economy (1-10) | UX Quality (1-10) | Fun Factor (1-10) | Incomplete Systems? | Key Missing Elements / Depth Opportunities |
@@ -36,7 +47,7 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 | **5** | **Kingdom Board & Settlement Tiles** | Strategic board with dopamine tile taps, passive taxes, and interactive settlement drawers (Abbey, Apotheca, Barracks) | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add automated 'Collect all taxes' golden header button with floating +Gold & +Essence coin animations |
 | **6** | **Exploration, Events & Minigames** | Interactive minigame tiles (Plank Labyrinth, Riddles, Tarot) and random event triggers yielding blueprints & essences | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add 2 additional minigame tiles: Archery Target Range & Tarot Card Reading Fortune Wheel |
 | **7** | **Alchemy & Potion Crafting** | Grand Apotheca glasshouse where players convert botanical materials & essences into gold, exp, and health potions | 9/10 | 8/10 | 9/10 | 8/10 | **No** | Add potion brewing timer cauldron animations with success rate boosters |
-| **8** | **Friend Dares & Virtue Duels** | Head-to-head friend habit challenges awarding +10 bonus House Cup virtue points to both issuer and recipient | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add in-app Notification Bell drawer + toast banners for friend dares & duels |
+| **8** | **Friend Dares & Virtue Duels** | Head-to-head friend habit challenges awarding +10 bonus House Cup virtue points to both issuer and recipient | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Action-oriented Notification Bell drawer with 24h auto-archiving for friend dares & duels |
 | **9** | **House Cup & Seasons Archival** | Real-time 7 Virtue Hourglasses, monthly recaps, annual celebration modal, Chronicle past champions gallery, and legacy titles | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add smooth lightweight CSS gradient liquid fill animations inside the 7 Hourglass columns |
 | **10** | **Airship Harbor & Ether Voyages** | Real-world habit-powered Ether fuel engine propelling voyages to distant trading ports with 3-citizen crew assignments | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add live interactive airship flight animation canvas moving across cloud layers |
 | **11** | **Market Exchange & Bazaar** | Royal Exchange Trading Post (material buy/sell) & Mystic Shop (free Chrono Chests, Mythic card packs, and rare tiles) | 9/10 | 9/10 | 9/10 | 9/10 | **No** | Add daily rotating flash sales & merchant barter bargain minigame |
