@@ -158,72 +158,74 @@ export function PaperdollEquipmentGrid({
           </div>
         </div>
 
-        {/* 2-Column Responsive Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        {/* 2-Column Responsive Layout - Full Height Alignment */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           {/* Left Column: 2D Paperdoll Stage (7 Cols on LG) */}
-          <div className="lg:col-span-7 relative bg-gradient-to-b from-zinc-900/80 via-zinc-950 to-zinc-900 border border-zinc-800/90 rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center shadow-inner overflow-hidden min-h-[380px]">
+          <div className="lg:col-span-7 relative bg-gradient-to-b from-zinc-900/80 via-zinc-950 to-zinc-900 border border-zinc-800/90 rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-between shadow-inner overflow-hidden h-full min-h-[440px] flex-1">
             {/* Background Ambient Glow */}
             <div className="absolute inset-0 bg-radial from-amber-500/10 via-transparent to-transparent blur-2xl pointer-events-none" />
 
             {/* Stage Title Header */}
-            <div className="absolute top-3 left-4 z-10">
+            <div className="w-full flex items-center justify-between z-10 mb-2">
               <span className="text-[11px] font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1">
                 <Award className="w-3.5 h-3.5" /> Hero Equipment Paperdoll
               </span>
             </div>
 
             {/* Central Stage Container */}
-            <div className="relative w-full max-w-md flex items-center justify-center my-6">
-              {/* Central Character Avatar Frame */}
-              <div className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-2xl border-2 border-amber-500/50 bg-zinc-900/90 p-2 shadow-2xl flex items-center justify-center overflow-hidden group">
-                <Image
-                  src={avatarImage}
-                  alt={heroName}
-                  fill
-                  className="object-contain p-2 filter drop-shadow-[0_0_20px_rgba(245,158,11,0.25)] group-hover:scale-105 transition-transform duration-300"
-                  unoptimized
-                />
+            <div className="relative w-full max-w-md flex flex-col items-center justify-center my-4 flex-1">
+              <div className="relative w-full max-w-xs flex items-center justify-center">
+                {/* Central Character Avatar Frame (Scaled to fit) */}
+                <div className="relative w-40 h-40 sm:w-48 sm:h-48 rounded-2xl border-2 border-amber-500/50 bg-zinc-900/90 p-2 shadow-2xl flex items-center justify-center overflow-hidden group">
+                  <Image
+                    src={avatarImage}
+                    alt={heroName}
+                    fill
+                    className="object-contain p-2 filter drop-shadow-[0_0_20px_rgba(245,158,11,0.25)] group-hover:scale-105 transition-transform duration-300"
+                    unoptimized
+                  />
+                </div>
+
+                {/* 4 Interactive Corner Equipment Slots */}
+                {/* Top-Left: Weapon */}
+                <div className="absolute -top-3 -left-3 sm:-left-4 z-20">
+                  <EquipmentSlotButton
+                    item={equipment.weapon}
+                    slotConfig={SLOT_CONFIGS[0]}
+                    onClick={() => equipment.weapon && setSelectedItem(equipment.weapon)}
+                  />
+                </div>
+
+                {/* Top-Right: Shield */}
+                <div className="absolute -top-3 -right-3 sm:-right-4 z-20">
+                  <EquipmentSlotButton
+                    item={equipment.offhand}
+                    slotConfig={SLOT_CONFIGS[1]}
+                    onClick={() => equipment.offhand && setSelectedItem(equipment.offhand)}
+                  />
+                </div>
+
+                {/* Bottom-Left: Armor */}
+                <div className="absolute -bottom-3 -left-3 sm:-left-4 z-20">
+                  <EquipmentSlotButton
+                    item={equipment.armor}
+                    slotConfig={SLOT_CONFIGS[2]}
+                    onClick={() => equipment.armor && setSelectedItem(equipment.armor)}
+                  />
+                </div>
+
+                {/* Bottom-Right: Mount */}
+                <div className="absolute -bottom-3 -right-3 sm:-right-4 z-20">
+                  <EquipmentSlotButton
+                    item={equipment.mount}
+                    slotConfig={SLOT_CONFIGS[3]}
+                    onClick={() => equipment.mount && setSelectedItem(equipment.mount)}
+                  />
+                </div>
               </div>
 
-              {/* 5 Interactive Equipment Slots around Avatar */}
-              {/* Top-Left: Weapon */}
-              <div className="absolute -top-3 -left-3 sm:-left-4 z-20">
-                <EquipmentSlotButton
-                  item={equipment.weapon}
-                  slotConfig={SLOT_CONFIGS[0]}
-                  onClick={() => equipment.weapon && setSelectedItem(equipment.weapon)}
-                />
-              </div>
-
-              {/* Top-Right: Shield */}
-              <div className="absolute -top-3 -right-3 sm:-right-4 z-20">
-                <EquipmentSlotButton
-                  item={equipment.offhand}
-                  slotConfig={SLOT_CONFIGS[1]}
-                  onClick={() => equipment.offhand && setSelectedItem(equipment.offhand)}
-                />
-              </div>
-
-              {/* Bottom-Left: Armor */}
-              <div className="absolute -bottom-3 -left-3 sm:-left-4 z-20">
-                <EquipmentSlotButton
-                  item={equipment.armor}
-                  slotConfig={SLOT_CONFIGS[2]}
-                  onClick={() => equipment.armor && setSelectedItem(equipment.armor)}
-                />
-              </div>
-
-              {/* Bottom-Right: Mount */}
-              <div className="absolute -bottom-3 -right-3 sm:-right-4 z-20">
-                <EquipmentSlotButton
-                  item={equipment.mount}
-                  slotConfig={SLOT_CONFIGS[3]}
-                  onClick={() => equipment.mount && setSelectedItem(equipment.mount)}
-                />
-              </div>
-
-              {/* Top-Center Badge / Artifact Slot */}
-              <div className="absolute -bottom-10 z-20">
+              {/* Centered Artifact / Relic Slot directly below Avatar */}
+              <div className="mt-6 flex flex-col items-center justify-center z-20">
                 <EquipmentSlotButton
                   item={equipment.relic}
                   slotConfig={SLOT_CONFIGS[4]}
