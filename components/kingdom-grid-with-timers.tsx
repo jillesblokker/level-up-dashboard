@@ -823,11 +823,6 @@ export function KingdomGridWithTimers({
   const handleBuyProperty = async (property: typeof propertyInventory[0], method: 'gold' | 'materials' | 'tokens' = 'tokens') => {
 
     if (method === 'tokens') {
-      // Properties should cost build tokens
-      if (property.costType !== 'build-token') {
-        // Just log warning, allow existing flow if valid
-      }
-
       if ((buildTokens || 0) < (property.tokenCost || 1)) {
         toast({
           title: "Not Enough Tokens",
@@ -837,10 +832,39 @@ export function KingdomGridWithTimers({
         return;
       }
 
-      // Token deduction handled on placement or assumed pre-deducted
-      // Original logic just allowed placement if tokens existed.
-      // We'll keep it as "Unlock to Place".
+      // Add purchased tile to kingdom property inventory
+      if (userId) {
+        try {
+          const { invManager } = await loadManagers();
+          await invManager.addToKingdomInventory(userId, {
+            id: property.id,
+            name: property.name,
+            quantity: 1,
+            type: 'item',
+            category: 'building',
+            image: property.image
+          });
+          toast({ title: "Property Purchased!", description: `${property.name} added to your Kingdom Inventory.` });
+          if (onInventoryUpdate) {
+            onInventoryUpdate({
+              id: property.id,
+              name: property.name,
+              quantity: 1,
+              type: 'building',
+              image: property.image
+            });
+          }
+        } catch (e) {
+          logger.error('Failed to add to inventory', e);
+          toast({ title: "Inventory error", description: "Failed to save item.", variant: "destructive" });
+        }
+      }
 
+      // Dispatch inventory refresh events
+      window.dispatchEvent(new Event('character-inventory-update'));
+      window.dispatchEvent(new Event('kingdom-tiles-update'));
+      window.dispatchEvent(new Event('tile-inventory-update'));
+      return;
     } else if (method === 'gold') {
       if (!property.cost) {
         toast({ title: "Error", description: "This item cannot be bought with Gold." });

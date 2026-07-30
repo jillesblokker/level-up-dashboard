@@ -195,7 +195,13 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
     }
   };
 
-  // Merge local and server notifications for display
+  // Priority Filter: Keep high-value action items (Dares, Level Ups, Achievements, Raid Chests, Streaks)
+  // Auto-Archive: Filter out read notifications older than 24 hours
+  const nowMs = Date.now();
+  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+  const HIGH_PRIORITY_TYPES = new Set(['social', 'achievement', 'levelup', 'alliance', 'streak', 'quest', 'friend_challenge_received', 'friend_quest_received', 'friend_request']);
+
   const allNotifications: any[] = [
     ...serverNotifications.map(n => ({
       id: n.id,
@@ -208,15 +214,30 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
         n.type === 'friend_challenge_received' ? `${n.data.senderName} challenged you: "${n.data.challengeName}" (Base: ${n.data.baseGoal})` :
           n.type === 'friend_request_accepted' ? `${n.data.accepterName} is now your ally!` : '',
       type: 'social',
+      priority: 'high',
       timestamp: n.created_at,
       read: n.is_read,
       isServer: true,
       original: n
     })),
     ...notifications.map(n => ({ ...n, isServer: false }))
-  ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  ]
+    // Strictly keep high-value action items only (Dares, Level Ups, Achievements, Raid Chests, Streaks)
+    .filter(n => {
+      // Suppress minor routine logs
+      if (n.priority === 'low' || n.type === 'system' || n.type === 'discovery' || n.type === 'event') {
+        return false;
+      }
+      // Auto-archive read notifications older than 24 hours
+      const timeMs = new Date(n.timestamp).getTime();
+      const isExpired = n.read && (nowMs - timeMs > ONE_DAY_MS);
+      return !isExpired;
+    })
+    // High-value prioritization sort
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
-  const unreadCount = allNotifications.filter(n => !n.read).length;
+  // Count unread high-priority notifications only
+  const unreadCount = allNotifications.filter(n => !n.read && (HIGH_PRIORITY_TYPES.has(n.type) || n.isServer)).length;
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
