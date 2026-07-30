@@ -157,19 +157,6 @@ export function KingdomTileModal({ isOpen, onClose, reward, onCollectAll, hasBat
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-2">
-                {hasBatchReady && onCollectAll && (
-                  <Button
-                    onClick={() => {
-                      onClose();
-                      onCollectAll();
-                    }}
-                    variant="outline"
-                    className="w-full py-6 font-serif text-amber-400 border-amber-600/30 hover:border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-300 transition-all duration-300 rounded-xl flex items-center justify-center gap-2"
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    Collect All Ready
-                  </Button>
-                )}
 
                 <Button
                   onClick={onClose}

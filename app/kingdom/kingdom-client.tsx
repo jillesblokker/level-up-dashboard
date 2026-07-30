@@ -1727,9 +1727,9 @@ export function KingdomClient() {
                   description: `Collected +${totalGoldGained} Gold & +${readyKeys.length * 2} Essences from ${readyKeys.length} tiles!`,
                 });
               }}
-              className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-zinc-950 font-black text-xs px-5 py-2.5 rounded-xl shadow-xl border border-amber-300 flex items-center gap-2 transition-all active:scale-95"
+              className="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-md border border-amber-400/40 flex items-center gap-1.5 transition-all"
             >
-              💰 Collect All Kingdom Taxes
+              💰 Collect taxes
             </Button>
           )
         }

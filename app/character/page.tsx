@@ -952,11 +952,11 @@ export default function CharacterPage() {
                   </div>
                 </div>
                 {/* Right: Active Bonuses */}
-                <div>
+                <div className="flex flex-col h-full">
                   <h3 className="text-lg font-medium mb-2">{TEXT_CONTENT.character.ui.overview.activeBonuses}</h3>
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="flex-1 flex flex-col gap-4">
                     {perks.filter((p) => p.active && p.unlocked).length === 0 && (
-                      <Card className="bg-black border-amber-800 h-full min-h-[200px] flex items-center justify-center">
+                      <Card className="bg-black border-amber-800 h-full flex-1 flex flex-col items-center justify-center min-h-[300px]">
                         <CardContent className="pt-6 flex items-center justify-center h-full">
                           <div className="flex items-center gap-4 text-center">
                             {/* Blessing image */}
