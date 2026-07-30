@@ -13,14 +13,14 @@ import { useRouter } from 'next/navigation'
 export interface EquippedItem {
   id: string
   name: string
-  slot: 'weapon' | 'offhand' | 'armor' | 'relic'
+  slot: 'weapon' | 'offhand' | 'armor' | 'mount' | 'relic'
   stats: { atk?: number; def?: number; spd?: number }
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
   image: string
   description: string
 }
 
-const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'relic', EquippedItem | null> = {
+const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'relic', EquippedItem | null> = {
   weapon: {
     id: 'sword-irony',
     name: 'Irony Longsword',
@@ -32,11 +32,11 @@ const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'relic', Equipp
   },
   offhand: {
     id: 'shield-oak',
-    name: 'Sturdy Oak Aegis',
+    name: 'Sturdy Oak Shield',
     slot: 'offhand',
     stats: { def: 18 },
     rarity: 'uncommon',
-    image: '/images/items/armor/armor-blanko.webp',
+    image: '/images/items/shield/shield-blockado.webp',
     description: 'Reinforced aegis shield built to block dungeon strikes.'
   },
   armor: {
@@ -48,9 +48,18 @@ const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'relic', Equipp
     image: '/images/items/armor/armor-normalo.webp',
     description: 'Majestic plate armor worn by realm champions.'
   },
+  mount: {
+    id: 'mount-goldy',
+    name: 'Golden Warhorse',
+    slot: 'mount',
+    stats: { spd: 30, atk: 10 },
+    rarity: 'epic',
+    image: '/images/items/horse/horse-goldy.webp',
+    description: 'Noble armored steed propelling realm travel.'
+  },
   relic: {
     id: 'relic-astral',
-    name: 'Astral Crown Crystal',
+    name: 'Astral crystal',
     slot: 'relic',
     stats: { atk: 15, def: 15, spd: 15 },
     rarity: 'legendary',
@@ -86,11 +95,12 @@ export function PaperdollEquipmentGrid({
   const totalSpd = Object.values(equipment).reduce((acc, item) => acc + (item?.stats.spd || 0), 0)
   const gearScore = totalAtk * 2 + totalDef * 1.5 + totalSpd * 3
 
-  const SLOT_CONFIGS: { slot: 'weapon' | 'offhand' | 'armor' | 'relic'; label: string; icon: React.ReactNode }[] = [
+  const SLOT_CONFIGS: { slot: 'weapon' | 'offhand' | 'armor' | 'mount' | 'relic'; label: string; icon: React.ReactNode }[] = [
     { slot: 'weapon', label: 'Weapon', icon: <Sword className="w-7 h-7 text-amber-400" /> },
-    { slot: 'offhand', label: 'Offhand', icon: <Shield className="w-7 h-7 text-blue-400" /> },
+    { slot: 'offhand', label: 'Shield', icon: <Shield className="w-7 h-7 text-blue-400" /> },
     { slot: 'armor', label: 'Armor', icon: <Shirt className="w-7 h-7 text-emerald-400" /> },
-    { slot: 'relic', label: 'Relic', icon: <Gem className="w-7 h-7 text-purple-400" /> }
+    { slot: 'mount', label: 'Mount', icon: <span className="text-xl">🐎</span> },
+    { slot: 'relic', label: 'Artifact', icon: <Gem className="w-7 h-7 text-purple-400" /> }
   ]
 
   const getRarityBadge = (rarity: string) => {
@@ -175,7 +185,7 @@ export function PaperdollEquipmentGrid({
                 />
               </div>
 
-              {/* 4 Interactive BIG Equipment Slots around Avatar */}
+              {/* 5 Interactive Equipment Slots around Avatar */}
               {/* Top-Left: Weapon */}
               <div className="absolute -top-3 -left-3 sm:-left-4 z-20">
                 <EquipmentSlotButton
@@ -185,7 +195,7 @@ export function PaperdollEquipmentGrid({
                 />
               </div>
 
-              {/* Top-Right: Offhand */}
+              {/* Top-Right: Shield */}
               <div className="absolute -top-3 -right-3 sm:-right-4 z-20">
                 <EquipmentSlotButton
                   item={equipment.offhand}
@@ -203,11 +213,20 @@ export function PaperdollEquipmentGrid({
                 />
               </div>
 
-              {/* Bottom-Right: Relic */}
+              {/* Bottom-Right: Mount */}
               <div className="absolute -bottom-3 -right-3 sm:-right-4 z-20">
                 <EquipmentSlotButton
-                  item={equipment.relic}
+                  item={equipment.mount}
                   slotConfig={SLOT_CONFIGS[3]}
+                  onClick={() => equipment.mount && setSelectedItem(equipment.mount)}
+                />
+              </div>
+
+              {/* Top-Center Badge / Artifact Slot */}
+              <div className="absolute -bottom-10 z-20">
+                <EquipmentSlotButton
+                  item={equipment.relic}
+                  slotConfig={SLOT_CONFIGS[4]}
                   onClick={() => equipment.relic && setSelectedItem(equipment.relic)}
                 />
               </div>
