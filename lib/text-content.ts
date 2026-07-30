@@ -1078,7 +1078,7 @@ export const TEXT_CONTENT = {
             title: "Welcome, {name}!",
             defaultName: "Hero",
             subtitle: "Your daily adventure awaits. Complete quests, maintain your streak, and grow your kingdom.",
-            cta: "Enter Your Kingdom"
+            cta: "Enter your kingdom"
         },
         stats: {
             streak: {

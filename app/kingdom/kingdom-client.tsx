@@ -1708,7 +1708,7 @@ export function KingdomClient() {
                   window.dispatchEvent(new Event('collect-all-kingdom-taxes'));
                 }
               }}
-              className="bg-amber-500 hover:bg-amber-600 text-black font-semibold text-xs px-4 py-2 rounded-xl shadow-md border border-amber-400/40 flex items-center gap-1.5 transition-all cursor-pointer"
+              className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-8 py-6 text-base rounded-2xl shadow-xl hover:shadow-amber-500/30 transition-all hover:scale-105 border border-amber-400/40 cursor-pointer flex items-center gap-2"
             >
               💰 Collect taxes
             </Button>
