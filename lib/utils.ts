@@ -105,3 +105,22 @@ export function formatBytes(bytes: number): string {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 }
+
+import React from 'react';
+
+export function renderSafeNode(node: unknown, fallbackProps?: Record<string, any>): React.ReactNode {
+  if (node === null || node === undefined || typeof node === 'boolean') {
+    return null;
+  }
+  if (typeof node === 'string' || typeof node === 'number') {
+    return node;
+  }
+  if (React.isValidElement(node)) {
+    return node;
+  }
+  if (typeof node === 'function' || (typeof node === 'object' && node !== null && ('render' in node || '$$typeof' in node || 'type' in node))) {
+    const Component = node as React.ElementType;
+    return React.createElement(Component, fallbackProps);
+  }
+  return null;
+}

@@ -120,3 +120,9 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 - No ALL CAPS or Title Case in UI text, badges, headers, toast messages, loading screens
 - Potion names: "Gold potion", "Exp potion", "Health potion", "Mana potion", "Water"
 - Mythic names: "Green minotaur", "Red cyclops" (color lowercase, creature lowercase)
+
+## React Child Type Safety & Anti-Regression Rules
+
+- **Never render raw objects or un-invoked component definitions as React children.**
+  - Props of type `ReactNode` or `icon` MUST be guarded using `renderSafeNode(icon)` or `isValidElement(icon)` to prevent **React Minified Error #31** runtime crashes in production.
+

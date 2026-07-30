@@ -7,6 +7,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
+import { renderSafeNode } from "@/lib/utils"
 
 interface QuickAction {
   icon: ReactNode
@@ -31,7 +32,7 @@ export function QuickActionButton({ title, icon, color, actions }: QuickActionBu
           aria-label={`${title} quick actions`}
         >
           <div className="flex flex-col items-center justify-center w-full space-y-2">
-            {icon}
+            {renderSafeNode(icon)}
             <span className="text-sm font-medium">{title}</span>
           </div>
         </Button>
@@ -46,7 +47,7 @@ export function QuickActionButton({ title, icon, color, actions }: QuickActionBu
                 className="flex items-center justify-between rounded-md p-2 hover:bg-accent"
               >
                 <div className="flex items-center space-x-2">
-                  {action.icon}
+                  {renderSafeNode(action.icon)}
                   <span className="text-sm">{action.label}</span>
                 </div>
                 <span className="text-sm text-amber-500">+{action.xp} XP</span>

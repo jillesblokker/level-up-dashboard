@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
+import { cn, renderSafeNode } from '@/lib/utils';
 
 interface MedievalModalProps {
     open: boolean;
@@ -37,9 +37,9 @@ export function MedievalModal({
                     <DialogHeader className="relative z-10">
                         {title && (
                             <div className="flex items-center justify-center gap-2 mb-1">
-                                {icon}
+                                {renderSafeNode(icon)}
                                 <DialogTitle className="text-xl font-serif text-amber-200">
-                                    {title}
+                                    {renderSafeNode(title)}
                                 </DialogTitle>
                             </div>
                         )}
