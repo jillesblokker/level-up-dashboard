@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, Clock, Star, Target, Trophy, Zap, Heart, Shield, BookOpen, Sword, Play, Pencil, Trash2, Copy } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, renderSafeNode } from "@/lib/utils"
 import { useState } from "react"
 import { useQuestAudio } from "@/components/audio-provider"
 import { MarkdownRenderer } from "@/components/ui/markdown-renderer"
@@ -282,7 +282,7 @@ export default function QuestCard({
           {/* Difficulty Tag - Moved to content area */}
           <div className="flex items-center gap-2">
             <Badge className={cn("text-xs", difficultyInfo.color, "text-white")}>
-              <DifficultyIcon className="w-3 h-3 mr-1" />
+              {renderSafeNode(DifficultyIcon, { className: "w-3 h-3 mr-1" })}
               {difficultyInfo.label}
             </Badge>
           </div>

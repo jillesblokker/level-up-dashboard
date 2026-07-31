@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Upload, Edit, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, renderSafeNode } from "@/lib/utils";
 
 interface HeaderSectionProps {
   title: string;
@@ -124,13 +124,13 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
         )}
         {ctaButton && (
           <div className="mt-6">
-            {ctaButton}
+            {renderSafeNode(ctaButton)}
           </div>
         )}
       </div>
       {guideComponent && (
         <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-20">
-          {guideComponent}
+          {renderSafeNode(guideComponent)}
         </div>
       )}
       {canEdit && (

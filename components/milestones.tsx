@@ -25,7 +25,7 @@ import { pollingService, createPollingConfig } from '@/lib/polling-service';
 import { errorHandler, ErrorHandler } from '@/lib/error-handler';
 import { gainExperience } from '@/lib/experience-manager'
 import { gainGold } from '@/lib/gold-manager'
-import { cn } from '@/lib/utils'
+import { cn, renderSafeNode } from '@/lib/utils'
 
 
 interface Milestone {
@@ -644,7 +644,7 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
           return (
             <div key={selectedCategoryObj.key}>
               <div className="flex items-center gap-2 mb-4">
-                <selectedCategoryObj.icon className={`h-5 w-5 ${selectedCategoryObj.iconClass}`} />
+                {renderSafeNode(selectedCategoryObj.icon, { className: `h-5 w-5 ${selectedCategoryObj.iconClass}` })}
                 <h3 className="text-lg font-semibold">{selectedCategoryObj.label}</h3>
               </div>
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">

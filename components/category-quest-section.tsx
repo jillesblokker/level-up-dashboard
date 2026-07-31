@@ -3,7 +3,7 @@
 import { type LucideIcon } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
-import { cn } from "@/lib/utils"
+import { cn, renderSafeNode } from "@/lib/utils"
 import { QuestFormDialog, type QuestCategory } from "./quest-form-dialog"
 
 // Quest item type
@@ -98,7 +98,7 @@ export function CategoryQuestSection({
         <Card className={`border ${borderStyle} bg-black`}>
             <CardHeader className="pb-2">
                 <div className="flex items-center space-x-2">
-                    <Icon className={`h-5 w-5 ${iconColor}`} />
+                    {renderSafeNode(Icon, { className: `h-5 w-5 ${iconColor}` })}
                     <h3 className="text-xl font-medievalsharp text-white">{label}</h3>
                 </div>
             </CardHeader>

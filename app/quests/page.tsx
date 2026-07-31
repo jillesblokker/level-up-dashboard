@@ -24,8 +24,8 @@ import { recordCompletion } from '@/lib/daily-activity-summary-service'
 import { useCharacterStats } from '@/hooks/use-character-stats'
 import { toast, useToast } from '@/components/ui/use-toast'
 import { ToastAction } from "@/components/ui/toast";
-import QuestCard from '@/components/quest-card'
 import { FriendDareModal } from '@/components/quests/FriendDareModal'
+import { MedievalErrorBoundary } from '@/components/medieval-error-boundary'
 import React from 'react'
 import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
 import { useSearchParams } from 'next/navigation'
@@ -2706,7 +2706,8 @@ export default function QuestsPage() {
               />
             }
           />
-          <MobileContentWrapper>
+          <MedievalErrorBoundary componentName="QuestsSubView">
+            <MobileContentWrapper>
             {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
 
             <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)} className="w-full mb-8">
@@ -3034,7 +3035,8 @@ export default function QuestsPage() {
             }
 
           </MobileContentWrapper>
-        </MobileLayoutWrapper>
+        </MedievalErrorBoundary>
+      </MobileLayoutWrapper>
 
 
 
