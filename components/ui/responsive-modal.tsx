@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { cn } from "@/lib/utils"
+import { cn, renderSafeNode } from "@/lib/utils"
 
 interface ResponsiveModalProps {
     isOpen: boolean
@@ -54,7 +54,7 @@ export function ResponsiveModal({
                 {/* Header */}
                 <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
                     <h2 id="modal-title" className="text-lg font-semibold">
-                        {title}
+                        {renderSafeNode(title)}
                     </h2>
                     <button
                         onClick={onClose}
@@ -77,13 +77,13 @@ export function ResponsiveModal({
 
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-amber-900/50 scrollbar-track-transparent">
-                    {children}
+                    {renderSafeNode(children)}
                 </div>
 
                 {/* Footer */}
                 {footer && (
                     <div className="p-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-                        {footer}
+                        {renderSafeNode(footer)}
                     </div>
                 )}
             </div>
