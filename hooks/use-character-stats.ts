@@ -7,8 +7,12 @@ export function useCharacterStats() {
     const [stats, setStats] = useState<CharacterStats>(getCharacterStats());
 
     useEffect(() => {
-        // Initial load
+        // Initial load from local cache
         setStats(getCharacterStats());
+
+        // Immediately fetch fresh stats from server and merge so user level stays in sync across browsers
+        const { fetchFreshCharacterStats } = require("@/lib/character-stats-service");
+        fetchFreshCharacterStats().catch(() => {});
 
         // Listen for updates
         const handleUpdate = () => {
@@ -16,8 +20,6 @@ export function useCharacterStats() {
         };
 
         window.addEventListener('character-stats-update', handleUpdate);
-
-        // Fetch fresh from server occasionally? Maybe not here to avoid spam.
 
         return () => {
             window.removeEventListener('character-stats-update', handleUpdate);

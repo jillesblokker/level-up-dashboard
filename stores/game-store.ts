@@ -105,7 +105,7 @@ export const useGameStore = create<GameStore>()(
     hydrate: () => {
       try {
         // Lazy-import to avoid circular deps and keep this file lean
-        const { getCharacterStats } = require('@/lib/character-stats-service')
+        const { getCharacterStats, fetchFreshCharacterStats } = require('@/lib/character-stats-service')
         const stats: CharacterStats = getCharacterStats()
         set({
           gold: stats.gold,
@@ -124,6 +124,13 @@ export const useGameStore = create<GameStore>()(
           hydrated: true,
           isLoading: false,
         })
+
+        // Fetch fresh stats from server to keep level & gold in sync across browsers
+        fetchFreshCharacterStats().then((freshStats: CharacterStats) => {
+          if (freshStats) {
+            get().syncFromStats(freshStats)
+          }
+        }).catch(() => {})
       } catch {
         set({ hydrated: true, isLoading: false })
       }
