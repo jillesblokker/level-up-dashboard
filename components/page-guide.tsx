@@ -11,11 +11,12 @@ import {
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { HelpCircle, LucideIcon } from "lucide-react"
+import { renderSafeNode } from "@/lib/utils"
 
 export interface GuideSection {
     title: string
     content: string | React.ReactNode
-    icon: LucideIcon
+    icon: LucideIcon | React.ReactNode
 }
 
 interface PageGuideProps {
@@ -53,7 +54,7 @@ export function PageGuide({ title, subtitle, sections }: PageGuideProps) {
                             {sections.map((section, idx) => (
                                 <section key={idx} className="space-y-3 p-4 rounded-xl bg-amber-950/20 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                                     <div className="flex items-center gap-3 text-amber-400 font-bold">
-                                        <section.icon className="h-5 w-5" />
+                                        {renderSafeNode(section.icon, { className: "h-5 w-5" })}
                                         <h3 className="text-base tracking-tight">{section.title}</h3>
                                     </div>
                                     <div className="text-zinc-300 leading-relaxed pl-8">

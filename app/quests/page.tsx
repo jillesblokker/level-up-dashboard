@@ -11,7 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { cn, renderSafeNode } from '@/lib/utils'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame, Star, CheckCircle2, Zap } from 'lucide-react'
 import { HeaderSection } from '@/components/HeaderSection'
@@ -3108,7 +3108,7 @@ export default function QuestsPage() {
                         <SelectItem key={key} value={key} className="focus:bg-amber-500/10 focus:text-amber-200">
                           <div className="flex items-center gap-3 py-1">
                             <div className={`p-2 bg-zinc-800 rounded-lg ${value.color}`}>
-                              {value.icon}
+                              {renderSafeNode(value.icon)}
                             </div>
                             <div>
                               <div className="font-bold text-zinc-200">{value.label}</div>
