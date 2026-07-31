@@ -33,23 +33,23 @@ export function MedievalModal({
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-amber-400/5 rounded-full blur-3xl" />
                 </div>
 
-                {(title || description || icon) && (
-                    <DialogHeader className="relative z-10">
-                        {title && (
-                            <div className="flex items-center justify-center gap-2 mb-1">
-                                {renderSafeNode(icon)}
-                                <DialogTitle className="text-xl font-serif text-amber-200">
-                                    {renderSafeNode(title)}
-                                </DialogTitle>
-                            </div>
-                        )}
-                        {description && (
-                            <DialogDescription className="text-amber-300/60 text-sm italic text-center">
-                                {description}
-                            </DialogDescription>
-                        )}
-                    </DialogHeader>
-                )}
+                <DialogHeader className="relative z-10">
+                    {title ? (
+                        <div className="flex items-center justify-center gap-2 mb-1">
+                            {renderSafeNode(icon)}
+                            <DialogTitle className="text-xl font-serif text-amber-200">
+                                {renderSafeNode(title)}
+                            </DialogTitle>
+                        </div>
+                    ) : (
+                        <DialogTitle className="sr-only">Thrivehaven Modal</DialogTitle>
+                    )}
+                    {description && (
+                        <DialogDescription className="text-amber-300/60 text-sm italic text-center">
+                            {description}
+                        </DialogDescription>
+                    )}
+                </DialogHeader>
 
                 <div className="relative z-10 grid gap-5 py-4">
                     {children}

@@ -316,24 +316,32 @@ export default function QuestsPage() {
 
   const { syncNow, isSyncing, lastSync } = useQuestSync({
     onQuestsUpdate: async () => {
-      logger.debug('[Quest Sync] Syncing quests...');
-      // Refetch quests from the server
-      if (!token) return;
-
+      logger.debug('[Quest Sync] Syncing quests with fetchWithAuth...');
       try {
-        const res = await fetch(`/api/quests?t=${Date.now()}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
+        const res = await fetchWithAuth(`/api/quests?t=${Date.now()}`);
 
         if (!res.ok) {
           throw new Error(`Failed to fetch quests: ${res.status}`);
         }
 
-        const data = await res.json();
-        setQuests(data || []);
-        logger.debug('[Quest Sync] Quests synced successfully');
+        const data: Quest[] = await res.json();
+        
+        // Smart merge: Preserve local completed status during active session
+        setQuests(prevQuests => {
+          if (!prevQuests || prevQuests.length === 0) return data || [];
+          const serverMap = new Map((data || []).map(q => [q.id, q]));
+          return prevQuests.map(prevQ => {
+            const serverQ = serverMap.get(prevQ.id);
+            if (!serverQ) return prevQ;
+            // Preserve completed status if marked complete locally
+            const isCompleted = prevQ.completed || serverQ.completed;
+            return {
+              ...serverQ,
+              completed: isCompleted
+            };
+          });
+        });
+        logger.info('[QUEST-SYNC-VERIFY] Quests background sync completed cleanly with timezone header', { count: data?.length || 0 });
       } catch (error) {
         logger.error('[Quest Sync] Error syncing quests:', error);
         throw error;
