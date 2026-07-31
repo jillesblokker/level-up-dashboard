@@ -609,6 +609,26 @@ export default function QuestsPage() {
 
         const data = await res.json();
         const completedQuests = (data || []).filter((q: any) => q.completed);
+        const uncompletedQuests = (data || []).filter((q: any) => !q.completed);
+
+        // ========== DIAGNOSTIC: Quest Persistence Debug ==========
+        console.log('%c🔍 QUEST DIAGNOSTIC — Server Response', 'background: #222; color: #0ff; font-size: 14px; padding: 4px 8px;');
+        console.log(`Total quests from server: ${(data || []).length}`);
+        console.log(`Completed: ${completedQuests.length}`, completedQuests.map((q: any) => `${q.name} (id: ${q.id}, completed: ${q.completed})`));
+        console.log(`Uncompleted: ${uncompletedQuests.length}`, uncompletedQuests.map((q: any) => `${q.name} (id: ${q.id})`));
+        
+        // Check specifically for Walk
+        const walkQuest = (data || []).find((q: any) => 
+          String(q.name || '').toLowerCase().includes('walk') || 
+          String(q.id || '').toLowerCase().includes('walk')
+        );
+        if (walkQuest) {
+          console.log('%c🚶 WALK QUEST FOUND:', 'color: #0f0; font-size: 13px;', JSON.stringify(walkQuest, null, 2));
+        } else {
+          console.log('%c⚠️ WALK QUEST NOT IN SERVER RESPONSE!', 'color: #f00; font-size: 13px;');
+        }
+        console.log('%c========== END DIAGNOSTIC ==========', 'color: #888;');
+        // ========== END DIAGNOSTIC ==========
 
         logger.info('[QUEST-SYNC-VERIFY] Verified today quest completions with database', {
           totalQuests: (data || []).length,
