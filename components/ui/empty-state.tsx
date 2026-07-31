@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react'
-import { cn } from '@/lib/utils'
+import { cn, renderSafeNode } from '@/lib/utils'
 import { ScrollText, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -24,8 +24,6 @@ export function MedievalEmptyState({
   action,
   className
 }: EmptyStateProps) {
-  const IconComponent = typeof icon === 'function' ? icon : null;
-
   return (
     <div
       className={cn(
@@ -34,7 +32,7 @@ export function MedievalEmptyState({
       )}
     >
       <div className="mx-auto w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-md">
-        {IconComponent ? <IconComponent className="w-6 h-6" /> : icon || <ScrollText className="w-6 h-6" />}
+        {icon ? renderSafeNode(icon, { className: "w-6 h-6" }) : <ScrollText className="w-6 h-6" />}
       </div>
 
       <div className="space-y-1">
