@@ -284,6 +284,14 @@ export async function GET(request: Request) {
         questCompletionGroups.get(completion.quest_id).push(completion);
       });
 
+      // Build a lookup map of all quests by ID, Name, Title for bi-directional mapping
+      const questMetaMap = new Map<string, { id: string; name: string; title?: string }>();
+      (quests || []).forEach((q: any) => {
+        if (q.id) questMetaMap.set(String(q.id).toLowerCase(), q);
+        if (q.name) questMetaMap.set(String(q.name).toLowerCase(), q);
+        if (q.title) questMetaMap.set(String(q.title).toLowerCase(), q);
+      });
+
       // For each quest, find TODAY'S completion record (or any completion if one-time quest)
       questCompletionGroups.forEach((completions, questId) => {
         const todayCompletion = completions.find((c: any) => {
@@ -293,8 +301,11 @@ export async function GET(request: Request) {
           const cDate = formatDate(c.completed_at || c.created_at, requestTz);
           const cDateUtc = new Date(c.completed_at || c.created_at).toISOString().split('T')[0];
           const todayUtc = new Date().toISOString().split('T')[0];
-          // STRICT DATE MATCHING: Must match local today's date or UTC today's date
-          return cDate === today || cDateUtc === todayUtc;
+          const compMs = new Date(c.completed_at || c.created_at).getTime();
+          const isRecent = !isNaN(compMs) && (Date.now() - compMs) < (24 * 60 * 60 * 1000);
+
+          // Match local today's date, UTC today's date, OR completion within last 24 hours
+          return cDate === today || cDateUtc === todayUtc || isRecent;
         });
 
         // Show as completed if there's a valid completion record for today
@@ -309,6 +320,23 @@ export async function GET(request: Request) {
           const rawId = String(questId);
           completedQuests.set(rawId, compObj);
           completedQuests.set(rawId.toLowerCase(), compObj);
+
+          // ALSO index under matching quest's ID, Name, and Title if rawId matches any of them!
+          const matchedQuest = questMetaMap.get(rawId.toLowerCase());
+          if (matchedQuest) {
+            if (matchedQuest.id) {
+              completedQuests.set(String(matchedQuest.id), compObj);
+              completedQuests.set(String(matchedQuest.id).toLowerCase(), compObj);
+            }
+            if (matchedQuest.name) {
+              completedQuests.set(String(matchedQuest.name), compObj);
+              completedQuests.set(String(matchedQuest.name).toLowerCase(), compObj);
+            }
+            if (matchedQuest.title) {
+              completedQuests.set(String(matchedQuest.title), compObj);
+              completedQuests.set(String(matchedQuest.title).toLowerCase(), compObj);
+            }
+          }
         }
       });
     }
