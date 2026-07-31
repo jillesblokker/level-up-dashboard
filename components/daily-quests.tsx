@@ -101,16 +101,80 @@ export function DailyQuests() {
     return () => clearInterval(interval)
   }, [checkForReset])
 
-  // Load quests on mount
+  // Load quests on mount and sync completion status with backend & localStorage
   useEffect(() => {
-    setQuestItems(defaultQuestItems)
+    const todayStr = new Date().toISOString().split('T')[0];
+    const storageKey = `daily-quests-state-${todayStr}`;
+
+    // 1. Initial hydration from defaultQuestItems + localStorage
+    let currentItems = defaultQuestItems;
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsedSaved: Record<string, boolean> = JSON.parse(saved);
+        currentItems = defaultQuestItems.map(q => ({
+          ...q,
+          completed: parsedSaved[q.id] ?? parsedSaved[q.name.toLowerCase()] ?? q.completed
+        }));
+      }
+    } catch {}
+    setQuestItems(currentItems);
+
+    // 2. Fetch ground-truth completions from server API
+    async function syncWithServer() {
+      try {
+        const res = await fetch('/api/quests?t=' + Date.now());
+        if (res.ok) {
+          const serverQuests = await res.json();
+          if (Array.isArray(serverQuests)) {
+            const completedMap = new Map<string, boolean>();
+            serverQuests.forEach((sq: any) => {
+              if (sq.completed) {
+                if (sq.id) completedMap.set(String(sq.id).toLowerCase(), true);
+                if (sq.name) completedMap.set(String(sq.name).toLowerCase(), true);
+                if (sq.title) completedMap.set(String(sq.title).toLowerCase(), true);
+              }
+            });
+
+            setQuestItems(prev => {
+              const updated = prev.map(q => {
+                const isServerCompleted = completedMap.has(q.id.toLowerCase()) || completedMap.has(q.name.toLowerCase());
+                return isServerCompleted ? { ...q, completed: true } : q;
+              });
+              // Cache updated state
+              try {
+                const saveMap: Record<string, boolean> = {};
+                updated.forEach(item => { if (item.completed) saveMap[item.id] = true; });
+                localStorage.setItem(storageKey, JSON.stringify(saveMap));
+              } catch {}
+              return updated;
+            });
+          }
+        }
+      } catch (err) {
+        console.error('[DailyQuests] Server completion sync error:', err);
+      }
+    }
+
+    syncWithServer();
   }, [isSignedIn])
 
   // Toggle quest completion
   const toggleQuest = useCallback(async (questId: string) => {
-    setQuestItems(prev => prev.map(quest =>
-      quest.id === questId ? { ...quest, completed: !quest.completed } : quest
-    ))
+    const todayStr = new Date().toISOString().split('T')[0];
+    const storageKey = `daily-quests-state-${todayStr}`;
+
+    setQuestItems(prev => {
+      const updated = prev.map(quest =>
+        quest.id === questId ? { ...quest, completed: !quest.completed } : quest
+      );
+      try {
+        const saveMap: Record<string, boolean> = {};
+        updated.forEach(item => { if (item.completed) saveMap[item.id] = true; });
+        localStorage.setItem(storageKey, JSON.stringify(saveMap));
+      } catch {}
+      return updated;
+    });
 
     const toggledQuest = questItems.find(q => q.id === questId)
     if (!toggledQuest) return
