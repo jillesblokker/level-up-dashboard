@@ -1,9 +1,8 @@
+@import '../styles/medieval-animations.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import medieval animations */
-@import '../styles/medieval-animations.css';
 
 /* Global UI Fixes */
 html,

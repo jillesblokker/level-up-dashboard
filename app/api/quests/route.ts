@@ -401,14 +401,44 @@ export async function GET(request: Request) {
       // Or show it as "Done forever". The checklist asks for "Onboarding quests only once".
 
       if (quest.recurrence_interval === 'once' && completion) {
-        // It's a one-time quest and it has been done.
-        // We might want to filter this OUT of the list entirely if "hide after done".
-        // But the frontend might want to show "Completed" state.
-        // Let's keep it but mark it.
         mappedQuest.isOneTime = true;
       }
 
       return mappedQuest;
+    });
+
+    // Synthesize completion-only quests from quest_completion table that are missing from rawQuests
+    const existingQuestIds = new Set((quests || []).map((q: any) => String(q.id || '').toLowerCase()));
+    const existingQuestNames = new Set((quests || []).map((q: any) => String(q.name || '').toLowerCase()));
+
+    completedQuests.forEach((compObj: any, compKey: string) => {
+      const lowerKey = String(compKey).toLowerCase();
+      if (!existingQuestIds.has(lowerKey) && !existingQuestNames.has(lowerKey)) {
+        existingQuestIds.add(lowerKey);
+        existingQuestNames.add(lowerKey);
+
+        const displayName = compKey.charAt(0).toUpperCase() + compKey.slice(1);
+        questsWithCompletions.push({
+          id: compKey,
+          name: displayName,
+          title: displayName,
+          description: `Completed habit`,
+          category: 'might',
+          difficulty: 'medium',
+          xp: compObj.xpEarned || 50,
+          gold: compObj.goldEarned || 25,
+          completed: true,
+          date: compObj.completedAt,
+          isNew: false,
+          completionId: compObj.completionId || compKey,
+          xpEarned: compObj.xpEarned || 0,
+          goldEarned: compObj.goldEarned || 0,
+          isRecurring: true,
+          recurrenceInterval: 'daily',
+          mandate_period: 'daily',
+          mandate_count: 1
+        });
+      }
     });
 
     logger.info('[QUEST-BOARD-DIAGNOSTIC][GET /api/quests] Sending response to client', {
