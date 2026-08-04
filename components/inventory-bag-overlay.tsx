@@ -399,7 +399,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
             let maxHealth = 100;
             let currentHealth = 100;
             try {
-              const statsRes = await fetch('/api/character-stats');
+              const statsRes = await fetchWithAuth('/api/character-stats');
               if (statsRes.ok) {
                 const statsData = await statsRes.json();
                 maxHealth = statsData.maxHealth || statsData.max_health || 100;
@@ -409,7 +409,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
               logger.warn('[Bag] Failed to fetch stats for health potion', e);
             }
             const nextHealth = Math.min(currentHealth + 50, maxHealth);
-            await fetch('/api/character-stats', {
+            await fetchWithAuth('/api/character-stats', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ stats: { health: nextHealth } })
@@ -422,30 +422,30 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
             let maxMana = 100;
             let currentMana = 100;
             try {
-              const statsRes = await fetch('/api/character-stats');
+              const statsRes = await fetchWithAuth('/api/character-stats');
               if (statsRes.ok) {
                 const statsData = await statsRes.json();
-                maxMana = statsData.maxMana || 100;
+                maxMana = statsData.maxMana || statsData.max_mana || 100;
                 currentMana = statsData.mana || 100;
               }
             } catch (e) {
               logger.warn('[Bag] Failed to fetch stats for mana potion', e);
             }
             const nextMana = Math.min(currentMana + 50, maxMana);
-            await fetch('/api/character-stats', {
+            await fetchWithAuth('/api/character-stats', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ stats: { mana: nextMana } })
             });
             toast({
-              title: "Mana Restored! 🌀",
-              description: `Restored 50 Mana. Current: ${nextMana}/${maxMana}`
+              title: "Mana Restored! ✨",
+              description: `Restored 50 Mana. Mana: ${nextMana}/${maxMana}`
             });
           } else if (item.id === 'potion-stamina') {
             let maxStamina = 100;
             let currentStamina = 100;
             try {
-              const statsRes = await fetch('/api/character-stats');
+              const statsRes = await fetchWithAuth('/api/character-stats');
               if (statsRes.ok) {
                 const statsData = await statsRes.json();
                 maxStamina = statsData.maxStamina || 100;
@@ -455,7 +455,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
               logger.warn('[Bag] Failed to fetch stats for stamina potion', e);
             }
             const nextStamina = Math.min(currentStamina + 75, maxStamina);
-            await fetch('/api/character-stats', {
+            await fetchWithAuth('/api/character-stats', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ stats: { stamina: nextStamina } })

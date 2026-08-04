@@ -18,6 +18,7 @@ import { loadTileInventory } from '@/lib/data-loaders';
 import { useGameStore } from '@/stores/game-store';
 import { CreatureDef } from '@/app/dungeon/game-logic';
 import { getCharacterStats } from "@/lib/character-stats-service";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
@@ -137,7 +138,7 @@ export function CitizensTab() {
         setIsLoading(true);
         const newStats = { ...characterStats, [essenceKey]: currentEssence - requirement.amount };
         
-        await fetch('/api/character-stats', {
+        await fetchWithAuth('/api/character-stats', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ stats_data: newStats })

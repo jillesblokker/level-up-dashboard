@@ -170,9 +170,7 @@ export default function CharacterPage() {
   useEffect(() => {
     const loadCharacterStats = () => {
       try {
-        // Use the unified character stats manager
         const stats = getCharacterStats()
-        // Calculate level from experience to ensure consistency with navigation bar
         const calculatedLevel = calculateLevelFromExperience(stats.experience)
         setCharacterStats({
           level: calculatedLevel,
@@ -190,7 +188,6 @@ export default function CharacterPage() {
         })
       } catch (error) {
         logger.error('Error loading character stats:', error)
-        throw new Error('Failed to load character stats');
       }
     }
 
@@ -360,12 +357,14 @@ export default function CharacterPage() {
 
     // Listen for updates
     window.addEventListener('character-stats-update', loadCharacterStats)
+    window.addEventListener('global-sync-tick', loadCharacterStats)
     window.addEventListener('character-perks-update', loadPerks)
     window.addEventListener('character-strengths-update', loadStrengths)
     window.addEventListener('character-inventory-update', loadActivePotionPerks)
 
     return () => {
       window.removeEventListener('character-stats-update', loadCharacterStats)
+      window.removeEventListener('global-sync-tick', loadCharacterStats)
       window.removeEventListener('character-perks-update', loadPerks)
       window.removeEventListener('character-strengths-update', loadStrengths)
       window.removeEventListener('character-inventory-update', loadActivePotionPerks)

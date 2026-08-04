@@ -218,7 +218,7 @@ export function DailyHubClient() {
 
     const loadCharacterStats = async () => {
         try {
-            const response = await fetch('/api/character-stats')
+            const response = await fetchWithAuth('/api/character-stats')
             if (response.ok) {
                 const data = await response.json()
                 setStats({

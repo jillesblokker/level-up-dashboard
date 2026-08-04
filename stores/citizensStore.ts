@@ -6,6 +6,7 @@ import { getInventory, removeFromInventory, addToInventory } from '@/lib/invento
 import { gainGold } from '@/lib/gold-manager';
 import { loadTileInventory, saveTileInventory } from '@/lib/data-loaders';
 import { getClerkToken } from '@/lib/auth-helpers';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 export interface CitizenState {
   active: boolean;
@@ -878,7 +879,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
     // Check stats & gold
     try {
-      const statsRes = await fetch('/api/character-stats');
+      const statsRes = await fetchWithAuth('/api/character-stats');
       if (!statsRes.ok) return { success: false, error: 'Failed to retrieve stats' };
       const stats = await statsRes.json();
       if (stats.gold < goldCost) return { success: false, error: 'Not enough gold' };

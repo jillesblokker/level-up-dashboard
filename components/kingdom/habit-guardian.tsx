@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress"
 import { toast } from "@/components/ui/use-toast"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
 import { TreasureChestVisual } from "@/components/ui/treasure-chest-visual"
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 interface Quest {
   id: string
@@ -167,7 +168,7 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
       
       // Scale bounty gold with pet level: 50 base + 10 per level
       const bountyGold = 50 + (petLevel * 10);
-      await fetch('/api/character-stats', {
+      await fetchWithAuth('/api/character-stats', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ gold: bountyGold })

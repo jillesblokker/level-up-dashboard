@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 interface HabitFocusData {
   locationName: string;
@@ -205,7 +206,7 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
       
       // Award Gold
       if (goldReward > 0) {
-        await fetch('/api/character-stats', {
+        await fetchWithAuth('/api/character-stats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ gold: goldReward })

@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { updateCharacterStats } from '@/lib/character-stats-service';
 import { addToInventory } from '@/lib/inventory-manager';
 import { useUser } from '@clerk/nextjs';
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { EncounterType } from '@/lib/encounter-trigger-service';
 
 interface EncounterData {
@@ -197,11 +198,11 @@ export function RandomEncounterModal() {
     try {
       await updateCharacterStats({ experience: 250 });
       // Fetch current gems & update
-      const statsRes = await fetch('/api/character-stats');
+      const statsRes = await fetchWithAuth('/api/character-stats');
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         const curGems = statsData.stats?.gems || statsData.gems || 0;
-        await fetch('/api/character-stats', {
+        await fetchWithAuth('/api/character-stats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ stats: { gems: curGems + 10 } }),
