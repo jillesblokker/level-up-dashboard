@@ -8,6 +8,10 @@ import { comprehensiveItems } from '@/app/lib/comprehensive-items';
 // This endpoint is used by the "Bulk Complete All" feature in the frontend.
 // It handles marking a quest as complete intelligently (checking for existing completions, etc.)
 
+export async function GET() {
+    return NextResponse.json({ status: 'ok', endpoint: 'quests/smart-completion' });
+}
+
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();

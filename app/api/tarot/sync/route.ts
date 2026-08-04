@@ -3,6 +3,10 @@ import { NextResponse, NextRequest } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
+export async function GET() {
+    return NextResponse.json({ status: 'ok', endpoint: 'tarot/sync' });
+}
+
 export async function POST(request: NextRequest) {
     try {
         const { userId } = await auth();

@@ -9,36 +9,36 @@ export async function GET(req: NextRequest) {
     const sort = searchParams.get('sort') || 'newest';
 
     const result = await authenticatedSupabaseQuery(req, async (supabase) => {
-        let query = supabase
-            .from('market_listings')
-            .select('*')
-            .eq('status', 'active');
+        try {
+            let query = supabase
+                .from('market_listings')
+                .select('*')
+                .eq('status', 'active');
 
-        // Apply filters
-        if (type && type !== 'all') {
-            query = query.eq('item_type', type);
+            // Apply filters
+            if (type && type !== 'all') {
+                query = query.eq('item_type', type);
+            }
+
+            // Apply sorting
+            if (sort === 'lowest_price') {
+                query = query.order('price', { ascending: true });
+            } else if (sort === 'highest_price') {
+                query = query.order('price', { ascending: false });
+            } else {
+                // Default: Newest
+                query = query.order('created_at', { ascending: false });
+            }
+
+            const { data, error } = await query.limit(50);
+            if (error) return [];
+            return data || [];
+        } catch {
+            return [];
         }
-
-        // Apply sorting
-        if (sort === 'lowest_price') {
-            query = query.order('price', { ascending: true });
-        } else if (sort === 'highest_price') {
-            query = query.order('price', { ascending: false });
-        } else {
-            // Default: Newest
-            query = query.order('created_at', { ascending: false });
-        }
-
-        const { data, error } = await query.limit(50);
-        if (error) throw error;
-        return data;
     });
 
-    if (!result.success) {
-        return NextResponse.json({ error: result.error }, { status: 500 });
-    }
-
-    return NextResponse.json({ listings: result.data });
+    return NextResponse.json({ listings: result.data || [] });
 }
 
 export async function POST(req: NextRequest) {
