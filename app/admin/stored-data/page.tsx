@@ -145,17 +145,66 @@ export default function AdminStoredDataPage() {
     }
   };
 
-  // Pull Server Truth -> Local Storage (Recommended)
+  // Pull Server Truth -> Local Storage (Comprehensive Pull for All Data Types)
   const handlePullServerToLocal = async () => {
     if (!user?.id) return;
     setIsSyncing(true);
     try {
+      // 1. Character Stats (Level, Gold, EXP, Essences)
       const merged = await characterStatsService.fetchAndMerge();
+
+      // 2. Today's Checked Quests
+      const resQuests = await fetchWithAuth(`/api/quests?t=${Date.now()}`);
+      if (resQuests.ok) {
+        const rawQuests = await resQuests.json();
+        const questData = unwrapApiResponse<any>(rawQuests);
+        const questArray = Array.isArray(questData) ? questData : (questData?.quests || []);
+        const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+        setUserScopedItem('quests-cache', JSON.stringify(questArray));
+        setUserScopedItem('quests-cache-date', todayStr);
+      }
+
+      // 3. Daily Fate Tarot Card
+      const resFate = await fetchWithAuth('/api/user-preferences?preference_key=daily_fate');
+      if (resFate.ok) {
+        const rawFate = await resFate.json();
+        const fateData = unwrapApiResponse<any>(rawFate);
+        if (fateData && (fateData.preference_value || fateData.card)) {
+          const val = fateData.preference_value || fateData;
+          setUserScopedItem('daily_fate', JSON.stringify(val));
+          localStorage.setItem('daily_fate', JSON.stringify(val));
+        }
+      }
+
+      // 4. Realm Map Grid Tiles
+      const resTiles = await fetchWithAuth('/api/realm-tiles');
+      if (resTiles.ok) {
+        const rawTiles = await resTiles.json();
+        const tileData = unwrapApiResponse<any>(rawTiles);
+        const tilesArray = Array.isArray(tileData) ? tileData : (tileData?.tiles || []);
+        if (tilesArray.length > 0) {
+          setUserScopedItem('realm-tiles', JSON.stringify(tilesArray));
+        }
+      }
+
+      // 5. Inventory Items
+      const resInv = await fetchWithAuth('/api/inventory');
+      if (resInv.ok) {
+        const rawInv = await resInv.json();
+        const invData = unwrapApiResponse<any>(rawInv);
+        const invArray = Array.isArray(invData) ? invData : (invData?.data || []);
+        setUserScopedItem('inventory', JSON.stringify(invArray));
+      }
+
+      // 6. Broadcast Events
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('global-sync-tick'));
         window.dispatchEvent(new Event('character-stats-update'));
+        window.dispatchEvent(new Event('quest-added'));
+        window.dispatchEvent(new Event('character-inventory-update'));
       }
-      toast.success(`Successfully pulled Supabase truth! Level: ${merged.level}, Gold: ${merged.gold.toLocaleString()}`);
+
+      toast.success(`Successfully pulled Supabase truth for stats, quests, daily fate & map tiles! Level: ${merged.level}, Gold: ${merged.gold.toLocaleString()}`);
       await compareData();
     } catch (err: any) {
       toast.error('Failed to pull server data: ' + err.message);
