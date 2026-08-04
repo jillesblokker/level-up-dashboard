@@ -317,7 +317,7 @@ export default function AdminStoredDataPage() {
                 Data Comparison Matrix: Local vs. Supabase Server
               </CardTitle>
               <CardDescription className="text-zinc-400 text-xs mt-1">
-                Inspect exact data points across storage layers. If local storage is stale, click "Pull Supabase Truth".
+                Inspect exact data points across storage layers. If local storage is stale, click &quot;Pull Supabase Truth&quot;.
               </CardDescription>
             </div>
             <Button
