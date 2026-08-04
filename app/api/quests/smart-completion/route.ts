@@ -35,22 +35,58 @@ export async function POST(req: NextRequest) {
             } catch (err) {
                 logger.warn('[Smart Completion] Failed to fetch streak:', err);
             }
+function toValidUUID(str: string): string {
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)) {
+        return str;
+    }
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+    }
+    const hex = Math.abs(hash).toString(16).padStart(12, '0');
+    return `00000000-0000-4000-8000-${hex.slice(0, 12)}`;
+}
+
             const streakMultiplier = 1 + Math.min(1.0, streakDays * 0.1);
 
-            const { data: fetchedQuest, error: questError } = await supabase
-                .from('quests')
-                .select('*')
-                .eq('id', questId)
-                .maybeSingle();
+            const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(questId));
+            let fetchedQuest = null;
+            if (isUuid) {
+                const { data } = await supabase
+                    .from('quests')
+                    .select('*')
+                    .eq('id', questId)
+                    .maybeSingle();
+                fetchedQuest = data;
+            } else {
+                const { data } = await supabase
+                    .from('quests')
+                    .select('*')
+                    .ilike('name', questId)
+                    .maybeSingle();
+                fetchedQuest = data;
+            }
 
             let quest = fetchedQuest;
             let isChallengeTarget = false;
             if (!quest) {
-                const { data: challenge } = await supabase
-                    .from('challenges')
-                    .select('*')
-                    .eq('id', questId)
-                    .maybeSingle();
+                let challenge = null;
+                if (isUuid) {
+                    const { data } = await supabase
+                        .from('challenges')
+                        .select('*')
+                        .eq('id', questId)
+                        .maybeSingle();
+                    challenge = data;
+                } else {
+                    const { data } = await supabase
+                        .from('challenges')
+                        .select('*')
+                        .ilike('name', questId)
+                        .maybeSingle();
+                    challenge = data;
+                }
 
                 if (challenge) {
                     isChallengeTarget = true;
@@ -530,8 +566,10 @@ export async function POST(req: NextRequest) {
                     xp: Math.floor((!isDay ? Math.floor(baseRewards.xp * 1.2) : baseRewards.xp) * streakMultiplier * firstActionMultiplier * xpMultiplier)
                 };
 
+                const targetQuestUuid = toValidUUID(String(quest.id || questId));
+
                 const insertPayload = {
-                    quest_id: quest.id || questId,
+                    quest_id: targetQuestUuid,
                     user_id: userId,
                     completed: true,
                     completed_at: new Date().toISOString(),
