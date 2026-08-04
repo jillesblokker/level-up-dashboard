@@ -530,23 +530,33 @@ export async function POST(req: NextRequest) {
                     xp: Math.floor((!isDay ? Math.floor(baseRewards.xp * 1.2) : baseRewards.xp) * streakMultiplier * firstActionMultiplier * xpMultiplier)
                 };
 
+                const insertPayload = {
+                    quest_id: quest.id || questId,
+                    user_id: userId,
+                    completed: true,
+                    completed_at: new Date().toISOString(),
+                    xp_earned: finalRewards.xp,
+                    gold_earned: finalRewards.gold,
+                    // Include title and category to satisfy NOT NULL constraints
+                    title: quest.name || questId,
+                    category: quest.category || 'might',
+                };
+
+                logger.warn('[QUEST-PERSIST-DIAG] Inserting quest_completion row:', JSON.stringify(insertPayload));
+
                 const { error: insertError } = await supabase
                     .from('quest_completion')
-                    .insert({
-                        quest_id: quest.id || questId,
-                        user_id: userId,
-                        completed: true,
-                        completed_at: new Date().toISOString(),
-                        xp_earned: finalRewards.xp,
-                        gold_earned: finalRewards.gold
-                    });
+                    .insert(insertPayload);
 
                 if (insertError) {
+                    logger.warn('[QUEST-PERSIST-DIAG] Insert error:', JSON.stringify({ code: (insertError as any).code, message: insertError.message, details: (insertError as any).details }));
                     if ((insertError as any).code === '23505') { // Duplicate key
                         return { success: true, alreadyCompleted: true, message: 'Race condition: already completed' };
                     }
                     throw insertError;
                 }
+
+                logger.warn('[QUEST-PERSIST-DIAG] Insert SUCCESS for quest:', quest.name || questId);
 
                 // Record House Cup (+1 point for Quest completion, +10 for Friend Quest Dares to both recipient & sender)
                 try {

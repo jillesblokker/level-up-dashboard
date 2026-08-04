@@ -259,7 +259,7 @@ export async function GET(request: Request) {
     const today = getToday(requestTz);
     const completedQuests = new Map();
 
-    logger.info('[QUEST-BOARD-DIAGNOSTIC][GET /api/quests] Request received', {
+    logger.warn('[QUEST-BOARD-DIAGNOSTIC][GET /api/quests] Request received', {
       userId,
       requestTz,
       todayLocal: today,
@@ -441,7 +441,7 @@ export async function GET(request: Request) {
       }
     });
 
-    logger.info('[QUEST-BOARD-DIAGNOSTIC][GET /api/quests] Sending response to client', {
+    logger.warn('[QUEST-BOARD-DIAGNOSTIC][GET /api/quests] Sending response to client', {
       totalQuests: questsWithCompletions.length,
       completedCount: questsWithCompletions.filter((q: any) => q.completed).length,
       completedQuests: questsWithCompletions.filter((q: any) => q.completed).map((q: any) => ({ id: q.id, name: q.name, date: q.date }))

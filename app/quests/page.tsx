@@ -1378,6 +1378,18 @@ export default function QuestsPage() {
       }
     } catch (error) {
       logger.error('[QUEST-TOGGLE] Error persisting quest:', error);
+      // Revert optimistic state so UI stays in sync with backend
+      setQuests(prevQuests =>
+        prevQuests.map(q =>
+          q.id === questId ? { ...q, completed: !newCompleted } : q
+        )
+      );
+      toast({
+        title: "Quest save failed",
+        description: `Could not save progress for "${questObj.name}". Please check connection.`,
+        variant: "destructive",
+        duration: 4000,
+      });
     }
   };
 
