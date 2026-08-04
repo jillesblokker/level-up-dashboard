@@ -17,6 +17,8 @@ const AuthContext = createContext<AuthContextType>({
   userId: undefined,
 });
 
+import { setCurrentUserId } from "@/lib/user-scoped-storage"
+
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const { isLoaded, userId } = useClerkAuth();
   const [isGuest, setIsGuest] = useState(false);
@@ -29,13 +31,19 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     if (isSkippingAuth || isSkippingAuthLS) {
       setIsGuest(true);
       setIsLoading(false);
+      setCurrentUserId(null);
       return;
     }
     if (isLoaded) {
       setIsGuest(false);
       setIsLoading(false);
+      if (userId) {
+        setCurrentUserId(userId);
+      } else {
+        setCurrentUserId(null);
+      }
     }
-  }, [isLoaded]);
+  }, [isLoaded, userId]);
 
   return (
     <AuthContext.Provider value={{ isGuest, isLoading, userId: isGuest ? undefined : (userId ?? undefined) }}>

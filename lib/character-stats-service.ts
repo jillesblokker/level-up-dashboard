@@ -225,9 +225,9 @@ class CharacterStatsService {
 
             if (response.ok) {
                 const result = await response.json();
-                const serverStats = result.stats;
+                const serverStats = { ...result, ...(result.stats || {}) };
 
-                if (serverStats) {
+                if (serverStats && (serverStats.experience !== undefined || serverStats.gold !== undefined)) {
                     const localStats = this.getStats();
 
                     // Merge: local wins for progressive stats, server wins for others
