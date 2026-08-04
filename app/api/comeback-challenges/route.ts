@@ -33,9 +33,22 @@ const comebackChallenges = {
   ]
 };
 
+import { verifyClerkJWT } from '@/lib/supabase/jwt-verification';
+
+async function getUserId(req: NextRequest): Promise<string | null> {
+  try {
+    const authResult = await verifyClerkJWT(req);
+    if (authResult?.userId) return authResult.userId;
+    const { userId } = await auth();
+    return userId || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = await auth();
+    const userId = await getUserId(req);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -94,7 +107,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth();
+    const userId = await getUserId(req);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
