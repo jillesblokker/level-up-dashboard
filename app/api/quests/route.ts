@@ -255,6 +255,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: completionsError.message }, { status: 500 });
     }
 
+    function toValidUUID(str: string): string {
+      if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)) {
+        return str;
+      }
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+      }
+      const hex = Math.abs(hash).toString(16).padStart(12, '0');
+      return `00000000-0000-4000-8000-${hex.slice(0, 12)}`;
+    }
+
     const requestTz = request.headers.get('x-timezone') || undefined;
     const today = getToday(requestTz);
     const completedQuests = new Map();
@@ -283,19 +296,6 @@ export async function GET(request: Request) {
         }
         questCompletionGroups.get(completion.quest_id).push(completion);
       });
-
-      function toValidUUID(str: string): string {
-        if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)) {
-          return str;
-        }
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-          hash = ((hash << 5) - hash) + str.charCodeAt(i);
-          hash |= 0;
-        }
-        const hex = Math.abs(hash).toString(16).padStart(12, '0');
-        return `00000000-0000-4000-8000-${hex.slice(0, 12)}`;
-      }
 
       // Build a lookup map of all quests by ID, Name, Title (and their UUID hashes) for bi-directional mapping
       const questMetaMap = new Map<string, { id: string; name: string; title?: string }>();
