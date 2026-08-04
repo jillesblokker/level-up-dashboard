@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useAuthContext } from '@/components/providers';
-import { CharacterStatsService } from '@/lib/character-stats-service';
+import { characterStatsService } from '@/lib/character-stats-service';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
 
 export function GlobalSyncProvider({ children }: { children: React.ReactNode }) {
@@ -12,7 +12,7 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
     if (!userId) return;
     try {
       // 1. Re-fetch and merge character stats (level, gold, exp) from Supabase
-      await CharacterStatsService.getInstance().fetchAndMerge();
+      await characterStatsService.fetchAndMerge();
 
       // 2. Dispatch cross-component / cross-page sync event for active views
       if (typeof window !== 'undefined') {
