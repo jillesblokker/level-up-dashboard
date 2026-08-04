@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { unwrapApiResponse } from "@/lib/api-response-unwrapper";
-import { getUserScopedItem } from "@/lib/user-scoped-storage";
+import { getUserScopedItem, setUserScopedItem } from "@/lib/user-scoped-storage";
 import { characterStatsService } from "@/lib/character-stats-service";
 import { calculateLevelFromExperience } from "@/lib/level-utils";
 import { logger } from "@/lib/logger";
