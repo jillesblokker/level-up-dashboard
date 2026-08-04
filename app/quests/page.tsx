@@ -636,17 +636,31 @@ export default function QuestsPage() {
           completedQuestIds: completedQuests.map((q: any) => q.id || q.name)
         });
 
-        // SERVER IS THE SOURCE OF TRUTH: Always trust the server response.
-        // The only optimistic state is within the current session (in-flight API calls).
-        setQuests(data || []);
-
-        // Persist server state to user-scoped cache for instant loading on next visit
-        try {
+        // SMART HYDRATION MERGE: Merge server response with local today's completions
+        // If a quest was completed today in local cache, retain completed: true so UI never unchecks it
+        setQuests(prevQuests => {
           const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
-          setUserScopedItem('quests-cache', JSON.stringify(data || []));
-          setUserScopedItem('quests-cache-date', todayStr);
-          logger.info('[QUEST-BOARD-DIAGNOSTIC][FETCH QUESTS SUCCESS] Updated user-scoped cache (server truth)', { todayStr, count: (data || []).length });
-        } catch {}
+          const cacheDate = getUserScopedItem('quests-cache-date');
+          const serverList = (data || []);
+
+          const merged = serverList.map((serverQuest: any) => {
+            if (cacheDate === todayStr) {
+              const localQuest = prevQuests.find((pq: any) => pq.id === serverQuest.id || (pq.name && pq.name === serverQuest.name));
+              if (localQuest?.completed && !serverQuest.completed) {
+                return { ...serverQuest, completed: true, date: localQuest.date || new Date().toISOString() };
+              }
+            }
+            return serverQuest;
+          });
+
+          try {
+            setUserScopedItem('quests-cache', JSON.stringify(merged));
+            setUserScopedItem('quests-cache-date', todayStr);
+            logger.info('[QUEST-BOARD-DIAGNOSTIC][FETCH QUESTS SUCCESS] Updated user-scoped cache with smart-merged data', { todayStr, count: merged.length, completedCount: merged.filter((q: any) => q.completed).length });
+          } catch {}
+
+          return merged;
+        });
       } catch (err: any) {
         logger.error('[QUEST-BOARD-DIAGNOSTIC][FETCH QUESTS ERROR] Failed to fetch:', err);
         setError('[Quests Debug] Error fetching quests: ' + (err.message || 'Failed to fetch quests'));

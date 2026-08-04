@@ -284,12 +284,37 @@ export async function GET(request: Request) {
         questCompletionGroups.get(completion.quest_id).push(completion);
       });
 
-      // Build a lookup map of all quests by ID, Name, Title for bi-directional mapping
+      function toValidUUID(str: string): string {
+        if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)) {
+          return str;
+        }
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          hash = ((hash << 5) - hash) + str.charCodeAt(i);
+          hash |= 0;
+        }
+        const hex = Math.abs(hash).toString(16).padStart(12, '0');
+        return `00000000-0000-4000-8000-${hex.slice(0, 12)}`;
+      }
+
+      // Build a lookup map of all quests by ID, Name, Title (and their UUID hashes) for bi-directional mapping
       const questMetaMap = new Map<string, { id: string; name: string; title?: string }>();
       (quests || []).forEach((q: any) => {
-        if (q.id) questMetaMap.set(String(q.id).toLowerCase(), q);
-        if (q.name) questMetaMap.set(String(q.name).toLowerCase(), q);
-        if (q.title) questMetaMap.set(String(q.title).toLowerCase(), q);
+        if (q.id) {
+          const idStr = String(q.id).toLowerCase();
+          questMetaMap.set(idStr, q);
+          questMetaMap.set(toValidUUID(idStr), q);
+        }
+        if (q.name) {
+          const nameStr = String(q.name).toLowerCase();
+          questMetaMap.set(nameStr, q);
+          questMetaMap.set(toValidUUID(nameStr), q);
+        }
+        if (q.title) {
+          const titleStr = String(q.title).toLowerCase();
+          questMetaMap.set(titleStr, q);
+          questMetaMap.set(toValidUUID(titleStr), q);
+        }
       });
 
       // For each quest, find TODAY'S completion record (or any completion if one-time quest)
@@ -320,21 +345,28 @@ export async function GET(request: Request) {
           const rawId = String(questId);
           completedQuests.set(rawId, compObj);
           completedQuests.set(rawId.toLowerCase(), compObj);
+          completedQuests.set(toValidUUID(rawId.toLowerCase()), compObj);
 
           // ALSO index under matching quest's ID, Name, and Title if rawId matches any of them!
-          const matchedQuest = questMetaMap.get(rawId.toLowerCase());
+          const matchedQuest = questMetaMap.get(rawId.toLowerCase()) || questMetaMap.get(toValidUUID(rawId.toLowerCase()));
           if (matchedQuest) {
             if (matchedQuest.id) {
-              completedQuests.set(String(matchedQuest.id), compObj);
-              completedQuests.set(String(matchedQuest.id).toLowerCase(), compObj);
+              const qid = String(matchedQuest.id);
+              completedQuests.set(qid, compObj);
+              completedQuests.set(qid.toLowerCase(), compObj);
+              completedQuests.set(toValidUUID(qid.toLowerCase()), compObj);
             }
             if (matchedQuest.name) {
-              completedQuests.set(String(matchedQuest.name), compObj);
-              completedQuests.set(String(matchedQuest.name).toLowerCase(), compObj);
+              const qname = String(matchedQuest.name);
+              completedQuests.set(qname, compObj);
+              completedQuests.set(qname.toLowerCase(), compObj);
+              completedQuests.set(toValidUUID(qname.toLowerCase()), compObj);
             }
             if (matchedQuest.title) {
-              completedQuests.set(String(matchedQuest.title), compObj);
-              completedQuests.set(String(matchedQuest.title).toLowerCase(), compObj);
+              const qtitle = String(matchedQuest.title);
+              completedQuests.set(qtitle, compObj);
+              completedQuests.set(qtitle.toLowerCase(), compObj);
+              completedQuests.set(toValidUUID(qtitle.toLowerCase()), compObj);
             }
           }
         }
@@ -348,8 +380,10 @@ export async function GET(request: Request) {
       // Find completion by quest ID or quest name for TODAY
       const completion = completedQuests.get(qId) || 
                          completedQuests.get(qId.toLowerCase()) || 
+                         completedQuests.get(toValidUUID(qId.toLowerCase())) ||
                          completedQuests.get(qName) || 
-                         completedQuests.get(qName.toLowerCase());
+                         completedQuests.get(qName.toLowerCase()) ||
+                         completedQuests.get(toValidUUID(qName.toLowerCase()));
 
       const isCompleted = completion ? (completion.completed !== false) : false;
       const completionDate = completion ? (completion.completedAt || completion.completed_at) : null;
