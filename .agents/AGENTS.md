@@ -126,3 +126,9 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 - **Never render raw objects or un-invoked component definitions as React children.**
   - Props of type `ReactNode` or `icon` MUST be guarded using `renderSafeNode(icon)` or `isValidElement(icon)` to prevent **React Minified Error #31** runtime crashes in production.
 
+## Universal API Response Unwrapping & Cross-Device Sync Rules
+
+- **Always use `unwrapApiResponse(result)` when parsing API payloads on the client.**
+  - All API client hooks, data fetching routines, and new features MUST consume responses via `unwrapApiResponse(res)` from `@/lib/api-response-unwrapper`.
+  - This prevents `undefined` stat/level/gold bugs when endpoints return wrapped `{ success: true, data: { ... } }` objects and guarantees identical cross-device state.
+

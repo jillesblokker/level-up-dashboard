@@ -224,8 +224,10 @@ class CharacterStatsService {
             });
 
             if (response.ok) {
+                const { unwrapApiResponse } = await import('./api-response-unwrapper');
                 const result = await response.json();
-                const serverStats = { ...result, ...(result.stats || {}) };
+                const unwrapped = unwrapApiResponse<any>(result);
+                const serverStats = unwrapped ? { ...unwrapped, ...(unwrapped.stats || {}) } : null;
 
                 if (serverStats && (serverStats.experience !== undefined || serverStats.gold !== undefined)) {
                     const localStats = this.getStats();

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
+import { unwrapApiResponse } from "@/lib/api-response-unwrapper";
 import { getUserScopedItem } from "@/lib/user-scoped-storage";
 import { characterStatsService } from "@/lib/character-stats-service";
 import { calculateLevelFromExperience } from "@/lib/level-utils";
@@ -83,8 +84,9 @@ export default function AdminStoredDataPage() {
       const resStats = await fetchWithAuth('/api/character-stats');
       let currentServerStats: any = null;
       if (resStats.ok) {
-        const data = await resStats.json();
-        currentServerStats = { ...data, ...(data.stats || {}) };
+        const rawJson = await resStats.json();
+        const unwrappedStats = unwrapApiResponse<any>(rawJson);
+        currentServerStats = unwrappedStats ? { ...unwrappedStats, ...(unwrappedStats.stats || {}) } : null;
         setServerStats(currentServerStats);
       }
 
@@ -92,8 +94,9 @@ export default function AdminStoredDataPage() {
       const resQuests = await fetchWithAuth(`/api/quests?t=${Date.now()}`);
       let serverQuestsCount = 0;
       if (resQuests.ok) {
-        const questData = await resQuests.json();
-        const questArray = Array.isArray(questData) ? questData : (questData.quests || []);
+        const rawQuestJson = await resQuests.json();
+        const questData = unwrapApiResponse<any>(rawQuestJson);
+        const questArray = Array.isArray(questData) ? questData : (questData?.quests || []);
         serverQuestsCount = questArray.filter((q: any) => q.completed).length;
       }
 
