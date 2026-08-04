@@ -537,9 +537,6 @@ export async function POST(req: NextRequest) {
                     completed_at: new Date().toISOString(),
                     xp_earned: finalRewards.xp,
                     gold_earned: finalRewards.gold,
-                    // Include title and category to satisfy NOT NULL constraints
-                    title: quest.name || questId,
-                    category: quest.category || 'might',
                 };
 
                 logger.warn('[QUEST-PERSIST-DIAG] Inserting quest_completion row:', JSON.stringify(insertPayload));
