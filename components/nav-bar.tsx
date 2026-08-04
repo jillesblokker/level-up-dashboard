@@ -24,6 +24,7 @@ import { InventoryBagOverlay } from "@/components/inventory-bag-overlay"
 import { RandomEncounterModal } from "@/components/kingdom/random-encounter-modal"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { FocusPointsModal } from "@/components/focus-points-modal"
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 
 interface CustomSession {
   user?: {
@@ -273,8 +274,8 @@ export function NavBar({ session }: NavBarProps) {
               />
             </div>
 
-            {/* Global Resource Pills: Essences, Ether, Streak Shield */}
-            <div className="hidden lg:flex items-center gap-2 pl-1">
+            {/* Desktop Full View (xl and above) */}
+            <div className="hidden xl:flex items-center gap-2 pl-1">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center gap-1 bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded-md text-[11px] font-bold text-emerald-300">
@@ -307,22 +308,75 @@ export function NavBar({ session }: NavBarProps) {
                   Streak Freeze Shield (Protects your streak on missed days)
                 </TooltipContent>
               </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setShowFocusModal(true)}
+                    className="flex items-center space-x-1.5 bg-purple-950/60 hover:bg-purple-900 border border-purple-500/40 text-purple-200 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer ml-1"
+                  >
+                    <Brain className="h-3.5 w-3.5 text-purple-400 animate-pulse" />
+                    <span>{characterStats.focus_points || 0}</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="bg-zinc-950 border-purple-900/50 text-purple-200 p-2 rounded-lg text-xs">
+                  Click to spend Focus Points (XP Boost, Rush Timers, Astral Rewards)
+                </TooltipContent>
+              </Tooltip>
             </div>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => setShowFocusModal(true)}
-                  className="flex items-center space-x-1.5 bg-purple-950/60 hover:bg-purple-900 border border-purple-500/40 text-purple-200 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer ml-1"
-                >
-                  <Brain className="h-3.5 w-3.5 text-purple-400 animate-pulse" />
-                  <span>{characterStats.focus_points || 0}</span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-zinc-950 border-purple-900/50 text-purple-200 p-2 rounded-lg text-xs">
-                Click to spend Focus Points (XP Boost, Rush Timers, Astral Rewards)
-              </TooltipContent>
-            </Tooltip>
+            {/* Tablet Popover View (md to xl) */}
+            <div className="flex xl:hidden items-center pl-1">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center gap-1.5 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-500/40 px-2.5 py-1 rounded-lg text-xs font-bold text-emerald-300 transition-all cursor-pointer">
+                    <span>✨</span> 12
+                    <span className="text-[10px] text-emerald-400/70 ml-0.5">▼</span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="bg-zinc-950 border border-amber-500/30 text-amber-50 w-64 p-3 rounded-xl shadow-2xl space-y-2 text-xs">
+                  <div className="font-bold text-amber-400 pb-1 border-b border-amber-500/20 flex items-center justify-between">
+                    <span>Resource Overview</span>
+                    <span className="text-[10px] font-normal text-zinc-400">Tablet Mode</span>
+                  </div>
+
+                  <div className="flex items-center justify-between bg-emerald-950/40 border border-emerald-500/30 p-2 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span>✨</span>
+                      <span className="font-medium text-emerald-200">Botanical Essences</span>
+                    </div>
+                    <span className="font-bold font-mono text-emerald-300">12</span>
+                  </div>
+
+                  <div className="flex items-center justify-between bg-blue-950/40 border border-blue-500/30 p-2 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span>⚡</span>
+                      <span className="font-medium text-blue-200">Ether Voyage Fuel</span>
+                    </div>
+                    <span className="font-bold font-mono text-blue-300">85%</span>
+                  </div>
+
+                  <div className="flex items-center justify-between bg-cyan-950/40 border border-cyan-500/30 p-2 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span>❄️</span>
+                      <span className="font-medium text-cyan-200">Streak Shield</span>
+                    </div>
+                    <span className="font-bold font-mono text-cyan-300">1</span>
+                  </div>
+
+                  <button
+                    onClick={() => setShowFocusModal(true)}
+                    className="w-full flex items-center justify-between bg-purple-950/60 hover:bg-purple-900 border border-purple-500/40 p-2 rounded-lg text-purple-200 transition-all font-bold cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Brain className="h-4 w-4 text-purple-400 animate-pulse" />
+                      <span>Focus Points</span>
+                    </div>
+                    <span className="font-mono text-purple-300">{characterStats.focus_points || 0}</span>
+                  </button>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
           <div className="flex items-center space-x-1 pr-2 border-r border-zinc-800">
             <Button

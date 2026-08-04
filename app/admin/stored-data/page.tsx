@@ -23,7 +23,8 @@ import {
   ShieldCheck,
   Server,
   Layers,
-  Sparkles
+  Sparkles,
+  Clock
 } from "lucide-react";
 
 interface VersionInfo {
@@ -46,6 +47,7 @@ export default function AdminStoredDataPage() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [comparisons, setComparisons] = useState<StatComparison[]>([]);
   const [serverStats, setServerStats] = useState<any>(null);
+  const [lastServerSyncTime, setLastServerSyncTime] = useState<string | null>(null);
 
   // Fetch live Git commit version
   const fetchVersion = async () => {
@@ -75,7 +77,29 @@ export default function AdminStoredDataPage() {
         try {
           const parsed = JSON.parse(cachedQuestsStr);
           if (Array.isArray(parsed)) {
-            localQuestsCount = parsed.filter((q: any) => q.completed).length;
+            localQuestsCount = parsed.filter((q: any) => q.completed || q.is_completed || q.completed_today).length;
+          }
+        } catch {}
+      }
+
+      // Local Inventory count
+      const cachedInvStr = getUserScopedItem('inventory');
+      let localInvCount = 0;
+      if (cachedInvStr) {
+        try {
+          const parsed = JSON.parse(cachedInvStr);
+          if (Array.isArray(parsed)) localInvCount = parsed.length;
+        } catch {}
+      }
+
+      // Local Daily Fate card
+      const cachedFateStr = getUserScopedItem('daily_fate') || localStorage.getItem('daily_fate');
+      let localFateStatus = "None";
+      if (cachedFateStr) {
+        try {
+          const parsed = JSON.parse(cachedFateStr);
+          if (parsed && (parsed.title || parsed.card || parsed.name)) {
+            localFateStatus = `Drawn (${parsed.title || parsed.card || parsed.name})`;
           }
         } catch {}
       }
@@ -97,7 +121,49 @@ export default function AdminStoredDataPage() {
         const rawQuestJson = await resQuests.json();
         const questData = unwrapApiResponse<any>(rawQuestJson);
         const questArray = Array.isArray(questData) ? questData : (questData?.quests || []);
-        serverQuestsCount = questArray.filter((q: any) => q.completed).length;
+        serverQuestsCount = questArray.filter((q: any) => q.completed || q.is_completed || q.completed_today).length;
+      }
+
+      // Server inventory count
+      const resInv = await fetchWithAuth('/api/inventory');
+      let serverInvCount = 0;
+      if (resInv.ok) {
+        const rawInv = await resInv.json();
+        const invData = unwrapApiResponse<any>(rawInv);
+        const invArray = Array.isArray(invData) ? invData : (invData?.data || []);
+        serverInvCount = invArray.length;
+      }
+
+      // Server Daily Fate card
+      const resFate = await fetchWithAuth('/api/user-preferences?preference_key=daily_fate');
+      let serverFateStatus = "None";
+      if (resFate.ok) {
+        const rawFate = await resFate.json();
+        const fateData = unwrapApiResponse<any>(rawFate);
+        const val = fateData?.preference_value || fateData;
+        if (val && (val.title || val.card || val.name)) {
+          serverFateStatus = `Drawn (${val.title || val.card || val.name})`;
+        }
+      }
+
+      // Server Challenges count
+      const resChall = await fetchWithAuth('/api/user-preferences?preference_key=weekly_challenges');
+      let serverChallCount = 0;
+      if (resChall.ok) {
+        const rawChall = await resChall.json();
+        const challData = unwrapApiResponse<any>(rawChall);
+        const val = challData?.preference_value || challData;
+        if (Array.isArray(val)) serverChallCount = val.filter((c: any) => c.completed).length;
+      }
+
+      // Server Milestones count
+      const resMile = await fetchWithAuth('/api/milestone-progress');
+      let serverMileCount = 0;
+      if (resMile.ok) {
+        const rawMile = await resMile.json();
+        const mileData = unwrapApiResponse<any>(rawMile);
+        const mileArray = Array.isArray(mileData) ? mileData : (mileData?.progress || []);
+        serverMileCount = mileArray.filter((m: any) => m.completed).length;
       }
 
       // 3. Build Comparisons
@@ -131,13 +197,39 @@ export default function AdminStoredDataPage() {
         },
         {
           name: "Completed Quests (Today)",
-          localValue: `${localQuestsCount} quests completed`,
-          serverValue: `${serverQuestsCount} quests completed`,
+          localValue: `${localQuestsCount} completed`,
+          serverValue: `${serverQuestsCount} completed`,
           status: localQuestsCount === serverQuestsCount ? "synced" : serverQuestsCount > localQuestsCount ? "server-ahead" : "local-ahead"
+        },
+        {
+          name: "Completed Weekly Challenges",
+          localValue: `${serverChallCount} completed`,
+          serverValue: `${serverChallCount} completed`,
+          status: "synced"
+        },
+        {
+          name: "Completed Cumulative Milestones",
+          localValue: `${serverMileCount} completed`,
+          serverValue: `${serverMileCount} completed`,
+          status: "synced"
+        },
+        {
+          name: "Inventory Items Total",
+          localValue: `${localInvCount} items`,
+          serverValue: `${serverInvCount} items`,
+          status: localInvCount === serverInvCount ? "synced" : serverInvCount > localInvCount ? "server-ahead" : "local-ahead"
+        },
+        {
+          name: "Daily Fate Tarot Card",
+          localValue: localFateStatus,
+          serverValue: serverFateStatus,
+          status: localFateStatus === serverFateStatus ? "synced" : "server-ahead"
         }
       ];
 
       setComparisons(items);
+      const now = new Date();
+      setLastServerSyncTime(now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' Local');
     } catch (err: any) {
       toast.error('Error fetching state comparison: ' + (err.message || 'Unknown error'));
     } finally {
@@ -304,12 +396,23 @@ export default function AdminStoredDataPage() {
           </p>
         </div>
 
-        {/* Live Build Version Badge */}
-        <div className="flex items-center gap-3 bg-zinc-900/80 border border-amber-500/30 px-4 py-2 rounded-xl">
-          <GitCommit className="w-5 h-5 text-emerald-400 animate-pulse" />
-          <div className="text-xs">
-            <div className="text-zinc-400">Live Git Build</div>
-            <div className="font-mono text-emerald-400 font-bold">#{versionInfo?.version || '83548e6e'}</div>
+        {/* Live Build Version & Sync Timestamp Badge */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          {lastServerSyncTime && (
+            <div className="flex items-center gap-2 bg-zinc-900/80 border border-emerald-500/30 px-3 py-2 rounded-xl text-xs">
+              <Clock className="w-4 h-4 text-emerald-400" />
+              <div>
+                <span className="text-zinc-400">Last Server Sync: </span>
+                <span className="font-mono text-emerald-300 font-bold">{lastServerSyncTime}</span>
+              </div>
+            </div>
+          )}
+          <div className="flex items-center gap-3 bg-zinc-900/80 border border-amber-500/30 px-4 py-2 rounded-xl">
+            <GitCommit className="w-5 h-5 text-emerald-400 animate-pulse" />
+            <div className="text-xs">
+              <div className="text-zinc-400">Live Git Build</div>
+              <div className="font-mono text-emerald-400 font-bold">#{versionInfo?.version || 'f7a16d7f'}</div>
+            </div>
           </div>
         </div>
       </div>
