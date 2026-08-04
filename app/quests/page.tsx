@@ -674,6 +674,44 @@ export default function QuestsPage() {
     fetchFavorites();
   }, [token, user, refreshTrigger]);
 
+  // Listen for periodic cross-device global sync events to keep quest completions synced across browsers
+  useEffect(() => {
+    const handleGlobalSync = () => {
+      if (user && typeof window !== 'undefined' && document.visibilityState === 'visible') {
+        // Re-fetch quests when global 45s sync fires
+        const resPromise = fetchWithAuth(`/api/quests?t=${Date.now()}`);
+        resPromise.then(res => {
+          if (res.ok) {
+            res.json().then(data => {
+              if (Array.isArray(data)) {
+                setQuests(prevQuests => {
+                  const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+                  const cacheDate = getUserScopedItem('quests-cache-date');
+                  const merged = data.map((serverQuest: any) => {
+                    if (cacheDate === todayStr) {
+                      const localQuest = prevQuests.find((pq: any) => pq.id === serverQuest.id || (pq.name && pq.name === serverQuest.name));
+                      if (localQuest?.completed && !serverQuest.completed) {
+                        return { ...serverQuest, completed: true };
+                      }
+                    }
+                    return serverQuest;
+                  });
+                  try {
+                    setUserScopedItem('quests-cache', JSON.stringify(merged));
+                    setUserScopedItem('quests-cache-date', todayStr);
+                  } catch {}
+                  return merged;
+                });
+              }
+            }).catch(() => {});
+          }
+        }).catch(() => {});
+      }
+    };
+    window.addEventListener('global-sync-tick', handleGlobalSync);
+    return () => window.removeEventListener('global-sync-tick', handleGlobalSync);
+  }, [user]);
+
   // Fetch user's favorited quests
   const fetchFavorites = async () => {
     try {

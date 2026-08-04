@@ -50,23 +50,26 @@ export function useAuthContext() {
 
 import { QuickAddProvider } from "@/components/quick-add-provider"
 import { ReactQueryProvider } from "@/app/providers/react-query-provider"
+import { GlobalSyncProvider } from "@/components/global-sync-provider"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ReactQueryProvider>
       <AuthProvider>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <TooltipProvider>
-            <QuickAddProvider>
-              {children}
-            </QuickAddProvider>
-          </TooltipProvider>
-        </ThemeProvider>
+        <GlobalSyncProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <TooltipProvider>
+              <QuickAddProvider>
+                {children}
+              </QuickAddProvider>
+            </TooltipProvider>
+          </ThemeProvider>
+        </GlobalSyncProvider>
       </AuthProvider>
     </ReactQueryProvider>
   )
