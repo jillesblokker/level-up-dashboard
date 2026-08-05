@@ -74,7 +74,7 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
       if (resQuests.ok) {
         const raw = await resQuests.json();
         const questData = unwrapApiResponse<any>(raw);
-        const serverArray: any[] = Array.isArray(questData) ? questData : (questData?.quests || []);
+        let serverArray: any[] = Array.isArray(questData) ? questData : (questData?.quests || []);
         
         const localQuestsStr = getUserScopedItem('quests-cache');
         const cacheDate = getUserScopedItem('quests-cache-date');
