@@ -81,18 +81,20 @@ export function setCurrentUserId(userId: string | null): void {
     }
 }
 
-/**
- * Gets a user-scoped localStorage key
- */
 export function getUserScopedKey(baseKey: string): string {
     const userId = getCurrentUserId();
 
-    // If no user ID, use the base key (for backward compatibility during migration)
     if (!userId) {
         return baseKey;
     }
 
-    return `user_${userId}_${baseKey}`;
+    const cleanUserId = userId.startsWith('user_') ? userId : `user_${userId}`;
+
+    if (baseKey.startsWith(cleanUserId)) {
+        return baseKey;
+    }
+
+    return `${cleanUserId}_${baseKey}`;
 }
 
 /**
@@ -104,10 +106,22 @@ export function getUserScopedItem(baseKey: string): string | null {
     const scopedKey = getUserScopedKey(baseKey);
 
     try {
-        // Try to get user-scoped value first
+        // 1. Try scoped key
         const scopedValue = localStorage.getItem(scopedKey);
         if (scopedValue !== null) {
             return scopedValue;
+        }
+
+        // 2. Fallback to base key
+        const baseValue = localStorage.getItem(baseKey);
+        if (baseValue !== null) {
+            return baseValue;
+        }
+
+        // 3. Fallback to guest_ key
+        const guestValue = localStorage.getItem(`guest_${baseKey}`);
+        if (guestValue !== null) {
+            return guestValue;
         }
 
         return null;

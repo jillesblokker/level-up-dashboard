@@ -71,7 +71,7 @@ export default function AdminStoredDataPage() {
       const currentLocalStats = characterStatsService.getStats();
 
       // Local quest completions count
-      const cachedQuestsStr = getUserScopedItem('quests-cache');
+      const cachedQuestsStr = getUserScopedItem('quests-cache') || localStorage.getItem('quests-cache');
       let localQuestsCount = 0;
       if (cachedQuestsStr) {
         try {
@@ -148,24 +148,30 @@ export default function AdminStoredDataPage() {
         }
       }
 
-      // Server Challenges count
-      const resChall = await fetchWithAuth('/api/user-preferences?preference_key=weekly_challenges');
+      // Server Challenges count (/api/challenges)
+      const resChall = await fetchWithAuth('/api/challenges');
       let serverChallCount = 0;
       if (resChall.ok) {
         const rawChall = await resChall.json();
         const challData = unwrapApiResponse<any>(rawChall);
-        const val = challData?.preference_value || challData;
-        if (Array.isArray(val)) serverChallCount = val.filter((c: any) => c.completed).length;
+        const challArray = Array.isArray(challData) ? challData : (challData?.challenges || []);
+        serverChallCount = challArray.filter((c: any) => c.completed || c.is_completed || c.progress >= 100).length;
       }
 
-      // Server Milestones count
+      // Server Milestones count (/api/milestone-progress)
       const resMile = await fetchWithAuth('/api/milestone-progress');
       let serverMileCount = 0;
       if (resMile.ok) {
         const rawMile = await resMile.json();
         const mileData = unwrapApiResponse<any>(rawMile);
-        const mileArray = Array.isArray(mileData) ? mileData : (mileData?.progress || []);
-        serverMileCount = mileArray.filter((m: any) => m.completed).length;
+        const progressObj = mileData?.progress || mileData || {};
+        if (Array.isArray(progressObj)) {
+          serverMileCount = progressObj.filter((m: any) => m.completed || m >= 100).length;
+        } else if (progressObj && typeof progressObj === 'object') {
+          serverMileCount = Object.values(progressObj).filter((m: any) => 
+            m === true || (m && typeof m === 'object' && (m.completed || m.is_completed || m.progress >= 100))
+          ).length;
+        }
       }
 
       // 3. Build Comparisons
