@@ -8,12 +8,19 @@ interface AnimatedCharacterSpriteProps {
   playerPosition: { x: number; y: number };
 }
 
-// Map level ranges to evolution sprite sheets
+// Map level ranges to exact evolution sprite sheet PNGs
 const getSpriteSheetForLevel = (level: number) => {
-  if (level >= 75) return "/images/sprites/lion_king_spritesheet.png";
-  if (level >= 50) return "/images/sprites/lion_guardian_spritesheet.png";
-  if (level >= 25) return "/images/sprites/lion_knight_spritesheet.png";
-  return "/images/sprites/lion_novice_spritesheet.png";
+  if (level >= 100) return "/images/character/sprites/god.png";
+  if (level >= 90) return "/images/character/sprites/emperor.png";
+  if (level >= 80) return "/images/character/sprites/king.png";
+  if (level >= 70) return "/images/character/sprites/prince.png";
+  if (level >= 60) return "/images/character/sprites/duke.png";
+  if (level >= 50) return "/images/character/sprites/marquis.png";
+  if (level >= 40) return "/images/character/sprites/count.png";
+  if (level >= 30) return "/images/character/sprites/viscount.png";
+  if (level >= 20) return "/images/character/sprites/baron.png";
+  if (level >= 10) return "/images/character/sprites/knight.png";
+  return "/images/character/sprites/squire.png";
 };
 
 export const AnimatedCharacterSprite: React.FC<AnimatedCharacterSpriteProps> = ({
@@ -28,7 +35,7 @@ export const AnimatedCharacterSprite: React.FC<AnimatedCharacterSpriteProps> = (
   const prevPosRef = useRef<{ x: number; y: number }>(playerPosition);
   const moveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Update direction row and movement state based on position changes
+  // Detect position change to trigger movement facing & walking physics
   useEffect(() => {
     const prev = prevPosRef.current;
     const dx = playerPosition.x - prev.x;
@@ -50,14 +57,14 @@ export const AnimatedCharacterSprite: React.FC<AnimatedCharacterSpriteProps> = (
       if (moveTimerRef.current) clearTimeout(moveTimerRef.current);
       moveTimerRef.current = setTimeout(() => {
         setIsMoving(false);
-        setFrameCol(0); // Return to stationary standing pose
-      }, 700);
+        setFrameCol(0); // Return to idle standing posture
+      }, 750);
     }
 
     prevPosRef.current = playerPosition;
   }, [playerPosition]);
 
-  // Walking animation loop (only animates while actively stepping)
+  // Leg animation cycle (only runs while moving)
   useEffect(() => {
     if (!isMoving) {
       setFrameCol(0);
@@ -66,15 +73,15 @@ export const AnimatedCharacterSprite: React.FC<AnimatedCharacterSpriteProps> = (
 
     const interval = setInterval(() => {
       setFrameCol((prev) => (prev + 1) % 3);
-    }, 150);
+    }, 160);
 
     return () => clearInterval(interval);
   }, [isMoving]);
 
   const spriteSheetUrl = getSpriteSheetForLevel(playerLevel);
-  const characterSize = Math.floor(tileSize * 0.7);
+  const characterSize = Math.floor(tileSize * 0.75);
 
-  // 3 columns (X = 0%, 50%, 100%), 4 rows (Y = 0%, 33.333%, 66.666%, 100%)
+  // 3 columns (0%, 50%, 100%), 4 rows (0%, 33.333%, 66.666%, 100%)
   const backgroundPositionX = `${(isMoving ? frameCol : 0) * 50}%`;
   const backgroundPositionY = `${directionRow * 33.333}%`;
 

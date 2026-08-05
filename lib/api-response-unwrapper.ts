@@ -9,8 +9,17 @@
 export function unwrapApiResponse<T>(result: any): T {
   if (!result) return result;
 
+  // Handle string response (e.g. JSON strings or HTML 502 error pages)
+  if (typeof result === 'string') {
+    try {
+      result = JSON.parse(result);
+    } catch {
+      return [] as unknown as T;
+    }
+  }
+
   // Handle { success: true, data: { ... } } wrapper from authenticatedSupabaseQuery
-  if (typeof result === 'object' && 'success' in result && result.data !== undefined) {
+  if (typeof result === 'object' && result !== null && 'success' in result && result.data !== undefined) {
     return result.data as T;
   }
 
