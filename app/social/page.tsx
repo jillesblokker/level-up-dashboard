@@ -496,7 +496,25 @@ export default function AlliesPage() {
                 <div className="h-8"></div> {/* Spacer to prevent overlap */}
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList 
+                    {/* Live 1v1 Friend Habit Race Sprint Banner */}
+                <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-red-950/40 via-amber-950/30 to-zinc-950 border border-amber-500/40 text-amber-100 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl font-serif">
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-2xl shrink-0 animate-bounce">
+                            ⚔️
+                        </div>
+                        <div>
+                            <h3 className="font-medieval text-lg font-bold text-amber-300">1v1 Virtue Duel Daily Habit Race</h3>
+                            <p className="text-xs text-zinc-300 mt-0.5">
+                                First ally to reach their 5/10 daily habit sweet spot wins <span className="font-bold text-amber-400">+10 House Cup Virtue Points</span> for both players!
+                            </p>
+                        </div>
+                    </div>
+                    <Badge className="bg-amber-600/30 border border-amber-400/60 text-amber-300 font-bold px-4 py-1.5 text-xs uppercase tracking-widest shrink-0">
+                        Race Active Today
+                    </Badge>
+                </div>
+
+                <TabsList 
                         className="flex h-14 bg-zinc-950 border border-amber-900/20 p-1.5 rounded-2xl mb-12 w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar  gap-2 md:gap-0"
                         style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
                     >

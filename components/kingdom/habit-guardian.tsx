@@ -339,16 +339,23 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
               <Progress value={(guardianState.experience / (guardianState.level * 100)) * 100} className="h-2 bg-zinc-950 border border-white/5" indicatorClassName="bg-gradient-to-r from-amber-600 to-amber-400" />
             </div>
 
-            {/* Guardian Level Perk */}
+            {/* Guardian Level Perk & Evolution Signature Skill */}
             {activeGuardian && guardianState.level >= 1 && (
-              <div className="p-3 bg-gradient-to-r from-amber-950/20 to-transparent border border-amber-500/10 rounded-xl flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 text-lg">
+              <div className="p-3.5 bg-gradient-to-r from-amber-950/30 via-zinc-900 to-transparent border border-amber-500/20 rounded-xl flex items-center gap-3 shadow-md">
+                <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0 text-xl">
                   {activeGuardian.perkIcon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h5 className="font-bold text-[10px] tracking-wider text-amber-500">Guardian perk • Level {guardianState.level}</h5>
-                  <p className="text-xs text-zinc-300 mt-0.5">
-                    +{guardianState.level}% XP on <span className="font-bold text-white capitalize">{activeGuardian.focus}</span> quests
+                  <div className="flex items-center justify-between">
+                    <h5 className="font-bold text-[11px] tracking-wider text-amber-400">
+                      Level {guardianState.level} • {guardianState.level >= 10 ? 'Elder Mythic Form 🌌' : guardianState.level >= 5 ? 'Evolved Form ⚡' : 'Hatchling Form 🐣'}
+                    </h5>
+                    <Badge className="bg-amber-600/30 border border-amber-400/40 text-amber-300 text-[9px] uppercase px-1.5 py-0.5">
+                      Dungeon Striker Active
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-zinc-200 mt-1">
+                    Signature Skill: <span className="font-bold text-amber-300">{guardianState.level >= 10 ? 'Solar Supernova (+50 Team ATK)' : guardianState.level >= 5 ? 'Aura Surge (+25 Team ATK)' : 'Companion Blessing (+10 Team HP)'}</span>
                   </p>
                   <p className="text-[10px] text-zinc-500 mt-0.5">
                     Bounty: {50 + (guardianState.level * 10)}g + {1 + (guardianState.level >= 5 ? 1 : 0) + (guardianState.level >= 10 ? 1 : 0)} reagent{(1 + (guardianState.level >= 5 ? 1 : 0) + (guardianState.level >= 10 ? 1 : 0)) > 1 ? 's' : ''}

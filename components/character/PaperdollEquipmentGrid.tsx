@@ -85,9 +85,18 @@ export function PaperdollEquipmentGrid({
   titleProgress = 42,
   onOpenInventory
 }: PaperdollEquipmentGridProps) {
-  const [equipment] = useState(DEFAULT_EQUIPMENT)
+  const [equipment, setEquipment] = useState<Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'relic', EquippedItem | null>>(DEFAULT_EQUIPMENT)
   const [selectedItem, setSelectedItem] = useState<EquippedItem | null>(null)
   const router = useRouter()
+
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem('pref:equipped_gear')
+      if (saved) {
+        setEquipment(JSON.parse(saved))
+      }
+    } catch {}
+  }, [])
 
   // Calculate total stats
   const totalAtk = Object.values(equipment).reduce((acc, item) => acc + (item?.stats.atk || 0), 0)
