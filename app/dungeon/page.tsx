@@ -737,6 +737,22 @@ export default function DungeonPage() {
 
       setBattleLog(prev => [...prev, ...logEntries]);
 
+      if (run.currentRoom % 5 === 0) {
+        toast({
+          title: "🏆 Boss Dual Drop Reclaim!",
+          description: "Defeated Boss Keep! Received Kingdom Blueprint & Apotheca Potion Reagents! Tap to brew in Apotheca.",
+          action: (
+            <Button
+              size="sm"
+              className="bg-amber-500 hover:bg-amber-400 text-black font-bold text-[10px]"
+              onClick={() => router.push('/market')}
+            >
+              Brew Potion 🧪
+            </Button>
+          )
+        });
+      }
+
       if (run.currentRoom >= run.maxRooms) {
         completeRun({
           ...run,

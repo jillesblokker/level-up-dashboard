@@ -212,6 +212,28 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
     }
   };
 
+  const handleFeedTreat = async () => {
+    if (!guardianState) return;
+    try {
+      const currentAffection = (guardianState as any).affection || 50;
+      const updatedAffection = Math.min(100, currentAffection + 10);
+      const updatedState = {
+        ...guardianState,
+        affection: updatedAffection,
+        experience: guardianState.experience + 25
+      };
+      await setUserPreference('habit_guardian_state', updatedState);
+      setGuardianState(updatedState as any);
+
+      toast({
+        title: "🍎 Botanical Treat Fed!",
+        description: `${activeGuardian?.name} loved the treat! Affection +10% (Now ${updatedAffection}%) & +25 Companion EXP!`,
+      });
+
+      setSpeechBubble("Mmm! Yummy botanical treat! My passive daily resource yields are boosted!");
+    } catch {}
+  };
+
   // Check if all favorited habits are completed
   const allHabitsCompleted = favoritedQuests.length > 0 && favoritedQuests.every(q => q.completed);
   const todayStr = new Date().toDateString();
@@ -334,6 +356,17 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
                 </div>
               </div>
             )}
+
+            {/* Treat Feeding Action Button */}
+            <div className="flex gap-2">
+              <Button
+                onClick={handleFeedTreat}
+                className="w-full bg-gradient-to-r from-amber-600/30 via-orange-600/30 to-amber-600/30 hover:from-amber-600/50 hover:to-orange-600/50 border border-amber-500/40 text-amber-300 font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all"
+              >
+                <span>🍎</span>
+                <span>Feed Botanical Treat (+10% Affection & +25 EXP)</span>
+              </Button>
+            </div>
 
             {/* Daily bounty chest */}
             <div className="bg-zinc-950/80 p-4 rounded-2xl border border-amber-900/30 flex flex-col items-center space-y-3">

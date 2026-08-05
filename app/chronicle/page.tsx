@@ -138,6 +138,22 @@ export default function ChroniclePage() {
 
                 <SeasonArchivalModal isOpen={isArchivalOpen} onClose={() => setIsArchivalOpen(false)} />
 
+                {/* Monthly Sovereign Recap Header Card */}
+                <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-purple-950/40 via-amber-950/20 to-zinc-950 border border-amber-500/30 text-amber-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl font-serif">
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                            <Crown className="w-5 h-5 text-amber-400 animate-pulse" />
+                            <h3 className="font-medieval text-lg font-bold text-amber-300">Monthly Sovereign Growth Recap</h3>
+                        </div>
+                        <p className="text-xs text-zinc-300">
+                            Synthesized snapshot of your completed habits, virtue hour balance, and reflection mood trends for this month.
+                        </p>
+                    </div>
+                    <Badge className="bg-amber-600/30 border border-amber-400/50 text-amber-300 font-bold px-3 py-1 text-xs uppercase tracking-widest">
+                        Paragon Champion Status: Active
+                    </Badge>
+                </div>
+
                 {/* Filters */}
                 <div className="flex items-center gap-4 mb-6 bg-zinc-900 p-3 rounded-xl border border-amber-900/10 w-fit">
                     <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">Filter by Month</span>

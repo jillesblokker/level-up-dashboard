@@ -1350,6 +1350,28 @@ export default function QuestsPage() {
     if (newCompleted) {
       logger.debug('[QUEST-TOGGLE] Applying rewards:', { gold: goldReward, xp: xpReward });
 
+      // 5/10 Habit Target Sweet-Spot Confetti Celebration
+      const currentCompletedCount = quests.filter(q => q.completed).length + 1;
+      if (currentCompletedCount === 5 || currentCompletedCount === 10 || currentCompletedCount === 15) {
+        try {
+          confetti({
+            particleCount: 120,
+            spread: 80,
+            origin: { y: 0.6 },
+            colors: ['#f59e0b', '#10b981', '#6366f1', '#ec4899']
+          });
+        } catch {}
+        const bonusGold = currentCompletedCount === 5 ? 50 : currentCompletedCount === 10 ? 100 : 150;
+        addToCharacterStat('gold', bonusGold, `sweet-spot-${currentCompletedCount}`);
+        toast({
+          title: `🌟 Sovereign Target Reached! (${currentCompletedCount} Habits)`,
+          description: currentCompletedCount === 5
+            ? "Great momentum! Target 5/5 completed (+50 Bonus Gold)!"
+            : `Awesome persistence! Target ${currentCompletedCount}/10 completed (+${bonusGold} Bonus Gold)!`,
+          duration: 4500,
+        });
+      }
+
       // Trigger partner animation
       if (activePartner) {
         setIsPartnerAnimating(true);
