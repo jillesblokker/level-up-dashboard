@@ -83,15 +83,15 @@ export const AnimatedCharacterSprite: React.FC<AnimatedCharacterSpriteProps> = (
   }, [isMoving]);
 
   const spriteSheetUrl = getSpriteSheetForLevel(playerLevel);
-  const characterSize = Math.floor(tileSize * 0.75);
+  const characterSize = Math.floor(tileSize * 0.8);
 
-  // 3 columns (0%, 50%, 100%), 4 rows (0%, 33.333%, 66.666%, 100%)
-  const backgroundPositionX = `${(isMoving ? frameCol : 0) * 50}%`;
-  const backgroundPositionY = `${directionRow * 33.333}%`;
+  // 3 columns (0%, 50%, 100%), 4 rows (0%, 33.3333%, 66.6667%, 100%)
+  const posX = `${((isMoving ? frameCol : 0) * 50).toFixed(4)}%`;
+  const posY = `${((directionRow / 3) * 100).toFixed(4)}%`;
 
   return (
     <div
-      className="relative z-10 pointer-events-none transition-all duration-300 ease-out flex items-center justify-center"
+      className="relative z-10 pointer-events-none transition-all duration-300 ease-out flex items-center justify-center overflow-hidden rounded-md"
       style={{
         width: `${characterSize}px`,
         height: `${characterSize}px`
@@ -102,7 +102,7 @@ export const AnimatedCharacterSprite: React.FC<AnimatedCharacterSpriteProps> = (
         style={{
           backgroundImage: `url(${spriteSheetUrl})`,
           backgroundSize: "300% 400%",
-          backgroundPosition: `${backgroundPositionX} ${backgroundPositionY}`,
+          backgroundPosition: `${posX} ${posY}`,
           imageRendering: "pixelated",
           filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.5))"
         }}

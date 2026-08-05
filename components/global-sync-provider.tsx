@@ -101,6 +101,7 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
         });
 
         // 3a. PUSH: Unsynced local completions -> Supabase DB
+        const pushPromises: Promise<any>[] = [];
         for (const lq of localArray) {
           if (lq.completed) {
             const qId = String(lq.id || '').toLowerCase();
@@ -109,17 +110,25 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
 
             if (!serverMatch || !serverMatch.completed) {
               const targetQuestId = nameToUuidMap.get(qName) || lq.id;
-              fetchWithAuth('/api/quests/smart-completion', {
-                method: 'POST',
-                body: JSON.stringify({
-                  questId: targetQuestId,
-                  completed: true,
-                  xpReward: lq.xp || 50,
-                  goldReward: lq.gold || 25
-                })
-              }).catch(() => {});
+              pushPromises.push(
+                fetchWithAuth('/api/quests/smart-completion', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    questId: targetQuestId,
+                    completed: true,
+                    xpReward: lq.xp || 50,
+                    goldReward: lq.gold || 25
+                  })
+                }).catch(() => {})
+              );
             }
           }
+        }
+
+        if (pushPromises.length > 0) {
+          await Promise.all(pushPromises);
+          // Wait for Supabase DB commit propagation
+          await new Promise(r => setTimeout(r, 300));
         }
 
         // 3b. PULL & MERGE (Union Truth): Combine server completions & local completions
