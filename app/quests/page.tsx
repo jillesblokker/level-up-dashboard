@@ -326,20 +326,40 @@ export default function QuestsPage() {
 
         const data: Quest[] = await res.json();
         
-        // Smart merge: Preserve local completed status during active session
+        // Smart merge: Match by ID, Name, and Title across devices
         setQuests(prevQuests => {
-          if (!prevQuests || prevQuests.length === 0) return data || [];
-          const serverMap = new Map((data || []).map(q => [q.id, q]));
-          return prevQuests.map(prevQ => {
-            const serverQ = serverMap.get(prevQ.id);
-            if (!serverQ) return prevQ;
-            // Preserve completed status if marked complete locally
-            const isCompleted = prevQ.completed || serverQ.completed;
+          const serverList = Array.isArray(data) ? data : ((data as any)?.quests || []);
+          if (!serverList || serverList.length === 0) return prevQuests;
+
+          const serverMap = new Map<string, any>();
+          serverList.forEach((sq: any) => {
+            if (sq.id) serverMap.set(String(sq.id).toLowerCase(), sq);
+            if (sq.name) serverMap.set(String(sq.name).toLowerCase(), sq);
+            if (sq.title) serverMap.set(String(sq.title).toLowerCase(), sq);
+          });
+
+          const nextQuests = (prevQuests || []).map((prevQ: any) => {
+            const qId = String(prevQ.id || '').toLowerCase();
+            const qName = String(prevQ.name || '').toLowerCase();
+            const qTitle = String((prevQ as any).title || '').toLowerCase();
+
+            const serverQ = serverMap.get(qId) || serverMap.get(qName) || serverMap.get(qTitle);
+            const isCompleted = Boolean(prevQ.completed || serverQ?.completed);
+
             return {
-              ...serverQ,
+              ...(serverQ || prevQ),
+              id: prevQ.id,
               completed: isCompleted
             };
           });
+
+          try {
+            const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+            setUserScopedItem('quests-cache', JSON.stringify(nextQuests));
+            setUserScopedItem('quests-cache-date', todayStr);
+          } catch {}
+
+          return nextQuests;
         });
         logger.info('[QUEST-SYNC-VERIFY] Quests background sync completed cleanly with timezone header', { count: data?.length || 0 });
       } catch (error) {
@@ -641,16 +661,36 @@ export default function QuestsPage() {
         setQuests(prevQuests => {
           const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
           const cacheDate = getUserScopedItem('quests-cache-date');
+          const isSameDay = cacheDate === todayStr;
           const serverList = (data || []);
 
+          const serverMap = new Map<string, any>();
+          serverList.forEach((sq: any) => {
+            if (sq.id) serverMap.set(String(sq.id).toLowerCase(), sq);
+            if (sq.name) serverMap.set(String(sq.name).toLowerCase(), sq);
+            if (sq.title) serverMap.set(String(sq.title).toLowerCase(), sq);
+          });
+
+          // Merge server data with local state
           const merged = serverList.map((serverQuest: any) => {
-            if (cacheDate === todayStr) {
-              const localQuest = prevQuests.find((pq: any) => pq.id === serverQuest.id || (pq.name && pq.name === serverQuest.name));
-              if (localQuest?.completed && !serverQuest.completed) {
-                return { ...serverQuest, completed: true, date: localQuest.date || new Date().toISOString() };
-              }
-            }
-            return serverQuest;
+            const sqId = String(serverQuest.id || '').toLowerCase();
+            const sqName = String(serverQuest.name || '').toLowerCase();
+            const sqTitle = String(serverQuest.title || '').toLowerCase();
+
+            const localQuest = prevQuests.find((pq: any) => {
+              const pqId = String(pq.id || '').toLowerCase();
+              const pqName = String(pq.name || '').toLowerCase();
+              return pqId === sqId || (pqName && (pqName === sqName || pqName === sqTitle));
+            });
+
+            // Completed if server says completed OR (if same day) local state says completed
+            const isCompleted = Boolean(serverQuest.completed || (isSameDay && localQuest?.completed));
+
+            return {
+              ...serverQuest,
+              completed: isCompleted,
+              date: isCompleted ? (serverQuest.date || localQuest?.date || new Date().toISOString()) : null
+            };
           });
 
           try {
