@@ -26,6 +26,14 @@ import {
   Sparkles,
   Clock
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface VersionInfo {
   version: string;
@@ -48,6 +56,24 @@ export default function AdminStoredDataPage() {
   const [comparisons, setComparisons] = useState<StatComparison[]>([]);
   const [serverStats, setServerStats] = useState<any>(null);
   const [lastServerSyncTime, setLastServerSyncTime] = useState<string | null>(null);
+
+  // Interactive Discrepancy Pop-up Modal State
+  const [conflictModalOpen, setConflictModalOpen] = useState(false);
+  const [conflictItem, setConflictItem] = useState<{
+    name: string;
+    localVal: string | number;
+    serverVal: string | number;
+    highestVal: string | number;
+    localNum: number;
+    serverNum: number;
+  }>({
+    name: "Completed Quests (Today)",
+    localVal: 0,
+    serverVal: 0,
+    highestVal: 0,
+    localNum: 0,
+    serverNum: 0
+  });
 
   // Fetch live Git commit version
   const fetchVersion = async () => {
@@ -336,6 +362,36 @@ export default function AdminStoredDataPage() {
     }
   };
 
+  // User clicked "Pull Supabase Truth to Local" -> Check for Discrepancies and prompt Modal if needed
+  const handlePullServerClick = () => {
+    const questComp = comparisons.find(c => c.name.includes('Completed Quests'));
+    const localValStr = String(questComp?.localValue || '0');
+    const serverValStr = String(questComp?.serverValue || '0');
+    const localNum = parseInt(localValStr) || 0;
+    const serverNum = parseInt(serverValStr) || 0;
+
+    if (localNum !== serverNum && (localNum > 0 || serverNum > 0)) {
+      const highest = Math.max(localNum, serverNum);
+      setConflictItem({
+        name: "Completed Quests (Today)",
+        localVal: `${localNum} completed`,
+        serverVal: `${serverNum} completed`,
+        highestVal: `${highest} completed`,
+        localNum,
+        serverNum
+      });
+      setConflictModalOpen(true);
+    } else {
+      handlePullServerToLocal();
+    }
+  };
+
+  // User confirmed modal action: "Use Highest Count"
+  const handleConfirmSyncHighest = async () => {
+    setConflictModalOpen(false);
+    await handlePullServerToLocal();
+  };
+
   // Push Local State -> Server
   const handlePushLocalToServer = async () => {
     if (!user?.id) return;
@@ -507,7 +563,7 @@ export default function AdminStoredDataPage() {
               </CardDescription>
             </div>
             <Button
-              onClick={handlePullServerToLocal}
+              onClick={handlePullServerClick}
               disabled={isSyncing}
               className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-lg text-sm"
             >
@@ -619,6 +675,57 @@ export default function AdminStoredDataPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Sync to Highest Count Pop-Up Modal */}
+      <Dialog open={conflictModalOpen} onOpenChange={setConflictModalOpen}>
+        <DialogContent className="max-w-md border-amber-500/40 bg-zinc-950 text-amber-50 shadow-2xl rounded-2xl p-6 font-serif">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-amber-400 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber-400 animate-pulse" />
+              Sync Data Conflict Detected
+            </DialogTitle>
+            <DialogDescription className="text-zinc-400 text-xs mt-1">
+              A discrepancy was detected between your Local Cache and Supabase Server DB. Thrivehaven will reconcile your progress to the highest count to prevent data wipeout.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="my-4 space-y-3">
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="bg-zinc-900/90 border border-zinc-800 p-3 rounded-xl">
+                <div className="text-zinc-400 mb-1">📱 Local Cache</div>
+                <div className="font-mono text-amber-300 font-bold text-sm">{conflictItem.localVal}</div>
+              </div>
+              <div className="bg-zinc-900/90 border border-zinc-800 p-3 rounded-xl">
+                <div className="text-zinc-400 mb-1">☁️ Supabase Server DB</div>
+                <div className="font-mono text-emerald-300 font-bold text-sm">{conflictItem.serverVal}</div>
+              </div>
+            </div>
+
+            <div className="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-xs flex items-center justify-between">
+              <div className="text-amber-300 font-semibold">🏆 Target Sync Value:</div>
+              <div className="font-mono text-emerald-400 font-bold text-sm">{conflictItem.highestVal}</div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4">
+            <Button
+              variant="ghost"
+              onClick={() => setConflictModalOpen(false)}
+              className="w-full sm:w-auto text-zinc-400 hover:text-zinc-200 border border-zinc-800 text-xs"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmSyncHighest}
+              disabled={isSyncing}
+              className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg flex items-center justify-center gap-1.5"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Use Highest Count ({conflictItem.highestVal})
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
