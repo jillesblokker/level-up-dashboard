@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { SeasonArchivalModal } from '@/components/chronicle/SeasonArchivalModal'
+import { Badge } from '@/components/ui/badge'
 import { Crown } from 'lucide-react'
 
 export default function ChroniclePage() {
