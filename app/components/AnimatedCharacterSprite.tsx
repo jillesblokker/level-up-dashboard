@@ -76,7 +76,7 @@ export const AnimatedCharacterSprite: React.FC<AnimatedCharacterSpriteProps> = (
 
     const interval = setInterval(() => {
       stepIndex = (stepIndex + 1) % walkSequence.length;
-      setFrameCol(walkSequence[stepIndex]);
+      setFrameCol(walkSequence[stepIndex] ?? 0);
     }, 150);
 
     return () => clearInterval(interval);
