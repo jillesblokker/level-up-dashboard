@@ -413,6 +413,50 @@ export default function QuestsPage() {
   const todaysCompleted = todaysQuests.filter(q => q.completed).length;
   const todaysTotal = todaysQuests.length;
 
+  // Listen for background sync updates to re-hydrate quest completion status live on screen
+  useEffect(() => {
+    const handleSyncEvent = () => {
+      const cached = getUserScopedItem('quests-cache');
+      const cacheDate = getUserScopedItem('quests-cache-date');
+      const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+
+      if (cached && cacheDate === todayStr) {
+        try {
+          const parsed: any[] = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setQuests(prevQuests => {
+              const cacheMap = new Map<string, any>();
+              parsed.forEach(p => {
+                if (p.id) cacheMap.set(String(p.id).toLowerCase(), p);
+                if (p.name) cacheMap.set(String(p.name).toLowerCase(), p);
+              });
+
+              return prevQuests.map(pq => {
+                const qId = String(pq.id || '').toLowerCase();
+                const qName = String(pq.name || '').toLowerCase();
+                const match = cacheMap.get(qId) || cacheMap.get(qName);
+                if (match) {
+                  return {
+                    ...pq,
+                    completed: Boolean(pq.completed || match.completed)
+                  };
+                }
+                return pq;
+              });
+            });
+          }
+        } catch {}
+      }
+    };
+
+    window.addEventListener('global-sync-tick', handleSyncEvent);
+    window.addEventListener('quest-added', handleSyncEvent);
+    return () => {
+      window.removeEventListener('global-sync-tick', handleSyncEvent);
+      window.removeEventListener('quest-added', handleSyncEvent);
+    };
+  }, []);
+
   // Debug quest filtering
   logger.debug('[Quest Filter Debug]', {
     totalQuests: quests.length,

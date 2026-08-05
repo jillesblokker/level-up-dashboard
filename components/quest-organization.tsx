@@ -40,6 +40,21 @@ interface Quest {
   recipient_id?: string
 }
 
+const isUuidStr = (str?: string) => {
+  if (!str) return false;
+  return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(str) || str.startsWith('00000000-');
+};
+
+const getCleanQuestTitle = (quest: any) => {
+  const rawTitle = quest.name || quest.title;
+  if (!rawTitle || isUuidStr(rawTitle)) {
+    if (quest.description?.toLowerCase().includes('walk') || quest.id?.includes('ef5d3ab7')) return 'Walk';
+    if (quest.category === 'might') return 'Daily Exercise';
+    return 'Completed Habit';
+  }
+  return rawTitle;
+};
+
 interface QuestOrganizationProps {
   quests: Quest[]
   onQuestToggle: (questId: string, completed: boolean, milestoneCompleted?: boolean) => void
@@ -955,7 +970,7 @@ export function QuestOrganization({
                                     </div>
                                   </div>
                                   <h3 className="font-semibold text-zinc-300 mb-1 line-clamp-1 line-through">
-                                    {quest.name}
+                                    {getCleanQuestTitle(quest)}
                                   </h3>
                                   <p className="text-xs text-zinc-500 mb-2 line-clamp-1">
                                     {quest.description}

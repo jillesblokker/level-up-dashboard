@@ -5,6 +5,7 @@ import { Tile } from "@/types/tiles";
 import { RotateCw, Trash2 } from "lucide-react";
 import { CreatureLayer } from '@/components/creature-layer';
 import { MonsterSpawn } from "@/types/monsters";
+import { AnimatedCharacterSprite } from "./AnimatedCharacterSprite";
 
 interface MapGridProps {
   grid: Tile[][];
@@ -207,17 +208,10 @@ const MapTile = memo(({
               }}
             />
           )}
-          <Image
-            src={getCharacterImage(playerLevel)}
-            alt="Character"
-            width={Math.floor(tileSize * 0.5)}
-            height={Math.floor(tileSize * 0.5)}
-            className="character-image relative z-10"
-            priority
-            onError={(e) => {
-              logger.warn('Failed to load character image, using fallback');
-              e.currentTarget.src = '/images/character/squire.webp';
-            }}
+          <AnimatedCharacterSprite
+            playerLevel={playerLevel}
+            tileSize={tileSize}
+            playerPosition={{ x, y }}
           />
         </div>
       )}
