@@ -570,10 +570,10 @@ function toValidUUID(str: string): string {
                     xp: Math.floor((!isDay ? Math.floor(baseRewards.xp * 1.2) : baseRewards.xp) * streakMultiplier * firstActionMultiplier * xpMultiplier)
                 };
 
-                const targetQuestUuid = toValidUUID(String(quest.id || questId));
+                const rawQuestIdStr = String(quest.id || questId);
 
                 const insertPayload = {
-                    quest_id: targetQuestUuid,
+                    quest_id: rawQuestIdStr,
                     user_id: userId,
                     completed: true,
                     completed_at: new Date().toISOString(),
