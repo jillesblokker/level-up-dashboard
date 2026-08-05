@@ -26,16 +26,30 @@ export async function POST(request: NextRequest) {
         }
 
         // Get the quest details
-        const { data: quest, error: questError } = await supabase
+        let { data: quest } = await supabase
             .from('quests')
             .select('*')
             .eq('id', questId)
             .eq('user_id', userId)
-            .single()
+            .maybeSingle()
 
-        if (questError || !quest) {
-            logger.error('Error fetching quest:', questError)
-            return NextResponse.json({ error: 'Quest not found' }, { status: 404 })
+        if (!quest) {
+            // Auto-upsert default/custom quest row so completion DB inserts never fail
+            const { data: createdQuest } = await supabase
+                .from('quests')
+                .upsert({
+                    id: questId,
+                    user_id: userId,
+                    title: body.title || 'Daily Habit',
+                    category: body.category || 'Might',
+                    xp_reward: body.xp_reward || 50,
+                    gold_reward: body.gold_reward || 25,
+                    completed: false
+                })
+                .select('*')
+                .maybeSingle();
+
+            quest = createdQuest || { id: questId, user_id: userId, xp_reward: 50, gold_reward: 25 };
         }
 
         // Check if already completed TODAY in Netherlands timezone

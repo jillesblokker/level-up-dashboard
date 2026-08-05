@@ -97,11 +97,12 @@ export default function AdminStoredDataPage() {
       let localFateStatus = "None";
       if (cachedFateStr) {
         try {
-          const parsed = JSON.parse(cachedFateStr);
-          if (parsed && (parsed.title || parsed.card || parsed.name)) {
-            localFateStatus = `Drawn (${parsed.title || parsed.card || parsed.name})`;
-          }
-        } catch {}
+          const parsed = typeof cachedFateStr === 'string' ? JSON.parse(cachedFateStr) : cachedFateStr;
+          const title = parsed?.title || parsed?.card?.title || parsed?.card || parsed?.name || (typeof parsed === 'string' ? parsed : null);
+          localFateStatus = title ? `Drawn (${typeof title === 'object' ? (title.title || title.name || 'Card') : title})` : "Drawn";
+        } catch {
+          localFateStatus = "Drawn";
+        }
       }
 
       // 2. Fetch Server State from Supabase
@@ -135,14 +136,15 @@ export default function AdminStoredDataPage() {
       }
 
       // Server Daily Fate card
-      const resFate = await fetchWithAuth('/api/user-preferences?preference_key=daily_fate');
+      const resFate = await fetchWithAuth('/api/user-preferences?key=daily_fate');
       let serverFateStatus = "None";
       if (resFate.ok) {
         const rawFate = await resFate.json();
         const fateData = unwrapApiResponse<any>(rawFate);
-        const val = fateData?.preference_value || fateData;
-        if (val && (val.title || val.card || val.name)) {
-          serverFateStatus = `Drawn (${val.title || val.card || val.name})`;
+        const val = fateData?.value || fateData?.preference_value || fateData;
+        if (val) {
+          const title = val?.title || val?.card?.title || val?.card || val?.name || (typeof val === 'string' ? val : null);
+          serverFateStatus = title ? `Drawn (${typeof title === 'object' ? (title.title || title.name || 'Card') : title})` : "Drawn";
         }
       }
 

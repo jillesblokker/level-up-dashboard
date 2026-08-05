@@ -48,9 +48,59 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
       // 1. Re-fetch and merge character stats (level, gold, exp) from Supabase
       await characterStatsService.fetchAndMerge();
 
-      // 2. Dispatch cross-component / cross-page sync event for active views
+      // 2. Auto-hydrate inventory if local inventory is empty
+      const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+      const { unwrapApiResponse } = await import('@/lib/api-response-unwrapper');
+      const { getUserScopedItem, setUserScopedItem } = await import('@/lib/user-scoped-storage');
+
+      const localInv = getUserScopedItem('inventory');
+      if (!localInv || localInv === '[]') {
+        const resInv = await fetchWithAuth('/api/inventory');
+        if (resInv.ok) {
+          const raw = await resInv.json();
+          const invData = unwrapApiResponse<any>(raw);
+          const items = Array.isArray(invData) ? invData : (invData?.data || []);
+          if (items.length > 0) {
+            setUserScopedItem('inventory', JSON.stringify(items));
+          }
+        }
+      }
+
+      // 3. Auto-hydrate checked quests for today
+      const localQuests = getUserScopedItem('quests-cache');
+      if (!localQuests || localQuests === '[]') {
+        const resQuests = await fetchWithAuth(`/api/quests?t=${Date.now()}`);
+        if (resQuests.ok) {
+          const raw = await resQuests.json();
+          const questData = unwrapApiResponse<any>(raw);
+          const questArray = Array.isArray(questData) ? questData : (questData?.quests || []);
+          if (questArray.length > 0) {
+            const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+            setUserScopedItem('quests-cache', JSON.stringify(questArray));
+            setUserScopedItem('quests-cache-date', todayStr);
+          }
+        }
+      }
+
+      // 4. Auto-hydrate Daily Fate tarot card
+      const localFate = getUserScopedItem('daily_fate') || localStorage.getItem('daily_fate');
+      if (!localFate) {
+        const resFate = await fetchWithAuth('/api/user-preferences?key=daily_fate');
+        if (resFate.ok) {
+          const raw = await resFate.json();
+          const fateData = unwrapApiResponse<any>(raw);
+          const val = fateData?.value || fateData?.preference_value || fateData;
+          if (val) {
+            setUserScopedItem('daily_fate', JSON.stringify(val));
+            localStorage.setItem('daily_fate', JSON.stringify(val));
+          }
+        }
+      }
+
+      // 5. Dispatch cross-component / cross-page sync event for active views
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('global-sync-tick'));
+        window.dispatchEvent(new Event('character-stats-update'));
       }
     } catch {
       // Silent error logging to avoid UI disruption

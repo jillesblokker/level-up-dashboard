@@ -57,15 +57,28 @@ export async function POST(request: Request) {
     logger.debug('[API/quests/completion] User:', userId, 'QuestId:', questId);
 
     // Fetch quest to get rewards
-    const { data: quest, error: questError } = await supabase
+    let { data: quest } = await supabase
       .from('quests')
       .select('id, xp_reward, gold_reward')
       .eq('id', questId)
-      .single();
+      .maybeSingle();
 
-    if (questError || !quest) {
-      logger.error('[API/quests/completion] Quest not found:', questError);
-      return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
+    if (!quest) {
+      const { data: createdQuest } = await supabase
+        .from('quests')
+        .upsert({
+          id: questId,
+          user_id: userId,
+          title: data.title || 'Daily Habit',
+          category: data.category || 'Might',
+          xp_reward: data.xp_reward || 50,
+          gold_reward: data.gold_reward || 25,
+          completed: false
+        })
+        .select('id, xp_reward, gold_reward')
+        .maybeSingle();
+
+      quest = createdQuest || { id: questId, xp_reward: 50, gold_reward: 25 };
     }
 
     // Use smart quest completion system

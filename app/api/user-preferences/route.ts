@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const key = searchParams.get('key');
+    const key = searchParams.get('key') || searchParams.get('preference_key');
 
     const supabase = getSupabaseAdmin();
     let query = supabase
