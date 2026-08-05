@@ -368,6 +368,23 @@ export async function GET(request: Request) {
               completedQuests.set(qtitle.toLowerCase(), compObj);
               completedQuests.set(toValidUUID(qtitle.toLowerCase()), compObj);
             }
+          } else {
+            // Fuzzy search questMetaMap for matches by substring/alias
+            for (const [, qObj] of questMetaMap.entries()) {
+              const qName = String(qObj.name || '').toLowerCase();
+              const rId = rawId.toLowerCase();
+              if (qName && rId && (qName.includes(rId) || rId.includes(qName) || (qName.includes('brush') && rId.includes('brush')))) {
+                if (qObj.id) {
+                  completedQuests.set(String(qObj.id), compObj);
+                  completedQuests.set(String(qObj.id).toLowerCase(), compObj);
+                }
+                if (qObj.name) {
+                  completedQuests.set(String(qObj.name), compObj);
+                  completedQuests.set(String(qObj.name).toLowerCase(), compObj);
+                }
+                break;
+              }
+            }
           }
         }
       });

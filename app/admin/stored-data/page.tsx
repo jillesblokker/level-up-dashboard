@@ -280,6 +280,25 @@ export default function AdminStoredDataPage() {
       const merged = await characterStatsService.fetchAndMerge();
 
       // 2. Today's Checked Quests & Reconciled Push Sync
+      const resPreQuests = await fetchWithAuth(`/api/quests?t=${Date.now()}`);
+      let serverQuestList: any[] = [];
+      if (resPreQuests.ok) {
+        const rawPre = await resPreQuests.json();
+        const preData = unwrapApiResponse<any>(rawPre);
+        serverQuestList = Array.isArray(preData) ? preData : (preData?.quests || []);
+      }
+
+      // Build Name-to-UUID map from server quests
+      const nameToUuidMap = new Map<string, string>();
+      serverQuestList.forEach(sq => {
+        if (sq.id && sq.name) {
+          nameToUuidMap.set(String(sq.name).toLowerCase().trim(), sq.id);
+        }
+        if (sq.id && sq.title) {
+          nameToUuidMap.set(String(sq.title).toLowerCase().trim(), sq.id);
+        }
+      });
+
       const localQuestsStr = getUserScopedItem('quests-cache') || localStorage.getItem('quests-cache');
       const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
 
@@ -289,10 +308,14 @@ export default function AdminStoredDataPage() {
           if (Array.isArray(localArray)) {
             for (const lq of localArray) {
               if (lq.completed) {
+                // Resolve local quest name to server UUID
+                const lqName = String(lq.name || lq.title || '').toLowerCase().trim();
+                const targetQuestId = nameToUuidMap.get(lqName) || lq.id;
+
                 await fetchWithAuth('/api/quests/smart-completion', {
                   method: 'POST',
                   body: JSON.stringify({
-                    questId: lq.id,
+                    questId: targetQuestId,
                     completed: true,
                     xpReward: lq.xp || 50,
                     goldReward: lq.gold || 25
@@ -308,8 +331,29 @@ export default function AdminStoredDataPage() {
       if (resQuests.ok) {
         const rawQuests = await resQuests.json();
         const questData = unwrapApiResponse<any>(rawQuests);
-        const questArray = Array.isArray(questData) ? questData : (questData?.quests || []);
-        setUserScopedItem('quests-cache', JSON.stringify(questArray));
+        const serverQuests = Array.isArray(questData) ? questData : (questData?.quests || []);
+
+        let localArray: any[] = [];
+        try {
+          if (localQuestsStr) localArray = JSON.parse(localQuestsStr);
+        } catch {}
+
+        // NEVER-WIPE GUARD: Retain local completed status so local is NEVER wiped to 0
+        const mergedQuests = (serverQuests.length > 0 ? serverQuests : localArray).map((sq: any) => {
+          const sqName = String(sq.name || sq.title || '').toLowerCase().trim();
+          const localMatch = (localArray || []).find((lq: any) => {
+            const lqName = String(lq.name || lq.title || '').toLowerCase().trim();
+            return (lq.id && lq.id === sq.id) || (lqName && lqName === sqName);
+          });
+
+          const isCompleted = Boolean(sq.completed || localMatch?.completed);
+          return {
+            ...sq,
+            completed: isCompleted
+          };
+        });
+
+        setUserScopedItem('quests-cache', JSON.stringify(mergedQuests));
         setUserScopedItem('quests-cache-date', todayStr);
       }
 
