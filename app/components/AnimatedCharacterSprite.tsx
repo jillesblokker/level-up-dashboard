@@ -83,7 +83,7 @@ export const AnimatedCharacterSprite: React.FC<AnimatedCharacterSpriteProps> = (
   }, [isMoving]);
 
   const spriteSheetUrl = getSpriteSheetForLevel(playerLevel);
-  const characterSize = Math.floor(tileSize * 0.8);
+  const characterSize = Math.floor(tileSize * 0.85);
 
   // 3 columns (0%, 50%, 100%), 4 rows (0%, 33.3333%, 66.6667%, 100%)
   const posX = `${((isMoving ? frameCol : 0) * 50).toFixed(4)}%`;
@@ -91,7 +91,7 @@ export const AnimatedCharacterSprite: React.FC<AnimatedCharacterSpriteProps> = (
 
   return (
     <div
-      className="relative z-10 pointer-events-none transition-all duration-300 ease-out flex items-center justify-center overflow-hidden rounded-md"
+      className="relative z-10 pointer-events-none transition-all duration-300 ease-out flex items-center justify-center overflow-hidden"
       style={{
         width: `${characterSize}px`,
         height: `${characterSize}px`
