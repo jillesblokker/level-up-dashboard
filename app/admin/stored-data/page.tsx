@@ -306,22 +306,30 @@ export default function AdminStoredDataPage() {
         try {
           const localArray: any[] = JSON.parse(localQuestsStr);
           if (Array.isArray(localArray)) {
+            const pushPromises: Promise<any>[] = [];
             for (const lq of localArray) {
               if (lq.completed) {
                 // Resolve local quest name to server UUID
                 const lqName = String(lq.name || lq.title || '').toLowerCase().trim();
                 const targetQuestId = nameToUuidMap.get(lqName) || lq.id;
 
-                await fetchWithAuth('/api/quests/smart-completion', {
-                  method: 'POST',
-                  body: JSON.stringify({
-                    questId: targetQuestId,
-                    completed: true,
-                    xpReward: lq.xp || 50,
-                    goldReward: lq.gold || 25
-                  })
-                }).catch(() => {});
+                pushPromises.push(
+                  fetchWithAuth('/api/quests/smart-completion', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                      questId: targetQuestId,
+                      completed: true,
+                      xpReward: lq.xp || 50,
+                      goldReward: lq.gold || 25
+                    })
+                  }).catch(() => {})
+                );
               }
+            }
+            if (pushPromises.length > 0) {
+              await Promise.all(pushPromises);
+              // Wait for Supabase DB commit propagation
+              await new Promise(r => setTimeout(r, 450));
             }
           }
         } catch {}

@@ -64,16 +64,20 @@ export const AnimatedCharacterSprite: React.FC<AnimatedCharacterSpriteProps> = (
     prevPosRef.current = playerPosition;
   }, [playerPosition]);
 
-  // Leg animation cycle (only runs while moving)
+  // Ping-pong walking cycle: 0 (Neutral) -> 1 (Left step) -> 0 (Neutral) -> 2 (Right step) while moving
   useEffect(() => {
     if (!isMoving) {
-      setFrameCol(0);
+      setFrameCol(0); // Col 0 is neutral standing pose
       return;
     }
 
+    const walkSequence = [0, 1, 0, 2];
+    let stepIndex = 0;
+
     const interval = setInterval(() => {
-      setFrameCol((prev) => (prev + 1) % 3);
-    }, 160);
+      stepIndex = (stepIndex + 1) % walkSequence.length;
+      setFrameCol(walkSequence[stepIndex]);
+    }, 150);
 
     return () => clearInterval(interval);
   }, [isMoving]);
