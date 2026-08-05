@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Sparkles, Gift, ShieldAlert, Award, RefreshCw, Star, Info } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { toast } from "@/components/ui/use-toast"
