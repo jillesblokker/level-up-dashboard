@@ -66,19 +66,56 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
         }
       }
 
-      // 3. Auto-hydrate checked quests for today
-      const localQuests = getUserScopedItem('quests-cache');
-      if (!localQuests || localQuests === '[]') {
-        const resQuests = await fetchWithAuth(`/api/quests?t=${Date.now()}`);
-        if (resQuests.ok) {
-          const raw = await resQuests.json();
-          const questData = unwrapApiResponse<any>(raw);
-          const questArray = Array.isArray(questData) ? questData : (questData?.quests || []);
-          if (questArray.length > 0) {
-            const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
-            setUserScopedItem('quests-cache', JSON.stringify(questArray));
-            setUserScopedItem('quests-cache-date', todayStr);
-          }
+      // 3. Reconcile & Auto-Push Locally Completed Quests to Supabase Server DB
+      const resQuests = await fetchWithAuth(`/api/quests?t=${Date.now()}`);
+      const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+
+      if (resQuests.ok) {
+        const raw = await resQuests.json();
+        const questData = unwrapApiResponse<any>(raw);
+        const serverArray: any[] = Array.isArray(questData) ? questData : (questData?.quests || []);
+        
+        const localQuestsStr = getUserScopedItem('quests-cache');
+        const cacheDate = getUserScopedItem('quests-cache-date');
+
+        if (localQuestsStr && cacheDate === todayStr) {
+          try {
+            const localArray: any[] = JSON.parse(localQuestsStr);
+            if (Array.isArray(localArray)) {
+              // Index server completions by ID, Name, Title
+              const serverMap = new Map<string, any>();
+              serverArray.forEach(sq => {
+                if (sq.id) serverMap.set(String(sq.id).toLowerCase(), sq);
+                if (sq.name) serverMap.set(String(sq.name).toLowerCase(), sq);
+                if (sq.title) serverMap.set(String(sq.title).toLowerCase(), sq);
+              });
+
+              for (const lq of localArray) {
+                if (lq.completed) {
+                  const qId = String(lq.id || '').toLowerCase();
+                  const qName = String(lq.name || '').toLowerCase();
+                  const serverMatch = serverMap.get(qId) || serverMap.get(qName);
+
+                  if (!serverMatch || !serverMatch.completed) {
+                    // Local is ahead for this quest -> push completion to Supabase
+                    fetchWithAuth('/api/quests/smart-completion', {
+                      method: 'POST',
+                      body: JSON.stringify({
+                        questId: lq.id,
+                        completed: true,
+                        xpReward: lq.xp || 50,
+                        goldReward: lq.gold || 25
+                      })
+                    }).catch(() => {});
+                  }
+                }
+              }
+            }
+          } catch {}
+        } else if ((!localQuestsStr || localQuestsStr === '[]') && serverArray.length > 0) {
+          // Local cache empty -> hydrate from server
+          setUserScopedItem('quests-cache', JSON.stringify(serverArray));
+          setUserScopedItem('quests-cache-date', todayStr);
         }
       }
 

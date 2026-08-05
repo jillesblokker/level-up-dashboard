@@ -253,13 +253,36 @@ export default function AdminStoredDataPage() {
       // 1. Character Stats (Level, Gold, EXP, Essences)
       const merged = await characterStatsService.fetchAndMerge();
 
-      // 2. Today's Checked Quests
+      // 2. Today's Checked Quests & Reconciled Push Sync
+      const localQuestsStr = getUserScopedItem('quests-cache') || localStorage.getItem('quests-cache');
+      const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+
+      if (localQuestsStr) {
+        try {
+          const localArray: any[] = JSON.parse(localQuestsStr);
+          if (Array.isArray(localArray)) {
+            for (const lq of localArray) {
+              if (lq.completed) {
+                await fetchWithAuth('/api/quests/smart-completion', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    questId: lq.id,
+                    completed: true,
+                    xpReward: lq.xp || 50,
+                    goldReward: lq.gold || 25
+                  })
+                }).catch(() => {});
+              }
+            }
+          }
+        } catch {}
+      }
+
       const resQuests = await fetchWithAuth(`/api/quests?t=${Date.now()}`);
       if (resQuests.ok) {
         const rawQuests = await resQuests.json();
         const questData = unwrapApiResponse<any>(rawQuests);
         const questArray = Array.isArray(questData) ? questData : (questData?.quests || []);
-        const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
         setUserScopedItem('quests-cache', JSON.stringify(questArray));
         setUserScopedItem('quests-cache-date', todayStr);
       }
