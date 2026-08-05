@@ -34,6 +34,15 @@ export function DailyRoutineModal({
     }
   };
 
+  const handleModalClose = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('global-sync-tick'));
+      window.dispatchEvent(new Event('character-stats-update'));
+      window.dispatchEvent(new Event('quest-added'));
+    }
+    onClose();
+  };
+
   const handleFinalize = async () => {
     try {
       // Award daily routine completion gift
@@ -44,15 +53,15 @@ export function DailyRoutineModal({
       });
       setClaimed(true);
       setTimeout(() => {
-        onClose();
+        handleModalClose();
       }, 1200);
     } catch {
-      onClose();
+      handleModalClose();
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(op) => { if (!op) onClose(); }}>
+    <Dialog open={isOpen} onOpenChange={(op) => { if (!op) handleModalClose(); }}>
       <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border border-amber-500/40 text-amber-100 p-6 rounded-2xl shadow-2xl overflow-hidden font-serif">
         {/* Step Indicator */}
         <div className="flex items-center justify-between pb-3 border-b border-amber-900/30 text-xs text-amber-400 font-bold uppercase tracking-wider">
