@@ -130,6 +130,15 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
           await Promise.all(pushPromises);
           // Wait for Supabase DB commit propagation
           await new Promise(r => setTimeout(r, 300));
+          const resUpdated = await fetchWithAuth(`/api/quests?t=${Date.now()}`);
+          if (resUpdated.ok) {
+            const rawUp = await resUpdated.json();
+            const upData = unwrapApiResponse<any>(rawUp);
+            const freshArray = Array.isArray(upData) ? upData : (upData?.quests || []);
+            if (freshArray.length > 0) {
+              serverArray = freshArray;
+            }
+          }
         }
 
         // 3b. PULL & MERGE (Union Truth): Combine server completions & local completions

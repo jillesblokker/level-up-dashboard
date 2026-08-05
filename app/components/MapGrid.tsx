@@ -194,24 +194,17 @@ const MapTile = memo(({
           )}
         </div>
       )}
-      {isPlayerHere && (
+      {isPlayerHere && tile.type === 'water' && playerLevel >= 25 && (
         <div className="absolute inset-0 flex items-center justify-center">
-          {tile.type === 'water' && playerLevel >= 25 && (
-            <Image
-              src="/images/tiles/pirate-ship.webp"
-              alt="Pirate Ship"
-              width={Math.floor(tileSize * 0.9)}
-              height={Math.floor(tileSize * 0.9)}
-              className="absolute z-0"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-          )}
-          <AnimatedCharacterSprite
-            playerLevel={playerLevel}
-            tileSize={tileSize}
-            playerPosition={{ x, y }}
+          <Image
+            src="/images/tiles/pirate-ship.webp"
+            alt="Pirate Ship"
+            width={Math.floor(tileSize * 0.9)}
+            height={Math.floor(tileSize * 0.9)}
+            className="absolute z-0"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
           />
         </div>
       )}
@@ -378,6 +371,23 @@ export function MapGrid({
         >
           {/* Living World Creature Layer */}
           <CreatureLayer grid={grid} mapType="realm" playerPosition={playerPosition} />
+
+          {/* Persistent Player Avatar Overlay */}
+          <div
+            className="absolute z-20 pointer-events-none transition-all duration-300 ease-out flex items-center justify-center"
+            style={{
+              width: `${tileSize}px`,
+              height: `${tileSize}px`,
+              left: `${playerPosition.x * tileSize}px`,
+              top: `${playerPosition.y * tileSize}px`
+            }}
+          >
+            <AnimatedCharacterSprite
+              playerLevel={playerLevel}
+              tileSize={tileSize}
+              playerPosition={playerPosition}
+            />
+          </div>
 
           {grid.map((row, y) => {
             if (!Array.isArray(row)) return null;
