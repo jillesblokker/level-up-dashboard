@@ -3,6 +3,7 @@
 import { logger } from "@/lib/logger";
 
 import { useState, useEffect } from 'react'
+import confetti from 'canvas-confetti'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { AddMilestoneForm } from "@/components/add-milestone-form"
 import { AddChallengeForm } from "@/components/add-challenge-form"
