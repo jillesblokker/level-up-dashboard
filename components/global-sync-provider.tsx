@@ -66,7 +66,7 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
         }
       }
 
-      // 3. Reconcile & Auto-Push Locally Completed Quests to Supabase Server DB
+      // 3. Bi-Directional Union Reconciler & Auto-Sync
       const resQuests = await fetchWithAuth(`/api/quests?t=${Date.now()}`);
       const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
 
@@ -78,45 +78,67 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
         const localQuestsStr = getUserScopedItem('quests-cache');
         const cacheDate = getUserScopedItem('quests-cache-date');
 
-        if (localQuestsStr && cacheDate === todayStr) {
-          try {
-            const localArray: any[] = JSON.parse(localQuestsStr);
-            if (Array.isArray(localArray)) {
-              // Index server completions by ID, Name, Title
-              const serverMap = new Map<string, any>();
-              serverArray.forEach(sq => {
-                if (sq.id) serverMap.set(String(sq.id).toLowerCase(), sq);
-                if (sq.name) serverMap.set(String(sq.name).toLowerCase(), sq);
-                if (sq.title) serverMap.set(String(sq.title).toLowerCase(), sq);
-              });
+        let localArray: any[] = [];
+        try {
+          if (localQuestsStr && cacheDate === todayStr) {
+            localArray = JSON.parse(localQuestsStr);
+          }
+        } catch {}
 
-              for (const lq of localArray) {
-                if (lq.completed) {
-                  const qId = String(lq.id || '').toLowerCase();
-                  const qName = String(lq.name || '').toLowerCase();
-                  const serverMatch = serverMap.get(qId) || serverMap.get(qName);
+        // Index server completions by ID, Name, Title
+        const nameToUuidMap = new Map<string, string>();
+        const serverMap = new Map<string, any>();
+        serverArray.forEach(sq => {
+          if (sq.id) serverMap.set(String(sq.id).toLowerCase(), sq);
+          if (sq.name) {
+            serverMap.set(String(sq.name).toLowerCase(), sq);
+            nameToUuidMap.set(String(sq.name).toLowerCase().trim(), sq.id);
+          }
+          if (sq.title) {
+            serverMap.set(String(sq.title).toLowerCase(), sq);
+            nameToUuidMap.set(String(sq.title).toLowerCase().trim(), sq.id);
+          }
+        });
 
-                  if (!serverMatch || !serverMatch.completed) {
-                    // Local is ahead for this quest -> push completion to Supabase
-                    fetchWithAuth('/api/quests/smart-completion', {
-                      method: 'POST',
-                      body: JSON.stringify({
-                        questId: lq.id,
-                        completed: true,
-                        xpReward: lq.xp || 50,
-                        goldReward: lq.gold || 25
-                      })
-                    }).catch(() => {});
-                  }
-                }
-              }
+        // 3a. PUSH: Unsynced local completions -> Supabase DB
+        for (const lq of localArray) {
+          if (lq.completed) {
+            const qId = String(lq.id || '').toLowerCase();
+            const qName = String(lq.name || lq.title || '').toLowerCase().trim();
+            const serverMatch = serverMap.get(qId) || serverMap.get(qName);
+
+            if (!serverMatch || !serverMatch.completed) {
+              const targetQuestId = nameToUuidMap.get(qName) || lq.id;
+              fetchWithAuth('/api/quests/smart-completion', {
+                method: 'POST',
+                body: JSON.stringify({
+                  questId: targetQuestId,
+                  completed: true,
+                  xpReward: lq.xp || 50,
+                  goldReward: lq.gold || 25
+                })
+              }).catch(() => {});
             }
-          } catch {}
-        } else if ((!localQuestsStr || localQuestsStr === '[]') && serverArray.length > 0) {
-          // Local cache empty -> hydrate from server
-          setUserScopedItem('quests-cache', JSON.stringify(serverArray));
-          setUserScopedItem('quests-cache-date', todayStr);
+          }
         }
+
+        // 3b. PULL & MERGE (Union Truth): Combine server completions & local completions
+        const mergedQuests = (serverArray.length > 0 ? serverArray : localArray).map((sq: any) => {
+          const sqName = String(sq.name || sq.title || '').toLowerCase().trim();
+          const localMatch = localArray.find((lq: any) => {
+            const lqName = String(lq.name || lq.title || '').toLowerCase().trim();
+            return (lq.id && lq.id === sq.id) || (lqName && lqName === sqName);
+          });
+
+          const isCompleted = Boolean(sq.completed || localMatch?.completed);
+          return {
+            ...sq,
+            completed: isCompleted
+          };
+        });
+
+        setUserScopedItem('quests-cache', JSON.stringify(mergedQuests));
+        setUserScopedItem('quests-cache-date', todayStr);
       }
 
       // 4. Auto-hydrate Daily Fate tarot card
@@ -138,16 +160,17 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('global-sync-tick'));
         window.dispatchEvent(new Event('character-stats-update'));
+        window.dispatchEvent(new Event('quest-added'));
       }
     } catch {
       // Silent error logging to avoid UI disruption
     }
   };
 
-  // Setup periodic background revalidation (45 seconds) & tab focus revalidation
+  // Setup periodic background revalidation (30 seconds) & tab focus revalidation
   useRealtimeSync(
     { onSync: handleSync },
-    { enabled: !!userId, intervalMs: 45000, onVisibilityChange: true, onFocus: true }
+    { enabled: !!userId, intervalMs: 30000, onVisibilityChange: true, onFocus: true }
   );
 
   // Initial sync on mount when user is authenticated
