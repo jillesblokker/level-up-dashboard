@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { useAuthContext } from '@/components/providers';
 import { characterStatsService } from '@/lib/character-stats-service';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
+import { supabase } from '@/lib/supabase/client';
 
 export function GlobalSyncProvider({ children }: { children: React.ReactNode }) {
   const { userId } = useAuthContext();
@@ -181,6 +182,31 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
     { onSync: handleSync },
     { enabled: !!userId, intervalMs: 30000, onVisibilityChange: true, onFocus: true }
   );
+
+  // Realtime postgres changes channel listener (<100ms instant cross-device sync)
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel(`realtime:quest_sync:${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'quest_completion',
+          filter: `user_id=eq.${userId}`
+        },
+        () => {
+          handleSync();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId]);
 
   // Initial sync on mount when user is authenticated
   useEffect(() => {
