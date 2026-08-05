@@ -46,14 +46,14 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
 
   return (
     <>
-      {/* Floating Medieval Heraldry Badge Trigger (No ugly purple bottom rectangle bar) */}
+      {/* Floating Medieval Heraldry Badge Trigger (Centered Top-Middle so it never overlaps companion icons) */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-purple-950 via-zinc-950 to-purple-950 border border-purple-500/50 text-purple-200 px-4 py-2 rounded-full shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:scale-105 hover:border-purple-400 transition-all flex items-center gap-2.5 cursor-pointer font-medieval group"
+        className="fixed top-20 left-1/2 -translate-x-1/2 z-40 bg-gradient-to-r from-purple-950 via-zinc-950 to-purple-950 border border-purple-500/60 text-purple-200 px-5 py-2.5 rounded-full shadow-[0_0_25px_rgba(168,85,247,0.4)] hover:scale-105 hover:border-purple-300 transition-all flex items-center gap-3 cursor-pointer font-medieval group"
       >
         <span className="text-xl group-hover:rotate-12 transition-transform">🪕</span>
-        <span className="text-xs tracking-wider">Traveling Bard Encounter</span>
-        <Badge className="bg-purple-600 text-white font-bold text-[9px] px-1.5 py-0.5 uppercase tracking-widest animate-pulse">
+        <span className="text-xs tracking-wider font-semibold">Traveling Bard Encounter</span>
+        <Badge className="bg-purple-600 text-white font-bold text-[9px] px-2 py-0.5 uppercase tracking-widest animate-pulse">
           Event
         </Badge>
       </button>
