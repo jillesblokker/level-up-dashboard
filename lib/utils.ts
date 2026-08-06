@@ -122,5 +122,29 @@ export function renderSafeNode(node: unknown, fallbackProps?: Record<string, any
     const Component = node as React.ElementType;
     return React.createElement(Component, fallbackProps);
   }
-  return null;
+}
+
+export function formatCleanName(raw: string): string {
+  if (!raw) return '';
+  const cleaned = raw
+    .replace(/^tile-collect:/, '')
+    .replace(/^citizen-collect:/, '')
+    .replace(/^achievement-/, '')
+    .replace(/^quest-/, '')
+    .replace(/^purchase-\d+-/, '')
+    .replace(/-tiles$/, '')
+    .replace(/^material-/, '')
+    .replace(/[-_]/g, ' ')
+    .trim();
+
+  return cleaned
+    .split(' ')
+    .filter(Boolean)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
+export function formatSentenceCase(text: string): string {
+  if (!text) return '';
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }

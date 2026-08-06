@@ -6,6 +6,8 @@ import { createGoldGainedNotification } from "@/lib/notifications";
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { getAchievementMessage, getAchievementIdFromSource } from "@/lib/achievement-messages";
 
+import { formatCleanName } from "@/lib/utils";
+
 // Enhanced gold manager with database transaction logging
 export async function gainGold(amount: number, source: string, metadata?: any) {
   try {
@@ -43,32 +45,30 @@ export async function gainGold(amount: number, source: string, metadata?: any) {
         description: achievementMessage.description,
       });
     } else {
-      // Create improved toast messages for common sources
-      let title = "Gold Gained! 💰";
-      let description = `+${amount} gold from ${source}`;
+      const cleanName = formatCleanName(source);
+      let title = "Gold gained 💰";
+      let description = `+${amount} gold from ${cleanName.toLowerCase()}`;
 
       if (source === 'kingdom-tile-reward') {
-        title = "🏰 Kingdom Prosperity!";
+        title = "Kingdom prosperity 🏰";
         description = `Your kingdom flourishes! +${amount} gold collected.`;
       } else if (source.startsWith('quest-')) {
-        title = "⚔️ Quest Reward!";
-        description = `Quest completed! Earned ${amount} gold.`;
+        title = "Quest reward ⚔️";
+        description = `Quest completed! Earned +${amount} gold.`;
       } else if (source.startsWith('achievement-')) {
-        title = "🏆 Achievement Unlocked!";
-        description = `Legendary deed! Earned ${amount} gold.`;
+        title = "Achievement unlocked 🏆";
+        description = `Legendary deed! Earned +${amount} gold.`;
       } else if (source.startsWith('tile-collect:')) {
-        const tileName = source.split(':')[1] || 'building';
-        title = "🏗️ Resources Collected!";
-        description = `${tileName} produced ${amount} gold.`;
+        title = "Resources collected 🏗️";
+        description = `${cleanName} produced +${amount} gold.`;
       } else if (source.startsWith('citizen-collect:')) {
-        const citizenName = source.split(':')[1] || 'Citizen';
-        title = "🤝 Citizen Contribution!";
-        description = `${citizenName} gathered ${amount} gold for the realm.`;
+        title = "Citizen contribution 🤝";
+        description = `${cleanName} gathered +${amount} gold for the realm.`;
       } else if (source === 'sheep-shave') {
-        title = "🐑 Sheep Shaved!";
+        title = "Sheep shaved 🐑";
         description = `You shivered Shaun! +${amount} gold earned.`;
       } else if (source === 'penguin-play') {
-        title = "🐧 Noot Noot!";
+        title = "Noot noot 🐧";
         description = `Petting penguin! +${amount} gold found.`;
       }
 
@@ -99,12 +99,13 @@ export async function spendGold(amount: number, source: string, metadata?: any) 
   try {
     // Get current stats using the character stats manager
     const currentStats = getCharacterStats();
+    const cleanReason = formatCleanName(source).toLowerCase() || 'purchase';
 
     // Check if player has enough gold
     if (currentStats.gold < amount) {
       toast({
-        title: "Insufficient Gold",
-        description: `You need ${amount} gold for ${source}. You have ${currentStats.gold} gold.`,
+        title: "Insufficient gold",
+        description: `You need ${amount} gold for ${cleanReason}. You currently have ${currentStats.gold} gold.`,
         variant: "destructive",
       });
       return false;
@@ -133,8 +134,8 @@ export async function spendGold(amount: number, source: string, metadata?: any) 
 
     // Show toast notification
     toast({
-      title: "Gold Spent!",
-      description: `-${amount} gold for ${source}`,
+      title: "Gold spent 💰",
+      description: `-${amount} gold for ${cleanReason}`,
     });
 
     return true;

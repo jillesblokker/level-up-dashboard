@@ -1,5 +1,6 @@
 import { notificationService } from "@/lib/notification-service"
 import { getAchievementMessage, getAchievementIdFromSource } from "@/lib/achievement-messages"
+import { formatCleanName } from "@/lib/utils"
 
 export function createAchievementNotification(achievementName: string) {
   notificationService.addNotification(
@@ -79,21 +80,21 @@ export function createExperienceGainedNotification(amount: number, source: strin
     );
   } else {
     // Create improved messages for common sources
-    let title = "Experience Gained! ⭐";
-    let message = `You gained ${amount} experience from ${source}`;
+    let title = "Experience gained ⭐";
+    let message = `You gained ${amount} experience from ${formatCleanName(source).toLowerCase()}`;
     
     if (source.startsWith('tile-collect:')) {
-      const tileType = source.split(':')[1];
-      title = "🏰 Kingdom Knowledge!";
+      const tileType = formatCleanName(source.split(':')[1]);
+      title = "Kingdom knowledge 🏰";
       message = `While tending to your ${tileType} building, you learned valuable skills and gained ${amount} experience!`;
     } else if (source === 'mystery-events') {
-      title = "🔮 Mystical Discovery!";
+      title = "Mystical discovery 🔮";
       message = `Through exploring ancient mysteries, you gained ${amount} experience and expanded your knowledge!`;
     } else if (source === 'quest-completion') {
-      title = "⚔️ Quest Mastery!";
+      title = "Quest mastery ⚔️";
       message = `By completing your quest, you gained ${amount} experience and grew stronger!`;
     } else if (source === 'level-up') {
-      title = "🌟 Level Up!";
+      title = "Level up 🌟";
       message = `Congratulations! You've reached a new level and gained ${amount} experience!`;
     } else {
       // Fallback to generic message for other sources
@@ -143,27 +144,27 @@ export function createGoldGainedNotification(amount: number, source: string) {
     );
   } else {
     // Create improved messages for common sources
-    let title = "Gold Gained! 💰";
-    let message = `You earned ${amount} gold from ${source}!`;
+    let title = "Gold gained 💰";
+    let message = `You earned ${amount} gold from ${formatCleanName(source).toLowerCase()}!`;
     
     if (source === 'kingdom-tile-reward') {
-      title = "🏰 Kingdom Prosperity!";
+      title = "Kingdom prosperity 🏰";
       message = `Your kingdom buildings have generated ${amount} gold for your treasury!`;
     } else if (source === 'mystery-events') {
-      title = "🔮 Treasure Discovered!";
+      title = "Treasure discovered 🔮";
       message = `You found a hidden treasure chest containing ${amount} gold!`;
     } else if (source === 'quest-completion') {
-      title = "⚔️ Quest Reward!";
+      title = "Quest reward ⚔️";
       message = `For completing your quest, you received ${amount} gold as payment!`;
     } else if (source === 'daily-bonus') {
-      title = "🌅 Daily Blessing!";
+      title = "Daily blessing 🌅";
       message = `The kingdom's daily prosperity has granted you ${amount} gold!`;
     } else if (source === 'weekly-bonus') {
-      title = "📅 Weekly Fortune!";
+      title = "Weekly fortune 📅";
       message = `Your weekly kingdom management has earned you ${amount} gold!`;
     } else if (source.startsWith('tile-collect:')) {
-      const tileType = source.split(':')[1];
-      title = "🏰 Building Income!";
+      const tileType = formatCleanName(source.split(':')[1]);
+      title = "Building income 🏰";
       message = `Your ${tileType} building has produced ${amount} gold for your treasury!`;
     }
     

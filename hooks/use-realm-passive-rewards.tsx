@@ -219,12 +219,13 @@ export function useRealmPassiveRewards(grid: Tile[][], isMounted: boolean) {
                 const summary = Object.entries(consumed)
                     .map(([id, qty]) => {
                         const cost = Object.values(MAINTENANCE_COSTS).find(c => c.materialId === id);
-                        return `${cost?.emoji || '📦'} ${qty}x ${id.replace('material-', '')}`;
+                        const cleanMaterial = id.replace(/^material-/, '').replace(/[-_]/g, ' ').toLowerCase();
+                        return `${cost?.emoji || '📦'} ${qty}x ${cleanMaterial}`;
                     })
                     .join(', ');
 
                 toast({
-                    title: "🔧 Kingdom Maintained!",
+                    title: "Kingdom maintained 🔧",
                     description: `Used ${summary}. Buildings restored to full output.`,
                     className: "bg-black bg-gradient-to-r from-emerald-900 via-emerald-800 to-green-900 border-emerald-500 border-2 text-white shadow-2xl opacity-100"
                 });
@@ -232,7 +233,7 @@ export function useRealmPassiveRewards(grid: Tile[][], isMounted: boolean) {
                 return { consumed, success: true };
             } else {
                 toast({
-                    title: "⚠️ Insufficient Materials",
+                    title: "Insufficient materials ⚠️",
                     description: "You don't have enough raw materials to maintain your buildings. Gather logs, stone, and steel or trade in the market!",
                     className: "bg-black bg-gradient-to-r from-red-900 via-red-800 to-orange-900 border-red-500 border-2 text-white shadow-2xl opacity-100",
                     action: (

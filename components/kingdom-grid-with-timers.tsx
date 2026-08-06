@@ -1360,22 +1360,22 @@ export function KingdomGridWithTimers({
 
     // Handle Functional Buildings (Hub Navigation)
     if (tile.type === 'daily-hub') {
-      toast({ title: "Entering Daily Hub...", description: "Opening your habits dashboard." });
+      toast({ title: "Entering daily hub", description: "Opening your habits dashboard." });
       router.push('/daily-hub');
       return;
     }
     if (tile.type === 'quest-board') {
-      toast({ title: "Checking quest board...", description: "Going to quests." });
+      toast({ title: "Checking quest board", description: "Going to quests." });
       router.push('/quests');
       return;
     }
     if (tile.type === 'market' || tile.type === 'market-stalls') {
-      toast({ title: "Entering market...", description: "Going to market." });
+      toast({ title: "Entering market", description: "Going to market." });
       router.push('/market');
       return;
     }
     if (tile.type === 'dungeon') {
-      toast({ title: "Entering dungeon...", description: "Teleporting to dungeon." });
+      toast({ title: "Entering dungeon", description: "Teleporting to dungeon." });
       router.push('/dungeon');
       return;
     }
@@ -1394,14 +1394,14 @@ export function KingdomGridWithTimers({
           }).catch(() => {});
 
           toast({
-            title: "🧠 Fortune Reading Unlocked!",
+            title: "Fortune reading unlocked 🧠",
             description: "Spent 5 Focus Points to instantly awaken the Fortune Teller!"
           });
           setFortuneTileData({ x, y, tileId: tile.type });
           setFortuneModalOpen(true);
         } else {
           toast({
-            title: "Fortune Teller Resting 🧠",
+            title: "Fortune Teller resting 🧠",
             description: `The Fortune Teller is resting. Earn ${5 - currentFocus} more Focus Points to awaken her immediately!`,
             variant: "destructive"
           });
