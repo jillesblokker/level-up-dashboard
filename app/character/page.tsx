@@ -127,9 +127,9 @@ export default function CharacterPage() {
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [coverImage, setCoverImage] = useState(() => {
     if (typeof window !== 'undefined' && window.headerImages) {
-      return window.headerImages.character || "/images/character-header.webp"
+      return window.headerImages.character || "/images/headers/character-header.webp"
     }
-    return "/images/character-header.webp"
+    return "/images/headers/character-header.webp"
   })
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -970,7 +970,7 @@ export default function CharacterPage() {
                             {/* Blessing image */}
                             <div className="relative w-32 h-32 flex-shrink-0">
                               <Image
-                                src="/images/blessing.webp"
+                                src="/images/items/blessing.webp"
                                 alt={TEXT_CONTENT.character.ui.overview.noBonuses}
                                 fill
                                 className="object-contain opacity-50 rounded"

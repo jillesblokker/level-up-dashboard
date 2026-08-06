@@ -73,7 +73,7 @@ function EmptyState({ title, description, href, buttonText }: EmptyStateProps) {
       aria-label="kingdom-stats-empty-state-section"
     >
       <Image
-        src="/images/quests-header.webp"
+        src="/images/headers/quests-header.webp"
         alt="Empty stats placeholder"
         className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none"
         width={400}

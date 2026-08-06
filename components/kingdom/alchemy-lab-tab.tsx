@@ -378,7 +378,7 @@ export function AlchemyLabTab() {
       {/* Enhanced Header Hero */}
       <div className="relative h-60 md:h-72 rounded-2xl overflow-hidden border border-amber-950/20 shadow-2xl flex items-end">
         <Image
-          src="/images/alchemy-hero.png"
+          src="/images/headers/alchemy-hero.png"
           alt="Arcane Enhancements"
           fill
           className="object-cover brightness-75 select-none pointer-events-none"

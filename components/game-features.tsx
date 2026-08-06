@@ -26,7 +26,7 @@ export function GameFeatures() {
   const [achievementsLoading, setAchievementsLoading] = useState(true);
   const [achievementsError, setAchievementsError] = useState<string | null>(null);
   const dataLoadedRef = useRef(false);
-  const undiscoveredImg = '/images/undiscovered.webp';
+  const undiscoveredImg = '/images/placeholders/undiscovered.webp';
   const [showAllDiscovered, setShowAllDiscovered] = useState(false);
 
   useEffect(() => {

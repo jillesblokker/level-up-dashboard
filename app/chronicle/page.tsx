@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils'
 import { SeasonArchivalModal } from '@/components/chronicle/SeasonArchivalModal'
 import { Badge } from '@/components/ui/badge'
 import { Crown } from 'lucide-react'
+import { WeeklyGrowthInsightsCard } from '@/components/chronicle/WeeklyGrowthInsightsCard'
 
 export default function ChroniclePage() {
     const [entries, setEntries] = useState<any[]>([])
@@ -138,6 +139,8 @@ export default function ChroniclePage() {
                 </div>
 
                 <SeasonArchivalModal isOpen={isArchivalOpen} onClose={() => setIsArchivalOpen(false)} />
+
+                <WeeklyGrowthInsightsCard />
 
                 {/* Monthly Sovereign Recap Header Card */}
                 <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-purple-950/40 via-amber-950/20 to-zinc-950 border border-amber-500/30 text-amber-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl font-serif">

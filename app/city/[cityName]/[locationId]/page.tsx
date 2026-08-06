@@ -1090,7 +1090,7 @@ function CityLocationPageInner() {
                         {/* Dice Display Area */}
                         <div 
                           className="flex flex-col items-center justify-center py-8 rounded-2xl border border-amber-900/40 shadow-inner relative overflow-hidden bg-cover bg-center"
-                          style={{ backgroundImage: "url('/images/tavern-wood-bg.png')" }}
+                          style={{ backgroundImage: "url('/images/backgrounds/tavern-wood-bg.png')" }}
                         >
                           {/* Subtle overlay to keep dice legible */}
                           <div className="absolute inset-0 bg-black/45 pointer-events-none" />

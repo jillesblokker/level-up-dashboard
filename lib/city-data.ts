@@ -23,7 +23,7 @@ const defaultCityData: CityData = {
       name: "The Dragon's Rest",
       subtitle: "The social heart of the realm",
       description: 'Rest and recover while listening to local gossip, forming alliances, or challenging rivals.',
-      image: "/images/allies-header.webp"
+      image: "/images/headers/allies-header.webp"
     },
     {
       id: 'marketplace',
@@ -82,7 +82,7 @@ export function getCityData(cityName: string): CityData | null {
           name: "Arcane Scrolls Shop",
           subtitle: "Magical parchments",
           description: "Obtain scrolls for spells, streak recovery, and magical boosts.",
-          image: "/images/allies-header.webp"
+          image: "/images/headers/allies-header.webp"
         },
         {
           id: "marketplace-artifacts",
@@ -96,7 +96,7 @@ export function getCityData(cityName: string): CityData | null {
           name: "Tavern Provisions",
           subtitle: "Food and ingredients",
           description: "Stock up on food supplies, rations, and rare chef ingredients.",
-          image: "/images/allies-header.webp"
+          image: "/images/headers/allies-header.webp"
         }
       ]
     };

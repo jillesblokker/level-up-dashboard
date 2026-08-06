@@ -35,6 +35,7 @@ import { getCharacterStats } from "@/lib/character-stats-service"
 import { calculateLevelFromExperience } from "@/types/character"
 import dynamic from 'next/dynamic'
 import { AllianceTitanRaidModal } from "@/components/social/AllianceTitanRaidModal";
+import { AllianceComboBanner } from "@/components/alliance/alliance-combo-banner";
 import { FriendDareModal } from "@/components/social/FriendDareModal";
 
 // Dynamically import heavy components to prevent initialization order issues (ReferenceError)
@@ -189,7 +190,7 @@ export default function AlliesPage() {
         if (savedImage) {
             setCoverImage(savedImage);
         } else {
-            setCoverImage('/images/allies-cover.webp');
+            setCoverImage('/images/headers/allies-cover.webp');
         }
     }, [user?.id, triggerCatchUp]);
 
@@ -450,7 +451,7 @@ export default function AlliesPage() {
             <HeaderSection
                 title={TEXT_CONTENT.social.header.title}
                 subtitle={TEXT_CONTENT.social.header.subtitle}
-                imageSrc={coverImage || "/images/allies-header.webp"}
+                imageSrc={coverImage || "/images/headers/allies-header.webp"}
                 canEdit={!!user?.id}
                 onImageUpload={handleImageUpload}
                 defaultBgColor="bg-amber-900"
@@ -545,6 +546,8 @@ export default function AlliesPage() {
                             Riddles
                         </TabsTrigger>
                     </TabsList>
+
+                    <AllianceComboBanner />
 
                     {/* HOUSE CUP TAB */}
                     <TabsContent value="house-cup" className="space-y-4 max-w-5xl mx-auto">

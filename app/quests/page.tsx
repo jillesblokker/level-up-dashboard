@@ -35,6 +35,7 @@ import Image from 'next/image'
 import { gainGold } from '@/lib/gold-manager';
 import { useRef } from 'react';
 import { StreakRecovery } from '@/components/streak-recovery';
+import { StreakRecoveryCard } from '@/components/streaks/streak-recovery-card';
 import { FullPageLoading, DataLoadingState } from '@/components/ui/loading-states';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { gainExperience } from '@/lib/experience-manager'
@@ -2865,7 +2866,7 @@ export default function QuestsPage() {
           <HeaderSection
             title={TEXT_CONTENT.questBoard.header.title}
             subtitle={TEXT_CONTENT.questBoard.header.subtitle}
-            imageSrc="/images/quests-header.webp"
+            imageSrc="/images/headers/quests-header.webp"
             defaultBgColor="bg-amber-900"
             shouldRevealImage={true}
             guideComponent={
@@ -2899,6 +2900,7 @@ export default function QuestsPage() {
           />
           <MedievalErrorBoundary componentName="QuestsSubView">
             <MobileContentWrapper>
+            <StreakRecoveryCard />
             {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
 
             <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)} className="w-full mb-8">

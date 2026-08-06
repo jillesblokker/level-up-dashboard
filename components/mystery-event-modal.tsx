@@ -41,7 +41,7 @@ export function MysteryEventModal({
                     border: 'border-amber-500/30',
                     button: 'bg-amber-600 hover:bg-amber-500',
                     icon: Coins,
-                    image: '/images/riddle-sphinx.webp' // Sphinx for ruins/treasure mystery
+                    image: '/images/encounters/riddle-sphinx.webp' // Sphinx for ruins/treasure mystery
                 }
             case 'riddle':
                 return {
@@ -50,7 +50,7 @@ export function MysteryEventModal({
                     border: 'border-purple-500/30',
                     button: 'bg-purple-600 hover:bg-purple-500',
                     icon: Brain,
-                    image: '/images/riddle-sage.webp'
+                    image: '/images/encounters/riddle-sage.webp'
                 }
             case 'blessing':
                 return {

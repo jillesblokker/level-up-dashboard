@@ -1265,7 +1265,7 @@ export default function DesignSystemPage() {
                               <HeaderSection
                                 title="KINGDOM"
                                 subtitle="Your realm overview and progress"
-                                imageSrc="/images/kingdom-header.webp"
+                                imageSrc="/images/headers/kingdom-header.webp"
                                 canEdit={false}
                               />
                             </CardContent>

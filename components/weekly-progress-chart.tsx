@@ -171,7 +171,7 @@ export function WeeklyProgressChart() {
         ) : isEmpty ? (
           <>
             <Image
-              src="/images/quests-header.webp"
+              src="/images/headers/quests-header.webp"
               alt="No data yet"
               fill
               className="object-cover rounded-lg z-0"

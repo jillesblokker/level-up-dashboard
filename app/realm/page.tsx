@@ -1780,7 +1780,7 @@ function RealmPageContent() {
             <HeaderSection
                 title={isVisiting ? TEXT_CONTENT.realm.header.envoyTitle : TEXT_CONTENT.realm.header.title}
                 subtitle={isVisiting ? TEXT_CONTENT.realm.header.envoySubtitle : TEXT_CONTENT.realm.header.subtitle}
-                imageSrc="/images/realm-header.webp"
+                imageSrc="/images/headers/realm-header.webp"
                 defaultBgColor="bg-blue-900"
                 shouldRevealImage={true}
                 guideComponent={

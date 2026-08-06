@@ -1497,7 +1497,7 @@ export function KingdomClient() {
         setCoverImage(pref);
       } else {
         // Set default kingdom header image
-        setCoverImage('/images/kingdom-header.webp');
+        setCoverImage('/images/headers/kingdom-header.webp');
       }
       setCoverImageLoading(false);
     };

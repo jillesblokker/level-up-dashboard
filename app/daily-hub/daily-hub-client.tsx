@@ -38,6 +38,7 @@ import { getCurrentChapter, getNextChapter } from "@/lib/chronicles-data"
 import { HabitGuardian } from "@/components/kingdom/habit-guardian"
 import { ActiveTimersLedger } from "@/components/active-timers-ledger"
 import { DailyRoutineModal } from "@/components/daily-routine-modal"
+import { StreakRecoveryCard } from "@/components/streaks/streak-recovery-card"
 
 interface Quest {
     id: string
@@ -411,7 +412,7 @@ export function DailyHubClient() {
             <HeaderSection
                 title={getTimeBasedGreeting()}
                 subtitle="Another fine day to do at least 5-10 habits to rebuild the kingdom and improve your life!"
-                imageSrc="/images/daily-hub-hero.webp"
+                imageSrc="/images/headers/daily-hub-hero.webp"
                 defaultBgColor="bg-gradient-to-b from-amber-900/40 to-black"
                 className="h-[300px] md:h-[400px]"
                 shouldRevealImage={true}
@@ -432,6 +433,7 @@ export function DailyHubClient() {
             <div className="h-16 md:h-8" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 md:-mt-20 relative z-10 space-y-6 md:space-y-8">
+                <StreakRecoveryCard />
                 {/* Habit Milestone Escalation Banner */}
                 {(() => {
                     const count = completedQuestIds.size;
@@ -874,7 +876,7 @@ export function DailyHubClient() {
                                 <div className="flex-1 w-full max-w-md">
                                     <div className="relative aspect-square rounded-xl overflow-hidden border border-amber-900/30 shadow-2xl bg-zinc-950">
                                         <NextImage
-                                            src="/images/gameplay-loop.webp"
+                                            src="/images/placeholders/gameplay-loop.webp"
                                             alt="Level Up Gameplay Loop"
                                             fill
                                             priority

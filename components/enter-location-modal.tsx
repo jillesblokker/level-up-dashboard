@@ -61,7 +61,7 @@ export function EnterLocationModal({
         {/* Hero Image */}
         <div className="relative w-full h-40 overflow-hidden">
           <Image
-            src="/images/citywall.webp"
+            src="/images/backgrounds/citywall.webp"
             alt="Medieval city wall and gate"
             fill
             className="object-cover"

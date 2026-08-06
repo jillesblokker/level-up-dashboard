@@ -760,7 +760,7 @@ export default function Page() {
       <SignedIn>
         <HeaderSection
           title={TEXT_CONTENT.achievements.header.title}
-          imageSrc="/images/achievements-header.webp"
+          imageSrc="/images/headers/achievements-header.webp"
           canEdit={true}
           shouldRevealImage={true}
           guideComponent={
@@ -861,7 +861,7 @@ export default function Page() {
                         <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-zinc-950 border-amber-500/30 shadow-2xl shadow-black/40 group-hover:border-amber-500/60 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
                           <div className="relative w-full h-full">
                             <Image
-                              src={unlocked ? `/images/creatures/${creature.id}.png?v=3` : '/images/undiscovered.webp'}
+                              src={unlocked ? `/images/creatures/${creature.id}.png?v=3` : '/images/placeholders/undiscovered.webp'}
                               alt={creature.name}
                               fill
                               className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
@@ -997,7 +997,7 @@ export default function Page() {
                       ) : (
                         <div className="absolute inset-0 border-2 border-dashed border-zinc-800 rounded-xl overflow-hidden bg-zinc-950 grayscale opacity-80 flex flex-col justify-between">
                           <Image
-                            src="/images/undiscovered.webp"
+                            src="/images/placeholders/undiscovered.webp"
                             alt={`Undiscovered ${cardDef.rarity} Card (${colorName})`}
                             fill
                             className="object-cover opacity-20 blur-sm scale-90"
@@ -1064,7 +1064,7 @@ export default function Page() {
                           <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-zinc-950 border-blue-500/30 shadow-2xl shadow-black/40 group-hover:border-blue-500/60 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
                             <div className="relative w-full h-full">
                               <Image
-                                src={unlocked ? achievement.image_url : '/images/undiscovered.webp'}
+                                src={unlocked ? achievement.image_url : '/images/placeholders/undiscovered.webp'}
                                 alt={achievement.name}
                                 fill
                                 className={`object-cover ${unlocked ? 'mix-blend-multiply bg-zinc-950' : 'opacity-20 blur-sm scale-90'}`}
@@ -1192,7 +1192,7 @@ export default function Page() {
                           <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-zinc-950 border-red-500/30 shadow-2xl shadow-black/40 group-hover:border-red-500/60 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
                             <div className="relative w-full h-full">
                               <Image
-                                src={unlocked ? achievement.image_url : '/images/undiscovered.webp'}
+                                src={unlocked ? achievement.image_url : '/images/placeholders/undiscovered.webp'}
                                 alt={monsterName}
                                 fill
                                 className={`object-cover ${unlocked ? 'mix-blend-multiply bg-zinc-950' : 'opacity-20 blur-sm scale-90'}`}
@@ -1303,7 +1303,7 @@ export default function Page() {
                         <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-zinc-950 border-emerald-500/30 shadow-2xl shadow-black/40 group-hover:border-emerald-500/60 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
                           <div className="relative w-full h-full">
                             <Image
-                              src={unlocked ? achievement.image_url : '/images/undiscovered.webp'}
+                              src={unlocked ? achievement.image_url : '/images/placeholders/undiscovered.webp'}
                               alt={achievement.name}
                               fill
                               className={`object-cover ${unlocked ? 'mix-blend-multiply bg-zinc-950' : 'opacity-20 blur-sm scale-90'}`}

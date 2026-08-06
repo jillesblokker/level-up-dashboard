@@ -28,7 +28,7 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, prio
     return (
       <div className="relative aspect-[3/4] w-full">
         <Image
-          src="/images/undiscovered.webp"
+          src="/images/placeholders/undiscovered.webp"
           alt="Undiscovered Creature"
           fill
           className="object-contain"
@@ -61,7 +61,7 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, prio
       <div className="relative w-full h-full">
         {!imageError ? (
           <Image
-            src={isEffectivelyDiscovered ? `/images/creatures/${creature.id}.png?v=3` : "/images/undiscovered.webp"}
+            src={isEffectivelyDiscovered ? `/images/creatures/${creature.id}.png?v=3` : "/images/placeholders/undiscovered.webp"}
             alt={isEffectivelyDiscovered ? creature.name : "Undiscovered Creature"}
             fill
             className="object-contain p-2"

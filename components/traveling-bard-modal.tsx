@@ -64,12 +64,12 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
           {/* Hero Header Cover Image */}
           <div className="relative h-44 w-full overflow-hidden border-b border-purple-500/30">
             <Image
-              src="/images/realm-header.webp"
+              src="/images/headers/realm-header.webp"
               alt="Realm Ballad"
               fill
               className="object-cover opacity-80"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = '/images/kingdom-header.webp';
+                (e.target as HTMLImageElement).src = '/images/headers/kingdom-header.webp';
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
@@ -83,12 +83,12 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
             {/* Avatar Circle */}
             <div className="relative w-20 h-20 mx-auto rounded-full border-2 border-purple-400 overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.5)] bg-zinc-900">
               <Image
-                src="/images/riddle-sage.webp"
+                src="/images/encounters/riddle-sage.webp"
                 alt="Alistair the Bard"
                 fill
                 className="object-cover"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/images/allies-header.webp';
+                  (e.target as HTMLImageElement).src = '/images/headers/allies-header.webp';
                 }}
               />
             </div>
