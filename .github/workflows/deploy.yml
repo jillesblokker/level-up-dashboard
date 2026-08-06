@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: production_deployment
+  group: production_deployment_v2
   cancel-in-progress: true
 
 env:
