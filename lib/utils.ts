@@ -122,6 +122,7 @@ export function renderSafeNode(node: unknown, fallbackProps?: Record<string, any
     const Component = node as React.ElementType;
     return React.createElement(Component, fallbackProps);
   }
+  return null;
 }
 
 export function formatCleanName(raw: string): string {
