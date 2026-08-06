@@ -84,7 +84,7 @@ export function createExperienceGainedNotification(amount: number, source: strin
     let message = `You gained ${amount} experience from ${formatCleanName(source).toLowerCase()}`;
     
     if (source.startsWith('tile-collect:')) {
-      const tileType = formatCleanName(source.split(':')[1]);
+      const tileType = formatCleanName(source.split(':')[1] || '');
       title = "Kingdom knowledge 🏰";
       message = `While tending to your ${tileType} building, you learned valuable skills and gained ${amount} experience!`;
     } else if (source === 'mystery-events') {
@@ -163,7 +163,7 @@ export function createGoldGainedNotification(amount: number, source: string) {
       title = "Weekly fortune 📅";
       message = `Your weekly kingdom management has earned you ${amount} gold!`;
     } else if (source.startsWith('tile-collect:')) {
-      const tileType = formatCleanName(source.split(':')[1]);
+      const tileType = formatCleanName(source.split(':')[1] || '');
       title = "Building income 🏰";
       message = `Your ${tileType} building has produced ${amount} gold for your treasury!`;
     }
