@@ -1,19 +1,15 @@
 import { logger } from "@/lib/logger";
 import { Tile } from '@/types/core-interfaces';
-import { authenticatedFetch } from './auth-helpers';
+import { fetchWithAuth } from './fetchWithAuth';
 
 export async function getTileInventory(userId: string): Promise<Tile[]> {
     if (!userId) return [];
 
     try {
-        const response = await authenticatedFetch('/api/tile-inventory', {}, 'Tile Inventory');
+        const response = await fetchWithAuth('/api/tile-inventory');
 
-        if (!response) {
-            return [];
-        }
-
-        if (!response.ok) {
-            logger.error('[Tile Inventory] Failed to fetch tile inventory:', response.status, response.statusText);
+        if (!response || !response.ok) {
+            logger.error('[Tile Inventory] Failed to fetch tile inventory:', response?.status);
             return [];
         }
 
@@ -26,35 +22,25 @@ export async function getTileInventory(userId: string): Promise<Tile[]> {
 }
 
 export async function addTileToInventory(userId: string, tile: Partial<Tile>) {
-    // Removed debugging log
-
     if (!userId) {
         logger.error('[Tile Inventory Manager] No userId provided');
         return;
     }
 
     try {
-        // Removed debugging log
-        const response = await authenticatedFetch('/api/tile-inventory', {
+        const response = await fetchWithAuth('/api/tile-inventory', {
             method: 'POST',
             body: JSON.stringify({ tile }),
-        }, 'Add Tile Inventory');
+        });
 
-        if (!response) {
-            logger.error('[Tile Inventory Manager] No response from API');
+        if (!response || !response.ok) {
+            logger.error('[Tile Inventory Manager] Failed to add tile to inventory:', response?.status);
             return;
         }
 
-        // Removed debugging log
-
-        if (!response.ok) {
-            logger.error('[Tile Inventory Manager] Failed to add tile to inventory:', response.status, response.statusText);
-            return;
-        }
-
-        // Removed debugging log
-        // Dispatch event to notify components
+        // Dispatch events to notify all kingdom UI components
         window.dispatchEvent(new Event('tile-inventory-update'));
+        window.dispatchEvent(new Event('character-stats-update'));
     } catch (error) {
         logger.error('[Tile Inventory] Error adding tile to inventory:', error);
     }
@@ -64,33 +50,28 @@ export async function removeTileFromInventory(userId: string, tileId: string, qu
     if (!userId) return;
 
     try {
-        const response = await authenticatedFetch(`/api/tile-inventory?tileId=${encodeURIComponent(tileId)}&quantity=${quantity}`, {
+        const response = await fetchWithAuth(`/api/tile-inventory?tileId=${encodeURIComponent(tileId)}&quantity=${quantity}`, {
             method: 'DELETE',
-        }, 'Remove Tile Inventory');
+        });
 
-        if (!response) {
+        if (!response || !response.ok) {
+            logger.error('[Tile Inventory] Failed to remove tile from inventory:', response?.status);
             return;
         }
 
-        if (!response.ok) {
-            logger.error('[Tile Inventory] Failed to remove tile from inventory:', response.status, response.statusText);
-            return;
-        }
-
-        // Dispatch event to notify components
+        // Dispatch events to notify all kingdom UI components
         window.dispatchEvent(new Event('tile-inventory-update'));
+        window.dispatchEvent(new Event('character-stats-update'));
     } catch (error) {
         logger.error('[Tile Inventory] Error removing tile from inventory:', error);
     }
 }
 
 export async function updateTileInInventory(userId: string, tileId: string, updates: Partial<Tile>) {
-    // For now, we'll implement this as remove + add since the API doesn't have a deleted update endpoint
-    // This could be optimized later by adding a PATCH endpoint
-    // Removed debugging log
+    // Legacy placeholder
 }
 
-// Legacy functions for backward compatibility - these now use the API routes
+// Legacy functions for backward compatibility
 export { getTileInventory as getTileInventoryFromSupabase };
 export { addTileToInventory as addTileToSupabaseInventory };
-export { removeTileFromInventory as removeTileFromSupabaseInventory }; 
+export { removeTileFromInventory as removeTileFromSupabaseInventory };

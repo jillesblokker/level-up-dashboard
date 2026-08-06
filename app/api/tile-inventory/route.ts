@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
             user_id: userId,
             tile_id: tile.id,
             tile_type: tile.type,
-            name: tile.name,
+            name: tile.name || tile.type || tile.id,
             quantity: tile.quantity || 1,
             cost: tile.cost || 0,
             connections: tile.connections || [],

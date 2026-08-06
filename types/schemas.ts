@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const TileSchema = z.object({
   id: z.string(),
   type: z.string(),
-  name: z.string(),
+  name: z.string().optional(),
   description: z.string().optional(),
   connections: z.array(z.string()).optional(),
   rotation: z.union([z.literal(0), z.literal(90), z.literal(180), z.literal(270)]).optional(),

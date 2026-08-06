@@ -305,21 +305,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     try {
       const success = await spendGold(totalCost, `purchase-${quantity}-${tile.name || tile.type}-tiles`);
       if (success) {
-        if (!user?.id) {
-          logger.error('[Tile Inventory] No user ID found');
-          toast.error('User not authenticated');
-          return;
-        }
-
-        const result = await addTileToInventory(user.id, {
-          id: tile.id || tile.type,
-          type: tile.type as any,
-          name: tile.name,
-          quantity: quantity,
-          cost: tile.cost,
-          connections: tile.connections || [],
-        });
-
+        // Optimistically update local inventory state immediately (0ms visual delay)
         let found = false;
         let newTiles = tiles.map(item => {
           if (item.type === tile.type) {
@@ -332,9 +318,20 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           newTiles.push({ ...tile, quantity: quantity });
         }
         onUpdateTiles(newTiles);
+        setBuyQuantities(prev => ({ ...prev, [tile.type]: 1 }));
+        toast.success(`Purchased ${quantity} ${tile.name || tile.type} tile(s)`);
 
-        setBuyQuantities(prev => ({ ...prev, [tile.type]: 1 }))
-        toast.success(`Purchased ${quantity} ${tile.name || tile.type} tile(s)`)
+        // Asynchronously persist to database in background
+        if (user?.id) {
+          addTileToInventory(user.id, {
+            id: tile.id || tile.type,
+            type: tile.type as any,
+            name: tile.name || tile.type,
+            quantity: quantity,
+            cost: tile.cost,
+            connections: tile.connections || [],
+          });
+        }
       }
     } catch (error) {
       logger.error('[Tile Inventory] Error updating tile inventory:', error);
