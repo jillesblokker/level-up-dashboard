@@ -163,11 +163,15 @@ async function logGoldTransaction(
   metadata?: any
 ) {
   try {
-    const response = await fetchWithAuth('/api/gold-transactions', {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+
+    fetchWithAuth('/api/gold-transactions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      signal: controller.signal,
       body: JSON.stringify({
         amount,
         balanceAfter,
@@ -175,15 +179,10 @@ async function logGoldTransaction(
         source,
         metadata
       }),
+    }).then(res => {
+      clearTimeout(timeoutId);
+    }).catch(() => {
+      clearTimeout(timeoutId);
     });
-
-    if (!response.ok) {
-      logger.warn('[Gold Manager] Failed to log transaction to database:', response.status);
-    } else {
-      // Removed debugging log
-    }
-  } catch (error) {
-    logger.warn('[Gold Manager] Error logging transaction:', error);
-    // Don't fail the main operation if logging fails
-  }
+  } catch {}
 } 

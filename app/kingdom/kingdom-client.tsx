@@ -905,7 +905,7 @@ export function KingdomClient() {
 
     try {
       // Remove item from Supabase inventory
-      const response = await fetch('/api/inventory', {
+      const response = await fetchWithAuth('/api/inventory', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ itemId: item.id, quantity: 1 })
@@ -917,7 +917,7 @@ export function KingdomClient() {
       }
 
       // Add gold to character stats
-      await fetch('/api/character-stats/add-gold', {
+      await fetchWithAuth('/api/character-stats/add-gold', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: sellPrice })
@@ -931,7 +931,7 @@ export function KingdomClient() {
       setSellingModalOpen(true);
 
       // Refresh inventory from Supabase
-      const inventoryRes = await fetch('/api/inventory');
+      const inventoryRes = await fetchWithAuth('/api/inventory');
       let allItems = [];
       if (inventoryRes.ok) {
         const json = await inventoryRes.json();
