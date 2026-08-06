@@ -192,7 +192,9 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
     { enabled: !!userId, intervalMs: 30000, onVisibilityChange: true, onFocus: true }
   );
 
-  // Realtime postgres changes channel listener (<100ms instant cross-device sync)
+  const debounceTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  // Realtime postgres changes channel listener (<100ms instant cross-device sync with 1500ms debounce shield)
   useEffect(() => {
     if (!userId) return;
 
@@ -207,12 +209,18 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
           filter: `user_id=eq.${userId}`
         },
         () => {
-          handleSync();
+          if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+          }
+          debounceTimerRef.current = setTimeout(() => {
+            handleSync();
+          }, 1500);
         }
       )
       .subscribe();
 
     return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
       supabase.removeChannel(channel);
     };
   }, [userId]);
