@@ -2471,13 +2471,13 @@ export function KingdomGridWithTimers({
       {/* Kingdom Control Bar - Moves widgets off the grid to avoid overlap/interaction issues */}
       {/* Kingdom Control Bar - Grounded visual style */}
       <div className="w-full mb-6 flex flex-wrap items-center justify-between gap-4 px-6 py-3 bg-zinc-950 border border-zinc-800/50  shadow-xl">
-        {/* Left: Weather Info & Focus Mode */}
-        <div className="flex items-center gap-4">
+        {/* Left: Weather Info, Seasonal Festival, Sanctuary Shield & Focus Mode (Mobile Snap Carousel / Desktop Flex Track) */}
+        <div className="flex overflow-x-auto snap-x snap-mandatory items-center gap-3 py-1 w-full md:w-auto custom-scrollbar mobile-scroll-hide">
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex items-center cursor-help transition-opacity hover:opacity-80">
-                <div className="flex items-center gap-3">
-                  <div className="text-3xl filter drop-shadow-md">
+              <div className="flex items-center cursor-help transition-opacity hover:opacity-80 snap-start shrink-0 bg-zinc-900/80 px-3 py-1.5 rounded-xl border border-zinc-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="text-2xl filter drop-shadow-md">
                     {weather === 'sunny' ? '☀️' : weather === 'rainy' ? '🌧️' : '🌬️'}
                   </div>
                   <div className="flex flex-col">
@@ -2496,7 +2496,7 @@ export function KingdomGridWithTimers({
           {activeEvent && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-950/20 border border-amber-800/30 rounded-lg cursor-help transition-all hover:bg-amber-950/30 hover:border-amber-700/50">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-950/30 border border-amber-800/40 rounded-xl cursor-help transition-all hover:bg-amber-950/40 hover:border-amber-700/60 snap-start shrink-0">
                   <span className="text-base select-none">
                     {activeEvent.id === 'winter_festival' ? '❄️' :
                      activeEvent.id === 'festival_of_hearts' ? '💖' :
@@ -2534,8 +2534,31 @@ export function KingdomGridWithTimers({
             </Tooltip>
           )}
 
-          {/* 3. Category Focus Mode Toggles */}
-          <div className="hidden lg:flex items-center gap-1 bg-zinc-950 p-1 rounded-lg border border-white/5">
+          {/* Sanctuary Toggle Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => setSanctuaryMode(!sanctuaryMode)}
+                className={cn(
+                  "px-3 py-1.5 rounded-xl transition-all flex items-center gap-2 border border-white/5 snap-start shrink-0",
+                  sanctuaryMode 
+                    ? "bg-indigo-500/20 text-indigo-400 border-indigo-500/30 shadow-[0_0_10px_rgba(99,102,241,0.2)]" 
+                    : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 hover:bg-white/5 grayscale"
+                )}
+              >
+                <span className="text-base">🛡️</span>
+                <span className="text-[10px] font-bold uppercase tracking-tight">Sanctuary</span>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="max-w-xs text-xs">
+                <strong>Sanctuary Mode:</strong> {sanctuaryMode ? 'Active. Necrion\'s wards repel the ruins.' : 'Inactive. Activate to freeze streaks and prevent Ruins from creeping into your kingdom when you need a break.'}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+
+          {/* Category Focus Mode Toggles */}
+          <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-white/5 snap-start shrink-0">
             {[
               { id: 'might', icon: '⚔️', label: 'Might', types: ['training-grounds', 'blacksmith', 'archery', 'jousting', 'watchtower'] },
               { id: 'knowledge', icon: '📖', label: 'Knowledge', types: ['library', 'wizard', 'temple', 'monument'] },
@@ -2548,7 +2571,7 @@ export function KingdomGridWithTimers({
                   key={cat.id}
                   onClick={() => setFocusCategory(focusCategory === cat.id ? null : cat.id)}
                   className={cn(
-                    "p-1.5 rounded transition-all flex items-center gap-1.5",
+                    "p-1.5 rounded-lg transition-all flex items-center gap-1.5",
                     focusCategory === cat.id 
                       ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]" 
                       : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5 opacity-50 grayscale"
@@ -2556,7 +2579,7 @@ export function KingdomGridWithTimers({
                   title={`Filter for ${cat.label} synergy`}
                 >
                   <span className="text-sm">{cat.icon}</span>
-                  <span className="text-[9px] font-bold uppercase tracking-tight hidden xl:inline">{cat.label}</span>
+                  <span className="text-[9px] font-bold uppercase tracking-tight inline sm:hidden md:inline">{cat.label}</span>
                   <span className={cn(
                     "text-[8px] px-1 rounded-full",
                     focusCategory === cat.id ? "bg-amber-500 text-black" : "bg-white/10 text-zinc-400"
@@ -2565,29 +2588,6 @@ export function KingdomGridWithTimers({
               );
             })}
           </div>
-
-          {/* Sanctuary Toggle Button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => setSanctuaryMode(!sanctuaryMode)}
-                className={cn(
-                  "p-1.5 rounded transition-all flex items-center gap-1.5 border border-white/5",
-                  sanctuaryMode 
-                    ? "bg-indigo-500/20 text-indigo-400 border-indigo-500/30 shadow-[0_0_10px_rgba(99,102,241,0.2)]" 
-                    : "bg-zinc-950 text-zinc-500 hover:text-zinc-300 hover:bg-white/5 grayscale"
-                )}
-              >
-                <span className="text-sm">🛡️</span>
-                <span className="text-[9px] font-bold uppercase tracking-tight hidden xl:inline">Sanctuary</span>
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="max-w-xs text-xs">
-                <strong>Sanctuary Mode:</strong> {sanctuaryMode ? 'Active. Necrion\'s wards repel the ruins.' : 'Inactive. Activate to freeze streaks and prevent Ruins from creeping into your kingdom when you need a break.'}
-              </p>
-            </TooltipContent>
-          </Tooltip>
         </div>
 
         {/* Center: Resource HUD */}
