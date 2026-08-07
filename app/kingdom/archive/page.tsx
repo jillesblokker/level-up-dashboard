@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Trophy, Crown, Star, Award, Shield } from "lucide-react"
+import { ArrowLeft, Trophy, Crown, Star, Award, Shield, Sparkles, Flame, ArrowRight, Medal, Scroll } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -9,32 +9,92 @@ import { Badge } from "@/components/ui/badge"
 import { getCharacterStats } from "@/lib/character-stats-service"
 import { useCitizensStore } from "@/stores/citizensStore"
 import { cn } from "@/lib/utils"
+import { fetchWithAuth } from "@/lib/fetchWithAuth"
+
+interface ArchivedSeason {
+  id: string
+  seasonName: string
+  monthYear: string
+  winnerUsername: string
+  winnerAvatarUrl?: string
+  legacyTitle: string
+  paragonBorder: 'gold' | 'amber' | 'violet'
+  virtuePoints: number
+  topVirtue: string
+}
+
+const PARAGON_BORDERS = [
+  {
+    id: 'gold',
+    name: 'Paragon Gold',
+    title: 'Sovereign of Might',
+    ringStyle: 'border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.5)] bg-gradient-to-tr from-amber-500/20 via-yellow-400/20 to-amber-600/20',
+    desc: 'Awarded to 1st Place House Cup Season Champions.'
+  },
+  {
+    id: 'amber',
+    name: 'Astral Amber',
+    title: 'The Unyielding',
+    ringStyle: 'border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.5)] bg-gradient-to-tr from-orange-600/20 via-amber-500/20 to-orange-700/20',
+    desc: 'Earned by maintaining a 30+ day daily habit streak.'
+  },
+  {
+    id: 'violet',
+    name: 'Sovereign Violet',
+    title: 'Master of Persistency',
+    ringStyle: 'border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.5)] bg-gradient-to-tr from-purple-600/20 via-pink-500/20 to-indigo-600/20',
+    desc: 'Granted to legendary champions reaching Prestige Level 100.'
+  }
+]
 
 export default function ArchiveOfTriumphsPage() {
   const [stats, setStats] = useState<any>(null)
+  const [archivedSeasons, setArchivedSeasons] = useState<ArchivedSeason[]>([])
+  const [isLoadingSeasons, setIsLoadingSeasons] = useState(true)
   const citizens = useCitizensStore(state => state.citizens)
-  // Ensure we mount gameStore correctly, skipping hydration mismatch
   const [activePartnerId, setActivePartnerId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     setStats(getCharacterStats())
-    // We can safely grab it from game store directly on mount/client-side
-    const { useGameStore } = require('@/stores/game-store');
-    setActivePartnerId(useGameStore.getState().activePartnerId);
     
-    // Subscribe to changes
-    const unsub = useGameStore.subscribe(
-      (state: any) => state.activePartnerId,
-      (id: string | undefined) => setActivePartnerId(id)
-    );
-    return () => unsub();
+    // Safely grab partner from game store
+    try {
+      const { useGameStore } = require('@/stores/game-store');
+      setActivePartnerId(useGameStore.getState().activePartnerId);
+      
+      const unsub = useGameStore.subscribe(
+        (state: any) => state.activePartnerId,
+        (id: string | undefined) => setActivePartnerId(id)
+      );
+      return () => {
+        if (typeof unsub === 'function') unsub();
+      };
+    } catch {
+      return () => {};
+    }
+  }, [])
+
+  useEffect(() => {
+    const fetchArchivedSeasons = async () => {
+      try {
+        const res = await fetchWithAuth('/api/house-cup/recap')
+        if (res.ok) {
+          const data = await res.json()
+          setArchivedSeasons(data.seasons || [])
+        }
+      } catch {
+        // Fallback to empty array
+      } finally {
+        setIsLoadingSeasons(false)
+      }
+    }
+
+    fetchArchivedSeasons()
   }, [])
 
   // Find citizens that have a history of being a partner (affection > 0) OR are the current partner
   const partnerCitizens = citizens.filter(c => c.affection > 0 || c.id === activePartnerId)
   
-  // Get top 3 highest affection (current partner may be at the bottom if affection is 0, but will be included if <= 3 total)
-  // Let's ensure activePartnerId is prioritized if they are currently set as partner!
   const topCitizens = [...partnerCitizens]
     .sort((a, b) => {
       if (a.id === activePartnerId) return -1;
@@ -46,7 +106,7 @@ export default function ArchiveOfTriumphsPage() {
   if (!stats) return null
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-amber-50">
+    <div className="min-h-screen bg-zinc-950 text-amber-50 pb-20">
       {/* Header */}
       <div className="relative border-b border-amber-900/30 bg-zinc-950 shadow-xl z-10">
         <div className="absolute inset-0 bg-gradient-to-r from-amber-900/10 via-transparent to-amber-900/10 pointer-events-none" />
@@ -59,10 +119,10 @@ export default function ArchiveOfTriumphsPage() {
             </Link>
             <div>
               <h1 className="text-3xl font-serif text-amber-500 font-bold tracking-tight drop-shadow-md flex items-center gap-2">
-                <Trophy className="w-6 h-6" /> Archive of Triumphs
+                <Trophy className="w-7 h-7 text-amber-400" /> Archive of Triumphs
               </h1>
               <p className="text-amber-200/60 font-serif text-sm mt-1 max-w-2xl">
-                A grand museum celebrating your most heroic deeds and loyal companions. Your legacy is etched in stone here.
+                A unified sanctuary celebrating your House Cup season champions, Paragon honors, and heroic companion legacies.
               </p>
             </div>
           </div>
@@ -70,32 +130,155 @@ export default function ArchiveOfTriumphsPage() {
       </div>
 
       <div className="container mx-auto p-6 md:p-10 space-y-12">
-        {/* Gallery 1: The Champions (Top Citizens) */}
+        {/* SECTION 1: House Cup Hall of Champions & Season Legacy */}
+        <section>
+          <div className="flex items-center justify-between mb-6 border-b border-amber-900/30 pb-3">
+            <div className="flex items-center gap-3">
+              <Crown className="w-6 h-6 text-amber-400" />
+              <h2 className="text-2xl font-serif text-amber-200 tracking-wide">House Cup Hall of Champions</h2>
+            </div>
+            <Link href="/social">
+              <Button variant="ghost" size="sm" className="text-amber-400 hover:text-amber-300 text-xs font-semibold">
+                Live Standings <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </Link>
+          </div>
+
+          {archivedSeasons.length === 0 ? (
+            /* Clever Narrative Empty State */
+            <Card className="bg-gradient-to-b from-amber-950/30 via-zinc-900 to-zinc-950 border-amber-500/30 overflow-hidden relative shadow-2xl">
+              <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+                <Crown className="w-64 h-64 text-amber-400" />
+              </div>
+              <CardContent className="p-8 md:p-12 flex flex-col items-center text-center relative z-10">
+                <div className="relative mb-6">
+                  <div className="w-20 h-20 rounded-full bg-amber-500/10 border-2 border-amber-500/40 flex items-center justify-center animate-pulse">
+                    <Sparkles className="w-10 h-10 text-amber-400" />
+                  </div>
+                  <Badge className="absolute -bottom-2 -right-2 bg-amber-600 text-zinc-950 font-bold border-amber-300 text-[10px] px-2 py-0.5">
+                    Season 1 Active
+                  </Badge>
+                </div>
+
+                <h3 className="text-2xl font-serif font-bold text-amber-200 mb-3">
+                  The Grand Hourglass Awaits Its First Champion
+                </h3>
+                
+                <p className="text-amber-200/70 text-sm max-w-xl leading-relaxed mb-6">
+                  The House Cup season is actively underway! Complete your daily habit sweet-spot (<span className="text-amber-300 font-semibold">5/10 habits per day</span>) to fuel the 7 Virtue Hourglasses (<span className="italic">Might, Knowledge, Honor, Castle, Craft, Vitality, Wellness</span>). When the monthly cycle closes, the season winner will be immortalized here with a Paragon Avatar Border and eternal Legacy Title.
+                </p>
+
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <Link href="/social">
+                    <Button className="bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl px-6 h-11 shadow-lg border-t border-white/20 flex items-center gap-2">
+                      <Flame className="w-4 h-4 text-amber-200" />
+                      View House Cup Standings
+                    </Button>
+                  </Link>
+                  <Link href="/quests">
+                    <Button variant="outline" className="border-amber-500/40 text-amber-300 hover:bg-amber-950/40 font-semibold rounded-xl px-5 h-11">
+                      Complete Today&apos;s Habits
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            /* Archived Champions Grid */
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {archivedSeasons.map((season) => (
+                <Card key={season.id} className="bg-gradient-to-b from-zinc-900 to-zinc-950 border-amber-500/40 relative overflow-hidden shadow-xl">
+                  <CardContent className="p-6 flex flex-col items-center text-center">
+                    <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 mb-4 font-mono text-xs">
+                      {season.monthYear} • {season.seasonName}
+                    </Badge>
+
+                    {/* Paragon Avatar Border Ring */}
+                    <div className="relative mb-4">
+                      <div className={cn(
+                        "w-24 h-24 rounded-full border-4 flex items-center justify-center p-1",
+                        season.paragonBorder === 'gold' && "border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.5)]",
+                        season.paragonBorder === 'amber' && "border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.5)]",
+                        season.paragonBorder === 'violet' && "border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.5)]"
+                      )}>
+                        <img 
+                          src={season.winnerAvatarUrl || '/images/character/hero-placeholder.png'} 
+                          alt={season.winnerUsername}
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      </div>
+                      <Crown className="absolute -top-2 -right-1 w-6 h-6 text-amber-400 drop-shadow" />
+                    </div>
+
+                    <h3 className="text-lg font-bold font-serif text-amber-100">{season.winnerUsername}</h3>
+                    <Badge variant="outline" className="bg-amber-950/80 border-amber-500/40 text-amber-300 font-semibold text-xs mt-1">
+                      {season.legacyTitle}
+                    </Badge>
+
+                    <div className="mt-4 pt-3 border-t border-amber-900/30 w-full text-xs text-amber-200/70 flex justify-between">
+                      <span>Virtue Energy: <strong className="text-amber-300">{season.virtuePoints} pts</strong></span>
+                      <span>Top: <strong className="text-amber-300 uppercase">{season.topVirtue}</strong></span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* SECTION 2: Paragon Avatar Borders & Legacy Titles Showcase */}
+        <section>
+          <div className="flex items-center gap-3 mb-6 border-b border-amber-900/30 pb-3">
+            <Medal className="w-6 h-6 text-amber-400" />
+            <h2 className="text-2xl font-serif text-amber-200 tracking-wide">Paragon Borders & Legacy Titles</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {PARAGON_BORDERS.map((item) => (
+              <Card key={item.id} className="bg-zinc-900/80 border-amber-900/30 hover:border-amber-500/40 transition-all p-5">
+                <CardContent className="p-0 flex items-start gap-4">
+                  <div className={cn("w-14 h-14 rounded-full border-2 shrink-0 flex items-center justify-center font-bold text-lg text-amber-300 font-serif", item.ringStyle)}>
+                    <Crown className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-amber-100 text-sm">{item.name}</h4>
+                    </div>
+                    <Badge variant="outline" className="bg-amber-950/60 border-amber-500/30 text-amber-400 text-[10px] my-1 font-mono">
+                      Title: {item.title}
+                    </Badge>
+                    <p className="text-xs text-zinc-400 mt-1">{item.desc}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* SECTION 3: Companion Pedestals */}
         <section>
           <div className="flex items-center gap-3 mb-6 border-b border-amber-900/30 pb-3">
             <Crown className="w-6 h-6 text-amber-400" />
-            <h2 className="text-2xl font-serif text-amber-200 tracking-wide">Hall of Champions</h2>
+            <h2 className="text-2xl font-serif text-amber-200 tracking-wide">Loyal Companion Pedestals</h2>
           </div>
           
           {topCitizens.length === 0 ? (
-            <p className="text-zinc-500 italic">Your hall stands empty. Befriend citizens in your journey to see your most loyal partners here.</p>
+            <Card className="bg-zinc-900/60 border-amber-900/20 p-6 text-center">
+              <p className="text-zinc-400 text-sm italic">Your companion pedestals stand empty. Train citizens in your kingdom journey to see your most loyal partners here.</p>
+            </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {topCitizens.map((citizen, idx) => (
                 <div key={citizen.id} className="relative group">
-                  {/* Pedestal / Statue effect */}
                   <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-zinc-800 rounded-[100%] blur-sm opacity-50 pointer-events-none" />
                   
                   <Card className={cn(
                     "bg-gradient-to-b from-zinc-800 to-zinc-950 border-amber-900/40 transform transition-all duration-500 overflow-hidden relative",
                     idx === 0 ? "scale-105 border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.15)]" : "hover:scale-105 hover:border-amber-700/50"
                   )}>
-                    <div className="absolute inset-0 bg-[url('/images/ui/stone-texture.png')] opacity-10 mix-blend-overlay" />
-                    
                     <CardContent className="p-6 flex flex-col items-center text-center relative z-10">
                       {idx === 0 && <Crown className="absolute top-4 left-4 w-6 h-6 text-amber-400 drop-shadow-md" />}
                       
-                      {/* Bond Level in Upper Right */}
                       <div className="absolute top-4 right-4 bg-zinc-950/80 px-2 py-1 rounded border border-white/5 flex items-center gap-1">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star key={i} className={cn("w-3 h-3", i < Math.floor((citizen.affection || 0) / 20) ? "text-amber-400 fill-amber-400" : "text-zinc-700")} />
@@ -103,7 +286,6 @@ export default function ArchiveOfTriumphsPage() {
                       </div>
 
                       <div className="w-32 h-32 mb-6 relative">
-                        {/* Simulate a stone statue filter */}
                         <div className="w-full h-full bg-zinc-700/50 rounded-full animate-pulse absolute inset-0 -z-10 blur-xl" />
                         <img 
                           src={citizen.isMythic ? `/images/Mythics/${citizen.filename}?v=2` : `/images/creatures/${citizen.filename}`} 
@@ -119,7 +301,7 @@ export default function ArchiveOfTriumphsPage() {
                           Lvl {citizen.level || 1}
                         </Badge>
                       </div>
-                      <p className="text-amber-500/80 text-sm font-semibold uppercase tracking-wider">{citizen.type} • Lvl {citizen.level || 1}</p>
+                      <p className="text-amber-500/80 text-sm font-semibold uppercase tracking-wider">{citizen.type} • Affection {citizen.affection || 0}%</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -128,7 +310,7 @@ export default function ArchiveOfTriumphsPage() {
           )}
         </section>
 
-        {/* Gallery 2: Records & Plaques */}
+        {/* SECTION 4: Plaques of Legend */}
         <section>
           <div className="flex items-center gap-3 mb-6 border-b border-amber-900/30 pb-3">
             <Award className="w-6 h-6 text-amber-400" />
@@ -153,7 +335,7 @@ export default function ArchiveOfTriumphsPage() {
               </div>
               <CardContent className="p-6 relative z-10">
                 <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2">Total Experience</p>
-                <div className="text-3xl font-mono text-amber-400 font-bold">{stats.experience.toLocaleString()}</div>
+                <div className="text-3xl font-mono text-amber-400 font-bold">{stats.experience?.toLocaleString() || 0}</div>
                 <div className="mt-4 h-1 w-12 bg-amber-600/50" />
               </CardContent>
             </Card>
@@ -166,9 +348,13 @@ export default function ArchiveOfTriumphsPage() {
                 <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2">Titles Unlocked</p>
                 <div className="text-3xl font-mono text-amber-400 font-bold">
                   {(() => {
-                    const { TITLES } = require('@/lib/title-manager');
-                    const unlocked = TITLES.filter((t: any) => stats.level >= t.level).length;
-                    return `${unlocked} / ${TITLES.length}`;
+                    try {
+                      const { TITLES } = require('@/lib/title-manager');
+                      const unlocked = TITLES.filter((t: any) => stats.level >= t.level).length;
+                      return `${unlocked} / ${TITLES.length}`;
+                    } catch {
+                      return '1 / 10';
+                    }
                   })()}
                 </div>
                 <div className="mt-4 h-1 w-12 bg-amber-600/50" />
