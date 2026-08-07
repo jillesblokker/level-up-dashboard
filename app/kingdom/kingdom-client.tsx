@@ -1776,38 +1776,38 @@ export function KingdomClient() {
         </div>
 
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
-          <div className="flex w-full mb-6 justify-between items-center gap-2">
-            <TabsList className="w-full md:w-auto">
-              <TabsTrigger value="thrivehaven">
+          <div className="flex w-full mb-6 items-center justify-between gap-3 overflow-x-auto snap-x snap-mandatory py-1 custom-scrollbar mobile-scroll-hide">
+            <TabsList className="flex shrink-0 snap-start space-x-1 p-1 bg-zinc-950/80 border border-amber-900/30 rounded-2xl">
+              <TabsTrigger value="thrivehaven" className="snap-start shrink-0">
                 <LayoutGrid className="w-4 h-4" />
                 <span>{TEXT_CONTENT.kingdom.ui.tabs.thrivehaven}</span>
               </TabsTrigger>
-              <TabsTrigger value="journey">
+              <TabsTrigger value="journey" className="snap-start shrink-0">
                 <Compass className="w-4 h-4" />
                 <span>{TEXT_CONTENT.kingdom.ui.tabs.journey}</span>
               </TabsTrigger>
-              <TabsTrigger value="citizens">
+              <TabsTrigger value="citizens" className="snap-start shrink-0">
                 <Users className="w-4 h-4" />
                 <span>Citizens</span>
               </TabsTrigger>
-              <TabsTrigger value="barracks">
+              <TabsTrigger value="barracks" className="snap-start shrink-0">
                 <Sword className="w-4 h-4" />
                 <span>Barracks</span>
               </TabsTrigger>
-              <TabsTrigger value="alchemy">
+              <TabsTrigger value="alchemy" className="snap-start shrink-0">
                 <FlaskConical className="w-4 h-4" />
                 <span>Enhanced</span>
               </TabsTrigger>
-              <TabsTrigger value="airship">
+              <TabsTrigger value="airship" className="snap-start shrink-0">
                 <Plane className="w-4 h-4" />
                 <span>Airship Harbor</span>
               </TabsTrigger>
             </TabsList>
             
-            <Link href="/kingdom/archive">
-              <Button variant="outline" className="border-amber-900/30 text-amber-500 hover:bg-amber-950/30 hover:text-amber-400">
+            <Link href="/kingdom/archive" className="snap-start shrink-0">
+              <Button variant="outline" className="border-amber-900/40 text-amber-400 hover:bg-amber-950/40 hover:text-amber-300 min-h-[44px]">
                 <Trophy className="w-4 h-4" />
-                <span className="hidden sm:inline">Archive of Triumphs</span>
+                <span>Archive of Triumphs</span>
               </Button>
             </Link>
           </div>

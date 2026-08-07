@@ -2470,11 +2470,10 @@ export function KingdomGridWithTimers({
 
   return (
     <div className="w-full flex flex-col items-center gap-4">
-      {/* Kingdom Control Bar - Moves widgets off the grid to avoid overlap/interaction issues */}
-      {/* Kingdom Control Bar - Grounded visual style */}
-      <div className="w-full mb-6 flex flex-wrap items-center justify-between gap-4 px-6 py-3 bg-zinc-950 border border-zinc-800/50  shadow-xl">
-        {/* Left: Weather Info, Seasonal Festival, Sanctuary Shield & Focus Mode (Mobile Snap Carousel / Desktop Flex Track) */}
-        <div className="flex overflow-x-auto snap-x snap-mandatory items-center gap-3 py-1 w-full md:w-auto custom-scrollbar mobile-scroll-hide">
+      {/* Kingdom Control Bar - Mobile Snap Carousel / Desktop Responsive Bar */}
+      <div className="w-full mb-6 flex md:flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-zinc-950 border border-zinc-800/50 shadow-xl overflow-x-auto snap-x snap-mandatory custom-scrollbar mobile-scroll-hide">
+        {/* Left: Weather Info, Seasonal Festival, Sanctuary Shield & Focus Mode */}
+        <div className="flex items-center gap-3 snap-start shrink-0">
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex items-center cursor-help transition-opacity hover:opacity-80 snap-start shrink-0 bg-zinc-900/80 px-3 py-1.5 rounded-xl border border-zinc-800">
@@ -2593,7 +2592,7 @@ export function KingdomGridWithTimers({
         </div>
 
         {/* Center: Resource HUD */}
-        <div className="flex items-center gap-3 bg-zinc-950 px-4 py-2 rounded-xl border border-white/5 shadow-inner overflow-x-auto max-w-full mobile-scroll-hide whitespace-nowrap">
+        <div className="flex items-center gap-3 bg-zinc-950 px-4 py-2 rounded-xl border border-white/5 shadow-inner overflow-x-auto max-w-full mobile-scroll-hide whitespace-nowrap snap-start shrink-0">
           {/* Build Tokens */}
           <Tooltip>
             <TooltipTrigger asChild>
@@ -2619,7 +2618,6 @@ export function KingdomGridWithTimers({
             { id: 'material-planks', label: 'Planks', icon: '🪚', source: 'Crafted in Sawmill or Scavenged' },
             { id: 'material-stone-block', label: 'Blocks', icon: '🧱', source: 'Cut in Masonry Workshop' }
           ].map(mat => {
-            // Find item by ID or Name
             const item = inventory?.find(i => i.id === mat.id || i.name?.toLowerCase() === mat.label.toLowerCase());
             const qty = item?.quantity || 0;
 
@@ -2641,11 +2639,11 @@ export function KingdomGridWithTimers({
         </div>
 
         {/* Right: Action Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 snap-start shrink-0 bg-zinc-950/80 p-1.5 rounded-xl border border-white/5">
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                className="w-10 h-10 bg-gradient-to-br from-zinc-700 to-zinc-900 border border-zinc-600 text-white rounded-xl shadow-lg flex items-center justify-center hover:from-zinc-600 hover:to-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation transition-all hover:scale-105 active:scale-95"
+                className="w-10 h-10 bg-gradient-to-br from-zinc-700 to-zinc-900 border border-zinc-600 text-white rounded-xl shadow-lg flex items-center justify-center hover:from-zinc-600 hover:to-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation transition-all hover:scale-105 active:scale-95 min-h-[44px] min-w-[44px]"
                 onClick={expandKingdomGrid}
                 disabled={!canExpand}
                 aria-label="Expand kingdom grid"
@@ -2667,7 +2665,7 @@ export function KingdomGridWithTimers({
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                className="w-12 h-12 bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-amber-500/30 text-white rounded-xl shadow-lg flex items-center justify-center text-2xl font-bold hover:from-amber-500 hover:to-amber-700 hover:border-amber-400/50 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation transition-all hover:scale-105 active:scale-95 group"
+                className="w-12 h-12 bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-amber-500/30 text-white rounded-xl shadow-lg flex items-center justify-center text-2xl font-bold hover:from-amber-500 hover:to-amber-700 hover:border-amber-400/50 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation transition-all hover:scale-105 active:scale-95 group min-h-[44px] min-w-[44px]"
                 aria-label="Open properties panel"
                 onClick={() => setPropertiesOpen(true)}
               >
