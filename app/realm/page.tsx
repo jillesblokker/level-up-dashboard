@@ -1913,12 +1913,12 @@ function RealmPageContent() {
                                     </div>
                                 )}
 
-                                {/* Expeditions Button (Point 6) */}
+                                {/* Expeditions Button (Shown inline on desktop/landscape md:flex, in More menu on mobile) */}
                                 <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setIsExpeditionModalOpen(true)}
-                                    className="flex items-center gap-2 min-w-[44px] min-h-[44px] bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-600"
+                                    className="hidden md:flex items-center gap-2 min-w-[44px] min-h-[44px] bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-600"
                                 >
                                     <Compass className="w-4 h-4 text-emerald-400" />
                                     <span>Expeditions</span>
@@ -1929,7 +1929,7 @@ function RealmPageContent() {
                                     variant="outline"
                                     size="sm"
                                     onClick={() => router.push('/worldmap')}
-                                    className="flex items-center gap-2 min-w-[44px] min-h-[44px] bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-600"
+                                    className="hidden md:flex items-center gap-2 min-w-[44px] min-h-[44px] bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-600"
                                 >
                                     <Map className="w-4 h-4 text-amber-400" />
                                     <span>World Map</span>
@@ -1940,14 +1940,14 @@ function RealmPageContent() {
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setShowInventory(!showInventory)}
-                                    className="flex items-center gap-2 min-w-[44px] min-h-[44px]"
+                                    className="hidden md:flex items-center gap-2 min-w-[44px] min-h-[44px]"
                                     aria-label="toggle-inventory-button"
                                 >
                                     <Package className="w-4 h-4" />
-                                    <span className="hidden sm:inline">{TEXT_CONTENT.realm.modes.inventory}</span>
+                                    <span>{TEXT_CONTENT.realm.modes.inventory}</span>
                                 </Button>
 
-                                {/* Kebab Menu for Secondary Actions */}
+                                {/* Kebab Menu for Secondary & Mobile Actions */}
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button
@@ -1960,20 +1960,37 @@ function RealmPageContent() {
                                             <span className="hidden sm:inline">{TEXT_CONTENT.realm.modes.more}</span>
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="w-48">
-                                        <DropdownMenuItem onClick={handleResetPosition} className="flex items-center gap-2">
-                                            <RotateCcw className="w-4 h-4" />
+                                    <DropdownMenuContent align="end" className="w-52 bg-zinc-950 border-amber-900/40 text-zinc-100 p-1.5 shadow-2xl font-serif">
+                                        {/* Mobile Menu Action Items (Hidden on desktop md:hidden) */}
+                                        <DropdownMenuItem onClick={() => setIsExpeditionModalOpen(true)} className="md:hidden flex items-center gap-2 font-semibold text-emerald-400 cursor-pointer">
+                                            <Compass className="w-4 h-4 text-emerald-400" />
+                                            Expeditions
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => router.push('/worldmap')} className="md:hidden flex items-center gap-2 font-semibold text-amber-400 cursor-pointer">
+                                            <Map className="w-4 h-4 text-amber-400" />
+                                            World Map
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => setShowInventory(!showInventory)} className="md:hidden flex items-center gap-2 font-semibold text-amber-200 cursor-pointer">
+                                            <Package className="w-4 h-4" />
+                                            {TEXT_CONTENT.realm.modes.inventory}
+                                        </DropdownMenuItem>
+                                        
+                                        <div className="h-px bg-zinc-800 my-1 md:hidden" />
+
+                                        <DropdownMenuItem onClick={handleResetPosition} className="flex items-center gap-2 cursor-pointer">
+                                            <RotateCcw className="w-4 h-4 text-zinc-400" />
                                             {TEXT_CONTENT.realm.menu.resetPosition}
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={handleResetMap} className="flex items-center gap-2 text-red-500 hover:text-red-400 focus:text-red-400 focus:bg-red-500/10">
+                                        <DropdownMenuItem onClick={handleResetMap} className="flex items-center gap-2 text-red-400 hover:text-red-300 focus:text-red-300 focus:bg-red-950/30 cursor-pointer">
                                             <Trash2 className="w-4 h-4" />
                                             {TEXT_CONTENT.realm.menu.resetRealm}
                                         </DropdownMenuItem>
+                                        
                                         {/* Auto Save Toggle */}
-                                        <div className="px-2 py-1.5">
-                                            <div className="flex items-center space-x-2">
+                                        <div className="px-2 py-2 mt-1 border-t border-zinc-800/60">
+                                            <div className="flex items-center justify-between">
+                                                <label htmlFor="auto-save-switch-menu" className="text-xs font-semibold text-zinc-300 cursor-pointer">{TEXT_CONTENT.realm.menu.autoSave}</label>
                                                 <Switch id="auto-save-switch-menu" checked={autoSave} onCheckedChange={setAutoSave} />
-                                                <label htmlFor="auto-save-switch-menu" className="text-sm">{TEXT_CONTENT.realm.menu.autoSave}</label>
                                             </div>
                                         </div>
                                     </DropdownMenuContent>
