@@ -33,14 +33,17 @@ const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     hideDescription?: boolean;
+    showDragHandle?: boolean;
   }
->(({ className, children, hideDescription = false, ...props }, ref) => (
+>(({ className, children, hideDescription = false, showDragHandle = true, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-amber-900/50 bg-zinc-950/95 p-6 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-2xl sm:left-1/2 sm:top-1/2 sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg sm:max-h-[90vh] sm:p-6 rounded-none p-4 w-full h-full max-w-none max-h-none overflow-y-auto font-serif",
+        "fixed z-50 grid w-full gap-4 border border-amber-900/50 bg-zinc-950/95 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 font-serif",
+        "max-sm:bottom-0 max-sm:top-auto max-sm:left-0 max-sm:right-0 max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-t-3xl max-sm:rounded-b-none max-sm:max-h-[85vh] max-sm:p-5 max-sm:pb-safe overflow-y-auto",
+        "sm:left-1/2 sm:top-1/2 sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg sm:max-h-[90vh] sm:p-6 sm:rounded-2xl",
         className
       )}
       aria-modal="true"
@@ -48,6 +51,10 @@ const DialogContent = React.forwardRef<
       aria-describedby={hideDescription ? undefined : undefined}
       {...props}
     >
+      {/* iOS Sheet Drag Handle Indicator for mobile */}
+      {showDragHandle && (
+        <div className="w-12 h-1.5 bg-amber-500/30 rounded-full mx-auto my-1 sm:hidden shrink-0" />
+      )}
       {/* Hidden description for accessibility - required by Radix */}
       <DialogPrimitive.Description className="sr-only">
         Dialog content
