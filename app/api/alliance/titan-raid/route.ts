@@ -12,7 +12,9 @@ export async function GET(request: NextRequest) {
     }
 
     const currentTitan = getCurrentMonthlyTitan();
-    const currentMonthKey = `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+    const now = new Date();
+    const currentMonthKey = `${now.getFullYear()}-${now.getMonth() + 1}`;
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
     // Get saved raid preference
     const { data: prefData } = await supabaseServer
@@ -30,29 +32,30 @@ export async function GET(request: NextRequest) {
       milestonesCompleted: 0
     };
 
-    // Calculate actual habit completions from quest_completion table
+    // Calculate actual habit completions from quest_completion table FOR CURRENT MONTH ONLY
     const { count: questCount } = await supabaseServer
       .from('quest_completion')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .gte('completed_at', startOfMonth);
 
-    const actualQuests = Math.max(raidData.questsCompleted || 0, questCount || 0);
+    const monthlyQuests = questCount || 0;
     const actualChallenges = raidData.challengesCompleted || 0;
     const actualMilestones = raidData.milestonesCompleted || 0;
 
-    // Calculate live habit damage: 1 per quest, 5 per challenge, 10 per milestone
-    const calculatedDamage = (actualQuests * 1) + (actualChallenges * 5) + (actualMilestones * 10);
-    const totalDamageDealt = Math.min(currentTitan.totalHp, Math.max(raidData.damageDealt || 0, calculatedDamage));
+    // Calculate live habit damage for current month: 1 per quest, 5 per challenge, 10 per milestone
+    const calculatedDamage = (monthlyQuests * 1) + (actualChallenges * 5) + (actualMilestones * 10);
+    const totalDamageDealt = Math.min(currentTitan.totalHp, Math.max(0, calculatedDamage));
 
     const remainingHp = Math.max(0, currentTitan.totalHp - totalDamageDealt);
     const isDefeated = totalDamageDealt >= currentTitan.totalHp;
 
-    // Auto-update persistent preference if damage increased
-    if (totalDamageDealt !== raidData.damageDealt || actualQuests !== raidData.questsCompleted) {
+    // Update persistent preference if data changed or was corrupted by all-time counts
+    if (totalDamageDealt !== raidData.damageDealt || monthlyQuests !== raidData.questsCompleted) {
       raidData = {
         ...raidData,
         damageDealt: totalDamageDealt,
-        questsCompleted: actualQuests,
+        questsCompleted: monthlyQuests,
       };
 
       await supabaseServer
@@ -73,7 +76,7 @@ export async function GET(request: NextRequest) {
       isDefeated,
       claimed: !!raidData.claimed,
       stats: {
-        quests: actualQuests,
+        quests: monthlyQuests,
         challenges: actualChallenges,
         milestones: actualMilestones
       }
