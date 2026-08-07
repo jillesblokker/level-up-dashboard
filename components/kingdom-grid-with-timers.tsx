@@ -860,11 +860,13 @@ export function KingdomGridWithTimers({
         }
       }
 
-      // Dispatch inventory refresh events
+      // Update local property inventory state immediately so item quantity is reflected
+      setPropertyInventory(prev => prev.map(p => p.id === property.id ? { ...p, quantity: (p.quantity || 0) + 1 } : p));
+
+      // Dispatch events to update inventory UI across components
       window.dispatchEvent(new Event('character-inventory-update'));
       window.dispatchEvent(new Event('kingdom-tiles-update'));
       window.dispatchEvent(new Event('tile-inventory-update'));
-      return;
     } else if (method === 'gold') {
       if (!property.cost) {
         toast({ title: "Error", description: "This item cannot be bought with Gold." });
@@ -893,7 +895,6 @@ export function KingdomGridWithTimers({
             image: property.image
           };
           await invManager.addToKingdomInventory(userId, buildingItem);
-          toast({ title: "Inventory updated", description: `${property.name} added to your collection.` });
           if (onInventoryUpdate) {
             onInventoryUpdate({
               id: property.id,
@@ -905,29 +906,19 @@ export function KingdomGridWithTimers({
           }
         } catch (e) {
           logger.error('Failed to add to inventory', e);
-          toast({ title: "Inventory error", description: "Failed to save item.", variant: "destructive" });
         }
-      } else {
-        logger.warn('[Kingdom] No userId available for inventory add');
       }
 
-      // Emit event to update inventory UI
+      // Update local property inventory state immediately
+      setPropertyInventory(prev => prev.map(p => p.id === property.id ? { ...p, quantity: (p.quantity || 0) + 1 } : p));
       window.dispatchEvent(new Event('character-inventory-update'));
-
-      return;
 
     } else if (method === 'materials') {
       if (!property.materialCost) return;
 
-      // 1. Check Gold (if applicable)
       const goldCost = property.cost || 0;
-      // We can't easily check gold balance here definitively without trying to spend or storing it in state,
-      // but spendGold handles the check. We should do it FIRST to avoid partial material spend.
-      // However, verifying materials first is better UX (don't spend gold if missing wood).
 
-      // 2. Check Materials
       const missing = property.materialCost.filter(mat => {
-        // Handle id mapping: 'material-logs' in cost vs 'material-logs' in inventory
         const invItem = inventory.find(i => i.id === mat.itemId || i.name?.toLowerCase() === mat.itemId.replace('material-', '').toLowerCase());
         return !invItem || invItem.quantity < mat.quantity;
       });
@@ -941,23 +932,20 @@ export function KingdomGridWithTimers({
         return;
       }
 
-      // 3. Deduct Gold
       if (goldCost > 0) {
-      const { goldManager } = await loadManagers();
-      const success = await goldManager.spendGold(goldCost, `construct:${property.id}`);
+        const { goldManager } = await loadManagers();
+        const success = await goldManager.spendGold(goldCost, `construct:${property.id}`);
         if (!success) {
           toast({ title: "Insufficient Gold", description: `You need ${goldCost} Gold in addition to materials.`, variant: "destructive" });
           return;
         }
       }
 
-      // 4. Deduct Materials
       if (onMaterialSpend) {
         for (const mat of property.materialCost) {
           await onMaterialSpend(mat.itemId, mat.quantity);
         }
 
-        // Add to inventory
         if (userId) {
           try {
             const { invManager } = await loadManagers();
@@ -969,8 +957,6 @@ export function KingdomGridWithTimers({
               category: 'building',
               image: property.image
             });
-            logger.warn('[Kingdom] Inventory add success (Materials)');
-            toast({ title: "Inventory Updated", description: `${property.name} added to your collection.` });
             if (onInventoryUpdate) {
               onInventoryUpdate({
                 id: property.id,
@@ -982,36 +968,26 @@ export function KingdomGridWithTimers({
             }
           } catch (e) {
             logger.error('Failed to add to inventory', e);
-            toast({ title: "Inventory Error", description: "Failed to save item.", variant: "destructive" });
           }
-        } else {
-          logger.warn('[Kingdom] No userId available for inventory add');
         }
 
-        toast({ title: "Construction Started", description: `Used materials and ${goldCost}g to build ${property.name}.` });
-
-        // Trigger inventory update
+        // Update local property inventory state immediately
+        setPropertyInventory(prev => prev.map(p => p.id === property.id ? { ...p, quantity: (p.quantity || 0) + 1 } : p));
         window.dispatchEvent(new Event('character-inventory-update'));
       } else {
         logger.warn('onMaterialSpend callback missing');
+        return;
       }
-      return;
     }
 
-    // Common Placement Logic (only for Tokens or if we want auto-placement for others)
-    // For Gold/Materials, we just purchased it into inventory.
-    if (method !== 'tokens') return;
-
-    // Store the source position and start placement mode WITHOUT removing old tile yet
+    // Common Placement Logic (for Gold, Materials, and Tokens)
     setMovingTileSource(null);
-
-    // Select it for placement directly, bypassing quantity checks
     setSelectedProperty(property);
     setPlacementMode(true);
     setPropertiesOpen(false);
 
     toast({
-      title: "Placement Mode",
+      title: "Placement mode",
       description: `Select a location for ${property.name}. Press ESC to cancel.`,
     });
   };
