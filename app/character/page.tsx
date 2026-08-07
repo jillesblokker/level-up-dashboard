@@ -1068,31 +1068,25 @@ export default function CharacterPage() {
             </CardContent>
           </Card>
 
-          {/* Titles and Perks */}
+          {/* Responsive Character Vault Tabs (Horizontal Touch Snap Carousel) */}
           <div className="flex justify-center w-full">
             <Tabs defaultValue="titles" value={activeTab} onValueChange={setActiveTab} className="w-full">
-              {/* Mobile tab selector */}
-              <div className="mb-4 md:hidden">
-                <label htmlFor="character-tab-select" className="sr-only">Select character tab</label>
-                <select
-                  id="character-tab-select"
-                  aria-label="Character tab selector"
-                  className="w-full rounded-md border border-amber-800/20 bg-black text-white p-2"
-                  value={activeTab}
-                  onChange={e => setActiveTab(e.target.value)}
-                >
-                  <option value="titles">{TEXT_CONTENT.character.ui.tabs.titles}</option>
-                  <option value="perks">{TEXT_CONTENT.character.ui.tabs.perks}</option>
-                  <option value="strengths">{TEXT_CONTENT.character.ui.tabs.strengths}</option>
-                  <option value="pets">Guardian Pets 🐾</option>
-                </select>
+              <div className="flex overflow-x-auto snap-x snap-mandatory gap-2 pb-2 custom-scrollbar mobile-scroll-hide w-full mb-6">
+                <TabsList className="flex shrink-0 snap-start space-x-1 p-1.5 bg-zinc-950/90 border border-amber-900/40 rounded-2xl w-full max-w-2xl mx-auto shadow-lg">
+                  <TabsTrigger value="titles" className="snap-start flex-1 rounded-xl px-3 sm:px-4 py-2 text-xs font-bold tracking-wide">
+                    👑 {TEXT_CONTENT.character.ui.tabs.titles}
+                  </TabsTrigger>
+                  <TabsTrigger value="perks" className="snap-start flex-1 rounded-xl px-3 sm:px-4 py-2 text-xs font-bold tracking-wide">
+                    ✨ {TEXT_CONTENT.character.ui.tabs.perks}
+                  </TabsTrigger>
+                  <TabsTrigger value="strengths" className="snap-start flex-1 rounded-xl px-3 sm:px-4 py-2 text-xs font-bold tracking-wide">
+                    ⚡ {TEXT_CONTENT.character.ui.tabs.strengths}
+                  </TabsTrigger>
+                  <TabsTrigger value="pets" className="snap-start flex-1 rounded-xl px-3 sm:px-4 py-2 text-xs font-bold text-amber-400 tracking-wide">
+                    🐾 Pets
+                  </TabsTrigger>
+                </TabsList>
               </div>
-              <TabsList className="grid h-12 w-auto grid-cols-4 bg-zinc-950 border border-amber-900/20 p-1 rounded-xl mb-8 hidden md:grid shadow-inner ">
-                <TabsTrigger value="titles" className="rounded-lg h-full">{TEXT_CONTENT.character.ui.tabs.titles}</TabsTrigger>
-                <TabsTrigger value="perks" className="rounded-lg h-full">{TEXT_CONTENT.character.ui.tabs.perks}</TabsTrigger>
-                <TabsTrigger value="strengths" className="rounded-lg h-full">{TEXT_CONTENT.character.ui.tabs.strengths}</TabsTrigger>
-                <TabsTrigger value="pets" className="rounded-lg h-full font-bold text-amber-400">🐾 Guardian Pets</TabsTrigger>
-              </TabsList>
               <TabsContent value="titles" className="mt-6">
                 <div className="max-w-7xl mx-auto w-full">
                   <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
