@@ -4,6 +4,7 @@ import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { hapticLight } from "@/lib/haptics"
 
 
 const Dialog = DialogPrimitive.Root
@@ -29,6 +30,60 @@ const DialogOverlay = React.forwardRef<
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
+const MobileSheetDragHandle = () => {
+  const [startY, setStartY] = React.useState<number | null>(null);
+  const [dragY, setDragY] = React.useState(0);
+  const handleRef = React.useRef<HTMLDivElement>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches[0]) {
+      setStartY(e.touches[0].clientY);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (startY === null || !e.touches[0]) return;
+    const diff = e.touches[0].clientY - startY;
+    if (diff > 0) {
+      setDragY(diff);
+      const dialogEl = handleRef.current?.closest('[role="dialog"]') as HTMLElement;
+      if (dialogEl) {
+        dialogEl.style.transform = `translateY(${diff}px)`;
+        dialogEl.style.transition = 'none';
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    const dialogEl = handleRef.current?.closest('[role="dialog"]') as HTMLElement;
+    if (dragY > 40 && dialogEl) {
+      hapticLight();
+      const closeBtn = dialogEl.querySelector('button.absolute') as HTMLButtonElement;
+      if (closeBtn) {
+        closeBtn.click();
+      }
+    }
+    if (dialogEl) {
+      dialogEl.style.transform = '';
+      dialogEl.style.transition = '';
+    }
+    setStartY(null);
+    setDragY(0);
+  };
+
+  return (
+    <div
+      ref={handleRef}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      className="w-full py-2 flex items-center justify-center cursor-grab active:cursor-grabbing sm:hidden shrink-0 touch-none"
+    >
+      <div className="w-12 h-1.5 bg-amber-500/40 rounded-full hover:bg-amber-400/60 transition-colors" />
+    </div>
+  );
+};
+
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
@@ -51,10 +106,8 @@ const DialogContent = React.forwardRef<
       aria-describedby={hideDescription ? undefined : undefined}
       {...props}
     >
-      {/* iOS Sheet Drag Handle Indicator for mobile */}
-      {showDragHandle && (
-        <div className="w-12 h-1.5 bg-amber-500/30 rounded-full mx-auto my-1 sm:hidden shrink-0" />
-      )}
+      {/* iOS Sheet Interactive Touch Drag Handle for Mobile */}
+      {showDragHandle && <MobileSheetDragHandle />}
       {/* Hidden description for accessibility - required by Radix */}
       <DialogPrimitive.Description className="sr-only">
         Dialog content

@@ -1753,25 +1753,25 @@ export function KingdomClient() {
 
         {/* Live District Habit Multipliers Mobile Carousel / Desktop Grid */}
         <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 custom-scrollbar mobile-scroll-hide sm:pb-0 sm:grid sm:grid-cols-3 lg:grid-cols-5 text-xs font-mono">
-          <div className="bg-zinc-950/90 p-3 rounded-xl border border-orange-500/30 flex items-center justify-between text-orange-300 min-h-[52px] min-w-[150px] sm:min-w-0 snap-start shadow-sm shrink-0 sm:shrink">
+          <div className="bg-zinc-950/90 px-3.5 py-2.5 rounded-xl border border-orange-500/30 flex items-center justify-between gap-3 text-orange-300 min-h-[52px] min-w-[170px] sm:min-w-0 snap-start shadow-sm shrink-0 sm:shrink">
             <span className="flex items-center gap-1.5 font-bold truncate">⚔️ Barracks</span>
-            <span className="text-[10px] bg-orange-950/80 px-2 py-1 rounded-lg border border-orange-500/40 font-bold shrink-0">+4 ATK</span>
+            <span className="text-[10px] bg-orange-950/80 px-2 py-1 rounded-lg border border-orange-500/40 font-bold shrink-0 shadow-inner">+4 ATK</span>
           </div>
-          <div className="bg-zinc-950/90 p-3 rounded-xl border border-blue-500/30 flex items-center justify-between text-blue-300 min-h-[52px] min-w-[150px] sm:min-w-0 snap-start shadow-sm shrink-0 sm:shrink">
+          <div className="bg-zinc-950/90 px-3.5 py-2.5 rounded-xl border border-blue-500/30 flex items-center justify-between gap-3 text-blue-300 min-h-[52px] min-w-[170px] sm:min-w-0 snap-start shadow-sm shrink-0 sm:shrink">
             <span className="flex items-center gap-1.5 font-bold truncate">🧪 Apotheca</span>
-            <span className="text-[10px] bg-blue-950/80 px-2 py-1 rounded-lg border border-blue-500/40 font-bold shrink-0">+5 HP</span>
+            <span className="text-[10px] bg-blue-950/80 px-2 py-1 rounded-lg border border-blue-500/40 font-bold shrink-0 shadow-inner">+5 HP</span>
           </div>
-          <div className="bg-zinc-950/90 p-3 rounded-xl border border-amber-500/30 flex items-center justify-between text-amber-300 min-h-[52px] min-w-[150px] sm:min-w-0 snap-start shadow-sm shrink-0 sm:shrink">
+          <div className="bg-zinc-950/90 px-3.5 py-2.5 rounded-xl border border-amber-500/30 flex items-center justify-between gap-3 text-amber-300 min-h-[52px] min-w-[170px] sm:min-w-0 snap-start shadow-sm shrink-0 sm:shrink">
             <span className="flex items-center gap-1.5 font-bold truncate">🔨 Forge</span>
-            <span className="text-[10px] bg-amber-950/80 px-2 py-1 rounded-lg border border-amber-500/40 font-bold shrink-0">+15% Ore</span>
+            <span className="text-[10px] bg-amber-950/80 px-2 py-1 rounded-lg border border-amber-500/40 font-bold shrink-0 shadow-inner">+15% Ore</span>
           </div>
-          <div className="bg-zinc-950/90 p-3 rounded-xl border border-purple-500/30 flex items-center justify-between text-purple-300 min-h-[52px] min-w-[150px] sm:min-w-0 snap-start shadow-sm shrink-0 sm:shrink">
+          <div className="bg-zinc-950/90 px-3.5 py-2.5 rounded-xl border border-purple-500/30 flex items-center justify-between gap-3 text-purple-300 min-h-[52px] min-w-[170px] sm:min-w-0 snap-start shadow-sm shrink-0 sm:shrink">
             <span className="flex items-center gap-1.5 font-bold truncate">📜 Library</span>
-            <span className="text-[10px] bg-purple-950/80 px-2 py-1 rounded-lg border border-purple-500/40 font-bold shrink-0">+15% XP</span>
+            <span className="text-[10px] bg-purple-950/80 px-2 py-1 rounded-lg border border-purple-500/40 font-bold shrink-0 shadow-inner">+15% XP</span>
           </div>
-          <div className="bg-zinc-950/90 p-3 rounded-xl border border-emerald-500/30 flex items-center justify-between text-emerald-300 min-h-[52px] min-w-[150px] sm:min-w-0 snap-start shadow-sm shrink-0 sm:shrink">
+          <div className="bg-zinc-950/90 px-3.5 py-2.5 rounded-xl border border-emerald-500/30 flex items-center justify-between gap-3 text-emerald-300 min-h-[52px] min-w-[170px] sm:min-w-0 snap-start shadow-sm shrink-0 sm:shrink">
             <span className="flex items-center gap-1.5 font-bold truncate">🛸 Airship</span>
-            <span className="text-[10px] bg-emerald-950/80 px-2 py-1 rounded-lg border border-emerald-500/40 font-bold shrink-0">+10% Maps</span>
+            <span className="text-[10px] bg-emerald-950/80 px-2 py-1 rounded-lg border border-emerald-500/40 font-bold shrink-0 shadow-inner">+10% Maps</span>
           </div>
         </div>
 
