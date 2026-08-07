@@ -117,7 +117,7 @@ export function TileActionSheet({
                     </div>
 
                     {/* Actions */}
-                    <div className="p-4 space-y-2 overflow-y-auto">
+                    <div className="p-4 pb-28 md:pb-4 space-y-2 overflow-y-auto">
                         {/* Enter Hub Action - for Dungeons, Markets, etc. */}
                         {onEnter && (
                             <button

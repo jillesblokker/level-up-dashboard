@@ -131,7 +131,7 @@ export function DungeonModal({ isOpen, onClose, questions, onComplete }: Dungeon
                             </div>
 
                             {/* Choice Buttons */}
-                            <div className="flex gap-4 justify-center">
+                            <div className="flex flex-col sm:flex-row gap-3 justify-center">
                                 <Button
                                     onClick={() => handleGuess('higher')}
                                     className="flex-1 h-20 bg-gradient-to-b from-emerald-800 to-emerald-900 hover:from-emerald-700 hover:to-emerald-800 border border-emerald-600/30 text-emerald-100 font-serif text-xl gap-2 shadow-lg shadow-emerald-900/30 rounded-xl"

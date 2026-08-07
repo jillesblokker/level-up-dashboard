@@ -151,14 +151,19 @@ export function KingdomPropertiesInventory({
       <div className="bg-[#0f1115] w-full max-w-xl h-full border-l border-amber-900/30 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
 
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-amber-900/20 bg-[#13161b]">
+        <div className="flex items-center justify-between p-6 pt-12 sm:pt-6 border-b border-amber-900/20 bg-[#13161b]">
           <div className="flex items-center gap-6">
             <h2 className="text-2xl font-bold font-serif text-amber-300 flex items-center gap-3 drop-shadow-sm">
               <span className="text-3xl filter drop-shadow-md">🏢</span>
-              Kingdom Properties
+              Kingdom properties
             </h2>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} className="text-zinc-400 hover:text-white hover:bg-white/5 rounded-full">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onClose} 
+            className="text-zinc-400 hover:text-white hover:bg-white/10 rounded-full w-11 h-11 min-h-[44px] min-w-[44px] shrink-0 flex items-center justify-center text-lg"
+          >
             ✕
           </Button>
         </div>
@@ -211,7 +216,7 @@ export function KingdomPropertiesInventory({
                   </Button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-36 sm:pb-8">
                   {inventory.filter(i => i.quantity > 0 && tiles.some(t => t.id === i.id)).map((tile) => (
                     <TileCard
                       key={`inv-${tile.id}`}
@@ -229,7 +234,7 @@ export function KingdomPropertiesInventory({
 
             {/* ── BUY tab ──────────────────────────────────────────────── */}
             <TabsContent value="buy" className="mt-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-36 sm:pb-8">
                 {tiles.map((tile) => {
                   const invItem = inventory.find(i => i.id === tile.id);
                   const owned = invItem?.quantity || 0;

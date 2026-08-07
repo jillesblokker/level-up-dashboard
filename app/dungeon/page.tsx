@@ -1529,7 +1529,7 @@ export default function DungeonPage() {
                               {telegraphWarning && <span className="text-amber-400 text-[10px] font-bold animate-pulse">⚠️ Incoming Heavy Attack! Guard or Swap!</span>}
                             </div>
                             
-                            <div className="grid grid-cols-2 gap-3 w-full">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
                               
                               {/* Choice 1: Strike (Basic Physical Attack - 0 Cooldown) */}
                               <Button
