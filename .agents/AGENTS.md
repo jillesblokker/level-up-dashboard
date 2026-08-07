@@ -132,3 +132,16 @@ Started as a personal tool. Now intended to help **everyone** start building hab
   - All API client hooks, data fetching routines, and new features MUST consume responses via `unwrapApiResponse(res)` from `@/lib/api-response-unwrapper`.
   - This prevents `undefined` stat/level/gold bugs when endpoints return wrapped `{ success: true, data: { ... } }` objects and guarantees identical cross-device state.
 
+## Mobile Viewport & Container Overflow Rules
+
+- **Zero-Clipping Responsive Button Stacking**:
+  - Buttons and action badges in side-by-side containers MUST use `flex flex-col sm:flex-row w-full` on mobile viewports (`< 640px`) so buttons never bleed past screen edges.
+- **Scroll Box Height Requirements**:
+  - Scrollable text boxes (such as battle logs, loot feeds, or status histories) MUST specify `min-h-[72px]` / `min-h-[76px]` to display at least **3 full lines of text** without cramped single-line scrolling.
+- **Celebration & Results Screen Viewport Bounds**:
+  - Fullscreen modals and celebration/victory overlays MUST use `min-h-dvh flex flex-col justify-center overflow-y-auto p-4 sm:p-8 pb-safe pt-safe` with scaled text sizes (`text-3xl sm:text-5xl`) to guarantee top icons and bottom action buttons fit comfortably inside iPhone viewports without top/bottom clipping.
+- **District & Feature Badge Padding**:
+  - Multi-stat badges (e.g. Barracks `⚔️ Barracks` and `+4 ATK`) MUST enforce a minimum width (`min-w-[170px]`) and explicit gap spacing (`gap-3`) to prevent text overlap.
+- **Interactive Drag-to-Dismiss Modals**:
+  - All iOS-style mobile bottom sheet modals featuring a top drag handle MUST support interactive touch gestures (`onTouchStart`, `onTouchMove`, `onTouchEnd`) to allow players to drag down to dismiss the modal smoothly.
+
