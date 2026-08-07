@@ -6,10 +6,11 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/compone
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/use-toast';
-import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager';
+import { setUserPreference } from '@/lib/user-preferences-manager';
 import { addToCharacterStat } from '@/lib/character-stats-service';
 import { playSFX, SOUNDS } from '@/lib/sound-manager';
-import { Music, Sparkles, Gift } from 'lucide-react';
+import { Gift, Sparkles } from 'lucide-react';
+import { hapticSuccess } from '@/lib/haptics';
 
 export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { level?: number; displayName?: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +32,7 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
     setUserPreference('traveling-bard-last-visit', new Date().toISOString());
     setIsAvailable(false);
     setIsOpen(false);
+    hapticSuccess();
     playSFX(SOUNDS.ALLIANCE_OATH);
 
     addToCharacterStat('experience', 100);
@@ -46,7 +48,7 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
 
   return (
     <>
-      {/* Floating Medieval Heraldry Badge Trigger (Centered Top-Middle so it never overlaps companion icons) */}
+      {/* Floating Medieval Heraldry Badge Trigger (Centered Top-Middle) */}
       <button
         onClick={() => setIsOpen(true)}
         className="fixed top-20 left-1/2 -translate-x-1/2 z-40 bg-gradient-to-r from-purple-950 via-zinc-950 to-purple-950 border border-purple-500/60 text-purple-200 px-5 py-2.5 rounded-full shadow-[0_0_25px_rgba(168,85,247,0.4)] hover:scale-105 hover:border-purple-300 transition-all flex items-center gap-3 cursor-pointer font-medieval group"
@@ -58,30 +60,29 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
         </Badge>
       </button>
 
-      {/* Medieval Random Encounter Modal (Matching Sheep & Royal Gala Encounters) */}
+      {/* Medieval Random Encounter Modal */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-md w-full bg-gradient-to-b from-purple-950/90 via-zinc-950 to-zinc-950 border border-purple-500/40 text-white p-0 rounded-2xl shadow-2xl overflow-hidden font-serif">
-          {/* Hero Header Cover Image */}
-          <div className="relative h-44 w-full overflow-hidden border-b border-purple-500/30">
+        <DialogContent className="max-w-md w-full bg-gradient-to-b from-purple-950/95 via-zinc-950 to-zinc-950 border border-purple-500/40 text-white p-0 rounded-2xl shadow-2xl overflow-hidden font-serif max-h-[85vh] flex flex-col">
+          
+          {/* Header Image with Overlay Badge */}
+          <div className="relative h-40 w-full shrink-0 overflow-hidden border-b border-purple-500/30">
             <Image
               src="/images/headers/realm-header.webp"
               alt="Realm Ballad"
               fill
-              className="object-cover opacity-80"
+              className="object-cover opacity-85"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/images/headers/kingdom-header.webp';
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-purple-950 via-purple-950/30 to-transparent" />
 
             <Badge className="absolute top-3 left-3 bg-purple-950/90 border border-purple-400/50 text-purple-300 font-medieval text-[10px] uppercase tracking-widest px-2.5 py-1 shadow-md">
               Troubadour Visit
             </Badge>
-          </div>
 
-          <div className="p-6 space-y-4 text-center relative -mt-10">
-            {/* Avatar Circle */}
-            <div className="relative w-20 h-20 mx-auto rounded-full border-2 border-purple-400 overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.5)] bg-zinc-900">
+            {/* Avatar Circle centered over Header */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full border-2 border-amber-400 overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.6)] bg-zinc-900 z-10">
               <Image
                 src="/images/encounters/riddle-sage.webp"
                 alt="Alistair the Bard"
@@ -92,12 +93,16 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
                 }}
               />
             </div>
+          </div>
 
+          {/* Body Content */}
+          <div className="p-5 sm:p-6 space-y-4 text-center overflow-y-auto flex-1">
             <div className="space-y-1">
-              <DialogTitle className="font-medieval text-2xl text-amber-300 tracking-wide">
-                The Traveling Bard’s Ballad
+              <DialogTitle className="font-medieval text-xl sm:text-2xl text-amber-300 tracking-wide leading-tight">
+                The Traveling Bard<br />
+                <span className="text-purple-300 text-lg font-serif">Applaud the Troubadour</span>
               </DialogTitle>
-              <DialogDescription className="text-xs text-purple-300 font-medium">
+              <DialogDescription className="text-xs text-purple-300/80 font-medium">
                 Alistair • Royal Realm Troubadour
               </DialogDescription>
             </div>
@@ -112,13 +117,17 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
               </p>
             </div>
 
-            <div className="pt-2">
+            {/* Action Button & Reward Text Below */}
+            <div className="pt-2 space-y-2">
               <Button
                 onClick={handleListenBallad}
-                className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-3 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.4)] flex items-center justify-center gap-2 uppercase tracking-wider"
+                className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs min-h-[44px] py-3 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.4)] flex items-center justify-center gap-2 uppercase tracking-wider"
               >
-                <Gift className="w-4 h-4" /> Applaud Bard (+100 XP & +5 Focus Points)
+                <Gift className="w-4 h-4 text-amber-300" /> Applaud Bard
               </Button>
+              <p className="text-[11px] text-amber-400 font-medium flex items-center justify-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Reward: +100 XP & 🧠 +5 Focus Points
+              </p>
             </div>
           </div>
         </DialogContent>

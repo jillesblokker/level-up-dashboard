@@ -122,12 +122,12 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
         </DialogHeader>
 
         {!selectedCard ? (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 py-3 w-full max-w-full justify-items-center">
+          <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 py-3 w-full custom-scrollbar mobile-scroll-hide sm:grid sm:grid-cols-3 sm:gap-6 sm:justify-items-center">
             {shuffledCards.map((card, idx) => (
               <div 
                 key={idx}
                 onClick={() => handleCardClick(card)}
-                className="relative w-full max-w-[260px] sm:max-w-none aspect-[2/3] rounded-2xl cursor-pointer hover:scale-102 active:scale-98 transition-all duration-300 border-2 border-emerald-500/50 bg-slate-900 overflow-hidden group shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]"
+                className="relative w-full min-w-[200px] sm:min-w-0 max-w-[260px] sm:max-w-none aspect-[2/3] rounded-2xl cursor-pointer hover:scale-102 active:scale-98 transition-all duration-300 border-2 border-emerald-500/50 bg-slate-900 overflow-hidden group shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] snap-center shrink-0"
               >
                 <div className="absolute inset-0 bg-[url('/images/kingdom-tiles/fortune_teller.png')] bg-cover bg-center opacity-40 group-hover:opacity-60 transition-opacity" />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-emerald-950/40 to-slate-950/80" />
