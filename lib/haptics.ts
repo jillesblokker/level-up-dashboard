@@ -1,51 +1,64 @@
-"use client"
-
-import { logger } from "./logger";
-
 /**
- * Haptic feedback patterns for different interactions
+ * Web Haptic Feedback Utility for iOS & Mobile Browsers
+ * Safely triggers native vibration patterns on supported devices.
  */
+
+export function hapticLight() {
+  if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate(8);
+    } catch {}
+  }
+}
+
+export function hapticMedium() {
+  if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate(15);
+    } catch {}
+  }
+}
+
+export function hapticHeavy() {
+  if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate([30, 40, 30]);
+    } catch {}
+  }
+}
+
+export function hapticSuccess() {
+  if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate([20, 30, 50]);
+    } catch {}
+  }
+}
+
 export const HapticPatterns = {
-    // Light feedback for UI interactions
-    soft: [10],
-    medium: [20],
-    heavy: [40],
+  light: hapticLight,
+  medium: hapticMedium,
+  heavy: hapticHeavy,
+  success: hapticSuccess,
+  selection: hapticLight,
+  warning: hapticHeavy,
+  error: hapticHeavy,
+  tabSwitch: hapticLight,
+  questComplete: hapticSuccess,
+  soft: hapticLight,
+  cardFlip: hapticMedium,
+};
 
-    // Success patterns
-    success: [10, 30, 10], // da-DA-da
-    questComplete: [20, 50, 20, 50], // da-DA-da-DA
-    levelUp: [50, 50, 50, 50, 100, 50, 100], // Rhythmic celebration
-
-    // Error/Warning patterns
-    error: [50, 30, 50, 30, 50], // buzz-buzz-buzz
-    warning: [30, 100, 30],
-
-    // Special interactions
-    cardFlip: [15],
-    itemPickup: [20, 20],
-    tabSwitch: [10],
-}
-
-/**
- * Trigger haptic feedback if supported by the device
- */
-export function triggerHaptic(pattern: number | number[]) {
-    if (typeof window !== 'undefined' && window.navigator && window.navigator.vibrate) {
-        try {
-            window.navigator.vibrate(pattern)
-        } catch (e) {
-            // Ignore errors (some browsers might block it or throw)
-            logger.debug('Haptics not supported or blocked', e)
-        }
-    }
-}
-
-/**
- * Hook for easy access to haptics
- */
 export function useHaptics() {
-    return {
-        trigger: triggerHaptic,
-        patterns: HapticPatterns
-    }
+  return {
+    trigger: (type?: keyof typeof HapticPatterns | any) => {
+      if (typeof type === 'function') {
+        try { type(); } catch {}
+      } else {
+        const pattern = HapticPatterns[(type as keyof typeof HapticPatterns) || 'light'] || hapticLight;
+        pattern();
+      }
+    },
+    ...HapticPatterns
+  };
 }

@@ -6,6 +6,7 @@ import { gainExperience } from "@/lib/experience-manager"
 import { useSound, SOUNDS } from "@/lib/sound-manager"
 import { Skull, Flame, ChevronUp, ChevronDown, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { hapticLight, hapticSuccess } from "@/lib/haptics"
 
 interface DungeonQuestion {
     fact: string;
@@ -37,6 +38,7 @@ export function DungeonModal({ isOpen, onClose, questions, onComplete }: Dungeon
     }, [isOpen, playSound])
 
     const handleGuess = (guess: 'higher' | 'lower') => {
+        hapticLight();
         playSound(SOUNDS.BUTTON_CLICK);
         const currentQ = questions[currentIndex];
         if (!currentQ) return;
@@ -70,10 +72,14 @@ export function DungeonModal({ isOpen, onClose, questions, onComplete }: Dungeon
     }
 
     const finishGame = (finalScore: number) => {
+        hapticSuccess();
         setGameState('completed');
         const xpEarned = finalScore * 5;
         setResultMessage(`You scored ${finalScore} out of ${questions.length - 1}! (+${xpEarned} XP)`);
-        gainExperience(xpEarned, 'dungeon-event');
+        
+        if (xpEarned > 0) {
+            gainExperience(xpEarned, 'Dungeon Challenge', 'knowledge').catch(() => {});
+        }
 
         if (finalScore >= (questions.length - 1)) {
             playSound(SOUNDS.LEVEL_UP);
@@ -87,11 +93,14 @@ export function DungeonModal({ isOpen, onClose, questions, onComplete }: Dungeon
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent
-                className="bg-gradient-to-b from-purple-950/95 via-zinc-950 to-zinc-950 border-purple-800/30 shadow-2xl shadow-purple-500/10 overflow-hidden max-w-md max-h-[90vh] p-0 flex flex-col"
+                className="bg-gradient-to-b from-purple-950/95 via-zinc-950 to-zinc-950 border-purple-800/30 shadow-2xl shadow-purple-500/10 overflow-hidden max-w-md max-h-[90vh] p-0 flex flex-col rounded-t-3xl sm:rounded-2xl pb-safe"
                 aria-label="Dungeon Event Higher or Lower"
                 role="dialog"
                 aria-modal="true"
             >
+                {/* iOS Sheet Drag Handle */}
+                <div className="w-12 h-1.5 bg-purple-500/30 rounded-full mx-auto my-2.5 sm:hidden shrink-0" />
+
                 <div className="relative z-10 flex-1 overflow-y-auto p-6 scrollbar-hide">
                     {/* Background Effects */}
                     <div className="absolute inset-0 pointer-events-none">

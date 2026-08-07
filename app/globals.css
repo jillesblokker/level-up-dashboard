@@ -320,4 +320,30 @@ body {
   .btn-secondary-cta {
     @apply border border-amber-500/40 text-amber-300 hover:bg-amber-950/40 font-bold rounded-xl px-4 py-2.5 text-xs transition-all flex items-center justify-center gap-2;
   }
+
+  /* iOS Safe Area & Dynamic Viewport Utilities */
+  .pb-safe {
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+  }
+
+  .pt-safe {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .h-dvh {
+    height: 100dvh;
+  }
+
+  .min-h-dvh {
+    min-height: 100dvh;
+  }
+
+  /* Hide scrollbars for smooth mobile carousels */
+  .mobile-scroll-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .mobile-scroll-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

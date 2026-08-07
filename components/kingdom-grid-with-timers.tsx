@@ -35,6 +35,7 @@ import { PlankPuzzleModal } from './plank-puzzle-modal'
 import { SpecialTileModal } from './special-tile-modal'
 import { getActiveEvent } from '@/lib/seasonal-events'
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage'
+import { hapticLight, hapticMedium, hapticSuccess } from '@/lib/haptics'
 
 
 // Game managers will be loaded dynamically to keep the initial bundle light
@@ -2181,6 +2182,7 @@ export function KingdomGridWithTimers({
 
     setTileTimers(updatedTimers);
     window.dispatchEvent(new CustomEvent('kingdom-building-collected'));
+    hapticMedium();
     
     setSummaryRewards(collectedRewards);
     setShowSummaryModal(true);

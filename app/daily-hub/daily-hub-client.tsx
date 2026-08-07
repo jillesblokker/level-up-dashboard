@@ -23,6 +23,7 @@ import { TEXT_CONTENT } from "@/lib/text-content"
 import { NewPlayerProgress } from "@/components/onboarding/NewPlayerProgress"
 import { useCitizensStore, isHarvestReady } from "@/stores/citizensStore"
 import confetti from 'canvas-confetti'
+import { hapticHeavy, hapticMedium } from '@/lib/haptics'
 import dynamic from 'next/dynamic'
 const WeeklyChallengesCard = dynamic(
   () => import('@/components/weekly-challenges-card').then((mod) => mod.WeeklyChallengesCard),
@@ -118,6 +119,7 @@ export function DailyHubClient() {
         const count = completedQuestIds.size;
         if (count === 5 || count === 10 || count === 15 || count === 20) {
             try {
+                hapticHeavy();
                 confetti({
                     particleCount: 80,
                     spread: 70,

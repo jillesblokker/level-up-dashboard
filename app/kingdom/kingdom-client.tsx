@@ -1741,7 +1741,7 @@ export function KingdomClient() {
       </AlertDialog>
 
       {/* Main Content with Tabs */}
-      <div className="container mx-auto p-4 sm:p-6 space-y-6 pb-28 sm:pb-16" aria-label="kingdom-main-content">
+      <div className="container mx-auto p-4 sm:p-6 space-y-6 pb-28 sm:pb-16 pb-safe" aria-label="kingdom-main-content">
         
         {/* Narrative Rebuilding Banner Carousel */}
         <div className="bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 border border-amber-500/20 p-3.5 rounded-2xl flex items-center gap-3 text-xs text-amber-200 shadow-lg">
