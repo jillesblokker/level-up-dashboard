@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Trophy, Crown, Star, Award, Shield, Sparkles, Flame, ArrowRight, Medal, Scroll } from "lucide-react"
+import { ArrowLeft, Trophy, Crown, Star, Award, Shield, Sparkles, Flame, ArrowRight, Medal } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { HeaderSection } from "@/components/HeaderSection"
 import { getCharacterStats } from "@/lib/character-stats-service"
 import { useCitizensStore } from "@/stores/citizensStore"
 import { cn } from "@/lib/utils"
@@ -26,24 +27,24 @@ interface ArchivedSeason {
 const PARAGON_BORDERS = [
   {
     id: 'gold',
-    name: 'Paragon Gold',
-    title: 'Sovereign of Might',
+    name: 'Paragon gold',
+    title: 'Sovereign of might',
     ringStyle: 'border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.5)] bg-gradient-to-tr from-amber-500/20 via-yellow-400/20 to-amber-600/20',
-    desc: 'Awarded to 1st Place House Cup Season Champions.'
+    desc: 'Awarded to 1st place house cup season champions.'
   },
   {
     id: 'amber',
-    name: 'Astral Amber',
-    title: 'The Unyielding',
+    name: 'Astral amber',
+    title: 'The unyielding',
     ringStyle: 'border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.5)] bg-gradient-to-tr from-orange-600/20 via-amber-500/20 to-orange-700/20',
     desc: 'Earned by maintaining a 30+ day daily habit streak.'
   },
   {
     id: 'violet',
-    name: 'Sovereign Violet',
-    title: 'Master of Persistency',
+    name: 'Sovereign violet',
+    title: 'Master of persistency',
     ringStyle: 'border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.5)] bg-gradient-to-tr from-purple-600/20 via-pink-500/20 to-indigo-600/20',
-    desc: 'Granted to legendary champions reaching Prestige Level 100.'
+    desc: 'Granted to legendary champions reaching prestige level 100.'
   }
 ]
 
@@ -107,39 +108,26 @@ export default function ArchiveOfTriumphsPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-amber-50 pb-20">
-      {/* Header */}
-      <div className="relative border-b border-amber-900/30 bg-zinc-950 shadow-xl z-10">
-        <div className="absolute inset-0 bg-gradient-to-r from-amber-900/10 via-transparent to-amber-900/10 pointer-events-none" />
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-4">
-            <Link href="/kingdom">
-              <Button variant="ghost" className="text-amber-500 hover:text-amber-400 hover:bg-amber-950/30 h-10 w-10 p-0 rounded-full">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-serif text-amber-500 font-bold tracking-tight drop-shadow-md flex items-center gap-2">
-                <Trophy className="w-7 h-7 text-amber-400" /> Archive of Triumphs
-              </h1>
-              <p className="text-amber-200/60 font-serif text-sm mt-1 max-w-2xl">
-                A unified sanctuary celebrating your House Cup season champions, Paragon honors, and heroic companion legacies.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Header Section with Custom Artwork Cover */}
+      <HeaderSection
+        title="Archive of triumphs"
+        subtitle="A unified sanctuary celebrating your house cup season champions, paragon honors, and heroic companion legacies."
+        imageSrc="/images/headers/archive-header.webp"
+        defaultBgColor="bg-amber-950"
+        shouldRevealImage={true}
+      />
 
-      <div className="container mx-auto p-6 md:p-10 space-y-12">
+      <div className="container mx-auto px-4 md:px-8 -mt-8 relative z-20 space-y-12">
         {/* SECTION 1: House Cup Hall of Champions & Season Legacy */}
         <section>
           <div className="flex items-center justify-between mb-6 border-b border-amber-900/30 pb-3">
             <div className="flex items-center gap-3">
               <Crown className="w-6 h-6 text-amber-400" />
-              <h2 className="text-2xl font-serif text-amber-200 tracking-wide">House Cup Hall of Champions</h2>
+              <h2 className="text-2xl font-serif text-amber-200 tracking-wide">House cup hall of champions</h2>
             </div>
             <Link href="/social">
               <Button variant="ghost" size="sm" className="text-amber-400 hover:text-amber-300 text-xs font-semibold">
-                Live Standings <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                Live standings <ArrowRight className="w-3.5 h-3.5 ml-1" />
               </Button>
             </Link>
           </div>
@@ -156,28 +144,28 @@ export default function ArchiveOfTriumphsPage() {
                     <Sparkles className="w-10 h-10 text-amber-400" />
                   </div>
                   <Badge className="absolute -bottom-2 -right-2 bg-amber-600 text-zinc-950 font-bold border-amber-300 text-[10px] px-2 py-0.5">
-                    Season 1 Active
+                    Season 1 active
                   </Badge>
                 </div>
 
                 <h3 className="text-2xl font-serif font-bold text-amber-200 mb-3">
-                  The Grand Hourglass Awaits Its First Champion
+                  The grand hourglass awaits its first champion
                 </h3>
                 
                 <p className="text-amber-200/70 text-sm max-w-xl leading-relaxed mb-6">
-                  The House Cup season is actively underway! Complete your daily habit sweet-spot (<span className="text-amber-300 font-semibold">5/10 habits per day</span>) to fuel the 7 Virtue Hourglasses (<span className="italic">Might, Knowledge, Honor, Castle, Craft, Vitality, Wellness</span>). When the monthly cycle closes, the season winner will be immortalized here with a Paragon Avatar Border and eternal Legacy Title.
+                  The house cup season is actively underway! Complete your daily habit sweet-spot (<span className="text-amber-300 font-semibold">5/10 habits per day</span>) to fuel the 7 virtue hourglasses (<span className="italic">might, knowledge, honor, castle, craft, vitality, wellness</span>). When the monthly cycle closes, the season winner will be immortalized here with a paragon avatar border and eternal legacy title.
                 </p>
 
                 <div className="flex flex-wrap items-center justify-center gap-3">
                   <Link href="/social">
                     <Button className="bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl px-6 h-11 shadow-lg border-t border-white/20 flex items-center gap-2">
                       <Flame className="w-4 h-4 text-amber-200" />
-                      View House Cup Standings
+                      View house cup standings
                     </Button>
                   </Link>
                   <Link href="/quests">
                     <Button variant="outline" className="border-amber-500/40 text-amber-300 hover:bg-amber-950/40 font-semibold rounded-xl px-5 h-11">
-                      Complete Today&apos;s Habits
+                      Complete today&apos;s habits
                     </Button>
                   </Link>
                 </div>
@@ -216,7 +204,7 @@ export default function ArchiveOfTriumphsPage() {
                     </Badge>
 
                     <div className="mt-4 pt-3 border-t border-amber-900/30 w-full text-xs text-amber-200/70 flex justify-between">
-                      <span>Virtue Energy: <strong className="text-amber-300">{season.virtuePoints} pts</strong></span>
+                      <span>Virtue energy: <strong className="text-amber-300">{season.virtuePoints} pts</strong></span>
                       <span>Top: <strong className="text-amber-300 uppercase">{season.topVirtue}</strong></span>
                     </div>
                   </CardContent>
@@ -230,7 +218,7 @@ export default function ArchiveOfTriumphsPage() {
         <section>
           <div className="flex items-center gap-3 mb-6 border-b border-amber-900/30 pb-3">
             <Medal className="w-6 h-6 text-amber-400" />
-            <h2 className="text-2xl font-serif text-amber-200 tracking-wide">Paragon Borders & Legacy Titles</h2>
+            <h2 className="text-2xl font-serif text-amber-200 tracking-wide">Paragon borders and legacy titles</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -259,7 +247,7 @@ export default function ArchiveOfTriumphsPage() {
         <section>
           <div className="flex items-center gap-3 mb-6 border-b border-amber-900/30 pb-3">
             <Crown className="w-6 h-6 text-amber-400" />
-            <h2 className="text-2xl font-serif text-amber-200 tracking-wide">Loyal Companion Pedestals</h2>
+            <h2 className="text-2xl font-serif text-amber-200 tracking-wide">Loyal companion pedestals</h2>
           </div>
           
           {topCitizens.length === 0 ? (
@@ -314,7 +302,7 @@ export default function ArchiveOfTriumphsPage() {
         <section>
           <div className="flex items-center gap-3 mb-6 border-b border-amber-900/30 pb-3">
             <Award className="w-6 h-6 text-amber-400" />
-            <h2 className="text-2xl font-serif text-amber-200 tracking-wide">Plaques of Legend</h2>
+            <h2 className="text-2xl font-serif text-amber-200 tracking-wide">Plaques of legend</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -323,7 +311,7 @@ export default function ArchiveOfTriumphsPage() {
                 <Shield className="w-24 h-24 text-amber-500" />
               </div>
               <CardContent className="p-6 relative z-10">
-                <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2">Highest Level Reached</p>
+                <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2">Highest level reached</p>
                 <div className="text-4xl font-serif text-amber-400 font-bold">{stats.level}</div>
                 <div className="mt-4 h-1 w-12 bg-amber-600/50" />
               </CardContent>
@@ -334,7 +322,7 @@ export default function ArchiveOfTriumphsPage() {
                 <Trophy className="w-24 h-24 text-amber-500" />
               </div>
               <CardContent className="p-6 relative z-10">
-                <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2">Total Experience</p>
+                <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2">Total experience</p>
                 <div className="text-3xl font-mono text-amber-400 font-bold">{stats.experience?.toLocaleString() || 0}</div>
                 <div className="mt-4 h-1 w-12 bg-amber-600/50" />
               </CardContent>
@@ -345,7 +333,7 @@ export default function ArchiveOfTriumphsPage() {
                 <Crown className="w-24 h-24 text-amber-500" />
               </div>
               <CardContent className="p-6 relative z-10">
-                <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2">Titles Unlocked</p>
+                <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2">Titles unlocked</p>
                 <div className="text-3xl font-mono text-amber-400 font-bold">
                   {(() => {
                     try {
@@ -366,7 +354,7 @@ export default function ArchiveOfTriumphsPage() {
                 <Star className="w-24 h-24 text-amber-500" />
               </div>
               <CardContent className="p-6 relative z-10">
-                <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2">Active Perks</p>
+                <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2">Active perks</p>
                 <div className="text-3xl font-mono text-amber-400 font-bold">{stats.perks?.active || 0}</div>
                 <div className="mt-4 h-1 w-12 bg-amber-600/50" />
               </CardContent>
