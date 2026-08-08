@@ -112,42 +112,62 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
             </Badge>
           </div>
 
-          {/* Citizen Crew Assignment Selector */}
+          {/* Citizen Crew Assignment Selector (Horizontal Touch Snap Carousel) */}
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 space-y-2">
             <div className="flex items-center justify-between">
               <span className="font-bold text-xs text-zinc-200 flex items-center gap-1.5">
                 <Users className="w-4 h-4 text-cyan-400" /> Expedition Crew ({selectedCrew.length}/3)
               </span>
-              <Badge variant="outline" className="text-[9px] border-cyan-500/30 text-cyan-300 bg-zinc-950">
-                Class Synergy: +50% Bonus EXP
+              <Badge variant="outline" className="text-[9px] border-cyan-500/40 text-cyan-300 bg-cyan-950/40 font-bold">
+                Class Synergy: +50% EXP
               </Badge>
             </div>
             <p className="text-[11px] text-zinc-400 leading-tight">
               Assign trained citizens as crew to grant them Expedition EXP on voyage completion!
             </p>
 
-            <div className="flex gap-2 overflow-x-auto pt-1 pb-1">
-              {citizens.slice(0, 6).map(c => {
+            <div className="flex overflow-x-auto snap-x snap-mandatory gap-2.5 pt-1.5 pb-2 custom-scrollbar mobile-scroll-hide w-full">
+              {citizens.slice(0, 8).map(c => {
                 const isSelected = selectedCrew.includes(c.id)
                 return (
                   <button
                     key={c.id}
                     type="button"
                     onClick={() => toggleCrewMember(c.id)}
-                    className={`flex-1 min-w-[90px] p-2 rounded-xl border text-center transition-all ${
+                    className={`snap-start shrink-0 min-w-[105px] p-2.5 rounded-xl border text-center transition-all ${
                       isSelected
-                        ? 'border-cyan-400 bg-cyan-950/60 text-cyan-200 ring-2 ring-cyan-400/50 shadow-md'
+                        ? 'border-cyan-400 bg-cyan-950/70 text-cyan-200 ring-2 ring-cyan-400/50 shadow-md scale-[1.02]'
                         : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700'
                     }`}
                   >
                     <span className="font-bold text-[11px] block truncate text-zinc-100">{c.name}</span>
-                    <span className="text-[9px] text-cyan-400 font-mono">Lv.{c.level || 1}</span>
-                    {isSelected && (
-                      <span className="text-[9px] text-emerald-400 font-bold block mt-0.5">Assigned ✓</span>
+                    <span className="text-[9px] text-cyan-400 font-mono capitalize">Lv.{c.level || 1} • {c.type || 'Scout'}</span>
+                    {isSelected ? (
+                      <span className="text-[9px] text-emerald-400 font-bold block mt-1 bg-emerald-950/80 rounded py-0.5 border border-emerald-500/30">
+                        Assigned ✓
+                      </span>
+                    ) : (
+                      <span className="text-[9px] text-zinc-500 block mt-1">Tap to add</span>
                     )}
                   </button>
                 )
               })}
+            </div>
+          </div>
+
+          {/* Category Synergy & Streak Speed Perks */}
+          <div className="rounded-xl border border-cyan-500/20 bg-gradient-to-r from-cyan-950/30 via-zinc-950 to-cyan-950/30 p-3 space-y-1.5 text-xs">
+            <div className="flex items-center justify-between font-bold text-cyan-300">
+              <span className="flex items-center gap-1">⚡ Ether Engine Synergies</span>
+              <span className="text-[10px] text-amber-400 font-mono">7+ Streak = 2x Speed 🚀</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-[10px] text-zinc-300">
+              <div className="bg-zinc-950/80 p-1.5 rounded border border-white/5">
+                🧠 <strong>Knowledge:</strong> +15% Speed
+              </div>
+              <div className="bg-zinc-950/80 p-1.5 rounded border border-white/5">
+                ⚔️ <strong>Might:</strong> +20% Cargo Size
+              </div>
             </div>
           </div>
 
@@ -172,10 +192,10 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
 
           {/* Dest Ports */}
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-zinc-300">Trading Ports & Expeditions</h4>
+            <h4 className="text-xs font-bold text-zinc-300 uppercase tracking-wider">Trading Ports & Expeditions</h4>
             <div className="space-y-2">
               {PORTS.map((port, idx) => (
-                <div key={idx} className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 flex items-center justify-between text-xs">
+                <div key={idx} className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 flex items-center justify-between text-xs gap-3">
                   <div>
                     <span className="font-bold text-zinc-100 block">{port.name}</span>
                     <span className="text-[10px] text-zinc-400">{port.cargo}</span>
@@ -183,7 +203,7 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
                   <Button
                     size="sm"
                     onClick={() => handleLaunchCourse(port.name)}
-                    className="h-7 text-[10px] font-bold bg-cyan-600 hover:bg-cyan-500 text-white gap-1"
+                    className="h-8 text-[10px] font-bold bg-cyan-600 hover:bg-cyan-500 text-white gap-1 shrink-0 px-3 rounded-lg"
                   >
                     <Sparkles className="w-3 h-3" /> Set course ({port.distance})
                   </Button>

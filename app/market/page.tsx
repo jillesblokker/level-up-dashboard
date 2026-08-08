@@ -481,13 +481,13 @@ export default function MarketPage() {
 
           {/* MYSTIC SHOP TAB */}
           <TabsContent value="mystic-shop" className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Free Packs Section */}
-            <div className="space-y-6">
+            {/* Free Packs Section (Horizontal Touch Snap Carousel on Mobile) */}
+            <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🎁</span>
                 <h2 className="text-2xl font-bold tracking-tight text-amber-400 font-serif">Free Chrono Chests</h2>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-3 custom-scrollbar mobile-scroll-hide sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
                 {FREE_PACK_TYPES.map((pack, index) => {
                   const onCooldown = isPackOnCooldown(pack);
                   const remaining = getCooldownRemaining(pack);
@@ -530,7 +530,7 @@ export default function MarketPage() {
                   }
 
                   return (
-                    <Card key={pack.id} style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }} className={`bg-zinc-900 border-amber-900/30 hover:border-amber-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 ${onCooldown ? 'opacity-70' : 'shadow-amber-500/5'}`}>
+                    <Card key={pack.id} style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }} className={`bg-zinc-900 border-amber-900/30 hover:border-amber-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 snap-start shrink-0 min-w-[260px] sm:min-w-0 sm:shrink ${onCooldown ? 'opacity-70' : 'shadow-amber-500/5'}`}>
                       <div className="absolute inset-0 bg-gradient-to-b from-amber-900/10 to-transparent opacity-50"></div>
                       <CardHeader className="text-center relative z-10 pb-4">
                         <CardTitle className="text-2xl font-black text-amber-300 tracking-wide">{pack.title}</CardTitle>
@@ -551,7 +551,7 @@ export default function MarketPage() {
                           </div>
                         ) : null}
                       </CardContent>
-                      <CardFooter className="relative z-10 pt-4">
+                      <CardFooter className="pt-2 relative z-10">
                         <Button 
                           className={`w-full h-14 text-base font-black uppercase tracking-wider rounded-xl transition-all duration-300 ${isButtonDisabled ? 'bg-zinc-800 text-zinc-500 border border-zinc-700/50 cursor-not-allowed shadow-none' : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg shadow-amber-900/50'}`}
                           onClick={() => handleBuyPack(pack)}
@@ -686,22 +686,44 @@ export default function MarketPage() {
                         <span className="font-mono text-white font-bold">{getInventoryQuantity(material.id)}</span>
                       </div>
 
-                      <div className="flex items-end gap-3">
-                        <div className="flex-1 space-y-2">
-                          <label className="text-xs font-bold uppercase text-zinc-500 tracking-wider">Quantity</label>
-                          <Input
-                            type="number"
-                            min="0"
-                            placeholder="0"
-                            className="bg-zinc-950 border-zinc-700 focus:border-amber-500 text-lg font-mono text-center"
-                            value={quantities[material.id] || ''}
-                            onChange={(e) => handleQuantityChange(material.id, e.target.value)}
-                          />
+                      {/* 1-Tap Quick Quantity Multiplier Pills */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs font-bold uppercase text-zinc-500 tracking-wider">
+                          <span>Quantity</span>
+                          <div className="flex gap-1">
+                            {[1, 5, 10, 50].map((qty) => (
+                              <button
+                                key={qty}
+                                type="button"
+                                onClick={() => handleQuantityChange(material.id, String(qty))}
+                                className={`text-[10px] font-mono px-2 py-0.5 rounded border transition-all ${
+                                  (quantities[material.id] || 0) === qty
+                                    ? 'bg-amber-500 text-black font-extrabold border-amber-400 shadow-sm'
+                                    : 'bg-zinc-950 text-zinc-400 border-zinc-800 hover:border-amber-500/40 hover:text-white'
+                                }`}
+                              >
+                                {qty}x
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                        <div className="flex-1 space-y-2 text-right">
-                          <label className="text-xs font-bold uppercase text-zinc-500 tracking-wider">Total Cost</label>
-                          <div className="text-lg font-bold text-amber-500 font-mono flex items-center justify-end gap-1 h-10">
-                            {(quantities[material.id] || 0) * material.buyPrice} <Coins className="w-4 h-4" />
+
+                        <div className="flex items-end gap-3">
+                          <div className="flex-1">
+                            <Input
+                              type="number"
+                              min="0"
+                              placeholder="0"
+                              className="bg-zinc-950 border-zinc-700 focus:border-amber-500 text-lg font-mono text-center"
+                              value={quantities[material.id] || ''}
+                              onChange={(e) => handleQuantityChange(material.id, e.target.value)}
+                            />
+                          </div>
+                          <div className="flex-1 text-right">
+                            <label className="text-[10px] font-bold uppercase text-zinc-500 tracking-wider">Total Cost</label>
+                            <div className="text-lg font-bold text-amber-500 font-mono flex items-center justify-end gap-1 h-10">
+                              {(quantities[material.id] || 0) * material.buyPrice} <Coins className="w-4 h-4" />
+                            </div>
                           </div>
                         </div>
                       </div>
