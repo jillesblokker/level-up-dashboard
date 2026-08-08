@@ -141,14 +141,19 @@ export default function WorldMapPage() {
           </p>
         </div>
 
-        {/* Territory Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Territory Grid (Horizontal Touch Snap Carousel on Mobile) */}
+        <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-3 custom-scrollbar mobile-scroll-hide sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
           {PROVINCES.map((province) => {
             const Icon = province.icon;
+            const minigameLabel = 
+              province.id === "castle" ? "🧩 Plank Labyrinth" :
+              province.id === "market" ? "🔮 Fortune Tarot" :
+              province.id === "forest" ? "❓ Riddle Challenge" : null;
+
             return (
               <Card 
                 key={province.id}
-                className="bg-zinc-900/90 border-amber-900/40 hover:border-amber-500/60 transition-all duration-300 overflow-hidden shadow-xl group flex flex-col justify-between"
+                className="bg-zinc-900/90 border-amber-900/40 hover:border-amber-500/60 transition-all duration-300 overflow-hidden shadow-xl group flex flex-col justify-between snap-start shrink-0 min-w-[280px] sm:min-w-0 sm:shrink"
               >
                 {/* Cover Image & Badge */}
                 <div className="relative h-36 w-full overflow-hidden border-b border-amber-900/30">
@@ -176,9 +181,16 @@ export default function WorldMapPage() {
                 {/* Card Content */}
                 <CardContent className="p-5 flex-1 flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
-                    <h3 className="font-medieval text-xl text-amber-300 group-hover:text-amber-200 transition-colors">
-                      {province.title}
-                    </h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medieval text-xl text-amber-300 group-hover:text-amber-200 transition-colors">
+                        {province.title}
+                      </h3>
+                      {minigameLabel && (
+                        <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/30">
+                          {minigameLabel}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-zinc-400 leading-relaxed font-sans">
                       {province.desc}
                     </p>

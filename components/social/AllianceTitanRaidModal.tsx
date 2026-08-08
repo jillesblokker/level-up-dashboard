@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { ShieldAlert, Swords, Trophy, Gift, Zap } from 'lucide-react'
+import { toast } from '@/components/ui/use-toast'
 
 interface AllianceTitanRaidModalProps {
   isOpen: boolean
@@ -41,6 +42,11 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
   const handleClaimChest = (tier: number) => {
     if (!claimedTiers.includes(tier)) {
       setClaimedTiers([...claimedTiers, tier])
+      const chestObj = CHESTS.find(c => c.tier === tier)
+      toast({
+        title: "🏆 Victory Chest Claimed!",
+        description: `Unlocked ${chestObj?.label || 'Alliance Chest'}: ${chestObj?.reward || 'Rewards'}!`,
+      })
     }
   }
 
