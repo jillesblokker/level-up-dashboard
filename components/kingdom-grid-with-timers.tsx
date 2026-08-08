@@ -992,17 +992,6 @@ export function KingdomGridWithTimers({
         return;
       }
     }
-
-    // Common Placement Logic (for Gold, Materials, and Tokens)
-    setMovingTileSource(null);
-    setSelectedProperty(property);
-    setPlacementMode(true);
-    setPropertiesOpen(false);
-
-    toast({
-      title: "Placement mode",
-      description: `Select a location for ${property.name}. Press ESC to cancel.`,
-    });
   };
 
   // Handle property placement on grid
