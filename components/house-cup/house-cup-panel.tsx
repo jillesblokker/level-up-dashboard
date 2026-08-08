@@ -249,31 +249,32 @@ export function HouseCupPanel() {
           </div>
         </CardHeader>
 
-        {/* Your 7 Hourglasses */}
+        {/* Your 7 Hourglasses (Horizontal Touch Snap Carousel on Mobile) */}
         {viewerStanding && (
           <CardContent className="pt-2">
-            <div className="p-4 bg-zinc-950/60 rounded-xl border border-amber-900/30">
-              <div className="text-xs font-semibold text-amber-400/90 mb-3 flex items-center justify-between">
-                <span>Your Hourglasses</span>
+            <div className="p-4 bg-zinc-950/60 rounded-xl border border-amber-900/30 space-y-3">
+              <div className="text-xs font-semibold text-amber-400/90 flex items-center justify-between">
+                <span>Your Virtue Hourglasses</span>
                 <span className="text-zinc-400 font-normal">Total Points: {viewerStanding.total_points.toLocaleString()}</span>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
+              <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 custom-scrollbar mobile-scroll-hide sm:grid sm:grid-cols-4 md:grid-cols-7">
                 {Object.entries(CATEGORY_META).map(([catKey, meta], idx) => {
                   const pts = viewerStanding.categories[catKey]?.points || 0;
                   const seenPts = seenMap[catKey] !== undefined ? seenMap[catKey] : pts;
                   return (
-                    <Hourglass
-                      key={catKey}
-                      categoryId={catKey}
-                      categoryName={meta.name}
-                      emoji={meta.emoji}
-                      color={meta.color}
-                      points={pts}
-                      seenPoints={seenPts}
-                      staggerDelayMs={idx * 80}
-                      variant="large"
-                      onClick={() => setSelectedUser(viewerStanding)}
-                    />
+                    <div key={catKey} className="snap-start shrink-0 min-w-[85px] sm:min-w-0 sm:shrink">
+                      <Hourglass
+                        categoryId={catKey}
+                        categoryName={meta.name}
+                        emoji={meta.emoji}
+                        color={meta.color}
+                        points={pts}
+                        seenPoints={seenPts}
+                        staggerDelayMs={idx * 80}
+                        variant="large"
+                        onClick={() => setSelectedUser(viewerStanding)}
+                      />
+                    </div>
                   );
                 })}
               </div>
@@ -281,6 +282,22 @@ export function HouseCupPanel() {
           </CardContent>
         )}
       </Card>
+
+      {/* 1v1 Friend Virtue Duels (Daily Habit Races) Widget */}
+      <div className="bg-gradient-to-r from-amber-950/70 via-zinc-950 to-purple-950/70 border border-amber-500/30 rounded-2xl p-4 shadow-xl space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-amber-300 font-serif font-bold text-sm">
+            <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+            <span>1v1 Virtue Duel Race</span>
+          </div>
+          <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30">
+            +10 Bonus Virtue Points
+          </span>
+        </div>
+        <p className="text-xs text-zinc-300 leading-relaxed">
+          First ally to reach today&apos;s 5/10 daily habit sweet spot wins +10 bonus virtue points for both issuer and recipient!
+        </p>
+      </div>
 
       {/* Allies Standings Section */}
       <div className="space-y-4">

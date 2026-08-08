@@ -142,6 +142,18 @@ export default function ChroniclePage() {
 
                 <WeeklyGrowthInsightsCard />
 
+                {/* Dual Journal Segmented Tabs (Milestones & Season Champions vs Private Reflection Diary) */}
+                <Tabs defaultValue="diary" className="w-full mb-6">
+                    <TabsList className="grid grid-cols-2 bg-zinc-950 border border-amber-900/40 p-1 rounded-xl mb-6 shadow-inner">
+                        <TabsTrigger value="diary" className="rounded-lg text-xs font-bold font-serif py-2.5">
+                            📖 Private Reflection Diary
+                        </TabsTrigger>
+                        <TabsTrigger value="milestones" onClick={() => setIsArchivalOpen(true)} className="rounded-lg text-xs font-bold font-serif py-2.5">
+                            🏆 Milestones & Season Champions
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
+
                 {/* Monthly Sovereign Recap Header Card */}
                 <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-purple-950/40 via-amber-950/20 to-zinc-950 border border-amber-500/30 text-amber-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl font-serif">
                     <div className="space-y-1">
@@ -158,20 +170,38 @@ export default function ChroniclePage() {
                     </Badge>
                 </div>
 
-                {/* Filters */}
-                <div className="flex items-center gap-4 mb-6 bg-zinc-900 p-3 rounded-xl border border-amber-900/10 w-fit">
-                    <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">Filter by Month</span>
-                    <input
-                        type="month"
-                        value={filterDate}
-                        onChange={(e) => setFilterDate(e.target.value)}
-                        className="bg-black border border-zinc-700 rounded-lg px-3 py-1 text-sm text-amber-100 focus:outline-none focus:border-amber-500"
-                    />
-                    {filterDate && (
-                        <Button variant="ghost" size="sm" onClick={() => setFilterDate('')} className="h-7 px-2 text-zinc-500 hover:text-zinc-300">
-                            Clear
-                        </Button>
-                    )}
+                {/* Filters & Mood Selectors Bar */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 bg-zinc-900 p-4 rounded-xl border border-amber-900/20">
+                    <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">Month</span>
+                        <input
+                            type="month"
+                            value={filterDate}
+                            onChange={(e) => setFilterDate(e.target.value)}
+                            className="bg-black border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-amber-100 focus:outline-none focus:border-amber-500 font-mono"
+                        />
+                        {filterDate && (
+                            <Button variant="ghost" size="sm" onClick={() => setFilterDate('')} className="h-7 px-2 text-zinc-500 hover:text-zinc-300 text-xs">
+                                Clear
+                            </Button>
+                        )}
+                    </div>
+
+                    {/* Mood Selector Pills */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+                        <span className="text-[10px] uppercase font-bold text-zinc-500 shrink-0">Moods:</span>
+                        {[
+                            { label: '⚡ Energized', score: 5 },
+                            { label: '🔥 Motivated', score: 4 },
+                            { label: '🎯 Focused', score: 3 },
+                            { label: '🧘 Calm', score: 2 },
+                            { label: '🌿 Rested', score: 1 },
+                        ].map((m) => (
+                            <span key={m.score} className="px-2 py-1 bg-zinc-950 border border-amber-900/30 text-amber-300 rounded-lg text-[10px] font-mono shrink-0">
+                                {m.label}
+                            </span>
+                        ))}
+                    </div>
                 </div>
 
                 {/* List Content */}
