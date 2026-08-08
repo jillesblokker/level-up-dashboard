@@ -309,44 +309,7 @@ export function HouseCupPanel() {
           <span className="text-xs text-zinc-400">{alliesStandings.length} Allies</span>
         </div>
 
-        {alliesStandings.length === 0 ? (
-          /* Empty State (No Allies) §6 */
-          <Card className="border-amber-800/30 bg-zinc-900/80 p-6 text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto">
-              <UserPlus className="w-6 h-6 text-amber-400" />
-            </div>
-            <div>
-              <h4 className="text-lg font-bold text-amber-300">The Cup is Uncontested</h4>
-              <p className="text-sm text-zinc-400 max-w-md mx-auto mt-1">
-                Recruit allies to compete in the House Cup! Higher ally tiers unlock Mythic Cards, thousands of Gold, and Gems at year end.
-              </p>
-            </div>
-
-            {/* Reward Tier Unlocks */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-lg mx-auto text-left text-xs">
-              <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800">
-                <div className="font-semibold text-amber-400 mb-1">Solo Tier</div>
-                <div className="text-zinc-400">1 Gem + 100 Gold</div>
-              </div>
-              <div className="p-3 rounded-lg bg-zinc-950 border border-amber-500/30">
-                <div className="font-semibold text-amber-300 mb-1">3+ Allies Tier</div>
-                <div className="text-zinc-400">20 Gems + 5,000 Gold + 1 Mythic Pack</div>
-              </div>
-              <div className="p-3 rounded-lg bg-zinc-950 border border-amber-400/50">
-                <div className="font-semibold text-amber-200 mb-1">10+ Allies Tier</div>
-                <div className="text-zinc-400">30 Gems + 10,000 Gold + 2 Mythic Packs</div>
-              </div>
-            </div>
-
-            <Button
-              onClick={() => window.location.href = '/social'}
-              className="btn-primary-cta mt-2"
-            >
-              <UserPlus className="w-5 h-5 mr-1" />
-              Invite an ally
-            </Button>
-          </Card>
-        ) : (
+        {alliesStandings.length > 0 && (
           /* Carousel Ally Cards Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {alliesStandings.map(ally => (

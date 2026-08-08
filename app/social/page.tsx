@@ -124,7 +124,7 @@ export default function AlliesPage() {
 
     const router = useRouter();
     const { toast } = useToast();
-    const [activeTab, setActiveTab] = useState("allies");
+    const [activeTab, setActiveTab] = useState("house-cup");
     const [friends, setFriends] = useState<Friend[]>([]);
     const [requests, setRequests] = useState<Friend[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -516,9 +516,13 @@ export default function AlliesPage() {
                 </div>
 
                 <TabsList 
-                        className="flex h-14 bg-zinc-950 border border-amber-900/20 p-1.5 rounded-2xl mb-12 w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar  gap-2 md:gap-0"
+                        className="flex h-14 bg-zinc-950 border border-amber-900/20 p-1.5 rounded-2xl mb-8 w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar gap-2 md:gap-0"
                         style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
                     >
+                        <TabsTrigger value="house-cup" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                            <Trophy className="w-4 h-4 text-amber-400" />
+                            House Cup
+                        </TabsTrigger>
                         <TabsTrigger value="allies" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
                             <Users className="w-4 h-4" />
                             {TEXT_CONTENT.social.tabs.allies}
@@ -536,10 +540,6 @@ export default function AlliesPage() {
                             <Mail className="w-4 h-4" />
                             {TEXT_CONTENT.social.tabs.requests}
                             {requests.length > 0 && <Badge variant="destructive" className="ml-1">{requests.length}</Badge>}
-                        </TabsTrigger>
-                        <TabsTrigger value="house-cup" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-                            <Trophy className="w-4 h-4 text-amber-400" />
-                            House Cup
                         </TabsTrigger>
                         <TabsTrigger value="riddles" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
                             <HelpCircle className="w-4 h-4" />

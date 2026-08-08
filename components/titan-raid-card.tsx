@@ -98,102 +98,109 @@ export function TitanRaidCard() {
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="p-5 pt-0 space-y-4">
-        {/* Full Uncropped Boss Image Banner with Victory Overlay */}
-        <motion.div 
-          initial={{ scale: 0.98, opacity: 0.9 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="relative w-full rounded-2xl overflow-hidden border border-purple-500/40 shadow-2xl bg-zinc-950 p-2 flex items-center justify-center group"
-        >
-          <Image
-            src={titan.image}
-            alt={titan.name}
-            width={800}
-            height={500}
-            className={`w-full h-auto object-contain rounded-xl transition-all duration-700 ${isDefeated ? 'opacity-70 filter drop-shadow-[0_0_25px_rgba(245,158,11,0.6)]' : 'group-hover:scale-102'}`}
-            unoptimized
-          />
-
-          {/* Victory Overlay when Defeated */}
-          {isDefeated && (
-            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-amber-950/40 flex flex-col items-center justify-center text-center p-4 rounded-xl space-y-2 border-2 border-amber-500/50">
-              <Trophy className="w-12 h-12 text-amber-400 animate-bounce drop-shadow-[0_0_15px_rgba(245,158,11,0.8)]" />
-              <h3 className="text-xl sm:text-2xl font-serif font-extrabold text-amber-300 drop-shadow-md">
-                🏆 Titan Defeated This Month!
-              </h3>
-              <p className="text-xs sm:text-sm text-zinc-300 max-w-md font-medium">
-                Victory achieved through team habit momentum! Defeated for the rest of the month.
-              </p>
-            </div>
-          )}
-        </motion.div>
-
-        {/* Habit Building Guidance Banner */}
-        <div className="bg-purple-950/40 p-3 rounded-xl border border-purple-500/30 text-xs text-purple-200 flex items-start gap-2.5">
-          <Zap className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          <div>
-            <span className="font-bold text-amber-300">Habit Raid Damage:</span> Completing real-life habits damages the boss! Quests (+1 HP), Tasks (+5 HP), and Goals (+10 HP).
-          </div>
-        </div>
-
-        {/* Boss HP Progress & Stats */}
-        <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800/80 space-y-4">
-          <div className="flex justify-between items-center text-xs font-bold">
-            <span className="text-zinc-300 uppercase tracking-widest flex items-center gap-1.5">
-              <Shield className="w-4 h-4 text-purple-400" /> Boss health
-            </span>
-            <span className="text-purple-300 font-mono">
-              {remainingHp} / {titan.totalHp} HP ({100 - hpPercentage}% left)
-            </span>
-          </div>
-
-          <Progress value={hpPercentage} className="h-3.5 bg-zinc-950 border border-purple-500/30 [&>div]:bg-gradient-to-r [&>div]:from-purple-600 [&>div]:to-amber-500" />
-
-          <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1">
-            <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
-              <div className="text-zinc-400 text-[10px]">Quests (+1 HP)</div>
-              <div className="text-amber-400 font-bold font-mono">{stats.quests}</div>
-            </div>
-            <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
-              <div className="text-zinc-400 text-[10px]">Tasks (+5 HP)</div>
-              <div className="text-purple-400 font-bold font-mono">{stats.challenges}</div>
-            </div>
-            <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
-              <div className="text-zinc-400 text-[10px]">Goals (+10 HP)</div>
-              <div className="text-emerald-400 font-bold font-mono">{stats.milestones}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Claim Rewards Footer */}
-        <div className="flex flex-col gap-3 p-3.5 rounded-xl bg-purple-950/30 border border-purple-800/40">
-          <div className="flex items-center justify-between text-xs border-b border-purple-900/30 pb-2">
-            <div className="flex items-center gap-1.5 font-semibold text-zinc-300">
-              <Gift className="w-4 h-4 text-amber-400" />
-              <span>Loot:</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-amber-400 font-bold">🪙 +{titan.rewardGold} Gold</span>
-              <span className="text-purple-300 font-bold">💎 +{titan.rewardGems} Gems</span>
-            </div>
-          </div>
-
-          {(isDefeated || claimed) && (
-            <Button
-              disabled={claimed || claiming}
-              onClick={handleClaim}
-              className={claimed ? "w-full bg-zinc-800 text-zinc-400 border border-zinc-700 py-3 rounded-xl min-h-[48px]" : "w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-black shadow-[0_0_25px_rgba(245,158,11,0.4)] py-3 rounded-xl min-h-[48px] animate-bounce"}
+      <CardContent className="p-5 pt-0">
+        <div className="flex flex-col md:grid md:grid-cols-12 md:gap-6 md:items-center space-y-4 md:space-y-0">
+          {/* Left Column (Desktop): Boss Image Banner */}
+          <div className="md:col-span-5">
+            <motion.div 
+              initial={{ scale: 0.98, opacity: 0.9 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="relative w-full rounded-2xl overflow-hidden border border-purple-500/40 shadow-2xl bg-zinc-950 p-2 flex items-center justify-center group"
             >
-              {claimed ? (
-                <span className="flex items-center justify-center gap-1.5 font-bold"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Monthly Reward Claimed</span>
-              ) : (
-                <span className="flex items-center justify-center gap-1.5 font-extrabold text-base"><Trophy className="w-5 h-5" /> Claim Victory Loot</span>
+              <Image
+                src={titan.image}
+                alt={titan.name}
+                width={500}
+                height={500}
+                className={`w-full max-h-[240px] md:max-h-[300px] object-contain rounded-xl transition-all duration-700 ${isDefeated ? 'opacity-70 filter drop-shadow-[0_0_25px_rgba(245,158,11,0.6)]' : 'group-hover:scale-102'}`}
+                unoptimized
+              />
+
+              {/* Victory Overlay when Defeated */}
+              {isDefeated && (
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-amber-950/40 flex flex-col items-center justify-center text-center p-4 rounded-xl space-y-2 border-2 border-amber-500/50">
+                  <Trophy className="w-10 h-10 text-amber-400 animate-bounce drop-shadow-[0_0_15px_rgba(245,158,11,0.8)]" />
+                  <h3 className="text-lg font-serif font-extrabold text-amber-300 drop-shadow-md">
+                    🏆 Titan Defeated!
+                  </h3>
+                  <p className="text-xs text-zinc-300 max-w-md font-medium">
+                    Victory achieved through team habit momentum!
+                  </p>
+                </div>
               )}
-            </Button>
-          )}
+            </motion.div>
+          </div>
+
+          {/* Right Column (Desktop): Boss Stats, Damage Guidance & Loot */}
+          <div className="md:col-span-7 space-y-4">
+            {/* Habit Building Guidance Banner */}
+            <div className="bg-purple-950/40 p-3 rounded-xl border border-purple-500/30 text-xs text-purple-200 flex items-start gap-2.5">
+              <Zap className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold text-amber-300">Habit Raid Damage:</span> Completing real-life habits damages the boss! Quests (+1 HP), Tasks (+5 HP), and Goals (+10 HP).
+              </div>
+            </div>
+
+            {/* Boss HP Progress & Stats */}
+            <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800/80 space-y-4">
+              <div className="flex justify-between items-center text-xs font-bold">
+                <span className="text-zinc-300 uppercase tracking-widest flex items-center gap-1.5">
+                  <Shield className="w-4 h-4 text-purple-400" /> Boss health
+                </span>
+                <span className="text-purple-300 font-mono">
+                  {remainingHp} / {titan.totalHp} HP ({100 - hpPercentage}% left)
+                </span>
+              </div>
+
+              <Progress value={hpPercentage} className="h-3.5 bg-zinc-950 border border-purple-500/30 [&>div]:bg-gradient-to-r [&>div]:from-purple-600 [&>div]:to-amber-500" />
+
+              <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1">
+                <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
+                  <div className="text-zinc-400 text-[10px]">Quests (+1 HP)</div>
+                  <div className="text-amber-400 font-bold font-mono">{stats.quests}</div>
+                </div>
+                <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
+                  <div className="text-zinc-400 text-[10px]">Tasks (+5 HP)</div>
+                  <div className="text-purple-400 font-bold font-mono">{stats.challenges}</div>
+                </div>
+                <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
+                  <div className="text-zinc-400 text-[10px]">Goals (+10 HP)</div>
+                  <div className="text-emerald-400 font-bold font-mono">{stats.milestones}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Claim Rewards Footer */}
+            <div className="flex flex-col gap-3 p-3.5 rounded-xl bg-purple-950/30 border border-purple-800/40">
+              <div className="flex items-center justify-between text-xs border-b border-purple-900/30 pb-2">
+                <div className="flex items-center gap-1.5 font-semibold text-zinc-300">
+                  <Gift className="w-4 h-4 text-amber-400" />
+                  <span>Loot:</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-amber-400 font-bold">🪙 +{titan.rewardGold} Gold</span>
+                  <span className="text-purple-300 font-bold">💎 +{titan.rewardGems} Gems</span>
+                </div>
+              </div>
+
+            {(isDefeated || claimed) && (
+              <Button
+                disabled={claimed || claiming}
+                onClick={handleClaim}
+                className={claimed ? "w-full bg-zinc-800 text-zinc-400 border border-zinc-700 py-3 rounded-xl min-h-[48px]" : "w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-black shadow-[0_0_25px_rgba(245,158,11,0.4)] py-3 rounded-xl min-h-[48px] animate-bounce"}
+              >
+                {claimed ? (
+                  <span className="flex items-center justify-center gap-1.5 font-bold"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Monthly Reward Claimed</span>
+                ) : (
+                  <span className="flex items-center justify-center gap-1.5 font-extrabold text-base"><Trophy className="w-5 h-5" /> Claim Victory Loot</span>
+                )}
+              </Button>
+            )}
+          </div>
         </div>
-      </CardContent>
+      </div>
+    </CardContent>
     </Card>
   );
 }
