@@ -825,13 +825,12 @@ function CityLocationPageInner() {
 
         {isTavern ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* HOUSE CUP SECTION */}
-            <HouseCupPanel />
-
-
-
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="w-full md:w-auto mb-12">
+            <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="house-cup" className="w-full">
+              <TabsList className="w-full md:w-auto mb-8 flex overflow-x-auto gap-2 no-scrollbar">
+                <TabsTrigger value="house-cup">
+                  <Trophy className="w-4 h-4 text-amber-400" />
+                  House Cup
+                </TabsTrigger>
                 <TabsTrigger value="alliances">
                   <Users className="w-4 h-4" />
                   Alliances
@@ -846,9 +845,13 @@ function CityLocationPageInner() {
                 </TabsTrigger>
                 <TabsTrigger value="tavern-dice">
                   <Dices className="w-4 h-4" />
-                  Tavern Dice
+                  Dice
                 </TabsTrigger>
               </TabsList>
+
+              <TabsContent value="house-cup" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                <HouseCupPanel />
+              </TabsContent>
 
               <TabsContent value="alliances" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
                 <AllianceDashboard />

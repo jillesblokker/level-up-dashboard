@@ -486,36 +486,9 @@ export default function AlliesPage() {
                 }
             />
 
-            <div className="container mx-auto p-4 max-w-7xl space-y-8">
-                {/* Top Section Layout */}
-                {/* Top Section Layout: Stacked */}
-                <div className="flex flex-col gap-8">
-                    <AllianceDashboard />
-                    <Leaderboard />
-                </div>
-
-                <div className="h-8"></div> {/* Spacer to prevent overlap */}
-
+            <div className="container mx-auto p-4 max-w-7xl space-y-6">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    {/* Live 1v1 Friend Habit Race Sprint Banner */}
-                <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-red-950/40 via-amber-950/30 to-zinc-950 border border-amber-500/40 text-amber-100 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl font-serif">
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-2xl shrink-0 animate-bounce">
-                            ⚔️
-                        </div>
-                        <div>
-                            <h3 className="font-medieval text-lg font-bold text-amber-300">1v1 Virtue Duel Daily Habit Race</h3>
-                            <p className="text-xs text-zinc-300 mt-0.5">
-                                First ally to reach their 5/10 daily habit sweet spot wins <span className="font-bold text-amber-400">+10 House Cup Virtue Points</span> for both players!
-                            </p>
-                        </div>
-                    </div>
-                    <Badge className="bg-amber-600/30 border border-amber-400/60 text-amber-300 font-bold px-4 py-1.5 text-xs uppercase tracking-widest shrink-0">
-                        Race Active Today
-                    </Badge>
-                </div>
-
-                <TabsList 
+                    <TabsList 
                         className="flex h-14 bg-zinc-950 border border-amber-900/20 p-1.5 rounded-2xl mb-8 w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar gap-2 md:gap-0"
                         style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
                     >
@@ -523,368 +496,272 @@ export default function AlliesPage() {
                             <Trophy className="w-4 h-4 text-amber-400" />
                             House Cup
                         </TabsTrigger>
+                        <TabsTrigger value="alliances" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                            <Shield className="w-4 h-4 text-amber-500" />
+                            Alliances
+                        </TabsTrigger>
                         <TabsTrigger value="allies" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
                             <Users className="w-4 h-4" />
                             {TEXT_CONTENT.social.tabs.allies}
                             {friends.length > 0 && <Badge variant="secondary" className="ml-1">{friends.length}</Badge>}
                         </TabsTrigger>
-                        <TabsTrigger value="chronicles" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-                            <Scroll className="w-4 h-4" />
-                            {TEXT_CONTENT.social.tabs.chronicles}
-                        </TabsTrigger>
-                        <TabsTrigger value="add" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-                            <UserPlus className="w-4 h-4" />
-                            {TEXT_CONTENT.social.tabs.addFriend}
-                        </TabsTrigger>
-                        <TabsTrigger value="requests" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-                            <Mail className="w-4 h-4" />
-                            {TEXT_CONTENT.social.tabs.requests}
-                            {requests.length > 0 && <Badge variant="destructive" className="ml-1">{requests.length}</Badge>}
+                        <TabsTrigger value="legends" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                            <Crown className="w-4 h-4 text-amber-300" />
+                            Legends
                         </TabsTrigger>
                         <TabsTrigger value="riddles" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-                            <HelpCircle className="w-4 h-4" />
-                            Riddles
+                            <HelpCircle className="w-4 h-4 text-purple-400" />
+                            Dice
                         </TabsTrigger>
                     </TabsList>
 
-                    <AllianceComboBanner />
-
                     {/* HOUSE CUP TAB */}
-                    <TabsContent value="house-cup" className="space-y-4 max-w-5xl mx-auto">
+                    <TabsContent value="house-cup" className="space-y-6 max-w-6xl mx-auto">
+                        {/* Live 1v1 Friend Habit Race Sprint Banner */}
+                        <div className="p-5 rounded-2xl bg-gradient-to-r from-red-950/40 via-amber-950/30 to-zinc-950 border border-amber-500/40 text-amber-100 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl font-serif">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-2xl shrink-0 animate-bounce">
+                                    ⚔️
+                                </div>
+                                <div>
+                                    <h3 className="font-medieval text-lg font-bold text-amber-300">1v1 Virtue Duel Daily Habit Race</h3>
+                                    <p className="text-xs text-zinc-300 mt-0.5">
+                                        First ally to reach their 5/10 daily habit sweet spot wins <span className="font-bold text-amber-400">+10 House Cup Virtue Points</span> for both players!
+                                    </p>
+                                </div>
+                            </div>
+                            <Badge className="bg-amber-600/30 border border-amber-400/60 text-amber-300 font-bold px-4 py-1.5 text-xs uppercase tracking-widest shrink-0">
+                                Race Active Today
+                            </Badge>
+                        </div>
                         <HouseCupPanel />
                     </TabsContent>
 
-                    {/* RIDDLES TAB */}
+                    {/* ALLIANCES TAB */}
+                    <TabsContent value="alliances" className="space-y-6">
+                        <AllianceComboBanner />
+                        <AllianceDashboard />
+                    </TabsContent>
+
+                    {/* LEGENDS TAB */}
+                    <TabsContent value="legends" className="space-y-6">
+                        <Leaderboard />
+                        <ActivityFeed />
+                    </TabsContent>
+
+                    {/* DICE TAB */}
                     <TabsContent value="riddles" className="space-y-4 max-w-4xl mx-auto">
                         <RiddleChallenge />
                     </TabsContent>
 
-                    {/* CHRONICLES TAB */}
-                    <TabsContent value="chronicles" className="space-y-4">
-                        <ActivityFeed />
-                    </TabsContent>
-
                     {/* MY ALLIES TAB */}
-                    <TabsContent value="allies" className="space-y-4">
-                        {friends.length === 0 ? (
-                            <Card className="text-center p-8">
-                                <CardContent className="pt-6 flex flex-col items-center">
-                                    <div className="relative w-full max-w-[280px] sm:max-w-none sm:w-48 aspect-square mb-6">
-                                        <Image
-                                            src="/images/empty-states/allies.webp"
-                                            alt="No allies yet"
-                                            fill
-                                            className="object-contain"
-                                        />
-                                    </div>
-                                    <h3 className="text-lg font-semibold mb-2">{TEXT_CONTENT.social.emptyStates.allies.title}</h3>
-                                    <p className="text-muted-foreground mb-4">{TEXT_CONTENT.social.emptyStates.allies.description}</p>
-                                    <Button onClick={() => setActiveTab("add")}>{TEXT_CONTENT.social.emptyStates.allies.action}</Button>
-                                </CardContent>
-                            </Card>
-                        ) : (
-                            <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-3 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible scrollbar-none">
-                                {friends.map(friend => {
-                                    const level = friend.stats?.level || 0;
-                                    const titleInfo = getCurrentTitle(level);
-
-                                    return (
-                                        <div key={friend.id} className="snap-start w-[88vw] max-w-[340px] shrink-0 md:w-full">
-                                            <Card className="overflow-hidden border border-primary/10 hover:border-primary/40 transition-all duration-300 flex flex-col group/card shadow-sm hover:shadow-md bg-card/50 h-full">
-                                            <CardContent className="p-0 flex-1 flex flex-col">
-                                                {/* Header */}
-                                                <div className="p-4 flex items-center gap-4 border-b border-primary/5 relative bg-gradient-to-r from-muted/20 to-transparent">
-                                                    <div className="relative">
-                                                        <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
-                                                            <AvatarImage src={friend.imageUrl} />
-                                                            <AvatarFallback className="bg-primary/10 text-primary font-bold">{friend.username.substring(0, 2).toUpperCase()}</AvatarFallback>
-                                                        </Avatar>
-                                                        <div className={cn(
-                                                            "absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-background",
-                                                            !friend.lastSeen ? "bg-zinc-300" :
-                                                                (Date.now() - new Date(friend.lastSeen).getTime() < 5 * 60 * 1000) ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" :
-                                                                    (Date.now() - new Date(friend.lastSeen).getTime() < 24 * 60 * 60 * 1000) ? "bg-amber-400" : "bg-zinc-300"
-                                                        )} title={friend.lastSeen ? TEXT_CONTENT.social.friendCard.status.lastSeen.replace('{date}', new Date(friend.lastSeen).toLocaleString()) : TEXT_CONTENT.social.friendCard.status.offline} />
-                                                    </div>
-
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex justify-between items-start gap-2">
-                                                            <div>
-                                                                <h4 className="font-bold text-lg truncate leading-none mb-1.5">{friend.username}</h4>
-                                                                {friend.stats?.allianceName ? (
-                                                                    <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-600 mb-1 bg-amber-500/10 px-2 py-0.5 rounded-full w-fit border border-amber-500/20">
-                                                                        <Shield className="w-3 h-3 fill-amber-500 text-amber-600" />
-                                                                        {friend.stats.allianceName}
-                                                                    </div>
-                                                                ) : (
-                                                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60 mb-1 px-1 italic">
-                                                                        <Shield className="w-3 h-3" />
-                                                                        No alliance yet
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            
-                                                            {/* Right side: Sigil Crest Emblem */}
-                                                            <div className="flex items-center gap-2 shrink-0">
-                                                                {(friend.stats?.streak || 0) > 0 && (
-                                                                    <div className="flex items-center gap-1 bg-orange-500/10 text-orange-600 px-2 py-1 rounded-full text-xs font-bold border border-orange-500/20 shadow-sm" title="Alliance Streak">
-                                                                        <Flame className="w-3 h-3 fill-orange-500" />
-                                                                        {friend.stats?.streak}
-                                                                    </div>
-                                                                )}
-                                                                <SigilCrestBadge 
-                                                                    config={(friend.stats as any)?.sigil || { emblem: 'dragon', outerColor: '#fbbf24', innerColor: 'bg-zinc-950' }} 
-                                                                    size="sm" 
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-medium pl-1">
-                                                            Ally since {new Date(friend.createdAt || Date.now()).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
-                                                        </p>
-                                                    </div>
-                                                </div>
-
-                                                {/* Hero - Rank Visual */}
-                                                <div className="py-6 flex flex-col items-center justify-center bg-gradient-to-b from-background via-primary/5 to-background flex-1 relative">
-                                                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-50" />
-                                                    <div className="relative w-32 h-32 mb-4 drop-shadow-xl hover:scale-105 transition-transform duration-500 filter sepia-[0.1]">
-                                                        <Image
-                                                            src={`/images/character/${titleInfo.id}.webp`}
-                                                            alt={titleInfo.name}
-                                                            fill
-                                                            className="object-contain"
-                                                        />
-                                                    </div>
-                                                    <Badge className="px-4 py-1.5 bg-primary/10 hover:bg-primary/15 border-primary/20 text-primary uppercase tracking-[0.2em] font-bold shadow-sm transition-colors text-xs">
-                                                        {titleInfo.name}
-                                                    </Badge>
-                                                </div>
-
-                                                {/* Stats Grid */}
-                                                <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-primary/10 border-y border-primary/10 bg-muted/5">
-                                                    <div className="p-3 text-center hover:bg-primary/5 transition-colors">
-                                                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Level</div>
-                                                        <div className="font-black text-xl text-foreground flex items-center justify-center gap-1">
-                                                            <Crown className="w-3 h-3 text-amber-500 mb-0.5" />
-                                                            {level}
-                                                        </div>
-                                                    </div>
-                                                    <div className="p-3 text-center hover:bg-primary/5 transition-colors">
-                                                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Quests</div>
-                                                        <div className="font-black text-xl text-foreground flex items-center justify-center gap-1">
-                                                            <Scroll className="w-3 h-3 text-blue-500 mb-0.5" />
-                                                            {friend.stats?.questsFinished || 0}
-                                                        </div>
-                                                    </div>
-                                                    <div className="p-3 text-center hover:bg-primary/5 transition-colors">
-                                                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Hard</div>
-                                                        <div className="font-black text-xl text-foreground flex items-center justify-center gap-1">
-                                                            <Sword className="w-3 h-3 text-red-500 mb-0.5" />
-                                                            {friend.stats?.challengesFinished || 0}
-                                                        </div>
-                                                    </div>
-                                                    <div className="p-3 text-center hover:bg-primary/5 transition-colors">
-                                                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Shared</div>
-                                                        <div className="font-black text-xl text-foreground flex items-center justify-center gap-1">
-                                                            <Gift className="w-3 h-3 text-pink-500 mb-0.5" />
-                                                            {friend.stats?.giftsShared || 0}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Actions */}
-                                                <div className="p-3 grid grid-cols-2 gap-2 bg-muted/5">
-                                                    <Button
-                                                        variant="default"
-                                                        size="sm"
-                                                        className="w-full font-semibold shadow-sm"
-                                                        onClick={() => router.push(`/kingdom?visit=${friend.friendId}`)}
-                                                    >
-                                                        <Crown className="w-4 h-4" />
-                                                        Visit
-                                                    </Button>
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        className="w-full bg-background border border-input shadow-sm hover:bg-accent hover:text-accent-foreground"
-                                                        onClick={() => openQuestModal(friend)}
-                                                    >
-                                                        <Scroll className="w-4 h-4" />
-                                                        Quest
-                                                    </Button>
-
-                                                    {/* Secondary Row */}
-                                                    <div className="col-span-2 flex items-center justify-between gap-1 pt-1.5 border-t border-border/40">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="flex-1 text-[11px] px-1.5 h-8 text-muted-foreground hover:text-foreground"
-                                                            onClick={() => openCompareModal(friend)}
-                                                        >
-                                                            <Target className="w-3 h-3 mr-1" />
-                                                            Compare
-                                                        </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="flex-1 text-[11px] px-1.5 h-8 text-muted-foreground hover:text-foreground"
-                                                            onClick={() => {
-                                                                setSelectedFriend(friend);
-                                                                setGiftModalOpen(true);
-                                                            }}
-                                                        >
-                                                            <Gift className="w-3 h-3 mr-1" />
-                                                            Gift
-                                                        </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="flex-1 text-[11px] px-1.5 h-8 text-muted-foreground hover:text-foreground"
-                                                            onClick={() => openChallengeModal(friend)}
-                                                        >
-                                                            <Sword className="w-3 h-3 mr-1 text-red-500" />
-                                                            Duel
-                                                        </Button>
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0">
-                                                                    <MoreHorizontal className="w-4 h-4" />
-                                                                </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end" className="w-48">
-                                                                <DropdownMenuItem onClick={() => handleHire(friend)}>
-                                                                    <UserPlus className="w-4 h-4 mr-2" />
-                                                                    Hire Companion
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => router.push(`/realm?visit=${friend.friendId}`)}>
-                                                                    <Shield className="w-4 h-4 mr-2" />
-                                                                    Visit Realm
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => removeFriend(friend.id)}>
-                                                                    <UserCheck className="w-4 h-4 mr-2" />
-                                                                    Unfriend
-                                                                </DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                        )}
-                    </TabsContent>
-
-                    {/* ADD FRIEND TAB */}
-                    <TabsContent value="add" className="space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Find New Allies</CardTitle>
-                                <CardDescription>Search for users by their username or email.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="flex gap-2 mb-6">
-                                    <Input
-                                        placeholder="Search username..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                    />
-                                    <Button onClick={handleSearch} disabled={isSearching}>
-                                        {isSearching ? TEXT_CONTENT.social.emptyStates.search.searching : TEXT_CONTENT.social.emptyStates.search.button}
-                                    </Button>
+                    <TabsContent value="allies" className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                            {/* Left Column: Active Allies Carousel (Mobile & Desktop) */}
+                            <div className="md:col-span-7 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-lg font-bold text-amber-300 font-serif flex items-center gap-2">
+                                        <Users className="w-5 h-5 text-amber-400" />
+                                        Active Ally Circle
+                                    </h3>
+                                    <Badge variant="outline" className="border-amber-500/30 text-amber-400 font-mono text-xs">
+                                        {friends.length} Allies
+                                    </Badge>
                                 </div>
 
-                                <div className="space-y-4">
-                                    {searchResults.map(user => (
-                                        <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg bg-card hover:bg-accent/5 transition-colors">
-                                            <div className="flex items-center gap-3">
-                                                <Avatar>
-                                                    <AvatarImage src={user.imageUrl} />
-                                                    <AvatarFallback>{user.username.substring(0, 2).toUpperCase()}</AvatarFallback>
-                                                </Avatar>
-                                                <span className="font-medium">{user.username}</span>
-                                            </div>
-                                            <Button size="sm" onClick={() => sendFriendRequest(user.id)}>
-                                                <UserPlus className="w-4 h-4" /> {TEXT_CONTENT.social.friendCard.actions.addFriend}
+                                {friends.length === 0 ? (
+                                    <Card className="border border-amber-900/30 bg-zinc-950/80 p-6 text-center space-y-3">
+                                        <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400 font-bold text-xl">
+                                            👥
+                                        </div>
+                                        <h4 className="text-base font-bold text-amber-300">No Allies in Circle Yet</h4>
+                                        <p className="text-xs text-zinc-400 max-w-sm mx-auto">
+                                            Search for friends using the invite section to build your habit circle and share House Cup virtue boosts!
+                                        </p>
+                                    </Card>
+                                ) : (
+                                    <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-3 custom-scrollbar mobile-scroll-hide">
+                                        {friends.map(friend => {
+                                            const level = friend.stats?.level || 0;
+                                            const titleInfo = getCurrentTitle(level);
+
+                                            return (
+                                                <div key={friend.id} className="snap-start w-[85vw] max-w-[320px] shrink-0">
+                                                    <Card className="overflow-hidden border border-amber-900/30 hover:border-amber-500/40 transition-all duration-300 flex flex-col group/card shadow-sm hover:shadow-md bg-zinc-950/90 h-full">
+                                                        <CardContent className="p-0 flex-1 flex flex-col">
+                                                            {/* Header */}
+                                                            <div className="p-4 flex items-center gap-3 border-b border-zinc-800/60 bg-gradient-to-r from-amber-950/20 to-transparent">
+                                                                <div className="relative">
+                                                                    <Avatar className="h-10 w-10 border border-amber-500/30 shadow-sm">
+                                                                        <AvatarImage src={friend.imageUrl} />
+                                                                        <AvatarFallback className="bg-amber-500/10 text-amber-400 font-bold text-xs">{friend.username.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                                                    </Avatar>
+                                                                    <div className={cn(
+                                                                        "absolute bottom-0 right-0 w-3 h-3 rounded-full border border-zinc-950",
+                                                                        !friend.lastSeen ? "bg-zinc-500" :
+                                                                            (Date.now() - new Date(friend.lastSeen).getTime() < 5 * 60 * 1000) ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" :
+                                                                                (Date.now() - new Date(friend.lastSeen).getTime() < 24 * 60 * 60 * 1000) ? "bg-amber-400" : "bg-zinc-500"
+                                                                    )} />
+                                                                </div>
+
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h4 className="font-bold text-sm text-zinc-100 truncate leading-none mb-1">{friend.username}</h4>
+                                                                    <p className="text-[10px] text-zinc-400 font-mono">
+                                                                        Level {level} • {titleInfo.name}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Hero - Character Visual */}
+                                                            <div className="py-4 flex flex-col items-center justify-center bg-gradient-to-b from-zinc-950 via-amber-950/10 to-zinc-950 flex-1 relative">
+                                                                <div className="relative w-24 h-24 mb-2 drop-shadow-md hover:scale-105 transition-transform">
+                                                                    <Image
+                                                                        src={`/images/character/${titleInfo.id}.webp`}
+                                                                        alt={titleInfo.name}
+                                                                        fill
+                                                                        className="object-contain"
+                                                                    />
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Actions */}
+                                                            <div className="p-3 grid grid-cols-2 gap-2 bg-zinc-900/60 border-t border-zinc-800/80">
+                                                                <Button
+                                                                    variant="default"
+                                                                    size="sm"
+                                                                    className="w-full text-xs font-bold bg-amber-500 hover:bg-amber-600 text-zinc-950"
+                                                                    onClick={() => router.push(`/kingdom?visit=${friend.friendId}`)}
+                                                                >
+                                                                    <Crown className="w-3.5 h-3.5 mr-1" />
+                                                                    Visit
+                                                                </Button>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="w-full text-xs font-bold border-amber-900/40 text-amber-400 hover:bg-amber-950/20"
+                                                                    onClick={() => openQuestModal(friend)}
+                                                                >
+                                                                    <Scroll className="w-3.5 h-3.5 mr-1" />
+                                                                    Quest
+                                                                </Button>
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Right Column: Invite Section & Requests Registry */}
+                            <div className="md:col-span-5 space-y-6">
+                                {/* Invite Section */}
+                                <Card className="border border-amber-900/30 bg-zinc-950/80">
+                                    <CardHeader className="pb-3">
+                                        <CardTitle className="text-base font-bold text-amber-300 flex items-center gap-2">
+                                            <UserPlus className="w-4 h-4 text-amber-400" />
+                                            Invite an Ally
+                                        </CardTitle>
+                                        <CardDescription className="text-xs text-zinc-400">
+                                            Search for players by username to send friend invites.
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <div className="flex gap-2">
+                                            <Input
+                                                placeholder="Search username..."
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                                className="bg-zinc-900 border-zinc-800 text-xs"
+                                            />
+                                            <Button onClick={handleSearch} disabled={isSearching} size="sm" className="bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold shrink-0">
+                                                {isSearching ? "Searching..." : "Search"}
                                             </Button>
                                         </div>
-                                    ))}
-                                    {searchResults.length === 0 && !searchQuery && !isSearching && (
-                                        <div className="text-center py-8 flex flex-col items-center w-full">
-                                            <div className="relative w-full max-w-[280px] sm:max-w-none sm:w-40 aspect-square mb-4 opacity-80">
-                                                <Image
-                                                    src="/images/empty-states/search.webp"
-                                                    alt="Search for friends"
-                                                    fill
-                                                    className="object-contain"
-                                                />
-                                            </div>
-                                            <p className="text-muted-foreground">{TEXT_CONTENT.social.emptyStates.search.initial}</p>
-                                        </div>
-                                    )}
-                                    {searchResults.length === 0 && searchQuery && !isSearching && (
-                                        <p className="text-center text-muted-foreground py-4">{TEXT_CONTENT.social.emptyStates.search.noResults.replace('{query}', searchQuery)}</p>
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
 
-                    {/* REQUESTS TAB */}
-                    <TabsContent value="requests" className="space-y-4">
-                        {requests.length === 0 ? (
-                            <div className="text-center py-12 text-muted-foreground flex flex-col items-center w-full">
-                                <div className="relative w-full max-w-[280px] sm:max-w-none sm:w-40 aspect-square mb-4 opacity-80">
-                                    <Image
-                                        src="/images/empty-states/requests.webp"
-                                        alt="No requests"
-                                        fill
-                                        className="object-contain"
-                                    />
-                                </div>
-                                <p>{TEXT_CONTENT.social.emptyStates.requests.noRequests}</p>
-                            </div>
-                        ) : (
-                            <div className="grid gap-4">
-                                {requests.map(req => (
-                                    <Card key={req.id}>
-                                        <CardContent className="p-4 flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <Avatar>
-                                                    <AvatarImage src={req.imageUrl} />
-                                                    <AvatarFallback>{req.username.substring(0, 2).toUpperCase()}</AvatarFallback>
-                                                </Avatar>
-                                                <div>
-                                                    <h4 className="font-semibold">{req.username}</h4>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        {req.isSender ? TEXT_CONTENT.social.friendCard.status.outgoingInfo : TEXT_CONTENT.social.friendCard.status.incomingInfo}
-                                                    </p>
+                                        {searchResults.length > 0 && (
+                                            <div className="space-y-2">
+                                                {searchResults.map(user => (
+                                                    <div key={user.id} className="flex items-center justify-between p-2.5 rounded-xl border border-zinc-800 bg-zinc-900/60">
+                                                        <div className="flex items-center gap-2.5 min-w-0">
+                                                            <Avatar className="h-8 w-8">
+                                                                <AvatarImage src={user.imageUrl} />
+                                                                <AvatarFallback className="text-xs">{user.username.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                                            </Avatar>
+                                                            <span className="font-medium text-xs text-zinc-200 truncate">{user.username}</span>
+                                                        </div>
+                                                        <Button size="sm" className="text-xs bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold h-8" onClick={() => sendFriendRequest(user.id)}>
+                                                            <UserPlus className="w-3.5 h-3.5 mr-1" /> Add
+                                                        </Button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+
+                                {/* Requests Registry */}
+                                <Card className="border border-amber-900/30 bg-zinc-950/80">
+                                    <CardHeader className="pb-3">
+                                        <CardTitle className="text-base font-bold text-amber-300 flex items-center gap-2">
+                                            <Mail className="w-4 h-4 text-amber-400" />
+                                            Requests Registry
+                                            {requests.length > 0 && <Badge variant="destructive" className="ml-1 text-[10px]">{requests.length}</Badge>}
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        {requests.length === 0 ? (
+                                            <div className="border border-amber-900/20 bg-gradient-to-b from-amber-950/10 via-zinc-950 to-zinc-900/50 rounded-2xl p-5 text-center space-y-2">
+                                                <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto text-xl">
+                                                    📜
                                                 </div>
+                                                <h4 className="text-sm font-bold text-amber-300 font-serif">Registry Clear</h4>
+                                                <p className="text-[11px] text-zinc-400 max-w-xs mx-auto leading-relaxed">
+                                                    No pending ally invitations. Send requests using the invite form above!
+                                                </p>
                                             </div>
-                                            <div className="flex gap-2">
-                                                {req.isSender ? (
-                                                    <Button size="sm" variant="outline" onClick={() => removeFriend(req.id)}>
-                                                        {TEXT_CONTENT.social.friendCard.actions.cancel}
-                                                    </Button>
-                                                ) : (
-                                                    <>
-                                                        <Button size="sm" variant="default" onClick={() => respondToRequest(req.id, 'accept')}>
-                                                            {TEXT_CONTENT.social.friendCard.actions.accept}
-                                                        </Button>
-                                                        <Button size="sm" variant="ghost" onClick={() => respondToRequest(req.id, 'reject')}>
-                                                            {TEXT_CONTENT.social.friendCard.actions.decline}
-                                                        </Button>
-                                                    </>
-                                                )}
+                                        ) : (
+                                            <div className="space-y-3">
+                                                {requests.map(req => (
+                                                    <div key={req.id} className="p-3 rounded-xl border border-zinc-800 bg-zinc-900/60 flex items-center justify-between">
+                                                        <div className="flex items-center gap-2.5">
+                                                            <Avatar className="h-8 w-8">
+                                                                <AvatarImage src={req.imageUrl} />
+                                                                <AvatarFallback className="text-xs">{req.username.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                                            </Avatar>
+                                                            <div>
+                                                                <h4 className="font-semibold text-xs text-zinc-200">{req.username}</h4>
+                                                                <p className="text-[10px] text-zinc-400">
+                                                                    {req.isSender ? "Outgoing invite" : "Incoming invite"}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-1.5">
+                                                            {req.isSender ? (
+                                                                <Button size="sm" variant="outline" className="text-xs h-7 px-2 border-zinc-700" onClick={() => removeFriend(req.id)}>
+                                                                    Cancel
+                                                                </Button>
+                                                            ) : (
+                                                                <>
+                                                                    <Button size="sm" className="text-xs h-7 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold" onClick={() => respondToRequest(req.id, 'accept')}>
+                                                                        Accept
+                                                                    </Button>
+                                                                    <Button size="sm" variant="ghost" className="text-xs h-7 px-2 text-zinc-400 hover:text-zinc-200" onClick={() => respondToRequest(req.id, 'reject')}>
+                                                                        Decline
+                                                                    </Button>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
+                                        )}
+                                    </CardContent>
+                                </Card>
                             </div>
-                        )}
+                        </div>
                     </TabsContent>
                 </Tabs>
             </div>
@@ -1397,7 +1274,6 @@ export default function AlliesPage() {
                     )}
                 </DialogContent>
             </Dialog>
-
-        </div >
-    )
+        </div>
+    );
 }
