@@ -127,26 +127,29 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
               <div 
                 key={idx}
                 onClick={() => handleCardClick(card)}
-                className="relative w-full aspect-[2/3] rounded-2xl cursor-pointer transition-all duration-300 border-2 border-emerald-400/60 bg-zinc-950 overflow-hidden group shadow-[0_0_25px_rgba(16,185,129,0.3)] hover:shadow-[0_0_35px_rgba(16,185,129,0.7)] hover:scale-105 active:scale-95"
+                className="relative w-full aspect-[2/3] rounded-2xl cursor-pointer transition-all duration-300 border-2 border-emerald-400/60 bg-gradient-to-b from-slate-900 via-emerald-950/70 to-slate-950 overflow-hidden group shadow-[0_0_25px_rgba(16,185,129,0.3)] hover:shadow-[0_0_35px_rgba(16,185,129,0.7)] hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
               >
-                {/* 100% Full-Bleed Card Asset Image with Zero Whitespace */}
-                <Image
-                  src={card.image}
-                  alt={card.name}
-                  fill
-                  className="object-cover w-full h-full block group-hover:scale-110 transition-transform duration-500"
-                  unoptimized
-                />
+                {/* Mystical Pattern Background */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.2),transparent_70%)] pointer-events-none" />
                 
-                {/* Top Filigree Card Badge */}
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
-                  <span className="px-2.5 py-0.5 bg-slate-950/90 border border-emerald-400/50 rounded-full text-[10px] sm:text-xs font-serif font-extrabold text-emerald-300 tracking-wider shadow-md whitespace-nowrap">
+                {/* Decorative Gold Filigree Card Back Border */}
+                <div className="absolute inset-2 border border-emerald-500/30 rounded-xl pointer-events-none flex flex-col justify-between p-2">
+                  <div className="flex justify-between text-[10px] text-emerald-400/50">✨ <span>✨</span></div>
+                  <div className="flex justify-between text-[10px] text-emerald-400/50">✨ <span>✨</span></div>
+                </div>
+
+                {/* Central Orb & Closed Card Mystery Icon */}
+                <div className="relative z-10 flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-full bg-emerald-950/90 border-2 border-emerald-400/60 flex items-center justify-center text-emerald-300 font-medieval text-2xl shadow-[0_0_15px_rgba(16,185,129,0.5)] group-hover:scale-110 transition-transform">
+                    🔮
+                  </div>
+                  <span className="text-[11px] font-serif font-extrabold text-emerald-200 tracking-widest uppercase bg-slate-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
                     Card #{idx + 1}
                   </span>
                 </div>
 
                 {/* Mystical Shimmer Overlay on Hover */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/40 opacity-40 group-hover:opacity-20 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/20 via-transparent to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               </div>
             ))}
           </div>
