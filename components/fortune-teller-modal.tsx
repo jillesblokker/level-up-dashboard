@@ -122,21 +122,31 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
         </DialogHeader>
 
         {!selectedCard ? (
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 py-3 w-full custom-scrollbar mobile-scroll-hide sm:grid sm:grid-cols-3 sm:gap-6 sm:justify-items-center">
+          <div className="grid grid-cols-3 gap-3 sm:gap-5 w-full justify-items-center py-3">
             {shuffledCards.map((card, idx) => (
               <div 
                 key={idx}
                 onClick={() => handleCardClick(card)}
-                className="relative w-full min-w-[200px] sm:min-w-0 max-w-[260px] sm:max-w-none aspect-[2/3] rounded-2xl cursor-pointer hover:scale-102 active:scale-98 transition-all duration-300 border-2 border-emerald-500/50 bg-slate-900 overflow-hidden group shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] snap-center shrink-0"
+                className="relative w-full aspect-[2/3] rounded-2xl cursor-pointer transition-all duration-300 border-2 border-emerald-400/60 bg-zinc-950 overflow-hidden group shadow-[0_0_25px_rgba(16,185,129,0.3)] hover:shadow-[0_0_35px_rgba(16,185,129,0.7)] hover:scale-105 active:scale-95"
               >
-                <div className="absolute inset-0 bg-[url('/images/kingdom-tiles/fortune_teller.png')] bg-cover bg-center opacity-40 group-hover:opacity-60 transition-opacity" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-emerald-950/40 to-slate-950/80" />
-                <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2 p-4 text-center">
-                  <div className="w-12 h-12 rounded-full bg-emerald-950/80 border border-emerald-500/50 flex items-center justify-center text-emerald-400 font-medieval text-2xl shadow-inner group-hover:scale-110 transition-transform">
-                    ?
-                  </div>
-                  <span className="text-xs font-serif font-bold text-emerald-200 tracking-wider uppercase">Card #{idx + 1}</span>
+                {/* 100% Full-Bleed Card Asset Image with Zero Whitespace */}
+                <Image
+                  src={card.image}
+                  alt={card.name}
+                  fill
+                  className="object-cover w-full h-full block group-hover:scale-110 transition-transform duration-500"
+                  unoptimized
+                />
+                
+                {/* Top Filigree Card Badge */}
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
+                  <span className="px-2.5 py-0.5 bg-slate-950/90 border border-emerald-400/50 rounded-full text-[10px] sm:text-xs font-serif font-extrabold text-emerald-300 tracking-wider shadow-md whitespace-nowrap">
+                    Card #{idx + 1}
+                  </span>
                 </div>
+
+                {/* Mystical Shimmer Overlay on Hover */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/40 opacity-40 group-hover:opacity-20 transition-opacity" />
               </div>
             ))}
           </div>

@@ -311,6 +311,7 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
   const [moves, setMoves] = useState(0)
   const [activeVariationIndex, setActiveVariationIndex] = useState<number>(0)
   const [hasWon, setHasWon] = useState(false)
+  const [showDpad, setShowDpad] = useState(false)
 
   const gridRef = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef<{
@@ -593,9 +594,9 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="max-w-md w-full bg-zinc-950 border border-amber-900/40 text-white rounded-2xl p-6 shadow-2xl overflow-hidden font-serif">
+      <DialogContent className="max-w-lg w-full bg-zinc-950/95 border border-amber-900/40 text-white rounded-2xl p-4 sm:p-6 shadow-2xl overflow-y-auto max-h-[85vh] font-serif pb-safe">
         <DialogHeader className="text-center border-b border-amber-900/20 pb-3">
-          <DialogTitle className="text-3xl font-medieval tracking-wide text-amber-400">
+          <DialogTitle className="text-2xl sm:text-3xl font-medieval tracking-wide text-amber-400">
             Plank Labyrinth
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400 italic">
@@ -603,9 +604,9 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col items-center gap-6 mt-6">
+        <div className="flex flex-col items-center gap-4 mt-4">
           {/* Stats Bar */}
-          <div className="flex justify-between items-center w-full px-4 text-xs font-mono tracking-wider text-amber-500 font-semibold">
+          <div className="flex justify-between items-center w-full px-2 text-xs font-mono tracking-wider text-amber-500 font-semibold">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <span>VARIATION: <strong className="text-white font-extrabold">{activeVariationIndex + 1} / {PUZZLE_VARIATIONS.length}</strong></span>
@@ -625,10 +626,10 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
             </div>
           </div>
 
-          {/* 6x6 Grid Container */}
+          {/* Full-Size Responsive 6x6 Grid Container */}
           <div
             ref={gridRef}
-            className="relative w-80 h-80 bg-zinc-900/70 border-4 border-amber-900/60 rounded-xl overflow-hidden shadow-2xl flex flex-wrap"
+            className="relative w-full max-w-[380px] sm:max-w-[440px] aspect-square mx-auto bg-zinc-900/70 border-4 border-amber-900/60 rounded-2xl overflow-hidden shadow-2xl flex flex-wrap"
           >
             {/* Grid cell lines (cobblestone texture) */}
             {Array.from({ length: 36 }).map((_, i) => (
@@ -682,50 +683,63 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
             })}
           </div>
 
-          {/* Directional Button Controls */}
-          <div className="flex flex-col items-center gap-1.5 mt-1 bg-zinc-900/40 p-3 rounded-2xl border border-amber-900/10">
+          {/* D-Pad Toggle Button & Directional Button Controls */}
+          <div className="w-full flex flex-col items-center gap-2">
             <Button
-              size="icon"
-              disabled={hasWon || !selectedId}
-              onClick={() => moveSelected("up")}
-              className="bg-gradient-to-b from-zinc-800 to-zinc-900 hover:from-zinc-700 hover:to-zinc-800 border border-amber-900/30 text-white rounded-lg h-9 w-9 shadow active:scale-95 transition-all"
-              aria-label="Move Selected Plank Up"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowDpad(!showDpad)}
+              className="text-[11px] font-mono border-amber-900/40 text-amber-400 hover:bg-amber-950/40 h-8 px-3 rounded-lg"
             >
-              <ArrowUp className="w-4 h-4 text-amber-400" />
+              {showDpad ? "⌨️ Hide Arrow Keys" : "⌨️ Show Arrow Keys"}
             </Button>
-            <div className="flex gap-8">
-              <Button
-                size="icon"
-                disabled={hasWon || !selectedId}
-                onClick={() => moveSelected("left")}
-                className="bg-gradient-to-b from-zinc-800 to-zinc-900 hover:from-zinc-700 hover:to-zinc-800 border border-amber-900/30 text-white rounded-lg h-9 w-9 shadow active:scale-95 transition-all"
-                aria-label="Move Selected Plank Left"
-              >
-                <ArrowLeft className="w-4 h-4 text-amber-400" />
-              </Button>
-              <Button
-                size="icon"
-                disabled={hasWon || !selectedId}
-                onClick={() => moveSelected("right")}
-                className="bg-gradient-to-b from-zinc-800 to-zinc-900 hover:from-zinc-700 hover:to-zinc-800 border border-amber-900/30 text-white rounded-lg h-9 w-9 shadow active:scale-95 transition-all"
-                aria-label="Move Selected Plank Right"
-              >
-                <ArrowRight className="w-4 h-4 text-amber-400" />
-              </Button>
-            </div>
-            <Button
-              size="icon"
-              disabled={hasWon || !selectedId}
-              onClick={() => moveSelected("down")}
-              className="bg-gradient-to-b from-zinc-800 to-zinc-900 hover:from-zinc-700 hover:to-zinc-800 border border-amber-900/30 text-white rounded-lg h-9 w-9 shadow active:scale-95 transition-all"
-              aria-label="Move Selected Plank Down"
-            >
-              <ArrowDown className="w-4 h-4 text-amber-400" />
-            </Button>
+
+            {showDpad && (
+              <div className="flex flex-col items-center gap-1.5 bg-zinc-900/40 p-3 rounded-2xl border border-amber-900/10 animate-in fade-in duration-200">
+                <Button
+                  size="icon"
+                  disabled={hasWon || !selectedId}
+                  onClick={() => moveSelected("up")}
+                  className="bg-gradient-to-b from-zinc-800 to-zinc-900 hover:from-zinc-700 hover:to-zinc-800 border border-amber-900/30 text-white rounded-lg h-9 w-9 shadow active:scale-95 transition-all"
+                  aria-label="Move Selected Plank Up"
+                >
+                  <ArrowUp className="w-4 h-4 text-amber-400" />
+                </Button>
+                <div className="flex gap-8">
+                  <Button
+                    size="icon"
+                    disabled={hasWon || !selectedId}
+                    onClick={() => moveSelected("left")}
+                    className="bg-gradient-to-b from-zinc-800 to-zinc-900 hover:from-zinc-700 hover:to-zinc-800 border border-amber-900/30 text-white rounded-lg h-9 w-9 shadow active:scale-95 transition-all"
+                    aria-label="Move Selected Plank Left"
+                  >
+                    <ArrowLeft className="w-4 h-4 text-amber-400" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    disabled={hasWon || !selectedId}
+                    onClick={() => moveSelected("right")}
+                    className="bg-gradient-to-b from-zinc-800 to-zinc-900 hover:from-zinc-700 hover:to-zinc-800 border border-amber-900/30 text-white rounded-lg h-9 w-9 shadow active:scale-95 transition-all"
+                    aria-label="Move Selected Plank Right"
+                  >
+                    <ArrowRight className="w-4 h-4 text-amber-400" />
+                  </Button>
+                </div>
+                <Button
+                  size="icon"
+                  disabled={hasWon || !selectedId}
+                  onClick={() => moveSelected("down")}
+                  className="bg-gradient-to-b from-zinc-800 to-zinc-900 hover:from-zinc-700 hover:to-zinc-800 border border-amber-900/30 text-white rounded-lg h-9 w-9 shadow active:scale-95 transition-all"
+                  aria-label="Move Selected Plank Down"
+                >
+                  <ArrowDown className="w-4 h-4 text-amber-400" />
+                </Button>
+              </div>
+            )}
           </div>
 
-          <div className="text-[10px] text-zinc-400 text-center italic mt-1 font-serif leading-relaxed px-4">
-            * Drag tiles using your mouse or touch swipe, or use keyboard arrow keys / W, A, S, D to navigate.
+          <div className="text-[10px] text-zinc-400 text-center italic font-serif leading-relaxed px-4">
+            * Touch and drag planks directly across the board, or toggle Arrow Keys for manual controls.
           </div>
         </div>
       </DialogContent>

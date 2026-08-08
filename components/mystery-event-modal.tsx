@@ -159,7 +159,7 @@ export function MysteryEventModal({
                         </div>
 
                         {!isProcessing ? (
-                            <div className="w-full space-y-3 mt-4">
+                            <div className={cn("w-full mt-3", event.choices.length > 2 ? "grid grid-cols-2 gap-2.5" : "space-y-2.5")}>
                                 {event.choices.map((choice, index) => {
                                     const isSecondary = choice.toLowerCase().includes('leave') || choice.toLowerCase().includes('walk')
                                     return (
@@ -168,9 +168,9 @@ export function MysteryEventModal({
                                             onClick={() => onChoice(choice)}
                                             variant={isSecondary ? "ghost" : "default"}
                                             className={cn(
-                                                "w-full h-12 text-md font-medium tracking-wide transition-all duration-300 rounded-xl",
-                                                !isSecondary && cn("text-white shadow-lg", style.button),
-                                                isSecondary && "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900"
+                                                "w-full min-h-[48px] px-3 py-2 text-xs sm:text-sm font-semibold tracking-wide transition-all duration-300 rounded-xl flex items-center justify-center text-center",
+                                                !isSecondary && cn("text-white shadow-lg border border-white/10 active:scale-95", style.button),
+                                                isSecondary && "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 border border-zinc-800"
                                             )}
                                         >
                                             {choice}
