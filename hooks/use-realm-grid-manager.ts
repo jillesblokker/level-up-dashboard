@@ -80,11 +80,11 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
 
                         // FIX: Force correct image path for road tiles, overriding any stale metadata
                         if (reconstructedTile.type === 'crossroad') {
-                            reconstructedTile.image = '/images/kingdom-tiles/Crossroad.png';
+                            reconstructedTile.image = '/images/kingdom-tiles/Crossroad.webp';
                         } else if (reconstructedTile.type === 'straightroad') {
-                            reconstructedTile.image = '/images/kingdom-tiles/Straightroad.png';
+                            reconstructedTile.image = '/images/kingdom-tiles/Straightroad.webp';
                         } else if (reconstructedTile.type === 'cornerroad') {
-                            reconstructedTile.image = '/images/kingdom-tiles/Cornerroad.png';
+                            reconstructedTile.image = '/images/kingdom-tiles/Cornerroad.webp';
                         } else if (reconstructedTile.type === 'pyramid') {
                             reconstructedTile.image = '/images/tiles/pyramid-tile.png';
                         } else if (reconstructedTile.type === 'whispering-well') {

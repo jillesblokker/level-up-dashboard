@@ -226,6 +226,7 @@ export function KingdomPropertiesInventory({
                       mode="place"
                       onSelect={() => setSelectedTile(tile)}
                       getMaterialCount={getOwnedQty}
+                      catalogTiles={tiles}
                     />
                   ))}
                 </div>
@@ -274,9 +275,47 @@ export function KingdomPropertiesInventory({
   );
 }
 
+function getTileImageSrc(tile: PropertyTile, catalogTiles?: PropertyTile[]): string {
+  if (catalogTiles && catalogTiles.length > 0) {
+    const catalogMatch = catalogTiles.find(
+      ct => ct.id === tile.id || ct.name?.toLowerCase() === tile.name?.toLowerCase()
+    );
+    if (catalogMatch?.image) {
+      let catImg = catalogMatch.image;
+      if (!catImg.startsWith('/')) {
+        catImg = `/images/kingdom-tiles/${catImg}`;
+      }
+      return normalizeImagePath(catImg);
+    }
+  }
+
+  let img = tile.image || '';
+  if (!img) {
+    img = `/images/kingdom-tiles/${tile.id || 'vacant'}.webp`;
+  }
+  if (!img.startsWith('/')) {
+    img = `/images/kingdom-tiles/${img}`;
+  }
+
+  return normalizeImagePath(img);
+}
+
+function normalizeImagePath(path: string): string {
+  const parts = path.split('/');
+  const filename = parts.pop() || '';
+  const cleanFilename = filename
+    .replace('CornerRoad', 'Cornerroad')
+    .replace('StraightRoad', 'Straightroad')
+    .replace('TSplitRoad', 'Tsplitroad')
+    .replace('CrossRoad', 'Crossroad');
+
+  const webpFilename = cleanFilename.replace(/\.png$/i, '.webp');
+  return [...parts, webpFilename].join('/');
+}
+
 // ─── TileCard ───────────────────────────────────────────────
 
-function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0, onSelect, onAction, getMaterialCount }: {
+function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0, onSelect, onAction, getMaterialCount, catalogTiles }: {
   tile: PropertyTile;
   owned: number;
   placedCount: number;
@@ -286,6 +325,7 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
   onSelect?: () => void;
   onAction?: (method: 'gold' | 'tokens' | 'materials' | 'gems', quantity: number) => void;
   getMaterialCount: (itemId: string) => number;
+  catalogTiles?: PropertyTile[];
 }) {
   const [qty, setQty] = useState(1);
   const isLevelUnlocked = !tile.levelRequired || playerLevel >= tile.levelRequired;
@@ -310,6 +350,8 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
     return '🌿';
   };
 
+  const imageSrc = getTileImageSrc(tile, catalogTiles);
+
   return (
     <div className={cn(
       "group relative overflow-hidden rounded-xl border transition-all duration-300",
@@ -332,8 +374,8 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
         <div className="flex gap-3">
           <div className="relative w-16 h-16 shrink-0 rounded-lg bg-black/40 border border-white/10 overflow-hidden group-hover:border-amber-500/50 transition-colors flex items-center justify-center p-1">
             <Image
-              src={tile.image.startsWith('/') ? tile.image : `/images/kingdom-tiles/${tile.image}`}
-              alt={tile.name}
+              src={imageSrc}
+              alt={tile.name || tile.id}
               fill
               sizes="64px"
               className="object-contain drop-shadow-lg"

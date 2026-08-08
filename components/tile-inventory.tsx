@@ -366,17 +366,17 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       case 'fortune_teller':
         return '/images/kingdom-tiles/fortune_teller.webp'
       case 'pyramid':
-        return '/images/tiles/pyramid-tile.png'
+        return '/images/tiles/pyramid-tile.webp'
       case 'whispering-well':
-        return '/images/tiles/whispering-well-tile.png'
+        return '/images/tiles/whispering-well-tile.webp'
       case 'sphinx-gates':
-        return '/images/tiles/sphinx-gates-tile.png'
+        return '/images/tiles/sphinx-gates-tile.webp'
       case 'whispering-canopy':
-        return '/images/tiles/whispering-canopy-tile.png'
+        return '/images/tiles/whispering-canopy-tile.webp'
       case 'frostfire-obelisk':
-        return '/images/tiles/frostfire-obelisk-tile.png'
+        return '/images/tiles/frostfire-obelisk-tile.webp'
       case 'fairy-ring':
-        return '/images/tiles/fairy-ring-tile.png'
+        return '/images/tiles/fairy-ring-tile.webp'
       case 'settlement':
         return '/images/tiles/settlement-tile.webp'
       case 'megapolis':
@@ -388,11 +388,11 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       case 'plank-labyrinth':
         return '/images/tiles/plank-labyrinth-tile.webp'
       case 'prison':
-        return '/images/tiles/prison-tile.png'
+        return '/images/tiles/prison-tile.webp'
       case 'apotheca':
-        return '/images/tiles/apotheca-tile.png'
+        return '/images/tiles/apotheca-tile.webp'
       case 'abbey':
-        return '/images/tiles/abbey-tile.png'
+        return '/images/tiles/abbey-tile.webp'
       case 'waterway_canal':
         return '/images/kingdom-tiles/WaterwayCanal.webp'
       case 'astral_citadel_monument':
