@@ -179,19 +179,19 @@ export function TitanRaidCard() {
             </div>
           </div>
 
-          <Button
-            disabled={!isDefeated || claimed || claiming}
-            onClick={handleClaim}
-            className={claimed ? "w-full bg-zinc-800 text-zinc-400 border border-zinc-700 py-3 rounded-xl min-h-[48px]" : isDefeated ? "w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-black shadow-[0_0_25px_rgba(245,158,11,0.4)] py-3 rounded-xl min-h-[48px] animate-bounce" : "w-full bg-zinc-900 text-zinc-500 border border-zinc-800 py-3 rounded-xl min-h-[48px] cursor-not-allowed"}
-          >
-            {claimed ? (
-              <span className="flex items-center justify-center gap-1.5 font-bold"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Monthly Reward Claimed</span>
-            ) : isDefeated ? (
-              <span className="flex items-center justify-center gap-1.5 font-extrabold text-base"><Trophy className="w-5 h-5" /> Claim Victory Loot</span>
-            ) : (
-              <span className="flex items-center justify-center gap-1.5 font-medium text-xs"><Target className="w-4 h-4" /> Complete habits with allies to defeat boss ({damageDealt}/1000 HP)</span>
-            )}
-          </Button>
+          {(isDefeated || claimed) && (
+            <Button
+              disabled={claimed || claiming}
+              onClick={handleClaim}
+              className={claimed ? "w-full bg-zinc-800 text-zinc-400 border border-zinc-700 py-3 rounded-xl min-h-[48px]" : "w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-black shadow-[0_0_25px_rgba(245,158,11,0.4)] py-3 rounded-xl min-h-[48px] animate-bounce"}
+            >
+              {claimed ? (
+                <span className="flex items-center justify-center gap-1.5 font-bold"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Monthly Reward Claimed</span>
+              ) : (
+                <span className="flex items-center justify-center gap-1.5 font-extrabold text-base"><Trophy className="w-5 h-5" /> Claim Victory Loot</span>
+              )}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
