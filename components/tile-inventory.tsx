@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 ;
 
 import Image from "next/image"
-import { BookOpen, MapPin, ArrowUpRight, Droplets, Trees, Home, Mountain, Info } from 'lucide-react'
+import { BookOpen, MapPin, ArrowUpRight, Droplets, Trees, Home, Mountain, Info, Check } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -719,32 +719,51 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                       </span>
                                     </div>
                                   </div>
-                                  <div className="flex gap-2 items-center justify-center mt-auto pt-2">
-                                    <Input
-                                      type="number"
-                                      min="1"
-                                      value={buyQuantities[tile.type] || 1}
-                                      onChange={(e) => handleQuantityChange(tile.type, e.target.value)}
-                                      className="w-16 min-h-[44px] text-sm font-bold text-center px-2 py-1 border border-amber-800/40 rounded-xl focus:ring-amber-400 focus:border-amber-400 bg-zinc-950 text-amber-200"
-                                      id={`buy-quantity-${tile.type}`}
-                                      name={`buy-quantity-${tile.type}`}
-                                      disabled={userLevelValue < category.minLevel}
-                                      aria-label={`Quantity for ${tile.name}`}
-                                    />
+                                  <div className="flex gap-1.5 items-center justify-center mt-auto pt-2">
+                                    {/* Stepper (- qty +) */}
+                                    <div className="flex items-center bg-zinc-950 border border-amber-800/40 rounded-xl p-0.5 flex-1 min-h-[36px] justify-between">
+                                      <button
+                                        type="button"
+                                        disabled={userLevelValue < category.minLevel || (buyQuantities[tile.type] || 1) <= 1}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleQuantityChange(tile.type, String(Math.max(1, (buyQuantities[tile.type] || 1) - 1)));
+                                        }}
+                                        className="w-7 h-7 flex items-center justify-center rounded-lg bg-zinc-900 hover:bg-zinc-800 text-amber-400 font-extrabold text-sm disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                      >
+                                        -
+                                      </button>
+                                      <span className="font-mono text-xs font-bold text-amber-200 px-1">
+                                        {buyQuantities[tile.type] || 1}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        disabled={userLevelValue < category.minLevel}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleQuantityChange(tile.type, String((buyQuantities[tile.type] || 1) + 1));
+                                        }}
+                                        className="w-7 h-7 flex items-center justify-center rounded-lg bg-zinc-900 hover:bg-zinc-800 text-amber-400 font-extrabold text-sm disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                      >
+                                        +
+                                      </button>
+                                    </div>
+
+                                    {/* Confirm Checkmark Button */}
                                     <Button
-                                      variant="outline"
+                                      type="button"
                                       size="sm"
+                                      disabled={userLevelValue < category.minLevel}
                                       className={cn(
-                                        "flex-1 min-h-[44px] rounded-xl font-bold transition-all focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none",
+                                        "h-9 px-3 rounded-xl font-extrabold transition-all shrink-0 active:scale-95 shadow-md",
                                         userLevelValue >= category.minLevel
-                                          ? "bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-bold border border-yellow-300/40 shadow-lg active:scale-95"
+                                          ? "bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border border-emerald-400/40 shadow-[0_0_12px_rgba(16,185,129,0.3)]"
                                           : "bg-zinc-800/60 border-zinc-700 text-zinc-400 cursor-not-allowed"
                                       )}
                                       onClick={(e) => userLevelValue >= category.minLevel && handleBuyTile(tile, e)}
-                                      disabled={userLevelValue < category.minLevel}
-                                      aria-label={`Buy ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile${(buyQuantities[tile.type] || 1) > 1 ? 's' : ''}`}
+                                      aria-label={`Confirm purchase of ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile(s)`}
                                     >
-                                      {userLevelValue < category.minLevel ? 'Locked' : 'Buy'}
+                                      <Check className="w-4 h-4 stroke-[3]" />
                                     </Button>
                                   </div>
                                 </div>

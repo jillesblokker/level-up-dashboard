@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Coins, LayoutGrid, Gem } from "lucide-react";
+import { Coins, LayoutGrid, Gem, Check } from "lucide-react";
 import { comprehensiveItems } from "@/app/lib/comprehensive-items";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 
@@ -35,7 +35,7 @@ interface KingdomPropertiesInventoryProps {
   tiles: PropertyTile[]; 
   selectedTile: PropertyTile | null;
   setSelectedTile: (tile: PropertyTile | null) => void;
-  onBuy?: (tile: PropertyTile, method: 'gold' | 'tokens' | 'materials' | 'gems') => void;
+  onBuy?: (tile: PropertyTile, method: 'gold' | 'tokens' | 'materials' | 'gems', quantity: number) => void;
   onBuyToken?: () => void; 
   tokens?: number | undefined;
   playerLevel?: number | undefined;
@@ -258,7 +258,7 @@ export function KingdomPropertiesInventory({
                         mode="buy"
                         playerLevel={playerLevel}
                         tokens={tokens}
-                        onAction={(method) => onBuy && onBuy(tile, method)}
+                        onAction={(method, qty) => onBuy && onBuy(tile, method, qty)}
                         getMaterialCount={getOwnedQty}
                       />
                     </div>
@@ -274,7 +274,7 @@ export function KingdomPropertiesInventory({
   );
 }
 
-// ─── TileCard (Unchanged logic) ───────────────────────────
+// ─── TileCard ───────────────────────────────────────────────
 
 function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0, onSelect, onAction, getMaterialCount }: {
   tile: PropertyTile;
@@ -284,19 +284,17 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
   playerLevel?: number;
   tokens?: number;
   onSelect?: () => void;
-  onAction?: (method: 'gold' | 'tokens' | 'materials' | 'gems') => void;
+  onAction?: (method: 'gold' | 'tokens' | 'materials' | 'gems', quantity: number) => void;
   getMaterialCount: (itemId: string) => number;
 }) {
+  const [qty, setQty] = useState(1);
   const isLevelUnlocked = !tile.levelRequired || playerLevel >= tile.levelRequired;
-
-  const canAffordGold = (tile.cost ?? 0) <= 0 || false; // Note: We don't have playerGold here, but we pass canAfford from parent usually. We'll just let the button trigger and fail if no gold, or we could pass gold down. 
-  // For simplicity, we just enable the button and backend will reject if insufficient.
-  const canAffordTokens = tile.tokenCost ? tokens >= tile.tokenCost : false;
+  const canAffordTokens = tile.tokenCost ? tokens >= (tile.tokenCost * qty) : false;
   
   let canAffordMaterials = false;
   if (tile.materialCost && tile.materialCost.length > 0) {
     canAffordMaterials = tile.materialCost.every(req => {
-      return getMaterialCount(req.itemId) >= req.quantity;
+      return getMaterialCount(req.itemId) >= (req.quantity * qty);
     });
   }
 
@@ -319,7 +317,7 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
       "bg-[#0f1115] border-white/5 hover:border-white/20"
     )}>
       <div className="p-3">
-        {/* Tags row at the top, spanning full width above the image and info */}
+        {/* Tags row at the top */}
         <div className="flex flex-wrap items-center gap-1.5 mb-3 border-b border-white/5 pb-2">
           <Badge variant="outline" className="text-[9px] py-0.5 px-2 border-amber-500/30 text-amber-400 whitespace-nowrap">
             Owned: {owned}
@@ -349,77 +347,69 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
         </div>
 
         {mode === 'buy' && (
-          <div className="mt-3 space-y-1.5 border-t border-white/5 pt-3">
-            {tile.cost && tile.cost > 0 && (
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="w-full h-7 text-xs justify-between hover:bg-amber-950/40 border-amber-900/50"
-                onClick={() => onAction?.('gold')}
-                disabled={!isLevelUnlocked}
-              >
-                <span className="text-zinc-400">Buy with Gold</span>
-                <span className="text-amber-400 font-bold flex items-center gap-1">🪙 {tile.cost}</span>
-              </Button>
-            )}
-            
-            {tile.tokenCost && tile.tokenCost > 0 && (
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className={cn(
-                  "w-full h-7 text-xs justify-between hover:bg-emerald-950/40 border-emerald-900/50",
-                  canAffordTokens ? "text-emerald-400" : "text-emerald-400/50"
-                )}
-                onClick={() => onAction?.('tokens')}
-                disabled={!isLevelUnlocked || !canAffordTokens}
-              >
-                <span className="text-zinc-400">Use Token</span>
-                <span className="font-bold flex items-center gap-1">📜 {tile.tokenCost}</span>
-              </Button>
-            )}
+          <div className="mt-3 space-y-2 border-t border-white/5 pt-3">
+            {/* Multi-Buy Stepper + Confirm Checkmark Component */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center bg-zinc-950 border border-amber-900/40 rounded-xl p-1 flex-1 h-9 justify-between shadow-inner">
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setQty(p => Math.max(1, p - 1)); }}
+                  disabled={!isLevelUnlocked || qty <= 1}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-zinc-900 hover:bg-zinc-800 text-amber-400 font-extrabold text-sm disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  aria-label="Decrease quantity"
+                >
+                  -
+                </button>
+                <span className="font-mono text-xs font-bold text-amber-200 px-2 min-w-[28px] text-center">
+                  {qty}
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setQty(p => p + 1); }}
+                  disabled={!isLevelUnlocked}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-zinc-900 hover:bg-zinc-800 text-amber-400 font-extrabold text-sm disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+              </div>
 
-            {tile.gemCost && tile.gemCost > 0 && (
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="w-full h-7 text-xs justify-between hover:bg-fuchsia-950/40 border-fuchsia-900/50"
-                onClick={() => onAction?.('gems')}
+              {/* Confirm Checkmark Button */}
+              <Button
+                type="button"
+                size="sm"
                 disabled={!isLevelUnlocked}
-              >
-                <span className="text-zinc-400">Buy with Gems</span>
-                <span className="text-fuchsia-400 font-bold flex items-center gap-1"><Gem className="w-3 h-3" /> {tile.gemCost}</span>
-              </Button>
-            )}
-
-            {tile.materialCost && tile.materialCost.length > 0 && (
-              <Button 
-                size="sm" 
-                variant="outline" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!isLevelUnlocked) return;
+                  const method = tile.tokenCost ? 'tokens' : tile.cost ? 'gold' : tile.gemCost ? 'gems' : 'materials';
+                  onAction?.(method, qty);
+                  setQty(1);
+                }}
                 className={cn(
-                  "w-full h-auto py-1 text-xs justify-between hover:bg-blue-950/40 border-blue-900/50 flex-col items-stretch",
-                  canAffordMaterials ? "text-blue-400" : "text-blue-400/50"
+                  "h-9 px-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-1.5 shrink-0 transition-all shadow-md active:scale-95",
+                  !isLevelUnlocked
+                    ? "bg-zinc-800 text-zinc-500 border border-zinc-700 cursor-not-allowed opacity-50"
+                    : "bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border border-emerald-400/40 shadow-[0_0_12px_rgba(16,185,129,0.3)]"
                 )}
-                onClick={() => onAction?.('materials')}
-                disabled={!isLevelUnlocked || !canAffordMaterials}
+                aria-label="Confirm purchase"
               >
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-zinc-400">Craft with Materials</span>
-                  <span className="font-bold">🔨</span>
-                </div>
-                <div className="flex flex-wrap gap-1 mt-1 justify-end">
-                  {tile.materialCost.map(req => {
-                    const has = getMaterialCount(req.itemId);
-                    const enough = has >= req.quantity;
-                    return (
-                      <span key={req.itemId} className={cn("text-[9px] px-1 rounded bg-black/40", enough ? "text-blue-300" : "text-red-400")}>
-                        {getMaterialEmoji(req.itemId)} {has}/{req.quantity}
-                      </span>
-                    )
-                  })}
-                </div>
+                <Check className="w-4 h-4 stroke-[3]" />
               </Button>
-            )}
+            </div>
+
+            {/* Price Info Banner */}
+            <div className="flex flex-wrap gap-1 text-[10px] text-zinc-400 font-mono pt-1 justify-between items-center">
+              {tile.cost && tile.cost > 0 && (
+                <span className="text-amber-400 font-bold">🪙 {tile.cost * qty} Gold</span>
+              )}
+              {tile.tokenCost && tile.tokenCost > 0 && (
+                <span className="text-emerald-400 font-bold">📜 {tile.tokenCost * qty} Tokens</span>
+              )}
+              {tile.gemCost && tile.gemCost > 0 && (
+                <span className="text-fuchsia-400 font-bold">💎 {tile.gemCost * qty} Gems</span>
+              )}
+            </div>
           </div>
         )}
 

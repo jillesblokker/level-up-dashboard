@@ -821,17 +821,21 @@ export function KingdomGridWithTimers({
     });
   }
 
-  const handleBuyProperty = async (property: typeof propertyInventory[0], method: 'gold' | 'materials' | 'tokens' = 'tokens') => {
+  const handleBuyProperty = async (property: typeof propertyInventory[0], method: 'gold' | 'materials' | 'tokens' | 'gems' = 'tokens', quantity: number = 1) => {
+    const qty = Math.max(1, quantity);
 
     if (method === 'tokens') {
-      if ((buildTokens || 0) < (property.tokenCost || 1)) {
+      const tokenCost = (property.tokenCost || 1) * qty;
+      if ((buildTokens || 0) < tokenCost) {
         toast({
           title: "Not Enough Tokens",
-          description: `You need ${property.tokenCost || 1} Build Token(s) to place this.`,
+          description: `You need ${tokenCost} Build Token(s) to buy ${qty}x ${property.name}.`,
           variant: "destructive"
         });
         return;
       }
+
+      setBuildTokens(prev => Math.max(0, (prev || 0) - tokenCost));
 
       // Add purchased tile to kingdom property inventory
       if (userId) {
@@ -840,17 +844,16 @@ export function KingdomGridWithTimers({
           await invManager.addToKingdomInventory(userId, {
             id: property.id,
             name: property.name,
-            quantity: 1,
+            quantity: qty,
             type: 'item',
             category: 'building',
             image: property.image
           });
-          toast({ title: "Property Purchased!", description: `${property.name} added to your Kingdom Inventory.` });
           if (onInventoryUpdate) {
             onInventoryUpdate({
               id: property.id,
               name: property.name,
-              quantity: 1,
+              quantity: qty,
               type: 'building',
               image: property.image
             });
@@ -862,26 +865,30 @@ export function KingdomGridWithTimers({
       }
 
       // Update local property inventory state immediately so item quantity is reflected
-      setPropertyInventory(prev => prev.map(p => p.id === property.id ? { ...p, quantity: (p.quantity || 0) + 1 } : p));
+      setPropertyInventory(prev => prev.map(p => p.id === property.id ? { ...p, quantity: (p.quantity || 0) + qty } : p));
+      
+      toast({ 
+        title: "Property Purchased!", 
+        description: `Bought ${qty}x ${property.name}! Added to your Place tab.` 
+      });
 
       // Dispatch events to update inventory UI across components
       window.dispatchEvent(new Event('character-inventory-update'));
       window.dispatchEvent(new Event('kingdom-tiles-update'));
       window.dispatchEvent(new Event('tile-inventory-update'));
     } else if (method === 'gold') {
-      if (!property.cost) {
+      const totalCost = (property.cost || 0) * qty;
+      if (totalCost <= 0) {
         toast({ title: "Error", description: "This item cannot be bought with Gold." });
         return;
       }
 
       const { goldManager } = await loadManagers();
-      const success = await goldManager.spendGold(property.cost, `buy-property:${property.id}`);
+      const success = await goldManager.spendGold(totalCost, `buy-property:${property.id}`);
       if (!success) {
-        toast({ title: "Insufficient gold", description: `You need ${property.cost} gold.`, variant: "destructive" });
+        toast({ title: "Insufficient gold", description: `You need ${totalCost} gold for ${qty}x ${property.name}.`, variant: "destructive" });
         return;
       }
-
-      toast({ title: "Purchased!", description: `Bought ${property.name} for ${property.cost} gold.` });
 
       // Add to inventory
       if (userId) {
@@ -890,7 +897,7 @@ export function KingdomGridWithTimers({
           const buildingItem = {
             id: property.id,
             name: property.name,
-            quantity: 1,
+            quantity: qty,
             type: 'item',
             category: 'building',
             image: property.image
@@ -900,7 +907,7 @@ export function KingdomGridWithTimers({
             onInventoryUpdate({
               id: property.id,
               name: property.name,
-              quantity: 1,
+              quantity: qty,
               type: 'building',
               image: property.image
             });
@@ -911,9 +918,14 @@ export function KingdomGridWithTimers({
       }
 
       // Update local property inventory state immediately
-      setPropertyInventory(prev => prev.map(p => p.id === property.id ? { ...p, quantity: (p.quantity || 0) + 1 } : p));
-      window.dispatchEvent(new Event('character-inventory-update'));
+      setPropertyInventory(prev => prev.map(p => p.id === property.id ? { ...p, quantity: (p.quantity || 0) + qty } : p));
+      
+      toast({ 
+        title: "Purchased!", 
+        description: `Bought ${qty}x ${property.name} for ${totalCost} gold! Added to your Place tab.` 
+      });
 
+      window.dispatchEvent(new Event('character-inventory-update'));
     } else if (method === 'materials') {
       if (!property.materialCost) return;
 
@@ -2717,8 +2729,8 @@ export function KingdomGridWithTimers({
             handlePropertySelect(tile as any); // This sets placement mode and closes panel
           }
         }}
-        onBuy={(tile, method) => {
-          handleBuyProperty(tile as any, method as any);
+        onBuy={(tile, method, quantity) => {
+          handleBuyProperty(tile as any, method as any, quantity);
         }}
         onBuyToken={async () => {
           try {
