@@ -68,6 +68,7 @@ interface CitizensStore {
   toggleSupporter: (userId: string, citizenId: string) => Promise<void>;
   boostActiveCitizensNourishment: (userId: string, hoursToAdd?: number) => Promise<void>;
   triggerAutopilotHarvest: (userId: string, activePartnerId: string | undefined) => Promise<{ gold: number; items: Record<string, { quantity: number; name: string; emoji: string }>; partnerName: string; count: number } | null>;
+  mergeDuplicateCitizens: (userId: string) => Promise<{ success: boolean; count: number; mergedNames: string[] }>;
 }
 
 // Map card types/rarity to habitat types
@@ -198,11 +199,12 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       const token = await getClerkToken().catch(() => null);
       const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
-      // Parallel fetches for achievements, mythic cards, citizen preferences, and character stats (for sleepy check)
-      const [achievementsRes, mythicsRes, prefState, charStatsRes, supportersState] = await Promise.all([
+      // Parallel fetches for achievements, mythic cards, citizen preferences, hidden IDs, and character stats (for sleepy check)
+      const [achievementsRes, mythicsRes, prefState, hiddenIdsState, charStatsRes, supportersState] = await Promise.all([
         fetch('/api/achievements', { headers }).catch(() => null),
         fetch('/api/packs/mythics', { headers }).catch(() => null),
         getUserPreference('citizens_state') as Promise<Record<string, CitizenState> | null>,
+        getUserPreference('citizens_hidden_ids') as Promise<string[] | null>,
         fetch('/api/character-stats', { headers }).catch(() => null),
         getUserPreference('combat_supporters') as Promise<string[] | null>
       ]);
@@ -384,7 +386,10 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
          };
       }
 
-      set({ citizens: updatedCitizens, combatSupporters, isSleepy, offlineCatchup, loading: false });
+      const hiddenIdsSet = new Set<string>(Array.isArray(hiddenIdsState) ? hiddenIdsState : []);
+      const visibleCitizens = updatedCitizens.filter(c => !hiddenIdsSet.has(c.id));
+
+      set({ citizens: visibleCitizens, combatSupporters, isSleepy, offlineCatchup, loading: false });
     } catch (error: any) {
       console.error('Failed to load citizens:', error);
       set({ error: error.message || 'Failed to load citizens', loading: false });
@@ -975,6 +980,85 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
     await setUserPreference('combat_supporters', newSupporters);
     set({ combatSupporters: newSupporters });
+  },
+
+  mergeDuplicateCitizens: async (userId: string) => {
+    const { citizens } = get();
+    const grouped: Record<string, Citizen[]> = {};
+
+    citizens.forEach(c => {
+      const key = c.filename?.toLowerCase() || c.name?.toLowerCase() || c.id;
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(c);
+    });
+
+    const mergedList: Citizen[] = [];
+    const mergedNamesSet = new Set<string>();
+    let totalMergedCount = 0;
+    const citizenPrefs: Record<string, CitizenState> = {};
+    const hiddenIds = new Set<string>(await getUserPreference('citizens_hidden_ids') as string[] || []);
+
+    for (const group of Object.values(grouped)) {
+      if (group.length > 1) {
+        totalMergedCount += (group.length - 1);
+        mergedNamesSet.add(group[0]!.name);
+
+        // Sort: active ones or highest level first
+        const primary = [...group].sort((a, b) => (b.active ? 100 : 0) + (b.level || 1) - ((a.active ? 100 : 0) + (a.level || 1)))[0]!;
+        const combinedLevel = group.reduce((sum, c) => sum + (c.level || 1), 0);
+        const combinedExp = group.reduce((sum, c) => sum + (c.experience || 0), 0);
+        const maxAffection = Math.max(...group.map(c => c.affection || 0));
+
+        const updatedPrimary: Citizen = {
+          ...primary,
+          level: combinedLevel,
+          experience: combinedExp,
+          affection: maxAffection
+        };
+
+        mergedList.push(updatedPrimary);
+
+        group.forEach(c => {
+          if (c.id !== primary.id) {
+            hiddenIds.add(c.id);
+          }
+        });
+
+        citizenPrefs[primary.id] = {
+          active: updatedPrimary.active,
+          favorite: updatedPrimary.favorite,
+          lastFedAt: updatedPrimary.lastFedAt,
+          activeDays: updatedPrimary.activeDays,
+          lastHarvestedAt: updatedPrimary.lastHarvestedAt,
+          affection: updatedPrimary.affection,
+          level: updatedPrimary.level,
+          experience: updatedPrimary.experience
+        };
+      } else {
+        const c = group[0]!;
+        mergedList.push(c);
+        citizenPrefs[c.id] = {
+          active: c.active,
+          favorite: c.favorite,
+          lastFedAt: c.lastFedAt,
+          activeDays: c.activeDays,
+          lastHarvestedAt: c.lastHarvestedAt,
+          affection: c.affection || 0,
+          level: c.level || 1,
+          experience: c.experience || 0
+        };
+      }
+    }
+
+    await setUserPreference('citizens_state', citizenPrefs);
+    await setUserPreference('citizens_hidden_ids', Array.from(hiddenIds));
+
+    set({ citizens: mergedList });
+    return {
+      success: true,
+      count: totalMergedCount,
+      mergedNames: Array.from(mergedNamesSet)
+    };
   }
 }));
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { logger } from "@/lib/logger";
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { X, Sparkles, Star, Clock, Check, ChevronDown, Utensils, Heart } from "lucide-react"
 import Image from "next/image"
 
@@ -33,6 +33,7 @@ export function CitizensTab() {
   const toggleActive = useCitizensStore(state => state.toggleActive);
   const toggleFavorite = useCitizensStore(state => state.toggleFavorite);
   const feedCitizen = useCitizensStore(state => state.feedCitizen);
+  const mergeDuplicateCitizens = useCitizensStore(state => state.mergeDuplicateCitizens);
 
   const [citizenFilter, setCitizenFilter] = useState<"all" | "active" | "inactive" | "favorites">("all");
   const [speciesFilter, setSpeciesFilter] = useState<string>("all");
@@ -41,6 +42,48 @@ export function CitizensTab() {
   const [feedModalCitizenId, setFeedModalCitizenId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [playerLevel, setPlayerLevel] = useState(1);
+
+  const duplicateGroups = useMemo(() => {
+    const map: Record<string, Citizen[]> = {};
+    citizens.forEach(c => {
+      const key = c.filename?.toLowerCase() || c.name?.toLowerCase() || c.id;
+      if (!map[key]) map[key] = [];
+      map[key].push(c);
+    });
+    return Object.entries(map).filter(([_, group]) => group.length > 1);
+  }, [citizens]);
+
+  const duplicateCount = useMemo(() => {
+    return duplicateGroups.reduce((sum, [_, group]) => sum + group.length, 0);
+  }, [duplicateGroups]);
+
+  const handleMergeDuplicates = async () => {
+    if (!user?.id || duplicateGroups.length === 0) return;
+    try {
+      setIsLoading(true);
+      const result = await mergeDuplicateCitizens(user.id);
+      if (result.success && result.count > 0) {
+        if (typeof window !== 'undefined') {
+          import('canvas-confetti').then(confetti => {
+            confetti.default({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+          }).catch(() => {});
+        }
+        toast({
+          title: "Citizens merged!",
+          description: `Combined ${result.count} duplicate citizens! Levels added up successfully.`,
+        });
+      }
+    } catch (e) {
+      logger.error("Failed to merge duplicate citizens", e);
+      toast({
+        title: "Merge failed",
+        description: "Could not combine duplicate citizens.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const loadInventoryFood = useCallback(async () => {
     if (!user?.id) return;
@@ -259,6 +302,19 @@ export function CitizensTab() {
                   {filter === "favorites" ? "⭐ Favorites" : filter}
                 </Button>
               ))}
+
+              {/* Merge all button for duplicate citizens */}
+              {duplicateGroups.length > 0 && (
+                <Button
+                  size="sm"
+                  onClick={handleMergeDuplicates}
+                  disabled={isLoading}
+                  className="bg-gradient-to-r from-purple-600 via-pink-600 to-amber-600 hover:from-purple-500 hover:to-amber-500 text-white font-bold text-xs px-3.5 py-1.5 shadow-lg border border-purple-400/40 animate-pulse flex items-center gap-1.5 shrink-0"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
+                  Merge all ({duplicateCount} duplicates)
+                </Button>
+              )}
             </div>
 
             {/* Species Type Dropdown Filter */}
@@ -350,13 +406,25 @@ export function CitizensTab() {
 
                         <CardHeader className="pb-2 pt-4">
                           <CardTitle className="font-serif text-base text-white truncate pr-6">{citizen.name}</CardTitle>
-                          <div className="flex items-center gap-1.5 mt-1">
+                          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                             <Badge variant="outline" className="bg-amber-950/60 border-amber-500/40 text-amber-400 text-[10px] font-bold">
                               Lvl {citizen.level || 1}
                             </Badge>
                             <Badge variant="secondary" className="text-[10px] capitalize">
                               {citizen.type}
                             </Badge>
+                            {(() => {
+                              const key = citizen.filename?.toLowerCase() || citizen.name?.toLowerCase() || citizen.id;
+                              const group = duplicateGroups.find(([k]) => k === key);
+                              if (group && group[1].length > 1) {
+                                return (
+                                  <Badge className="bg-purple-900/80 border-purple-500/40 text-purple-200 text-[9px] font-mono shrink-0">
+                                    ✨ {group[1].length} copies
+                                  </Badge>
+                                );
+                              }
+                              return null;
+                            })()}
                           </div>
                         </CardHeader>
 
@@ -501,6 +569,18 @@ export function CitizensTab() {
                           <Badge variant="outline" className="bg-amber-950/60 border-amber-500/40 text-amber-400 text-[10px] font-bold px-1.5 py-0">
                             Lvl {citizen.level || 1}
                           </Badge>
+                          {(() => {
+                            const key = citizen.filename?.toLowerCase() || citizen.name?.toLowerCase() || citizen.id;
+                            const group = duplicateGroups.find(([k]) => k === key);
+                            if (group && group[1].length > 1) {
+                              return (
+                                <Badge className="bg-purple-900/80 border-purple-500/40 text-purple-200 text-[9px] font-mono shrink-0 px-1.5 py-0">
+                                  ✨ {group[1].length} copies
+                                </Badge>
+                              );
+                            }
+                            return null;
+                          })()}
                           {activePartnerId === citizen.id && (
                             (() => {
                               const isEvolved = (citizen.level || 1) >= 50 || playerLevel >= 50;
