@@ -56,7 +56,7 @@ export function LegacyRoadmap({ currentLevel, className }: LegacyRoadmapProps) {
                 "text-xs font-bold transition-colors duration-300",
                 isUnlocked ? "text-amber-500" : "text-zinc-400"
               )}>
-                LVL {milestone.level}
+                Level {milestone.level}
               </div>
 
               {/* Node */}

@@ -61,8 +61,8 @@ export function HouseCupSettlementModal() {
 
         {/* Category Wins Summary */}
         <div className="p-4 rounded-xl bg-gradient-to-r from-amber-950/40 via-zinc-900 to-amber-950/40 border border-amber-800/40">
-          <div className="text-xs uppercase tracking-wider font-semibold text-amber-400 mb-1">
-            Category Victories
+          <div className="text-xs font-semibold text-amber-400 mb-1">
+            Category victories
           </div>
           <div className="text-3xl font-extrabold text-amber-300 flex items-center justify-center gap-2">
             <Crown className="w-7 h-7 text-amber-400" />

@@ -104,14 +104,14 @@ export function SigilCrestEditor({ userId }: { userId?: string | undefined }) {
           {/* Live Preview */}
           <div className="flex flex-col items-center justify-center p-4 bg-zinc-900/80 rounded-xl border border-white/10 space-y-2">
             <SigilCrestBadge config={config} size="lg" />
-            <span className="text-xs text-zinc-400 font-mono">
-              House of the {config.emblem.toUpperCase()}
+            <span className="text-xs text-zinc-400 font-mono capitalize">
+              House of the {config.emblem}
             </span>
           </div>
 
           {/* Emblem Choice */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider">Select Center Emblem</label>
+            <label className="text-xs font-semibold text-zinc-300">Select center emblem</label>
             <div className="grid grid-cols-5 gap-2">
               {(['dragon', 'lion', 'eagle', 'snake', 'chicken'] as SigilEmblem[]).map(e => (
                 <button
@@ -131,7 +131,7 @@ export function SigilCrestEditor({ userId }: { userId?: string | undefined }) {
 
           {/* Outer Border Color */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider">Outer Ring Color</label>
+            <label className="text-xs font-semibold text-zinc-300">Outer ring color</label>
             <div className="flex items-center gap-2.5">
               {OUTER_COLORS.map(c => (
                 <button
@@ -148,7 +148,7 @@ export function SigilCrestEditor({ userId }: { userId?: string | undefined }) {
 
           {/* Inner Shield Color */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider">Inner Shield Fill</label>
+            <label className="text-xs font-semibold text-zinc-300">Inner shield fill</label>
             <div className="grid grid-cols-5 gap-2">
               {INNER_COLORS.map(c => (
                 <button

@@ -108,9 +108,9 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
         {/* Champion Showcase Banner */}
         <div className="my-4 p-4 rounded-xl bg-gradient-to-r from-amber-900/40 via-zinc-900 to-amber-900/40 border border-amber-500/30 text-center relative overflow-hidden">
           <div className="absolute -top-3 -right-3 w-16 h-16 bg-amber-500/10 rounded-full blur-xl pointer-events-none" />
-          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-amber-400 uppercase tracking-widest mb-1">
+          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-amber-400 mb-1">
             <Crown className="w-4 h-4 text-amber-300" />
-            House Champion
+            House champion
           </div>
           <h3 className="font-medieval text-xl text-amber-200">{champion.display_name}</h3>
           <p className="text-xs text-amber-400/80 font-mono mt-0.5">
@@ -121,14 +121,14 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
         {/* User Stats & Ally Scaling Info */}
         <div className="grid grid-cols-2 gap-2 mb-4 text-center">
           <div className="p-3 bg-zinc-950/80 rounded-xl border border-amber-900/30">
-            <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Your Score</div>
+            <div className="text-[10px] text-zinc-400 font-semibold">Your score</div>
             <div className="font-medieval text-lg text-amber-300 mt-0.5">
               {viewerStanding.total_points.toLocaleString()} pts
             </div>
           </div>
           <div className="p-3 bg-zinc-950/80 rounded-xl border border-amber-900/30">
-            <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold flex items-center justify-center gap-1">
-              <Users className="w-3 h-3 text-amber-400" /> Participating Allies
+            <div className="text-[10px] text-zinc-400 font-semibold flex items-center justify-center gap-1">
+              <Users className="w-3 h-3 text-amber-400" /> Participating allies
             </div>
             <div className="font-medieval text-lg text-amber-300 mt-0.5">
               {allyCount} {allyCount === 1 ? 'Ally' : 'Allies'}
@@ -138,8 +138,8 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
 
         {/* Scaling Rewards Box */}
         <div className="p-3.5 bg-zinc-950/90 rounded-xl border border-amber-500/30 space-y-2 mb-4">
-          <div className="text-xs font-bold text-amber-300 uppercase tracking-wider text-center">
-            🎁 Scaled Sovereign Rewards
+          <div className="text-xs font-bold text-amber-300 text-center">
+            🎁 Scaled sovereign rewards
           </div>
           <div className="flex justify-around items-center pt-1 text-xs">
             <div className="flex items-center gap-1.5 text-amber-200">

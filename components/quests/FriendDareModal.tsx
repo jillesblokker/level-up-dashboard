@@ -37,7 +37,7 @@ export function FriendDareModal({ isOpen, onClose, onSendDare }: FriendDareModal
           <div className="flex items-center gap-2 text-amber-400">
             <Swords className="w-6 h-6" />
             <DialogTitle className="text-xl font-bold tracking-wide text-amber-100">
-              Issue Friend Dare & Virtue Duel
+              Issue friend dare & virtue duel
             </DialogTitle>
           </div>
           <DialogDescription className="text-zinc-400 text-xs mt-1">

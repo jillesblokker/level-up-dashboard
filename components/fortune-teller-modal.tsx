@@ -143,7 +143,7 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
                   <div className="w-12 h-12 rounded-full bg-emerald-950/90 border-2 border-emerald-400/60 flex items-center justify-center text-emerald-300 font-medieval text-2xl shadow-[0_0_15px_rgba(16,185,129,0.5)] group-hover:scale-110 transition-transform">
                     🔮
                   </div>
-                  <span className="text-[11px] font-serif font-extrabold text-emerald-200 tracking-widest uppercase bg-slate-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                  <span className="text-[11px] font-serif font-bold text-emerald-200 bg-slate-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
                     Card #{idx + 1}
                   </span>
                 </div>
@@ -180,7 +180,7 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
                 </div>
 
                 <div className="bg-slate-900/90 border border-emerald-500/40 rounded-xl p-4 w-full text-center space-y-2 shadow-lg">
-                  <p className="text-xs text-slate-400 uppercase tracking-widest font-bold">Your Task</p>
+                  <p className="text-xs text-slate-400 font-semibold">Your task</p>
                   <p className="text-base sm:text-lg text-white font-bold">{selectedData.task}</p>
                   <div className="pt-2 border-t border-emerald-900/40 flex items-center justify-center gap-1.5 text-xs text-emerald-400 font-bold">
                     <span>✨ Reward:</span>

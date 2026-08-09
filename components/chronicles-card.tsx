@@ -111,7 +111,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                 <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-amber-500">
                         <BookOpen className="w-5 h-5" />
-                        <span className="text-sm font-bold tracking-widest uppercase">The Chronicles</span>
+                        <span className="text-sm font-bold text-amber-300">The chronicles</span>
                         <span className="text-[10px] text-amber-400/60 font-serif italic hidden sm:inline">• Rebuilding Thrivehaven Story Arc</span>
                     </div>
                     <div className="flex items-center gap-1 text-amber-400/60 text-xs font-mono">
@@ -153,8 +153,8 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                             onCheckedChange={handleToggleFiller} 
                             className="data-[state=checked]:bg-amber-600"
                         />
-                        <label htmlFor="show-filler-switch" className="text-[10px] font-bold text-amber-500/70 cursor-pointer select-none uppercase tracking-wider">
-                            Daily Deeds
+                        <label htmlFor="show-filler-switch" className="text-[10px] font-semibold text-amber-500/70 cursor-pointer select-none">
+                            Daily deeds
                         </label>
                     </div>
                 </div>

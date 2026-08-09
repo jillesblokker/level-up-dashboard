@@ -78,8 +78,8 @@ export function AllianceStreakCard({ userId }: AllianceStreakProps) {
                         <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
                                 <Flame className={`w-5 h-5 ${isActive ? 'text-orange-500' : 'text-zinc-500'}`} />
-                                <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">
-                                    Alliance Streak
+                                <h3 className="text-sm font-semibold text-zinc-400">
+                                    Alliance streak
                                 </h3>
                             </div>
 

@@ -159,8 +159,8 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
           </div>
           {/* Alliance Contribution Leaderboard */}
           <div className="space-y-2 pt-1">
-            <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-              <Trophy className="w-3.5 h-3.5 text-amber-400" /> Top Alliance Habit Contributors
+            <h4 className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+              <Trophy className="w-3.5 h-3.5 text-amber-400" /> Top alliance habit contributors
             </h4>
             <div className="bg-zinc-900/90 rounded-xl border border-zinc-800 p-3 space-y-2">
               {[
