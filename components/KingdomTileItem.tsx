@@ -255,42 +255,101 @@ export const KingdomTileItem = React.memo(({
         </div>
       )}
 
+      {/* Minigame Attempt Badge (Always visible on minigame tiles) */}
+      {(() => {
+        if (!isKingdomTile) return null;
+        if (type === 'dungeon' || type === 'dungeon-keep') {
+          return (
+            <div className="absolute top-1 left-1 z-40 px-1 py-0.5 rounded-md bg-purple-950/90 border border-purple-500/50 text-[8px] font-mono font-black text-purple-200 flex items-center gap-0.5 shadow-md">
+              <span>⚔️</span>
+              <span className="hidden sm:inline">3/3</span>
+            </div>
+          );
+        }
+        if (type === 'plank-labyrinth' || type === 'labyrinth' || type === 'plank_labyrinth') {
+          return (
+            <div className="absolute top-1 left-1 z-40 px-1 py-0.5 rounded-md bg-cyan-950/90 border border-cyan-500/50 text-[8px] font-mono font-black text-cyan-200 flex items-center gap-0.5 shadow-md">
+              <span>🧩</span>
+              <span className="hidden sm:inline">3/3</span>
+            </div>
+          );
+        }
+        if (type === 'fortune_teller' || type === 'fortune-teller') {
+          return (
+            <div className="absolute top-1 left-1 z-40 px-1 py-0.5 rounded-md bg-fuchsia-950/90 border border-fuchsia-500/50 text-[8px] font-mono font-black text-fuchsia-200 flex items-center gap-0.5 shadow-md">
+              <span>🔮</span>
+              <span className="hidden sm:inline">3/3</span>
+            </div>
+          );
+        }
+        if (type === 'zen-garden' || type === 'zen_garden') {
+          return (
+            <div className="absolute top-1 left-1 z-40 px-1 py-0.5 rounded-md bg-emerald-950/90 border border-emerald-500/50 text-[8px] font-mono font-black text-emerald-200 flex items-center gap-0.5 shadow-md">
+              <span>🧘</span>
+              <span className="hidden sm:inline">Ready</span>
+            </div>
+          );
+        }
+        return null;
+      })()}
+
       {/* Timer overlay */}
-      {isKingdomTile && timer && kingdomTile && kingdomTile.timerMinutes > 0 && (
-        <div className={cn(
-          "transition-opacity duration-200 absolute bottom-1 left-1 right-1 pointer-events-none group-hover:opacity-100",
-          (timer.endTime - Date.now() > 3 * 60 * 1000 && !isReady) ? "opacity-0 md:opacity-0" : "opacity-100 md:opacity-0"
-        )}>
-          <div className={cn(
-            "text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded text-center font-mono shadow-sm ",
-            isReady ? "bg-green-500/90 text-white" : "bg-zinc-950 text-white",
-            "min-h-[16px] md:min-h-[24px] flex items-center justify-center shrink-0"
-          )}>
-            {isReady ? (
-              <div className="flex items-center justify-center gap-1 relative">
-                {type === 'bakery' && <span className="absolute -top-8 text-3xl drop-shadow-[0_0_12px_rgba(251,191,36,0.8)] z-50 animate-pulse">🍞</span>}
-                {type === 'blacksmith' && <span className="absolute -top-8 text-3xl drop-shadow-[0_0_12px_rgba(156,163,175,0.8)] z-50 animate-pulse">🔨</span>}
-                <Check className="w-3 h-3 md:hidden" />
-                <Sparkles className="hidden md:block w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="whitespace-nowrap hidden md:inline">
-                  {type === 'bakery' ? 'Food Ready!' : 
-                   type === 'blacksmith' ? 'Crafting Ready!' : 
-                   'Ready!'}
-                </span>
+      {isKingdomTile && (
+        (() => {
+          const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'plank_labyrinth', 'fortune_teller', 'fortune-teller', 'zen-garden', 'zen_garden'].includes(type);
+          
+          if (!timer && !isMinigame) return null;
+
+          return (
+            <div className={cn(
+              "transition-opacity duration-200 absolute bottom-1 left-1 right-1 pointer-events-none group-hover:opacity-100",
+              timer && (timer.endTime - Date.now() > 3 * 60 * 1000 && !isReady) ? "opacity-0 md:opacity-0" : "opacity-100 md:opacity-0"
+            )}>
+              <div className={cn(
+                "text-[9px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded-lg text-center font-mono shadow-md min-h-[16px] md:min-h-[22px] flex items-center justify-center shrink-0 border",
+                isMinigame
+                  ? (type === 'dungeon' || type === 'dungeon-keep'
+                      ? "bg-gradient-to-r from-red-900 via-purple-900 to-indigo-900 border-purple-400/60 text-purple-100 font-bold"
+                      : type.includes('fortune')
+                      ? "bg-gradient-to-r from-purple-900 via-fuchsia-900 to-pink-900 border-fuchsia-400/60 text-fuchsia-100 font-bold"
+                      : type.includes('zen')
+                      ? "bg-gradient-to-r from-emerald-900 via-teal-900 to-cyan-900 border-emerald-400/60 text-emerald-100 font-bold"
+                      : "bg-gradient-to-r from-cyan-900 via-teal-900 to-emerald-900 border-cyan-400/60 text-cyan-100 font-bold")
+                  : (isReady 
+                      ? "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 font-black border-yellow-300 shadow-[0_0_12px_rgba(245,158,11,0.6)]" 
+                      : "bg-zinc-950/90 border-amber-900/40 text-amber-200")
+              )}>
+                {isMinigame ? (
+                  <div className="flex items-center justify-center gap-1">
+                    {type.includes('dungeon') && <span>⚔️ 3/3 Ready</span>}
+                    {type.includes('labyrinth') && <span>🧩 3/3 Ready</span>}
+                    {type.includes('fortune') && <span>🔮 3/3 Cards</span>}
+                    {type.includes('zen') && <span>🧘 Zen Focus</span>}
+                  </div>
+                ) : isReady ? (
+                  <div className="flex items-center justify-center gap-1 relative">
+                    {type === 'bakery' && <span className="absolute -top-8 text-3xl drop-shadow-[0_0_12px_rgba(251,191,36,0.8)] z-50 animate-pulse">🍞</span>}
+                    {type === 'blacksmith' && <span className="absolute -top-8 text-3xl drop-shadow-[0_0_12px_rgba(156,163,175,0.8)] z-50 animate-pulse">🔨</span>}
+                    <Check className="w-3 h-3 md:hidden" />
+                    <Sparkles className="hidden md:block w-3 h-3 sm:w-4 sm:h-4 text-zinc-950" />
+                    <span className="whitespace-nowrap font-extrabold text-[10px] md:text-xs">
+                      {type === 'bakery' ? 'Food Ready!' : 
+                       type === 'blacksmith' ? 'Crafting Ready!' : 
+                       '🪙 Collect Taxes!'}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-0.5 md:gap-1">
+                    <Clock className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 opacity-70 text-amber-400" />
+                    <span className="whitespace-nowrap font-bold tracking-tighter">
+                      {timer ? formatTimeRemaining(timer.endTime) : ''}
+                    </span>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="flex items-center justify-center gap-0.5 md:gap-1">
-                <Clock className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 opacity-70" />
-                <span className="whitespace-nowrap md:hidden font-bold tracking-tighter">
-                  {formatTimeRemaining(timer.endTime)}
-                </span>
-                <span className="whitespace-nowrap hidden md:inline">
-                  {formatTimeRemaining(timer.endTime)}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
+            </div>
+          );
+        })()
       )}
     </button>
   )

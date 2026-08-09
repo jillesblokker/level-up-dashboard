@@ -40,6 +40,10 @@ import { HabitGuardian } from "@/components/kingdom/habit-guardian"
 import { ActiveTimersLedger } from "@/components/active-timers-ledger"
 import { DailyRoutineModal } from "@/components/daily-routine-modal"
 import { StreakRecoveryCard } from "@/components/streaks/streak-recovery-card"
+import { getUserAlliances, checkInToAlliance, Alliance } from "@/lib/alliance-manager"
+import { useToast } from "@/components/ui/use-toast"
+import { useSound, SOUNDS } from "@/lib/sound-manager"
+import { CheckCircle2, Shield } from "lucide-react"
 
 interface Quest {
     id: string
@@ -466,6 +470,8 @@ export function DailyHubClient() {
                         </motion.div>
                     );
                 })()}
+
+                <AllianceDailyOathWidget />
 
                 <HabitGuardian favoritedQuests={favoritedQuests} />
 
@@ -1220,4 +1226,130 @@ export function DailyHubClient() {
             />
         </div>
     )
+}
+
+function AllianceDailyOathWidget() {
+  const { user } = useUser();
+  const { toast } = useToast();
+  const { playSound } = useSound();
+  const [alliances, setAlliances] = useState<Alliance[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [checkingIn, setCheckingIn] = useState(false);
+
+  useEffect(() => {
+    if (user?.id) {
+      getUserAlliances(user.id).then(data => {
+        setAlliances(data || []);
+        setLoading(false);
+      });
+    }
+  }, [user?.id]);
+
+  if (loading) return null;
+
+  const myAlliance = alliances[0];
+
+  if (!myAlliance) {
+    return (
+      <Card className="bg-gradient-to-r from-zinc-950 via-amber-950/20 to-zinc-950 border border-amber-900/30 shadow-xl p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-2xl shrink-0">
+            🛡️
+          </div>
+          <div>
+            <h4 className="font-bold text-amber-300 text-sm font-serif">Alliance Daily Oath</h4>
+            <p className="text-xs text-zinc-400">Join an alliance to swear daily oaths and earn House Cup virtue rewards!</p>
+          </div>
+        </div>
+        <Link href="/social">
+          <Button size="sm" className="bg-amber-600 hover:bg-amber-500 text-zinc-950 font-bold rounded-xl text-xs whitespace-nowrap">
+            Find Alliance
+          </Button>
+        </Link>
+      </Card>
+    );
+  }
+
+  const streak = myAlliance.myStreak?.current || 0;
+  const checkedInToday = myAlliance.myStreak?.checkedInToday || false;
+
+  const handleCheckIn = async () => {
+    if (checkingIn || checkedInToday) return;
+    setCheckingIn(true);
+    const result = await checkInToAlliance(myAlliance.id);
+    setCheckingIn(false);
+
+    if (result.success) {
+      playSound(SOUNDS.ALLIANCE_OATH);
+      confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+      toast({
+        title: "Alliance Oath Sworn! 🛡️",
+        description: `You have fulfilled your daily oath for ${myAlliance.name}! Streak: ${result.streak || streak + 1} Days.`,
+      });
+      setAlliances(prev => prev.map(a => a.id === myAlliance.id ? {
+        ...a,
+        myStreak: { current: result.streak || streak + 1, checkedInToday: true, lastCheckIn: new Date().toISOString() }
+      } : a));
+    } else {
+      toast({
+        title: "Oath Status",
+        description: result.message || "Failed to check in.",
+        variant: result.message?.includes('already') ? "default" : "destructive"
+      });
+    }
+  };
+
+  return (
+    <Card className={cn(
+      "relative overflow-hidden border shadow-2xl p-4 rounded-2xl transition-all duration-300",
+      checkedInToday 
+        ? "bg-gradient-to-r from-emerald-950/40 via-zinc-950 to-zinc-950 border-emerald-500/30" 
+        : "bg-gradient-to-r from-amber-950/40 via-purple-950/20 to-zinc-950 border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.15)]"
+    )}>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className={cn(
+            "w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 border transition-all",
+            checkedInToday
+              ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-400"
+              : "bg-amber-500/10 border-amber-500/40 text-amber-400 animate-pulse"
+          )}>
+            {checkedInToday ? "✅" : "🛡️"}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-amber-300 text-sm font-serif">{myAlliance.name}</span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/60 border border-amber-500/30 text-amber-400 font-bold">
+                <Flame className="w-3 h-3 text-orange-400 fill-orange-400" /> {streak} Day Oath Streak
+              </span>
+            </div>
+            <p className="text-xs text-zinc-300 mt-0.5">
+              {checkedInToday
+                ? "Daily alliance oath sworn! Your loyalty empowers the House Cup."
+                : "Fulfill your daily alliance oath to earn +10 House Cup Virtue points & streak bonus!"}
+            </p>
+          </div>
+        </div>
+
+        <Button
+          onClick={handleCheckIn}
+          disabled={checkedInToday || checkingIn}
+          className={cn(
+            "w-full sm:w-auto h-10 px-5 rounded-xl font-black text-xs uppercase tracking-wider shrink-0 transition-all shadow-lg active:scale-95",
+            checkedInToday
+              ? "bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 cursor-default opacity-90"
+              : "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-300 text-zinc-950 border border-yellow-300/50 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+          )}
+        >
+          {checkingIn ? (
+            <span className="flex items-center gap-1.5"><Loader2 className="w-4 h-4 animate-spin" /> Swearing Oath...</span>
+          ) : checkedInToday ? (
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Oath Sworn Today</span>
+          ) : (
+            <span className="flex items-center gap-1.5">🛡️ Fulfill Daily Oath</span>
+          )}
+        </Button>
+      </div>
+    </Card>
+  );
 }

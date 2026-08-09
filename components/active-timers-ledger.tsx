@@ -11,7 +11,7 @@ import Link from 'next/link';
 interface ActiveTimerItem {
   id: string;
   name: string;
-  category: 'kingdom' | 'expedition' | 'buff' | 'pet';
+  category: 'kingdom' | 'expedition' | 'buff' | 'pet' | 'activity' | 'tax-producer';
   icon: string;
   endTime: number;
   location: string;
@@ -33,14 +33,17 @@ export function ActiveTimersLedger() {
           const data = await kingdomRes.json();
           const timersMap = data.timers || {};
           Object.values(timersMap).forEach((t: any) => {
+            const rawName = (t.tileId || 'Property').toLowerCase();
+            const isMinigame = ['dungeon', 'labyrinth', 'fortune', 'zen'].some(k => rawName.includes(k));
+
             if (t.endTime && t.endTime > Date.now()) {
               items.push({
                 id: `kingdom-${t.x}-${t.y}`,
                 name: (t.tileId || 'Property').replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-                category: 'kingdom',
-                icon: '🏰',
+                category: isMinigame ? 'activity' : 'tax-producer',
+                icon: isMinigame ? (rawName.includes('dungeon') ? '⚔️' : rawName.includes('labyrinth') ? '🧩' : rawName.includes('fortune') ? '🔮' : '🧘') : '🪙',
                 endTime: t.endTime,
-                location: `Kingdom (${t.x},${t.y})`,
+                location: isMinigame ? 'Daily Attempts Ready' : `Tax Producer (${t.x},${t.y})`,
                 linkHref: '/kingdom'
               });
             }
