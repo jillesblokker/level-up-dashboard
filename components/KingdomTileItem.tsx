@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import Image from "next/image"
 import { cn } from '@/lib/utils'
 import { Tile } from '@/types/tiles'
@@ -70,6 +70,14 @@ export const KingdomTileItem = React.memo(({
   // Use KINGDOM_TILES as the source of truth for the image to bypass stale paths in DB
   const libraryTile = KINGDOM_TILES.find(t => t.id === type)
   const actualImage = libraryTile?.image || tile.image || ''
+
+  const isNonProducerTile = useMemo(() => {
+    if (tile.type === 'vacant' || tile.type === 'empty') return true;
+    if (libraryTile && libraryTile.timerMinutes === 0) return true;
+    if (kingdomTile && kingdomTile.timerMinutes === 0) return true;
+    const t = tile.type?.toLowerCase() || '';
+    return t.includes('road') || t.includes('path') || t.includes('cobble') || t.includes('dirt') || t === 'water' || t === 'grass' || t === 'wall';
+  }, [tile.type, libraryTile, kingdomTile]);
 
   // Synergy Aura logic hoisted for efficiency
   let auraColor = ''

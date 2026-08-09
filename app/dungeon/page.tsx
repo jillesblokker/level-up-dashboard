@@ -983,7 +983,7 @@ export default function DungeonPage() {
               {gameResult.loot && gameResult.loot.length > 0 && (
                 <div className="pt-3 border-t border-white/5">
                   <h4 className="text-[11px] text-zinc-500 mb-2 text-left font-bold uppercase tracking-wider">Detailed Loot Log</h4>
-                  <ScrollArea className="h-28 w-full pr-2">
+                  <ScrollArea className="h-28 min-h-[76px] w-full pr-2">
                     <div className="space-y-1.5 text-left">
                       {gameResult.loot.map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between text-xs text-zinc-300 bg-white/5 p-2 rounded-lg">

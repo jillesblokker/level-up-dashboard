@@ -504,10 +504,10 @@ export function DailyHubClient() {
 
                     return (
                         <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5 }}
-                            className={`fixed bottom-24 md:bottom-8 left-4 md:left-8 z-[9999] w-[calc(100vw-32px)] md:w-[320px] bg-zinc-950/95 border rounded-2xl p-3 flex flex-col gap-3 transition-all duration-300 group pointer-events-auto ${glowClass}`}
+                            className={`w-full bg-zinc-950/95 border rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-300 group ${glowClass}`}
                         >
                             <div className="flex items-center gap-3 w-full">
                                 <div className={`relative w-14 h-14 rounded-full overflow-hidden border-2 bg-black flex-shrink-0 transition-colors shadow-inner ${innerBorderClass}`}>

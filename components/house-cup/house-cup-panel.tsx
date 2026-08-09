@@ -82,11 +82,11 @@ function AllyCarouselCard({
             >
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
-                  <div className="text-[10px] text-zinc-400 uppercase tracking-wider">Total Score</div>
+                  <div className="text-[10px] text-zinc-400 font-semibold">Total score</div>
                   <div className="font-bold text-amber-300 text-sm">{ally.total_points.toLocaleString()} pts</div>
                 </div>
                 <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
-                  <div className="text-[10px] text-zinc-400 uppercase tracking-wider">Virtue Wins</div>
+                  <div className="text-[10px] text-zinc-400 font-semibold">Virtue wins</div>
                   <div className="font-bold text-emerald-400 text-sm">{ally.categories_won} / 7 Categories</div>
                 </div>
               </div>

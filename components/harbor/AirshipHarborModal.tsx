@@ -165,7 +165,9 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
                     }`}
                   >
                     <span className="font-bold text-[11px] block truncate text-zinc-100">{c.name}</span>
-                    <span className="text-[9px] text-cyan-400 font-mono capitalize">Lv.{c.level || 1} • {c.type || 'Scout'}</span>
+                    <span className="text-[9px] text-cyan-400 font-mono capitalize block">
+                      Lv.{c.level || 1} {c.type === 'special' || c.type === 'nature' ? '⚡ Synergy' : ''}
+                    </span>
                     {isSelected ? (
                       <span className="text-[9px] text-emerald-400 font-bold block mt-1 bg-emerald-950/80 rounded py-0.5 border border-emerald-500/30">
                         Assigned ✓

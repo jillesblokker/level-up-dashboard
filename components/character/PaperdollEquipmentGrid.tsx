@@ -345,7 +345,7 @@ export function PaperdollEquipmentGrid({
               </DialogHeader>
 
               <div className="my-4 p-3.5 bg-zinc-900/90 rounded-xl border border-zinc-800 space-y-1.5 text-xs">
-                <span className="text-[10px] font-bold text-amber-400 block uppercase tracking-wider">Equipped Item Combat Stat Bonus</span>
+                <span className="text-[10px] font-bold text-amber-400 block font-serif">Equipped item combat stat bonus</span>
                 {selectedItem.stats.atk && <p className="text-red-300 font-mono font-bold">⚔️ Attack: +{selectedItem.stats.atk}</p>}
                 {selectedItem.stats.def && <p className="text-blue-300 font-mono font-bold">🛡️ Defense: +{selectedItem.stats.def}</p>}
                 {selectedItem.stats.spd && <p className="text-emerald-300 font-mono font-bold">💨 Speed: +{selectedItem.stats.spd}</p>}

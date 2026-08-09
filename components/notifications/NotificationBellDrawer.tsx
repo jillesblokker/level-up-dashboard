@@ -45,7 +45,12 @@ const INITIAL_NOTIFICATIONS: AppNotification[] = [
 export function NotificationBellDrawer() {
   const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS)
 
-  const unreadCount = notifications.filter(n => !n.read).length
+  // Enforce High-Value Action Filtering (Suppresses routine +10 XP logs)
+  const filteredNotifications = notifications.filter(n =>
+    ['dare', 'duel', 'alliance', 'protection', 'level_up'].includes(n.type) || !n.read
+  )
+
+  const unreadCount = filteredNotifications.filter(n => !n.read).length
 
   const markAllRead = () => {
     setNotifications(notifications.map(n => ({ ...n, read: true })))
