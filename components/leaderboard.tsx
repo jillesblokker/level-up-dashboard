@@ -179,7 +179,7 @@ export function Leaderboard() {
                               <div className="font-bold text-sm flex items-center gap-2 text-amber-100 truncate">
                                 <span className="truncate">{entry.displayName}</span>
                                 {entry.userId === user?.id && (
-                                  <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30 uppercase tracking-wider font-extrabold shrink-0">{TEXT_CONTENT.leaderboard.card.you}</span>
+                                  <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30 font-bold shrink-0">You</span>
                                 )}
                               </div>
                               <div className="text-[11px] text-amber-400/60 flex items-center gap-1.5">

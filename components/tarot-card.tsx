@@ -114,7 +114,7 @@ export function TarotCardDisplay() {
                             {/* Rarity Badge */}
                             <div className="absolute top-2 right-2">
                                 <span className={cn(
-                                    "text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wider",
+                                    "text-xs font-bold px-2 py-1 rounded-full capitalize",
                                     activeCard.rarity === 'common' && "bg-zinc-600 text-zinc-100",
                                     activeCard.rarity === 'rare' && "bg-blue-600 text-blue-100",
                                     activeCard.rarity === 'epic' && "bg-purple-600 text-purple-100"

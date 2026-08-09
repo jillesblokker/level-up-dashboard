@@ -107,7 +107,7 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
             )}
 
             <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Milestone Title</Label>
+                <Label className="text-xs font-semibold text-zinc-400 ml-1">Milestone title</Label>
                 <Input
                     className="bg-zinc-900 border-white/5 focus:border-amber-500/50 h-12 rounded-xl px-4 text-zinc-200 placeholder:text-zinc-600 transition-all font-serif italic text-lg shadow-inner"
                     value={newMilestone.name}
@@ -119,7 +119,7 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
             </div>
 
             <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Edict (Description)</Label>
+                <Label className="text-xs font-semibold text-zinc-400 ml-1">Edict (description)</Label>
                 <Textarea
                     className="bg-zinc-900 border-white/5 focus:border-amber-500/30 min-h-[100px] rounded-xl p-4 text-zinc-300 placeholder:text-zinc-700 resize-none font-serif italic"
                     value={newMilestone.description}
@@ -130,7 +130,7 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
 
             <div className="space-y-4">
                 <div className="space-y-2">
-                    <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Realm Category</Label>
+                    <Label className="text-xs font-semibold text-zinc-400 ml-1">Realm category</Label>
                     <Select
                         value={newMilestone.category}
                         onValueChange={(val) => setNewMilestone({ ...newMilestone, category: val })}

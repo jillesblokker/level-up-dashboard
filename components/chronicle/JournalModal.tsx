@@ -113,9 +113,9 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
 
                 <div className="relative z-10 flex-1 overflow-y-auto p-6 scrollbar-hide">
                     <DialogHeader className="text-center items-center pb-4">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold uppercase tracking-widest mb-4 text-amber-500 shadow-sm">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold mb-4 text-amber-500 shadow-sm">
                             <Sparkles className="w-3 h-3" />
-                            Daily Reflection
+                            Daily reflection
                         </div>
                         <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
                             The Sun Sets...
@@ -129,9 +129,9 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                         {/* Mood Selector Section */}
                         <div className="space-y-4">
                             <div className="flex items-center justify-between px-1">
-                                <label className="text-xs font-bold uppercase tracking-widest text-zinc-500">Current Aura</label>
+                                <label className="text-xs font-semibold text-zinc-400">Current aura</label>
                                 {mood && (
-                                    <span className="text-[10px] font-medium text-amber-500 uppercase tracking-tight px-2 py-0.5 rounded-full bg-amber-900/30 border border-amber-500/20">
+                                    <span className="text-[10px] font-medium text-amber-500 capitalize px-2 py-0.5 rounded-full bg-amber-900/30 border border-amber-500/20">
                                         {moods.find(m => m.score === mood)?.label}
                                     </span>
                                 )}

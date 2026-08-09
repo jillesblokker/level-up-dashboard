@@ -258,7 +258,7 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
           {/* Overlay info */}
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950 via-zinc-950/90 to-transparent p-2 sm:p-3 flex flex-col justify-end h-2/3">
             <span className="text-[8px] sm:text-[11px] font-serif font-bold text-amber-200 tracking-wider mb-0.5 truncate drop-shadow">{cardData.variantLabel}</span>
-            <span className="text-[7px] sm:text-[10px] font-bold text-purple-300 uppercase tracking-widest truncate">{cardData.rarity}</span>
+            <span className="text-[7px] sm:text-[10px] font-bold text-purple-300 capitalize truncate">{cardData.rarity}</span>
             <div className="flex justify-between items-center mt-1 pt-1 sm:mt-1.5 sm:pt-1.5 border-t border-amber-900/30">
               <span className="text-[9px] sm:text-xs font-bold font-mono text-zinc-200 truncate">#{cardData.number}</span>
               <span className="text-[9px] sm:text-xs font-bold font-mono text-amber-300 flex items-center gap-0.5 truncate">{cardData.price}🪙</span>
@@ -269,7 +269,7 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
         <div className="absolute inset-0 flex flex-col items-center justify-center p-2.5 sm:p-4 bg-gradient-to-b from-amber-950/50 via-zinc-950 to-zinc-950 text-white">
           <span className="text-xl sm:text-3xl md:text-4xl font-serif font-bold text-amber-300 drop-shadow">{cardData.number}</span>
           <span className="text-[9px] sm:text-sm font-bold text-amber-100 tracking-wider sm:tracking-widest mt-1 sm:mt-2 truncate w-full text-center">{cardData.variantLabel}</span>
-          <span className="text-[8px] sm:text-xs font-bold mt-0.5 text-purple-300 uppercase truncate">{cardData.rarity}</span>
+          <span className="text-[8px] sm:text-xs font-bold mt-0.5 text-purple-300 capitalize truncate">{cardData.rarity}</span>
           <span className="mt-auto text-[11px] sm:text-lg font-bold font-mono text-amber-300">{cardData.price} 🪙</span>
         </div>
       )}

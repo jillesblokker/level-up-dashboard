@@ -446,15 +446,15 @@ export function MasteryLedger() {
                 {/* Global Stats */}
                 <div className="flex items-center gap-6">
                     <div className="text-center">
-                        <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Quests</div>
+                        <div className="text-[10px] font-semibold text-zinc-400">Quests</div>
                         <div className="text-xl font-bold text-purple-400">{typeCounts.quests}</div>
                     </div>
                     <div className="text-center">
-                        <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Challenges</div>
+                        <div className="text-[10px] font-semibold text-zinc-400">Challenges</div>
                         <div className="text-xl font-bold text-orange-400">{typeCounts.challenges}</div>
                     </div>
                     <div className="text-center">
-                        <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Avg Prowess</div>
+                        <div className="text-[10px] font-semibold text-zinc-400">Avg prowess</div>
                         <div className="text-xl font-bold text-white">
                             {habits.length > 0
                                 ? Math.round(habits.reduce((acc, h) => acc + h.stats.fulfillment, 0) / habits.length)

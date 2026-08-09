@@ -444,10 +444,10 @@ export function DailyHubClient() {
                 {(() => {
                     const count = completedQuestIds.size;
                     let tier = null;
-                    if (count >= 20) tier = { title: "Amazing", badge: "👑", desc: "You have completed 20+ habits today! Legendary dedication.", style: "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 font-black border-amber-300" };
-                    else if (count >= 15) tier = { title: "Super", badge: "⚡", desc: "15+ habits completed today! Supercharged progress.", style: "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold border-purple-400" };
-                    else if (count >= 10) tier = { title: "Awesome", badge: "🔥", desc: "10+ habits completed today! On a roll.", style: "bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-500 text-zinc-950 font-bold border-amber-300" };
-                    else if (count >= 5) tier = { title: "Great", badge: "🌟", desc: "5+ habits completed today! Fantastic start.", style: "bg-gradient-to-r from-emerald-700 via-teal-600 to-emerald-800 text-white font-semibold border-emerald-400" };
+                    if (count >= 20) tier = { title: "Amazing dedication", badge: "👑", desc: "You have completed 20+ habits today! Legendary dedication.", style: "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 font-black border-amber-300" };
+                    else if (count >= 15) tier = { title: "Supercharged progress", badge: "⚡", desc: "15+ habits completed today! Supercharged progress.", style: "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold border-purple-400" };
+                    else if (count >= 10) tier = { title: "Awesome momentum", badge: "🔥", desc: "10+ habits completed today! On a roll.", style: "bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-500 text-zinc-950 font-bold border-amber-300" };
+                    else if (count >= 5) tier = { title: "Great start", badge: "🌟", desc: "5+ habits completed today! Fantastic start.", style: "bg-gradient-to-r from-emerald-700 via-teal-600 to-emerald-800 text-white font-semibold border-emerald-400" };
 
                     if (!tier) return null;
 

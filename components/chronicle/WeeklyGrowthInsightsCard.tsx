@@ -52,7 +52,7 @@ export function WeeklyGrowthInsightsCard() {
           <div className="p-3 rounded-xl bg-black/30 border border-purple-500/20 flex items-center gap-3">
             <Award className="w-5 h-5 text-amber-400 shrink-0" />
             <div>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Top Domain</span>
+              <span className="text-[10px] text-muted-foreground block font-medium">Top domain</span>
               <span className="text-xs font-bold text-amber-200">{data.topCategory} ({data.topCategoryCount})</span>
             </div>
           </div>
@@ -60,7 +60,7 @@ export function WeeklyGrowthInsightsCard() {
           <div className="p-3 rounded-xl bg-black/30 border border-purple-500/20 flex items-center gap-3">
             <TrendingUp className="w-5 h-5 text-emerald-400 shrink-0" />
             <div>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Habits Done</span>
+              <span className="text-[10px] text-muted-foreground block font-medium">Habits done</span>
               <span className="text-xs font-bold text-emerald-200">{data.totalCompletions} Habits</span>
             </div>
           </div>
@@ -68,7 +68,7 @@ export function WeeklyGrowthInsightsCard() {
           <div className="p-3 rounded-xl bg-black/30 border border-purple-500/20 flex items-center gap-3">
             <Sun className="w-5 h-5 text-yellow-400 shrink-0" />
             <div>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Peak Focus</span>
+              <span className="text-[10px] text-muted-foreground block font-medium">Peak focus</span>
               <span className="text-xs font-bold text-yellow-200">{data.peakFocusWindow}</span>
             </div>
           </div>

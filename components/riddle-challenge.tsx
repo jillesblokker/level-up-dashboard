@@ -392,8 +392,8 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
 
         <div className="flex-1 w-full flex flex-col">
           <div className="bg-zinc-900 border border-white/5 rounded-2xl p-6 mb-8 relative">
-            <div className="absolute top-0 left-6 -translate-y-1/2 px-3 py-0.5 bg-purple-600 rounded-full text-[10px] font-bold text-white uppercase tracking-widest">
-              The Question
+            <div className="absolute top-0 left-6 -translate-y-1/2 px-3 py-0.5 bg-purple-600 rounded-full text-[10px] font-bold text-white font-serif">
+              The question
             </div>
             <p className="text-xl font-serif text-white leading-relaxed italic">
               &quot;{currentRiddleData ? currentRiddleData.question : ""}&quot;

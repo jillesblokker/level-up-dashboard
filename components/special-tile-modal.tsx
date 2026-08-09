@@ -161,7 +161,7 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
 
           {/* Rarity tag */}
           <span className={cn(
-            "text-[10px] uppercase font-mono tracking-widest px-2.5 py-0.5 rounded-full border",
+            "text-[10px] capitalize font-mono px-2.5 py-0.5 rounded-full border",
             getRarityColorClass(rarity)
           )}>
             {rarity}
@@ -176,7 +176,7 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
             {/* Produces info */}
             <div className="grid grid-cols-2 gap-2 text-xs text-zinc-400 font-mono text-left bg-zinc-900/40 p-2.5 rounded-lg border border-amber-900/5">
               <div>
-                <span className="text-zinc-500 block text-[9px] tracking-wider">DAILY YIELD</span>
+                <span className="text-zinc-500 block text-[9px]">Daily yield</span>
                 <span className="text-amber-400 font-bold flex items-center gap-1">
                   <Coins className="w-3.5 h-3.5 shrink-0" />
                   {normalRange[0]}–{normalRange[1]} Gold
