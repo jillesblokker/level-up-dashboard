@@ -199,12 +199,13 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       const token = await getClerkToken().catch(() => null);
       const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
-      // Parallel fetches for achievements, mythic cards, citizen preferences, hidden IDs, and character stats (for sleepy check)
-      const [achievementsRes, mythicsRes, prefState, hiddenIdsState, charStatsRes, supportersState] = await Promise.all([
+      // Parallel fetches for achievements, mythic cards, citizen preferences, hidden IDs, merged levels, and character stats (for sleepy check)
+      const [achievementsRes, mythicsRes, prefState, hiddenIdsState, mergedLevelsState, charStatsRes, supportersState] = await Promise.all([
         fetch('/api/achievements', { headers }).catch(() => null),
         fetch('/api/packs/mythics', { headers }).catch(() => null),
         getUserPreference('citizens_state') as Promise<Record<string, CitizenState> | null>,
         getUserPreference('citizens_hidden_ids') as Promise<string[] | null>,
+        getUserPreference('citizens_merged_levels') as Promise<Record<string, number> | null>,
         fetch('/api/character-stats', { headers }).catch(() => null),
         getUserPreference('combat_supporters') as Promise<string[] | null>
       ]);
@@ -222,6 +223,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
       const savedPrefs = prefState || {};
       const combatSupporters = Array.isArray(supportersState) ? supportersState : [];
+      const hiddenIdsSet = new Set<string>(Array.isArray(hiddenIdsState) ? hiddenIdsState : []);
+      const mergedLevels = mergedLevelsState || {};
 
       // 1. Get unlocked standard achievement creature IDs (length 3, not starting with '9')
       let unlockedAchievementIds = new Set<string>();
@@ -243,8 +246,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         unlockedMythics = data.mythics || [];
       }
 
-      // Build citizens list
-      const updatedCitizens: Citizen[] = [];
+      // Build raw citizens list
+      const rawCitizens: Citizen[] = [];
 
       // Add unlocked achievement creatures
       Object.keys(CREATURE_DEFINITIONS).forEach((id) => {
@@ -268,7 +271,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
             experience: rawState.experience || 0
           };
 
-          updatedCitizens.push({
+          rawCitizens.push({
             id,
             name: def.name,
             filename: def.filename,
@@ -281,8 +284,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         }
       });
 
-      // Add unlocked mythic cards
-      unlockedMythics.forEach((m: any) => {
+      // Add unlocked mythic cards with unique instance IDs
+      unlockedMythics.forEach((m: any, idx: number) => {
         const cardId = parseInt(m.card_id);
         const variantId = parseInt(m.variant_id);
         const cardDef = CARD_TYPES.find((c) => c.number === cardId);
@@ -290,8 +293,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
         const colorNames = ['red', 'green', 'blue', 'white', 'black'];
         const colorName = colorNames[variantId] || 'red';
-        const citizenId = `mythic-${cardId}-${variantId}`;
-        const rawState: CitizenState = savedPrefs[citizenId] || {
+        const citizenId = m.id ? `mythic-${m.id}` : `mythic-${cardId}-${variantId}-${idx}`;
+        const rawState: CitizenState = savedPrefs[citizenId] || savedPrefs[`mythic-${cardId}-${variantId}`] || {
           active: false,
           favorite: false,
           lastFedAt: null,
@@ -308,7 +311,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
           experience: rawState.experience || 0
         };
 
-        updatedCitizens.push({
+        rawCitizens.push({
           id: citizenId,
           name: getMythicName(cardId, variantId),
           filename: `Mythic${cardId}${colorName}.png`,
@@ -328,10 +331,41 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         });
       });
 
+      // Group citizens by species key and apply merged levels / hidden filters
+      const groupedBySpecies: Record<string, Citizen[]> = {};
+      rawCitizens.forEach(c => {
+        const speciesKey = (c.filename || c.name).toLowerCase();
+        if (!groupedBySpecies[speciesKey]) groupedBySpecies[speciesKey] = [];
+        groupedBySpecies[speciesKey].push(c);
+      });
+
+      const updatedCitizens: Citizen[] = [];
+
+      for (const [speciesKey, group] of Object.entries(groupedBySpecies)) {
+        const unhiddenGroup = group.filter(c => !hiddenIdsSet.has(c.id));
+        const isSpeciesMerged = mergedLevels[speciesKey] !== undefined || (group.length > 1 && unhiddenGroup.length < group.length);
+
+        if (isSpeciesMerged) {
+          const targetGroup = unhiddenGroup.length > 0 ? unhiddenGroup : group;
+          const primary = [...targetGroup].sort((a, b) => (b.active ? 100 : 0) + (b.level || 1) - ((a.active ? 100 : 0) + (a.level || 1)))[0]!;
+          const totalLevel = mergedLevels[speciesKey] || group.reduce((sum, c) => sum + (c.level || 1), 0);
+          const totalExp = group.reduce((sum, c) => sum + (c.experience || 0), 0);
+          const maxAffection = Math.max(...group.map(c => c.affection || 0));
+
+          updatedCitizens.push({
+            ...primary,
+            level: totalLevel,
+            experience: totalExp,
+            affection: maxAffection
+          });
+        } else {
+          unhiddenGroup.forEach(c => updatedCitizens.push(c));
+        }
+      }
+
       let totalOfflineGold = 0;
       const offlineItems: Record<string, { quantity: number; name: string; emoji: string }> = {};
       let hadOfflineGathering = false;
-      const nowMs = Date.now();
 
       if (!isSleepy) {
          updatedCitizens.forEach(citizen => {
@@ -386,10 +420,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
          };
       }
 
-      const hiddenIdsSet = new Set<string>(Array.isArray(hiddenIdsState) ? hiddenIdsState : []);
-      const visibleCitizens = updatedCitizens.filter(c => !hiddenIdsSet.has(c.id));
-
-      set({ citizens: visibleCitizens, combatSupporters, isSleepy, offlineCatchup, loading: false });
+      set({ citizens: updatedCitizens, combatSupporters, isSleepy, offlineCatchup, loading: false });
     } catch (error: any) {
       console.error('Failed to load citizens:', error);
       set({ error: error.message || 'Failed to load citizens', loading: false });

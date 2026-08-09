@@ -70,8 +70,9 @@ export function CitizensTab() {
         }
         toast({
           title: "Citizens merged!",
-          description: `Combined ${result.count} duplicate citizens! Levels added up successfully.`,
+          description: `Combined ${result.count} duplicate citizens into upgraded singles! Levels added up successfully.`,
         });
+        await loadCitizens(user.id);
       }
     } catch (e) {
       logger.error("Failed to merge duplicate citizens", e);
