@@ -258,6 +258,16 @@ export const KingdomTileItem = React.memo(({
       {/* Minigame Attempt Badge (Always visible on minigame tiles) */}
       {(() => {
         if (!isKingdomTile) return null;
+        const isNonProducer = (libraryTile && libraryTile.timerMinutes === 0) ||
+          (kingdomTile && kingdomTile.timerMinutes === 0) ||
+          ['vacant', 'empty', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue'].includes(type) ||
+          type.includes('road') ||
+          type.includes('path') ||
+          type.includes('cobble') ||
+          type.includes('dirt');
+
+        if (isNonProducer) return null;
+
         if (type === 'dungeon' || type === 'dungeon-keep') {
           return (
             <div className="absolute top-1 left-1 z-40 px-1 py-0.5 rounded-md bg-purple-950/90 border border-purple-500/50 text-[8px] font-mono font-black text-purple-200 flex items-center gap-0.5 shadow-md">
@@ -286,7 +296,7 @@ export const KingdomTileItem = React.memo(({
           return (
             <div className="absolute top-1 left-1 z-40 px-1 py-0.5 rounded-md bg-emerald-950/90 border border-emerald-500/50 text-[8px] font-mono font-black text-emerald-200 flex items-center gap-0.5 shadow-md">
               <span>🧘</span>
-              <span className="hidden sm:inline">Ready</span>
+              <span className="hidden sm:inline">1/1</span>
             </div>
           );
         }
@@ -296,6 +306,16 @@ export const KingdomTileItem = React.memo(({
       {/* Timer overlay */}
       {isKingdomTile && (
         (() => {
+          const isNonProducer = (libraryTile && libraryTile.timerMinutes === 0) ||
+            (kingdomTile && kingdomTile.timerMinutes === 0) ||
+            ['vacant', 'empty', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue'].includes(type) ||
+            type.includes('road') ||
+            type.includes('path') ||
+            type.includes('cobble') ||
+            type.includes('dirt');
+
+          if (isNonProducer) return null;
+
           const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'plank_labyrinth', 'fortune_teller', 'fortune-teller', 'zen-garden', 'zen_garden'].includes(type);
           
           if (!timer && !isMinigame) return null;

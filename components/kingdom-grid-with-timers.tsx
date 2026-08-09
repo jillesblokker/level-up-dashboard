@@ -455,7 +455,10 @@ export function KingdomGridWithTimers({
     return tileTimers.filter(t => {
       const tile = grid[t.y]?.[t.x];
       const type = tile?.type?.toLowerCase() || '';
-      const isNonProducer = ['vacant', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue'].includes(type);
+      const ktile = KINGDOM_TILES.find(kt => kt.id === type);
+      const isNonProducer = (ktile && ktile.timerMinutes === 0) ||
+        ['vacant', 'empty', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue'].includes(type) ||
+        type.includes('road') || type.includes('path') || type.includes('cobble') || type.includes('dirt');
       const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'fortune_teller', 'zen-garden'].includes(type);
       return !isNonProducer && !isMinigame && (t.isReady || Date.now() >= t.endTime);
     }).length;
@@ -477,7 +480,10 @@ export function KingdomGridWithTimers({
     setTileTimers(prev => prev.map(t => {
       const tile = grid[t.y]?.[t.x];
       const type = tile?.type?.toLowerCase() || '';
-      const isNonProducer = ['vacant', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue'].includes(type);
+      const ktile = KINGDOM_TILES.find(kt => kt.id === type);
+      const isNonProducer = (ktile && ktile.timerMinutes === 0) ||
+        ['vacant', 'empty', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue'].includes(type) ||
+        type.includes('road') || type.includes('path') || type.includes('cobble') || type.includes('dirt');
       const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'fortune_teller', 'zen-garden'].includes(type);
       if (!isNonProducer && !isMinigame && (t.isReady || now >= t.endTime)) {
         return { ...t, endTime: now + (30 * 60 * 1000), isReady: false };
