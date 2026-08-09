@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
 import { ShieldAlert, Flame, CheckCircle2, RefreshCw } from 'lucide-react';
-import { toast } from 'sonner';
 
 export function StreakRecoveryCard() {
   const [data, setData] = useState<{
@@ -14,6 +14,7 @@ export function StreakRecoveryCard() {
     isCompleted: boolean;
     atRiskCount: number;
   } | null>(null);
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -45,13 +46,13 @@ export function StreakRecoveryCard() {
       const res = await fetch('/api/streaks/recovery', { method: 'POST' });
       const json = await res.json();
       if (res.ok) {
-        toast.success('Streak successfully repaired! Overdrive Recovery bonus granted.');
+        toast({ title: "Streak Repaired! 🔥", description: "Streak successfully repaired! Overdrive Recovery bonus granted." });
         fetchStatus();
       } else {
-        toast.error(json.error || 'Failed to repair streak.');
+        toast({ title: "Repair failed", description: json.error || 'Failed to repair streak.', variant: "destructive" });
       }
     } catch (err) {
-      toast.error('An error occurred while repairing your streak.');
+      toast({ title: "Error", description: 'An error occurred while repairing your streak.', variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }

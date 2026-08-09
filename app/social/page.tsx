@@ -37,6 +37,7 @@ import dynamic from 'next/dynamic'
 import { AllianceTitanRaidModal } from "@/components/social/AllianceTitanRaidModal";
 import { AllianceComboBanner } from "@/components/alliance/alliance-combo-banner";
 import { FriendDareModal } from "@/components/social/FriendDareModal";
+import { useAchievementCatchUp } from "@/hooks/use-achievement-catch-up";
 
 // Dynamically import heavy components to prevent initialization order issues (ReferenceError)
 const AllianceDashboard = dynamic(() => import("@/components/alliance-dashboard"), { 
@@ -175,7 +176,7 @@ export default function AlliesPage() {
     const [titanModalOpen, setTitanModalOpen] = useState(false);
 
     // Import achievement catch-up hook
-    const { triggerCatchUp } = require('@/hooks/use-achievement-catch-up').useAchievementCatchUp();
+    const { triggerCatchUp } = useAchievementCatchUp();
 
     useEffect(() => {
         if (user?.id) {

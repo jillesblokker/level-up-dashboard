@@ -356,13 +356,13 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       case 'town':
         return '/images/tiles/town-tile.webp'
       case 'crossroad':
-        return '/images/kingdom-tiles/Crossroad.webp'
+        return '/images/kingdom-tiles/crossroad.webp'
       case 'straightroad':
-        return '/images/kingdom-tiles/Straightroad.webp'
+        return '/images/kingdom-tiles/straightroad.webp'
       case 'cornerroad':
-        return '/images/kingdom-tiles/Cornerroad.webp'
+        return '/images/kingdom-tiles/cornerroad.webp'
       case 'tsplitroad':
-        return '/images/kingdom-tiles/Tsplitroad.webp'
+        return '/images/kingdom-tiles/tsplitroad.webp'
       case 'fortune_teller':
         return '/images/kingdom-tiles/fortune_teller.webp'
       case 'pyramid':

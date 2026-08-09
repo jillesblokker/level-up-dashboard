@@ -11,7 +11,40 @@ export function ConsistencyChart() {
     setIsMounted(true);
   }, []);
 
-  const data = [
+  const [chartData, setChartData] = useState<{ name: string; quests: number }[]>([]);
+
+  useEffect(() => {
+    setIsMounted(true);
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const now = new Date();
+    const last7Days: { name: string; quests: number }[] = [];
+
+    const questHistoryRaw = localStorage.getItem('completed-quests-history') || '{}';
+    let questHistory: Record<string, number> = {};
+    try {
+      questHistory = JSON.parse(questHistoryRaw);
+    } catch {
+      questHistory = {};
+    }
+
+    const currentCompletedCount = (JSON.parse(localStorage.getItem('completedQuests') || '[]') as string[]).length;
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0]!;
+      const dayName = dayNames[d.getDay()]!;
+      let count = questHistory[dateStr] || 0;
+      if (i === 0 && count === 0) {
+        count = currentCompletedCount;
+      }
+      last7Days.push({ name: dayName, quests: count });
+    }
+
+    setChartData(last7Days);
+  }, []);
+
+  const data = chartData.length > 0 ? chartData : [
     { name: 'Mon', quests: 2 },
     { name: 'Tue', quests: 3 },
     { name: 'Wed', quests: 2 },

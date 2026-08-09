@@ -29,6 +29,7 @@ interface QuestCardProps {
   tags?: string[]
   onClick?: () => void
   onComplete?: () => void
+  onUndo?: () => void
   onEdit?: () => void
   onDelete?: () => void
   onDuplicate?: () => void
@@ -67,6 +68,7 @@ export default function QuestCard({
   tags = [],
   onClick,
   onComplete,
+  onUndo,
   onEdit,
   onDelete,
   onDuplicate,
@@ -84,11 +86,16 @@ export default function QuestCard({
   const handleComplete = (e: React.MouseEvent) => {
     e.stopPropagation()
 
-    // Sound effect on completion
-    if (status !== 'completed') {
-      onQuestComplete()
+    if (status === 'completed') {
+      if (onUndo) {
+        onUndo()
+      } else if (onComplete) {
+        onComplete()
+      }
+      return
     }
 
+    onQuestComplete()
     onComplete?.()
   }
 

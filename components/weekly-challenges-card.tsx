@@ -32,7 +32,18 @@ export function WeeklyChallengesCard({ quests, weeklyGoldEarned }: WeeklyChallen
             <Target className="w-5 h-5" />
             Weekly mini-challenges
           </CardTitle>
-          <span className="text-xs text-orange-200/50 tracking-wider font-bold">Resets Monday</span>
+          <span className="text-xs text-orange-200/70 tracking-wider font-mono font-bold flex items-center gap-1">
+            ⏱️ {(() => {
+              const now = new Date();
+              const day = now.getDay();
+              const daysUntilMonday = ((8 - day) % 7) || 7;
+              const nextMonday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysUntilMonday);
+              const diffMs = Math.max(0, nextMonday.getTime() - now.getTime());
+              const daysLeft = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+              const hoursLeft = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              return `${daysLeft}d ${hoursLeft}h left`;
+            })()}
+          </span>
         </div>
       </CardHeader>
       <CardContent className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4">

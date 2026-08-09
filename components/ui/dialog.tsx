@@ -103,7 +103,6 @@ const DialogContent = React.forwardRef<
       )}
       aria-modal="true"
       role="dialog"
-      aria-describedby={hideDescription ? undefined : undefined}
       {...props}
     >
       {/* iOS Sheet Interactive Touch Drag Handle for Mobile */}
