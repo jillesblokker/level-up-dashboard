@@ -2608,20 +2608,6 @@ export function KingdomGridWithTimers({
             </TooltipContent>
           </Tooltip>
 
-          {/* Collect All Taxes Header Button */}
-          <button
-            onClick={handleCollectAllTaxes}
-            className={cn(
-              "px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 border snap-start shrink-0 font-bold text-xs",
-              readyTimersCount > 0
-                ? "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 border-yellow-300 shadow-[0_0_15px_rgba(245,158,11,0.4)] animate-pulse"
-                : "bg-zinc-900/80 text-zinc-400 border-zinc-800 hover:text-zinc-200"
-            )}
-          >
-            <span className="text-base">🪙</span>
-            <span className="text-[10px] font-bold uppercase tracking-tight">Collect Taxes ({readyTimersCount})</span>
-          </button>
-
           {/* Category Focus Mode Toggles */}
           <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-white/5 snap-start shrink-0">
             {[
