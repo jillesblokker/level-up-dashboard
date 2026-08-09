@@ -36,6 +36,7 @@ import { SpecialTileModal } from './special-tile-modal'
 import { getActiveEvent } from '@/lib/seasonal-events'
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage'
 import { hapticLight, hapticMedium, hapticSuccess } from '@/lib/haptics'
+import confetti from 'canvas-confetti'
 
 
 // Game managers will be loaded dynamically to keep the initial bundle light
@@ -448,6 +449,48 @@ export function KingdomGridWithTimers({
   const [kingdomExpansions, setKingdomExpansions] = useState(0)
   const [buildTokens, setBuildTokens] = useState(0)
   const [pendingHabits, setPendingHabits] = useState<string[]>([]) // List of building types with incomplete quests
+  const [placementRotation, setPlacementRotation] = useState<number>(0)
+
+  const readyTimersCount = useMemo(() => {
+    return tileTimers.filter(t => {
+      const tile = grid[t.y]?.[t.x];
+      const type = tile?.type?.toLowerCase() || '';
+      const isNonProducer = ['vacant', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue'].includes(type);
+      const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'fortune_teller', 'zen-garden'].includes(type);
+      return !isNonProducer && !isMinigame && (t.isReady || Date.now() >= t.endTime);
+    }).length;
+  }, [tileTimers, grid]);
+
+  const handleCollectAllTaxes = useCallback(() => {
+    if (readyTimersCount === 0) {
+      toast({
+        title: "No Taxes Ready",
+        description: "All properties are actively producing. Check back soon!",
+      });
+      return;
+    }
+
+    const goldPerProperty = 150;
+    const totalGoldHarvested = readyTimersCount * goldPerProperty;
+    const now = Date.now();
+
+    setTileTimers(prev => prev.map(t => {
+      const tile = grid[t.y]?.[t.x];
+      const type = tile?.type?.toLowerCase() || '';
+      const isNonProducer = ['vacant', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue'].includes(type);
+      const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'fortune_teller', 'zen-garden'].includes(type);
+      if (!isNonProducer && !isMinigame && (t.isReady || now >= t.endTime)) {
+        return { ...t, endTime: now + (30 * 60 * 1000), isReady: false };
+      }
+      return t;
+    }));
+
+    confetti({ particleCount: 80, spread: 80, origin: { y: 0.5 } });
+    toast({
+      title: "🪙 Kingdom Taxes Collected!",
+      description: `Harvested ${totalGoldHarvested.toLocaleString()} Gold & ${readyTimersCount * 2} Essences from ${readyTimersCount} kingdom properties!`,
+    });
+  }, [readyTimersCount, grid, toast]);
   const [chaosRiftTiles, setChaosRiftTiles] = useState<Set<string>>(new Set()) // Set of tile IDs with chaos rift overlay
   const [momentumState, setMomentumState] = useState<'high' | 'neutral' | 'low'>('neutral')
 
@@ -2558,6 +2601,20 @@ export function KingdomGridWithTimers({
               </p>
             </TooltipContent>
           </Tooltip>
+
+          {/* Collect All Taxes Header Button */}
+          <button
+            onClick={handleCollectAllTaxes}
+            className={cn(
+              "px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 border snap-start shrink-0 font-bold text-xs",
+              readyTimersCount > 0
+                ? "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 border-yellow-300 shadow-[0_0_15px_rgba(245,158,11,0.4)] animate-pulse"
+                : "bg-zinc-900/80 text-zinc-400 border-zinc-800 hover:text-zinc-200"
+            )}
+          >
+            <span className="text-base">🪙</span>
+            <span className="text-[10px] font-bold uppercase tracking-tight">Collect Taxes ({readyTimersCount})</span>
+          </button>
 
           {/* Category Focus Mode Toggles */}
           <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-white/5 snap-start shrink-0">

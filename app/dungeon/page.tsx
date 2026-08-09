@@ -1023,6 +1023,36 @@ export default function DungeonPage() {
             <p className="text-zinc-400 text-sm sm:text-base">Brave the depths, fight creatures, earn loot.</p>
           </div>
 
+          {/* Habit Combat Buff Header */}
+          <div className="bg-gradient-to-r from-red-950/60 via-purple-950/40 to-zinc-950 p-4 rounded-2xl border border-red-500/30 shadow-xl text-left space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                <span>🔥</span> Active Habit Combat Multipliers
+              </span>
+              <span className="text-[10px] font-mono text-zinc-400 bg-black/50 px-2 py-0.5 rounded border border-white/10">
+                Today&apos;s Boosts
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-black/40 p-2 rounded-xl border border-red-500/20 flex items-center justify-between">
+                <span className="text-zinc-300">⚔️ Might</span>
+                <span className="font-mono font-bold text-red-400">+15% ATK</span>
+              </div>
+              <div className="bg-black/40 p-2 rounded-xl border border-blue-500/20 flex items-center justify-between">
+                <span className="text-zinc-300">🔮 Knowledge</span>
+                <span className="font-mono font-bold text-blue-400">+10% Spell</span>
+              </div>
+              <div className="bg-black/40 p-2 rounded-xl border border-emerald-500/20 flex items-center justify-between">
+                <span className="text-zinc-300">🧘 Wellness</span>
+                <span className="font-mono font-bold text-emerald-400">+10% HP</span>
+              </div>
+              <div className="bg-black/40 p-2 rounded-xl border border-yellow-500/20 flex items-center justify-between">
+                <span className="text-zinc-300">👑 Honor</span>
+                <span className="font-mono font-bold text-amber-300">+5% Def</span>
+              </div>
+            </div>
+          </div>
+
           <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 shadow-xl">
             <div className="text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wider">DAILY ENTRIES</div>
             <div className={`text-3xl font-bold ${dailyCount >= 3 ? 'text-red-500' : 'text-green-400'}`}>

@@ -112,6 +112,30 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
             </Badge>
           </div>
 
+          {/* Habit Category Synergy & Streak Speed Perks */}
+          <div className="bg-zinc-900/60 rounded-xl p-3 border border-cyan-900/40 flex items-center justify-around text-center text-xs">
+            <div className="space-y-0.5">
+              <span className="text-zinc-400 block text-[10px]">Knowledge Habits</span>
+              <span className="font-bold text-cyan-300 flex items-center justify-center gap-1">
+                ⚡ +50% Speed
+              </span>
+            </div>
+            <div className="h-6 w-px bg-zinc-800" />
+            <div className="space-y-0.5">
+              <span className="text-zinc-400 block text-[10px]">Might Habits</span>
+              <span className="font-bold text-amber-400 flex items-center justify-center gap-1">
+                📦 +2x Cargo
+              </span>
+            </div>
+            <div className="h-6 w-px bg-zinc-800" />
+            <div className="space-y-0.5">
+              <span className="text-zinc-400 block text-[10px]">7+ Day Streak</span>
+              <span className="font-bold text-emerald-400 flex items-center justify-center gap-1">
+                🔥 2x Speed Boost
+              </span>
+            </div>
+          </div>
+
           {/* Citizen Crew Assignment Selector (Horizontal Touch Snap Carousel) */}
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 space-y-2">
             <div className="flex items-center justify-between">
