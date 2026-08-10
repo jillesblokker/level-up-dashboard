@@ -160,15 +160,17 @@ export async function getHouseCupCircleStandings(viewerId: string, year?: number
 
   // 1. Get viewer's allies/friends list (or top realm players automatically)
   const { data: friendsData } = await supabase
-    .from('user_friends')
-    .select('friend_id, user_id')
+    .from('friends')
+    .select('friend_id, user_id, status')
     .or(`user_id.eq.${viewerId},friend_id.eq.${viewerId}`);
 
   const circleUserIds = new Set<string>([viewerId]);
   if (friendsData) {
     friendsData.forEach(f => {
-      if (f.user_id === viewerId && f.friend_id) circleUserIds.add(f.friend_id);
-      if (f.friend_id === viewerId && f.user_id) circleUserIds.add(f.user_id);
+      if (!f.status || f.status === 'accepted') {
+        if (f.user_id === viewerId && f.friend_id) circleUserIds.add(f.friend_id);
+        if (f.friend_id === viewerId && f.user_id) circleUserIds.add(f.user_id);
+      }
     });
   }
 
