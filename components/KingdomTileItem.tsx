@@ -276,35 +276,114 @@ export const KingdomTileItem = React.memo(({
 
         if (isNonProducer) return null;
 
+        const getMinigameBadgeState = (t: string) => {
+          if (typeof window === 'undefined') return { badge: '1/1', isClosed: false };
+          const today = new Date().toISOString().split('T')[0];
+          const now = new Date();
+          const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+          const msRemaining = Math.max(0, midnight.getTime() - now.getTime());
+          const hours = Math.floor(msRemaining / (1000 * 60 * 60));
+          const minutes = Math.floor((msRemaining % (1000 * 60 * 60)) / (1000 * 60));
+          const timerStr = `⏳ ${hours}h ${minutes}m`;
+
+          if (t === 'dungeon' || t === 'dungeon-keep') {
+            try {
+              const storage = localStorage.getItem('dungeon_daily_limit');
+              let data = storage ? JSON.parse(storage) : { date: today, count: 0 };
+              if (data.date !== today) data = { date: today, count: 0 };
+              const remaining = Math.max(0, 3 - (data.count || 0));
+              if (remaining <= 0) return { badge: '0/3', isClosed: true, formattedTimer: timerStr };
+              return { badge: `${remaining}/3`, isClosed: false };
+            } catch {
+              return { badge: '3/3', isClosed: false };
+            }
+          }
+
+          if (t === 'fortune_teller' || t === 'fortune-teller') {
+            try {
+              const lastDrawDate = localStorage.getItem('tarot-last-draw-date');
+              const drawnToday = lastDrawDate === today;
+              if (drawnToday) return { badge: '0/1', isClosed: true, formattedTimer: timerStr };
+              return { badge: '1/1', isClosed: false };
+            } catch {
+              return { badge: '1/1', isClosed: false };
+            }
+          }
+
+          if (t === 'plank-labyrinth' || t === 'labyrinth' || t === 'plank_labyrinth') {
+            try {
+              const storage = localStorage.getItem('labyrinth_daily_limit');
+              let data = storage ? JSON.parse(storage) : { date: today, count: 0 };
+              if (data.date !== today) data = { date: today, count: 0 };
+              const remaining = Math.max(0, 3 - (data.count || 0));
+              if (remaining <= 0) return { badge: '0/3', isClosed: true, formattedTimer: timerStr };
+              return { badge: `${remaining}/3`, isClosed: false };
+            } catch {
+              return { badge: '3/3', isClosed: false };
+            }
+          }
+
+          if (t === 'zen-garden' || t === 'zen_garden') {
+            try {
+              const storage = localStorage.getItem('zen_daily_limit');
+              let data = storage ? JSON.parse(storage) : { date: today, count: 0 };
+              if (data.date !== today) data = { date: today, count: 0 };
+              const remaining = Math.max(0, 1 - (data.count || 0));
+              if (remaining <= 0) return { badge: '0/1', isClosed: true, formattedTimer: timerStr };
+              return { badge: '1/1', isClosed: false };
+            } catch {
+              return { badge: '1/1', isClosed: false };
+            }
+          }
+
+          return { badge: '1/1', isClosed: false };
+        };
+
         if (type === 'dungeon' || type === 'dungeon-keep') {
+          const state = getMinigameBadgeState(type);
           return (
-            <div className="absolute top-1 left-1 z-40 px-1 py-0.5 rounded-md bg-purple-950/90 border border-purple-500/50 text-[8px] font-mono font-black text-purple-200 flex items-center gap-0.5 shadow-md">
+            <div className={cn(
+              "absolute top-1 left-1 z-40 px-1 py-0.5 rounded-md border text-[8px] font-mono font-black flex items-center gap-0.5 shadow-md",
+              state.isClosed ? "bg-red-950/90 border-red-500/50 text-red-300" : "bg-purple-950/90 border-purple-500/50 text-purple-200"
+            )}>
               <span>⚔️</span>
-              <span className="hidden sm:inline">3/3</span>
+              <span className="hidden sm:inline">{state.badge}</span>
             </div>
           );
         }
         if (type === 'plank-labyrinth' || type === 'labyrinth' || type === 'plank_labyrinth') {
+          const state = getMinigameBadgeState(type);
           return (
-            <div className="absolute top-1 left-1 z-40 px-1 py-0.5 rounded-md bg-cyan-950/90 border border-cyan-500/50 text-[8px] font-mono font-black text-cyan-200 flex items-center gap-0.5 shadow-md">
+            <div className={cn(
+              "absolute top-1 left-1 z-40 px-1 py-0.5 rounded-md border text-[8px] font-mono font-black flex items-center gap-0.5 shadow-md",
+              state.isClosed ? "bg-red-950/90 border-red-500/50 text-red-300" : "bg-cyan-950/90 border-cyan-500/50 text-cyan-200"
+            )}>
               <span>🧩</span>
-              <span className="hidden sm:inline">3/3</span>
+              <span className="hidden sm:inline">{state.badge}</span>
             </div>
           );
         }
         if (type === 'fortune_teller' || type === 'fortune-teller') {
+          const state = getMinigameBadgeState(type);
           return (
-            <div className="absolute top-1 left-1 z-40 px-1 py-0.5 rounded-md bg-fuchsia-950/90 border border-fuchsia-500/50 text-[8px] font-mono font-black text-fuchsia-200 flex items-center gap-0.5 shadow-md">
+            <div className={cn(
+              "absolute top-1 left-1 z-40 px-1 py-0.5 rounded-md border text-[8px] font-mono font-black flex items-center gap-0.5 shadow-md",
+              state.isClosed ? "bg-red-950/90 border-red-500/50 text-red-300" : "bg-fuchsia-950/90 border-fuchsia-500/50 text-fuchsia-200"
+            )}>
               <span>🔮</span>
-              <span className="hidden sm:inline">3/3</span>
+              <span className="hidden sm:inline">{state.badge}</span>
             </div>
           );
         }
         if (type === 'zen-garden' || type === 'zen_garden') {
+          const state = getMinigameBadgeState(type);
           return (
-            <div className="absolute top-1 left-1 z-40 px-1 py-0.5 rounded-md bg-emerald-950/90 border border-emerald-500/50 text-[8px] font-mono font-black text-emerald-200 flex items-center gap-0.5 shadow-md">
+            <div className={cn(
+              "absolute top-1 left-1 z-40 px-1 py-0.5 rounded-md border text-[8px] font-mono font-black flex items-center gap-0.5 shadow-md",
+              state.isClosed ? "bg-red-950/90 border-red-500/50 text-red-300" : "bg-emerald-950/90 border-emerald-500/50 text-emerald-200"
+            )}>
               <span>🧘</span>
-              <span className="hidden sm:inline">1/1</span>
+              <span className="hidden sm:inline">{state.badge}</span>
             </div>
           );
         }
@@ -328,6 +407,69 @@ export const KingdomTileItem = React.memo(({
           
           if (!timer && !isMinigame) return null;
 
+          const getMinigameBadgeState = (t: string) => {
+            if (typeof window === 'undefined') return { badge: '1/1', isClosed: false };
+            const today = new Date().toISOString().split('T')[0];
+            const now = new Date();
+            const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+            const msRemaining = Math.max(0, midnight.getTime() - now.getTime());
+            const hours = Math.floor(msRemaining / (1000 * 60 * 60));
+            const minutes = Math.floor((msRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const timerStr = `⏳ ${hours}h ${minutes}m`;
+
+            if (t === 'dungeon' || t === 'dungeon-keep') {
+              try {
+                const storage = localStorage.getItem('dungeon_daily_limit');
+                let data = storage ? JSON.parse(storage) : { date: today, count: 0 };
+                if (data.date !== today) data = { date: today, count: 0 };
+                const remaining = Math.max(0, 3 - (data.count || 0));
+                if (remaining <= 0) return { badge: '0/3', isClosed: true, formattedTimer: timerStr };
+                return { badge: `${remaining}/3`, isClosed: false };
+              } catch {
+                return { badge: '3/3', isClosed: false };
+              }
+            }
+
+            if (t === 'fortune_teller' || t === 'fortune-teller') {
+              try {
+                const lastDrawDate = localStorage.getItem('tarot-last-draw-date');
+                const drawnToday = lastDrawDate === today;
+                if (drawnToday) return { badge: '0/1', isClosed: true, formattedTimer: timerStr };
+                return { badge: '1/1', isClosed: false };
+              } catch {
+                return { badge: '1/1', isClosed: false };
+              }
+            }
+
+            if (t === 'plank-labyrinth' || t === 'labyrinth' || t === 'plank_labyrinth') {
+              try {
+                const storage = localStorage.getItem('labyrinth_daily_limit');
+                let data = storage ? JSON.parse(storage) : { date: today, count: 0 };
+                if (data.date !== today) data = { date: today, count: 0 };
+                const remaining = Math.max(0, 3 - (data.count || 0));
+                if (remaining <= 0) return { badge: '0/3', isClosed: true, formattedTimer: timerStr };
+                return { badge: `${remaining}/3`, isClosed: false };
+              } catch {
+                return { badge: '3/3', isClosed: false };
+              }
+            }
+
+            if (t === 'zen-garden' || t === 'zen_garden') {
+              try {
+                const storage = localStorage.getItem('zen_daily_limit');
+                let data = storage ? JSON.parse(storage) : { date: today, count: 0 };
+                if (data.date !== today) data = { date: today, count: 0 };
+                const remaining = Math.max(0, 1 - (data.count || 0));
+                if (remaining <= 0) return { badge: '0/1', isClosed: true, formattedTimer: timerStr };
+                return { badge: '1/1', isClosed: false };
+              } catch {
+                return { badge: '1/1', isClosed: false };
+              }
+            }
+
+            return { badge: '1/1', isClosed: false };
+          };
+
           return (
             <div className={cn(
               "transition-opacity duration-200 absolute bottom-1 left-1 right-1 pointer-events-none group-hover:opacity-100",
@@ -349,10 +491,17 @@ export const KingdomTileItem = React.memo(({
               )}>
                 {isMinigame ? (
                   <div className="flex items-center justify-center gap-1">
-                    {type.includes('dungeon') && <span>⚔️ 3/3 Ready</span>}
-                    {type.includes('labyrinth') && <span>🧩 3/3 Ready</span>}
-                    {type.includes('fortune') && <span>🔮 3/3 Cards</span>}
-                    {type.includes('zen') && <span>🧘 Zen Focus</span>}
+                    {(() => {
+                      const state = getMinigameBadgeState(type);
+                      if (state.isClosed) {
+                        return <span className="text-amber-200 font-bold text-[9px]">{state.formattedTimer || '⏳ Midnight Reset'}</span>;
+                      }
+                      if (type.includes('dungeon')) return <span>⚔️ {state.badge} Ready</span>;
+                      if (type.includes('labyrinth')) return <span>🧩 {state.badge} Ready</span>;
+                      if (type.includes('fortune')) return <span>🔮 {state.badge} Cards</span>;
+                      if (type.includes('zen')) return <span>🧘 {state.badge} Ready</span>;
+                      return <span>{state.badge} Ready</span>;
+                    })()}
                   </div>
                 ) : isReady ? (
                   <div className="flex items-center justify-center gap-1 relative">

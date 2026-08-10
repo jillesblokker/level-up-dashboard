@@ -44,7 +44,7 @@ function AllyCarouselCard({
   };
 
   return (
-    <Card className="border-zinc-800 bg-zinc-900/90 hover:border-amber-500/40 p-4 transition-all group hover:shadow-lg relative overflow-hidden flex flex-col justify-between h-[420px] min-h-[420px] max-h-[420px]">
+    <Card className="border-zinc-800 bg-zinc-900/90 hover:border-amber-500/40 p-4 transition-all group hover:shadow-lg relative overflow-hidden flex flex-col justify-between h-[470px] min-h-[470px] max-h-[470px]">
       {/* Top Header bar with Frame Switcher */}
       <div className="flex items-center justify-between mb-2 pb-2 border-b border-zinc-800 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
@@ -102,7 +102,7 @@ function AllyCarouselCard({
                   <p className="text-xs text-zinc-400 italic">Competing across all 9 virtue hourglasses</p>
                 </div>
 
-                <div className="p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/60 text-xs space-y-1 text-zinc-300">
+                <div className="p-3.5 rounded-xl bg-zinc-950/40 border border-zinc-800/60 text-xs space-y-1.5 text-zinc-300">
                   <div className="text-[10px] text-amber-400 font-semibold uppercase tracking-wider">Standings breakdown</div>
                   <p className="text-[11px] text-zinc-400 leading-relaxed">
                     Click &apos;9 Virtues &rarr;&apos; to inspect live hourglass fill levels or tap below for full summary.
@@ -123,7 +123,7 @@ function AllyCarouselCard({
               transition={{ duration: 0.2 }}
               className="h-full flex flex-col justify-center py-1 overflow-hidden"
             >
-              {/* 9 Hourglasses in 3x3 Grid (Fits 420px height comfortably) */}
+              {/* 9 Hourglasses in 3x3 Grid (Fits 470px height with zero clipping!) */}
               <div className="grid grid-cols-3 gap-2">
                 {['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality', 'wellness', 'exploration', 'conquest'].map(catKey => {
                   const meta = CATEGORY_META[catKey];
