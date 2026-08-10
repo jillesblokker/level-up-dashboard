@@ -87,7 +87,7 @@ export function NotificationBellDrawer() {
         <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
           <div className="flex items-center gap-2 text-amber-400">
             <Bell className="w-4 h-4" />
-            <h4 className="font-bold text-xs tracking-wide">In-App Notifications</h4>
+            <h4 className="font-bold text-xs tracking-wide">In-app notifications</h4>
           </div>
           {unreadCount > 0 && (
             <Button

@@ -136,7 +136,7 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
                         onValueChange={(val) => setNewMilestone({ ...newMilestone, category: val })}
                     >
                         <SelectTrigger className="h-12 bg-zinc-900 border-white/5 rounded-xl transition-all hover:border-amber-500/30 w-full text-zinc-200">
-                            <SelectValue placeholder="Select Category" />
+                            <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent side="top" className="bg-zinc-950 border-zinc-800 text-zinc-200">
                             {questCategories.map((cat) => (
@@ -155,7 +155,7 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Target Value</Label>
+                        <Label className="text-xs font-semibold text-zinc-400 ml-1">Target value</Label>
                         <Input
                             type="number"
                             className="bg-zinc-900 border-white/5 focus:border-amber-500/50 h-12 rounded-xl px-4 text-zinc-200"
@@ -164,7 +164,7 @@ export function AddMilestoneForm({ onSuccess, onCancel, initialData, userId }: A
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Unit</Label>
+                        <Label className="text-xs font-semibold text-zinc-400 ml-1">Unit</Label>
                         <Input
                             className="bg-zinc-900 border-white/5 focus:border-amber-500/50 h-12 rounded-xl px-4 text-zinc-200"
                             value={newMilestone.unit}

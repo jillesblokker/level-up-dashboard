@@ -234,7 +234,7 @@ export default function QuestCard({
             {isFriendQuest && (
               <Badge className="bg-blue-600 text-white text-xs font-bold px-2 py-1 flex items-center gap-1">
                 <Star className="w-3 h-3" />
-                Friend Quest
+                Friend quest
               </Badge>
             )}
             {(isFeatured || isNew) && !isFriendQuest && (

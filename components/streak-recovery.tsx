@@ -429,7 +429,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-3 text-xl font-bold text-blue-200">
                 <Heart className="w-6 h-6 text-blue-400" />
-                Streak Recovery System
+                Streak recovery system
               </CardTitle>
               <CardDescription className="text-blue-300/80 text-base leading-relaxed">
                 Build resilience and protect your streaks with recovery tools
@@ -441,7 +441,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                 <div className="text-center p-4 rounded-lg bg-blue-900/20 border border-blue-800/30">
                   <div className="flex items-center justify-center gap-2 mb-3">
                     <Zap className="w-5 h-5 text-yellow-400" />
-                    <span className="text-sm font-semibold text-blue-200">Resilience Points</span>
+                    <span className="text-sm font-semibold text-blue-200">Resilience points</span>
                   </div>
                   <div className="text-3xl font-bold text-yellow-400 mb-2">{resiliencePoints}</div>
                   <div className="text-xs text-blue-300/70 leading-relaxed">Earned by completing weeks</div>
@@ -451,10 +451,10 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                 <div className="text-center p-4 rounded-lg bg-green-900/20 border border-green-800/30">
                   <div className="flex items-center justify-center gap-2 mb-3">
                     <Shield className={`w-5 h-5 ${safetyNetUsed ? 'text-zinc-400' : 'text-green-400'}`} />
-                    <span className="text-sm font-semibold text-green-200">Safety Net</span>
+                    <span className="text-sm font-semibold text-green-200">Safety net</span>
                   </div>
                   <Badge variant={safetyNetUsed ? 'outline' : 'default'} className={`mb-2 ${safetyNetUsed ? 'text-zinc-400 border-zinc-600' : 'text-green-400 bg-green-900/50 border-green-600'}`}>
-                    {safetyNetUsed ? 'Used This Week' : 'Available'}
+                    {safetyNetUsed ? 'Used this week' : 'Available'}
                   </Badge>
                   <div className="text-xs text-green-300/70 leading-relaxed">
                     Missed days: {missedDaysThisWeek}/1
@@ -465,7 +465,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                 <div className="text-center p-4 rounded-lg bg-purple-900/20 border border-purple-800/30">
                   <div className="flex items-center justify-center gap-2 mb-3">
                     <Award className="w-5 h-5 text-purple-400" />
-                    <span className="text-sm font-semibold text-purple-200">Best Streak</span>
+                    <span className="text-sm font-semibold text-purple-200">Best streak</span>
                   </div>
                   <div className="text-3xl font-bold text-purple-400 mb-2">{maxStreakAchieved}</div>
                   <div className="text-xs text-purple-300/70 leading-relaxed">days achieved</div>
@@ -510,7 +510,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-purple-400">
                 <RotateCcw className="w-5 h-5" />
-                Streak Reconstruction
+                Streak reconstruction
               </CardTitle>
               <CardDescription>
                 Restore your broken streak to {maxStreakAchieved} days using build tokens
@@ -518,7 +518,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-zinc-400">Cost: 5 Build Tokens</span>
+                <span className="text-sm text-zinc-400">Cost: 5 build tokens</span>
                 <span className="text-sm text-zinc-300">You have: {buildTokens}</span>
               </div>
               <Button
@@ -527,7 +527,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                 className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
               >
                 {loadingAction === 'reconstruct' ? 'Reconstructing...' :
-                  buildTokens < 5 ? 'Need 5 Build Tokens' : 'Reconstruct Streak'}
+                  buildTokens < 5 ? 'Need 5 build tokens' : 'Reconstruct streak'}
               </Button>
             </CardContent>
           </Card>
@@ -537,10 +537,10 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-blue-400">
                 <Zap className="w-5 h-5 text-yellow-400" />
-                Resilience Restoration
+                Resilience restoration
               </CardTitle>
               <CardDescription>
-                Restore your broken streak to {maxStreakAchieved} days using Resilience Points
+                Restore your broken streak to {maxStreakAchieved} days using resilience points
               </CardDescription>
             </CardHeader>
             <CardContent>

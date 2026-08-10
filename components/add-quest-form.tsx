@@ -305,7 +305,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                                 value={newQuest.mandateCount}
                                 onChange={(e) => setNewQuest({ ...newQuest, mandateCount: parseInt(e.target.value) || 1 })}
                             />
-                            <div className="text-xs font-bold text-zinc-600">Times</div>
+                            <div className="text-xs font-bold text-zinc-600">times</div>
                         </div>
                     </div>
                 </div>

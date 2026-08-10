@@ -1,7 +1,7 @@
 export const CARD_TYPES = [
   {
     number: 1,
-    rarity: "Super Common",
+    rarity: "Super common",
     color: "#689d99",
     background: "linear-gradient(160deg, #92d18b, #689d99 42%, #41837e 100%)",
     ink: "#003430",
@@ -55,7 +55,7 @@ export const CARD_TYPES = [
   },
   {
     number: 7,
-    rarity: "Very Epic",
+    rarity: "Very epic",
     color: "#0d4e4a",
     background: "linear-gradient(160deg, #5f9f9b, #0d4e4a 42%, #003430 100%)",
     ink: "#eefcfb",
@@ -82,7 +82,7 @@ export const CARD_TYPES = [
   },
   {
     number: 10,
-    rarity: "Ultra Special",
+    rarity: "Ultra special",
     color: "#ffcfaa",
     background:
       "conic-gradient(from 220deg, #689d99, #4e638e, #378b2e, #aa6a39, #0d4e4a, #ffcfaa, #689d99)",

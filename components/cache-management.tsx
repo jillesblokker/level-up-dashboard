@@ -60,7 +60,7 @@ export function CacheManagement() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <RefreshCw className="w-5 h-5" />
-          Quest Cache Management
+          Quest cache management
         </CardTitle>
         <CardDescription>
           Manage your quest data cache to prevent stale data issues

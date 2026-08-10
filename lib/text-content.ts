@@ -309,7 +309,7 @@ export const TEXT_CONTENT = {
         }
     },
     leaderboard: {
-        title: "Realm Leaderboard",
+        title: "Realm leaderboard",
         tabs: {
             xp: "XP",
             gold: "Gold",
@@ -319,16 +319,16 @@ export const TEXT_CONTENT = {
             allies: "Allies"
         },
         descriptions: {
-            xp: "Most Legendary Heroes",
-            gold: "Wealthiest Lords & Ladies",
-            tiles: "Greatest Realm Builders",
-            streak: "Most Consistent Allies",
-            quests: "Heroes of the Month",
-            allies: "Dominant Alliances (Monthly)"
+            xp: "Most legendary heroes",
+            gold: "Wealthiest lords & ladies",
+            tiles: "Greatest realm builders",
+            streak: "Most consistent allies",
+            quests: "Heroes of the month",
+            allies: "Dominant alliances (monthly)"
         },
-        loading: "Consulting the Royal Archives...",
+        loading: "Consulting the royal archives...",
         empty: {
-            title: "No Legends Found",
+            title: "No legends found",
             subtitle: "Be the first to etch your name in history!"
         },
         card: {
@@ -337,16 +337,16 @@ export const TEXT_CONTENT = {
         }
     },
     admin: {
-        title: "Game Admin Dashboard",
+        title: "Game admin dashboard",
         tabs: {
-            realm: "Realm Map",
-            quests: "Daily Quests",
-            stats: "Player Stats",
-            export: "Export/Import"
+            realm: "Realm map",
+            quests: "Daily quests",
+            stats: "Player stats",
+            export: "Export/import"
         },
         sections: {
             realm: {
-                title: "Realm Map Editor",
+                title: "Realm map editor",
                 description: "Edit your realm layout and buildings",
                 gridLabel: "Map Grid",
                 selectedTile: "Selected Tile",

@@ -55,7 +55,7 @@ export function TarotCardDisplay() {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-amber-500">
                         <Sparkles className="w-5 h-5" />
-                        <CardTitle className="text-lg font-bold tracking-wide font-serif">Daily Fate</CardTitle>
+                        <CardTitle className="text-lg font-bold tracking-wide font-serif">Daily fate</CardTitle>
                     </div>
                     {hasDrawn && (
                         <div className="text-xs text-amber-400/60 font-mono">
