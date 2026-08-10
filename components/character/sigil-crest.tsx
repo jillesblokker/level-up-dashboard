@@ -141,6 +141,7 @@ export function SigilCrestEditor({ userId }: { userId?: string | undefined }) {
                     config.outerColor === c.hex ? 'border-white scale-110 shadow-lg' : 'border-transparent opacity-80 hover:opacity-100'
                   }`}
                   title={c.name}
+                  aria-label={`Select ${c.name} outer ring color`}
                 />
               ))}
             </div>

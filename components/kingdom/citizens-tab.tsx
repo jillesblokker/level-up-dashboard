@@ -188,7 +188,7 @@ export function CitizensTab() {
             body: JSON.stringify({ stats_data: newStats })
         });
         
-        await fetch('/api/achievements/unlock', {
+        await fetchWithAuth('/api/achievements/unlock', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ achievementId: requirement.evolvesTo })

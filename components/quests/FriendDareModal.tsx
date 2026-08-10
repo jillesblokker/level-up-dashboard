@@ -18,6 +18,14 @@ export function FriendDareModal({ isOpen, onClose, onSendDare }: FriendDareModal
   const [habitDare, setHabitDare] = useState('20 Push-ups before 18:00')
   const [isSubmitted, setIsSubmitted] = useState(false)
 
+  React.useEffect(() => {
+    if (isOpen) {
+      setFriendName('')
+      setHabitDare('20 Push-ups before 18:00')
+      setIsSubmitted(false)
+    }
+  }, [isOpen])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (friendName.trim() && habitDare.trim()) {

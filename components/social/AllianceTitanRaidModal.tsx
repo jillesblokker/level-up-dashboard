@@ -89,25 +89,23 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
           </div>
 
           {/* Damage Rules Box */}
-          <div className="bg-zinc-900/60 rounded-xl p-3 border border-zinc-800 flex items-center justify-around text-center text-xs">
-            <div className="space-y-0.5">
-              <span className="text-zinc-400 block text-[10px]">Daily Quest</span>
+          <div className="bg-zinc-900/60 rounded-xl p-3 border border-zinc-800 grid grid-cols-1 sm:grid-cols-3 gap-2 text-center text-xs">
+            <div className="space-y-0.5 p-1 bg-zinc-950/40 rounded-lg">
+              <span className="text-zinc-400 block text-[10px]">Daily quest</span>
               <span className="font-bold text-amber-400 flex items-center justify-center gap-1">
-                <Zap className="w-3 h-3" /> 1 Damage
+                <Zap className="w-3 h-3" /> 1 damage
               </span>
             </div>
-            <div className="h-6 w-px bg-zinc-800" />
-            <div className="space-y-0.5">
-              <span className="text-zinc-400 block text-[10px]">Weekly Challenge</span>
+            <div className="space-y-0.5 p-1 bg-zinc-950/40 rounded-lg">
+              <span className="text-zinc-400 block text-[10px]">Weekly challenge</span>
               <span className="font-bold text-amber-400 flex items-center justify-center gap-1">
-                <Zap className="w-3 h-3" /> 10 Damage
+                <Zap className="w-3 h-3" /> 10 damage
               </span>
             </div>
-            <div className="h-6 w-px bg-zinc-800" />
-            <div className="space-y-0.5">
+            <div className="space-y-0.5 p-1 bg-zinc-950/40 rounded-lg">
               <span className="text-zinc-400 block text-[10px]">Milestone</span>
               <span className="font-bold text-amber-400 flex items-center justify-center gap-1">
-                <Zap className="w-3 h-3" /> 100 Damage
+                <Zap className="w-3 h-3" /> 100 damage
               </span>
             </div>
           </div>

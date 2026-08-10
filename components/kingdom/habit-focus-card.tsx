@@ -443,7 +443,7 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
 
               <div className="space-y-2">
                 <div className="text-[10px] font-bold text-zinc-500 tracking-wider">Accumulated settlement taxes:</div>
-                <div className="p-4 bg-zinc-950/60 rounded-xl border border-white/5 flex flex-col justify-between h-[84px]">
+                <div className="p-4 bg-zinc-950/60 rounded-xl border border-white/5 flex flex-col justify-between min-h-[84px] gap-2">
                   <div className="flex items-center justify-between text-xs font-bold">
                     <span className="text-zinc-400">Available loot:</span>
                     <span className="text-amber-500">{focusData.taxGold || 0} gold</span>

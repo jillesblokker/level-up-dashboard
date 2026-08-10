@@ -29,6 +29,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
     const [viewedChapterId, setViewedChapterId] = useState<string>(latestUnlockedChapter.id.toString())
     const [allFillerEpisodes, setAllFillerEpisodes] = useState<any[]>([])
     const [showFiller, setShowFiller] = useState<boolean>(true)
+    const [imageErrorMap, setImageErrorMap] = useState<Record<string, boolean>>({})
 
     useEffect(() => {
         const loadPreferences = async () => {
@@ -164,15 +165,14 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                 <div className="flex flex-col gap-8 pb-4">
                     {/* Top Section: Image */}
                     <div className="w-full max-w-4xl mx-auto aspect-[4/3] flex-shrink-0 flex flex-col items-center justify-center rounded-xl overflow-hidden border border-amber-800/30 bg-zinc-950/50 relative group shadow-lg">
-                        <img 
-                            src={viewedChapter.image || `/images/chronicles/chronicle_image_${viewedChapter.id}.png`} 
-                            alt={viewedChapter.title}
-                            className="object-cover w-full h-full absolute inset-0 z-10 transition-opacity duration-300"
-                            onError={(e) => {
-                                // Fallback to placeholder if image fails to load
-                                e.currentTarget.style.opacity = '0';
-                            }}
-                        />
+                        {!imageErrorMap[viewedChapter.id] && (
+                            <img 
+                                src={viewedChapter.image || `/images/chronicles/chronicle_image_${viewedChapter.id}.png`} 
+                                alt={viewedChapter.title}
+                                className="object-cover w-full h-full absolute inset-0 z-10 transition-opacity duration-300"
+                                onError={() => setImageErrorMap(prev => ({ ...prev, [viewedChapter.id]: true }))}
+                            />
+                        )}
                         <div className="absolute inset-0 z-0 flex flex-col items-center justify-center p-4 text-center">
                             <BookOpen className="w-8 h-8 text-amber-800/20 mb-2" />
                             <div className="text-amber-500/40 text-xs font-mono uppercase tracking-widest">

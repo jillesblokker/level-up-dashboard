@@ -96,6 +96,8 @@ export default function QuestCard({
     }
 
     onQuestComplete()
+    setIsBursting(true)
+    setTimeout(() => setIsBursting(false), 450)
     onComplete?.()
   }
 

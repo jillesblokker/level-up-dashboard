@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Trophy, Crown, Gift, Coins, Sparkles, Shield } from 'lucide-react';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
+import { unwrapApiResponse } from '@/lib/api-response-unwrapper';
 
 export function HouseCupSettlementModal() {
   const [open, setOpen] = useState(false);
@@ -15,8 +16,9 @@ export function HouseCupSettlementModal() {
       try {
         const res = await fetchWithAuth('/api/house-cup/settlement');
         if (res.ok) {
-          const body = await res.json();
-          if (body.unclaimed && body.targetYear) {
+          const raw = await res.json();
+          const body = unwrapApiResponse<any>(raw);
+          if (body?.unclaimed && body?.targetYear) {
             setData(body);
             setOpen(true);
           }

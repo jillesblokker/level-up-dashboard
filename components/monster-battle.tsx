@@ -447,8 +447,8 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black ">
-      <Card className="monster-battle-container w-full max-w-2xl bg-zinc-900 border-amber-800/30 text-white transition-all duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 sm:p-6 overflow-y-auto">
+      <Card className="monster-battle-container w-full max-w-2xl bg-zinc-900 border-amber-800/30 text-white transition-all duration-300 max-h-[90vh] overflow-y-auto">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-amber-400">
             {TEXT_CONTENT.monsterBattle.ui.battleAgainst.replace('{monsterName}', monster.name)}
