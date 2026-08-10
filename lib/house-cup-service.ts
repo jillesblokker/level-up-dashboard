@@ -1,5 +1,6 @@
 import { supabaseServer } from '@/lib/supabase/server-client';
 import { logger } from '@/lib/logger';
+import { clerkClient } from '@clerk/nextjs/server';
 
 export interface HouseCupStandings {
   user_id: string;
@@ -209,11 +210,50 @@ export async function getHouseCupCircleStandings(viewerId: string, year?: number
     .select('user_id, display_name, character_name, title, experience')
     .in('user_id', userIdsArray);
 
+  // Also query Clerk for real user names (firstName, username, email)
+  const clerkNamesMap = new Map<string, string>();
+  try {
+    const clerk = await clerkClient();
+    const clerkUsers = await clerk.users.getUserList({ userId: userIdsArray, limit: 100 });
+    if (clerkUsers && clerkUsers.data) {
+      clerkUsers.data.forEach((u: any) => {
+        const name = u.firstName || u.username || (u.emailAddresses[0]?.emailAddress ? u.emailAddresses[0].emailAddress.split('@')[0] : null);
+        if (name) clerkNamesMap.set(u.id, name);
+      });
+    }
+  } catch (err) {
+    logger.warn('[getHouseCupCircleStandings] Clerk user lookup skipped:', err);
+  }
+
+  // Deterministic fantasy name generator for fallback so NO user is ever named generic 'Ally'
+  const FALLBACK_NAMES = [
+    'Rowan Eldergrove',
+    'Lyra Starling',
+    'Kaelen Vane',
+    'Evelyn Vance',
+    'Garrick Ironwill',
+    'Soren Brightblade',
+    'Aria Sunstrider',
+    'Thorne Oakshield',
+  ];
+
+  const getDeterministicAllyName = (uid: string, index: number): string => {
+    let hash = 0;
+    for (let i = 0; i < uid.length; i++) {
+      hash = (hash << 5) - hash + uid.charCodeAt(i);
+      hash |= 0;
+    }
+    const idx = Math.abs(hash + index) % FALLBACK_NAMES.length;
+    return FALLBACK_NAMES[idx]!;
+  };
+
   const statsMap = new Map<string, { name: string; title: string; experience: number }>();
   if (statsData) {
     statsData.forEach(s => {
+      const clerkName = clerkNamesMap.get(s.user_id);
+      const name = (s.display_name && s.display_name !== 'Ally') ? s.display_name : ((s.character_name && s.character_name !== 'Ally') ? s.character_name : clerkName);
       statsMap.set(s.user_id, {
-        name: s.display_name || s.character_name || 'Adventurer',
+        name: name || 'Adventurer',
         title: s.title || 'Novice',
         experience: s.experience || 0,
       });
@@ -225,8 +265,18 @@ export async function getHouseCupCircleStandings(viewerId: string, year?: number
   // Map totals per user
   const standingsMap = new Map<string, HouseCupStandings>();
 
-  userIdsArray.forEach(uid => {
-    const userMeta = statsMap.get(uid) || { name: uid === viewerId ? 'You' : 'Ally', title: 'Novice', experience: 0 };
+  userIdsArray.forEach((uid, index) => {
+    const clerkName = clerkNamesMap.get(uid);
+    const existing = statsMap.get(uid);
+    const resolvedName = (existing?.name && existing.name !== 'Ally' && existing.name !== 'Adventurer')
+      ? existing.name
+      : (clerkName || (uid === viewerId ? 'You' : getDeterministicAllyName(uid, index)));
+
+    const userMeta = {
+      name: resolvedName,
+      title: existing?.title || 'Novice',
+      experience: existing?.experience || 0,
+    };
     const userCategories: Record<string, { points: number; fill: number }> = {};
     ALL_CATEGORIES.forEach(cat => {
       userCategories[cat] = { points: 0, fill: 0 };

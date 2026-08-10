@@ -197,25 +197,26 @@ const PUZZLE_VARIATIONS: Plank[][] = [
     { id: "block5", row: 4, col: 0, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "E" },
     { id: "block6", row: 5, col: 2, length: 3, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "F" }
   ],
-  // Variation 11 (Challenger - Par: 12)
+  // Variation 11 (Challenger - Solvable Par: 6)
   [
     {
       id: "target",
       row: 2,
-      col: 1,
+      col: 0,
       length: 2,
       orientation: "horizontal",
       isTarget: true,
       color: "bg-zinc-950 border-red-600/80 shadow-[0_0_15px_rgba(239,68,68,0.5)] text-red-400",
       label: "Ancient Keystone"
     },
-    { id: "block1", row: 0, col: 0, length: 3, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "A" },
-    { id: "block2", row: 0, col: 3, length: 3, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "B" },
-    { id: "block3", row: 1, col: 4, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
-    { id: "block4", row: 2, col: 3, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "D" },
-    { id: "block5", row: 3, col: 0, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "E" },
-    { id: "block6", row: 3, col: 1, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "F" },
-    { id: "block7", row: 4, col: 4, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "G" }
+    { id: "block1", row: 0, col: 2, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "A" },
+    { id: "block2", row: 0, col: 3, length: 3, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "B" },
+    { id: "block3", row: 1, col: 3, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "C" },
+    { id: "block4", row: 1, col: 4, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "D" },
+    { id: "block5", row: 3, col: 2, length: 3, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "E" },
+    { id: "block6", row: 4, col: 0, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "F" },
+    { id: "block7", row: 4, col: 1, length: 2, orientation: "horizontal", isTarget: false, color: "bg-gradient-to-r from-amber-800 to-amber-950 border-amber-700/50", label: "G" },
+    { id: "block8", row: 4, col: 3, length: 2, orientation: "vertical", isTarget: false, color: "bg-gradient-to-b from-amber-800 to-amber-950 border-amber-700/50", label: "H" }
   ],
   // Variation 12 (Veteran - Par: 14)
   [
@@ -323,18 +324,32 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
     orientation: "horizontal" | "vertical"
   } | null>(null)
 
-  // Reset when opening
+  // Reset when opening & check 1/day daily limit
   useEffect(() => {
     if (isOpen) {
-      const randomIndex = Math.floor(Math.random() * PUZZLE_VARIATIONS.length)
-      setActiveVariationIndex(randomIndex)
-      const selectedVariation = PUZZLE_VARIATIONS[randomIndex]!
-      setPlanks(JSON.parse(JSON.stringify(selectedVariation)))
-      setSelectedId("target")
-      setMoves(0)
-      setHasWon(false)
+      const today = new Date().toISOString().split('T')[0];
+      const storage = localStorage.getItem('labyrinth_daily_limit');
+      let data = storage ? JSON.parse(storage) : { date: today, count: 0 };
+      if (data.date !== today) data = { date: today, count: 0 };
+
+      if (data.count >= 1) {
+        toast({
+          title: "🛑 Daily Limit Reached (1/1)",
+          description: "The Plank Labyrinth is locked until local midnight reset.",
+        });
+        onClose();
+        return;
+      }
+
+      const randomIndex = Math.floor(Math.random() * PUZZLE_VARIATIONS.length);
+      setActiveVariationIndex(randomIndex);
+      const selectedVariation = PUZZLE_VARIATIONS[randomIndex]!;
+      setPlanks(JSON.parse(JSON.stringify(selectedVariation)));
+      setSelectedId("target");
+      setMoves(0);
+      setHasWon(false);
     }
-  }, [isOpen])
+  }, [isOpen, onClose]);
 
   // Single capture-phase handler: blocks ALL shortcuts and handles game movement
   useEffect(() => {
@@ -430,6 +445,9 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
                 setHasWon(true)
                 setMoves(m => m + 1)
                 
+                const today = new Date().toISOString().split('T')[0];
+                localStorage.setItem('labyrinth_daily_limit', JSON.stringify({ date: today, count: 1 }));
+
                 const gold = 500
                 const xp = 200
                 toast({
