@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedSupabaseQuery } from '@/lib/supabase/jwt-verification';
-import { calculateFillCurve } from '@/lib/house-cup-service';
+import { calculateFillCurve } from '@/lib/house-cup-utils';
 import { logger } from '@/lib/logger';
 
 const CATEGORY_DETAILS: Record<string, {

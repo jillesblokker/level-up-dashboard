@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { calculateFillCurve } from '@/lib/house-cup-service';
+import { calculateFillCurve } from '@/lib/house-cup-utils';
 import { cn } from '@/lib/utils';
 
 export interface HourglassProps {

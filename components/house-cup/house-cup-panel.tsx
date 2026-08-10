@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Hourglass } from './hourglass';
 import { CategoryBreakdownModal } from './category-breakdown-modal';
-import type { HouseCupStandings } from '@/lib/house-cup-service';
+import type { HouseCupStandings } from '@/lib/house-cup-utils';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
