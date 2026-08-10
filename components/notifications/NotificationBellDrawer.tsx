@@ -19,14 +19,14 @@ const INITIAL_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'n-1',
     title: 'Friend Dare Issued!',
-    message: 'Ally Sir Gareth dared you to complete 10 push-ups today for +10 Virtue Points!',
+    message: 'Friend Sir Gareth dared you to complete 10 push-ups today for +10 Virtue Points!',
     type: 'dare',
     timestamp: '10m ago',
     read: false
   },
   {
     id: 'n-2',
-    title: 'Alliance Titan Wyrm Raid',
+    title: 'Fellowship Titan Wyrm Raid',
     message: 'Titan Wyrm HP dropped to 45%! Victory Chest Tier Silver unlocked.',
     type: 'alliance',
     timestamp: '1h ago',

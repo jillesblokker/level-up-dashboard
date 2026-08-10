@@ -34,29 +34,29 @@ export const TEXT_CONTENT = {
     social: {
         header: {
             title: "Tavern",
-            subtitle: "Gather, compete, and forge alliances",
+            subtitle: "Gather, compete, and forge fellowships",
             guide: {
                 title: "Tavern",
                 subtitle: "The social heart of the realm",
                 sections: {
-                    alliances: "Form or join alliances to compete on the leaderboards and complete group quests.",
+                    alliances: "Form or join fellowships to compete on the leaderboards and complete group quests.",
                     sendingQuests: "Help your friends level up! Send them custom quests and challenges to earn rewards together.",
-                    leaderboards: "Check the global rankings to see who is the mightiest hero or most dominant alliance.",
+                    leaderboards: "Check the global rankings to see who is the mightiest hero or most dominant fellowship.",
                     chronicles: "Read the unfolding story of your kingdom's rise, influenced by your daily progress and your bond with your chosen Partner."
                 }
             }
         },
         tabs: {
-            allies: "My Allies",
+            allies: "Friends",
             chronicles: "Logbook",
-            addFriend: "Add Friend",
+            addFriend: "Add friend",
             requests: "Requests"
         },
         emptyStates: {
             allies: {
-                title: "No Allies Yet",
+                title: "No friends yet",
                 description: "Add friends to compare stats and send quests!",
-                action: "Find Friends"
+                action: "Find friends"
             },
             search: {
                 placeholder: "Search username...",

@@ -71,7 +71,7 @@ export function AllianceDashboard() {
         if (result.success) {
             playSound(SOUNDS.ALLIANCE_OATH);
             toast({
-                title: "Alliance Oath Fulfilled!",
+                title: "Fellowship oath fulfilled!",
                 description: `You have strengthened your bond with ${allianceName}. Streak: ${result.streak}`,
                 className: "bg-amber-950 border-amber-500 text-amber-100"
             });
@@ -107,7 +107,7 @@ export function AllianceDashboard() {
         setIsCreating(false);
 
         if (result.success) {
-            toast({ title: "Alliance formed", description: `${createForm.name} has been established!` });
+            toast({ title: "Fellowship formed", description: `${createForm.name} has been established!` });
             setCreateModalOpen(false);
             setCreateForm({ name: "", description: "" });
             refreshAlliances();
@@ -308,9 +308,9 @@ export function AllianceDashboard() {
                 <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                         <Gift className="w-4 h-4 text-amber-500" />
-                        <span className="text-sm font-bold text-amber-200">Daily Alliance Chest</span>
+                        <span className="text-sm font-bold text-amber-200">Daily fellowship chest</span>
                     </div>
-                    <span className="text-xs text-amber-500/60 uppercase tracking-widest font-bold">Alliance Might: {totalLevel}</span>
+                    <span className="text-xs text-amber-500/60 uppercase tracking-widest font-bold">Fellowship might: {totalLevel}</span>
                 </div>
 
                 <div className="w-full flex flex-col items-center">
@@ -349,7 +349,7 @@ export function AllianceDashboard() {
                     <CardHeader className="relative z-10 pb-2">
                         <CardTitle className="flex items-center justify-center gap-2 text-amber-500/80 font-medieval text-2xl">
                             <Users className="w-6 h-6" />
-                            Alliances
+                            Fellowships
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="relative z-10 flex flex-col items-center justify-center text-center space-y-6 px-6">
@@ -362,13 +362,13 @@ export function AllianceDashboard() {
                         <div className="space-y-1 max-w-sm">
                             <p className="text-amber-100/80 font-medium text-lg">You walk alone... for now.</p>
                             <p className="text-amber-500/50 text-sm leading-relaxed">
-                                No alliance yet binds you to others. Form or join one to begin swearing the daily oath and collecting rewards.
+                                No fellowship yet binds you to others. Form or join one to begin swearing the daily oath and collecting rewards.
                             </p>
                         </div>
 
                         {/* Benefit preview cards */}
                         <div className="w-full max-w-sm rounded-xl border border-amber-900/30 bg-amber-950/20 p-4 text-left space-y-3">
-                            <p className="text-[11px] font-bold uppercase tracking-widest text-amber-500/60 text-center">Why join an alliance?</p>
+                            <p className="text-[11px] font-bold uppercase tracking-widest text-amber-500/60 text-center">Why join a fellowship?</p>
                             <div className="space-y-2.5 text-sm text-amber-100/60">
                                 <div className="flex items-start gap-2.5">
                                     <div className="w-7 h-7 rounded-lg bg-orange-950/50 border border-orange-900/40 flex items-center justify-center shrink-0 mt-0.5">
@@ -380,13 +380,13 @@ export function AllianceDashboard() {
                                     <div className="w-7 h-7 rounded-lg bg-amber-950/50 border border-amber-900/40 flex items-center justify-center shrink-0 mt-0.5">
                                         <Gift className="w-4 h-4 text-amber-500" />
                                     </div>
-                                    <span><span className="text-amber-300 font-semibold">Daily Chest:</span> Swear your oath to unlock a daily reward. The higher your <strong className="text-amber-400">Total Alliance Level</strong>, the better the loot (materials, packs, gems, essence).</span>
+                                    <span><span className="text-amber-300 font-semibold">Daily Chest:</span> Swear your oath to unlock a daily reward. The higher your <strong className="text-amber-400">Total Fellowship Level</strong>, the better the loot (materials, packs, gems, essence).</span>
                                 </div>
                                 <div className="flex items-start gap-2.5">
                                     <div className="w-7 h-7 rounded-lg bg-amber-950/50 border border-amber-900/40 flex items-center justify-center shrink-0 mt-0.5">
                                         <Crown className="w-4 h-4 text-yellow-500" />
                                     </div>
-                                    <span><span className="text-amber-300 font-semibold">Leaderboards:</span> Compete monthly for the title of <strong className="text-amber-400">Dominant Alliance</strong> of the realm.</span>
+                                    <span><span className="text-amber-300 font-semibold">Leaderboards:</span> Compete monthly for the title of <strong className="text-amber-400">Dominant Fellowship</strong> of the realm.</span>
                                 </div>
                             </div>
                         </div>
@@ -397,7 +397,7 @@ export function AllianceDashboard() {
                             className="bg-gradient-to-r from-amber-800 to-amber-900 hover:from-amber-700 hover:to-amber-800 text-amber-100 border border-amber-700/50 shadow-lg shadow-amber-900/20 transition-all transform hover:scale-105"
                         >
                             <Plus className="w-5 h-5" />
-                            Form New Alliance
+                            Form new fellowship
                         </Button>
 
                         <p className="text-xs text-amber-900/60">
@@ -408,9 +408,9 @@ export function AllianceDashboard() {
             ) : (
                 <>
                     <div className="flex justify-between items-center mb-2">
-                        <h3 className="text-lg font-medieval text-amber-500">Your Allegiances</h3>
+                        <h3 className="text-lg font-medieval text-amber-500">Your allegiances</h3>
                         <Button size="sm" variant="outline" onClick={() => setCreateModalOpen(true)}>
-                            <Plus className="w-4 h-4" /> New Alliance
+                            <Plus className="w-4 h-4" /> New fellowship
                         </Button>
                     </div>
                     {alliances.map(alliance => (
@@ -484,18 +484,18 @@ export function AllianceDashboard() {
             )
             }
 
-            {/* CREATE ALLIANCE MODAL */}
+            {/* CREATE FELLOWSHIP MODAL */}
             <Sheet open={createModalOpen} onOpenChange={setCreateModalOpen}>
                 <SheetContent className="bg-black/95 border-amber-900/50 text-amber-100">
                     <SheetHeader>
-                        <SheetTitle>Form an Alliance</SheetTitle>
+                        <SheetTitle>Form a fellowship</SheetTitle>
                         <SheetDescription>
-                            Gather your allies under one banner.
+                            Gather your friends under one banner.
                         </SheetDescription>
                     </SheetHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label>Alliance Name</Label>
+                            <Label>Fellowship name</Label>
                             <Input
                                 value={createForm.name}
                                 onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
@@ -516,7 +516,7 @@ export function AllianceDashboard() {
                     <SheetFooter>
                         <Button variant="ghost" onClick={() => setCreateModalOpen(false)}>Cancel</Button>
                         <Button onClick={handleCreateAlliance} disabled={isCreating} className="bg-amber-700 hover:bg-amber-600 text-black">
-                            {isCreating ? "Forging..." : "Create Alliance"}
+                            {isCreating ? "Forging..." : "Create fellowship"}
                         </Button>
                     </SheetFooter>
                 </SheetContent>

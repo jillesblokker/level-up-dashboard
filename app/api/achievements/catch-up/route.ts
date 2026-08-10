@@ -136,7 +136,7 @@ export async function POST(request: Request) {
             logger.debug(`[ACHIEVEMENTS][CATCH-UP] User has ${friendCount || 0} accepted friends`);
 
             if (friendCount && friendCount >= 1) {
-                await unlockAchievement('107', 'first_friend', 'First Alliance', 'Add your first ally to your fellowship', 50, 10);
+                await unlockAchievement('107', 'first_friend', 'First Fellowship', 'Add your first friend to your fellowship', 50, 10);
             }
             if (friendCount && friendCount >= 5) {
                 await unlockAchievement('108', 'five_friends', 'Guild Founder', 'Gather 5 allies to your cause', 100, 50);

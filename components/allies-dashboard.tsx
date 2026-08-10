@@ -203,7 +203,7 @@ function AllyDashboardCard({
                     <Shield className="w-4 h-4 mr-2" /> Explore Realm Map
                   </DropdownMenuItem>
                   <DropdownMenuItem className="text-red-400" onClick={() => removeFriend(friend.id)}>
-                    <UserCheck className="w-4 h-4 mr-2" /> Break Alliance
+                    <UserCheck className="w-4 h-4 mr-2" /> Remove friend
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

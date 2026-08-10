@@ -50,7 +50,7 @@ export function AllianceComboBanner() {
           <div>
             <div className="flex items-center gap-2">
               <h4 className="font-semibold text-sm text-foreground flex items-center gap-1.5">
-                <span>{data.allianceName || 'Alliance'} Raid Synergy</span>
+                <span>{data.allianceName || 'Fellowship'} raid synergy</span>
               </h4>
               {data.activeCombo && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 font-bold border border-orange-500/40 flex items-center gap-1">
@@ -62,11 +62,11 @@ export function AllianceComboBanner() {
             <p className="text-xs text-muted-foreground mt-0.5">
               {data.activeCombo ? (
                 <span>
-                  <strong className="text-orange-300">{data.activeMemberCount} allies</strong> completed habits within 2 hours! <strong className="text-amber-200">+50% Titan Wyrm Damage</strong> active.
+                  <strong className="text-orange-300">{data.activeMemberCount} friends</strong> completed habits within 2 hours! <strong className="text-amber-200">+50% Titan Wyrm Damage</strong> active.
                 </span>
               ) : (
                 <span>
-                  Complete habits within 2 hours of your allies to trigger a <strong className="text-foreground font-medium">1.5x Titan Raid Combo</strong>.
+                  Complete habits within 2 hours of your friends to trigger a <strong className="text-foreground font-medium">1.5x Titan Raid Combo</strong>.
                 </span>
               )}
             </p>

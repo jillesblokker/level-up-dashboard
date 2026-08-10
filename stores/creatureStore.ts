@@ -441,7 +441,7 @@ const initialCreatures: Creature[] = [
     id: '107',
     number: '#107',
     name: 'First Alliance',
-    description: 'A friendly companion that appears when you add your first ally to your fellowship.',
+    description: 'A friendly companion that appears when you add your first friend to your fellowship.',
     image: '/images/achievements/107.png',
     category: 'social',
     discovered: false,

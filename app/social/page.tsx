@@ -499,7 +499,7 @@ export default function AlliesPage() {
                         </TabsTrigger>
                         <TabsTrigger value="alliances" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
                             <Shield className="w-4 h-4 text-amber-500" />
-                            Alliances
+                            Fellowships
                         </TabsTrigger>
                         <TabsTrigger value="allies" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
                             <Users className="w-4 h-4" />
@@ -527,7 +527,7 @@ export default function AlliesPage() {
                                 <div>
                                     <h3 className="font-medieval text-lg font-bold text-amber-300">1v1 Virtue Duel Daily Habit Race</h3>
                                     <p className="text-xs text-zinc-300 mt-0.5">
-                                        First ally to reach their 5/10 daily habit sweet spot wins <span className="font-bold text-amber-400">+10 House Cup Virtue Points</span> for both players!
+                                        First friend to reach their 5/10 daily habit sweet spot wins <span className="font-bold text-amber-400">+10 House Cup Virtue Points</span> for both players!
                                     </p>
                                 </div>
                             </div>
@@ -538,7 +538,7 @@ export default function AlliesPage() {
                         <HouseCupPanel />
                     </TabsContent>
 
-                    {/* ALLIANCES TAB */}
+                    {/* FELLOWSHIPS TAB */}
                     <TabsContent value="alliances" className="space-y-6">
                         <AllianceComboBanner />
                         <AllianceDashboard />
@@ -555,18 +555,18 @@ export default function AlliesPage() {
                         <RiddleChallenge />
                     </TabsContent>
 
-                    {/* MY ALLIES TAB */}
+                    {/* MY FRIENDS TAB */}
                     <TabsContent value="allies" className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-                            {/* Left Column: Active Allies Carousel (Mobile & Desktop) */}
+                            {/* Left Column: Active Friends Carousel (Mobile & Desktop) */}
                             <div className="md:col-span-7 space-y-4">
                                 <div className="flex items-center justify-between">
                                     <h3 className="text-lg font-bold text-amber-300 font-serif flex items-center gap-2">
                                         <Users className="w-5 h-5 text-amber-400" />
-                                        Active Ally Circle
+                                        Active friend circle
                                     </h3>
                                     <Badge variant="outline" className="border-amber-500/30 text-amber-400 font-mono text-xs">
-                                        {friends.length} Allies
+                                        {friends.length} friends
                                     </Badge>
                                 </div>
 
@@ -575,7 +575,7 @@ export default function AlliesPage() {
                                         <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400 font-bold text-xl">
                                             👥
                                         </div>
-                                        <h4 className="text-base font-bold text-amber-300">No Allies in Circle Yet</h4>
+                                        <h4 className="text-base font-bold text-amber-300">No friends in circle yet</h4>
                                         <p className="text-xs text-zinc-400 max-w-sm mx-auto">
                                             Search for friends using the invite section to build your habit circle and share House Cup virtue boosts!
                                         </p>

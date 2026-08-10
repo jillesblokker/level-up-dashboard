@@ -76,10 +76,10 @@ export function AchievementsModal({ open, onOpenChange, userId }: AchievementsMo
                             Grand Gallery
                         </div>
                         <DialogTitle className="text-4xl font-serif text-white tracking-tight mb-2">
-                            Alliance Achievements
+                            Fellowship achievements
                         </DialogTitle>
                         <p className="text-zinc-500 text-sm max-w-[400px]">
-                            Commemorating your journey through the realm and the legendary milestones reached by your alliance.
+                            Commemorating your journey through the realm and the legendary milestones reached by your fellowship.
                         </p>
                     </DialogHeader>
 

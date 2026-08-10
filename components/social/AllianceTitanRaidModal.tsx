@@ -45,7 +45,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
       const chestObj = CHESTS.find(c => c.tier === tier)
       toast({
         title: "🏆 Victory Chest Claimed!",
-        description: `Unlocked ${chestObj?.label || 'Alliance Chest'}: ${chestObj?.reward || 'Rewards'}!`,
+        description: `Unlocked ${chestObj?.label || 'Fellowship Chest'}: ${chestObj?.reward || 'Rewards'}!`,
       })
     }
   }
@@ -58,7 +58,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
             <div className="flex items-center gap-2 text-red-400">
               <ShieldAlert className="w-6 h-6 animate-pulse" />
               <DialogTitle className="text-xl font-bold tracking-wide text-red-100">
-                Alliance Titan Wyrm Raid
+                Fellowship Titan Wyrm Raid
               </DialogTitle>
             </div>
             <Badge variant="outline" className="border-red-500/40 text-red-400 bg-red-950/30 text-xs">
@@ -110,10 +110,10 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
             </div>
           </div>
 
-          {/* Alliance Tier Chests */}
+          {/* Fellowship Tier Chests */}
           <div className="space-y-2">
             <h4 className="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
-              <Trophy className="w-4 h-4 text-amber-400" /> Alliance Raid Victory Tier Chests
+              <Trophy className="w-4 h-4 text-amber-400" /> Fellowship raid victory tier chests
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -155,10 +155,10 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
               })}
             </div>
           </div>
-          {/* Alliance Contribution Leaderboard */}
+          {/* Fellowship Contribution Leaderboard */}
           <div className="space-y-2 pt-1">
             <h4 className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-              <Trophy className="w-3.5 h-3.5 text-amber-400" /> Top alliance habit contributors
+              <Trophy className="w-3.5 h-3.5 text-amber-400" /> Top fellowship habit contributors
             </h4>
             <div className="bg-zinc-900/90 rounded-xl border border-zinc-800 p-3 space-y-2">
               {[

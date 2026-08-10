@@ -368,19 +368,19 @@ export function HouseCupPanel() {
           </span>
         </div>
         <p className="text-xs text-zinc-300 leading-relaxed">
-          First ally to reach today&apos;s 5/10 daily habit sweet spot wins +10 bonus virtue points for both issuer and recipient!
+          First friend to reach today&apos;s 5/10 daily habit sweet spot wins +10 bonus virtue points for both issuer and recipient!
         </p>
       </div>
 
-      {/* Allies Standings Section */}
+      {/* Friends Standings Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold text-amber-300 flex items-center gap-2">
             <Users className="w-4 h-4 text-amber-400" />
-            Ally rankings
+            Friends rankings
           </h3>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-400">{alliesStandings.length} Allies</span>
+            <span className="text-xs text-zinc-400">{alliesStandings.length} friends</span>
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
