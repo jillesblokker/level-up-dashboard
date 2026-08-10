@@ -44,18 +44,18 @@ function AllyCarouselCard({
   };
 
   return (
-    <Card className="border-zinc-800 bg-zinc-900/90 hover:border-amber-500/40 p-4 transition-all group hover:shadow-lg relative overflow-hidden flex flex-col justify-between h-[320px] min-h-[320px] max-h-[320px]">
+    <Card className="border-zinc-800 bg-zinc-900/90 hover:border-amber-500/40 p-4 transition-all group hover:shadow-lg relative overflow-hidden flex flex-col justify-between h-[420px] min-h-[420px] max-h-[420px]">
       {/* Top Header bar with Frame Switcher */}
       <div className="flex items-center justify-between mb-2 pb-2 border-b border-zinc-800 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
-          <div className="w-9 h-9 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xs select-none shrink-0 shadow-inner">
+          <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-sm select-none shrink-0 shadow-inner">
             {ally.display_name.slice(0, 2).toUpperCase()}
           </div>
           <div className="min-w-0">
-            <div className="font-semibold text-sm text-zinc-100 group-hover:text-amber-300 transition-colors truncate">
+            <div className="font-semibold text-base text-zinc-100 group-hover:text-amber-300 transition-colors truncate">
               {ally.display_name}
             </div>
-            <div className="text-[11px] text-zinc-400 truncate">{ally.title}</div>
+            <div className="text-xs text-zinc-400 truncate">{ally.title}</div>
           </div>
         </div>
 
@@ -65,7 +65,7 @@ function AllyCarouselCard({
             variant="ghost"
             size="sm"
             onClick={toggleFrame}
-            className="h-7 px-2.5 text-[11px] font-semibold text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20"
+            className="h-8 px-3 text-xs font-semibold text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 rounded-lg"
           >
             {frame === 'info' ? '9 Virtues →' : '← Info'}
           </Button>
@@ -85,25 +85,32 @@ function AllyCarouselCard({
               onClick={() => onSelect(ally)}
               className="cursor-pointer flex flex-col justify-between h-full space-y-3 py-1"
             >
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-1">
                     <div className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Total score</div>
-                    <div className="font-bold text-amber-300 text-base">{ally.total_points.toLocaleString()} pts</div>
+                    <div className="font-bold text-amber-300 text-lg">{ally.total_points.toLocaleString()} pts</div>
                   </div>
                   <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-1">
                     <div className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Virtue wins</div>
-                    <div className="font-bold text-emerald-400 text-base">{ally.categories_won} / 9 Categories</div>
+                    <div className="font-bold text-emerald-400 text-lg">{ally.categories_won} / 9 Categories</div>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-xl bg-gradient-to-r from-amber-950/30 via-zinc-900 to-amber-950/30 border border-amber-900/30 text-center space-y-1">
+                <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-950/30 via-zinc-900 to-amber-950/30 border border-amber-900/30 text-center space-y-1">
                   <div className="text-xs font-semibold text-amber-300">House Cup Participant</div>
-                  <p className="text-[11px] text-zinc-400 italic">Competing across all 9 virtue hourglasses</p>
+                  <p className="text-xs text-zinc-400 italic">Competing across all 9 virtue hourglasses</p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/60 text-xs space-y-1 text-zinc-300">
+                  <div className="text-[10px] text-amber-400 font-semibold uppercase tracking-wider">Standings breakdown</div>
+                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    Click &apos;9 Virtues &rarr;&apos; to inspect live hourglass fill levels or tap below for full summary.
+                  </p>
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center group-hover:bg-amber-500/20 transition-all">
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center group-hover:bg-amber-500/20 transition-all">
                 <div className="text-xs font-bold text-amber-300">Tap card for detailed summary →</div>
               </div>
             </motion.div>
@@ -116,7 +123,7 @@ function AllyCarouselCard({
               transition={{ duration: 0.2 }}
               className="h-full flex flex-col justify-center py-1 overflow-hidden"
             >
-              {/* 9 Hourglasses in 3x3 Grid */}
+              {/* 9 Hourglasses in 3x3 Grid (Fits 420px height comfortably) */}
               <div className="grid grid-cols-3 gap-2">
                 {['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality', 'wellness', 'exploration', 'conquest'].map(catKey => {
                   const meta = CATEGORY_META[catKey];
