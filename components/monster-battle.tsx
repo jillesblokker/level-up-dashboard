@@ -16,6 +16,7 @@ import { TEXT_CONTENT } from '@/lib/text-content'
 import { useUser } from "@clerk/nextjs"
 import { useCitizensStore } from "@/stores/citizensStore"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager"
+import { fetchWithAuth } from "@/lib/fetchWithAuth"
 
 interface MonsterBattleProps {
   isOpen: boolean
@@ -376,19 +377,37 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     // Unlock achievement for defeating this monster
     if (monster.achievementId) {
       logger.debug('Attempting to unlock monster achievement:', monster.achievementId, 'for monster:', monster.name)
-      fetch('/api/achievements/unlock', {
+      fetchWithAuth('/api/achievements/unlock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ achievementId: monster.achievementId })
-      }).then(response => {
-        logger.debug('Achievement unlock response status:', response.status)
-        return response.json()
-      }).then(data => {
-        logger.debug('Achievement unlock response data:', data)
-      }).catch(error => {
+      }).catch((error: any) => {
         logger.error('Failed to unlock achievement:', error)
       })
     }
+
+    // Record House Cup Virtue Energy (Scaled by Floor & Difficulty)
+    const isBoss = currentRound % 5 === 0;
+    const diffTier = isBoss ? 'boss' : (monster.difficulty === 'epic' || monster.difficulty === 'hard') ? 'epic' : 'normal';
+    
+    fetchWithAuth('/api/house-cup/dungeon-virtue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        floor: currentRound,
+        difficulty: diffTier,
+        primaryCategory: 'might',
+        petStrikerUsed: activeSupporters.length > 0,
+      })
+    }).then((res: Response) => res.json()).then((resData: any) => {
+      const pts = resData?.data?.totalVirtuePoints || (currentRound * 10);
+      toast({
+        title: "House Cup Virtue Energy Earned! 🏆",
+        description: `Gained +${pts} House Cup Virtue Energy (${isBoss ? '5x Boss Multiplier' : 'Scaled Keep Floor'})`,
+      });
+    }).catch((err: any) => {
+      logger.error('Failed to record House Cup dungeon points:', err);
+    });
 
     // Show improved thematic victory message based on monster type
     const message = TEXT_CONTENT.monsterBattle.victories[monster.achievementId as keyof typeof TEXT_CONTENT.monsterBattle.victories];

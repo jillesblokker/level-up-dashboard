@@ -97,6 +97,60 @@ export async function recordHouseCupPoints(params: {
 }
 
 /**
+ * Calculates and records scaled House Cup Virtue Energy from Dungeon Keep victories.
+ * Factors in floor height, difficulty multipliers, habit combat stat buffs, and Guardian Pet strikers.
+ */
+export async function recordDungeonVictoryVirtuePoints(params: {
+  userId: string;
+  floor: number;
+  difficulty?: 'normal' | 'hard' | 'epic' | 'boss';
+  primaryCategory?: string;
+  petStrikerUsed?: boolean;
+}) {
+  const { userId, floor = 1, difficulty = 'normal', primaryCategory = 'might', petStrikerUsed = false } = params;
+
+  // 1. Calculate Base Energy & Difficulty Multiplier
+  const baseEnergy = Math.max(1, floor) * 10;
+  const diffMultiplier = difficulty === 'boss' ? 5.0 : (difficulty === 'hard' || difficulty === 'epic') ? 2.0 : 1.0;
+  const totalVirtuePoints = Math.round(baseEnergy * diffMultiplier);
+
+  // 2. Main Virtue Category Credit
+  const mainResult = await recordHouseCupPoints({
+    userId,
+    categoryId: primaryCategory,
+    sourceType: 'milestone',
+    sourceId: `dungeon-floor-${floor}-${Date.now()}`,
+    points: totalVirtuePoints,
+  });
+
+  // 3. Guardian Pet Support Striker Bonus (+10 Vitality & +10 Wellness)
+  if (petStrikerUsed) {
+    await recordHouseCupPoints({
+      userId,
+      categoryId: 'vitality',
+      sourceType: 'quest',
+      sourceId: `dungeon-pet-vitality-${Date.now()}`,
+      points: 10,
+    });
+    await recordHouseCupPoints({
+      userId,
+      categoryId: 'wellness',
+      sourceType: 'quest',
+      sourceId: `dungeon-pet-wellness-${Date.now()}`,
+      points: 10,
+    });
+  }
+
+  return {
+    success: true,
+    totalVirtuePoints,
+    difficultyMultiplier: diffMultiplier,
+    petBonusAwarded: petStrikerUsed,
+    mainResult,
+  };
+}
+
+/**
  * Fetches the House Cup standings for a viewer's circle (viewer + allies) for a given year (§2 & §3).
  * Integrates database ledger history & character stats so main character & allies show live points.
  */
