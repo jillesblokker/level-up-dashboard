@@ -68,7 +68,7 @@ export function HouseCupSettlementModal() {
           </div>
           <div className="text-3xl font-extrabold text-amber-300 flex items-center justify-center gap-2">
             <Crown className="w-7 h-7 text-amber-400" />
-            {data.viewerStanding?.categories_won || 0} / 7 Virtues Won
+            {data.viewerStanding?.categories_won || 0} / 8 virtues won
           </div>
           <div className="text-xs text-zinc-400 mt-1">
             Total Points: {(data.viewerStanding?.total_points || 0).toLocaleString()}

@@ -232,13 +232,14 @@ export async function getHouseCupCircleStandings(viewerId: string, year?: number
   // Fallback: If a user has 0 total virtue points but has experience in character_stats,
   // derive their virtue breakdown based on their character progression so main user always has points!
   const categoryWeights: Record<string, number> = {
-    might: 0.22,
-    knowledge: 0.18,
-    honor: 0.15,
-    castle: 0.13,
+    might: 0.18,
+    knowledge: 0.15,
+    honor: 0.13,
+    castle: 0.12,
     craft: 0.12,
     vitality: 0.10,
     wellness: 0.10,
+    exploration: 0.10,
   };
 
   standingsMap.forEach((entry, uid) => {
