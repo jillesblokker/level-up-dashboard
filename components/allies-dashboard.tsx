@@ -109,7 +109,7 @@ function AllyDashboardCard({
           onClick={() => setFrame(prev => prev === 'info' ? 'virtues' : 'info')}
           className="h-8 px-2.5 text-xs font-semibold text-amber-400 border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 hover:text-amber-300"
         >
-          {frame === 'info' ? '8 Virtues →' : '← Hero Info'}
+          {frame === 'info' ? '9 Virtues →' : '← Hero Info'}
         </Button>
       </div>
 

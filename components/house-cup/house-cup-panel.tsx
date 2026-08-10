@@ -18,12 +18,13 @@ const CATEGORY_META: Record<string, { name: string; emoji: string; color: string
   vitality: { name: 'Vitality', emoji: '❤️', color: '#ec4899' },
   wellness: { name: 'Wellness', emoji: '🌿', color: '#10b981' },
   exploration: { name: 'Exploration', emoji: '🧭', color: '#06b6d4' },
+  conquest: { name: 'Conquest', emoji: '🗡️', color: '#e11d48' },
 };
 
 /**
  * 2-Frame Carousel Card for Ally Standings
  * Frame 1: Info & Stats (First name, Title, Total Points, Category Wins)
- * Frame 2: 8 Virtue Hourglasses Grid
+ * Frame 2: 9 Virtue Hourglasses Grid (3x3)
  */
 function AllyCarouselCard({
   ally,
@@ -63,7 +64,7 @@ function AllyCarouselCard({
             onClick={toggleFrame}
             className="h-7 px-2 text-[11px] text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20"
           >
-            {frame === 'info' ? '8 Virtues →' : '← Info'}
+            {frame === 'info' ? '9 Virtues →' : '← Info'}
           </Button>
         </div>
       </div>
@@ -88,7 +89,7 @@ function AllyCarouselCard({
                 </div>
                 <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
                   <div className="text-[10px] text-zinc-400 font-semibold">Virtue wins</div>
-                  <div className="font-bold text-emerald-400 text-sm">{ally.categories_won} / 8 Categories</div>
+                  <div className="font-bold text-emerald-400 text-sm">{ally.categories_won} / 9 Categories</div>
                 </div>
               </div>
               <p className="text-[11px] text-zinc-400 italic text-center pt-1">
@@ -104,28 +105,9 @@ function AllyCarouselCard({
               transition={{ duration: 0.2 }}
               className="py-2 space-y-2"
             >
-              {/* 8 Hourglasses in 2 Equal Rows of 4 */}
-              <div className="grid grid-cols-4 gap-2">
-                {['might', 'knowledge', 'honor', 'castle'].map(catKey => {
-                  const meta = CATEGORY_META[catKey];
-                  if (!meta) return null;
-                  const pts = ally.categories[catKey]?.points || 0;
-                  return (
-                    <Hourglass
-                      key={catKey}
-                      categoryId={catKey}
-                      categoryName={meta.name}
-                      emoji={meta.emoji}
-                      color={meta.color}
-                      points={pts}
-                      variant="compact"
-                      onClick={() => onSelect(ally)}
-                    />
-                  );
-                })}
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                {['craft', 'vitality', 'wellness', 'exploration'].map(catKey => {
+              {/* 9 Hourglasses in 3x3 Grid */}
+              <div className="grid grid-cols-3 gap-2">
+                {['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality', 'wellness', 'exploration', 'conquest'].map(catKey => {
                   const meta = CATEGORY_META[catKey];
                   if (!meta) return null;
                   const pts = ally.categories[catKey]?.points || 0;
@@ -234,7 +216,7 @@ export function HouseCupPanel() {
                   The House Cup {currentYear}
                 </CardTitle>
                 <CardDescription className="text-zinc-400 text-sm">
-                  Compete with your allies across 8 virtues. Crowned on Jan 1st.
+                  Compete with your allies across 9 virtues. Crowned on Jan 1st.
                 </CardDescription>
               </div>
             </div>
@@ -243,14 +225,14 @@ export function HouseCupPanel() {
                 <div className="text-xs text-amber-400/80 font-semibold">Your virtues</div>
                 <div className="text-lg font-bold text-amber-300 flex items-center gap-1 justify-end">
                   <Crown className="w-4 h-4 text-amber-400" />
-                  {viewerStanding.categories_won} / 8 Categories
+                  {viewerStanding.categories_won} / 9 Categories
                 </div>
               </div>
             )}
           </div>
         </CardHeader>
 
-        {/* Your 8 Hourglasses (Horizontal Touch Snap Carousel on Mobile) */}
+        {/* Your 9 Hourglasses (Horizontal Touch Snap Carousel on Mobile) */}
         {viewerStanding && (
           <CardContent className="pt-2">
             <div className="p-4 bg-zinc-950/60 rounded-xl border border-amber-900/30 space-y-3">

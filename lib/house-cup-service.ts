@@ -107,7 +107,7 @@ export async function recordDungeonVictoryVirtuePoints(params: {
   primaryCategory?: string;
   petStrikerUsed?: boolean;
 }) {
-  const { userId, floor = 1, difficulty = 'normal', primaryCategory = 'might', petStrikerUsed = false } = params;
+  const { userId, floor = 1, difficulty = 'normal', primaryCategory = 'conquest', petStrikerUsed = false } = params;
 
   // 1. Calculate Base Energy & Difficulty Multiplier
   const baseEnergy = Math.max(1, floor) * 10;
@@ -218,7 +218,7 @@ export async function getHouseCupCircleStandings(viewerId: string, year?: number
     });
   }
 
-  const ALL_CATEGORIES = ['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality', 'wellness', 'exploration'];
+  const ALL_CATEGORIES = ['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality', 'wellness', 'exploration', 'conquest'];
 
   // Map totals per user
   const standingsMap = new Map<string, HouseCupStandings>();
@@ -286,14 +286,15 @@ export async function getHouseCupCircleStandings(viewerId: string, year?: number
   // Fallback: If a user has 0 total virtue points but has experience in character_stats,
   // derive their virtue breakdown based on their character progression so main user always has points!
   const categoryWeights: Record<string, number> = {
-    might: 0.18,
-    knowledge: 0.15,
-    honor: 0.13,
-    castle: 0.12,
-    craft: 0.12,
+    might: 0.16,
+    knowledge: 0.14,
+    honor: 0.12,
+    castle: 0.11,
+    craft: 0.11,
     vitality: 0.10,
     wellness: 0.10,
-    exploration: 0.10,
+    exploration: 0.08,
+    conquest: 0.08,
   };
 
   standingsMap.forEach((entry, uid) => {
