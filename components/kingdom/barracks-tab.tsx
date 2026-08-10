@@ -576,8 +576,8 @@ export function BarracksTab() {
 
                     {/* Citizen RPG Equipment Slots Overlay */}
                     <div className="p-3.5 bg-zinc-950/80 border border-zinc-800 rounded-xl space-y-2">
-                      <h5 className="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <Sword className="w-3 h-3 text-amber-400" /> Citizen Equipment Slots
+                      <h5 className="text-[10px] font-bold text-amber-400 flex items-center gap-1.5">
+                        <Sword className="w-3 h-3 text-amber-400" /> Citizen equipment slots
                       </h5>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="p-2.5 rounded-xl bg-zinc-900/90 border border-amber-500/30 flex items-center gap-2.5">
@@ -585,7 +585,7 @@ export function BarracksTab() {
                             ⚔️
                           </div>
                           <div>
-                            <span className="text-[10px] text-zinc-400 font-bold block uppercase">Weapon Slot</span>
+                            <span className="text-[10px] text-zinc-400 font-bold block">Weapon slot</span>
                             <span className="text-xs text-amber-300 font-bold">Vanguard Blade (+15 ATK)</span>
                           </div>
                         </div>

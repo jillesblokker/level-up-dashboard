@@ -221,7 +221,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                         onValueChange={(val) => setNewQuest({ ...newQuest, category: val })}
                     >
                         <SelectTrigger className="h-14 bg-zinc-950 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full">
-                            <SelectValue placeholder="Select Category" />
+                            <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent side="top" className="bg-zinc-900 border-amber-900/50">
                             {questCategories.map((cat) => (
@@ -245,7 +245,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                         onValueChange={(val) => setNewQuest({ ...newQuest, difficulty: val })}
                     >
                         <SelectTrigger className="h-14 bg-zinc-950 border-2 border-amber-900/20 rounded-xl transition-all hover:border-amber-500/30 w-full">
-                            <SelectValue placeholder="Select Difficulty" />
+                            <SelectValue placeholder="Select difficulty" />
                         </SelectTrigger>
                         <SelectContent side="top" className="bg-zinc-900 border-amber-900/50">
                             {Object.entries(difficultySettings).map(([key, value]) => (
@@ -273,7 +273,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
             <div className="space-y-4 p-5 bg-zinc-950 border-2 border-amber-900/20 rounded-2xl">
                 <div className="flex items-center justify-between">
                     <label className="text-sm font-bold tracking-wider text-amber-500/80">{TEXT_CONTENT.quests.mastery.form.sectionTitle}</label>
-                    <div className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">NEW SYSTEM</div>
+                    <div className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">New system</div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

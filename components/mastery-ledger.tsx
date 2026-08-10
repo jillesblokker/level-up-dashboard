@@ -468,7 +468,7 @@ export function MasteryLedger() {
             {weeklySummary && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     <Card className="bg-zinc-950 border-purple-900/30 p-4">
-                        <div className="text-[10px] text-purple-200/50 uppercase font-bold tracking-wider mb-1">Quests (vs Last Week)</div>
+                        <div className="text-[10px] text-purple-200/60 font-semibold mb-1">Quests (vs last week)</div>
                         <div className="flex items-end gap-2">
                             <span className="text-2xl font-bold text-white">{weeklySummary.questsThisWeek}</span>
                             <span className={cn("text-sm font-bold pb-0.5", weeklySummary.questDelta >= 0 ? "text-green-400" : "text-red-400")}>
@@ -477,7 +477,7 @@ export function MasteryLedger() {
                         </div>
                     </Card>
                     <Card className="bg-zinc-950 border-blue-900/30 p-4">
-                        <div className="text-[10px] text-blue-200/50 uppercase font-bold tracking-wider mb-1">Est. XP Earned</div>
+                        <div className="text-[10px] text-blue-200/60 font-semibold mb-1">Est. XP earned</div>
                         <div className="flex items-end gap-2">
                             <span className="text-2xl font-bold text-white">{weeklySummary.xpThisWeek}</span>
                             <span className={cn("text-sm font-bold pb-0.5", weeklySummary.xpDelta >= 0 ? "text-green-400" : "text-red-400")}>
@@ -486,7 +486,7 @@ export function MasteryLedger() {
                         </div>
                     </Card>
                     <Card className="bg-zinc-950 border-orange-900/30 p-4">
-                        <div className="text-[10px] text-orange-200/50 uppercase font-bold tracking-wider mb-1">Top Category</div>
+                        <div className="text-[10px] text-orange-200/60 font-semibold mb-1">Top category</div>
                         <div className="flex items-end gap-2 mt-1.5">
                             <span className="text-lg font-bold text-orange-400 capitalize truncate">{weeklySummary.bestCategory}</span>
                         </div>

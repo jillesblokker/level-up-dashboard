@@ -338,7 +338,7 @@ export function Equipment() {
         {/* Equipment List */}
                     <Card className="medieval-card col-span-1 lg:col-span-2">
           <CardHeader>
-            <CardTitle className="font-serif">Available Equipment</CardTitle>
+            <CardTitle className="font-serif">Available equipment</CardTitle>
             <CardDescription>Select items to equip your character</CardDescription>
           </CardHeader>
           <CardContent>

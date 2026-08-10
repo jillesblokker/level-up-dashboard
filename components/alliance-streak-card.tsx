@@ -1,7 +1,6 @@
 'use client'
 
 import { logger } from "@/lib/logger";
-;
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';

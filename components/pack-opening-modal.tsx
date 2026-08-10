@@ -72,7 +72,7 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
 
         <div className="text-center mb-6 sm:mb-8 px-4">
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-amber-500 mb-1 sm:mb-2 drop-shadow-sm">
-            {isWon ? "You Won!" : "Scratch 3 to Win"}
+            {isWon ? "You won!" : "Scratch 3 to win"}
           </h2>
           <p className="text-xs sm:text-sm text-zinc-400 font-medium tracking-wide">
             {isWon ? "Card added to your Mythics collection!" : "Find 3 matching cards to claim the prize"}
@@ -109,7 +109,7 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
               className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-base sm:text-xl px-10 py-4 rounded-full shadow-[0_0_40px_rgba(245,158,11,0.5)] animate-bounce min-h-[52px]"
               onClick={onClose}
             >
-              Collect & Return
+              Collect & return
             </Button>
           </div>
         )}

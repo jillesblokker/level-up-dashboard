@@ -1782,7 +1782,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
                                 {isUpgrading ? (
                                   <>⏳ Hammering Forge...</>
                                 ) : (
-                                  <>🔨 Temper Equipment</>
+                                  <>🔨 Temper equipment</>
                                 )}
                               </Button>
                             )}

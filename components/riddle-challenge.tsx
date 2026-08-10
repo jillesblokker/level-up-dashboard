@@ -469,7 +469,7 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
       <CardFooter className="bg-zinc-900/30 border-t border-white/5 p-6 flex justify-between items-center relative z-10">
         <div className="flex items-center gap-4">
           <div className="flex flex-col">
-            <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">Total Earnings</span>
+            <span className="text-[10px] text-zinc-400 font-bold">Total earnings</span>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-white flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-blue-500" /> {stats.xpEarned} XP
@@ -483,7 +483,7 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
             onClick={handleNextRiddle}
             className="bg-purple-600 hover:bg-purple-500 text-white font-bold h-11 px-8 rounded-xl shadow-lg shadow-purple-950/20 animate-in zoom-in-95 duration-300"
           >
-            Next Riddle
+            Next riddle
           </Button>
         )}
       </CardFooter>

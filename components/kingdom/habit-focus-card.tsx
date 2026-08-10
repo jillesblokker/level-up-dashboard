@@ -567,7 +567,7 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
                       : "bg-zinc-950 text-zinc-600 border border-zinc-800 cursor-not-allowed"
                   )}
                 >
-                  <Gift className="w-4 h-4 mr-1" /> Retrieve Monument Treasure Chest
+                  <Gift className="w-4 h-4 mr-1" /> Retrieve monument treasure chest
                 </Button>
               </div>
             </div>
@@ -582,7 +582,7 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
               <Compass className="w-6 h-6 text-amber-500" />
             </div>
             <div>
-              <h3 className="font-cardo font-bold text-white text-sm">Configure Habit Focus District</h3>
+              <h3 className="font-cardo font-bold text-white text-sm">Configure habit focus district</h3>
               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-1">
                 {locationType.charAt(0).toUpperCase() + locationType.slice(1)}: {formatLocationTitle(locationName, locationType)}
               </p>
