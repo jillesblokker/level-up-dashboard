@@ -44,23 +44,23 @@ function AllyCarouselCard({
   };
 
   return (
-    <Card className="border-zinc-800 bg-zinc-900/90 hover:border-amber-500/40 p-4 transition-all group hover:shadow-lg relative overflow-hidden flex flex-col justify-between min-h-[160px]">
+    <Card className="border-zinc-800 bg-zinc-900/90 hover:border-amber-500/40 p-4 transition-all group hover:shadow-lg relative overflow-hidden flex flex-col justify-between h-[250px] min-h-[250px] max-h-[250px]">
       {/* Top Header bar with Frame Switcher */}
-      <div className="flex items-center justify-between mb-2 pb-2 border-b border-zinc-800">
+      <div className="flex items-center justify-between mb-2 pb-2 border-b border-zinc-800 shrink-0">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xs select-none">
+          <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xs select-none shrink-0">
             {ally.display_name.slice(0, 2).toUpperCase()}
           </div>
-          <div>
-            <div className="font-semibold text-sm text-zinc-100 group-hover:text-amber-300 transition-colors">
+          <div className="min-w-0">
+            <div className="font-semibold text-sm text-zinc-100 group-hover:text-amber-300 transition-colors truncate">
               {ally.display_name}
             </div>
-            <div className="text-[11px] text-zinc-400">{ally.title}</div>
+            <div className="text-[11px] text-zinc-400 truncate">{ally.title}</div>
           </div>
         </div>
 
         {/* Frame Toggle Controls */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
           <Button
             variant="ghost"
             size="sm"
@@ -73,7 +73,7 @@ function AllyCarouselCard({
       </div>
 
       {/* Frame Content */}
-      <div className="flex-1 my-2">
+      <div className="flex-1 my-1 flex flex-col justify-between overflow-hidden">
         <AnimatePresence mode="wait">
           {frame === 'info' ? (
             <motion.div
@@ -83,21 +83,22 @@ function AllyCarouselCard({
               exit={{ opacity: 0, x: 10 }}
               transition={{ duration: 0.2 }}
               onClick={() => onSelect(ally)}
-              className="cursor-pointer space-y-2"
+              className="cursor-pointer flex flex-col justify-between h-full space-y-2 py-1"
             >
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
+                <div className="p-2.5 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
                   <div className="text-[10px] text-zinc-400 font-semibold">Total score</div>
-                  <div className="font-bold text-amber-300 text-sm">{ally.total_points.toLocaleString()} pts</div>
+                  <div className="font-bold text-amber-300 text-sm mt-0.5">{ally.total_points.toLocaleString()} pts</div>
                 </div>
-                <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
+                <div className="p-2.5 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
                   <div className="text-[10px] text-zinc-400 font-semibold">Virtue wins</div>
-                  <div className="font-bold text-emerald-400 text-sm">{ally.categories_won} / 9 Categories</div>
+                  <div className="font-bold text-emerald-400 text-sm mt-0.5">{ally.categories_won} / 9 Categories</div>
                 </div>
               </div>
-              <p className="text-[11px] text-zinc-400 italic text-center pt-1">
-                Tap card to open full virtue breakdown
-              </p>
+
+              <div className="p-2 rounded-lg bg-amber-950/20 border border-amber-500/20 text-center">
+                <div className="text-[11px] font-semibold text-amber-300">Tap card for detailed summary</div>
+              </div>
             </motion.div>
           ) : (
             <motion.div
@@ -106,10 +107,10 @@ function AllyCarouselCard({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
               transition={{ duration: 0.2 }}
-              className="py-2 space-y-2"
+              className="h-full flex flex-col justify-center py-1"
             >
               {/* 9 Hourglasses in 3x3 Grid */}
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5">
                 {['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality', 'wellness', 'exploration', 'conquest'].map(catKey => {
                   const meta = CATEGORY_META[catKey];
                   if (!meta) return null;
@@ -134,7 +135,7 @@ function AllyCarouselCard({
       </div>
 
       {/* Frame Indicators (Dots) */}
-      <div className="flex justify-center items-center gap-1.5 pt-1">
+      <div className="flex justify-center items-center gap-1.5 pt-1 shrink-0">
         <button
           onClick={() => setFrame('info')}
           className={`w-1.5 h-1.5 rounded-full transition-all ${frame === 'info' ? 'bg-amber-400 w-3' : 'bg-zinc-700'}`}
@@ -155,6 +156,17 @@ export function HouseCupPanel() {
   const [selectedUser, setSelectedUser] = useState<HouseCupStandings | null>(null);
   const [selectedCategoryKey, setSelectedCategoryKey] = useState<string | null>(null);
   const [selectedCategoryUserId, setSelectedCategoryUserId] = useState<string | undefined>(undefined);
+  const allyCarouselRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollAllyCarousel = (direction: 'left' | 'right') => {
+    if (allyCarouselRef.current) {
+      const scrollAmount = allyCarouselRef.current.clientWidth * 0.8;
+      allyCarouselRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   const loadStandings = async () => {
     try {
@@ -353,22 +365,48 @@ export function HouseCupPanel() {
             <Users className="w-4 h-4 text-amber-400" />
             Ally Circle Standings
           </h3>
-          <span className="text-xs text-zinc-400">{alliesStandings.length} Allies</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-zinc-400">{alliesStandings.length} Allies</span>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => scrollAllyCarousel('left')}
+                className="h-7 w-7 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 rounded-lg"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => scrollAllyCarousel('right')}
+                className="h-7 w-7 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 rounded-lg"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
         </div>
 
         {alliesStandings.length > 0 && (
-          /* Carousel Ally Cards Grid */
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div
+            ref={allyCarouselRef}
+            className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-2 custom-scrollbar mobile-scroll-hide"
+          >
             {alliesStandings.map(ally => (
-              <AllyCarouselCard
+              <div
                 key={ally.user_id}
-                ally={ally}
-                onSelect={setSelectedUser}
-                onCategoryClick={(catKey, a) => {
-                  setSelectedCategoryKey(catKey);
-                  setSelectedCategoryUserId(a.user_id);
-                }}
-              />
+                className="snap-start shrink-0 w-full sm:w-[calc(40%-10px)] min-w-full sm:min-w-[calc(40%-10px)] max-w-full sm:max-w-[calc(40%-10px)]"
+              >
+                <AllyCarouselCard
+                  ally={ally}
+                  onSelect={setSelectedUser}
+                  onCategoryClick={(catKey, a) => {
+                    setSelectedCategoryKey(catKey);
+                    setSelectedCategoryUserId(a.user_id);
+                  }}
+                />
+              </div>
             ))}
           </div>
         )}
