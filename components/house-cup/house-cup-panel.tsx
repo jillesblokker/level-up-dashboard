@@ -44,11 +44,11 @@ function AllyCarouselCard({
   };
 
   return (
-    <Card className="border-zinc-800 bg-zinc-900/90 hover:border-amber-500/40 p-4 transition-all group hover:shadow-lg relative overflow-hidden flex flex-col justify-between h-[250px] min-h-[250px] max-h-[250px]">
+    <Card className="border-zinc-800 bg-zinc-900/90 hover:border-amber-500/40 p-4 transition-all group hover:shadow-lg relative overflow-hidden flex flex-col justify-between h-[320px] min-h-[320px] max-h-[320px]">
       {/* Top Header bar with Frame Switcher */}
       <div className="flex items-center justify-between mb-2 pb-2 border-b border-zinc-800 shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xs select-none shrink-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-9 h-9 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xs select-none shrink-0 shadow-inner">
             {ally.display_name.slice(0, 2).toUpperCase()}
           </div>
           <div className="min-w-0">
@@ -65,7 +65,7 @@ function AllyCarouselCard({
             variant="ghost"
             size="sm"
             onClick={toggleFrame}
-            className="h-7 px-2 text-[11px] text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20"
+            className="h-7 px-2.5 text-[11px] font-semibold text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20"
           >
             {frame === 'info' ? '9 Virtues →' : '← Info'}
           </Button>
@@ -83,21 +83,28 @@ function AllyCarouselCard({
               exit={{ opacity: 0, x: 10 }}
               transition={{ duration: 0.2 }}
               onClick={() => onSelect(ally)}
-              className="cursor-pointer flex flex-col justify-between h-full space-y-2 py-1"
+              className="cursor-pointer flex flex-col justify-between h-full space-y-3 py-1"
             >
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-2.5 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
-                  <div className="text-[10px] text-zinc-400 font-semibold">Total score</div>
-                  <div className="font-bold text-amber-300 text-sm mt-0.5">{ally.total_points.toLocaleString()} pts</div>
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-1">
+                    <div className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Total score</div>
+                    <div className="font-bold text-amber-300 text-base">{ally.total_points.toLocaleString()} pts</div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-1">
+                    <div className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Virtue wins</div>
+                    <div className="font-bold text-emerald-400 text-base">{ally.categories_won} / 9 Categories</div>
+                  </div>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
-                  <div className="text-[10px] text-zinc-400 font-semibold">Virtue wins</div>
-                  <div className="font-bold text-emerald-400 text-sm mt-0.5">{ally.categories_won} / 9 Categories</div>
+
+                <div className="p-3 rounded-xl bg-gradient-to-r from-amber-950/30 via-zinc-900 to-amber-950/30 border border-amber-900/30 text-center space-y-1">
+                  <div className="text-xs font-semibold text-amber-300">House Cup Participant</div>
+                  <p className="text-[11px] text-zinc-400 italic">Competing across all 9 virtue hourglasses</p>
                 </div>
               </div>
 
-              <div className="p-2 rounded-lg bg-amber-950/20 border border-amber-500/20 text-center">
-                <div className="text-[11px] font-semibold text-amber-300">Tap card for detailed summary</div>
+              <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center group-hover:bg-amber-500/20 transition-all">
+                <div className="text-xs font-bold text-amber-300">Tap card for detailed summary →</div>
               </div>
             </motion.div>
           ) : (
@@ -107,10 +114,10 @@ function AllyCarouselCard({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
               transition={{ duration: 0.2 }}
-              className="h-full flex flex-col justify-center py-1"
+              className="h-full flex flex-col justify-center py-1 overflow-hidden"
             >
               {/* 9 Hourglasses in 3x3 Grid */}
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-3 gap-2">
                 {['might', 'knowledge', 'honor', 'castle', 'craft', 'vitality', 'wellness', 'exploration', 'conquest'].map(catKey => {
                   const meta = CATEGORY_META[catKey];
                   if (!meta) return null;
@@ -135,14 +142,14 @@ function AllyCarouselCard({
       </div>
 
       {/* Frame Indicators (Dots) */}
-      <div className="flex justify-center items-center gap-1.5 pt-1 shrink-0">
+      <div className="flex justify-center items-center gap-1.5 pt-2 shrink-0 border-t border-zinc-800/60">
         <button
           onClick={() => setFrame('info')}
-          className={`w-1.5 h-1.5 rounded-full transition-all ${frame === 'info' ? 'bg-amber-400 w-3' : 'bg-zinc-700'}`}
+          className={`w-2 h-2 rounded-full transition-all ${frame === 'info' ? 'bg-amber-400 w-4' : 'bg-zinc-700'}`}
         />
         <button
           onClick={() => setFrame('virtues')}
-          className={`w-1.5 h-1.5 rounded-full transition-all ${frame === 'virtues' ? 'bg-amber-400 w-3' : 'bg-zinc-700'}`}
+          className={`w-2 h-2 rounded-full transition-all ${frame === 'virtues' ? 'bg-amber-400 w-4' : 'bg-zinc-700'}`}
         />
       </div>
     </Card>
@@ -363,7 +370,7 @@ export function HouseCupPanel() {
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold text-amber-300 flex items-center gap-2">
             <Users className="w-4 h-4 text-amber-400" />
-            Ally Circle Standings
+            Ally rankings
           </h3>
           <div className="flex items-center gap-2">
             <span className="text-xs text-zinc-400">{alliesStandings.length} Allies</span>
