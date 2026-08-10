@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Hourglass } from './hourglass';
+import { CategoryBreakdownModal } from './category-breakdown-modal';
 import type { HouseCupStandings } from '@/lib/house-cup-service';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,9 +30,11 @@ const CATEGORY_META: Record<string, { name: string; emoji: string; color: string
 function AllyCarouselCard({
   ally,
   onSelect,
+  onCategoryClick,
 }: {
   ally: HouseCupStandings;
   onSelect: (ally: HouseCupStandings) => void;
+  onCategoryClick?: (catKey: string, ally: HouseCupStandings) => void;
 }) {
   const [frame, setFrame] = useState<'info' | 'virtues'>('info');
 
@@ -120,7 +123,7 @@ function AllyCarouselCard({
                       color={meta.color}
                       points={pts}
                       variant="compact"
-                      onClick={() => onSelect(ally)}
+                      onClick={() => onCategoryClick ? onCategoryClick(catKey, ally) : onSelect(ally)}
                     />
                   );
                 })}
@@ -150,6 +153,8 @@ export function HouseCupPanel() {
   const [seenMap, setSeenMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<HouseCupStandings | null>(null);
+  const [selectedCategoryKey, setSelectedCategoryKey] = useState<string | null>(null);
+  const [selectedCategoryUserId, setSelectedCategoryUserId] = useState<string | undefined>(undefined);
 
   const loadStandings = async () => {
     try {
@@ -232,7 +237,7 @@ export function HouseCupPanel() {
           </div>
         </CardHeader>
 
-        {/* Your 9 Hourglasses (Horizontal Touch Snap Carousel on Mobile) */}
+        {/* Your 9 Hourglasses (Smart Layout: 3x3 Mobile | 5 Top + 4 Bottom Desktop) */}
         {viewerStanding && (
           <CardContent className="pt-2">
             <div className="p-4 bg-zinc-950/60 rounded-xl border border-amber-900/30 space-y-3">
@@ -240,13 +245,43 @@ export function HouseCupPanel() {
                 <span>Your Virtue Hourglasses</span>
                 <span className="text-zinc-400 font-normal">Total Points: {viewerStanding.total_points.toLocaleString()}</span>
               </div>
-              <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 custom-scrollbar mobile-scroll-hide sm:grid sm:grid-cols-4 md:grid-cols-7">
+
+              {/* Mobile Viewport (< 640px): 3 Rows of 3 */}
+              <div className="grid grid-cols-3 gap-2.5 sm:hidden">
                 {Object.entries(CATEGORY_META).map(([catKey, meta], idx) => {
                   const pts = viewerStanding.categories[catKey]?.points || 0;
                   const seenPts = seenMap[catKey] !== undefined ? seenMap[catKey] : pts;
                   return (
-                    <div key={catKey} className="snap-start shrink-0 min-w-[85px] sm:min-w-0 sm:shrink">
+                    <Hourglass
+                      key={catKey}
+                      categoryId={catKey}
+                      categoryName={meta.name}
+                      emoji={meta.emoji}
+                      color={meta.color}
+                      points={pts}
+                      seenPoints={seenPts}
+                      staggerDelayMs={idx * 60}
+                      variant="compact"
+                      onClick={() => {
+                        setSelectedCategoryKey(catKey);
+                        setSelectedCategoryUserId(viewerStanding.user_id);
+                      }}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Desktop Viewport (>= 640px): 5 on Row 1 + 4 Centered on Row 2 */}
+              <div className="hidden sm:space-y-3 sm:block">
+                <div className="grid grid-cols-5 gap-3">
+                  {['might', 'knowledge', 'honor', 'castle', 'craft'].map((catKey, idx) => {
+                    const meta = CATEGORY_META[catKey];
+                    if (!meta) return null;
+                    const pts = viewerStanding.categories[catKey]?.points || 0;
+                    const seenPts = seenMap[catKey] !== undefined ? seenMap[catKey] : pts;
+                    return (
                       <Hourglass
+                        key={catKey}
                         categoryId={catKey}
                         categoryName={meta.name}
                         emoji={meta.emoji}
@@ -255,11 +290,40 @@ export function HouseCupPanel() {
                         seenPoints={seenPts}
                         staggerDelayMs={idx * 80}
                         variant="large"
-                        onClick={() => setSelectedUser(viewerStanding)}
+                        onClick={() => {
+                          setSelectedCategoryKey(catKey);
+                          setSelectedCategoryUserId(viewerStanding.user_id);
+                        }}
                       />
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+
+                <div className="grid grid-cols-4 gap-3 max-w-[84%] mx-auto">
+                  {['vitality', 'wellness', 'exploration', 'conquest'].map((catKey, idx) => {
+                    const meta = CATEGORY_META[catKey];
+                    if (!meta) return null;
+                    const pts = viewerStanding.categories[catKey]?.points || 0;
+                    const seenPts = seenMap[catKey] !== undefined ? seenMap[catKey] : pts;
+                    return (
+                      <Hourglass
+                        key={catKey}
+                        categoryId={catKey}
+                        categoryName={meta.name}
+                        emoji={meta.emoji}
+                        color={meta.color}
+                        points={pts}
+                        seenPoints={seenPts}
+                        staggerDelayMs={(idx + 5) * 80}
+                        variant="large"
+                        onClick={() => {
+                          setSelectedCategoryKey(catKey);
+                          setSelectedCategoryUserId(viewerStanding.user_id);
+                        }}
+                      />
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </CardContent>
@@ -300,6 +364,10 @@ export function HouseCupPanel() {
                 key={ally.user_id}
                 ally={ally}
                 onSelect={setSelectedUser}
+                onCategoryClick={(catKey, a) => {
+                  setSelectedCategoryKey(catKey);
+                  setSelectedCategoryUserId(a.user_id);
+                }}
               />
             ))}
           </div>
@@ -320,17 +388,25 @@ export function HouseCupPanel() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-3 pt-2">
+            <div className="space-y-2 pt-2">
+              <p className="text-[11px] text-amber-400/80 italic mb-1">Tap any virtue below for detailed source breakdown:</p>
               {Object.entries(CATEGORY_META).map(([catKey, meta]) => {
                 const pts = selectedUser.categories[catKey]?.points || 0;
                 return (
-                  <div key={catKey} className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-sm">
+                  <div
+                    key={catKey}
+                    onClick={() => {
+                      setSelectedCategoryKey(catKey);
+                      setSelectedCategoryUserId(selectedUser.user_id);
+                    }}
+                    className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-amber-500/40 cursor-pointer transition-all group"
+                  >
                     <div className="flex items-center gap-2">
                       <span className="text-base">{meta.emoji}</span>
-                      <span className="font-medium text-zinc-200">{meta.name}</span>
+                      <span className="font-medium text-zinc-200 group-hover:text-amber-300 transition-colors">{meta.name}</span>
                     </div>
-                    <div className="font-bold text-amber-400">
-                      {pts.toLocaleString()} pts
+                    <div className="font-bold text-amber-400 flex items-center gap-1 text-xs">
+                      {pts.toLocaleString()} pts →
                     </div>
                   </div>
                 );
@@ -339,6 +415,21 @@ export function HouseCupPanel() {
           </DialogContent>
         )}
       </Dialog>
+
+      {/* Focused Virtue Category Breakdown Modal */}
+      <CategoryBreakdownModal
+        isOpen={!!selectedCategoryKey}
+        onClose={() => {
+          setSelectedCategoryKey(null);
+          setSelectedCategoryUserId(undefined);
+        }}
+        categoryId={selectedCategoryKey}
+        userId={selectedCategoryUserId}
+        categoryName={selectedCategoryKey ? CATEGORY_META[selectedCategoryKey]?.name : undefined}
+        emoji={selectedCategoryKey ? CATEGORY_META[selectedCategoryKey]?.emoji : undefined}
+        color={selectedCategoryKey ? CATEGORY_META[selectedCategoryKey]?.color : undefined}
+        points={selectedCategoryKey && viewerStanding ? viewerStanding.categories[selectedCategoryKey]?.points : undefined}
+      />
     </div>
   );
 }

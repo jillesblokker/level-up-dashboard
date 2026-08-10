@@ -26,7 +26,18 @@ export async function GET(request: NextRequest) {
         };
       }
 
-      // Check if user has activity in prior year
+      // Check if user has actual recorded activity in prior year
+      const { data: actualTotals } = await supabase
+        .from('house_cup_totals')
+        .select('points')
+        .eq('user_id', userId)
+        .eq('cup_year', targetYear)
+        .limit(1);
+
+      if (!actualTotals || actualTotals.length === 0) {
+        return { unclaimed: false, result: null };
+      }
+
       const standings = await getHouseCupCircleStandings(userId, targetYear);
       const viewerStanding = standings.find(s => s.is_viewer);
       const alliesCount = standings.filter(s => !s.is_viewer).length;
