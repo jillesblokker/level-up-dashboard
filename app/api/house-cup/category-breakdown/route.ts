@@ -105,8 +105,9 @@ const CATEGORY_DETAILS: Record<string, {
     description: 'Reflects martial prowess and victory in turn-based Dungeon Keep battles.',
     howToEarn: [
       'Clear Keep dungeon floors (+10 pts per floor level)',
-      'Conquer Heroic / Epic dungeon floors (2.0x multiplier)',
-      'Defeat Keep Boss floors every 5th level (5.0x multiplier)',
+      'Conquer Boss Keep floors every 5th level (5.0x Virtue Energy multiplier)',
+      'Conquer Heroic & Epic dungeon floors (2.0x Virtue Energy multiplier)',
+      'Invoke Guardian Pet support striker skills in battle (+10 pts bonus)',
     ],
   },
 };
@@ -164,16 +165,26 @@ export async function GET(request: NextRequest) {
       let challengePts = 0;
       let milestonePts = 0;
 
-      if (ledgerRows && ledgerRows.length > 0) {
-        ledgerRows.forEach(row => {
-          if (row.source_type === 'quest') questPts += row.points || 0;
-          else if (row.source_type === 'challenge') challengePts += row.points || 0;
-          else milestonePts += row.points || 0;
-        });
+      let floorBasePts = 0;
+      let bossMultiplierPts = 0;
+      let petStrikerPts = 0;
+
+      if (catParam === 'conquest') {
+        floorBasePts = Math.round(totalPoints * 0.50);
+        bossMultiplierPts = Math.round(totalPoints * 0.35);
+        petStrikerPts = Math.round(totalPoints * 0.15);
       } else {
-        questPts = Math.round(totalPoints * 0.45);
-        challengePts = Math.round(totalPoints * 0.35);
-        milestonePts = Math.round(totalPoints * 0.20);
+        if (ledgerRows && ledgerRows.length > 0) {
+          ledgerRows.forEach(row => {
+            if (row.source_type === 'quest') questPts += row.points || 0;
+            else if (row.source_type === 'challenge') challengePts += row.points || 0;
+            else milestonePts += row.points || 0;
+          });
+        } else {
+          questPts = Math.round(totalPoints * 0.45);
+          challengePts = Math.round(totalPoints * 0.35);
+          milestonePts = Math.round(totalPoints * 0.20);
+        }
       }
 
       const fillPercentage = Math.round(calculateFillCurve(totalPoints) * 100);
@@ -187,7 +198,11 @@ export async function GET(request: NextRequest) {
         howToEarn: meta.howToEarn,
         totalPoints,
         fillPercentage,
-        breakdown: {
+        breakdown: catParam === 'conquest' ? {
+          floorBasePoints: floorBasePts,
+          bossMultiplierPoints: bossMultiplierPts,
+          petStrikerPoints: petStrikerPts,
+        } : {
           questsPoints: questPts,
           challengesPoints: challengePts,
           milestonesPoints: milestonePts,

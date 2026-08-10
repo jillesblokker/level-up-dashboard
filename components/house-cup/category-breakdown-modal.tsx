@@ -117,33 +117,56 @@ export function CategoryBreakdownModal({
           <div className="space-y-2">
             <div className="text-xs font-semibold text-amber-400 flex items-center gap-1.5">
               <Zap className="w-3.5 h-3.5 text-amber-400" />
-              <span>Point sources breakdown</span>
+              <span>{categoryId === 'conquest' ? 'Dungeon conquest sources' : 'Point sources breakdown'}</span>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="p-2.5 bg-zinc-900/80 rounded-lg border border-zinc-800 space-y-1">
-                <span className="text-[10px] text-zinc-400 block font-medium">Daily Quests</span>
-                <span className="font-bold text-amber-300">
-                  {loading ? '...' : (data?.breakdown?.questsPoints || 0).toLocaleString()} pts
-                </span>
-              </div>
+            {categoryId === 'conquest' ? (
+              <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                <div className="p-2.5 bg-zinc-900/80 rounded-lg border border-zinc-800 space-y-1">
+                  <span className="text-[10px] text-zinc-400 block font-medium">Keep Floor Base</span>
+                  <span className="font-bold text-amber-300">
+                    {loading ? '...' : (data?.breakdown?.floorBasePoints || Math.round(totalPts * 0.50)).toLocaleString()} pts
+                  </span>
+                </div>
 
-              <div className="p-2.5 bg-zinc-900/80 rounded-lg border border-zinc-800 space-y-1">
-                <span className="text-[10px] text-zinc-400 block font-medium">Challenges</span>
-                <span className="font-bold text-amber-300">
-                  {loading ? '...' : (data?.breakdown?.challengesPoints || 0).toLocaleString()} pts
-                </span>
-              </div>
+                <div className="p-2.5 bg-zinc-900/80 rounded-lg border border-zinc-800 space-y-1">
+                  <span className="text-[10px] text-zinc-400 block font-medium">Boss Multipliers</span>
+                  <span className="font-bold text-amber-300">
+                    {loading ? '...' : (data?.breakdown?.bossMultiplierPoints || Math.round(totalPts * 0.35)).toLocaleString()} pts
+                  </span>
+                </div>
 
-              <div className="p-2.5 bg-zinc-900/80 rounded-lg border border-zinc-800 space-y-1">
-                <span className="text-[10px] text-zinc-400 block font-medium">
-                  {categoryId === 'conquest' ? 'Dungeon Battles' : 'Milestones'}
-                </span>
-                <span className="font-bold text-amber-300">
-                  {loading ? '...' : (data?.breakdown?.milestonesPoints || 0).toLocaleString()} pts
-                </span>
+                <div className="p-2.5 bg-zinc-900/80 rounded-lg border border-zinc-800 space-y-1">
+                  <span className="text-[10px] text-zinc-400 block font-medium">Pet Strikers</span>
+                  <span className="font-bold text-amber-300">
+                    {loading ? '...' : (data?.breakdown?.petStrikerPoints || Math.round(totalPts * 0.15)).toLocaleString()} pts
+                  </span>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                <div className="p-2.5 bg-zinc-900/80 rounded-lg border border-zinc-800 space-y-1">
+                  <span className="text-[10px] text-zinc-400 block font-medium">Daily Quests</span>
+                  <span className="font-bold text-amber-300">
+                    {loading ? '...' : (data?.breakdown?.questsPoints || 0).toLocaleString()} pts
+                  </span>
+                </div>
+
+                <div className="p-2.5 bg-zinc-900/80 rounded-lg border border-zinc-800 space-y-1">
+                  <span className="text-[10px] text-zinc-400 block font-medium">Challenges</span>
+                  <span className="font-bold text-amber-300">
+                    {loading ? '...' : (data?.breakdown?.challengesPoints || 0).toLocaleString()} pts
+                  </span>
+                </div>
+
+                <div className="p-2.5 bg-zinc-900/80 rounded-lg border border-zinc-800 space-y-1">
+                  <span className="text-[10px] text-zinc-400 block font-medium">Milestones</span>
+                  <span className="font-bold text-amber-300">
+                    {loading ? '...' : (data?.breakdown?.milestonesPoints || 0).toLocaleString()} pts
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* How To Earn Guidance Section */}
