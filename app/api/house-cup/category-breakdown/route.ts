@@ -148,17 +148,8 @@ export async function GET(request: NextRequest) {
         .order('occurred_at', { ascending: false })
         .limit(20);
 
-      // If user has 0 total in DB, check character_stats experience fallback
-      let totalPoints = totalRow?.points || 0;
-      if (totalPoints === 0) {
-        const { data: stats } = await supabase
-          .from('character_stats')
-          .select('experience')
-          .eq('user_id', targetUserId)
-          .maybeSingle();
-        const xp = stats?.experience || (targetUserId === authUserId ? 35000 : 12000);
-        totalPoints = Math.round(xp * 0.11);
-      }
+      // Fetch user's total points for this category (exact recorded points)
+      const totalPoints = totalRow?.points || 0;
 
       // Aggregate breakdown by source_type
       let questPts = 0;

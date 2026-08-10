@@ -312,55 +312,7 @@ export async function getHouseCupCircleStandings(viewerId: string, year?: number
     });
   }
 
-  // Fallback: If a user has 0 total virtue points but has experience in character_stats,
-  // derive their virtue breakdown based on their character progression so main user always has points!
-  const categoryWeights: Record<string, number> = {
-    might: 0.16,
-    knowledge: 0.14,
-    honor: 0.12,
-    castle: 0.11,
-    craft: 0.11,
-    vitality: 0.10,
-    wellness: 0.10,
-    exploration: 0.08,
-    conquest: 0.08,
-  };
 
-  standingsMap.forEach((entry, uid) => {
-    let sum = 0;
-    Object.values(entry.categories).forEach(c => { sum += c.points; });
-
-    if (sum === 0) {
-      const userMeta = statsMap.get(uid);
-      const xp = userMeta?.experience || (uid === viewerId ? 35000 : 12000);
-
-      if (xp > 0) {
-        const upsertPromises: Promise<any>[] = [];
-        ALL_CATEGORIES.forEach(cat => {
-          const weight = categoryWeights[cat] || 0.1;
-          const derivedPts = Math.round(xp * weight);
-          entry.categories[cat] = {
-            points: derivedPts,
-            fill: calculateFillCurve(derivedPts),
-          };
-
-          // Persist derived totals to house_cup_totals in background
-          upsertPromises.push(
-            Promise.resolve(
-              supabase.from('house_cup_totals').upsert({
-                user_id: uid,
-                cup_year: cupYear,
-                category_id: cat,
-                points: derivedPts,
-                updated_at: new Date().toISOString(),
-              }, { onConflict: 'user_id,cup_year,category_id' })
-            )
-          );
-        });
-        Promise.all(upsertPromises).catch(() => {});
-      }
-    }
-  });
 
   // Calculate final total points per user
   standingsMap.forEach(entry => {
