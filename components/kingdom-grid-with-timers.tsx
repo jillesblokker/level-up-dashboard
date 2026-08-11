@@ -2622,7 +2622,7 @@ export function KingdomGridWithTimers({
                   key={cat.id}
                   onClick={() => setFocusCategory(focusCategory === cat.id ? null : cat.id)}
                   className={cn(
-                    "p-1.5 rounded-lg transition-all flex items-center gap-1.5",
+                    "p-1.5 rounded-lg transition-all flex items-center gap-3 min-w-[170px] sm:min-w-0 justify-between",
                     focusCategory === cat.id 
                       ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]" 
                       : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5 opacity-50 grayscale"

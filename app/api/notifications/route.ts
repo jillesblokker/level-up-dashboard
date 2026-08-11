@@ -34,8 +34,17 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Database error', details: error.message }, { status: 500 });
     }
 
+    // Auto-archive read notifications older than 24 hours to maintain a zero-clutter inbox
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const freshNotifications = (data || []).filter((item: any) => {
+      if (item.read && item.created_at && item.created_at < twentyFourHoursAgo) {
+        return false;
+      }
+      return true;
+    });
+
     // Wrap in object with 'notifications' key as expected by NotificationCenter.tsx
-    return NextResponse.json({ notifications: data || [] }, {
+    return NextResponse.json({ notifications: freshNotifications }, {
       headers: {
         'Cache-Control': 'private, s-maxage=0, max-age=10, must-revalidate',
       }

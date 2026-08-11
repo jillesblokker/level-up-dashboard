@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress"
 import { toast } from "@/components/ui/use-toast"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
 import { TreasureChestVisual } from "@/components/ui/treasure-chest-visual"
+import Image from "next/image"
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 interface Quest {
@@ -273,7 +274,15 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
                   onClick={() => selectGuardian(g.id)}
                   className="p-4 rounded-2xl bg-zinc-950 border border-white/5 hover:border-amber-500/50 cursor-pointer transition-all flex flex-col items-center text-center space-y-2.5"
                 >
-                  <span className="text-4xl animate-bounce" style={{ animationDuration: '3s' }}>{g.emoji}</span>
+                  <div className="relative w-16 h-16 animate-float">
+                    <Image
+                      src={g.image}
+                      alt={g.name}
+                      fill
+                      className="object-contain filter drop-shadow-[0_0_12px_rgba(245,158,11,0.4)]"
+                      unoptimized
+                    />
+                  </div>
                   <div>
                     <h4 className="font-bold text-white text-sm">{g.name}</h4>
                     <span className="text-[9px] tracking-wider font-extrabold text-amber-500 block mt-0.5 capitalize">{g.focus} focus</span>
@@ -290,8 +299,16 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
           
           {/* Avatar and speech area */}
           <div className="flex flex-col items-center space-y-3 shrink-0 relative">
-            <div className="text-6xl select-none animate-bounce relative cursor-pointer" style={{ animationDuration: '4s' }} title="Click to speak">
-              {activeGuardian?.emoji}
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 animate-bounce relative cursor-pointer flex items-center justify-center" style={{ animationDuration: '4s' }} title="Click to speak">
+              {activeGuardian?.image && (
+                <Image
+                  src={activeGuardian.image}
+                  alt={activeGuardian.name}
+                  fill
+                  className="object-contain filter drop-shadow-[0_0_16px_rgba(245,158,11,0.5)]"
+                  unoptimized
+                />
+              )}
               <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500"></span>

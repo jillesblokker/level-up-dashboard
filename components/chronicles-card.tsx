@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import Image from "next/image"
 import { Scroll, BookOpen, Map, Lock, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
 import { CHRONICLES_DATA, getCurrentChapter, getNextChapter } from "@/lib/chronicles-data"
 import { cn } from "@/lib/utils"
@@ -326,12 +327,42 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                     </div>
                 )}
 
-                {/* Completed Message */}
-                {viewedChapter.id === latestUnlockedChapter.id && !nextChapter && (
-                    <div className="mt-6 p-2 bg-amber-500/10 border border-amber-500/20 rounded text-center">
-                        <p className="text-amber-300 text-xs font-bold">Chronicles Complete</p>
+                {/* Hall of Champions Permanent Legacy Gallery */}
+                <div className="mt-8 pt-6 border-t border-amber-900/40 space-y-3">
+                    <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-amber-300 uppercase tracking-widest flex items-center gap-1.5 font-serif">
+                            👑 Hall of Champions (Legacy Champions)
+                        </span>
+                        <span className="text-[10px] text-zinc-500 font-mono">Season Winners</span>
                     </div>
-                )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {[
+                            { month: 'July 2026', winner: 'Sovereign Hero', virtue: 'Knowledge & Might', points: '14,250 pts', title: 'Virtue Sovereign', avatar: '/images/creatures/Necrion.png', border: 'ring-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.5)]' },
+                            { month: 'June 2026', winner: 'Grand Architect', virtue: 'Castle & Craft', points: '12,800 pts', title: 'High Builder', avatar: '/images/creatures/EmberDrake.webp', border: 'ring-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.5)]' }
+                        ].map((champion, idx) => (
+                            <div key={idx} className="p-3 rounded-xl bg-zinc-950/80 border border-amber-900/40 flex items-center gap-3">
+                                <div className={`relative w-10 h-10 rounded-full border-2 border-amber-400 ring-2 ${champion.border} shrink-0 overflow-hidden bg-zinc-900`}>
+                                    <Image
+                                        src={champion.avatar}
+                                        alt={champion.winner}
+                                        fill
+                                        className="object-contain p-1"
+                                        unoptimized
+                                    />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="font-bold text-amber-200 truncate">{champion.winner}</span>
+                                        <span className="text-[9px] text-amber-400/80 font-mono">{champion.month}</span>
+                                    </div>
+                                    <p className="text-[10px] text-zinc-400 italic truncate">{champion.title} • {champion.virtue}</p>
+                                    <span className="text-[9px] font-mono text-emerald-400 font-bold">{champion.points}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </CardContent>
         </Card>
     )

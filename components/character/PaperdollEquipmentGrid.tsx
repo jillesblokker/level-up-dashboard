@@ -390,7 +390,7 @@ function EquipmentSlotButton({
     <button
       type="button"
       onClick={onClick}
-      className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center justify-center bg-zinc-950/95 shadow-2xl backdrop-blur-md ${
+      className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center justify-center bg-zinc-950/95 shadow-2xl backdrop-blur-md relative overflow-hidden ${
         item
           ? 'border-amber-500/70 hover:scale-110 hover:border-amber-400 active:scale-95 ring-4 ring-amber-500/20'
           : 'border-zinc-800 text-zinc-600 opacity-60'
@@ -398,12 +398,12 @@ function EquipmentSlotButton({
       aria-label={`Inspect ${label}`}
     >
       {item ? (
-        <div className="relative w-14 h-14 sm:w-16 sm:h-16">
+        <div className="absolute inset-0 w-full h-full p-0">
           <Image
             src={item.image}
             alt={item.name}
             fill
-            className="object-contain filter drop-shadow-lg"
+            className="object-cover w-full h-full filter drop-shadow-lg"
             unoptimized
           />
         </div>

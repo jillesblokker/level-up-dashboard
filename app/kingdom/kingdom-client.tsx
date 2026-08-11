@@ -1695,6 +1695,11 @@ export function KingdomClient() {
 
 
 
+      {/* Dynamic Local Timezone Night/Day Atmosphere Sync */}
+      {typeof window !== 'undefined' && (new Date().getHours() >= 20 || new Date().getHours() < 6) && (
+        <div className="fixed inset-0 bg-indigo-950/15 pointer-events-none z-30 backdrop-hue-rotate-15 mix-blend-multiply" />
+      )}
+
       <HeaderSection
         title={isVisiting ? `${allyProfile?.display_name || 'Friend'}'s Kingdom` : "Kingdom"}
         subtitle={isVisiting ? `${allyProfile ? getCurrentTitle(allyProfile.level).name : 'Squire'} • Level ${allyProfile?.level || 1}` : `${getCurrentTitle(playerLevel).name} • Level ${playerLevel}. Build out your capital, construct properties, collect taxes, and expand your kingdom!`}
