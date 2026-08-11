@@ -365,14 +365,14 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
         </div>
       </CardHeader>
 
-      <CardContent className="pt-8 pb-4 px-8 relative z-10 flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">
-        {/* Sage Portrait Container */}
-        <div className="relative shrink-0 mt-2">
+      <CardContent className="pt-6 pb-4 px-4 sm:px-6 relative z-10 flex flex-col items-center gap-6 text-center w-full">
+        {/* Sage Portrait Container - Centered on top */}
+        <div className="relative shrink-0 mx-auto">
           {/* Animated Rings */}
           <div className="absolute inset-0 rounded-full blur-2xl bg-purple-500/20 animate-pulse scale-110" />
-          <div className="absolute -inset-3 border border-dashed border-purple-500/30 rounded-full animate-spin-slow" style={{ animationDuration: '20s' }} />
+          <div className="absolute -inset-2 border border-dashed border-purple-500/30 rounded-full animate-spin-slow" style={{ animationDuration: '20s' }} />
 
-          <div className="relative w-36 h-36 rounded-full border-2 border-purple-500/40 p-1 bg-zinc-900 shadow-2xl">
+          <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-purple-500/40 p-1 bg-zinc-900 shadow-2xl mx-auto">
             <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10">
               <Image
                 src="/images/encounters/riddle-sage.webp"
@@ -385,34 +385,34 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
           </div>
 
           {/* Decorative Floating Icon */}
-          <div className="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-zinc-900 border border-purple-500/50 flex items-center justify-center shadow-lg">
-            <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+          <div className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-zinc-900 border border-purple-500/50 flex items-center justify-center shadow-lg">
+            <Sparkles className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
           </div>
         </div>
 
-        <div className="flex-1 w-full flex flex-col">
-          <div className="bg-zinc-900 border border-white/5 rounded-2xl p-6 mb-8 relative">
-            <div className="absolute top-0 left-6 -translate-y-1/2 px-3 py-0.5 bg-purple-600 rounded-full text-[10px] font-bold text-white font-serif">
-              The question
+        <div className="flex-1 w-full flex flex-col items-center">
+          <div className="bg-zinc-900 border border-white/5 rounded-2xl p-4 sm:p-5 mb-5 relative w-full text-center">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-0.5 bg-purple-600 rounded-full text-[10px] font-bold text-white font-serif tracking-wider uppercase shadow-md">
+              The Question
             </div>
-            <p className="text-xl font-serif text-white leading-relaxed italic">
+            <p className="text-base sm:text-lg font-serif text-white leading-relaxed italic mt-1">
               &quot;{currentRiddleData ? currentRiddleData.question : ""}&quot;
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
             {currentRiddleData &&
               currentRiddleData.options.map((option: string, index: number) => {
                 const isSelected = selectedOption === option;
                 const isCorrectAnswer = option === currentRiddleData.answer;
 
-                let buttonStyle = "bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800/80 hover:border-zinc-700";
+                let buttonStyle = "bg-zinc-900 border-zinc-800 text-zinc-200 hover:bg-zinc-800/80 hover:border-zinc-700";
 
                 if (showAnswer) {
                   if (isCorrectAnswer) {
-                    buttonStyle = "bg-green-500/20 border-green-500/50 text-green-400";
+                    buttonStyle = "bg-green-500/20 border-green-500/50 text-green-300";
                   } else if (isSelected && !isCorrectAnswer) {
-                    buttonStyle = "bg-red-500/20 border-red-500/50 text-red-400";
+                    buttonStyle = "bg-red-500/20 border-red-500/50 text-red-300";
                   } else {
                     buttonStyle = "bg-zinc-900 border-zinc-800/50 text-zinc-500 opacity-50";
                   }
@@ -424,20 +424,20 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
                     onClick={() => handleOptionSelect(option)}
                     disabled={selectedOption !== null}
                     className={cn(
-                      "group relative h-14 justify-start px-6 rounded-xl border-2 transition-all duration-300 font-medium overflow-hidden",
+                      "group relative h-auto min-h-[50px] py-3 px-4 justify-start rounded-xl border-2 transition-all duration-300 font-medium text-xs sm:text-sm whitespace-normal break-words text-left leading-normal",
                       buttonStyle
                     )}
                   >
-                    <span className="relative z-10 flex items-center w-full">
-                      <span className="mr-3 text-xs font-bold opacity-50 bg-white/5 w-6 h-6 flex items-center justify-center rounded-md">
+                    <span className="relative z-10 flex items-center w-full gap-2.5">
+                      <span className="shrink-0 text-xs font-bold opacity-70 bg-white/10 w-6 h-6 flex items-center justify-center rounded-md">
                         {String.fromCharCode(65 + index)}
                       </span>
-                      {option}
+                      <span className="flex-1 min-w-0 font-sans">{option}</span>
                       {showAnswer && isCorrectAnswer && (
-                        <CheckCircle2 className="ml-auto h-5 w-5 text-green-400" />
+                        <CheckCircle2 className="shrink-0 ml-auto h-5 w-5 text-green-400" />
                       )}
                       {showAnswer && isSelected && !isCorrectAnswer && (
-                        <XCircle className="ml-auto h-5 w-5 text-red-400" />
+                        <XCircle className="shrink-0 ml-auto h-5 w-5 text-red-400" />
                       )}
                     </span>
                   </Button>

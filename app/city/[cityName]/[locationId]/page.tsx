@@ -1,6 +1,7 @@
 "use client"
 
 import { useParams, useSearchParams } from "next/navigation"
+import Image from "next/image"
 import { Suspense, useEffect, useState, useMemo, useCallback } from "react"
 import { getCityData } from "@/lib/city-data"
 import { HeaderSection } from "@/components/HeaderSection"
@@ -809,40 +810,86 @@ function CityLocationPageInner() {
           </div>
         )}
 
-        {/* Daily Town Minigames Quick Actions */}
-        <div className="bg-zinc-950/80 border border-amber-900/40 p-3.5 rounded-2xl mb-8 space-y-2 shadow-lg">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1.5 font-serif">
-              🎮 Daily Town Minigames & Rituals
-            </span>
-            <span className="text-[9px] text-zinc-500 font-mono">1 Free Daily Draw Each</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <Button
-              onClick={() => setTarotOpen(true)}
-              variant="outline"
-              className="h-10 bg-purple-950/40 border-purple-500/40 text-purple-200 hover:bg-purple-900/50 justify-start text-xs font-bold gap-2 rounded-xl"
-            >
-              <span>🔮</span> Tarot Fortune Reading
-            </Button>
+        {/* Featured Town Location Minigame Shop Card */}
+        {(() => {
+          let hash = 0;
+          const cName = cityName || 'citadel';
+          for (let i = 0; i < cName.length; i++) {
+            hash = (hash << 5) - hash + cName.charCodeAt(i);
+            hash |= 0;
+          }
+          const mTypeIndex = Math.abs(hash) % 3;
+          const assignedType = mTypeIndex === 0 ? 'fortune_teller' : mTypeIndex === 1 ? 'riddle' : 'plank_labyrinth';
+          const todayStr = new Date().toDateString();
+          const isMinigameDone = typeof window !== 'undefined' && localStorage.getItem(`town_minigame_${cName}_${assignedType}_${todayStr}`) === 'true';
 
-            <Button
-              onClick={() => setRiddleOpen(true)}
-              variant="outline"
-              className="h-10 bg-blue-950/40 border-blue-500/40 text-blue-200 hover:bg-blue-900/50 justify-start text-xs font-bold gap-2 rounded-xl"
-            >
-              <span>📜</span> Scholar&apos;s Riddle
-            </Button>
+          const minigameMeta = {
+            fortune_teller: {
+              title: "🔮 Tarot Fortune Reading",
+              desc: "Draw a daily tarot card to reveal active habit fortunes & gold offerings.",
+              image: "/images/tiles/fortune-teller-tile.webp",
+              badge: isMinigameDone ? "Completed Today ✓" : "1/1 Available Today",
+              action: () => setTarotOpen(true),
+              bg: "from-purple-950/60 via-zinc-950 to-zinc-950 border-purple-500/40 text-purple-200"
+            },
+            riddle: {
+              title: "📜 Scholar's Riddle",
+              desc: "Answer today's ancient scholar riddle to earn XP and gold.",
+              image: "/images/encounters/riddle-sage.webp",
+              badge: isMinigameDone ? "Completed Today ✓" : "1/1 Available Today",
+              action: () => setRiddleOpen(true),
+              bg: "from-blue-950/60 via-zinc-950 to-zinc-950 border-blue-500/40 text-blue-200"
+            },
+            plank_labyrinth: {
+              title: "🧩 Plank Labyrinth",
+              desc: "Solve the 6x6 ancient keystone sliding puzzle to retrieve gold & building tokens.",
+              image: "/images/tiles/plank-labyrinth-tile.webp",
+              badge: isMinigameDone ? "Completed Today ✓" : "1/1 Available Today",
+              action: () => setLabyrinthOpen(true),
+              bg: "from-amber-950/60 via-zinc-950 to-zinc-950 border-amber-500/40 text-amber-200"
+            }
+          }[assignedType];
 
-            <Button
-              onClick={() => setLabyrinthOpen(true)}
-              variant="outline"
-              className="h-10 bg-amber-950/40 border-amber-500/40 text-amber-200 hover:bg-amber-900/50 justify-start text-xs font-bold gap-2 rounded-xl"
-            >
-              <span>🧩</span> Plank Labyrinth
-            </Button>
-          </div>
-        </div>
+          return (
+            <div className={cn(
+              "bg-gradient-to-r border p-4 rounded-2xl mb-8 flex flex-col sm:flex-row items-center gap-4 shadow-xl relative overflow-hidden group",
+              minigameMeta.bg
+            )}>
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl border border-white/20 overflow-hidden shrink-0 shadow-lg">
+                <Image
+                  src={minigameMeta.image}
+                  alt={minigameMeta.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform"
+                />
+              </div>
+              <div className="flex-1 text-center sm:text-left space-y-1">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <h3 className="font-serif font-bold text-lg text-white">{minigameMeta.title}</h3>
+                  <Badge className={cn(
+                    "text-[10px] font-extrabold px-2 py-0.5 rounded-full border",
+                    isMinigameDone ? "bg-emerald-950/80 border-emerald-500/50 text-emerald-400" : "bg-amber-500/20 border-amber-400/50 text-amber-300 animate-pulse"
+                  )}>
+                    {minigameMeta.badge}
+                  </Badge>
+                </div>
+                <p className="text-xs text-zinc-300 leading-relaxed max-w-xl">{minigameMeta.desc}</p>
+              </div>
+              <Button
+                onClick={() => {
+                  if (!isMinigameDone) minigameMeta.action();
+                }}
+                disabled={isMinigameDone}
+                className={cn(
+                  "shrink-0 h-11 px-5 font-bold uppercase text-xs rounded-xl shadow-md tracking-wider flex items-center gap-2 cursor-pointer",
+                  isMinigameDone ? "bg-zinc-800 text-zinc-500 border border-zinc-700 cursor-not-allowed" : "bg-gradient-to-r from-amber-500 to-yellow-500 text-zinc-950 hover:brightness-110"
+                )}
+              >
+                {isMinigameDone ? "Done for Today ✓" : "Play Minigame ✨"}
+              </Button>
+            </div>
+          );
+        })()}
 
         <div className="flex items-center justify-between mb-8 relative z-10">
           <Link href={`/city/${cityName}`}>

@@ -178,7 +178,7 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center py-4 space-y-5 w-full max-w-full">
+          <div className="flex flex-col items-center py-2 space-y-3.5 w-full max-w-full">
             {selectedData && (
               <>
                 <div className="perspective-1000 w-full flex justify-center">
@@ -186,7 +186,7 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
                     initial={{ rotateY: 180, scale: 0.8, opacity: 0 }}
                     animate={{ rotateY: 0, scale: 1, opacity: 1 }}
                     transition={{ duration: 0.7, ease: [0.34, 1.56, 0.64, 1] }}
-                    className="relative w-full max-w-[220px] sm:max-w-[260px] aspect-[2/3] rounded-2xl overflow-hidden shadow-[0_0_35px_rgba(16,185,129,0.5)] border-2 border-emerald-400/60 mx-auto"
+                    className="relative w-full max-w-[180px] sm:max-w-[190px] aspect-[2/3] rounded-2xl overflow-hidden shadow-[0_0_25px_rgba(16,185,129,0.5)] border-2 border-emerald-400/60 mx-auto"
                   >
                     <Image
                       src={selectedData.image}
