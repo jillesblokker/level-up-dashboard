@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useGameStore } from '@/stores/game-store'
@@ -8,6 +8,56 @@ import { useCitizensStore } from '@/stores/citizensStore'
 import { getUserPreference } from '@/lib/user-preferences-manager'
 import { Heart, Sparkles, MessageSquare, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+
+// Cryptic riddle-style hints keyed by achievement ID.
+// Only shown for achievements the player has NOT unlocked yet.
+const CRYPTIC_ACHIEVEMENT_HINTS: Record<string, string> = {
+  // Creature collection — quest milestones
+  '001': "🔮 They say a tiny flame stirs in the embers when a hero proves their first resolve.",
+  '002': "🔮 Some creatures only reveal themselves after a trail of ten conquered dawns.",
+  '003': "🔮 A fire spirit of great power awaits those who walk the path of fifty sunrises.",
+  '004': "🔮 The waters whisper of a creature born when your garden first drinks the rain.",
+  '005': "🔮 Five gardens nourished... and something stirs beneath the surface.",
+  '006': "🔮 A great aquatic guardian sleeps. It demands ten rivers fed by your hand.",
+  '007': "🔮 The ancient woods hold secrets. Plant a single seed and something may watch.",
+  '008': "🔮 Five saplings planted by steady hands... the forest spirits begin to notice.",
+  '009': "🔮 A timeless protector of the grove awakens only for the most devoted foresters.",
+  '010': "🔮 When the mountains crumble, something small emerges from the rubble.",
+  '011': "🔮 Persistent demolishers attract stonier companions.",
+  '012': "🔮 They say the mountain king only rises when ten peaks have fallen.",
+  '013': "🔮 A single frost shard placed on barren ground... and a chill spirit stirs.",
+  '014': "🔮 Five frozen tiles form a pattern only the cold-hearted can see.",
+  '015': "🔮 The blizzard queen crowns those who master ten tiles of frozen domain.",
+  '016': "🔮 The hum of a city draws a tiny spark from the ether.",
+  '017': "🔮 Five cities built... the lightning grows restless.",
+  '018': "🔮 Master of the grid, lord of ten cities — the storm answers your call.",
+
+  // Dragon legends — quest volume
+  '101': "🔮 A hundred conquered habits echo through the caves. Something ancient stirs.",
+  '102': "🔮 Five hundred marks of discipline... a dragon of legend circles overhead.",
+  '103': "🔮 Only those who etch a thousand victories may summon the supreme dragon lord.",
+
+  // Milestone creatures
+  '104': "🔮 A cheerful shell appears when you cross your very first finish line.",
+  '105': "🔮 Five long journeys completed... a wiser turtle emerges from the deep.",
+  '106': "🔮 Ten great milestones reached. The legendary shell-bearer has heard your name.",
+
+  // Social — friends & quests
+  '107': "🔮 A lone wolf survives, but extending your hand unlocks something more.",
+  '108': "🔮 Gather a handful of trusted companions and a loyal creature will find you.",
+  '109': "🔮 Ten banners united under one cause — a noble spirit takes notice.",
+  '110': "🔮 Giving is its own reward. Send a challenge to another and see what awakens.",
+  '111': "🔮 Five scrolls dispatched to friends... the strategist within you grows.",
+  '112': "🔮 Ten quests sent forth — your command is legendary, and something knows it.",
+
+  // Monster battle victories
+  '201': "🔮 A winged beast of old awaits in the dungeon. Watch closely and strike true.",
+  '202': "🔮 Shadows hide a cunning little thief. Match its moves to earn a trophy.",
+  '203': "🔮 A mountain of muscle blocks your descent. Only mimicry defeats brute force.",
+  '204': "🔮 Arcane patterns swirl in darkness. Memorize the sequence to break the spell.",
+  '205': "🔮 A creature of the clouds soars above. Follow its grace to earn its trust.",
+  '206': "🔮 Small and swift, the fae dances just out of reach. Can you keep rhythm?"
+}
 
 const HINTS_BY_ROUTE: Record<string, string[]> = {
   '/quests': [
@@ -68,6 +118,7 @@ export function CompanionOverlay() {
   const [speakerName, setSpeakerName] = useState<'necrion' | 'guardian'>('necrion')
   const [isAnimating, setIsAnimating] = useState(false)
   const [guardianId, setGuardianId] = useState<string>('ember-drake')
+  const [unlockedAchievementIds, setUnlockedAchievementIds] = useState<Set<string>>(new Set())
 
   // Settings Toggles State
   const [showNecrion, setShowNecrion] = useState(true)
@@ -161,6 +212,27 @@ export function CompanionOverlay() {
     }
   }, [])
 
+  // Fetch unlocked achievements so we only show hints for locked ones
+  useEffect(() => {
+    const fetchUnlocked = async () => {
+      try {
+        const res = await fetch('/api/achievements')
+        if (res.ok) {
+          const data = await res.json()
+          const ids = new Set<string>(
+            (Array.isArray(data) ? data : data.achievements || [])
+              .filter((a: any) => a.unlocked)
+              .map((a: any) => String(a.achievement_id || a.id))
+          )
+          setUnlockedAchievementIds(ids)
+        }
+      } catch {
+        // Silently ignore — hints will just skip achievements
+      }
+    }
+    fetchUnlocked()
+  }, [])
+
   // Listen to quest completions to trigger companion speech
   useEffect(() => {
     const handleQuestCompleted = () => {
@@ -200,10 +272,38 @@ export function CompanionOverlay() {
     return { name: 'Ember Drake', image: '/images/creatures/EmberDrake.webp' }
   }, [citizens, activePartnerId, guardianId])
 
+  // Build locked-achievement cryptic hints
+  const lockedAchievementHints = useMemo(() => {
+    return Object.entries(CRYPTIC_ACHIEVEMENT_HINTS)
+      .filter(([id]) => !unlockedAchievementIds.has(id))
+      .map(([, hint]) => hint)
+  }, [unlockedAchievementIds])
+
   const hints = useMemo(() => {
     const routeKey = Object.keys(HINTS_BY_ROUTE).find(key => pathname?.startsWith(key))
-    return routeKey ? HINTS_BY_ROUTE[routeKey] : DEFAULT_HINTS
-  }, [pathname])
+    const routeHints = routeKey ? HINTS_BY_ROUTE[routeKey] : DEFAULT_HINTS
+    const baseHints = routeHints ?? DEFAULT_HINTS
+
+    // Mix in ~30% achievement hints by inserting one every 2-3 regular hints
+    if (lockedAchievementHints.length === 0) return baseHints
+
+    const mixed: string[] = []
+    let achIdx = 0
+    for (let i = 0; i < baseHints.length; i++) {
+      mixed.push(baseHints[i]!)
+      // After every 2nd regular hint, insert an achievement hint
+      if ((i + 1) % 2 === 0 && achIdx < lockedAchievementHints.length) {
+        mixed.push(lockedAchievementHints[achIdx]!)
+        achIdx++
+      }
+    }
+    // Append remaining achievement hints at the end
+    while (achIdx < lockedAchievementHints.length) {
+      mixed.push(lockedAchievementHints[achIdx]!)
+      achIdx++
+    }
+    return mixed
+  }, [pathname, lockedAchievementHints])
 
   const activeHints = hints || DEFAULT_HINTS
   const currentHint = activeHints[hintIndex % activeHints.length] || DEFAULT_HINTS[0]
