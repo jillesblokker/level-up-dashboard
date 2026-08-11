@@ -13,11 +13,9 @@ import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
-import dynamic from "next/dynamic"
-
-const TarotReadingModal = dynamic(() => import("@/components/minigames/TarotReadingModal").then(m => m.TarotReadingModal), { ssr: false })
-const AncientRiddleModal = dynamic(() => import("@/components/minigames/AncientRiddleModal").then(m => m.AncientRiddleModal), { ssr: false })
-const PlankLabyrinthModal = dynamic(() => import("@/components/minigames/PlankLabyrinthModal").then(m => m.PlankLabyrinthModal), { ssr: false })
+import { TarotReadingModal } from "@/components/minigames/TarotReadingModal"
+import { AncientRiddleModal } from "@/components/minigames/AncientRiddleModal"
+import { PlankLabyrinthModal } from "@/components/minigames/PlankLabyrinthModal"
 
 interface HabitFocusData {
   locationName: string;

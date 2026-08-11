@@ -27,10 +27,9 @@ import { PACK_TYPES, generatePack } from "@/lib/pack-generator"
 import { PackOpeningModal } from "@/components/pack-opening-modal"
 import { formatGold, cn } from "@/lib/utils"
 import { ShopItemCard } from "@/components/shop-item-card"
-
-const TarotReadingModal = dynamic(() => import("@/components/minigames/TarotReadingModal").then(m => m.TarotReadingModal), { ssr: false })
-const AncientRiddleModal = dynamic(() => import("@/components/minigames/AncientRiddleModal").then(m => m.AncientRiddleModal), { ssr: false })
-const PlankLabyrinthModal = dynamic(() => import("@/components/minigames/PlankLabyrinthModal").then(m => m.PlankLabyrinthModal), { ssr: false })
+import { TarotReadingModal } from "@/components/minigames/TarotReadingModal"
+import { AncientRiddleModal } from "@/components/minigames/AncientRiddleModal"
+import { PlankLabyrinthModal } from "@/components/minigames/PlankLabyrinthModal"
 import {
   BLACKSMITH_WEAPONS, BLACKSMITH_SHIELDS, BLACKSMITH_ARMOR,
   STABLE_ITEMS, POTION_ITEMS, SCROLL_ITEMS, ARTIFACT_ITEMS, FOOD_ITEMS,
