@@ -42,7 +42,7 @@ import { useAchievementCatchUp } from "@/hooks/use-achievement-catch-up";
 // Dynamically import heavy components to prevent initialization order issues (ReferenceError)
 const AllianceDashboard = dynamic(() => import("@/components/alliance-dashboard"), { 
     ssr: false,
-    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading Alliances...</div>
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading fellowships...</div>
 })
 const Leaderboard = dynamic(() => import("@/components/leaderboard"), { 
     ssr: false,
@@ -424,7 +424,7 @@ export default function AlliesPage() {
                     className: "bg-amber-900 border-amber-500 text-amber-100"
                 });
             } else {
-                toast({ title: "Hire Failed", description: data.error || "Could not hire ally", variant: "destructive" });
+                toast({ title: "Hire Failed", description: data.error || "Could not hire friend", variant: "destructive" });
             }
         } catch (error) {
             toast({ title: "Error", description: "Failed to connect to the Tavern", variant: "destructive" });
@@ -463,7 +463,7 @@ export default function AlliesPage() {
                         subtitle={TEXT_CONTENT.social.header.guide.subtitle}
                         sections={[
                             {
-                                title: "Alliances",
+                                title: "Fellowships",
                                 icon: Shield,
                                 content: TEXT_CONTENT.social.header.guide.sections.alliances
                             },

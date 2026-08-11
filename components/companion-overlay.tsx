@@ -34,7 +34,7 @@ const HINTS_BY_ROUTE: Record<string, string[]> = {
     "Equip your favorite crest sigil to show your alliance pride."
   ],
   '/social': [
-    "Send cheers to fellow allies to boost their daily habit momentum!",
+    "Send cheers to fellow friends to boost their daily habit momentum!",
     "Check the realm leaderboards to see where your kingdom ranks."
   ],
   '/profile': [

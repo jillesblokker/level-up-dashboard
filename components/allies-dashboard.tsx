@@ -395,7 +395,7 @@ export function AlliesDashboard() {
 
       if (res.ok) {
         toast({
-          title: action === 'accept' ? "Ally added" : "Request declined",
+          title: action === 'accept' ? "Friend added" : "Request declined",
           description: action === 'accept' ? "A new hero joins your cause." : "The request has been dismissed."
         });
         fetchFriends(); 
@@ -406,15 +406,15 @@ export function AlliesDashboard() {
   };
 
   const removeFriend = async (friendshipId: string) => {
-    if (!confirm("Are you sure you want to remove this ally?")) return;
+    if (!confirm("Are you sure you want to remove this friend?")) return;
     try {
       const res = await fetch(`/api/friends/${friendshipId}`, { method: 'DELETE' });
       if (res.ok) {
-        toast({ title: "Ally removed", description: "The bond has been broken." });
+        toast({ title: "Friend removed", description: "The bond has been broken." });
         setFriends(prev => prev.filter(f => f.id !== friendshipId));
       }
     } catch (error) {
-      toast({ title: "Error", description: "Failed to remove ally", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to remove friend", variant: "destructive" });
     }
   };
 
@@ -474,7 +474,7 @@ export function AlliesDashboard() {
   if (isLoading) return (
     <div className="flex flex-col items-center justify-center p-12 space-y-4">
       <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-      <span className="text-amber-500/50 font-medieval tracking-widest uppercase text-xs">Summoning your allies...</span>
+      <span className="text-amber-500/50 font-medieval tracking-widest uppercase text-xs">Summoning your friends...</span>
     </div>
   );
 
@@ -514,7 +514,7 @@ export function AlliesDashboard() {
             <Card className="medieval-card p-12 text-center border-dashed">
               <div className="flex flex-col items-center">
                 <Users className="w-16 h-16 text-amber-900/40 mb-4" />
-                <h3 className="text-xl font-medieval text-amber-500 mb-2">No Allies Found</h3>
+                <h3 className="text-xl font-medieval text-amber-500 mb-2">No friends found</h3>
                 <p className="text-amber-900/60 font-serif mb-6 italic">Your chronicle is yet to feature other heroes.</p>
                 <Button onClick={() => setActiveTab("add")} variant="outline" className="border-amber-800 text-amber-500 hover:bg-amber-950/40">
                   Search the Realms
@@ -763,10 +763,10 @@ export function AlliesDashboard() {
 
                       {/* Ally Side */}
                       <div className="text-center space-y-4">
-                         <Badge variant="outline" className="text-amber-500 border-amber-500/30 bg-amber-500/5">Ally Legacy</Badge>
+                         <Badge variant="outline" className="text-amber-500 border-amber-500/30 bg-amber-500/5">Friend legacy</Badge>
                          <div className="flex justify-center">
                             <div className="w-16 h-16 rounded-full border-2 border-amber-500 bg-zinc-900 p-1">
-                               <Image src={selectedFriend?.imageUrl || ""} alt="Ally" width={64} height={64} className="rounded-full" />
+                               <Image src={selectedFriend?.imageUrl || ""} alt="Friend" width={64} height={64} className="rounded-full" />
                             </div>
                          </div>
                          <div className="font-medieval text-2xl text-amber-500">{selectedFriend?.username}</div>

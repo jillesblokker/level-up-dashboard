@@ -209,10 +209,10 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
         n.type === 'friend_quest_received' ? 'New Quest Received' :
         n.type === 'friend_challenge_received' ? 'New Duel Challenge! ⚔️' :
           n.type === 'friend_request_accepted' ? 'Friend Request Accepted' : 'Notification',
-      message: n.type === 'friend_request' ? `${n.data.senderName} wants to be your ally!` :
+      message: n.type === 'friend_request' ? `${n.data.senderName} wants to be your friend!` :
         n.type === 'friend_quest_received' ? `${n.data.senderName} sent you a quest: "${n.data.questTitle}"` :
         n.type === 'friend_challenge_received' ? `${n.data.senderName} challenged you: "${n.data.challengeName}" (Base: ${n.data.baseGoal})` :
-          n.type === 'friend_request_accepted' ? `${n.data.accepterName} is now your ally!` : '',
+          n.type === 'friend_request_accepted' ? `${n.data.accepterName} is now your friend!` : '',
       type: 'social',
       priority: 'high',
       timestamp: n.created_at,

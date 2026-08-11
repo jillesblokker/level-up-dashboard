@@ -149,7 +149,7 @@ export function AllianceDashboard() {
 
         const result = await inviteToAlliance(selectedAllianceId, selectedFriendId);
         if (result.success) {
-            toast({ title: "Invitation sent", description: "Your ally has been added to the alliance." });
+            toast({ title: "Invitation sent", description: "Your friend has been added to the fellowship." });
             setInviteModalOpen(false);
             setSelectedFriendId("");
             refreshAlliances();
@@ -408,7 +408,7 @@ export function AllianceDashboard() {
             ) : (
                 <>
                     <div className="flex justify-between items-center mb-2">
-                        <h3 className="text-lg font-medieval text-amber-500">Your allegiances</h3>
+                        <h3 className="text-lg font-medieval text-amber-500">Your fellowships</h3>
                         <Button size="sm" variant="outline" onClick={() => setCreateModalOpen(true)}>
                             <Plus className="w-4 h-4" /> New fellowship
                         </Button>
@@ -533,12 +533,12 @@ export function AllianceDashboard() {
                     </SheetHeader>
                     <div className="space-y-4 py-4">
                         {loadingFriends ? (
-                            <div className="text-center text-sm text-zinc-500">Loading allies...</div>
+                            <div className="text-center text-sm text-zinc-500">Loading friends...</div>
                         ) : friends.length === 0 ? (
-                            <div className="text-center text-sm text-zinc-500">No allies found to invite.</div>
+                            <div className="text-center text-sm text-zinc-500">No friends found to invite.</div>
                         ) : (
                             <div className="space-y-2">
-                                <Label>Select Ally</Label>
+                                <Label>Select friend</Label>
                                 <Select value={selectedFriendId} onValueChange={setSelectedFriendId}>
                                     <SelectTrigger className="bg-zinc-950 border-amber-900/30">
                                         <SelectValue placeholder="Choose a friend" />

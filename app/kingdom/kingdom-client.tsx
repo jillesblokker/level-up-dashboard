@@ -1696,7 +1696,7 @@ export function KingdomClient() {
 
 
       <HeaderSection
-        title={isVisiting ? `${allyProfile?.display_name || 'Ally'}'s Kingdom` : "Kingdom"}
+        title={isVisiting ? `${allyProfile?.display_name || 'Friend'}'s Kingdom` : "Kingdom"}
         subtitle={isVisiting ? `${allyProfile ? getCurrentTitle(allyProfile.level).name : 'Squire'} • Level ${allyProfile?.level || 1}` : `${getCurrentTitle(playerLevel).name} • Level ${playerLevel}. Build out your capital, construct properties, collect taxes, and expand your kingdom!`}
         imageSrc={coverImage || "/images/Kingdom.webp"}
         canEdit={!!user?.id && !isVisiting}

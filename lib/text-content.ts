@@ -63,7 +63,7 @@ export const TEXT_CONTENT = {
                 button: "Search",
                 searching: "Searching...",
                 noResults: "No users found matching \"{query}\"",
-                initial: "Search for your friends by username to add them to your allies."
+                initial: "Search for your friends by username to add them to your friend list."
             },
             requests: {
                 noRequests: "No pending friend requests."
@@ -73,7 +73,7 @@ export const TEXT_CONTENT = {
             status: {
                 lastSeen: "Last seen: {date}",
                 offline: "Offline",
-                since: "Ally since {date}",
+                since: "Friend since {date}",
                 incomingInfo: "Incoming Request",
                 outgoingInfo: "Outgoing Request",
                 level: "Lvl {level}"
@@ -93,8 +93,8 @@ export const TEXT_CONTENT = {
                 decline: "Decline",
                 addFriend: "Add Friend",
                 remove: {
-                    confirm: "Are you sure you want to remove this ally?",
-                    success: "Ally removed from your list.",
+                    confirm: "Are you sure you want to remove this friend?",
+                    success: "Friend removed from your list.",
                     title: "Friend Removed"
                 }
             }
@@ -102,7 +102,7 @@ export const TEXT_CONTENT = {
         modals: {
             quest: {
                 title: "Send Quest to {username}",
-                description: "Create a custom quest for your ally. They will receive a notification.",
+                description: "Create a custom quest for your friend. They will receive a notification.",
                 form: {
                     title: "Quest Title",
                     titlePlaceholder: "e.g., Run 5km this week",
@@ -121,7 +121,7 @@ export const TEXT_CONTENT = {
                 }
             },
             compare: {
-                title: "Ally Comparison",
+                title: "Friend comparison",
                 description: "Comparing your stats with ",
                 you: "You",
                 level: "Level {level}"
@@ -131,7 +131,7 @@ export const TEXT_CONTENT = {
             requestSent: "Request Sent",
             requestSentDesc: "Friend request sent successfully!",
             friendAdded: "Friend Added",
-            friendAddedDesc: "You are now allies!",
+            friendAddedDesc: "You are now friends!",
             requestDeclined: "Request Declined",
             requestDeclinedDesc: "Friend request declined.",
             error: "Error",
@@ -316,15 +316,15 @@ export const TEXT_CONTENT = {
             tiles: "Tiles",
             streak: "Streak",
             quests: "Quests",
-            allies: "Allies"
+            allies: "Friends"
         },
         descriptions: {
             xp: "Most legendary heroes",
             gold: "Wealthiest lords & ladies",
             tiles: "Greatest realm builders",
-            streak: "Most consistent allies",
+            streak: "Most consistent friends",
             quests: "Heroes of the month",
-            allies: "Dominant alliances (monthly)"
+            allies: "Dominant fellowships (monthly)"
         },
         loading: "Consulting the royal archives...",
         empty: {
@@ -609,14 +609,14 @@ export const TEXT_CONTENT = {
         ui: {
             envoyMode: {
                 badge: "Envoy mode",
-                subtitle: "Exploring ally's kingdom",
+                subtitle: "Exploring friend's kingdom",
                 returnHome: "Return Home"
             },
             header: {
                 myKingdom: "KINGDOM",
                 myKingdomSubtitle: "Manage your kingdom and grow your prosperity",
-                allyKingdom: "Ally Kingdom",
-                allyKingdomSubtitle: "Observing the prosperity of your ally"
+                allyKingdom: "Friend's kingdom",
+                allyKingdomSubtitle: "Observing the prosperity of your friend"
             },
             tabs: {
                 thrivehaven: "Thrivehaven",
@@ -1326,7 +1326,7 @@ export const TEXT_CONTENT = {
                 sections: {
                     collection: { title: "Creature Collection", content: "Roam the wild lands. Some creatures appear only to those who explore diligently and meet their unique criteria." },
                     battles: { title: "Battle Glories", content: "Test your memory and reflexes against legendary beasts. Victory rewards you with trophies." },
-                    social: { title: "Social Deeds", content: "Strength lies in numbers. Build a network of allies and challenge each other to grow." }
+                    social: { title: "Social Deeds", content: "Strength lies in numbers. Build a network of friends and challenge each other to grow." }
                 }
             }
         },
@@ -1356,9 +1356,9 @@ export const TEXT_CONTENT = {
             '107': { name: 'First Alliance', description: 'A lone wolf survives, but a pack thrives. Extend a hand to another.', condition: 'Add your first friend' },
             '108': { name: 'Guild Founder', description: 'A small party can accomplish great things. Expand your circle of trust to a hand\'s count.', condition: 'Add 5 friends' },
             '109': { name: 'Fellowship Leader', description: 'Your banner attracts many. Lead a party of ten brave souls.', condition: 'Add 10 friends' },
-            '110': { name: 'Quest Giver', description: 'It is better to give than to receive. Challenge an ally to grow.', condition: 'Send your first quest to a friend' },
-            '111': { name: 'Master Strategist', description: 'A true leader pushes their allies to greatness. Issue five challenges.', condition: 'Send 5 quests to friends' },
-            '112': { name: 'Grand Questmaster', description: 'Your command over challenges is legendary. Ten allies have been tested by your hand.', condition: 'Send 10 quests to friends' },
+            '110': { name: 'Quest Giver', description: 'It is better to give than to receive. Challenge a friend to grow.', condition: 'Send your first quest to a friend' },
+            '111': { name: 'Master Strategist', description: 'A true leader pushes their friends to greatness. Issue five challenges.', condition: 'Send 5 quests to friends' },
+            '112': { name: 'Grand Questmaster', description: 'Your command over challenges is legendary. Ten friends have been tested by your hand.', condition: 'Send 10 quests to friends' },
             '201': { name: 'Ancient Dragon Slayer', description: 'Face the ancient winged beast. Watch its movements closely and strike true.', condition: 'Complete Simon Says battle against Dragon' },
             '202': { name: 'Goblin Hunter', description: 'The crafty looting menace hides in the shadows. Match its cunning moves.', condition: 'Complete Simon Says battle against Goblin' },
             '203': { name: 'Troll Crusher', description: 'A mountain of muscle blocks your path. Mimic its brute force to bring it down.', condition: 'Complete Simon Says battle against Troll' },
@@ -1736,10 +1736,10 @@ export const TEXT_CONTENT = {
         header: {
             title: "Realm",
             subtitle: "Enter the wild frontiers. Explore landmarks, daily encounters, and world events!",
-            envoyTitle: "Ally Realm",
+            envoyTitle: "Friend's realm",
             envoySubtitle: "Observing a fellow pioneer's journey",
             envoyMode: "ENVOY MODE",
-            envoyDesc: "Exploring Ally's Realm",
+            envoyDesc: "Exploring friend's realm",
             returnHome: "Return Home"
         },
         guide: {

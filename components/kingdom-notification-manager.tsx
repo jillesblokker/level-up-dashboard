@@ -102,10 +102,10 @@ export function KingdomNotificationManager() {
 
                             if (n.type === 'quest_received') {
                                 title = "New Quest Received! 📜"
-                                body = `${n.data?.senderName || 'An ally'} sent you a quest: ${n.data?.questName}`
+                                body = `${n.data?.senderName || 'A friend'} sent you a quest: ${n.data?.questName}`
                             } else if (n.type === 'quest_completed_ally') {
                                 title = "Quest Completed! ✨"
-                                body = `${n.data?.senderName || 'An ally'} completed the quest you sent!`
+                                body = `${n.data?.senderName || 'A friend'} completed the quest you sent!`
                             }
 
                             toast({

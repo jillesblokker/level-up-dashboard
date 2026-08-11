@@ -128,10 +128,10 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
           </div>
           <div className="p-3 bg-zinc-950/80 rounded-xl border border-amber-900/30">
             <div className="text-[10px] text-zinc-400 font-semibold flex items-center justify-center gap-1">
-              <Users className="w-3 h-3 text-amber-400" /> Participating allies
+              <Users className="w-3 h-3 text-amber-400" /> Participating friends
             </div>
             <div className="font-medieval text-lg text-amber-300 mt-0.5">
-              {allyCount} {allyCount === 1 ? 'Ally' : 'Allies'}
+              {allyCount} {allyCount === 1 ? 'friend' : 'friends'}
             </div>
           </div>
         </div>

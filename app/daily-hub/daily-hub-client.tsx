@@ -866,7 +866,7 @@ export function DailyHubClient() {
                                     <div className="flex gap-4">
                                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">4</div>
                                         <div>
-                                            <h3 className="text-amber-400 font-bold text-lg mb-1">Competitive Allies</h3>
+                                            <h3 className="text-amber-400 font-bold text-lg mb-1">Competitive friends</h3>
                                             <p className="text-sm text-zinc-300 leading-relaxed">Engaging with friends and rivals.</p>
                                         </div>
                                     </div>

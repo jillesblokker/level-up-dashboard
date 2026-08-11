@@ -68,7 +68,7 @@ const Leaderboard = dynamic(() => import("@/components/leaderboard"), {
 })
 const AlliesDashboard = dynamic(() => import("@/components/allies-dashboard"), { 
   ssr: false,
-  loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse">Loading Allies...</div>
+  loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse">Loading friends...</div>
 })
 
 // Define available materials for trade
@@ -833,11 +833,11 @@ function CityLocationPageInner() {
                 </TabsTrigger>
                 <TabsTrigger value="alliances">
                   <Users className="w-4 h-4" />
-                  Alliances
+                  Fellowships
                 </TabsTrigger>
                 <TabsTrigger value="allies">
                   <UserPlus className="w-4 h-4" />
-                  Ally Board
+                  Friend board
                 </TabsTrigger>
                 <TabsTrigger value="leaderboard">
                   <Trophy className="w-4 h-4" />

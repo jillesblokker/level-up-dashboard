@@ -110,7 +110,7 @@ export default function Page() {
               {
                 id: '110',
                 name: 'Quest Giver',
-                description: 'It is better to give than to receive. Challenge an ally to grow.',
+                description: 'It is better to give than to receive. Challenge a friend to grow.',
                 category: 'social',
                 difficulty: 'easy',
                 xp_reward: 50,
@@ -122,7 +122,7 @@ export default function Page() {
               {
                 id: '111',
                 name: 'Master Strategist',
-                description: 'A true leader pushes their allies to greatness. Issue five challenges.',
+                description: 'A true leader pushes their friends to greatness. Issue five challenges.',
                 category: 'social',
                 difficulty: 'hard',
                 xp_reward: 150,
@@ -134,7 +134,7 @@ export default function Page() {
               {
                 id: '112',
                 name: 'Grand Questmaster',
-                description: 'Your command over challenges is legendary. Ten allies have been tested by your hand.',
+                description: 'Your command over challenges is legendary. Ten friends have been tested by your hand.',
                 category: 'social',
                 difficulty: 'hard',
                 xp_reward: 500,
@@ -273,7 +273,7 @@ export default function Page() {
             {
               id: '110',
               name: 'Quest Giver',
-              description: 'It is better to give than to receive. Challenge an ally to grow.',
+              description: 'It is better to give than to receive. Challenge a friend to grow.',
               category: 'social',
               difficulty: 'easy',
               xp_reward: 50,
@@ -285,7 +285,7 @@ export default function Page() {
             {
               id: '111',
               name: 'Master Strategist',
-              description: 'A true leader pushes their allies to greatness. Issue five challenges.',
+              description: 'A true leader pushes their friends to greatness. Issue five challenges.',
               category: 'social',
               difficulty: 'hard',
               xp_reward: 150,
@@ -297,7 +297,7 @@ export default function Page() {
             {
               id: '112',
               name: 'Grand Questmaster',
-              description: 'Your command over challenges is legendary. Ten allies have been tested by your hand.',
+              description: 'Your command over challenges is legendary. Ten friends have been tested by your hand.',
               category: 'social',
               difficulty: 'hard',
               xp_reward: 500,

@@ -90,7 +90,7 @@ export function JoustingTournamentModal() {
       <DialogTrigger asChild>
         <Button className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-500 hover:to-amber-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
           <Swords className="w-4 h-4 text-amber-300" />
-          <span>Ally Joust Bet</span>
+          <span>Friend joust bet</span>
         </Button>
       </DialogTrigger>
 
@@ -105,7 +105,7 @@ export function JoustingTournamentModal() {
         {battleState === 'selecting' && (
           <div className="space-y-4">
             <p className="text-xs text-zinc-300 leading-relaxed bg-zinc-900/80 p-3 rounded-xl border border-white/10">
-              Select <strong>3 categories</strong> where you bet your habit stats will outperform your ally’s knight in 3 jousting passes.
+              Select <strong>3 categories</strong> where you bet your habit stats will outperform your friend&apos;s knight in 3 jousting passes.
             </p>
 
             <div className="space-y-2">
@@ -134,7 +134,7 @@ export function JoustingTournamentModal() {
                       <div className="flex items-center gap-3 font-mono text-[11px]">
                         <span className="text-emerald-400 font-bold">You: {c.playerStat}</span>
                         <span className="text-zinc-500">vs</span>
-                        <span className="text-blue-400 font-bold">Ally: {c.allyStat}</span>
+                        <span className="text-blue-400 font-bold">Friend: {c.allyStat}</span>
                       </div>
                     </button>
                   );

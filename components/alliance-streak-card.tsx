@@ -133,7 +133,7 @@ export function AllianceStreakCard({ userId }: AllianceStreakProps) {
                             <div className="flex items-center justify-between text-xs text-zinc-400 mb-2">
                                 <span>Next milestone</span>
                                 <span className="font-semibold">
-                                    {streak.current < 7 ? `${7 - streak.current} days to "Loyal Ally"` :
+                                    {streak.current < 7 ? `${7 - streak.current} days to "Loyal friend"` :
                                         streak.current < 30 ? `${30 - streak.current} days to "Steadfast Companion"` :
                                             streak.current < 100 ? `${100 - streak.current} days to "Eternal Friend"` :
                                                 'All milestones achieved! 🎉'}

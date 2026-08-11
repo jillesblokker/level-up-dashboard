@@ -13,7 +13,7 @@ interface FriendDareModalProps {
   friendName?: string
 }
 
-export function FriendDareModal({ isOpen, onClose, friendName = 'Ally' }: FriendDareModalProps) {
+export function FriendDareModal({ isOpen, onClose, friendName = 'Friend' }: FriendDareModalProps) {
   const [isSending, setIsSending] = useState(false)
 
   const handleIssueDare = async () => {

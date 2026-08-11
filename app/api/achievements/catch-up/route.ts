@@ -139,10 +139,10 @@ export async function POST(request: Request) {
                 await unlockAchievement('107', 'first_friend', 'First Fellowship', 'Add your first friend to your fellowship', 50, 10);
             }
             if (friendCount && friendCount >= 5) {
-                await unlockAchievement('108', 'five_friends', 'Guild Founder', 'Gather 5 allies to your cause', 100, 50);
+                await unlockAchievement('108', 'five_friends', 'Guild Founder', 'Gather 5 friends to your cause', 100, 50);
             }
             if (friendCount && friendCount >= 10) {
-                await unlockAchievement('109', 'ten_friends', 'Fellowship Leader', 'Unite 10 allies under your banner', 200, 100);
+                await unlockAchievement('109', 'ten_friends', 'Fellowship Leader', 'Unite 10 friends under your banner', 200, 100);
             }
         }
 
@@ -167,7 +167,7 @@ export async function POST(request: Request) {
                 await unlockAchievement('110', 'first_quest_sent', 'Quest Giver', 'Send your first quest to a friend', 50, 10);
             }
             if (sentQuestCount && sentQuestCount >= 5) {
-                await unlockAchievement('111', 'five_quests_sent', 'Master Strategist', 'Send 5 quests to challenge your allies', 150, 75);
+                await unlockAchievement('111', 'five_quests_sent', 'Master Strategist', 'Send 5 quests to challenge your friends', 150, 75);
             }
             if (sentQuestCount && sentQuestCount >= 10) {
                 await unlockAchievement('112', 'ten_quests_sent', 'Grand Questmaster', 'Send 10 quests to friends and earn the title of Questmaster', 500, 100);

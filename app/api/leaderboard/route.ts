@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
                 rank: index + 1,
                 userId: entry.user_id,
                 // @ts-ignore
-                displayName: entry.character_stats?.display_name || entry.character_stats?.character_name || 'Anonymous Ally',
+                displayName: entry.character_stats?.display_name || entry.character_stats?.character_name || 'Anonymous friend',
                 // @ts-ignore
                 title: 'Wanderer',
                 // @ts-ignore
