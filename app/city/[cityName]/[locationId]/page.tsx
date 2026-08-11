@@ -27,6 +27,10 @@ import { PACK_TYPES, generatePack } from "@/lib/pack-generator"
 import { PackOpeningModal } from "@/components/pack-opening-modal"
 import { formatGold, cn } from "@/lib/utils"
 import { ShopItemCard } from "@/components/shop-item-card"
+
+const TarotReadingModal = dynamic(() => import("@/components/minigames/TarotReadingModal").then(m => m.TarotReadingModal), { ssr: false })
+const AncientRiddleModal = dynamic(() => import("@/components/minigames/AncientRiddleModal").then(m => m.AncientRiddleModal), { ssr: false })
+const PlankLabyrinthModal = dynamic(() => import("@/components/minigames/PlankLabyrinthModal").then(m => m.PlankLabyrinthModal), { ssr: false })
 import {
   BLACKSMITH_WEAPONS, BLACKSMITH_SHIELDS, BLACKSMITH_ARMOR,
   STABLE_ITEMS, POTION_ITEMS, SCROLL_ITEMS, ARTIFACT_ITEMS, FOOD_ITEMS,
@@ -150,6 +154,9 @@ function CityLocationPageInner() {
   const [playerLevel, setPlayerLevel] = useState(1)
   const [tradeQuantities, setTradeQuantities] = useState<Record<string, number>>({})
   const [openingPack, setOpeningPack] = useState<any>(null)
+  const [tarotOpen, setTarotOpen] = useState(false)
+  const [riddleOpen, setRiddleOpen] = useState(false)
+  const [labyrinthOpen, setLabyrinthOpen] = useState(false)
 
   const [hasDiscount, setHasDiscount] = useState(false)
 
@@ -797,11 +804,46 @@ function CityLocationPageInner() {
       <main className="flex-1 p-4 md:p-6 pb-24 lg:landscape:pb-8 max-w-6xl mx-auto w-full relative">
         {/* Narrative Rebuilding Connection Banner */}
         {loreBannerText && (
-          <div className="bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 border border-amber-500/20 p-3 rounded-2xl flex items-center gap-2.5 text-xs text-amber-200 shadow-md mb-8">
+          <div className="bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 border border-amber-500/20 p-3 rounded-2xl flex items-center gap-2.5 text-xs text-amber-200 shadow-md mb-6">
             <span className="text-base shrink-0">📜</span>
             <p><span className="font-bold text-amber-400">Rebuilding Role:</span> {loreBannerText}</p>
           </div>
         )}
+
+        {/* Daily Town Minigames Quick Actions */}
+        <div className="bg-zinc-950/80 border border-amber-900/40 p-3.5 rounded-2xl mb-8 space-y-2 shadow-lg">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1.5 font-serif">
+              🎮 Daily Town Minigames & Rituals
+            </span>
+            <span className="text-[9px] text-zinc-500 font-mono">1 Free Daily Draw Each</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <Button
+              onClick={() => setTarotOpen(true)}
+              variant="outline"
+              className="h-10 bg-purple-950/40 border-purple-500/40 text-purple-200 hover:bg-purple-900/50 justify-start text-xs font-bold gap-2 rounded-xl"
+            >
+              <span>🔮</span> Tarot Fortune Reading
+            </Button>
+
+            <Button
+              onClick={() => setRiddleOpen(true)}
+              variant="outline"
+              className="h-10 bg-blue-950/40 border-blue-500/40 text-blue-200 hover:bg-blue-900/50 justify-start text-xs font-bold gap-2 rounded-xl"
+            >
+              <span>📜</span> Scholar&apos;s Riddle
+            </Button>
+
+            <Button
+              onClick={() => setLabyrinthOpen(true)}
+              variant="outline"
+              className="h-10 bg-amber-950/40 border-amber-500/40 text-amber-200 hover:bg-amber-900/50 justify-start text-xs font-bold gap-2 rounded-xl"
+            >
+              <span>🧩</span> Plank Labyrinth
+            </Button>
+          </div>
+        </div>
 
         <div className="flex items-center justify-between mb-8 relative z-10">
           <Link href={`/city/${cityName}`}>
@@ -1481,6 +1523,10 @@ function CityLocationPageInner() {
         />
       )}
 
+      {/* Daily Town Minigame Modals */}
+      {tarotOpen && <TarotReadingModal isOpen={tarotOpen} onClose={() => setTarotOpen(false)} />}
+      {riddleOpen && <AncientRiddleModal isOpen={riddleOpen} onClose={() => setRiddleOpen(false)} />}
+      {labyrinthOpen && <PlankLabyrinthModal isOpen={labyrinthOpen} onClose={() => setLabyrinthOpen(false)} />}
       {/* Decorative side vignetting */}
       <div className="fixed inset-y-0 left-0 w-32 bg-gradient-to-r from-black/80 to-transparent pointer-events-none" />
       <div className="fixed inset-y-0 right-0 w-32 bg-gradient-to-l from-black/80 to-transparent pointer-events-none" />

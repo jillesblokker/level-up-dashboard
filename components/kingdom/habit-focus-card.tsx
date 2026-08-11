@@ -13,6 +13,11 @@ import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
+import dynamic from "next/dynamic"
+
+const TarotReadingModal = dynamic(() => import("@/components/minigames/TarotReadingModal").then(m => m.TarotReadingModal), { ssr: false })
+const AncientRiddleModal = dynamic(() => import("@/components/minigames/AncientRiddleModal").then(m => m.AncientRiddleModal), { ssr: false })
+const PlankLabyrinthModal = dynamic(() => import("@/components/minigames/PlankLabyrinthModal").then(m => m.PlankLabyrinthModal), { ssr: false })
 
 interface HabitFocusData {
   locationName: string;
@@ -47,15 +52,18 @@ const MONUMENT_TYPES = [
 ];
 
 const formatLocationTitle = (name: string, type: string) => {
+  if (!name || name.toLowerCase() === 'city-tile' || name.toLowerCase() === 'city tile' || name.toLowerCase().includes('tile')) {
+    return 'Grand Citadel';
+  }
   const decoded = decodeURIComponent(name);
   
   const coordMatch = decoded.match(/^(settlement|town|city|megapolis)-(\d+)-(\d+)$/i);
   if (coordMatch && coordMatch[1]) {
-    const locType = coordMatch[1];
-    const x = coordMatch[2];
-    const y = coordMatch[3];
-    const typeLabel = locType.charAt(0).toUpperCase() + locType.slice(1);
-    return `${typeLabel} (Grid ${x}, ${y})`;
+    const locType = coordMatch[1].toLowerCase();
+    if (locType === 'city') return 'Grand Citadel';
+    if (locType === 'town') return 'Greenhaven Market Town';
+    if (locType === 'settlement') return 'Sovereign Outpost';
+    return `${locType.charAt(0).toUpperCase() + locType.slice(1)} District`;
   }
 
   const cleaned = decoded.replace(/-/g, ' ');
@@ -74,6 +82,9 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
   const [selectedMonumentId, setSelectedMonumentId] = useState<string>('monument-might');
   const [isUpdating, setIsUpdating] = useState(false);
   const [isCollecting, setIsCollecting] = useState(false);
+  const [tarotOpen, setTarotOpen] = useState(false);
+  const [riddleOpen, setRiddleOpen] = useState(false);
+  const [labyrinthOpen, setLabyrinthOpen] = useState(false);
 
   // Load configuration and quests
   const loadData = useCallback(async () => {
@@ -490,45 +501,104 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
 
           {locationType === 'city' && (
             /* City Guild Power and Blessings */
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <div className="text-[10px] font-bold text-zinc-500 tracking-wider">City focus categories:</div>
-                <div className="p-4 bg-zinc-950/60 rounded-xl border border-white/5 space-y-2.5 h-[94px]">
-                  <div className="flex flex-wrap gap-1">
-                    {focusData.categories.map(cat => (
-                      <Badge key={cat} className="bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[9px] tracking-wider font-extrabold capitalize">
-                        {cat}
-                      </Badge>
-                    ))}
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="text-[10px] font-bold text-amber-400/80 uppercase tracking-widest flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" /> City focus categories:
                   </div>
-                  {focusData.guildBlessingUntil && new Date(focusData.guildBlessingUntil).getTime() > Date.now() ? (
-                    <p className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
-                      <Sparkles className="w-3.5 h-3.5" /> Guild Blessing active! (+20% Forge rate & Double Training XP)
-                    </p>
-                  ) : (
-                    <p className="text-[9px] text-zinc-500 leading-normal font-semibold">
-                      Charge Guild Power by completing matching habits to channel blessings.
-                    </p>
-                  )}
+                  <div className="p-4 bg-zinc-950/80 rounded-2xl border border-amber-900/40 space-y-2.5 min-h-[110px] shadow-lg flex flex-col justify-between">
+                    <div className="flex flex-wrap gap-1.5">
+                      {focusData.categories.map(cat => (
+                        <Badge key={cat} className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] tracking-wider font-extrabold capitalize px-2.5 py-1 shadow-[0_0_8px_rgba(245,158,11,0.2)]">
+                          {cat === 'might' ? '⚔️ Might' : cat === 'knowledge' ? '📚 Knowledge' : cat === 'wellness' ? '🌿 Wellness' : cat}
+                        </Badge>
+                      ))}
+                    </div>
+                    {focusData.guildBlessingUntil && new Date(focusData.guildBlessingUntil).getTime() > Date.now() ? (
+                      <p className="text-xs text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-950/40 p-2 rounded-xl border border-emerald-500/30">
+                        <Sparkles className="w-4 h-4 animate-spin text-emerald-400" /> Guild Blessing Active! (+20% Forge rate & Double Training XP)
+                      </p>
+                    ) : (
+                      <p className="text-[11px] text-zinc-400 leading-relaxed italic">
+                        Completing matching habits charges the Guild Altar to unlock realm blessings.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="text-[10px] font-bold text-amber-400/80 uppercase tracking-widest flex items-center justify-between">
+                    <span>Guild Power Altar:</span>
+                    <span className="text-amber-300 font-mono font-bold">{focusData.guildCharges || 0} / 5 Charges ⚡</span>
+                  </div>
+                  <div className="p-4 bg-gradient-to-b from-amber-950/40 via-zinc-950 to-zinc-950 rounded-2xl border border-amber-500/30 space-y-3.5 shadow-xl">
+                    {/* 5-Segmented Arcane Battery Charger Bar */}
+                    <div className="flex gap-1.5">
+                      {[1, 2, 3, 4, 5].map((seg) => {
+                        const isCharged = (focusData.guildCharges || 0) >= seg;
+                        return (
+                          <div
+                            key={seg}
+                            className={`h-3.5 flex-1 rounded-md transition-all duration-500 border ${
+                              isCharged
+                                ? 'bg-gradient-to-r from-amber-500 to-yellow-400 border-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.6)] animate-pulse'
+                                : 'bg-zinc-900 border-zinc-800 opacity-50'
+                            }`}
+                          />
+                        );
+                      })}
+                    </div>
+
+                    <Button
+                      disabled={(focusData.guildCharges || 0) < 5 || isUpdating}
+                      onClick={handleActivateBlessing}
+                      size="sm"
+                      className={cn(
+                        "w-full py-3 font-extrabold uppercase text-xs tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2",
+                        (focusData.guildCharges || 0) >= 5
+                          ? "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-zinc-950 shadow-[0_0_20px_rgba(245,158,11,0.5)] animate-pulse hover:brightness-110"
+                          : "bg-zinc-900 border border-amber-900/40 text-amber-400/50 cursor-not-allowed opacity-60"
+                      )}
+                    >
+                      {(focusData.guildCharges || 0) >= 5 ? (
+                        <>✨ ACTIVATE GUILD BLESSING ✨</>
+                      ) : (
+                        <>⚡ CHARGING ALTAR ({focusData.guildCharges || 0}/5 CHARGES)</>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Guild Power Altar:</div>
-                <div className="p-4 bg-zinc-950/60 rounded-xl border border-white/5 space-y-3">
-                  <div className="flex justify-between text-xs font-bold">
-                    <span className="text-zinc-400">Power Meter:</span>
-                    <span className="text-amber-500">{focusData.guildCharges || 0} / 5 charges</span>
-                  </div>
-                  <Progress value={((focusData.guildCharges || 0) / 5) * 100} className="h-2 bg-zinc-900 border border-white/5 animate-pulse" indicatorClassName="bg-gradient-to-r from-amber-600 to-amber-400" />
-                  
+              {/* Interactive Daily Town Minigames Hub */}
+              <div className="pt-3 border-t border-amber-900/30 space-y-2">
+                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest block">
+                  🎮 Daily Town Minigames & Rituals:
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   <Button
-                    disabled={(focusData.guildCharges || 0) < 5 || isUpdating}
-                    onClick={handleActivateBlessing}
-                    size="sm"
-                    className="w-full h-8 text-[10px] font-extrabold uppercase bg-amber-600 hover:bg-amber-700 text-black rounded-lg"
+                    onClick={() => setTarotOpen(true)}
+                    variant="outline"
+                    className="h-11 bg-purple-950/40 border-purple-500/40 text-purple-200 hover:bg-purple-900/50 justify-start text-xs font-bold gap-2 rounded-xl"
                   >
-                    Activate Guild Blessing
+                    <span>🔮</span> Tarot Fortune Reading
+                  </Button>
+
+                  <Button
+                    onClick={() => setRiddleOpen(true)}
+                    variant="outline"
+                    className="h-11 bg-blue-950/40 border-blue-500/40 text-blue-200 hover:bg-blue-900/50 justify-start text-xs font-bold gap-2 rounded-xl"
+                  >
+                    <span>📜</span> Scholar&apos;s Riddle
+                  </Button>
+
+                  <Button
+                    onClick={() => setLabyrinthOpen(true)}
+                    variant="outline"
+                    className="h-11 bg-amber-950/40 border-amber-500/40 text-amber-200 hover:bg-amber-900/50 justify-start text-xs font-bold gap-2 rounded-xl"
+                  >
+                    <span>🧩</span> Plank Labyrinth
                   </Button>
                 </div>
               </div>
@@ -714,6 +784,10 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
         </div>
       )}
 
+      {/* Daily Town Minigame Modals */}
+      {tarotOpen && <TarotReadingModal isOpen={tarotOpen} onClose={() => setTarotOpen(false)} />}
+      {riddleOpen && <AncientRiddleModal isOpen={riddleOpen} onClose={() => setRiddleOpen(false)} />}
+      {labyrinthOpen && <PlankLabyrinthModal isOpen={labyrinthOpen} onClose={() => setLabyrinthOpen(false)} />}
     </Card>
   );
 }
