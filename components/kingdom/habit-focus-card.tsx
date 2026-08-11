@@ -13,9 +13,9 @@ import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
-import { TarotReadingModal } from "@/components/minigames/TarotReadingModal"
-import { AncientRiddleModal } from "@/components/minigames/AncientRiddleModal"
-import { PlankLabyrinthModal } from "@/components/minigames/PlankLabyrinthModal"
+import { FortuneTellerModal } from "@/components/fortune-teller-modal"
+import { TownRiddleModal } from "@/components/minigames/TownRiddleModal"
+import { PlankPuzzleModal } from "@/components/plank-puzzle-modal"
 
 interface HabitFocusData {
   locationName: string;
@@ -783,9 +783,9 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
       )}
 
       {/* Daily Town Minigame Modals */}
-      {tarotOpen && <TarotReadingModal isOpen={tarotOpen} onClose={() => setTarotOpen(false)} />}
-      {riddleOpen && <AncientRiddleModal isOpen={riddleOpen} onClose={() => setRiddleOpen(false)} />}
-      {labyrinthOpen && <PlankLabyrinthModal isOpen={labyrinthOpen} onClose={() => setLabyrinthOpen(false)} />}
+      {tarotOpen && <FortuneTellerModal open={tarotOpen} onOpenChange={setTarotOpen} x={0} y={0} tileId="town-tarot" />}
+      {riddleOpen && <TownRiddleModal isOpen={riddleOpen} onClose={() => setRiddleOpen(false)} />}
+      {labyrinthOpen && <PlankPuzzleModal isOpen={labyrinthOpen} onClose={() => setLabyrinthOpen(false)} onComplete={() => setLabyrinthOpen(false)} />}
     </Card>
   );
 }

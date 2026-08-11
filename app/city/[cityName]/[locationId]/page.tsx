@@ -27,9 +27,9 @@ import { PACK_TYPES, generatePack } from "@/lib/pack-generator"
 import { PackOpeningModal } from "@/components/pack-opening-modal"
 import { formatGold, cn } from "@/lib/utils"
 import { ShopItemCard } from "@/components/shop-item-card"
-import { TarotReadingModal } from "@/components/minigames/TarotReadingModal"
-import { AncientRiddleModal } from "@/components/minigames/AncientRiddleModal"
-import { PlankLabyrinthModal } from "@/components/minigames/PlankLabyrinthModal"
+import { FortuneTellerModal } from "@/components/fortune-teller-modal"
+import { TownRiddleModal } from "@/components/minigames/TownRiddleModal"
+import { PlankPuzzleModal } from "@/components/plank-puzzle-modal"
 import {
   BLACKSMITH_WEAPONS, BLACKSMITH_SHIELDS, BLACKSMITH_ARMOR,
   STABLE_ITEMS, POTION_ITEMS, SCROLL_ITEMS, ARTIFACT_ITEMS, FOOD_ITEMS,
@@ -1523,9 +1523,9 @@ function CityLocationPageInner() {
       )}
 
       {/* Daily Town Minigame Modals */}
-      {tarotOpen && <TarotReadingModal isOpen={tarotOpen} onClose={() => setTarotOpen(false)} />}
-      {riddleOpen && <AncientRiddleModal isOpen={riddleOpen} onClose={() => setRiddleOpen(false)} />}
-      {labyrinthOpen && <PlankLabyrinthModal isOpen={labyrinthOpen} onClose={() => setLabyrinthOpen(false)} />}
+      {tarotOpen && <FortuneTellerModal open={tarotOpen} onOpenChange={setTarotOpen} x={0} y={0} tileId="town-tarot" />}
+      {riddleOpen && <TownRiddleModal isOpen={riddleOpen} onClose={() => setRiddleOpen(false)} />}
+      {labyrinthOpen && <PlankPuzzleModal isOpen={labyrinthOpen} onClose={() => setLabyrinthOpen(false)} onComplete={() => setLabyrinthOpen(false)} />}
       {/* Decorative side vignetting */}
       <div className="fixed inset-y-0 left-0 w-32 bg-gradient-to-r from-black/80 to-transparent pointer-events-none" />
       <div className="fixed inset-y-0 right-0 w-32 bg-gradient-to-l from-black/80 to-transparent pointer-events-none" />

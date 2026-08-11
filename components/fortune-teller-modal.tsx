@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 import Image from "next/image"
 import { toast } from "@/components/ui/use-toast"
-import { fetchFreshCharacterStats } from "@/lib/character-stats-service"
+import { fetchFreshCharacterStats, addToCharacterStat } from "@/lib/character-stats-service"
 
 import { motion } from "framer-motion"
 
@@ -71,6 +71,30 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
     setIsProcessing(true)
 
     try {
+      if (tileId === 'town-tarot' || !x) {
+        const card = CARDS.find(c => c.id === selectedCard);
+        const today = new Date().toDateString();
+        localStorage.setItem('town_tarot_draw_date', today);
+        localStorage.setItem('town_tarot_drawn_card', JSON.stringify(card));
+
+        if (selectedCard === 'king') {
+          await addToCharacterStat('gold', 200, 'town-tarot-king');
+        } else if (selectedCard === 'joker') {
+          await addToCharacterStat('gold', 300, 'town-tarot-joker');
+        } else if (selectedCard === 'ace') {
+          await addToCharacterStat('gems', 5, 'town-tarot-ace');
+        }
+
+        toast({
+          title: `🔮 Fortune Claimed: ${card?.name || 'Tarot Card'}!`,
+          description: `You received: ${card?.reward || 'Daily Blessing'}!`,
+        });
+
+        if (onComplete) onComplete();
+        onOpenChange(false);
+        return;
+      }
+
       const response = await fetch('/api/kingdom/fortune-teller', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
