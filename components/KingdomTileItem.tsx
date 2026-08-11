@@ -315,11 +315,11 @@ export const KingdomTileItem = React.memo(({
               const storage = localStorage.getItem('labyrinth_daily_limit');
               let data = storage ? JSON.parse(storage) : { date: today, count: 0 };
               if (data.date !== today) data = { date: today, count: 0 };
-              const remaining = Math.max(0, 3 - (data.count || 0));
-              if (remaining <= 0) return { badge: '0/3', isClosed: true, formattedTimer: timerStr };
-              return { badge: `${remaining}/3`, isClosed: false };
+              const remaining = Math.max(0, 1 - (data.count || 0));
+              if (remaining <= 0) return { badge: '0/1', isClosed: true, formattedTimer: timerStr };
+              return { badge: `${remaining}/1`, isClosed: false };
             } catch {
-              return { badge: '3/3', isClosed: false };
+              return { badge: '1/1', isClosed: false };
             }
           }
 
@@ -446,11 +446,11 @@ export const KingdomTileItem = React.memo(({
                 const storage = localStorage.getItem('labyrinth_daily_limit');
                 let data = storage ? JSON.parse(storage) : { date: today, count: 0 };
                 if (data.date !== today) data = { date: today, count: 0 };
-                const remaining = Math.max(0, 3 - (data.count || 0));
-                if (remaining <= 0) return { badge: '0/3', isClosed: true, formattedTimer: timerStr };
-                return { badge: `${remaining}/3`, isClosed: false };
+                const remaining = Math.max(0, 1 - (data.count || 0));
+                if (remaining <= 0) return { badge: '0/1', isClosed: true, formattedTimer: timerStr };
+                return { badge: `${remaining}/1`, isClosed: false };
               } catch {
-                return { badge: '3/3', isClosed: false };
+                return { badge: '1/1', isClosed: false };
               }
             }
 

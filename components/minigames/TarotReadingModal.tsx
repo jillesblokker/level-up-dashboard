@@ -67,7 +67,7 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(op) => { if (!op) onClose() }}>
-      <DialogContent className="max-w-md w-full bg-gradient-to-b from-purple-950 via-zinc-950 to-zinc-950 border border-purple-500/40 text-purple-100 p-6 rounded-2xl shadow-2xl font-serif text-center relative overflow-hidden z-50">
+      <DialogContent className="max-w-md w-full bg-gradient-to-b from-purple-950 via-zinc-950 to-zinc-950 border border-purple-500/40 text-purple-100 p-6 rounded-2xl shadow-2xl font-serif text-center overflow-hidden z-[100]">
         <div className="absolute -top-12 -right-12 w-32 h-32 bg-purple-500/10 blur-3xl rounded-full pointer-events-none" />
 
         <DialogHeader>

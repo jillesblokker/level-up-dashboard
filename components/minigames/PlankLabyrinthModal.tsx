@@ -59,7 +59,7 @@ export function PlankLabyrinthModal({ isOpen, onClose }: PlankLabyrinthModalProp
 
   return (
     <Dialog open={isOpen} onOpenChange={(op) => { if (!op) onClose() }}>
-      <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border border-amber-500/40 text-amber-100 p-6 rounded-2xl shadow-2xl font-serif text-center relative overflow-hidden z-50">
+      <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border border-amber-500/40 text-amber-100 p-6 rounded-2xl shadow-2xl font-serif text-center overflow-hidden z-[100]">
         <DialogHeader>
           <div className="mx-auto w-12 h-12 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center mb-2 shadow-[0_0_20px_rgba(245,158,11,0.4)]">
             <Footprints className="w-6 h-6 text-amber-300 animate-bounce" />
