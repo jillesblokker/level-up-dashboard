@@ -23,12 +23,12 @@ export function DailyRoutineModal({
   yesterdayStats = { questsCompleted: 5, streak: 7, goldEarned: 120 }
 }: DailyRoutineModalProps) {
   const { toast } = useToast();
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2>(1);
   const [claimed, setClaimed] = useState(false);
 
   const handleNext = () => {
-    if (step < 3) {
-      setStep((prev) => (prev + 1) as any);
+    if (step < 2) {
+      setStep(2);
     } else {
       handleFinalize();
     }
@@ -46,15 +46,15 @@ export function DailyRoutineModal({
   const handleFinalize = async () => {
     try {
       // Award daily routine completion gift
-      await addToCharacterStat('gold', 50, 'daily-routine');
+      await addToCharacterStat('gold', 25, 'daily-routine');
       toast({
-        title: "Daily Opening Routine Complete! ☀️",
-        description: "Toast completed! Received +50 Gold and pet gift bounty.",
+        title: "Daily Opening Sequence Complete! ☀️",
+        description: "Focus locked! +25 Gold awarded.",
       });
       setClaimed(true);
       setTimeout(() => {
         handleModalClose();
-      }, 1200);
+      }, 800);
     } catch {
       handleModalClose();
     }
@@ -69,7 +69,7 @@ export function DailyRoutineModal({
             <Sun className="w-4 h-4 text-amber-400 animate-spin" />
             Daily Opening Sequence
           </span>
-          <span>Step {step} of 3</span>
+          <span>Step {step} of 2</span>
         </div>
 
         {/* Step 1: Yesterday's Recap */}
@@ -127,43 +127,21 @@ export function DailyRoutineModal({
           </div>
         )}
 
-        {/* Step 3: House Cup Toast, Taxes & Pet Gift */}
-        {step === 3 && (
-          <div className="space-y-4 py-2 animate-in fade-in duration-300">
-            <div className="text-center space-y-1">
-              <div className="mx-auto w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-1">
-                <Trophy className="w-5 h-5 text-amber-400 animate-bounce" />
-              </div>
-              <h3 className="font-medieval text-xl text-amber-200">3. House Cup Toast & Pet Bounty</h3>
-              <p className="text-xs text-zinc-400 italic">Raise a toast to virtue energy, claim tile taxes, and open your pet gift!</p>
-            </div>
-
-            <div className="p-4 bg-zinc-950/90 rounded-xl border border-amber-500/30 text-center space-y-2">
-              <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
-                <Gift className="w-4 h-4 text-amber-400" /> Daily Pet Bounty Unlocked
-              </div>
-              <p className="text-xs text-amber-200 font-bold">
-                +50 Gold • +1 Alchemy Essence
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* Next / Complete Button */}
         <Button
           onClick={handleNext}
           disabled={claimed}
           className="w-full py-3 mt-2 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 text-amber-950 font-bold uppercase tracking-wider text-xs shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center justify-center gap-2"
         >
-          {step < 3 ? (
+          {step < 2 ? (
             <>
-              Continue to Step {step + 1} <ArrowRight className="w-4 h-4" />
+              Continue to Step 2 <ArrowRight className="w-4 h-4" />
             </>
           ) : claimed ? (
-            "Routine Completed ✓"
+            "Focus Locked ✓"
           ) : (
             <>
-              Complete Opening Routine <Sparkles className="w-4 h-4" />
+              Begin Today&apos;s Journey <Sparkles className="w-4 h-4" />
             </>
           )}
         </Button>

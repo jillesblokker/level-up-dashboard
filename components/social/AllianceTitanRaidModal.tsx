@@ -162,9 +162,8 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
             </h4>
             <div className="bg-zinc-900/90 rounded-xl border border-zinc-800 p-3 space-y-2">
               {[
-                { rank: 1, name: 'Sir Gareth', damage: 840, badge: '🥇 Raid Overlord' },
-                { rank: 2, name: 'You (Count)', damage: userDamageToday, badge: '🥈 Vanguard' },
-                { rank: 3, name: 'Lady Guinevere', damage: 410, badge: '🥉 Defender' }
+                { rank: 1, name: 'You (Sovereign)', damage: Math.max(120, userDamageToday * 15), badge: '🥇 Raid Vanguard' },
+                { rank: 2, name: 'Fellowship Allies', damage: 340, badge: '🥈 Support Squad' }
               ].map(contributor => (
                 <div key={contributor.rank} className="flex items-center justify-between text-xs p-2 rounded-lg bg-zinc-950/80 border border-zinc-800">
                   <div className="flex items-center gap-2.5">

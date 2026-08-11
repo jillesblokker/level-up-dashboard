@@ -1,10 +1,10 @@
-'use client'
-
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Bell, Swords, Trophy, Users, ShieldAlert, Sparkles, Check } from 'lucide-react'
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
+import { useUser } from '@clerk/nextjs'
 
 export interface AppNotification {
   id: string
@@ -19,7 +19,7 @@ const INITIAL_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'n-1',
     title: 'Friend Dare Issued!',
-    message: 'Friend Sir Gareth dared you to complete 10 push-ups today for +10 Virtue Points!',
+    message: 'A friend dared you to complete 5 daily habits today for +10 Virtue Points!',
     type: 'dare',
     timestamp: '10m ago',
     read: false
@@ -27,23 +27,43 @@ const INITIAL_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'n-2',
     title: 'Fellowship Titan Wyrm Raid',
-    message: 'Titan Wyrm HP dropped to 45%! Victory Chest Tier Silver unlocked.',
+    message: 'Titan Wyrm HP dropped! Victory Chest Tier Silver unlocked.',
     type: 'alliance',
     timestamp: '1h ago',
     read: false
-  },
-  {
-    id: 'n-3',
-    title: 'Virtue Duel Challenge',
-    message: 'Lady Guinevere challenged your Knowledge Hourglass standing.',
-    type: 'duel',
-    timestamp: '3h ago',
-    read: true
   }
 ]
 
 export function NotificationBellDrawer() {
-  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS)
+  const { user } = useUser()
+  const [notifications, setNotifications] = useState<AppNotification[]>(INITIAL_NOTIFICATIONS)
+
+  useEffect(() => {
+    const loadNotifications = async () => {
+      if (!user) return
+      try {
+        const res = await fetchWithAuth('/api/notifications')
+        if (res.ok) {
+          const data = await res.json()
+          const list = data.notifications || []
+          if (list.length > 0) {
+            const mapped: AppNotification[] = list.map((item: any) => ({
+              id: item.id || item.notification_id,
+              title: item.title || 'Notification',
+              message: item.message || item.body || '',
+              type: item.type || 'system',
+              timestamp: item.created_at ? new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recently',
+              read: !!item.read
+            }))
+            setNotifications(mapped)
+          }
+        }
+      } catch (err) {
+        // Fallback
+      }
+    }
+    loadNotifications()
+  }, [user])
 
   // Enforce High-Value Action Filtering (Suppresses routine +10 XP logs)
   const filteredNotifications = notifications.filter(n =>

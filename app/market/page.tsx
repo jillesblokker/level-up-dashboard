@@ -21,6 +21,10 @@ const PackOpeningModal = dynamic(
   () => import('@/components/pack-opening-modal').then((mod) => mod.PackOpeningModal),
   { ssr: false }
 )
+const ApothecaModal = dynamic(
+  () => import('@/components/kingdom/apotheca-modal').then((mod) => mod.ApothecaModal),
+  { ssr: false }
+)
 import { formatGold, cn } from "@/lib/utils"
 
 // Define available materials for trade
@@ -47,6 +51,7 @@ export default function MarketPage() {
   const [activeTab, setActiveTab] = useState("buy")
   const [isProcessing, setIsProcessing] = useState(false)
   const [openingPack, setOpeningPack] = useState<any>(null)
+  const [apothecaOpen, setApothecaOpen] = useState(false)
 
   const scaledMaterials = useMemo(() => {
     return MATERIALS.map(mat => {
@@ -454,11 +459,13 @@ export default function MarketPage() {
             </div>
 
             <div className="flex gap-2 w-full sm:w-auto">
-              <Link href="/kingdom?tab=thrivehaven&openDrawer=apotheca" className="w-full sm:w-auto">
-                <Button variant="outline" className="w-full justify-center text-xs border-purple-500/40 text-purple-300 hover:bg-purple-950/40 font-bold">
-                  🧪 Open Apotheca Glasshouse
-                </Button>
-              </Link>
+              <Button
+                variant="outline"
+                onClick={() => setApothecaOpen(true)}
+                className="w-full sm:w-auto justify-center text-xs border-purple-500/40 text-purple-300 hover:bg-purple-950/40 font-bold"
+              >
+                🧪 Open Apotheca Glasshouse
+              </Button>
               <Link href="/" className="w-full sm:w-auto">
                 <Button variant="medieval" className="w-full justify-center text-xs">
                   <ArrowLeft className="h-4 w-4" />
@@ -860,6 +867,13 @@ export default function MarketPage() {
               description: isNew ? "A new creature has been unlocked in your collection." : "It has been added to your Mythics collection."
             })
           }} 
+        />
+      )}
+      {apothecaOpen && (
+        <ApothecaModal
+          open={apothecaOpen}
+          onOpenChange={setApothecaOpen}
+          onComplete={() => { fetchFreshCharacterStats(); }}
         />
       )}
     </div>
