@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Shield, Sword, Shirt, Gem, Sparkles, Award, Flame, ArrowRightLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { cn } from '@/lib/utils'
 
 export interface EquippedItem {
   id: string
@@ -395,22 +396,16 @@ function EquipmentSlotButton({
         onClick={onClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center justify-center bg-zinc-950/95 shadow-2xl backdrop-blur-md relative overflow-hidden ${
-          item
-            ? item.rarity === 'legendary' ? 'border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.6)] ring-4 ring-amber-500/30 animate-pulse'
-            : item.rarity === 'epic' ? 'border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.6)] ring-4 ring-purple-500/30'
-            : 'border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] ring-4 ring-cyan-500/20'
-            : 'border-zinc-800 text-zinc-600 opacity-60'
-        }`}
+        className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl transition-all duration-200 flex flex-col items-center justify-center bg-zinc-950/95 shadow-xl backdrop-blur-md relative overflow-hidden group/btn hover:scale-105 active:scale-95"
         aria-label={`Inspect ${label}`}
       >
         {item ? (
-          <div className="absolute inset-0 w-full h-full p-0">
+          <div className="absolute inset-0 w-full h-full p-0 overflow-hidden bg-zinc-950 flex items-center justify-center">
             <Image
               src={item.image}
               alt={item.name}
               fill
-              className="object-cover w-full h-full filter drop-shadow-lg"
+              className="object-cover w-full h-full filter drop-shadow-md"
               unoptimized
             />
           </div>
@@ -420,6 +415,20 @@ function EquipmentSlotButton({
             <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wide">{label}</span>
           </div>
         )}
+
+        {/* Overlay Border Frame — Sits ON TOP of the image with smooth static glow */}
+        <div
+          className={cn(
+            "pointer-events-none absolute inset-0 rounded-2xl border-2 z-10 transition-all duration-200",
+            item
+              ? item.rarity === 'legendary'
+                ? 'border-amber-400/90 shadow-[0_0_16px_rgba(245,158,11,0.4)] ring-2 ring-amber-500/20'
+                : item.rarity === 'epic'
+                ? 'border-purple-400/90 shadow-[0_0_16px_rgba(168,85,247,0.4)] ring-2 ring-purple-500/20'
+                : 'border-cyan-400/90 shadow-[0_0_12px_rgba(6,182,212,0.3)] ring-2 ring-cyan-500/20'
+              : 'border-zinc-800/80 text-zinc-600 opacity-60'
+          )}
+        />
       </button>
 
       {/* Interactive Micro-Tooltip Card */}
