@@ -155,7 +155,7 @@ export default function CityPage() {
                     name: "Fortune Teller's Shrine",
                     subtitle: "Mystic Tarot Chamber",
                     description: "Draw a daily fortune card to receive active daily habit blessings and gold offerings.",
-                    image: "/images/tiles/fortune-teller-tile.webp",
+                    image: "/images/encounters/fortune_teller_sanctum_shop.png",
                     badge: isMinigameDone ? "Completed Today ✓" : "1/1 Available",
                     action: () => setTarotOpen(true)
                   },
@@ -163,7 +163,7 @@ export default function CityPage() {
                     name: "Scholar's Archive",
                     subtitle: "Ancient Wisdom Vault",
                     description: "Solve the daily scholar riddle to unearth lost realm blueprints, XP, and gold.",
-                    image: "/images/encounters/riddle-sage.webp",
+                    image: "/images/encounters/scholar_archive_shop.png",
                     badge: isMinigameDone ? "Completed Today ✓" : "1/1 Available",
                     action: () => setRiddleOpen(true)
                   },
@@ -171,7 +171,7 @@ export default function CityPage() {
                     name: "Craftsman's Labyrinth",
                     subtitle: "Wooden Plank Maze",
                     description: "Solve the 6x6 ancient keystone sliding puzzle to retrieve gold and building materials.",
-                    image: "/images/tiles/plank-labyrinth-tile.webp",
+                    image: "/images/encounters/craftsman_labyrinth_shop.png",
                     badge: isMinigameDone ? "Completed Today ✓" : "1/1 Available",
                     action: () => setLabyrinthOpen(true)
                   }
