@@ -440,34 +440,62 @@ export function DailyHubClient() {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 md:-mt-20 relative z-10 space-y-6 md:space-y-8">
                 <StreakRecoveryCard />
-                {/* Habit Milestone Escalation Banner */}
+                {/* Habit Milestone Escalation Banner & Morning Focus Ring */}
                 {(() => {
                     const count = completedQuestIds.size;
-                    let tier = null;
-                    if (count >= 20) tier = { title: "Amazing dedication", badge: "👑", desc: "You have completed 20+ habits today! Legendary dedication.", style: "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 font-black border-amber-300" };
-                    else if (count >= 15) tier = { title: "Supercharged progress", badge: "⚡", desc: "15+ habits completed today! Supercharged progress.", style: "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold border-purple-400" };
-                    else if (count >= 10) tier = { title: "Awesome momentum", badge: "🔥", desc: "10+ habits completed today! On a roll.", style: "bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-500 text-zinc-950 font-bold border-amber-300" };
-                    else if (count >= 5) tier = { title: "Great start", badge: "🌟", desc: "5+ habits completed today! Fantastic start.", style: "bg-gradient-to-r from-emerald-700 via-teal-600 to-emerald-800 text-white font-semibold border-emerald-400" };
+                    const targetProgress = Math.min(100, Math.round((count / 5) * 100));
 
-                    if (!tier) return null;
+                    let tier = null;
+                    if (count >= 20) tier = { title: "Amazing dedication", badge: "👑", desc: "You have completed 20+ habits today! Legendary dedication.", style: "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 font-black border-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.5)]" };
+                    else if (count >= 15) tier = { title: "Supercharged progress", badge: "⚡", desc: "15+ habits completed today! Supercharged progress.", style: "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.5)]" };
+                    else if (count >= 10) tier = { title: "Awesome momentum", badge: "🔥", desc: "10+ habits completed today! On a roll.", style: "bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-500 text-zinc-950 font-bold border-amber-300 shadow-[0_0_20px_rgba(217,119,6,0.5)]" };
+                    else if (count >= 5) tier = { title: "Great start (5/5 Target!)", badge: "🎯", desc: "5+ habits completed today! Golden Sweet Spot achieved.", style: "bg-gradient-to-r from-emerald-700 via-teal-600 to-emerald-800 text-white font-semibold border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]" };
 
                     return (
-                        <motion.div
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            className={`p-4 rounded-xl shadow-xl border flex items-center justify-between ${tier.style}`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <span className="text-3xl">{tier.badge}</span>
-                                <div>
-                                    <h4 className="text-lg uppercase tracking-wider">{tier.title}!</h4>
-                                    <p className="text-xs opacity-90">{tier.desc}</p>
+                        <div className="space-y-3">
+                            {/* Morning Focus 5 Target Progress Ring */}
+                            <div className="rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-950/80 via-zinc-900 to-zinc-950 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl relative overflow-hidden">
+                                <div className="flex items-center gap-3">
+                                    <div className="relative w-12 h-12 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-amber-300 font-bold text-lg shadow-[0_0_15px_rgba(245,158,11,0.5)] animate-pulse">
+                                        🎯
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-sm text-white font-serif flex items-center gap-2">
+                                            Morning Focus 5/10 Target
+                                            <span className="text-[10px] bg-amber-500/20 border border-amber-400/50 text-amber-300 px-2 py-0.5 rounded-full font-mono font-bold">
+                                                {count >= 5 ? '🎯 Target Achieved!' : `${count}/5 Habits`}
+                                            </span>
+                                        </h4>
+                                        <p className="text-xs text-zinc-300">Complete 5 daily habits to unlock golden confetti & House Cup virtue bonuses!</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 w-full sm:w-auto">
+                                    <div className="flex-1 sm:w-32 bg-zinc-950 rounded-full h-2.5 overflow-hidden border border-zinc-800">
+                                        <div className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-500" style={{ width: `${targetProgress}%` }} />
+                                    </div>
+                                    <span className="font-mono text-xs font-bold text-amber-400">{targetProgress}%</span>
                                 </div>
                             </div>
-                            <span className="px-3 py-1 bg-black/20 backdrop-blur-sm rounded-full text-xs font-mono">
-                                {count} habits completed today
-                            </span>
-                        </motion.div>
+
+                            {tier && (
+                                <motion.div
+                                    initial={{ scale: 0.95, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    className={`p-4 rounded-xl shadow-xl border flex items-center justify-between ${tier.style}`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-3xl">{tier.badge}</span>
+                                        <div>
+                                            <h4 className="text-lg uppercase tracking-wider">{tier.title}!</h4>
+                                            <p className="text-xs opacity-90">{tier.desc}</p>
+                                        </div>
+                                    </div>
+                                    <span className="px-3 py-1 bg-black/20 backdrop-blur-sm rounded-full text-xs font-mono">
+                                        {count} habits completed today
+                                    </span>
+                                </motion.div>
+                            )}
+                        </div>
                     );
                 })()}
 

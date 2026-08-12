@@ -67,28 +67,32 @@ export function SeasonArchivalModal({ isOpen, onClose }: SeasonArchivalModalProp
               {PAST_CHAMPIONS.map((champ, idx) => (
                 <div
                   key={idx}
-                  className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3 flex items-center justify-between text-xs transition-all hover:border-amber-900/40"
+                  className="rounded-2xl border-2 border-amber-500/40 bg-gradient-to-r from-amber-950/40 via-zinc-950 to-purple-950/40 p-3.5 flex items-center justify-between text-xs transition-all hover:border-amber-400 shadow-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400 font-mono font-bold text-xs">
-                      #{idx + 1}
+                    {/* Champion Avatar with Glowing Paragon Border */}
+                    <div className="relative w-10 h-10 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center font-bold text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.5)]">
+                      👑
+                      <span className="absolute -bottom-1 text-[8px] font-extrabold uppercase bg-amber-950 text-amber-300 px-1 rounded border border-amber-500/40 font-mono">
+                        #1
+                      </span>
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-zinc-100">{champ.winner}</span>
-                        <Badge variant="outline" className="text-[9px] border-amber-500/30 text-amber-400 bg-zinc-950">
+                        <span className="font-bold text-sm text-zinc-100 font-serif">{champ.winner}</span>
+                        <Badge variant="outline" className="text-[9px] border-amber-500/40 text-amber-300 bg-amber-950/40 font-mono">
                           {champ.house}
                         </Badge>
                       </div>
-                      <p className="text-[11px] text-zinc-400 mt-0.5">{champ.title}</p>
+                      <p className="text-[11px] text-amber-400 font-mono mt-0.5">{champ.title}</p>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-[10px] text-zinc-500 flex items-center gap-1 justify-end">
-                      <Calendar className="w-3 h-3" /> {champ.year}
+                    <span className="text-[10px] text-zinc-400 flex items-center gap-1 justify-end font-mono">
+                      <Calendar className="w-3 h-3 text-amber-400" /> {champ.year}
                     </span>
-                    <span className="font-mono text-xs text-amber-400 font-semibold">{champ.habitsCompleted} Habits</span>
+                    <span className="font-mono text-xs text-emerald-400 font-bold">{champ.habitsCompleted.toLocaleString()} Habits</span>
                   </div>
                 </div>
               ))}

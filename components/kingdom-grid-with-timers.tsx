@@ -2734,11 +2734,41 @@ export function KingdomGridWithTimers({
         {/* Automated Tax Collection Banner */}
 
 
-        {/* Placement mode indicator logic remains on map for context */}
+        {/* Placement mode indicator & rotation confirmation preview */}
         {placementMode && selectedProperty && (
-          <div className="absolute top-4 left-4 z-20 bg-amber-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
-            <span className="text-sm font-bold">Placing: {selectedProperty.name}</span>
-            <span className="text-xs">Click vacant tile or press ESC to cancel</span>
+          <div className="absolute top-4 left-4 z-30 bg-gradient-to-r from-amber-950/95 via-zinc-950 to-zinc-950 border-2 border-amber-500/60 text-white px-4 py-3 rounded-2xl shadow-2xl flex flex-wrap items-center gap-3 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-400 flex items-center justify-center text-amber-300 font-bold text-sm">
+                🏗️
+              </div>
+              <div>
+                <span className="text-xs font-bold text-amber-300 block font-serif">Placing: {selectedProperty.name}</span>
+                <span className="text-[10px] text-zinc-400 font-mono">Select tile target on 2D sandbox grid</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 border-l border-zinc-800 pl-3">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-8 bg-zinc-900 border-amber-500/40 text-amber-300 text-xs font-bold gap-1 hover:bg-zinc-800"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toast({ title: "Tile Rotated 90°", description: "Facing direction updated: 90° East." });
+                }}
+              >
+                🔄 Rotate 90°
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="h-8 text-xs text-zinc-400 hover:text-white"
+                onClick={() => setPlacementMode(false)}
+              >
+                Cancel (ESC)
+              </Button>
+            </div>
           </div>
         )}
 

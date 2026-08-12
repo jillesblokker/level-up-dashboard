@@ -476,6 +476,30 @@ export default function MarketPage() {
           </div>
         </div>
 
+        {/* Grand Apotheca Glasshouse Shortcut Header Card */}
+        <div className="bg-gradient-to-r from-emerald-950/80 via-zinc-950 to-zinc-950 border border-emerald-500/40 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-2xl text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.4)] animate-pulse">
+              🧪
+            </div>
+            <div>
+              <h3 className="font-serif font-bold text-base text-emerald-200 flex items-center gap-2">
+                Grand Apotheca Glasshouse
+                <Badge className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[9px] font-mono font-bold">
+                  Master Brew Ready
+                </Badge>
+              </h3>
+              <p className="text-xs text-zinc-300">Distill botanical materials into gold surges, experience elixirs, and health potions.</p>
+            </div>
+          </div>
+          <Button
+            onClick={() => setApothecaOpen(true)}
+            className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-zinc-950 font-bold text-xs px-5 py-2.5 rounded-xl shadow-md gap-2 uppercase tracking-wider shrink-0"
+          >
+            Brew Potions ✨
+          </Button>
+        </div>
+
         <Tabs value={mainTab} onValueChange={(val) => { setMainTab(val); setSearchQuery(""); }} className="space-y-6">
           <TabsList className="mb-8">
             <TabsTrigger value="trading-post">

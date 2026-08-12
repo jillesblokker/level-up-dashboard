@@ -118,6 +118,16 @@ export function CitizenSpecializationModal({
                   {isSelected && <Check className="w-4 h-4 text-amber-400" />}
                 </div>
 
+                {/* Class Equipment Slot Badges */}
+                <div className="flex items-center gap-1.5 mb-2 text-[9px] font-mono text-zinc-300">
+                  <span className="px-1.5 py-0.5 rounded bg-zinc-950 border border-zinc-800 flex items-center gap-1">
+                    🛡️ Gear: {cls.id === 'Tank' ? 'Vanguard Shield' : cls.id === 'Mage' ? 'Arcane Staff' : cls.id === 'Alchemist' ? 'Botanical Satchel' : 'Shadow Compass'}
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/30">
+                    Exp Lv.1
+                  </span>
+                </div>
+
                 <Badge variant="outline" className="text-[10px] bg-zinc-900/80 text-zinc-300 mb-2">
                   Habits: {cls.category}
                 </Badge>

@@ -382,6 +382,31 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
               </div>
             )}
 
+            {/* Botanical Treat Feeding & Affection Meter */}
+            <div className="p-3.5 bg-zinc-950/90 border border-emerald-500/30 rounded-xl flex items-center justify-between gap-3 shadow-inner">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-emerald-300 font-bold text-base shadow-sm">
+                  🍎
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-xs text-emerald-300">Companion Affection</span>
+                    <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/50 px-1.5 py-0.5 rounded border border-amber-500/30">
+                      ❤️ {((guardianState as any).affection || 50)}%
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-zinc-400">Feed daily treat to grant +10% affection & +25 Companion EXP boost!</p>
+                </div>
+              </div>
+              <Button
+                onClick={handleFeedTreat}
+                size="sm"
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-zinc-950 font-bold text-xs px-3.5 h-8 rounded-lg shadow-md shrink-0 gap-1"
+              >
+                🍎 Feed Treat
+              </Button>
+            </div>
+
             {/* Treat Feeding Action Button */}
             <div className="flex gap-2">
               <Button
