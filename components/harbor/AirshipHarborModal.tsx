@@ -268,11 +268,10 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
             <div className="space-y-2">
               {PORTS.map((port, idx) => (
                 <div key={idx} className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 flex items-center justify-between text-xs gap-3">
-                  <div>
+                  <div className="space-y-1">
                     <span className="font-bold text-zinc-100 block">{port.name}</span>
-                    <span className="text-[10px] text-zinc-400 block">{port.cargo}</span>
-                    <span className="inline-flex items-center gap-1 mt-1 text-[9px] font-mono font-bold text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">
-                      🎁 Guaranteed Loot: 1x Legendary Blueprint + 15x Essences
+                    <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">
+                      🎁 Guaranteed Loot: 1x Blueprint + 15x Essences
                     </span>
                   </div>
                   <Button

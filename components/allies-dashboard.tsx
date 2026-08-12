@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import Image from "next/image"
-import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Star, Crown, Flame, UserCheck, MoreHorizontal, Gift, Target, X, Zap, Heart, Book, Hammer, MessageSquare } from "lucide-react"
+import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Star, Crown, Flame, UserCheck, UserX, MoreHorizontal, Gift, Target, X, Zap, Heart, Book, Hammer, MessageSquare } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useToast } from "@/components/ui/use-toast"
 import { TEXT_CONTENT } from '@/lib/text-content'
 import { cn } from "@/lib/utils"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { getCurrentTitle } from "@/lib/title-manager"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
@@ -165,49 +165,39 @@ function AllyDashboardCard({
             </div>
           </div>
 
-          {/* Action Row */}
-          <div className="p-3 bg-zinc-950/90 space-y-2">
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="bg-amber-950/30 border-amber-800/40 text-amber-300 hover:bg-amber-900/40 text-xs font-semibold"
-                onClick={() => router.push(`/kingdom?visit=${friend.friendId}`)}
-              >
-                <Crown className="w-3.5 h-3.5 mr-1" /> Visit Realm
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="bg-amber-950/30 border-amber-800/40 text-amber-300 hover:bg-amber-900/40 text-xs font-semibold"
-                onClick={() => openQuestModal(friend)}
-              >
-                <Scroll className="w-3.5 h-3.5 mr-1" /> Issue Quest
-              </Button>
-            </div>
-            <div className="flex items-center justify-around pt-1 text-xs">
-              <Button variant="ghost" size="sm" className="h-7 text-xs text-amber-400/80 hover:text-amber-300" onClick={() => openCompareModal(friend)}>
-                <Target className="w-3 h-3 mr-1" /> Compare
-              </Button>
-              <Button variant="ghost" size="sm" className="h-7 text-xs text-amber-400/80 hover:text-amber-300" onClick={() => { setSelectedFriend(friend); setGiftModalOpen(true); }}>
-                <Gift className="w-3 h-3 mr-1" /> Gift
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-amber-400/80 hover:text-red-400">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-[#0a0a0a] border-amber-900/50">
-                  <DropdownMenuItem onClick={() => router.push(`/realm?visit=${friend.friendId}`)} className="text-amber-200">
-                    <Shield className="w-4 h-4 mr-2" /> Explore Realm Map
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-400" onClick={() => removeFriend(friend.id)}>
-                    <UserCheck className="w-4 h-4 mr-2" /> Remove friend
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+          {/* Action Row - 3-Tier Hierarchy */}
+          <div className="p-3 bg-zinc-950/90 flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 bg-amber-950/30 border-amber-800/40 text-amber-300 hover:bg-amber-900/40 text-xs font-bold"
+              onClick={() => router.push(`/kingdom?visit=${friend.friendId}`)}
+            >
+              <Crown className="w-3.5 h-3.5 mr-1 text-amber-400" /> Visit Realm
+            </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 px-2.5 bg-zinc-900 border-zinc-700 text-xs font-bold text-amber-400 hover:bg-zinc-800">
+                  Interact ▾
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44 bg-zinc-950 border-amber-800/40 text-amber-100">
+                <DropdownMenuItem onClick={() => openQuestModal(friend)} className="text-xs cursor-pointer">
+                  <Scroll className="w-3.5 h-3.5 mr-2 text-amber-400" /> Issue Quest Dare
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => openCompareModal(friend)} className="text-xs cursor-pointer">
+                  <Target className="w-3.5 h-3.5 mr-2 text-blue-400" /> Compare Stats
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { setSelectedFriend(friend); setGiftModalOpen(true); }} className="text-xs cursor-pointer">
+                  <Gift className="w-3.5 h-3.5 mr-2 text-pink-400" /> Send Gift
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-amber-900/20" />
+                <DropdownMenuItem onClick={() => removeFriend(friend.id)} className="text-xs text-red-400 cursor-pointer">
+                  <UserX className="w-3.5 h-3.5 mr-2" /> Remove Ally
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       ) : (

@@ -563,11 +563,11 @@ export default function MarketPage() {
                   return (
                     <Card key={pack.id} style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }} className={`bg-zinc-900 border-amber-900/30 hover:border-amber-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 snap-start shrink-0 min-w-[260px] sm:min-w-0 sm:shrink ${onCooldown ? 'opacity-70' : 'shadow-amber-500/5'}`}>
                       <div className="absolute inset-0 bg-gradient-to-b from-amber-900/10 to-transparent opacity-50"></div>
-                      <CardHeader className="text-center relative z-10 pb-4">
-                        <CardTitle className="text-2xl font-black text-amber-300 tracking-wide">{pack.title}</CardTitle>
-                        <CardDescription className="text-amber-200/60 font-bold">{pack.shortLabel}</CardDescription>
+                      <CardHeader className="text-center relative z-10 pb-2">
+                        <CardTitle className="text-lg font-bold text-amber-300 font-serif">{pack.title}</CardTitle>
+                        <CardDescription className="text-xs text-amber-200/60 font-mono font-bold">{pack.shortLabel}</CardDescription>
                       </CardHeader>
-                      <CardContent className="flex-1 text-center relative z-10 space-y-4">
+                      <CardContent className="flex-1 text-center relative z-10 space-y-3">
                         <div className={`w-32 h-40 mx-auto bg-gradient-to-br from-amber-800/80 to-yellow-950 rounded-lg shadow-2xl flex items-center justify-center border-2 border-amber-500/30 transform transition-transform duration-500 ${onCooldown ? 'grayscale' : 'group-hover:scale-105 group-hover:rotate-3'}`}>
                           <span className="text-5xl drop-shadow-lg">{onCooldown ? '🔒' : '🎁'}</span>
                         </div>

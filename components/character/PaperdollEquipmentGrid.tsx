@@ -268,31 +268,25 @@ export function PaperdollEquipmentGrid({
             </div>
           </div>
 
-          {/* Right Column: Hero Combat Stats Summary Panel (5 Cols on LG) */}
+          {/* Right Column: Hero Combat Stats Summary Panel (5 Cols on LG) - 3-Tier Hierarchy */}
           <div className="lg:col-span-5 space-y-4">
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-3">
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 space-y-2.5">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-bold text-zinc-200 uppercase tracking-wider flex items-center gap-1.5">
-                  <Flame className="w-4 h-4 text-amber-400" /> Equipped Combat Attributes
+                  <Flame className="w-4 h-4 text-amber-400" /> Attributes
                 </h4>
-                <Badge variant="outline" className="border-amber-500/40 text-amber-400 bg-amber-950/30 text-[10px] font-mono">
+                <Badge variant="outline" className="border-amber-500/40 text-amber-400 bg-amber-950/30 text-[10px] font-mono font-bold">
                   ⚡ Gear Score: {Math.round(gearScore)}
                 </Badge>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="p-2.5 rounded-xl bg-zinc-950 border border-red-900/40">
-                  <span className="text-[10px] text-zinc-400 block font-semibold">ATTACK</span>
-                  <span className="text-sm font-mono font-bold text-red-400">⚔️ +{totalAtk}</span>
-                </div>
-                <div className="p-2.5 rounded-xl bg-zinc-950 border border-blue-900/40">
-                  <span className="text-[10px] text-zinc-400 block font-semibold">DEFENSE</span>
-                  <span className="text-sm font-mono font-bold text-blue-400">🛡️ +{totalDef}</span>
-                </div>
-                <div className="p-2.5 rounded-xl bg-zinc-950 border border-emerald-900/40">
-                  <span className="text-[10px] text-zinc-400 block font-semibold">SPEED</span>
-                  <span className="text-sm font-mono font-bold text-emerald-400">💨 +{totalSpd}</span>
-                </div>
+              {/* SECONDARY TIER: Compact Horizontal Ribbon */}
+              <div className="flex items-center justify-between gap-2 p-2 bg-zinc-950 rounded-lg border border-zinc-800 text-xs font-mono font-bold">
+                <span className="text-red-400 flex items-center gap-1">⚔️ +{totalAtk} <span className="text-[9px] text-zinc-500 font-normal">ATK</span></span>
+                <span className="text-zinc-700">|</span>
+                <span className="text-blue-400 flex items-center gap-1">🛡️ +{totalDef} <span className="text-[9px] text-zinc-500 font-normal">DEF</span></span>
+                <span className="text-zinc-700">|</span>
+                <span className="text-emerald-400 flex items-center gap-1">💨 +{totalSpd} <span className="text-[9px] text-zinc-500 font-normal">SPD</span></span>
               </div>
             </div>
 

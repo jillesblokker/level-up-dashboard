@@ -104,27 +104,37 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
             <span className="text-[10px] font-mono font-bold text-amber-300">1.5x Boss Damage Multiplier</span>
           </div>
 
-          {/* Damage Rules Box */}
-          <div className="bg-zinc-900/60 rounded-xl p-3 border border-zinc-800 grid grid-cols-1 sm:grid-cols-3 gap-2 text-center text-xs">
-            <div className="space-y-0.5 p-1 bg-zinc-950/40 rounded-lg">
-              <span className="text-zinc-400 block text-[10px]">Daily quest</span>
-              <span className="font-bold text-amber-400 flex items-center justify-center gap-1">
-                <Zap className="w-3 h-3" /> 1 damage
+          {/* Collapsible Damage Rules & Loot Rates Drawer (3-Tier Hierarchy) */}
+          <details className="group border border-zinc-800 rounded-xl bg-zinc-950/60 overflow-hidden">
+            <summary className="px-3 py-2 flex items-center justify-between text-xs font-bold text-amber-300 font-serif cursor-pointer hover:bg-zinc-900/60 transition-colors select-none">
+              <span className="flex items-center gap-1.5">
+                ⚡ Raid Damage Rules & Loot Rates
               </span>
-            </div>
-            <div className="space-y-0.5 p-1 bg-zinc-950/40 rounded-lg">
-              <span className="text-zinc-400 block text-[10px]">Weekly challenge</span>
-              <span className="font-bold text-amber-400 flex items-center justify-center gap-1">
-                <Zap className="w-3 h-3" /> 10 damage
+              <span className="text-[10px] text-zinc-400 font-mono group-open:hidden">
+                Show Breakdown ▾
               </span>
+            </summary>
+            <div className="bg-zinc-900/60 p-3 border-t border-zinc-800 grid grid-cols-1 sm:grid-cols-3 gap-2 text-center text-xs">
+              <div className="space-y-0.5 p-1 bg-zinc-950/40 rounded-lg">
+                <span className="text-zinc-400 block text-[10px]">Daily quest</span>
+                <span className="font-bold text-amber-400 flex items-center justify-center gap-1">
+                  <Zap className="w-3 h-3" /> 1 damage
+                </span>
+              </div>
+              <div className="space-y-0.5 p-1 bg-zinc-950/40 rounded-lg">
+                <span className="text-zinc-400 block text-[10px]">Weekly challenge</span>
+                <span className="font-bold text-amber-400 flex items-center justify-center gap-1">
+                  <Zap className="w-3 h-3" /> 10 damage
+                </span>
+              </div>
+              <div className="space-y-0.5 p-1 bg-zinc-950/40 rounded-lg">
+                <span className="text-zinc-400 block text-[10px]">Milestone</span>
+                <span className="font-bold text-amber-400 flex items-center justify-center gap-1">
+                  <Zap className="w-3 h-3" /> 100 damage
+                </span>
+              </div>
             </div>
-            <div className="space-y-0.5 p-1 bg-zinc-950/40 rounded-lg">
-              <span className="text-zinc-400 block text-[10px]">Milestone</span>
-              <span className="font-bold text-amber-400 flex items-center justify-center gap-1">
-                <Zap className="w-3 h-3" /> 100 damage
-              </span>
-            </div>
-          </div>
+          </details>
 
           {/* Fellowship Tier Chests */}
           <div className="space-y-2">

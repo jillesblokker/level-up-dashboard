@@ -459,23 +459,22 @@ export function DailyHubClient() {
 
                     return (
                         <div className="space-y-3">
-                            {/* Morning Focus 5 Target Progress Ring */}
-                            <div className="rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-950/80 via-zinc-900 to-zinc-950 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl relative overflow-hidden">
+                            {/* Morning Focus 5 Target Progress Ring (3-Tier Hierarchy) */}
+                            <div className="rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-950/80 via-zinc-900 to-zinc-950 p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xl relative overflow-hidden">
                                 {count >= 5 && (
                                     <div className="absolute -left-6 -top-6 w-32 h-32 bg-amber-500/30 rounded-full blur-2xl pointer-events-none animate-pulse" />
                                 )}
                                 <div className="flex items-center gap-3 relative z-10">
-                                    <div className={`relative w-12 h-12 rounded-full border-2 flex items-center justify-center text-amber-300 font-bold text-lg transition-all duration-500 ${count >= 5 ? 'bg-amber-500/30 border-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.8)] scale-105' : 'bg-amber-500/20 border-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.5)] animate-pulse'}`}>
+                                    <div className={`relative w-10 h-10 rounded-full border flex items-center justify-center text-amber-300 font-bold text-base transition-all duration-500 ${count >= 5 ? 'bg-amber-500/30 border-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.8)] scale-105' : 'bg-amber-500/20 border-amber-400/80'}`}>
                                         🎯
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-sm text-white font-serif flex items-center gap-2">
-                                            Morning Focus 5/10 Target
+                                        <div className="flex items-center gap-2">
+                                            <h4 className="font-bold text-sm text-white font-serif">Morning Focus Target</h4>
                                             <span className="text-[10px] bg-amber-500/20 border border-amber-400/50 text-amber-300 px-2 py-0.5 rounded-full font-mono font-bold">
                                                 {count >= 5 ? '🎯 Target Achieved!' : `${count}/5 Habits`}
                                             </span>
-                                        </h4>
-                                        <p className="text-xs text-zinc-300">Complete 5 daily habits to unlock golden confetti & House Cup virtue bonuses!</p>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 w-full sm:w-auto">

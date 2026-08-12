@@ -15,6 +15,7 @@ import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, 
 import { QuestToggleButton } from '@/components/quest-toggle-button'
 import { QuestCardSkeleton } from '@/components/skeletons/quest-card-skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
+import { cn } from '@/lib/utils'
 
 interface Quest {
   id: string
@@ -545,30 +546,42 @@ export function QuestOrganization({
                   />
                 </div>
 
-                {/* Filters */}
-                <div className={`grid gap-4 ${showCategoryFilter ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
-                  {showCategoryFilter && (
-                    <div>
-                      <label className="text-sm text-zinc-300 mb-2 block">Category</label>
-                      <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                        <SelectTrigger className="bg-zinc-800 border-zinc-700">
-                          <SelectValue placeholder="All categories" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-zinc-900 border-zinc-700">
-                          <SelectItem value="all">All Categories</SelectItem>
-                          {getAvailableCategories().map(key => (
-                            <SelectItem key={key} value={key}>
-                              <div className="flex items-center gap-2">
-                                <span>{categoryConfig[key as keyof typeof categoryConfig]?.icon || '📋'}</span>
-                                <span>{categoryConfig[key as keyof typeof categoryConfig]?.name || key}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
+                {/* 3-Tier Horizontal Icon-Pill Category Ribbon */}
+                {showCategoryFilter && (
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
+                    <button
+                      onClick={() => setSelectedCategory('all')}
+                      className={cn(
+                        "px-3 py-1.5 rounded-full text-xs font-bold font-mono transition-all shrink-0 flex items-center gap-1 border",
+                        selectedCategory === 'all'
+                          ? "bg-amber-500 text-zinc-950 border-amber-400 shadow-md"
+                          : "bg-zinc-900 text-zinc-300 border-zinc-700/60 hover:bg-zinc-800"
+                      )}
+                    >
+                      🌟 All Categories
+                    </button>
+                    {getAvailableCategories().map(key => {
+                      const cfg = categoryConfig[key as keyof typeof categoryConfig];
+                      const isSel = selectedCategory === key;
+                      return (
+                        <button
+                          key={key}
+                          onClick={() => setSelectedCategory(key)}
+                          className={cn(
+                            "px-3 py-1.5 rounded-full text-xs font-bold font-mono transition-all shrink-0 flex items-center gap-1 border",
+                            isSel
+                              ? "bg-amber-500 text-zinc-950 border-amber-400 shadow-md"
+                              : "bg-zinc-900 text-zinc-300 border-zinc-700/60 hover:bg-zinc-800"
+                          )}
+                        >
+                          <span>{cfg?.icon || '📜'}</span>
+                          <span>{cfg?.name || key}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                <div className="grid gap-4 md:grid-cols-3">
                   <div>
                     <label className="text-sm text-zinc-300 mb-2 block">Difficulty</label>
                     <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
