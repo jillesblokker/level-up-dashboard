@@ -2917,22 +2917,24 @@ export default function QuestsPage() {
                   🛡️ Castle: +10% Armor
                 </span>
               </div>
-               {/* SINGLE LAYER TAB BAR (UX Best Practice: 1 Layer) */}
+            </div>
+
+            {/* SINGLE LAYER TAB BAR (Above content, full width) */}
             <Tabs value={forgeTab} onValueChange={(val: any) => setForgeTab(val)} className="w-full mb-8">
-              <TabsList className="w-full md:w-auto mb-6 bg-zinc-950 border border-amber-900/40 p-1 rounded-xl">
-                <TabsTrigger value="quests" className="rounded-lg text-xs font-bold font-serif py-2.5">
+              <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 gap-1 bg-zinc-950 border border-amber-900/40 p-1.5 rounded-xl">
+                <TabsTrigger value="quests" className="rounded-lg text-xs sm:text-sm font-bold font-serif py-2.5">
                   <Sword className="w-4 h-4 mr-1.5 text-amber-400" />
                   Daily Quests
                 </TabsTrigger>
-                <TabsTrigger value="challenges" className="rounded-lg text-xs font-bold font-serif py-2.5">
+                <TabsTrigger value="challenges" className="rounded-lg text-xs sm:text-sm font-bold font-serif py-2.5">
                   <Zap className="w-4 h-4 mr-1.5 text-amber-400" />
                   Challenges
                 </TabsTrigger>
-                <TabsTrigger value="milestones" className="rounded-lg text-xs font-bold font-serif py-2.5">
+                <TabsTrigger value="milestones" className="rounded-lg text-xs sm:text-sm font-bold font-serif py-2.5">
                   <Trophy className="w-4 h-4 mr-1.5 text-green-400" />
                   🏆 Milestones
                 </TabsTrigger>
-                <TabsTrigger value="petitions" className="rounded-lg text-xs font-bold font-serif py-2.5">
+                <TabsTrigger value="petitions" className="rounded-lg text-xs sm:text-sm font-bold font-serif py-2.5">
                   <Scroll className="w-4 h-4 mr-1.5 text-blue-400" />
                   📜 Petitions
                 </TabsTrigger>
@@ -3055,10 +3057,6 @@ export default function QuestsPage() {
                     <MasteryLedger />
                   </div>
                 </details>
-              </div>
-            )}
-            
-            {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
 
                   {/* Journey Progress Section */}
                   <div className="space-y-4">
@@ -3161,6 +3159,7 @@ export default function QuestsPage() {
                     <ChroniclesCard currentLevel={stats.level} />
                   </div>
                 </div>
+            )}
 
 
 
