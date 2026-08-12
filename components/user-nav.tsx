@@ -74,7 +74,7 @@ export function UserNav() {
               variant="ghost"
               className="relative h-10 w-10 md:h-8 md:w-8 rounded-full touch-manipulation min-h-[44px] hover:bg-amber-500/10 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
             >
-              <Avatar className="h-10 w-10 md:h-8 md:w-8 border-2 border-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.6)] animate-pulse">
+              <Avatar className="h-10 w-10 md:h-8 md:w-8 border border-zinc-700/60 overflow-hidden">
                 {user?.imageUrl ? (
                   <AvatarImage
                     src={user.imageUrl}

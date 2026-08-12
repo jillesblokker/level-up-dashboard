@@ -689,7 +689,7 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
   const hasData = graphData.length > 0 && graphData.some(d => d.value > 0);
 
   return (
-    <Card className="bg-black border-amber-800">
+    <Card className="bg-black border-amber-800 h-full flex flex-col justify-between">
       <CardHeader>
         <div className="flex flex-col space-y-4">
           {/* Header with title and description - KingdomStatsBlock */}
@@ -1072,7 +1072,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
   const hasData = graphData.length > 0 && graphData.some(d => d.value > 0);
 
   return (
-    <Card className="bg-black border-amber-800">
+    <Card className="bg-black border-amber-800 h-full flex flex-col justify-between">
       <CardHeader>
         <div className="flex flex-col space-y-4">
           {/* Header with title and description */}
