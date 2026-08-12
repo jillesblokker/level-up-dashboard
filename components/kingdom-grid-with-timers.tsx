@@ -494,8 +494,8 @@ export function KingdomGridWithTimers({
     confetti({ particleCount: 80, spread: 80, origin: { y: 0.5 } });
     setLuckyCelebrationAmount(totalGoldHarvested);
     toast({
-      title: "🪙 Kingdom Taxes Collected!",
-      description: `Harvested ${totalGoldHarvested.toLocaleString()} Gold & ${readyTimersCount * 2} Essences from ${readyTimersCount} kingdom properties!`,
+      title: "🪙 Kingdom Taxes & District Production Collected!",
+      description: `Harvested ${totalGoldHarvested.toLocaleString()} Gold & ${readyTimersCount * 2} Essences across Blacksmith, Lumber & Mystic Settlement Districts!`,
     });
   }, [readyTimersCount, grid, toast]);
   const [chaosRiftTiles, setChaosRiftTiles] = useState<Set<string>>(new Set()) // Set of tile IDs with chaos rift overlay

@@ -660,6 +660,19 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
             </div>
           )}
 
+          {/* Turn-Based Battle Combat Log Box (Enforcing min-h-[76px] for 3 full lines) */}
+          <div className="bg-zinc-950/90 border border-zinc-800 rounded-xl p-3 space-y-1 min-h-[76px] max-h-[120px] overflow-y-auto text-xs font-mono">
+            <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider flex items-center justify-between border-b border-zinc-800 pb-1 mb-1 font-serif">
+              <span>⚔️ Battle Combat Log</span>
+              <span className="text-emerald-400 text-[9px]">Round {currentRound}/5</span>
+            </div>
+            <div className="space-y-1 text-[11px]">
+              <p className="text-emerald-300">⚔️ Round {currentRound}: Player strikes with Might sequence! (+15% ATK Aura Active)</p>
+              <p className="text-cyan-300">🛡️ Guardian Pet Striker: Ember Drake assists with Flame Wave!</p>
+              <p className="text-amber-200">✨ House Cup Virtue Energy awarded: +15 Might Points!</p>
+            </div>
+          </div>
+
           {/* Close Button */}
           <div className="flex justify-center">
             <Button

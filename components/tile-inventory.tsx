@@ -982,7 +982,18 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                   </div>
                 </div>
 
-                <div className="mt-8 text-center">
+                <div className="mt-6 text-center space-y-2">
+                  <Button
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new CustomEvent('open-apotheca-modal'));
+                      }
+                      toast.success("Opening Grand Apotheca Glasshouse...");
+                    }}
+                    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-zinc-950 font-bold text-xs px-5 py-2 rounded-xl shadow-md gap-2 uppercase tracking-wider"
+                  >
+                    🧪 Brew Botanical Potions in Apotheca ✨
+                  </Button>
                   <p className="text-xs text-amber-600 italic">
                     More synergies may be discovered as you level up!
                   </p>

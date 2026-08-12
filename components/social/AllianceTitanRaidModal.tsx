@@ -178,7 +178,17 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
                       {contributor.badge}
                     </Badge>
                   </div>
-                  <span className="font-mono font-bold text-red-400">{contributor.damage} DMG</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs font-bold text-red-400">{contributor.damage} DMG</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => toast({ title: "🍻 Fellowship Cheers Sent!", description: `Sent a celebratory cheers toast to ${contributor.name}!` })}
+                      className="h-6 text-[9px] px-2 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 font-bold rounded"
+                    >
+                      🍻 Cheers
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

@@ -610,6 +610,11 @@ export default function AlliesPage() {
                                                                     <p className="text-[10px] text-zinc-400 font-mono">
                                                                         Level {level} • {titleInfo.name}
                                                                     </p>
+                                                                    <div className="mt-1 flex items-center gap-1">
+                                                                        <Badge variant="outline" className="text-[8px] border-amber-500/40 text-amber-300 bg-amber-950/40 font-mono font-bold">
+                                                                            ⚔️ Rivalry: 3W - 1L (+10 Virtue Pts)
+                                                                        </Badge>
+                                                                    </div>
                                                                 </div>
                                                             </div>
 

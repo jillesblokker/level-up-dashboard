@@ -161,12 +161,17 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
           {/* Citizen Crew Assignment Selector (Horizontal Touch Snap Carousel) */}
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-xs text-zinc-200 flex items-center gap-1.5">
+              <span className="font-bold text-xs text-zinc-200 flex items-center gap-1.5 font-serif">
                 <Users className="w-4 h-4 text-cyan-400" /> Expedition Crew ({selectedCrew.length}/3)
               </span>
-              <Badge variant="outline" className="text-[9px] border-cyan-500/40 text-cyan-300 bg-cyan-950/40 font-bold">
-                Class Synergy: +50% EXP
-              </Badge>
+              <div className="flex items-center gap-1">
+                <Badge variant="outline" className="text-[9px] border-cyan-500/40 text-cyan-300 bg-cyan-950/40 font-mono font-bold">
+                  ⚡ 2x Speed Active
+                </Badge>
+                <Badge variant="outline" className="text-[9px] border-amber-500/40 text-amber-300 bg-amber-950/40 font-mono font-bold">
+                  Scout Synergy +25%
+                </Badge>
+              </div>
             </div>
             <p className="text-[11px] text-zinc-400 leading-tight">
               Assign trained citizens as crew to grant them Expedition EXP on voyage completion!

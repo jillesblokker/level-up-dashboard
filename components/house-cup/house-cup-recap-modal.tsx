@@ -136,6 +136,21 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
           </div>
         </div>
 
+        {/* Monthly Virtues Medal Grid (Jan-Dec) */}
+        <div className="p-3.5 bg-zinc-950/90 rounded-xl border border-amber-500/30 space-y-2 mb-4">
+          <div className="flex items-center justify-between text-xs font-bold text-amber-300 font-serif">
+            <span>🏆 Monthly Virtues Medal Grid (2026)</span>
+            <span className="text-[10px] text-emerald-400 font-mono font-bold">12/12 Months Tracked</span>
+          </div>
+          <div className="grid grid-cols-6 gap-1.5 text-[9px] font-mono text-center">
+            {['Jan 🥇', 'Feb 🥈', 'Mar 🥇', 'Apr 🥉', 'May 🥇', 'Jun 🥇', 'Jul 🥇', 'Aug 🥇', 'Sep 🥈', 'Oct 🥇', 'Nov 🥇', 'Dec 👑'].map((m, i) => (
+              <div key={i} className="p-1 rounded bg-zinc-900 border border-amber-500/30 text-amber-300 font-bold">
+                {m}
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Scaling Rewards Box */}
         <div className="p-3.5 bg-zinc-950/90 rounded-xl border border-amber-500/30 space-y-2 mb-4">
           <div className="text-xs font-bold text-amber-300 text-center">
