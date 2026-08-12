@@ -14,7 +14,7 @@ import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { cn, renderSafeNode } from '@/lib/utils'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame, Star, CheckCircle2, Zap } from 'lucide-react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame, Star, CheckCircle2, Zap, Scroll } from 'lucide-react'
 import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
 import { useUser, useAuth } from '@clerk/nextjs'
@@ -2917,143 +2917,148 @@ export default function QuestsPage() {
                   🛡️ Castle: +10% Armor
                 </span>
               </div>
-            </div>
-            {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
-
-            <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)} className="w-full mb-8">
-              <TabsList className="w-full md:w-auto mb-8">
-                <TabsTrigger value="forge">
-                  <Sword className="w-4 h-4" />
-                  <span>The Forge</span>
+               {/* SINGLE LAYER TAB BAR (UX Best Practice: 1 Layer) */}
+            <Tabs value={forgeTab} onValueChange={(val: any) => setForgeTab(val)} className="w-full mb-8">
+              <TabsList className="w-full md:w-auto mb-6 bg-zinc-950 border border-amber-900/40 p-1 rounded-xl">
+                <TabsTrigger value="quests" className="rounded-lg text-xs font-bold font-serif py-2.5">
+                  <Sword className="w-4 h-4 mr-1.5 text-amber-400" />
+                  Daily Quests
                 </TabsTrigger>
-                <TabsTrigger value="ledger" disabled={stats.level < 10}>
-                  <Flame className="w-4 h-4" />
-                  <span>{stats.level < 10 ? 'Ledger (Lvl 10)' : 'The Ledger'}</span>
+                <TabsTrigger value="challenges" className="rounded-lg text-xs font-bold font-serif py-2.5">
+                  <Zap className="w-4 h-4 mr-1.5 text-amber-400" />
+                  Challenges
                 </TabsTrigger>
-                <TabsTrigger value="sanctuary" disabled={stats.level < 20}>
-                  <Trophy className={`w-4 h-4 ${stats.level >= 20 ? 'text-green-400 animate-pulse' : ''}`} />
-                  <span>{stats.level < 20 ? 'Sanctuary (Lvl 20)' : 'The Sanctuary ⭐'}</span>
+                <TabsTrigger value="milestones" className="rounded-lg text-xs font-bold font-serif py-2.5">
+                  <Trophy className="w-4 h-4 mr-1.5 text-green-400" />
+                  🏆 Milestones
                 </TabsTrigger>
-                <TabsTrigger value="recovery">
-                  <Heart className="w-4 h-4" />
-                  <span>Recovery</span>
+                <TabsTrigger value="petitions" className="rounded-lg text-xs font-bold font-serif py-2.5">
+                  <Scroll className="w-4 h-4 mr-1.5 text-blue-400" />
+                  📜 Petitions
                 </TabsTrigger>
               </TabsList>
             </Tabs>
 
-            {/* THE LEDGER - Mastery Tracking (Preserves scroll position) */}
-            <div className={activeView === 'ledger' ? 'block' : 'hidden'}>
-              <MasteryLedger />
-            </div>
-
-            {/* THE FORGE - Unified Active Board */}
-            {
-              activeView === 'forge' && (
-                <div className="space-y-8">
-                  {/* Bulk Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
-                    <Button
-                      onClick={handleBulkCompleteFavorites}
-                      disabled={loading || (forgeTab === 'quests' ? quests : challenges).filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
-                      className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
-                      aria-label={forgeTab === 'quests' ? "Complete all favorited quests in this category" : "Complete all favorited tasks in this category"}
-                    >
-                      <Star className="w-4 h-4" />
-                      <span className="hidden sm:inline">
-                        {(forgeTab === 'quests' 
-                          ? TEXT_CONTENT.questBoard.buttons.completeFavorites 
-                          : "Complete {count} Starred Tasks"
-                        ).replace('{count}', String((forgeTab === 'quests' ? quests : challenges).filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length))}
-                      </span>
-                      <span className="sm:hidden">
-                        Complete Starred ({(forgeTab === 'quests' ? quests : challenges).filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length})
-                      </span>
-                    </Button>
-                    <Button
-                      onClick={handleBulkCompleteAllFavorites}
-                      disabled={loading || (forgeTab === 'quests' ? quests : challenges).filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
-                      className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
-                      aria-label={forgeTab === 'quests' ? "Complete all favorited quests across all categories" : "Complete all favorited tasks across all categories"}
-                    >
-                      <Star className="w-4 h-4" />
-                      <span className="hidden sm:inline">
-                        {(forgeTab === 'quests'
-                          ? TEXT_CONTENT.questBoard.buttons.completeAllFavorites
-                          : "Complete All {count} Starred Tasks"
-                        ).replace('{count}', String((forgeTab === 'quests' ? quests : challenges).filter(q => favoritedQuests.has(q.id) && !q.completed).length))}
-                      </span>
-                      <span className="sm:hidden">
-                        Complete All ({(forgeTab === 'quests' ? quests : challenges).filter(q => favoritedQuests.has(q.id) && !q.completed).length})
-                      </span>
-                    </Button>
-                    <Button
-                      onClick={handleManualReset}
-                      disabled={manualResetLoading || !token}
-                      className="bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg border border-zinc-500"
-                      aria-label="Manually reset today's quests"
-                    >
-                      {manualResetLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          {TEXT_CONTENT.questBoard.buttons.resetting}
-                        </>
-                      ) : (
-                        <>
-                          🔄 {TEXT_CONTENT.questBoard.buttons.reset}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-
-                    {/* Simple Toggle for Daily Quests / Challenges / Milestones / Petitions */}
-                    <div className="space-y-6">
-                      {/* Toggle Buttons */}
-                      <Tabs value={forgeTab} onValueChange={(val: any) => setForgeTab(val)} className="w-full">
-                        <TabsList>
-                          <TabsTrigger value="quests">Daily Quests</TabsTrigger>
-                          <TabsTrigger value="challenges">Challenges</TabsTrigger>
-                          <TabsTrigger value="milestones">🏆 Milestones</TabsTrigger>
-                          <TabsTrigger value="petitions">📜 Petitions</TabsTrigger>
-                        </TabsList>
-                      </Tabs>
-
-                      {/* Conditional Content */}
-                      {forgeTab === 'petitions' ? (
-                        <PetitionsTab />
-                      ) : forgeTab === 'milestones' ? (
-                        <Milestones token={token} />
-                      ) : forgeTab === 'quests' ? (
-                      <QuestOrganization
-                        quests={quests}
-                        onQuestToggle={handleQuestToggle}
-                        onQuestFavorite={handleQuestFavorite}
-                        onQuestEdit={handleEditQuest}
-                        onQuestDelete={handleDeleteQuest}
-                        onAddQuest={() => openQuickAdd()}
-                        showCategoryFilter={true}
-                        context="quests"
-                        hideOverview={true}
-                        hideCategoryOverview={true}
-                        isLoading={loading}
-                        bossQuestId={bossQuestId}
-                        onToggleBossQuest={(id) => setBossQuestId(prev => prev === id ? undefined : id)}
-                      />
+            {/* TAB CONTENTS */}
+            {forgeTab === 'petitions' ? (
+              <PetitionsTab />
+            ) : forgeTab === 'milestones' ? (
+              <div className="space-y-6">
+                <Milestones token={token} />
+                <QuestOrganization
+                  quests={milestones}
+                  onQuestToggle={handleMilestoneToggle}
+                  onQuestFavorite={() => { }}
+                  onQuestEdit={handleMilestoneEdit}
+                  onQuestDelete={handleMilestoneDelete}
+                  onAddQuest={handleAddMilestone}
+                  showCategoryFilter={true}
+                  context="milestones"
+                  hideOverview={true}
+                  hideCategoryOverview={true}
+                  isLoading={loading}
+                />
+              </div>
+            ) : forgeTab === 'challenges' ? (
+              <QuestOrganization
+                quests={challenges}
+                onQuestToggle={handleChallengeToggle}
+                onQuestFavorite={handleQuestFavorite}
+                onQuestEdit={handleEditChallenge}
+                onQuestDelete={handleDeleteChallenge}
+                onAddQuest={handleAddChallengeType}
+                showCategoryFilter={true}
+                context="challenges"
+                hideOverview={true}
+                hideCategoryOverview={true}
+                isLoading={loading}
+              />
+            ) : (
+              /* DAILY QUESTS TAB CONTENT */
+              <div className="space-y-8">
+                {/* Bulk Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
+                  <Button
+                    onClick={handleBulkCompleteFavorites}
+                    disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
+                    className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
+                    aria-label="Complete all favorited quests in this category"
+                  >
+                    <Star className="w-4 h-4" />
+                    <span className="hidden sm:inline">
+                      {TEXT_CONTENT.questBoard.buttons.completeFavorites.replace('{count}', String(quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length))}
+                    </span>
+                    <span className="sm:hidden">
+                      Complete Starred ({quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length})
+                    </span>
+                  </Button>
+                  <Button
+                    onClick={handleBulkCompleteAllFavorites}
+                    disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
+                    className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
+                    aria-label="Complete all favorited quests across all categories"
+                  >
+                    <Star className="w-4 h-4" />
+                    <span className="hidden sm:inline">
+                      {TEXT_CONTENT.questBoard.buttons.completeAllFavorites.replace('{count}', String(quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length))}
+                    </span>
+                    <span className="sm:hidden">
+                      Complete All ({quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length})
+                    </span>
+                  </Button>
+                  <Button
+                    onClick={handleManualReset}
+                    disabled={manualResetLoading || !token}
+                    className="bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg border border-zinc-500"
+                    aria-label="Manually reset today's quests"
+                  >
+                    {manualResetLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        {TEXT_CONTENT.questBoard.buttons.resetting}
+                      </>
                     ) : (
-                      <QuestOrganization
-                        quests={challenges}
-                        onQuestToggle={handleChallengeToggle}
-                        onQuestFavorite={handleQuestFavorite}
-                        onQuestEdit={handleEditChallenge}
-                        onQuestDelete={handleDeleteChallenge}
-                        onAddQuest={handleAddChallengeType}
-                        showCategoryFilter={true}
-                        context="challenges"
-                        hideOverview={true}
-                        hideCategoryOverview={true}
-                        isLoading={loading}
-                      />
+                      <>
+                        🔄 {TEXT_CONTENT.questBoard.buttons.reset}
+                      </>
                     )}
+                  </Button>
+                </div>
+
+                <QuestOrganization
+                  quests={quests}
+                  onQuestToggle={handleQuestToggle}
+                  onQuestFavorite={handleQuestFavorite}
+                  onQuestEdit={handleEditQuest}
+                  onQuestDelete={handleDeleteQuest}
+                  onAddQuest={() => openQuickAdd()}
+                  showCategoryFilter={true}
+                  context="quests"
+                  hideOverview={true}
+                  hideCategoryOverview={true}
+                  isLoading={loading}
+                  bossQuestId={bossQuestId}
+                  onToggleBossQuest={(id) => setBossQuestId(prev => prev === id ? undefined : id)}
+                />
+
+                {/* Collapsible Mastery Ledger Accordion (Bottom of Daily Quests) */}
+                <details className="group border border-amber-900/30 rounded-2xl bg-zinc-950/80 overflow-hidden shadow-xl mt-8">
+                  <summary className="p-4 flex items-center justify-between font-serif font-bold text-amber-300 text-sm cursor-pointer hover:bg-amber-950/20 transition-colors select-none">
+                    <span className="flex items-center gap-2">
+                      📜 Mastery Ledger & Skill Progression
+                    </span>
+                    <span className="text-xs text-amber-400 font-mono font-normal group-open:hidden">
+                      Expand Ledger ▾
+                    </span>
+                  </summary>
+                  <div className="p-4 border-t border-amber-900/20">
+                    <MasteryLedger />
                   </div>
+                </details>
+              </div>
+            )}
+            
+            {error && <p className="text-red-500 bg-red-900 p-4 rounded-md mb-4">{error}</p>}
 
                   {/* Journey Progress Section */}
                   <div className="space-y-4">
@@ -3156,38 +3161,8 @@ export default function QuestsPage() {
                     <ChroniclesCard currentLevel={stats.level} />
                   </div>
                 </div>
-              )
-            }
 
-            {/* THE SANCTUARY - Milestones */}
-            {
-              activeView === 'sanctuary' && (
-                <div className="space-y-6">
-                  <div className="flex items-center gap-3 border-b border-blue-900/20 pb-4 mb-6">
-                    <div className="p-3 bg-blue-500/10 rounded-xl">
-                      <Trophy className="w-6 h-6 text-blue-500" />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-blue-400 font-serif">The Sanctuary</h2>
-                      <p className="text-sm text-zinc-500">Epic milestones and legendary achievements</p>
-                    </div>
-                  </div>
-                  <QuestOrganization
-                    quests={milestones}
-                    onQuestToggle={handleMilestoneToggle}
-                    onQuestFavorite={() => { }}
-                    onQuestEdit={handleMilestoneEdit}
-                    onQuestDelete={handleMilestoneDelete}
-                    onAddQuest={handleAddMilestone}
-                    showCategoryFilter={true}
-                    context="milestones"
-                    hideOverview={true}
-                    hideCategoryOverview={true}
-                    isLoading={loading}
-                  />
-                </div>
-              )
-            }
+
 
             {/* RECOVERY - Streak Management */}
             {

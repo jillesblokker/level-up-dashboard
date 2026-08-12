@@ -500,13 +500,16 @@ export default function MarketPage() {
           </Button>
         </div>
 
-        <Tabs value={mainTab} onValueChange={(val) => { setMainTab(val); setSearchQuery(""); }} className="space-y-6">
-          <TabsList className="mb-8">
-            <TabsTrigger value="trading-post">
-              <ShoppingBag className="w-5 h-5" /> Trading post
+        <Tabs value={activeTab} onValueChange={(val) => { setActiveTab(val); setSearchQuery(""); }} className="space-y-6">
+          <TabsList className="mb-8 bg-zinc-950 border border-amber-900/40 p-1 rounded-xl">
+            <TabsTrigger value="buy" className="rounded-lg text-xs font-bold font-serif py-2.5">
+              <ShoppingBag className="w-4 h-4 mr-1.5 text-amber-400" /> Buy Materials
             </TabsTrigger>
-            <TabsTrigger value="mystic-shop">
-              <Package className="w-5 h-5" /> Mystic bazaar
+            <TabsTrigger value="sell" className="rounded-lg text-xs font-bold font-serif py-2.5">
+              <Coins className="w-4 h-4 mr-1.5 text-green-400" /> Sell Resources
+            </TabsTrigger>
+            <TabsTrigger value="mystic-shop" className="rounded-lg text-xs font-bold font-serif py-2.5">
+              <Package className="w-4 h-4 mr-1.5 text-pink-400" /> Mystic Bazaar
             </TabsTrigger>
           </TabsList>
 
@@ -638,20 +641,8 @@ export default function MarketPage() {
             </div>
           </TabsContent>
 
-          {/* TRADING POST TAB */}
-          <TabsContent value="trading-post" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <Tabs value={activeTab} onValueChange={(val) => { setActiveTab(val); setSearchQuery(""); }} className="space-y-6">
-              <TabsList className="mb-6">
-                <TabsTrigger value="buy">
-                  Buy Materials
-                </TabsTrigger>
-                <TabsTrigger value="sell">
-                  Sell Resources
-                </TabsTrigger>
-              </TabsList>
-
-              {/* BUY TAB */}
-              <TabsContent value="buy" className="space-y-6">
+          {/* BUY TAB */}
+          <TabsContent value="buy" className="space-y-6">
             {/* Search, Filter & Sort Controls */}
             <div className="flex flex-col md:flex-row gap-4 bg-zinc-900 p-4 rounded-xl border border-zinc-800/60">
               <div className="flex-1 relative">
@@ -877,9 +868,7 @@ export default function MarketPage() {
             )}
           </TabsContent>
         </Tabs>
-      </TabsContent>
-    </Tabs>
-  </div>
+      </div>
 
       {openingPack && (
         <PackOpeningModal 
