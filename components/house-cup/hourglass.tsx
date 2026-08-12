@@ -129,15 +129,13 @@ export function Hourglass({
               className="transition-all duration-700 ease-out"
             />
             {fillRatio > 0 && (
-              <line
-                x1="8"
-                y1={fillY}
-                x2="32"
-                y2={fillY}
+              <path
+                d={`M 5 ${fillY} Q 20 ${fillY - 2} 35 ${fillY} Z`}
+                fill={color}
                 stroke="#ffffff"
                 strokeWidth="1.5"
-                strokeOpacity="0.8"
-                className="animate-pulse"
+                strokeOpacity="0.9"
+                className="animate-pulse shadow-md"
               />
             )}
           </g>

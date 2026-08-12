@@ -117,9 +117,14 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
 
           {/* Fellowship Tier Chests */}
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
-              <Trophy className="w-4 h-4 text-amber-400" /> Fellowship raid victory tier chests
-            </h4>
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-zinc-300 flex items-center gap-1.5 font-serif">
+                <Trophy className="w-4 h-4 text-amber-400" /> Fellowship Raid Victory Tier Chests
+              </h4>
+              <span className="text-[10px] font-mono text-zinc-400 flex items-center gap-1">
+                ⏱️ Reset: <strong className="text-amber-300">4d 18h</strong>
+              </span>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               {CHESTS.map(chest => {

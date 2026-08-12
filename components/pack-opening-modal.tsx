@@ -61,8 +61,10 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/95 p-3 sm:p-6 overflow-y-auto">
-      <div className="relative w-full max-w-4xl mx-auto flex flex-col items-center py-6 sm:py-10 pb-28 sm:pb-12 my-auto">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/95 p-3 sm:p-6 overflow-y-auto relative">
+      {/* Golden Particle Ray Burst Background */}
+      <div className="absolute inset-0 bg-radial from-amber-500/20 via-transparent to-transparent blur-3xl animate-pulse pointer-events-none" />
+      <div className="relative w-full max-w-4xl mx-auto flex flex-col items-center py-6 sm:py-10 pb-28 sm:pb-12 my-auto z-10">
         <button 
           onClick={onClose}
           className="absolute top-2 right-2 sm:top-4 sm:right-4 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors z-50 min-w-[44px] min-h-[44px] flex items-center justify-center"
@@ -72,7 +74,7 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
 
         <div className="text-center mb-6 sm:mb-8 px-4">
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-amber-500 mb-1 sm:mb-2 drop-shadow-sm">
-            {isWon ? "You won!" : "Scratch 3 to win"}
+            {isWon ? "✨ You Won Mythic Card! ✨" : "Scratch 3 to Win"}
           </h2>
           <p className="text-xs sm:text-sm text-zinc-400 font-medium tracking-wide">
             {isWon ? "Card added to your Mythics collection!" : "Find 3 matching cards to claim the prize"}

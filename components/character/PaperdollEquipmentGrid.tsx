@@ -397,7 +397,9 @@ function EquipmentSlotButton({
         onMouseLeave={() => setIsHovered(false)}
         className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center justify-center bg-zinc-950/95 shadow-2xl backdrop-blur-md relative overflow-hidden ${
           item
-            ? 'border-amber-500/70 hover:scale-110 hover:border-amber-400 active:scale-95 ring-4 ring-amber-500/20'
+            ? item.rarity === 'legendary' ? 'border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.6)] ring-4 ring-amber-500/30 animate-pulse'
+            : item.rarity === 'epic' ? 'border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.6)] ring-4 ring-purple-500/30'
+            : 'border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] ring-4 ring-cyan-500/20'
             : 'border-zinc-800 text-zinc-600 opacity-60'
         }`}
         aria-label={`Inspect ${label}`}

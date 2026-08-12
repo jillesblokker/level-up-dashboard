@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Shield, Sword, Zap, Heart, Shield as Armor, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
 import { gainGold } from '@/lib/gold-manager'
 import { addToCharacterStat } from '@/lib/character-stats-service'
 import { toast } from '@/components/ui/use-toast'
@@ -569,9 +570,13 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                     </div>
                     <div>
                       <p className="font-bold text-[11px] text-white leading-none flex items-center gap-1">
-                        {c.name} <span className="text-[9px] text-emerald-400">🔥 Striker</span>
+                        {c.name} <span className="text-[9px] text-emerald-400">🔥 Striker Active</span>
                       </p>
-                      <p className="text-[9px] text-amber-300 mt-1">Level {c.level || 1} • {getPassiveShortLabel(c)}</p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <Badge variant="outline" className="text-[8px] border-amber-500/40 text-amber-300 bg-amber-950/40 font-mono font-bold">
+                          🛡️ {getPassiveShortLabel(c)}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
                 ))}

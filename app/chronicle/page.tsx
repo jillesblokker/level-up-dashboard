@@ -142,6 +142,33 @@ export default function ChroniclePage() {
 
                 <WeeklyGrowthInsightsCard />
 
+                {/* Weekly Mood Trend Radar Card */}
+                <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-950/40 via-zinc-950 to-purple-950/40 border border-amber-500/40 space-y-3 shadow-xl">
+                    <div className="flex items-center justify-between text-xs font-bold text-amber-300 font-serif">
+                        <span className="flex items-center gap-1.5">
+                            📊 Weekly Mood Trend Radar & AI Synthesis
+                        </span>
+                        <span className="text-[10px] text-emerald-400 font-mono font-bold">Optimal Balance Active</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="p-3 rounded-xl bg-zinc-900/90 border border-amber-500/30 text-center space-y-1">
+                            <span className="text-xl">⚡</span>
+                            <h4 className="font-bold text-xs text-amber-300">Energized (65%)</h4>
+                            <p className="text-[10px] text-zinc-400">Peak physical & habit momentum</p>
+                        </div>
+                        <div className="p-3 rounded-xl bg-zinc-900/90 border border-blue-500/30 text-center space-y-1">
+                            <span className="text-xl">🎯</span>
+                            <h4 className="font-bold text-xs text-blue-300">Focused (25%)</h4>
+                            <p className="text-[10px] text-zinc-400">Deep work & learning sessions</p>
+                        </div>
+                        <div className="p-3 rounded-xl bg-zinc-900/90 border border-emerald-500/30 text-center space-y-1">
+                            <span className="text-xl">🌿</span>
+                            <h4 className="font-bold text-xs text-emerald-300">Calm (10%)</h4>
+                            <p className="text-[10px] text-zinc-400">Restful recovery & mindfulness</p>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Dual Journal Segmented Tabs (Milestones & Season Champions vs Private Reflection Diary) */}
                 <Tabs defaultValue="diary" className="w-full mb-6">
                     <TabsList className="grid grid-cols-2 bg-zinc-950 border border-amber-900/40 p-1 rounded-xl mb-6 shadow-inner">

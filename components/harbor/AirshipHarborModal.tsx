@@ -139,20 +139,29 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
                 📦 Voyage Cargo Crates Loaded:
               </span>
               <div className="grid grid-cols-3 gap-2">
-                <div className="bg-zinc-900/90 border border-amber-500/50 p-2 rounded-xl text-center space-y-0.5 shadow-md">
-                  <div className="text-amber-400 text-sm">📜</div>
+                <div
+                  onClick={() => toast({ title: "📦 Blueprint Crate Unboxed!", description: "Unlocked Kingdom Blueprint: Floating Island & Crystal Cascades!" })}
+                  className="cursor-pointer bg-zinc-900/90 border border-amber-500/50 p-2 rounded-xl text-center space-y-0.5 shadow-md hover:border-amber-400 hover:scale-105 transition-all"
+                >
+                  <div className="text-amber-400 text-sm animate-bounce">📜</div>
                   <span className="text-[9px] font-bold text-amber-200 block truncate">Blueprint Crate</span>
-                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Loaded ✓</span>
+                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Tap to Unbox ✨</span>
                 </div>
-                <div className="bg-zinc-900/90 border border-cyan-500/50 p-2 rounded-xl text-center space-y-0.5 shadow-md">
-                  <div className="text-cyan-400 text-sm">🧪</div>
+                <div
+                  onClick={() => toast({ title: "🧪 Reagents Crate Unboxed!", description: "Retrieved +5x Botanical Crystal Essences!" })}
+                  className="cursor-pointer bg-zinc-900/90 border border-cyan-500/50 p-2 rounded-xl text-center space-y-0.5 shadow-md hover:border-cyan-400 hover:scale-105 transition-all"
+                >
+                  <div className="text-cyan-400 text-sm animate-bounce">🧪</div>
                   <span className="text-[9px] font-bold text-cyan-200 block truncate">Reagents Crate</span>
-                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Loaded ✓</span>
+                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Tap to Unbox ✨</span>
                 </div>
-                <div className="bg-zinc-900/90 border border-purple-500/50 p-2 rounded-xl text-center space-y-0.5 shadow-md">
-                  <div className="text-purple-400 text-sm">⚔️</div>
+                <div
+                  onClick={() => toast({ title: "⚔️ Citizen Gear Crate Unboxed!", description: "Retrieved Mythic Vanguard Shield & Arcane Tome!" })}
+                  className="cursor-pointer bg-zinc-900/90 border border-purple-500/50 p-2 rounded-xl text-center space-y-0.5 shadow-md hover:border-purple-400 hover:scale-105 transition-all"
+                >
+                  <div className="text-purple-400 text-sm animate-bounce">⚔️</div>
                   <span className="text-[9px] font-bold text-purple-200 block truncate">Citizen Gear</span>
-                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Loaded ✓</span>
+                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Tap to Unbox ✨</span>
                 </div>
               </div>
             </div>

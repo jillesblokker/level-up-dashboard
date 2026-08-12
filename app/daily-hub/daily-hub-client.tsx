@@ -326,6 +326,7 @@ export function DailyHubClient() {
             })
 
             if (response.ok) {
+                confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
                 setCompletedQuestIds(prev => new Set(prev).add(quest.id))
 
                 setFavoritedQuests(prev => prev.map(q =>

@@ -385,6 +385,16 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
           <div className="flex-1 min-w-0">
             <h4 className="font-bold text-white text-sm truncate">{tile.name}</h4>
             <p className="text-[10px] text-zinc-400 line-clamp-3 min-h-[36px] mt-0.5" title={tile.description}>{tile.description}</p>
+            {/* Building Tier Upgrade Progress Bar */}
+            <div className="mt-1 space-y-0.5">
+              <div className="flex justify-between text-[8px] font-mono text-amber-400">
+                <span>Tier {placedCount + 1} Yield</span>
+                <span>+{(placedCount + 1) * 25} Gold/hr</span>
+              </div>
+              <div className="h-1.5 w-full bg-zinc-950 rounded-full overflow-hidden border border-amber-500/30">
+                <div className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 rounded-full" style={{ width: `${Math.min(100, (placedCount + 1) * 20)}%` }} />
+              </div>
+            </div>
           </div>
         </div>
 

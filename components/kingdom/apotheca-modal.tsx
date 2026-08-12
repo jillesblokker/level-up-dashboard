@@ -175,6 +175,16 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-2.5">
+                {/* Batch Distillation Multiplier Toggle */}
+                <div className="flex items-center justify-between bg-zinc-950 p-2.5 rounded-xl border border-emerald-500/30 text-xs">
+                  <span className="font-serif font-bold text-emerald-300">🧪 Batch Distillation Multiplier:</span>
+                  <div className="flex items-center gap-1 font-mono font-bold">
+                    <button type="button" onClick={() => toast({ title: "Batch Set: 1x", description: "Standard single potion distillation." })} className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px]">1x</button>
+                    <button type="button" onClick={() => toast({ title: "Batch Set: 3x", description: "Triple potion distillation active (+3x Yield)." })} className="px-2 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800 text-[10px] hover:text-emerald-300">3x</button>
+                    <button type="button" onClick={() => toast({ title: "Batch Set: 5x", description: "Quintuple potion distillation active (+5x Yield)." })} className="px-2 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800 text-[10px] hover:text-emerald-300">5x</button>
+                  </div>
+                </div>
+
                 <Button
                   onClick={handleDrink}
                   disabled={loading}
