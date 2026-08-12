@@ -306,12 +306,13 @@ export function PaperdollEquipmentGrid({
                     <div
                       key={slot}
                       onClick={() => item && setSelectedItem(item)}
-                      className={`p-2.5 rounded-xl border flex items-center justify-between text-xs cursor-pointer transition-all ${
+                      className={`p-2.5 rounded-xl border flex items-center justify-between text-xs cursor-pointer transition-all relative overflow-hidden group ${
                         item
-                          ? 'border-zinc-800 bg-zinc-950/80 hover:border-amber-500/40'
+                          ? 'border-zinc-800 bg-zinc-950/80 hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]'
                           : 'border-zinc-900 bg-zinc-950/40 opacity-50'
                       }`}
                     >
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
                       <div className="flex items-center gap-2.5">
                         {item ? (
                           <div className="relative w-8 h-8 shrink-0">

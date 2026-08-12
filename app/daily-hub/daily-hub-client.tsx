@@ -480,7 +480,7 @@ export function DailyHubClient() {
                                 </div>
                                 <div className="flex items-center gap-3 w-full sm:w-auto">
                                     <div className="flex-1 sm:w-32 bg-zinc-950 rounded-full h-2.5 overflow-hidden border border-zinc-800">
-                                        <div className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-500" style={{ width: `${targetProgress}%` }} />
+                                         <div className="h-full bg-gradient-to-r from-amber-500 via-emerald-400 to-amber-300 transition-all duration-700 ease-out shadow-[0_0_12px_rgba(245,158,11,0.6)]" style={{ width: `${targetProgress}%` }} />
                                     </div>
                                     <span className="font-mono text-xs font-bold text-amber-400">{targetProgress}%</span>
                                 </div>

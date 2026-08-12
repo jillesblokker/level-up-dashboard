@@ -244,7 +244,12 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
               <span className="font-bold text-xs text-zinc-200 flex items-center gap-1.5">
                 <Anchor className="w-4 h-4 text-cyan-400" /> Active Destination: {activeDestination}
               </span>
-              <span className="font-mono text-xs text-cyan-400 font-semibold">{voyageProgress}% Complete</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-bold text-cyan-300 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/40 animate-pulse">
+                  💨 Ether Propulsion Active
+                </span>
+                <span className="font-mono text-xs text-cyan-400 font-semibold">{voyageProgress}% Complete</span>
+              </div>
             </div>
 
             <Progress value={voyageProgress} className="h-2.5 bg-zinc-800" />

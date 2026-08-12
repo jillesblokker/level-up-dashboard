@@ -99,7 +99,7 @@ export const KingdomTileItem = React.memo(({
     <button
       onClick={() => onClick(x, y, tile)}
       className={cn(
-        "relative aspect-square border group transition-all duration-150 overflow-hidden shadow-sm hover:shadow-xl touch-manipulation select-none active:scale-90 active:brightness-125 active:border-amber-400 active:ring-2 active:ring-amber-400/80",
+        "relative aspect-square border group transition-all duration-200 ease-out overflow-hidden shadow-sm hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(245,158,11,0.25)] touch-manipulation select-none active:scale-95 active:brightness-125 active:border-amber-400 active:ring-2 active:ring-amber-400/80",
         tile.type === 'vacant' 
           ? "bg-zinc-900 border-white/5 hover:bg-zinc-800/60" 
           : "bg-zinc-800 border-white/10 hover:border-amber-500/50",

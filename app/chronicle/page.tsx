@@ -262,7 +262,7 @@ export default function ChroniclePage() {
                             <Card
                                 key={entry.id}
                                 onClick={() => handleEdit(entry)}
-                                className="bg-zinc-900/30 border-amber-900/10 hover:border-amber-500/30 hover:bg-zinc-900 transition-all cursor-pointer group"
+                                className="bg-zinc-900/30 border-amber-900/20 hover:border-amber-500/40 hover:bg-zinc-900 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(245,158,11,0.15)] cursor-pointer group transform-gpu"
                             >
                                 <CardContent className="p-4 md:p-6 flex flex-col md:flex-row gap-4 md:items-center">
                                     <div className="flex-1 space-y-2">

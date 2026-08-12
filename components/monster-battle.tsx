@@ -642,7 +642,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                 onClick={() => handleWeaponClick(weapon.id)}
                 disabled={!isPlayerTurn || isShowingSequence || gameState !== 'playing'}
                 className={cn(
-                  "h-20 flex flex-col items-center justify-center gap-2 transition-all duration-300",
+                  "h-20 flex flex-col items-center justify-center gap-2 transition-all duration-150 active:scale-95 transform-gpu shadow-md",
                   highlightedWeapon === weapon.id && "ring-4 ring-orange-500 bg-orange-600 scale-125 shadow-xl animate-pulse",
                   isPlayerTurn && !isShowingSequence && "hover:bg-opacity-80",
                   weapon.color

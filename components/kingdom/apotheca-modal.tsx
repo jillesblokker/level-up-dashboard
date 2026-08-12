@@ -152,10 +152,12 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
             <div className="relative p-5 bg-gradient-to-b from-emerald-950/80 via-zinc-950 to-zinc-900 border border-emerald-500/40 rounded-2xl text-center space-y-3 overflow-hidden shadow-xl">
               <div className="absolute inset-0 bg-radial from-emerald-500/10 via-transparent to-transparent blur-xl pointer-events-none" />
               
-              {/* Bubbling Cauldron & Sparkles */}
-              <div className="relative w-16 h-16 mx-auto rounded-full bg-emerald-950/90 border-2 border-emerald-400 flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-pulse">
+              {/* Bubbling Cauldron & Vapor Rise Sparkles */}
+              <div className="relative w-16 h-16 mx-auto rounded-full bg-emerald-950/90 border-2 border-emerald-400 flex items-center justify-center text-3xl shadow-[0_0_25px_rgba(16,185,129,0.7)] animate-pulse transform-gpu">
                 <span className="animate-bounce">🧪</span>
                 <Sparkles className="w-4 h-4 text-emerald-300 absolute -top-1 -right-1 animate-spin-slow" />
+                <span className="absolute -top-3 left-2 text-xs opacity-75 animate-bounce transition-all duration-700">🫧</span>
+                <span className="absolute -top-4 right-2 text-xs opacity-60 animate-pulse">✨</span>
               </div>
 
               <div className="space-y-1">

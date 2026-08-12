@@ -126,16 +126,16 @@ export function Hourglass({
               width="30"
               height={bottomChamberHeight + 10}
               fill={`url(#sandGrad-${categoryId}-c)`}
-              className="transition-all duration-700 ease-out"
+              className="transition-all duration-700 ease-in-out transform-gpu"
             />
             {fillRatio > 0 && (
               <path
-                d={`M 5 ${fillY} Q 20 ${fillY - 2} 35 ${fillY} Z`}
+                d={`M 5 ${fillY} Q 20 ${fillY - 3} 35 ${fillY} Z`}
                 fill={color}
                 stroke="#ffffff"
                 strokeWidth="1.5"
                 strokeOpacity="0.9"
-                className="animate-pulse shadow-md"
+                className="transition-all duration-700 ease-in-out animate-pulse shadow-md transform-gpu"
               />
             )}
           </g>

@@ -85,7 +85,10 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
                 <span className="font-bold text-base text-red-100 font-serif">Titan Wyrm of Gluttony</span>
                 <span className="text-xs font-mono font-bold text-red-400">{titanHp.toLocaleString()} / {maxHp.toLocaleString()} HP</span>
               </div>
-              <Progress value={hpPercent} className="h-3 bg-zinc-800" />
+              <div className="relative">
+                <Progress value={hpPercent} className="h-3 bg-zinc-800 transition-all duration-1000 ease-out transform-gpu" />
+                <div className="absolute inset-0 bg-red-500/20 rounded-full blur-[2px] animate-pulse pointer-events-none" />
+              </div>
               <div className="flex items-center justify-between text-[11px] text-zinc-300 pt-1">
                 <span>Your contribution: <strong className="text-amber-400 font-bold">{userDamageToday} raid damage</strong></span>
                 <span className="text-emerald-400 font-mono font-bold">⚡ Active Fellowship Raid</span>

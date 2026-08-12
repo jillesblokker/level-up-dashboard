@@ -246,6 +246,10 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
         getRarityGlowClass()
       )}
     >
+      {/* Victory Unveil Particle Radial Flare */}
+      {isWinner && (
+        <div className="absolute inset-0 bg-radial from-amber-400/30 via-transparent to-transparent blur-xl animate-pulse pointer-events-none z-20" />
+      )}
       {/* Background Reward Face */}
       {hasImage && imagePath ? (
         <div className="absolute inset-0 w-full h-full overflow-hidden bg-gradient-to-b from-zinc-900 via-zinc-950 to-amber-950/40">
