@@ -44,17 +44,40 @@ export function FriendDareModal({ isOpen, onClose, friendName = 'Friend' }: Frie
         </DialogHeader>
 
         <div className="my-4 space-y-3 p-4 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-zinc-400 font-semibold">Race Target:</span>
-            <Badge variant="outline" className="border-amber-500/40 text-amber-400 bg-amber-950/30">
-              5 Daily Habits
-            </Badge>
+          {/* Side-by-Side 1v1 Habit Race Tracker Bar */}
+          <div className="space-y-2 pb-2 border-b border-zinc-800">
+            <div className="flex items-center justify-between text-xs font-bold text-amber-300 font-serif">
+              <span>⚔️ Live Habit Race Progress</span>
+              <span className="text-[10px] font-mono text-emerald-400">Target: 5 Habits</span>
+            </div>
+            
+            {/* You Progress Bar */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-[10px]">
+                <span className="text-zinc-300 font-bold">You (Host)</span>
+                <span className="text-amber-400 font-mono font-bold">4/5 Habits (80%)</span>
+              </div>
+              <div className="h-2 w-full bg-zinc-950 rounded-full overflow-hidden border border-amber-500/30">
+                <div className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 w-[80%] rounded-full shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+              </div>
+            </div>
+
+            {/* Ally Progress Bar */}
+            <div className="space-y-1 pt-1">
+              <div className="flex justify-between text-[10px]">
+                <span className="text-zinc-300 font-bold">{friendName}</span>
+                <span className="text-cyan-400 font-mono font-bold">3/5 Habits (60%)</span>
+              </div>
+              <div className="h-2 w-full bg-zinc-950 rounded-full overflow-hidden border border-cyan-500/30">
+                <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-400 w-[60%] rounded-full shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center justify-between">
             <span className="text-zinc-400 font-semibold">Virtue Prize:</span>
             <span className="text-amber-300 font-mono font-bold flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" /> +10 House Cup Points
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" /> +10 House Cup Points Each
             </span>
           </div>
 

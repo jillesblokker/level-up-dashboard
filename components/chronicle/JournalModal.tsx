@@ -176,6 +176,28 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                                     </button>
                                 ))}
                             </div>
+
+                            {/* Monthly Mood & Habit Balance Synthesis */}
+                            <div className="p-3 bg-gradient-to-r from-amber-950/40 via-zinc-950 to-purple-950/40 rounded-xl border border-amber-500/30 space-y-1.5 text-xs mt-3">
+                              <div className="flex items-center justify-between text-amber-300 font-bold">
+                                <span>📊 Mood & Habit Synthesis</span>
+                                <span className="text-[9px] font-mono text-emerald-400">Monthly Balance: Optimal</span>
+                              </div>
+                              <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-center">
+                                <div className="p-1.5 rounded bg-zinc-900 border border-zinc-800">
+                                  <span className="text-amber-400 block font-bold">45%</span>
+                                  <span className="text-zinc-400">Energized</span>
+                                </div>
+                                <div className="p-1.5 rounded bg-zinc-900 border border-zinc-800">
+                                  <span className="text-blue-400 block font-bold">35%</span>
+                                  <span className="text-zinc-400">Focused</span>
+                                </div>
+                                <div className="p-1.5 rounded bg-zinc-900 border border-zinc-800">
+                                  <span className="text-emerald-400 block font-bold">20%</span>
+                                  <span className="text-zinc-400">Calm</span>
+                                </div>
+                              </div>
+                            </div>
                         </div>
 
                         {/* Chronicle Entry Section */}

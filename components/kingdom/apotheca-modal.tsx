@@ -143,13 +143,24 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
 
         {brew ? (
           <div className="space-y-4 my-2">
-            <div className="p-4 bg-zinc-950/90 border border-emerald-900/40 rounded-xl">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold font-mono text-emerald-400 uppercase tracking-wider">Daily Master Brew</span>
-                <span className="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold">Ready</span>
+            {/* Animated Cauldron Alchemy Stage */}
+            <div className="relative p-5 bg-gradient-to-b from-emerald-950/80 via-zinc-950 to-zinc-900 border border-emerald-500/40 rounded-2xl text-center space-y-3 overflow-hidden shadow-xl">
+              <div className="absolute inset-0 bg-radial from-emerald-500/10 via-transparent to-transparent blur-xl pointer-events-none" />
+              
+              {/* Bubbling Cauldron & Sparkles */}
+              <div className="relative w-16 h-16 mx-auto rounded-full bg-emerald-950/90 border-2 border-emerald-400 flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-pulse">
+                <span className="animate-bounce">🧪</span>
+                <Sparkles className="w-4 h-4 text-emerald-300 absolute -top-1 -right-1 animate-spin-slow" />
               </div>
-              <h4 className="text-lg font-serif font-bold text-zinc-100 mt-1">{brew.name}</h4>
-              <p className="text-xs text-zinc-300 italic mt-0.5">{brew.effect}</p>
+
+              <div className="space-y-1">
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-xs font-bold font-mono text-emerald-400 uppercase tracking-widest">Master Alchemy Cauldron</span>
+                  <span className="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold">Bubbling Active</span>
+                </div>
+                <h4 className="text-xl font-serif font-bold text-emerald-200">{brew.name}</h4>
+                <p className="text-xs text-zinc-300 italic max-w-sm mx-auto">{brew.effect}</p>
+              </div>
             </div>
 
             {resultMessage ? (

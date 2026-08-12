@@ -97,9 +97,11 @@ function AllyCarouselCard({
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-950/30 via-zinc-900 to-amber-950/30 border border-amber-900/30 text-center space-y-1">
-                  <div className="text-xs font-semibold text-amber-300">House Cup Participant</div>
-                  <p className="text-xs text-zinc-400 italic">Competing across all 9 virtue hourglasses</p>
+                <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-950/40 via-zinc-900 to-amber-950/40 border border-amber-500/40 text-center space-y-1 relative shadow-md">
+                  <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-amber-300 font-serif">
+                    <Crown className="w-4 h-4 text-amber-400 animate-pulse" /> House Leader: {ally.display_name}
+                  </div>
+                  <p className="text-[10px] text-zinc-400 font-mono">👑 Glowing Virtues Leader Active</p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-zinc-950/40 border border-zinc-800/60 text-xs space-y-1.5 text-zinc-300">

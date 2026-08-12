@@ -71,20 +71,25 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
         </DialogHeader>
 
         <div className="my-4 space-y-4">
-          {/* Boss Banner */}
-          <div className="relative rounded-xl border border-red-900/40 p-4 bg-gradient-to-r from-red-950/80 via-zinc-900 to-zinc-950 flex flex-col sm:flex-row items-center gap-4">
-            <div className="w-16 h-16 rounded-xl bg-red-900/30 border border-red-500/40 flex items-center justify-center shrink-0 shadow-inner">
-              <Swords className="w-8 h-8 text-red-400" />
+          {/* Boss Banner & Live Damage Numbers */}
+          <div className="relative rounded-2xl border border-red-500/40 p-5 bg-gradient-to-r from-red-950/90 via-zinc-900 to-zinc-950 flex flex-col sm:flex-row items-center gap-4 shadow-xl overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 blur-2xl pointer-events-none" />
+            <div className="w-20 h-20 rounded-2xl bg-red-950/90 border-2 border-red-500/60 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(239,68,68,0.4)] animate-pulse relative">
+              <span className="text-4xl">🐉</span>
+              <span className="absolute -top-2 -right-2 bg-amber-500 text-zinc-950 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full font-mono shadow-md">
+                -140 DMG
+              </span>
             </div>
-            <div className="flex-1 text-center sm:text-left">
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-sm text-red-200">Titan Wyrm of Gluttony</span>
-                <span className="text-xs font-mono text-zinc-400">{titanHp.toLocaleString()} / {maxHp.toLocaleString()} HP</span>
+            <div className="flex-1 text-center sm:text-left space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-base text-red-100 font-serif">Titan Wyrm of Gluttony</span>
+                <span className="text-xs font-mono font-bold text-red-400">{titanHp.toLocaleString()} / {maxHp.toLocaleString()} HP</span>
               </div>
               <Progress value={hpPercent} className="h-3 bg-zinc-800" />
-              <p className="text-[11px] text-zinc-400 mt-2">
-                Your personal contribution today: <span className="text-amber-400 font-bold">{userDamageToday} raid damage</span>
-              </p>
+              <div className="flex items-center justify-between text-[11px] text-zinc-300 pt-1">
+                <span>Your contribution: <strong className="text-amber-400 font-bold">{userDamageToday} raid damage</strong></span>
+                <span className="text-emerald-400 font-mono font-bold">⚡ Active Fellowship Raid</span>
+              </div>
             </div>
           </div>
 

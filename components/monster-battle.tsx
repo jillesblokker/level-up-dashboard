@@ -515,27 +515,63 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
             </div>
           )}
 
-          {/* Active Battle Squad Support */}
+          {/* Habit Stat Combat Auras Indicator */}
+          <div className="bg-gradient-to-r from-red-950/40 via-blue-950/40 to-amber-950/40 border border-red-500/40 rounded-xl p-3 space-y-2 shadow-lg relative overflow-hidden">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5 font-serif">
+                ⚔️ Habit Stat Auras Active
+              </span>
+              <span className="text-[9px] text-emerald-400 font-mono font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30">
+                +15% ATK & HP (Today&apos;s Habits)
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-red-950/60 border border-red-500/60 rounded-lg p-2 flex items-center gap-2 shadow-[0_0_10px_rgba(239,68,68,0.3)] animate-pulse">
+                <span className="text-sm">🔥</span>
+                <div className="text-[10px]">
+                  <strong className="text-red-200 block">Might Aura</strong>
+                  <span className="text-red-400 font-mono">+15% ATK Boost</span>
+                </div>
+              </div>
+              <div className="flex-1 bg-blue-950/60 border border-blue-500/60 rounded-lg p-2 flex items-center gap-2 shadow-[0_0_10px_rgba(59,130,246,0.3)] animate-pulse">
+                <span className="text-sm">🌌</span>
+                <div className="text-[10px]">
+                  <strong className="text-blue-200 block">Knowledge Shield</strong>
+                  <span className="text-blue-400 font-mono">+10% Spell Power</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Active Battle Squad Support & Pet Striker Cooldown Ring */}
           {activeSupporters.length > 0 && (
-            <div className="bg-amber-950/20 border border-amber-500/20 rounded-lg p-3 space-y-2">
-              <h5 className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                <Users className="w-4 h-4" /> Active Battle Squad Support
-              </h5>
+            <div className="bg-amber-950/20 border border-amber-500/30 rounded-xl p-3 space-y-2 relative">
+              <div className="flex items-center justify-between">
+                <h5 className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                  <Users className="w-4 h-4" /> Guardian Pet Support Striker
+                </h5>
+                <span className="text-[9px] font-bold text-cyan-300 font-mono bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/40 animate-pulse">
+                  ⚡ Striker Skill Ready!
+                </span>
+              </div>
               <div className="flex flex-col sm:flex-row gap-3">
                 {activeSupporters.map(c => (
-                  <div key={c.id} className="flex items-center gap-2 text-xs text-amber-200">
-                    <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-amber-500/30 flex items-center justify-center shrink-0 relative overflow-hidden">
+                  <div key={c.id} className="flex items-center gap-2.5 text-xs text-amber-200 bg-zinc-950/80 p-2 rounded-lg border border-amber-500/20 flex-1">
+                    {/* Glowing Cooldown Ring вокруг pet icon */}
+                    <div className="w-10 h-10 rounded-full bg-zinc-950 border-2 border-cyan-400 p-0.5 flex items-center justify-center shrink-0 relative overflow-hidden shadow-[0_0_12px_rgba(6,182,212,0.6)] animate-pulse">
                       <Image
                         src={c.filename ? `/images/creatures/${c.filename}` : '/images/placeholders/creature.webp'}
                         alt={c.name}
-                        width={28}
-                        height={28}
-                        className="object-contain"
+                        width={32}
+                        height={32}
+                        className="object-contain rounded-full"
                       />
                     </div>
                     <div>
-                      <p className="font-bold text-[10px] text-white leading-none">{c.name}</p>
-                      <p className="text-[9px] text-zinc-400 mt-1">Level {c.level || 1} • {getPassiveShortLabel(c)}</p>
+                      <p className="font-bold text-[11px] text-white leading-none flex items-center gap-1">
+                        {c.name} <span className="text-[9px] text-emerald-400">🔥 Striker</span>
+                      </p>
+                      <p className="text-[9px] text-amber-300 mt-1">Level {c.level || 1} • {getPassiveShortLabel(c)}</p>
                     </div>
                   </div>
                 ))}

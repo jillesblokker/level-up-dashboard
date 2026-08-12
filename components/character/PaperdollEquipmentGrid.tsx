@@ -386,33 +386,57 @@ function EquipmentSlotButton({
 }) {
   const label = slotConfig?.label || 'Slot'
   const icon = slotConfig?.icon || null
+  const [isHovered, setIsHovered] = React.useState(false)
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center justify-center bg-zinc-950/95 shadow-2xl backdrop-blur-md relative overflow-hidden ${
-        item
-          ? 'border-amber-500/70 hover:scale-110 hover:border-amber-400 active:scale-95 ring-4 ring-amber-500/20'
-          : 'border-zinc-800 text-zinc-600 opacity-60'
-      }`}
-      aria-label={`Inspect ${label}`}
-    >
-      {item ? (
-        <div className="absolute inset-0 w-full h-full p-0">
-          <Image
-            src={item.image}
-            alt={item.name}
-            fill
-            className="object-cover w-full h-full filter drop-shadow-lg"
-            unoptimized
-          />
-        </div>
-      ) : (
-        <div className="flex flex-col items-center gap-1">
-          {icon}
-          <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wide">{label}</span>
+    <div className="relative group">
+      <button
+        type="button"
+        onClick={onClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center justify-center bg-zinc-950/95 shadow-2xl backdrop-blur-md relative overflow-hidden ${
+          item
+            ? 'border-amber-500/70 hover:scale-110 hover:border-amber-400 active:scale-95 ring-4 ring-amber-500/20'
+            : 'border-zinc-800 text-zinc-600 opacity-60'
+        }`}
+        aria-label={`Inspect ${label}`}
+      >
+        {item ? (
+          <div className="absolute inset-0 w-full h-full p-0">
+            <Image
+              src={item.image}
+              alt={item.name}
+              fill
+              className="object-cover w-full h-full filter drop-shadow-lg"
+              unoptimized
+            />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-1">
+            {icon}
+            <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wide">{label}</span>
+          </div>
+        )}
+      </button>
+
+      {/* Interactive Micro-Tooltip Card */}
+      {isHovered && item && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 rounded-xl bg-zinc-950/95 border border-amber-500/50 shadow-2xl z-50 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
+          <div className="flex items-center justify-between gap-1 mb-1">
+            <span className="text-xs font-bold text-amber-300 truncate">{item.name}</span>
+            <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-500/40 font-mono">
+              {item.rarity}
+            </span>
+          </div>
+          <p className="text-[10px] text-zinc-400 leading-tight mb-2">{item.description}</p>
+          <div className="flex items-center gap-2 text-[10px] font-mono font-bold text-emerald-400 pt-1 border-t border-zinc-800">
+            {item.stats.atk && <span>⚔️ +{item.stats.atk} ATK</span>}
+            {item.stats.def && <span>🛡️ +{item.stats.def} DEF</span>}
+            {item.stats.spd && <span>💨 +{item.stats.spd} SPD</span>}
+          </div>
         </div>
       )}
-    </button>
+    </div>
   )
 }

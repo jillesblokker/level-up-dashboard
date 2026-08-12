@@ -112,27 +112,49 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
             </Badge>
           </div>
 
-          {/* Habit Category Synergy & Streak Speed Perks */}
-          <div className="bg-zinc-900/60 rounded-xl p-3 border border-cyan-900/40 flex items-center justify-around text-center text-xs">
-            <div className="space-y-0.5">
-              <span className="text-zinc-400 block text-[10px]">Knowledge Habits</span>
-              <span className="font-bold text-cyan-300 flex items-center justify-center gap-1">
-                ⚡ +50% Speed
-              </span>
+          {/* Sky Compass Flight Gauge & Streak Speed */}
+          <div className="rounded-xl border border-cyan-500/40 bg-gradient-to-r from-cyan-950/80 via-slate-900 to-zinc-950 p-4 space-y-3 shadow-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="relative w-9 h-9 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.4)] animate-pulse">
+                  <Compass className="w-5 h-5 animate-spin-slow" style={{ animationDuration: '12s' }} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-xs text-white uppercase tracking-wider flex items-center gap-1.5 font-serif">
+                    Sky Compass Flight Gauge
+                  </h4>
+                  <span className="text-[10px] text-cyan-300 font-mono flex items-center gap-1">
+                    ⚡ Current Speed: <strong className="text-emerald-400">2.0x Boost (7-Day Streak)</strong>
+                  </span>
+                </div>
+              </div>
+              <Badge className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow-md animate-pulse">
+                🔥 2x Streak Speed
+              </Badge>
             </div>
-            <div className="h-6 w-px bg-zinc-800" />
-            <div className="space-y-0.5">
-              <span className="text-zinc-400 block text-[10px]">Might Habits</span>
-              <span className="font-bold text-amber-400 flex items-center justify-center gap-1">
-                📦 +2x Cargo
+
+            {/* Cargo Crates Real-time Slots */}
+            <div className="space-y-1.5 pt-1 border-t border-cyan-900/40">
+              <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest block font-serif">
+                📦 Voyage Cargo Crates Loaded:
               </span>
-            </div>
-            <div className="h-6 w-px bg-zinc-800" />
-            <div className="space-y-0.5">
-              <span className="text-zinc-400 block text-[10px]">7+ Day Streak</span>
-              <span className="font-bold text-emerald-400 flex items-center justify-center gap-1">
-                🔥 2x Speed Boost
-              </span>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-zinc-900/90 border border-amber-500/50 p-2 rounded-xl text-center space-y-0.5 shadow-md">
+                  <div className="text-amber-400 text-sm">📜</div>
+                  <span className="text-[9px] font-bold text-amber-200 block truncate">Blueprint Crate</span>
+                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Loaded ✓</span>
+                </div>
+                <div className="bg-zinc-900/90 border border-cyan-500/50 p-2 rounded-xl text-center space-y-0.5 shadow-md">
+                  <div className="text-cyan-400 text-sm">🧪</div>
+                  <span className="text-[9px] font-bold text-cyan-200 block truncate">Reagents Crate</span>
+                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Loaded ✓</span>
+                </div>
+                <div className="bg-zinc-900/90 border border-purple-500/50 p-2 rounded-xl text-center space-y-0.5 shadow-md">
+                  <div className="text-purple-400 text-sm">⚔️</div>
+                  <span className="text-[9px] font-bold text-purple-200 block truncate">Citizen Gear</span>
+                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Loaded ✓</span>
+                </div>
+              </div>
             </div>
           </div>
 

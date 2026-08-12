@@ -492,6 +492,7 @@ export function KingdomGridWithTimers({
     }));
 
     confetti({ particleCount: 80, spread: 80, origin: { y: 0.5 } });
+    setLuckyCelebrationAmount(totalGoldHarvested);
     toast({
       title: "🪙 Kingdom Taxes Collected!",
       description: `Harvested ${totalGoldHarvested.toLocaleString()} Gold & ${readyTimersCount * 2} Essences from ${readyTimersCount} kingdom properties!`,
