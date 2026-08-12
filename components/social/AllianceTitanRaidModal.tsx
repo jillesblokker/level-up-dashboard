@@ -134,6 +134,15 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
               </span>
             </div>
 
+            {/* Fellowship Raid Victory Co-op Damage Progress Bar */}
+            <div className="bg-zinc-950/80 border border-amber-500/30 rounded-xl p-3 space-y-1.5 shadow-md">
+              <div className="flex justify-between items-center text-[10px] font-mono font-bold">
+                <span className="text-amber-300">⚔️ Total Raid Damage: {maxHp - titanHp} / 2,000 DMG</span>
+                <span className="text-emerald-400 font-bold">{Math.round(((maxHp - titanHp) / 2000) * 100)}% to Mythic Victory Chest</span>
+              </div>
+              <Progress value={Math.min(100, Math.round(((maxHp - titanHp) / 2000) * 100))} className="h-2 bg-zinc-900" />
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               {CHESTS.map(chest => {
                 const totalDmgDealt = maxHp - titanHp

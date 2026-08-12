@@ -2743,8 +2743,11 @@ export function KingdomGridWithTimers({
               </div>
               <div>
                 <span className="text-xs font-bold text-amber-300 block font-serif">Placing: {selectedProperty.name}</span>
-                <span className="text-[10px] text-zinc-400 font-mono flex items-center gap-1">
-                  Select tile • <strong className="text-emerald-400 font-bold">🧭 Facing {placementRotation === 0 ? 'North (0°)' : placementRotation === 90 ? 'East (90°)' : placementRotation === 180 ? 'South (180°)' : 'West (270°)'}</strong>
+                <span className="text-[10px] text-zinc-400 font-mono flex items-center gap-1.5 flex-wrap">
+                  <span>Select tile • <strong className="text-emerald-400 font-bold">🧭 Facing {placementRotation === 0 ? 'North (0°)' : placementRotation === 90 ? 'East (90°)' : placementRotation === 180 ? 'South (180°)' : 'West (270°)'}</strong></span>
+                  <span className="bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 px-2 py-0.5 rounded font-bold animate-pulse">
+                    ✨ Synergy Snap Guidelines Active (+10% Yield)
+                  </span>
                 </span>
               </div>
             </div>

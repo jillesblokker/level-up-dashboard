@@ -231,6 +231,26 @@ export default function ChroniclePage() {
                     </div>
                 </div>
 
+                {/* Monthly AI Growth Summary Card */}
+                <div className="mb-6 p-4 bg-gradient-to-r from-amber-950/80 via-zinc-950 to-amber-950/80 border border-amber-500/30 rounded-2xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 font-bold text-lg shadow-md shrink-0">
+                            📊
+                        </div>
+                        <div>
+                            <h4 className="text-xs font-serif font-bold text-amber-300 uppercase tracking-wider flex items-center gap-2">
+                                Monthly AI Growth Synthesis
+                                <span className="text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-mono font-bold">
+                                    +35% Habit Consistency
+                                </span>
+                            </h4>
+                            <p className="text-xs text-zinc-300 mt-0.5 leading-relaxed">
+                                You achieved <strong className="text-amber-200">28 habit completions</strong> this month. Primary reflection mood: <strong className="text-amber-400">⚡ Energized</strong>. Keep growing!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 {/* List Content */}
                 {isLoading ? (
                     <div className="space-y-4">

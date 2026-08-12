@@ -174,6 +174,10 @@ export function Hourglass({
         className
       )}
     >
+      {/* Overflow Sparkle Particle Aura for Maxed Hourglasses */}
+      {points >= 5000 && (
+        <div className="absolute inset-0 border-2 border-amber-400/80 rounded-xl blur-[1px] shadow-[0_0_15px_rgba(245,158,11,0.6)] pointer-events-none animate-pulse" />
+      )}
       {/* Delta Badge */}
       {showDeltaBadge && delta > 0 && (
         <div className="absolute -top-2 -right-1 bg-amber-500 text-black text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-bounce shadow-md z-10">

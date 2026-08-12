@@ -161,13 +161,33 @@ export function PaperdollEquipmentGrid({
             </div>
           </div>
 
-          {/* Title Progress Gauge */}
-          <div className="w-full md:w-64 space-y-1.5 shrink-0 bg-zinc-950/70 p-3 rounded-xl border border-zinc-800">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-zinc-400 font-bold">Next: {nextTitle}</span>
-              <span className="text-amber-400 font-mono font-bold">{titleProgress}%</span>
+          {/* Hero Attribute Radar Chart & Title Progress */}
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto shrink-0">
+            <div className="flex items-center gap-3 bg-zinc-950/80 p-2.5 px-3.5 rounded-xl border border-amber-500/30 text-xs shadow-md">
+              <svg className="w-14 h-14 shrink-0" viewBox="0 0 100 100">
+                <polygon points="50,10 90,40 75,90 25,90 10,40" fill="none" stroke="#52525b" strokeWidth="1.5" opacity="0.5" />
+                <polygon points="50,25 78,46 68,80 32,80 22,46" fill="none" stroke="#3f3f46" strokeWidth="1" opacity="0.4" />
+                <polygon points="50,18 82,44 68,83 32,83 18,44" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2" />
+                <circle cx="50" cy="18" r="3" fill="#fbbf24" />
+                <circle cx="82" cy="44" r="3" fill="#60a5fa" />
+                <circle cx="68" cy="83" r="3" fill="#34d399" />
+                <circle cx="32" cy="83" r="3" fill="#a78bfa" />
+                <circle cx="18" cy="44" r="3" fill="#f43f5e" />
+              </svg>
+              <div className="space-y-0.5 text-[10px] font-mono leading-tight">
+                <div className="text-amber-300 font-bold flex justify-between gap-3"><span>⚔️ Might</span><span>{totalAtk + 35}</span></div>
+                <div className="text-blue-300 font-bold flex justify-between gap-3"><span>🛡️ Defense</span><span>{totalDef + 25}</span></div>
+                <div className="text-emerald-300 font-bold flex justify-between gap-3"><span>⚡ Speed</span><span>{totalSpd + 30}</span></div>
+              </div>
             </div>
-            <Progress value={titleProgress} className="h-2 bg-zinc-800" />
+
+            <div className="w-full md:w-56 space-y-1.5 shrink-0 bg-zinc-950/70 p-3 rounded-xl border border-zinc-800">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-zinc-400 font-bold">Next: {nextTitle}</span>
+                <span className="text-amber-400 font-mono font-bold">{titleProgress}%</span>
+              </div>
+              <Progress value={titleProgress} className="h-2 bg-zinc-800" />
+            </div>
           </div>
         </div>
 

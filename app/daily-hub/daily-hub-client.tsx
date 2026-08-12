@@ -461,8 +461,11 @@ export function DailyHubClient() {
                         <div className="space-y-3">
                             {/* Morning Focus 5 Target Progress Ring */}
                             <div className="rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-950/80 via-zinc-900 to-zinc-950 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl relative overflow-hidden">
-                                <div className="flex items-center gap-3">
-                                    <div className="relative w-12 h-12 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-amber-300 font-bold text-lg shadow-[0_0_15px_rgba(245,158,11,0.5)] animate-pulse">
+                                {count >= 5 && (
+                                    <div className="absolute -left-6 -top-6 w-32 h-32 bg-amber-500/30 rounded-full blur-2xl pointer-events-none animate-pulse" />
+                                )}
+                                <div className="flex items-center gap-3 relative z-10">
+                                    <div className={`relative w-12 h-12 rounded-full border-2 flex items-center justify-center text-amber-300 font-bold text-lg transition-all duration-500 ${count >= 5 ? 'bg-amber-500/30 border-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.8)] scale-105' : 'bg-amber-500/20 border-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.5)] animate-pulse'}`}>
                                         🎯
                                     </div>
                                     <div>

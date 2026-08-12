@@ -79,6 +79,9 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
           <p className="text-xs sm:text-sm text-zinc-400 font-medium tracking-wide">
             {isWon ? "Card added to your Mythics collection!" : "Find 3 matching cards to claim the prize"}
           </p>
+          <div className="mt-2 inline-flex items-center gap-1.5 bg-amber-500/20 border border-amber-400/40 text-amber-300 px-3 py-1 rounded-full text-[10px] sm:text-xs font-mono font-bold shadow-md">
+            <span>✨ 100% Guaranteed Mythic Blueprint Drop Rate Active</span>
+          </div>
         </div>
 
         {/* 3x3 Grid */}

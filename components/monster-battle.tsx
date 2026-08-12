@@ -511,7 +511,12 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
               />
             </div>
             <div>
-              <h3 className="font-bold text-lg">{monster.name}</h3>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-bold text-lg">{monster.name}</h3>
+                <Badge variant="outline" className="text-[10px] border-cyan-500/50 text-cyan-300 bg-cyan-950/60 font-mono font-bold">
+                  💧 Water Vulnerability (+25% DMG)
+                </Badge>
+              </div>
               <p className="text-sm text-zinc-400">{monster.description}</p>
             </div>
           </div>

@@ -139,6 +139,11 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
           <DialogDescription className="text-xs text-zinc-300">
             Botanical Glasshouse & Daily Decoction Sanctuary
           </DialogDescription>
+          <div className="mt-2 inline-flex items-center gap-2 bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 px-3 py-1 rounded-full text-[10px] font-mono font-bold shadow-md">
+            <span>🧪 Alchemist Mastery Tier II</span>
+            <span className="text-zinc-400">•</span>
+            <span className="text-amber-300">+15% Double Brew Chance</span>
+          </div>
         </DialogHeader>
 
         {brew ? (
