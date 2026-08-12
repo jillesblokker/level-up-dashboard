@@ -314,54 +314,47 @@ export async function getHouseCupCircleStandings(viewerId: string, year?: number
 
 
 
-  // Auto-recovery & backfill: If a user has 0 points, calculate points from quest_completion table
-  for (const entry of Array.from(standingsMap.values())) {
-    let currentSum = Object.values(entry.categories).reduce((acc, c) => acc + (c.points || 0), 0);
-    if (currentSum === 0) {
+  // Fast single-pass in-memory backfill ONLY for viewer if totalsData was empty
+  const viewerEntry = standingsMap.get(viewerId);
+  if (viewerEntry) {
+    const viewerSum = Object.values(viewerEntry.categories).reduce((acc, c) => acc + (c.points || 0), 0);
+    if (viewerSum === 0) {
       try {
         const { data: userCompletions } = await supabase
           .from('quest_completion')
-          .select('quest_id, completed_at, created_at')
-          .eq('user_id', entry.user_id);
+          .select('quest_id')
+          .eq('user_id', viewerId)
+          .limit(50);
 
         if (userCompletions && userCompletions.length > 0) {
           const { data: allQuests } = await supabase
             .from('quests')
-            .select('id, name, category, difficulty');
+            .select('id, name, category');
 
           const questMap = new Map((allQuests || []).map(q => [String(q.id).toLowerCase(), q]));
           (allQuests || []).forEach(q => {
             if (q.name) questMap.set(String(q.name).toLowerCase(), q);
           });
 
-          for (const comp of userCompletions) {
+          const categoryTotals: Record<string, number> = {};
+          userCompletions.forEach((comp: any) => {
             const rawId = String(comp.quest_id || '').toLowerCase();
             const matchedQ = questMap.get(rawId);
             const catKey = ((matchedQ?.category || 'might') as string).toLowerCase();
-
             if (ALL_CATEGORIES.includes(catKey)) {
-              const currentCatPts = entry.categories[catKey]?.points || 0;
-              const newCatPts = currentCatPts + 10; // Award 10 points per completion for recovery
-              entry.categories[catKey] = {
-                points: newCatPts,
-                fill: calculateFillCurve(newCatPts)
-              };
-
-              // Asynchronously upsert to cache
-              try {
-                await supabase.from('house_cup_totals').upsert({
-                  user_id: entry.user_id,
-                  cup_year: cupYear,
-                  category_id: catKey,
-                  points: newCatPts,
-                  updated_at: new Date().toISOString()
-                }, { onConflict: 'user_id,cup_year,category_id' });
-              } catch (e) {}
+              categoryTotals[catKey] = (categoryTotals[catKey] || 0) + 10;
             }
-          }
+          });
+
+          Object.entries(categoryTotals).forEach(([catKey, pts]) => {
+            viewerEntry.categories[catKey] = {
+              points: pts,
+              fill: calculateFillCurve(pts),
+            };
+          });
         }
       } catch (err) {
-        logger.warn('[House Cup Backfill] Failed to auto-recover points:', err);
+        logger.warn('[House Cup Backfill] Fast recovery skipped:', err);
       }
     }
   }

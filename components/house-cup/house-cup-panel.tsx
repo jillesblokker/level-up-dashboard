@@ -409,7 +409,15 @@ export function HouseCupPanel() {
           </div>
         </div>
 
-        {alliesStandings.length > 0 && (
+        {alliesStandings.length === 0 ? (
+          <Card className="border border-dashed border-amber-900/40 bg-zinc-950/80 p-8 text-center space-y-3 rounded-2xl">
+            <div className="text-3xl">🏆</div>
+            <h4 className="font-serif text-amber-300 font-bold text-sm">House Cup Standings Active</h4>
+            <p className="text-xs text-zinc-400 max-w-sm mx-auto">
+              Your virtue hourglasses are tracking your daily habits! Search for friends in the Friend Board to invite allies to your House Cup circle.
+            </p>
+          </Card>
+        ) : (
           <div
             ref={allyCarouselRef}
             className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-2 custom-scrollbar mobile-scroll-hide"
