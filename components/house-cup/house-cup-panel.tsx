@@ -105,10 +105,15 @@ function AllyCarouselCard({
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-zinc-950/40 border border-zinc-800/60 text-xs space-y-1.5 text-zinc-300">
-                  <div className="text-[10px] text-amber-400 font-semibold uppercase tracking-wider">Standings breakdown</div>
-                  <p className="text-[11px] text-zinc-400 leading-relaxed">
-                    Click &apos;9 Virtues &rarr;&apos; to inspect live hourglass fill levels or tap below for full summary.
-                  </p>
+                  <div className="text-[10px] text-amber-400 font-semibold uppercase tracking-wider flex items-center justify-between">
+                    <span>Standings breakdown</span>
+                    <span className="text-[9px] text-emerald-400 font-mono font-bold">Top Virtues Active</span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span className="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold">🥇 #1 Might</span>
+                    <span className="px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-500/40 text-[10px] font-mono font-bold">🥈 #2 Knowledge</span>
+                    <span className="px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-500/40 text-[10px] font-mono font-bold">🥉 #3 Castle</span>
+                  </div>
                 </div>
               </div>
 

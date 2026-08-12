@@ -164,17 +164,22 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                             </div>
 
                             {/* Quick Mood Tag Selectors */}
-                            <div className="flex flex-wrap gap-1.5 pt-1">
-                                {['⚡ Energized', '🎯 Focused', '🌿 Calm', '🔥 Motivated', '🧘 Peaceful'].map((tag) => (
-                                    <button
-                                        key={tag}
-                                        type="button"
-                                        onClick={() => setContent(prev => prev ? `${prev} [${tag}]` : `[${tag}] `)}
-                                        className="text-[10px] font-bold px-2.5 py-1 rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-400 hover:text-amber-300 hover:border-amber-500/30 transition-all"
-                                    >
-                                        + {tag}
-                                    </button>
-                                ))}
+                            <div className="space-y-1">
+                                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block font-serif">
+                                    ✨ 1-Tap Quick Mood Pill Shortcuts:
+                                </span>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {['⚡ Energized', '🎯 Focused', '🌿 Calm', '🔥 Motivated', '🧘 Peaceful'].map((tag) => (
+                                        <button
+                                            key={tag}
+                                            type="button"
+                                            onClick={() => setContent(prev => prev ? `${prev} [${tag}]` : `[${tag}] `)}
+                                            className="text-[10px] font-bold px-2.5 py-1 rounded-lg border border-amber-500/30 bg-amber-950/40 text-amber-300 hover:bg-amber-900/60 hover:border-amber-400 transition-all shadow-sm"
+                                        >
+                                            + {tag}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
 
                             {/* Monthly Mood & Habit Balance Synthesis */}

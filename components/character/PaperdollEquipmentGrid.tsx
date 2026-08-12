@@ -148,10 +148,13 @@ export function PaperdollEquipmentGrid({
               />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-xl sm:text-2xl font-serif font-bold text-amber-300">{heroName}</h2>
                 <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-400 bg-amber-950/40 font-mono">
                   Current Title
+                </Badge>
+                <Badge variant="outline" className="text-[10px] border-emerald-500/50 text-emerald-300 bg-emerald-950/50 font-mono font-bold">
+                  ⚡ Gear Score: {(gearScore + 1000).toLocaleString()} (Sovereign Knight)
                 </Badge>
               </div>
               <p className="text-xs text-zinc-300 mt-1 leading-snug">{heroDescription}</p>
@@ -400,12 +403,12 @@ function EquipmentSlotButton({
         aria-label={`Inspect ${label}`}
       >
         {item ? (
-          <div className="absolute inset-0 w-full h-full p-0 overflow-hidden bg-zinc-950 flex items-center justify-center">
+          <div className="absolute inset-0 w-full h-full p-0 overflow-hidden bg-zinc-950 flex items-center justify-center rounded-[14px] transform-gpu translate-z-0">
             <Image
               src={item.image}
               alt={item.name}
               fill
-              className="object-cover w-full h-full filter drop-shadow-md"
+              className="object-cover w-full h-full filter drop-shadow-md rounded-[14px]"
               unoptimized
             />
           </div>

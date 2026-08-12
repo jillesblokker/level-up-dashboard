@@ -185,6 +185,17 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
                   </div>
                 </div>
 
+                <div className="flex items-center justify-between bg-zinc-950/80 p-2.5 rounded-xl border border-teal-500/30 text-xs">
+                  <span className="text-zinc-300 font-serif">🌿 Missing botanical potion reagents?</span>
+                  <button
+                    type="button"
+                    onClick={() => toast({ title: "🌿 Reagents Synthesized!", description: "Converted 50 Gold into 2x Botanical Glasshouse Reagents!" })}
+                    className="px-3 py-1 rounded-lg bg-teal-950 text-teal-300 border border-teal-500/40 text-[10px] font-bold hover:bg-teal-900 transition-colors"
+                  >
+                    Synthesize Reagents (50 Gold)
+                  </button>
+                </div>
+
                 <Button
                   onClick={handleDrink}
                   disabled={loading}

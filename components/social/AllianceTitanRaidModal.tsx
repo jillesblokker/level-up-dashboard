@@ -93,6 +93,14 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
             </div>
           </div>
 
+          {/* Fellowship Combo Multiplier Banner */}
+          <div className="p-2.5 bg-gradient-to-r from-red-950 via-zinc-950 to-red-950 rounded-xl border border-red-500/40 flex items-center justify-between text-xs font-serif">
+            <span className="text-red-300 font-bold flex items-center gap-1.5">
+              🔥 5-Hit Fellowship Raid Combo Active!
+            </span>
+            <span className="text-[10px] font-mono font-bold text-amber-300">1.5x Boss Damage Multiplier</span>
+          </div>
+
           {/* Damage Rules Box */}
           <div className="bg-zinc-900/60 rounded-xl p-3 border border-zinc-800 grid grid-cols-1 sm:grid-cols-3 gap-2 text-center text-xs">
             <div className="space-y-0.5 p-1 bg-zinc-950/40 rounded-lg">

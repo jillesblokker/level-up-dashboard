@@ -124,13 +124,18 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
                     Sky Compass Flight Gauge
                   </h4>
                   <span className="text-[10px] text-cyan-300 font-mono flex items-center gap-1">
-                    ⚡ Current Speed: <strong className="text-emerald-400">2.0x Boost (7-Day Streak)</strong>
+                    ⚡ Current Speed: <strong className="text-emerald-400">2.0x Boost (7-Day Streak)</strong> • 🌬️ <strong className="text-cyan-300">+20% Sky Tailwind</strong>
                   </span>
                 </div>
               </div>
-              <Badge className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow-md animate-pulse">
-                🔥 2x Streak Speed
-              </Badge>
+              <div className="flex items-center gap-1.5">
+                <Badge className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow-md animate-pulse">
+                  🔥 2x Streak Speed
+                </Badge>
+                <Badge className="bg-cyan-950 text-cyan-300 border border-cyan-500/40 text-[9px] font-bold">
+                  🌬️ Tailwind Active
+                </Badge>
+              </div>
             </div>
 
             {/* Cargo Crates Real-time Slots */}

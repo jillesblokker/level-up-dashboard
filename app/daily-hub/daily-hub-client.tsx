@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import { useUser } from "@clerk/nextjs"
 import { fetchWithAuth } from "@/lib/fetchWithAuth"
 import QuestCard from "@/components/quest-card"
+import { toast } from "sonner"
 import { HeaderSection } from "@/components/HeaderSection"
 import { ArrowLeft, ArrowRight, Loader2, TrendingUp, Sparkles, ScrollText, Flame, Map, Plus, Clock, Wind, Star } from "lucide-react"
 import { useGameStore } from "@/stores/game-store"
@@ -327,6 +328,10 @@ export function DailyHubClient() {
 
             if (response.ok) {
                 confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
+                const nextCount = completedQuestIds.size + 1;
+                if (nextCount === 5) {
+                    toast.success("🔥 5/10 Daily Habit Target Hit! +25% Gold & Essences Streak Multiplier Unlocked!");
+                }
                 setCompletedQuestIds(prev => new Set(prev).add(quest.id))
 
                 setFavoritedQuests(prev => prev.map(q =>

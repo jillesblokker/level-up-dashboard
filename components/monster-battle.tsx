@@ -478,6 +478,18 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
               .replace('{round}', currentRound.toString())
               .replace('{difficulty}', monster.difficulty)}
           </div>
+
+          {/* Dungeon Boss Floor Room Threat Warning Aura */}
+          {currentRound % 5 === 0 && (
+            <div className="p-3 bg-gradient-to-r from-red-950 via-zinc-950 to-red-950 border-2 border-red-500/60 rounded-xl text-center space-y-1 shadow-[0_0_20px_rgba(239,68,68,0.4)] animate-pulse">
+              <div className="flex items-center justify-center gap-2 font-serif font-bold text-xs text-red-400 uppercase tracking-wider">
+                <span>💀 Keep Guardian Boss Floor Active!</span>
+              </div>
+              <p className="text-[10px] text-amber-300 font-mono">
+                Defeat boss to claim 1x Kingdom Blueprint & 5x Apotheca Reagents!
+              </p>
+            </div>
+          )}
         </CardHeader>
 
         <CardContent className="space-y-6">
