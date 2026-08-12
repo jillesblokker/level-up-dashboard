@@ -568,63 +568,6 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
                   </div>
                 </div>
               </div>
-
-              {/* Interactive Daily Town Minigames Hub */}
-              <div className="pt-3 border-t border-amber-900/30 space-y-2">
-                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest block">
-                  🎮 Town Feature Minigame:
-                </span>
-                {(() => {
-                  let hash = 0;
-                  const cName = locationName || 'citadel';
-                  for (let i = 0; i < cName.length; i++) {
-                    hash = (hash << 5) - hash + cName.charCodeAt(i);
-                    hash |= 0;
-                  }
-                  const mTypeIndex = Math.abs(hash) % 3;
-                  const assignedType = mTypeIndex === 0 ? 'fortune_teller' : mTypeIndex === 1 ? 'riddle' : 'plank_labyrinth';
-                  const todayStr = new Date().toDateString();
-                  const isMinigameDone = typeof window !== 'undefined' && localStorage.getItem(`town_minigame_${cName}_${assignedType}_${todayStr}`) === 'true';
-
-                  if (assignedType === 'fortune_teller') {
-                    return (
-                      <Button
-                        onClick={() => setTarotOpen(true)}
-                        disabled={isMinigameDone}
-                        variant="outline"
-                        className="w-full h-11 bg-purple-950/40 border-purple-500/40 text-purple-200 hover:bg-purple-900/50 justify-between text-xs font-bold gap-2 rounded-xl"
-                      >
-                        <span className="flex items-center gap-2"><span>🔮</span> Tarot Fortune Reading</span>
-                        <Badge variant="outline" className="text-[9px] border-purple-500/40 text-purple-300">{isMinigameDone ? "Done ✓" : "1/1 Available"}</Badge>
-                      </Button>
-                    );
-                  } else if (assignedType === 'riddle') {
-                    return (
-                      <Button
-                        onClick={() => setRiddleOpen(true)}
-                        disabled={isMinigameDone}
-                        variant="outline"
-                        className="w-full h-11 bg-blue-950/40 border-blue-500/40 text-blue-200 hover:bg-blue-900/50 justify-between text-xs font-bold gap-2 rounded-xl"
-                      >
-                        <span className="flex items-center gap-2"><span>📜</span> Scholar&apos;s Riddle</span>
-                        <Badge variant="outline" className="text-[9px] border-blue-500/40 text-blue-300">{isMinigameDone ? "Done ✓" : "1/1 Available"}</Badge>
-                      </Button>
-                    );
-                  } else {
-                    return (
-                      <Button
-                        onClick={() => setLabyrinthOpen(true)}
-                        disabled={isMinigameDone}
-                        variant="outline"
-                        className="w-full h-11 bg-amber-950/40 border-amber-500/40 text-amber-200 hover:bg-amber-900/50 justify-between text-xs font-bold gap-2 rounded-xl"
-                      >
-                        <span className="flex items-center gap-2"><span>🧩</span> Plank Labyrinth</span>
-                        <Badge variant="outline" className="text-[9px] border-amber-500/40 text-amber-300">{isMinigameDone ? "Done ✓" : "1/1 Available"}</Badge>
-                      </Button>
-                    );
-                  }
-                })()}
-              </div>
             </div>
           )}
 

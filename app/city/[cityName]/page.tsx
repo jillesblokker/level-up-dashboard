@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
@@ -12,14 +13,20 @@ import { TEXT_CONTENT } from "@/lib/text-content"
 import { HeaderSection } from "@/components/HeaderSection"
 import { HabitFocusCard } from "@/components/kingdom/habit-focus-card"
 
+import { FortuneTellerModal } from "@/components/fortune-teller-modal"
+import { TownRiddleModal } from "@/components/minigames/TownRiddleModal"
+import { PlankPuzzleModal } from "@/components/plank-puzzle-modal"
+
 export default function CityPage() {
   const params = useParams()
+  const [tarotOpen, setTarotOpen] = useState(false)
+  const [riddleOpen, setRiddleOpen] = useState(false)
+  const [labyrinthOpen, setLabyrinthOpen] = useState(false)
 
   if (!params) {
-    // ... (rest of error handling)
     return (
       <div className="container py-10" role="main" aria-label="city-error-section">
-        {/* ... */}
+        <h1 className="text-2xl font-bold text-white">City Not Found</h1>
       </div>
     )
   }
@@ -28,10 +35,15 @@ export default function CityPage() {
   const cityData = getCityData(cityName)
 
   if (!cityName || !cityData) {
-    // ... (rest of not found handling)
     return (
-      // ...
-      null
+      <div className="container py-10 text-center text-white" role="main">
+        <h1 className="text-2xl font-bold mb-4">City Not Found</h1>
+        <Link href="/realm">
+          <Button variant="outline" className="border-amber-800/20 text-amber-500">
+            Return to Realm Map
+          </Button>
+        </Link>
+      </div>
     )
   }
 
@@ -124,10 +136,94 @@ export default function CityPage() {
                   </Card>
                 </Link>
               ))}
+
+              {/* Unique Featured Town Minigame Location Card */}
+              {(() => {
+                let hash = 0;
+                const cName = cityName || 'citadel';
+                for (let i = 0; i < cName.length; i++) {
+                  hash = (hash << 5) - hash + cName.charCodeAt(i);
+                  hash |= 0;
+                }
+                const mTypeIndex = Math.abs(hash) % 3;
+                const assignedType = mTypeIndex === 0 ? 'fortune_teller' : mTypeIndex === 1 ? 'riddle' : 'plank_labyrinth';
+                const todayStr = new Date().toDateString();
+                const isMinigameDone = typeof window !== 'undefined' && localStorage.getItem(`town_minigame_${cName}_${assignedType}_${todayStr}`) === 'true';
+
+                const minigameCardData = {
+                  fortune_teller: {
+                    name: "Fortune Teller's Shrine",
+                    subtitle: "Mystic Tarot Chamber",
+                    description: "Draw a daily fortune card to receive active daily habit blessings and gold offerings.",
+                    image: "/images/tiles/fortune-teller-tile.webp",
+                    badge: isMinigameDone ? "Completed Today ✓" : "1/1 Available",
+                    action: () => setTarotOpen(true)
+                  },
+                  riddle: {
+                    name: "Scholar's Archive",
+                    subtitle: "Ancient Wisdom Vault",
+                    description: "Solve the daily scholar riddle to unearth lost realm blueprints, XP, and gold.",
+                    image: "/images/encounters/riddle-sage.webp",
+                    badge: isMinigameDone ? "Completed Today ✓" : "1/1 Available",
+                    action: () => setRiddleOpen(true)
+                  },
+                  plank_labyrinth: {
+                    name: "Craftsman's Labyrinth",
+                    subtitle: "Wooden Plank Maze",
+                    description: "Solve the 6x6 ancient keystone sliding puzzle to retrieve gold and building materials.",
+                    image: "/images/tiles/plank-labyrinth-tile.webp",
+                    badge: isMinigameDone ? "Completed Today ✓" : "1/1 Available",
+                    action: () => setLabyrinthOpen(true)
+                  }
+                }[assignedType];
+
+                return (
+                  <Card 
+                    onClick={() => {
+                      if (!isMinigameDone) minigameCardData.action();
+                    }}
+                    className={`overflow-hidden bg-black border transition-colors cursor-pointer group ${
+                      isMinigameDone ? 'border-amber-900/20 opacity-75' : 'border-amber-800/40 hover:border-amber-500'
+                    }`}
+                    aria-label={`${minigameCardData.name}-card`}
+                  >
+                    <div className="relative aspect-[3/2] w-full overflow-hidden bg-zinc-900 border-b border-amber-800/20">
+                      <Image
+                        src={minigameCardData.image}
+                        alt={minigameCardData.name}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                      <div className="absolute top-2 right-2 z-10">
+                        <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full border shadow-lg ${
+                          isMinigameDone ? 'bg-zinc-950/90 text-zinc-400 border-zinc-700' : 'bg-amber-500/90 text-zinc-950 border-amber-300 font-mono animate-pulse'
+                        }`}>
+                          {minigameCardData.badge}
+                        </span>
+                      </div>
+                    </div>
+                    <CardHeader>
+                      <CardTitle className="text-white flex items-center justify-between gap-2">
+                        <span>{minigameCardData.name}</span>
+                      </CardTitle>
+                      <CardDescription className="text-zinc-400">{minigameCardData.subtitle}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-zinc-300">{minigameCardData.description}</p>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
             </div>
           );
         })()}
       </main>
+
+      {/* Daily Town Minigame Modals */}
+      {tarotOpen && <FortuneTellerModal open={tarotOpen} onOpenChange={setTarotOpen} x={0} y={0} tileId="town-tarot" />}
+      {riddleOpen && <TownRiddleModal isOpen={riddleOpen} onClose={() => setRiddleOpen(false)} />}
+      {labyrinthOpen && <PlankPuzzleModal isOpen={labyrinthOpen} onClose={() => setLabyrinthOpen(false)} onComplete={() => setLabyrinthOpen(false)} />}
     </div>
   )
-} 
+}
