@@ -139,6 +139,8 @@ export default function WorldMapPage() {
           <p className="text-zinc-300 text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed italic">
             Fast travel across the realm to manage citizen garrisons, trade botanical potion ingredients, harvest farm crops, and reclaim ancient citadel ruins.
           </p>
+        </div>
+
         {/* Ether Fuel Generator HUD Banner */}
         <div className="bg-zinc-900/90 border border-amber-500/30 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
           <div className="flex items-center gap-3 w-full md:w-auto">

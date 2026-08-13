@@ -735,11 +735,7 @@ export default function DungeonPage() {
           newLoot = [...newLoot, blueprintDrop, reagentDrop];
           logEntries.push(`🏰 BOSS DUAL DROPS: Blueprint Serene Lake AND ${crystal.name}!`);
         }
-      }
 
-      setBattleLog(prev => [...prev, ...logEntries]);
-
-      if (run.currentRoom % 5 === 0) {
         const blueprints = [
           { name: 'Blueprint: Serene Lake', img: '/images/Kingdom.webp', desc: 'Unlocks serene water canal tiles for your realm sandbox (+10 DEF).' },
           { name: 'Blueprint: Zen Garden', img: '/images/Kingdom.webp', desc: 'Unlocks peaceful zen stone gardens (+15 Spell Power).' },
