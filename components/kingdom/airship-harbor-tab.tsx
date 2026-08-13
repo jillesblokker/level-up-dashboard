@@ -101,6 +101,11 @@ export function AirshipHarborTab() {
       await loadCitizens(user.id);
       const voyage = await getUserPreference('active_expeditions') || { active: false };
       setActiveVoyage(voyage);
+
+      const isReady = !!(voyage && voyage.active && (voyage.progress || 0) >= 100);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('airship-cargo-status', { detail: { ready: isReady } }));
+      }
     } catch (err) {
       logger.error('[Airship] Failed to load voyage data:', err);
     }
@@ -246,6 +251,10 @@ export function AirshipHarborTab() {
   const handleClaim = async () => {
     if (!user?.id || !activeVoyage || isClaiming) return;
     const voyageRegion = HABIT_JOURNEYS.find(j => j.id === activeVoyage.journeyId)!;
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('airship-cargo-status', { detail: { ready: false } }));
+    }
 
     try {
       setIsClaiming(true);

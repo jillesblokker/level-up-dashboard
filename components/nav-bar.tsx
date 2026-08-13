@@ -63,8 +63,17 @@ export function NavBar({ session }: NavBarProps) {
   })
   const [goldHighlight, setGoldHighlight] = useState(false);
   const [levelHighlight, setLevelHighlight] = useState(false);
+  const [airshipCargoReady, setAirshipCargoReady] = useState(false);
   const goldRef = useRef(characterStats.gold);
   const levelRef = useRef(characterStats.level);
+
+  useEffect(() => {
+    const handleAirshipStatus = (e: Event) => {
+      setAirshipCargoReady((e as CustomEvent)?.detail?.ready ?? false);
+    };
+    window.addEventListener('airship-cargo-status', handleAirshipStatus);
+    return () => window.removeEventListener('airship-cargo-status', handleAirshipStatus);
+  }, []);
 
   useEffect(() => {
     setIsClient(true)
@@ -273,6 +282,20 @@ export function NavBar({ session }: NavBarProps) {
                 title={`${characterStats.gold} Gold`}
               />
             </div>
+
+            {airshipCargoReady && (
+              <Button
+                size="sm"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.location.href = '/kingdom?tab=airship';
+                  }
+                }}
+                className="bg-amber-950/90 border border-amber-500/60 text-amber-300 hover:bg-amber-900 text-xs px-3 py-1 rounded-full font-serif flex items-center gap-1.5 shadow-md shadow-amber-950/40 animate-pulse transition-all"
+              >
+                ⛵ Claim Airship Cargo
+              </Button>
+            )}
 
             {/* Desktop Full View (xl and above) */}
             <div className="hidden xl:flex items-center gap-2 pl-1">
