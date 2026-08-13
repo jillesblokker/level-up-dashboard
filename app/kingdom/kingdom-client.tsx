@@ -477,6 +477,17 @@ export function KingdomClient() {
   const [openingPack, setOpeningPack] = useState<any>(null);
 
 
+  const [collectableTaxesCount, setCollectableTaxesCount] = useState<number>(0);
+
+  useEffect(() => {
+    const handleCountUpdate = (e: Event) => {
+      const cnt = (e as CustomEvent)?.detail?.count ?? 0;
+      setCollectableTaxesCount(cnt);
+    };
+    window.addEventListener('kingdom-taxes-count-update', handleCountUpdate);
+    return () => window.removeEventListener('kingdom-taxes-count-update', handleCountUpdate);
+  }, []);
+
   const [userTokens, setUserTokens] = useState(0);
   const [playerLevel, setPlayerLevel] = useState(1);
   const [challenges, setChallenges] = useState<any[]>([]);
@@ -1700,22 +1711,24 @@ export function KingdomClient() {
         <div className="fixed inset-0 bg-indigo-950/15 pointer-events-none z-30 backdrop-hue-rotate-15 mix-blend-multiply" />
       )}
 
+
+
       <HeaderSection
         title={isVisiting ? `${allyProfile?.display_name || 'Friend'}'s Kingdom` : "Kingdom"}
         subtitle={isVisiting ? `${allyProfile ? getCurrentTitle(allyProfile.level).name : 'Squire'} • Level ${allyProfile?.level || 1}` : `${getCurrentTitle(playerLevel).name} • Level ${playerLevel}. Build out your capital, construct properties, collect taxes, and expand your kingdom!`}
         imageSrc={coverImage || "/images/Kingdom.webp"}
         canEdit={!!user?.id && !isVisiting}
         ctaButton={
-          !isVisiting && (
+          !isVisiting && collectableTaxesCount > 0 && (
             <Button
               onClick={() => {
                 if (typeof window !== 'undefined') {
                   window.dispatchEvent(new Event('collect-all-kingdom-taxes'));
                 }
               }}
-              className="btn-primary-cta"
+              className="btn-primary-cta shadow-lg shadow-amber-500/20 animate-in fade-in zoom-in duration-300"
             >
-              💰 Collect taxes
+              💰 Collect taxes ({collectableTaxesCount})
             </Button>
           )
         }

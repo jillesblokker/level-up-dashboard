@@ -589,6 +589,14 @@ export function KingdomGridWithTimers({
       checkAndUnlockTileQuests(grid);
     }
   }, [grid]);
+
+  // Broadcast ready tax collection count to header
+  useEffect(() => {
+    if (typeof window !== 'undefined' && Array.isArray(tileTimers)) {
+      const readyCount = tileTimers.filter((t: any) => t.isReady || (t.endTime && Date.now() >= t.endTime)).length;
+      window.dispatchEvent(new CustomEvent('kingdom-taxes-count-update', { detail: { count: readyCount } }));
+    }
+  }, [tileTimers]);
   // Tiles affected by winter event bonus
   const WINTER_EVENT_TILE_IDS = new Set([
     'winter-fountain',
