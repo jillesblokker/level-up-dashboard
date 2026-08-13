@@ -99,10 +99,10 @@ export function AirshipHarborTab() {
     if (!user?.id) return;
     try {
       await loadCitizens(user.id);
-      const voyage = await getUserPreference('active_expeditions') || { active: false };
+      const voyage: any = (await getUserPreference('active_expeditions')) || { active: false };
       setActiveVoyage(voyage);
 
-      const isReady = !!(voyage && voyage.active && (voyage.progress || 0) >= 100);
+      const isReady = Boolean(voyage && voyage.active && (voyage.progress || 0) >= 100);
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('airship-cargo-status', { detail: { ready: isReady } }));
       }
