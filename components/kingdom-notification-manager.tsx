@@ -75,7 +75,8 @@ export function KingdomNotificationManager() {
                     lastReadyCountRef.current = currentReadyCount
                 }
             } catch (error) {
-                logger.error("[KingdomNotifications] Error checking kingdom timers:", error)
+                // Silently ignore background polling network drops
+                logger.debug("[KingdomNotifications] Background timer check skipped:", error)
             }
         }
 
@@ -125,7 +126,8 @@ export function KingdomNotificationManager() {
                     })
                 }
             } catch (error) {
-                logger.error("[KingdomNotifications] Error checking social notifications:", error)
+                // Silently ignore background polling network drops
+                logger.debug("[KingdomNotifications] Background social check skipped:", error)
             }
         }
 

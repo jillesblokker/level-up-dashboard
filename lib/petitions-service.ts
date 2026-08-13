@@ -547,26 +547,40 @@ function generateProceduralPool(): Petition[] {
     { role: 'Fletcher Arrow', avatar: '🏹', title: 'Feather Arrow Shortage' }
   ];
 
+  const storyTemplates = [
+    (title: string, role: string, dist: string) => `Four angry farmers and a pompous noble family are arguing in your court room over a heated discussion about the ${title.toLowerCase()} in the ${dist} district. How will your Majesty help?`,
+    (title: string, role: string, dist: string) => `Three drunk stonemasons and the town baker's mother-in-law brought a chaotic petition to your throne room regarding the ${title.toLowerCase()} near the ${dist} gate. What is your royal decree?`,
+    (title: string, role: string, dist: string) => `An embarrassed guard captain and a group of giggling minstrels are standing before your throne arguing over the ${title.toLowerCase()} in the ${dist} quarter. How will you settle this?`,
+    (title: string, role: string, dist: string) => `A flock of agitated pigeons, 2 stubborn blacksmiths, and Lord Sterling himself are demanding your immediate judgment on the ${title.toLowerCase()} in the ${dist} plaza. What will you do?`,
+    (title: string, role: string, dist: string) => `The entire Guild of Cartographers and a local herd of goats have disrupted your morning tea to demand royal intervention for the ${title.toLowerCase()} in the ${dist} valley! How do you react?`
+  ];
+
+  const districts = ['Southern Port', 'High Citadel', 'East Meadow', 'West Watchtower', 'Old Market', 'River Bend', 'North Wall', 'Sunken Harbor', 'Shadow Alley', 'Royal Gardens'];
+
   for (let i = 11; i <= 100; i++) {
     const template = roles[(i - 11) % roles.length] || roles[0]!;
+    const storyFn = storyTemplates[(i - 11) % storyTemplates.length]!;
+    const districtName = districts[(i - 11) % districts.length]!;
+    const mainRole = template.role.split(' ')[0]!;
+
     list.push({
       id: `pet-${i}`,
-      title: `${template.title} #${i}`,
+      title: `${template.title} of ${districtName}`,
       requesterRole: template.role,
       requesterAvatar: template.avatar,
-      description: `The townspeople are debating how to resolve the ${template.title.toLowerCase()} in district #${i}. Royal decree requested!`,
+      description: storyFn(template.title, template.role, districtName),
       optionA: {
-        label: `Invest Realm Gold in ${template.role.split(' ')[0]}'s Solution`,
-        description: `Allocate treasury coins to fund local ${template.role.split(' ')[0]} equipment.`,
+        label: `Sponsor ${mainRole}'s Proposal`,
+        description: `Allocate treasury gold to fund ${mainRole}'s solution directly.`,
         outcomes: [
           {
-            storyText: `🎉 Glorious Success! The ${template.role.split(' ')[0]} resolved the issue, boosting trade and local morale!`,
+            storyText: `🎉 Glorious Success! The ${mainRole} resolved the dispute peacefully, boosting trade and local morale!`,
             goldChange: 150 + (i % 50),
             loyaltyChange: 10,
             isFunnyTwist: false
           },
           {
-            storyText: `🤪 Hilarious Blunder! The solution backfired into a messy town spectacle. Cleaning & repair cost 60 Gold!`,
+            storyText: `🤪 Hilarious Blunder! The solution backfired into a chaotic town spectacle. Cleaning & repairs cost 60 Gold!`,
             goldChange: -60,
             loyaltyChange: -4,
             isFunnyTwist: true
@@ -574,17 +588,17 @@ function generateProceduralPool(): Petition[] {
         ]
       },
       optionB: {
-        label: `Enact Strict Realm Decree #${i}`,
-        description: `Pass a royal regulation ordering citizens to adapt without extra funding.`,
+        label: `Enact Royal Caution in ${districtName}`,
+        description: `Order the townspeople to compromise without extra treasury gold.`,
         outcomes: [
           {
-            storyText: `📜 Efficient Governance! Citizens followed decree instructions cleanly, saving treasury funds!`,
+            storyText: `📜 Wise Judgment! The citizens accepted your compromise, preserving peace and saving treasury funds!`,
             goldChange: 120,
             loyaltyChange: 6,
             isFunnyTwist: false
           },
           {
-            storyText: `📢 Protesting Crowd! Citizens grumbled over the strict decree and held a noisy tambourine rally!`,
+            storyText: `📢 Tambourine Protest! The disgruntled crowd held a noisy midnight tambourine rally outside your window!`,
             goldChange: -40,
             loyaltyChange: -5,
             isFunnyTwist: true

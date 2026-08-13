@@ -178,7 +178,7 @@ export function PetitionsTab() {
                       className="w-full h-auto min-h-[64px] p-3.5 flex flex-col justify-center items-start bg-zinc-900/90 hover:bg-emerald-950/80 border border-zinc-800 hover:border-emerald-500/50 text-zinc-200 hover:text-emerald-200 rounded-xl text-left transition-all space-y-1 active:scale-95 cursor-pointer shadow-md group"
                     >
                       <span className="font-bold text-zinc-200 group-hover:text-emerald-300 text-xs flex items-center gap-1.5 leading-snug font-serif">
-                        👑 Option 1: {p.optionA.label}
+                        👑 {p.optionA.label}
                       </span>
                       <span className="text-[11px] text-zinc-400 group-hover:text-emerald-200/90 leading-snug break-words">
                         {p.optionA.description}
@@ -192,7 +192,7 @@ export function PetitionsTab() {
                       className="w-full h-auto min-h-[64px] p-3.5 flex flex-col justify-center items-start bg-zinc-900/90 hover:bg-amber-950/80 border border-zinc-800 hover:border-amber-500/50 text-zinc-200 hover:text-amber-200 rounded-xl text-left transition-all space-y-1 active:scale-95 cursor-pointer shadow-md group"
                     >
                       <span className="font-bold text-zinc-200 group-hover:text-amber-300 text-xs flex items-center gap-1.5 leading-snug font-serif">
-                        📜 Option 2: {p.optionB.label}
+                        📜 {p.optionB.label}
                       </span>
                       <span className="text-[11px] text-zinc-400 group-hover:text-amber-200/90 leading-snug break-words">
                         {p.optionB.description}
