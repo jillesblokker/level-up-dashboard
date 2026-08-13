@@ -93,7 +93,7 @@ export function PetitionsTab() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {petitions.map(p => (
             <Card key={p.id} className={`transition-all ${p.completed ? 'opacity-50 bg-zinc-950/40 border-white/5' : 'bg-zinc-900/90 border-amber-900/40 hover:border-amber-500/40'}`}>
               <CardContent className="p-5 space-y-4">

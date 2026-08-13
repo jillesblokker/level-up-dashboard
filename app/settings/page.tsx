@@ -443,6 +443,11 @@ export default function SettingsPage() {
                       localStorage.setItem("day-night-cycle-enabled", checked.toString())
                       setUserPreference("day-night-cycle-enabled", checked)
 
+                      if (!checked) {
+                        document.documentElement.classList.remove('medieval-night')
+                        document.body.classList.remove('medieval-night')
+                      }
+
                       window.dispatchEvent(new CustomEvent('settings:dayNightChanged', { detail: { enabled: checked } }))
 
                       toast({

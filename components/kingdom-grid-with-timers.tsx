@@ -2135,7 +2135,18 @@ export function KingdomGridWithTimers({
     }
 
     const collectedRewards: any[] = [];
-    const updatedTimers = [...tileTimers];
+    const updatedTimers = tileTimers.map(t => {
+      if (t.isReady || (t.endTime && Date.now() >= t.endTime)) {
+        const kingdomTile = KINGDOM_TILES.find(kt => kt.id === t.tileId || kt.name.toLowerCase() === t.tileId?.toLowerCase());
+        const durationMs = (kingdomTile?.timerMinutes || 240) * 60 * 1000;
+        return {
+          ...t,
+          isReady: false,
+          endTime: Date.now() + durationMs
+        };
+      }
+      return t;
+    });
 
     for (const timer of readyTimers) {
       const { x, y } = timer;

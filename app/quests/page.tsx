@@ -2885,11 +2885,11 @@ export default function QuestsPage() {
                 </TabsTrigger>
                 <TabsTrigger value="milestones" className="rounded-lg text-xs sm:text-sm font-bold font-serif py-2.5">
                   <Trophy className="w-4 h-4 mr-1.5 text-green-400" />
-                  🏆 Milestones
+                  Milestones
                 </TabsTrigger>
                 <TabsTrigger value="petitions" className="rounded-lg text-xs sm:text-sm font-bold font-serif py-2.5">
                   <Scroll className="w-4 h-4 mr-1.5 text-blue-400" />
-                  📜 Petitions
+                  Petitions
                 </TabsTrigger>
               </TabsList>
             </Tabs>

@@ -18,7 +18,12 @@ export function DayNightCycle() {
         // Initial state from localStorage (after mount)
         const savedSetting = localStorage.getItem("day-night-cycle-enabled")
         if (savedSetting !== null) {
-            setIsEnabled(savedSetting === "true")
+            const enabled = savedSetting === "true";
+            setIsEnabled(enabled);
+            if (!enabled) {
+                document.documentElement.classList.remove('medieval-night');
+                document.body.classList.remove('medieval-night');
+            }
         }
 
         const checkTime = () => {
@@ -28,6 +33,7 @@ export function DayNightCycle() {
 
             if (!currentlyEnabled) {
                 document.documentElement.classList.remove('medieval-night')
+                document.body.classList.remove('medieval-night')
                 setIsNight(false)
                 return
             }
@@ -41,6 +47,7 @@ export function DayNightCycle() {
                 document.documentElement.classList.add('medieval-night')
             } else {
                 document.documentElement.classList.remove('medieval-night')
+                document.body.classList.remove('medieval-night')
             }
         }
 
@@ -50,6 +57,7 @@ export function DayNightCycle() {
                 setIsEnabled(e.detail.enabled)
                 if (!e.detail.enabled) {
                     document.documentElement.classList.remove('medieval-night')
+                    document.body.classList.remove('medieval-night')
                 } else {
                     checkTime() // Re-evaluate immediately if enabled
                 }
