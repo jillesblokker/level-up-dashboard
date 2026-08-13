@@ -105,6 +105,11 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
     return () => clearInterval(interval)
   }, [timer, isOpen])
 
+  const [isCollecting, setIsCollecting] = React.useState(false);
+  React.useEffect(() => {
+    if (!isOpen) setIsCollecting(false);
+  }, [isOpen]);
+
   if (!tile) return null
 
   const isReady = timer ? (Date.now() >= timer.endTime || timer.isReady || timeLeft <= 0) : true
@@ -125,11 +130,7 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
   const rarity = kingdomTile?.rarity || "common"
 
   const isObelisk = typeLower === "mystic-obelisk"
-  const [isCollecting, setIsCollecting] = React.useState(false);
-  React.useEffect(() => {
-    if (!isOpen) setIsCollecting(false);
-  }, [isOpen]);
-
+  
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-md w-full bg-zinc-950 border border-amber-900/40 text-white rounded-2xl p-6 shadow-2xl overflow-hidden font-serif">
