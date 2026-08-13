@@ -91,6 +91,8 @@ export function AncientRiddleModal({ isOpen, onClose }: AncientRiddleModalProps)
   const [selectedOpt, setSelectedOpt] = useState<number | null>(null)
   const [isAnswered, setIsAnswered] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
+  const [showHint, setShowHint] = useState(false)
+  const [strikes, setStrikes] = useState(3)
 
   useEffect(() => {
     if (!isOpen) return
@@ -101,6 +103,8 @@ export function AncientRiddleModal({ isOpen, onClose }: AncientRiddleModalProps)
     const dayHash = (new Date().getFullYear() * 365 + new Date().getMonth() * 30 + new Date().getDate()) % TOWN_RIDDLES.length
     const todaysRiddle = TOWN_RIDDLES[dayHash] || TOWN_RIDDLES[0]!
     setRiddle(todaysRiddle)
+    setShowHint(false)
+    setStrikes(3)
 
     if (lastRiddle === today) {
       setIsAnswered(true)
@@ -152,9 +156,30 @@ export function AncientRiddleModal({ isOpen, onClose }: AncientRiddleModalProps)
         </DialogHeader>
 
         <div className="my-4 p-4 bg-zinc-950/90 rounded-2xl border border-blue-900/40 space-y-4 text-left">
+          <div className="flex items-center justify-between border-b border-blue-900/30 pb-2">
+            <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Scholar Attempts:</span>
+            <div className="flex gap-1 text-xs">
+              <span className="text-red-400 font-mono font-bold">❤️ ❤️ ❤️</span>
+            </div>
+          </div>
+
           <p className="text-sm font-bold text-amber-200 leading-relaxed italic border-b border-blue-900/30 pb-3">
             &ldquo;{riddle.question}&rdquo;
           </p>
+
+          {!showHint ? (
+            <button
+              type="button"
+              onClick={() => setShowHint(true)}
+              className="text-[10px] text-amber-400 hover:text-amber-300 font-mono font-bold flex items-center gap-1 bg-amber-950/40 px-2.5 py-1 rounded-lg border border-amber-500/30 transition-all"
+            >
+              📜 Read Clue Scroll (Realm Lore Hint)
+            </button>
+          ) : (
+            <div className="p-2.5 bg-amber-950/40 border border-amber-500/40 rounded-xl text-[11px] text-amber-300 italic font-serif">
+              ✨ <strong>Scholar Hint:</strong> Reflect on your daily habit routines and kingdom tile buildings!
+            </div>
+          )}
 
           <div className="space-y-2">
             {riddle.options.map((opt, idx) => {

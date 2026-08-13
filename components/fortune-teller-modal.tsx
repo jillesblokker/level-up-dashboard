@@ -204,7 +204,12 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
                 </div>
 
                 <div className="bg-slate-900/90 border border-emerald-500/40 rounded-xl p-4 w-full text-center space-y-2 shadow-lg">
-                  <p className="text-xs text-slate-400 font-semibold">Your task</p>
+                  <div className="flex items-center justify-between text-xs text-slate-400 font-semibold border-b border-emerald-900/40 pb-1.5 mb-1">
+                    <span>Your Destiny Task</span>
+                    <span className="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30">
+                      🔮 24h Tarot Blessing
+                    </span>
+                  </div>
                   <p className="text-base sm:text-lg text-white font-bold">{selectedData.task}</p>
                   <div className="pt-2 border-t border-emerald-900/40 flex items-center justify-center gap-1.5 text-xs text-emerald-400 font-bold">
                     <span>✨ Reward:</span>

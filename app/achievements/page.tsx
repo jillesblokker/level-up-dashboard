@@ -792,6 +792,21 @@ export default function Page() {
             <div className="text-center text-zinc-400 mb-8">{TEXT_CONTENT.achievements.ui.empty}</div>
           )}
 
+          {/* Tier Progress Header Bar */}
+          <div className="mb-6 p-4 rounded-2xl bg-zinc-950/80 border border-amber-900/40 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
+            <div className="flex items-center gap-3">
+              <Trophy className="w-6 h-6 text-amber-400 animate-pulse" />
+              <div>
+                <h3 className="font-serif font-bold text-amber-200 text-sm">Realm Milestone Tier Progress</h3>
+                <p className="text-xs text-zinc-400 italic">Unlock achievements to earn legacy titles & royal treasury gold</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <Progress value={(unlockedAchievements.size / Math.max(1, achievementDefinitions.length)) * 100} className="h-2.5 w-36 bg-zinc-900" />
+              <span className="font-mono text-xs text-amber-300 font-bold">{unlockedAchievements.size}/{achievementDefinitions.length}</span>
+            </div>
+          </div>
+
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full">
             <TabsList className="w-full mb-8">
               <TabsTrigger value="creatures">
