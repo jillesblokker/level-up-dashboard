@@ -18,7 +18,7 @@ import {
   CitizenHappinessState
 } from '@/lib/petitions-service';
 import { addToCharacterStat } from '@/lib/character-stats-service';
-import { Crown, Sparkles, Scale, AlertTriangle, ShieldCheck, RefreshCw, Scroll } from 'lucide-react';
+import { Scale, RefreshCw } from 'lucide-react';
 
 export function PetitionsTab() {
   const [happiness, setHappiness] = useState<CitizenHappinessState>({ score: 75, lastUpdated: '' });
@@ -49,7 +49,7 @@ export function PetitionsTab() {
       addToCharacterStat('gold', res.goldChange, `petition-${petitionId}`);
     }
 
-    // Open post-choice story outcome reveal dialog
+    // Open standard modal dialog with hilarious story reveal
     setActiveOutcomeModal({
       isOpen: true,
       petitionTitle: target.title,
@@ -69,7 +69,7 @@ export function PetitionsTab() {
 
   return (
     <div className="space-y-6">
-      {/* House of the Dragon Citizen Happiness Header */}
+      {/* Citizen Happiness Header */}
       <Card className="bg-gradient-to-r from-zinc-950 via-[#0e0d14] to-zinc-950 border-amber-500/30 shadow-2xl">
         <CardHeader className="p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -113,7 +113,7 @@ export function PetitionsTab() {
         </CardContent>
       </Card>
 
-      {/* Active Petitions List (Mobile Carousel & Desktop 2-Column Grid) */}
+      {/* Active Petitions Section (4 Active Petitions) */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-serif font-bold text-amber-300 uppercase tracking-wider flex items-center gap-2">
@@ -134,9 +134,9 @@ export function PetitionsTab() {
           </div>
         </div>
 
-        {/* Swipe Carousel on Mobile (< 768px), 2-Column Grid on Desktop (>= 768px) */}
+        {/* Mobile Carousel (< 768px), Desktop 2-Column Grid (>= 768px) */}
         <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible custom-scrollbar mobile-scroll-hide">
-          {petitions.map((p, idx) => (
+          {petitions.map((p) => (
             <Card
               key={p.id}
               className={`snap-start shrink-0 w-[88vw] max-w-[340px] sm:w-auto sm:max-w-none transition-all ${
@@ -171,30 +171,30 @@ export function PetitionsTab() {
 
                 {!p.completed ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                    {/* Option A (Blind Choice — No upfront stats) */}
+                    {/* Option 1 Button (Grey fill default, color only on hover) */}
                     <button
                       type="button"
                       onClick={() => handleChoice(p.id, 'A')}
-                      className="w-full h-auto min-h-[64px] p-3.5 flex flex-col justify-center items-start bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 rounded-xl text-left transition-all space-y-1 text-emerald-200 active:scale-95 cursor-pointer shadow-md"
+                      className="w-full h-auto min-h-[64px] p-3.5 flex flex-col justify-center items-start bg-zinc-900/90 hover:bg-emerald-950/80 border border-zinc-800 hover:border-emerald-500/50 text-zinc-200 hover:text-emerald-200 rounded-xl text-left transition-all space-y-1 active:scale-95 cursor-pointer shadow-md group"
                     >
-                      <span className="font-bold text-emerald-300 text-xs flex items-center gap-1.5 leading-snug font-serif">
+                      <span className="font-bold text-zinc-200 group-hover:text-emerald-300 text-xs flex items-center gap-1.5 leading-snug font-serif">
                         👑 Option 1: {p.optionA.label}
                       </span>
-                      <span className="text-[11px] text-emerald-200/90 leading-snug break-words">
+                      <span className="text-[11px] text-zinc-400 group-hover:text-emerald-200/90 leading-snug break-words">
                         {p.optionA.description}
                       </span>
                     </button>
 
-                    {/* Option B (Blind Choice — No upfront stats) */}
+                    {/* Option 2 Button (Grey fill default, color only on hover) */}
                     <button
                       type="button"
                       onClick={() => handleChoice(p.id, 'B')}
-                      className="w-full h-auto min-h-[64px] p-3.5 flex flex-col justify-center items-start bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 rounded-xl text-left transition-all space-y-1 text-amber-200 active:scale-95 cursor-pointer shadow-md"
+                      className="w-full h-auto min-h-[64px] p-3.5 flex flex-col justify-center items-start bg-zinc-900/90 hover:bg-amber-950/80 border border-zinc-800 hover:border-amber-500/50 text-zinc-200 hover:text-amber-200 rounded-xl text-left transition-all space-y-1 active:scale-95 cursor-pointer shadow-md group"
                     >
-                      <span className="font-bold text-amber-300 text-xs flex items-center gap-1.5 leading-snug font-serif">
+                      <span className="font-bold text-zinc-200 group-hover:text-amber-300 text-xs flex items-center gap-1.5 leading-snug font-serif">
                         📜 Option 2: {p.optionB.label}
                       </span>
-                      <span className="text-[11px] text-amber-200/90 leading-snug break-words">
+                      <span className="text-[11px] text-zinc-400 group-hover:text-amber-200/90 leading-snug break-words">
                         {p.optionB.description}
                       </span>
                     </button>
@@ -215,10 +215,10 @@ export function PetitionsTab() {
         </div>
       </div>
 
-      {/* Post-Choice Story Outcome Reveal Dialog */}
+      {/* Standard Post-Choice Story Outcome Reveal Dialog */}
       {activeOutcomeModal && (
         <Dialog open={activeOutcomeModal.isOpen} onOpenChange={() => setActiveOutcomeModal(null)}>
-          <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border-2 border-amber-500/50 text-amber-100 p-6 rounded-2xl shadow-2xl font-serif text-center overflow-hidden z-[100] animate-in zoom-in-95">
+          <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border-2 border-amber-500/50 text-white p-6 rounded-2xl shadow-2xl font-serif text-center overflow-hidden z-[100] animate-in zoom-in-95">
             <DialogHeader>
               <div className="mx-auto w-14 h-14 rounded-full bg-amber-900/60 border-2 border-amber-400 flex items-center justify-center mb-2 shadow-[0_0_20px_rgba(245,158,11,0.4)] animate-bounce">
                 <span className="text-3xl">
@@ -250,7 +250,7 @@ export function PetitionsTab() {
 
             <Button
               onClick={() => setActiveOutcomeModal(null)}
-              className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-amber-950 font-extrabold uppercase tracking-wider text-xs shadow-lg rounded-xl"
+              className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-extrabold uppercase tracking-wider text-xs shadow-lg rounded-xl"
             >
               Enact & Continue ✓
             </Button>

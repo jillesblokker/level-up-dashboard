@@ -604,36 +604,42 @@ export function getActivePetitions(): Petition[] {
     const local = localStorage.getItem('pref:active-petitions-list');
     if (local) {
       const parsed = JSON.parse(local);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      // Validate that parsed items have the new outcomes array and total 4 items
+      if (
+        Array.isArray(parsed) &&
+        parsed.length === 4 &&
+        parsed.every(p => p && p.optionA && Array.isArray(p.optionA.outcomes))
+      ) {
+        return parsed;
+      }
     }
   } catch {}
 
-  // Pick 4 random distinct petitions from 100 pool
-  const shuffled = [...ALL_100_PETITIONS].sort(() => Math.random() - 0.5);
-  const selected = shuffled.slice(0, 4);
-  setUserPreference('active-petitions-list', selected);
-  return selected;
+  // If old invalid cache or not 4 items, pick 4 random distinct petitions from 100 pool
+  return refreshAllPetitions();
 }
 
 export function resolvePetition(petitionId: string, choice: 'A' | 'B'): { happiness: CitizenHappinessState; goldChange: number; outcome: PetitionOutcome; chosenOptionLabel: string } {
   const petitions = getActivePetitions();
   const target = petitions.find(p => p.id === petitionId);
   
+  const fallbackOutcome: PetitionOutcome = {
+    storyText: "Decree enacted peacefully.",
+    goldChange: 0,
+    loyaltyChange: 0,
+    isFunnyTwist: false
+  };
+
   if (!target) {
-    const fallbackOutcome: PetitionOutcome = {
-      storyText: "Decree enacted peacefully.",
-      goldChange: 0,
-      loyaltyChange: 0,
-      isFunnyTwist: false
-    };
     return { happiness: getCitizenHappiness(), goldChange: 0, outcome: fallbackOutcome, chosenOptionLabel: "Decree" };
   }
 
   const option = choice === 'A' ? target.optionA : target.optionB;
+  const outcomes = option?.outcomes || [fallbackOutcome];
   // 50/50 randomized outcome roll
-  const rolledOutcome = option.outcomes[Math.floor(Math.random() * option.outcomes.length)] || option.outcomes[0]!;
+  const rolledOutcome = outcomes[Math.floor(Math.random() * outcomes.length)] || outcomes[0] || fallbackOutcome;
 
-  const newHappiness = updateCitizenHappiness(rolledOutcome.loyaltyChange);
+  const newHappiness = updateCitizenHappiness(rolledOutcome.loyaltyChange || 0);
 
   const updatedPetitions = petitions.map(p => {
     if (p.id === petitionId) {
@@ -641,7 +647,7 @@ export function resolvePetition(petitionId: string, choice: 'A' | 'B'): { happin
         ...p,
         completed: true,
         chosenOutcome: rolledOutcome,
-        chosenOptionLabel: option.label
+        chosenOptionLabel: option?.label || "Decree"
       };
     }
     return p;
@@ -651,9 +657,9 @@ export function resolvePetition(petitionId: string, choice: 'A' | 'B'): { happin
 
   return {
     happiness: newHappiness,
-    goldChange: rolledOutcome.goldChange,
+    goldChange: rolledOutcome.goldChange || 0,
     outcome: rolledOutcome,
-    chosenOptionLabel: option.label
+    chosenOptionLabel: option?.label || "Decree"
   };
 }
 
