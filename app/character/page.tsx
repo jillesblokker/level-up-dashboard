@@ -29,7 +29,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { calculateLevelProgress, CharacterStats, calculateLevelFromExperience, calculateExperienceForLevel } from "@/types/character"
-import { getCharacterStats } from "@/lib/character-stats-service"
+import { getCharacterStats, characterStatsService } from "@/lib/character-stats-service"
 import { storageService } from '@/lib/storage-service'
 import { getTitleProgress, TITLES } from '@/lib/title-manager'
 import { getStrengths, calculateStrengthProgress, Strength } from '@/lib/strength-manager'
