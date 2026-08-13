@@ -12,17 +12,16 @@ interface PlankLabyrinthModalProps {
   onClose: () => void
 }
 
-const PATH_STEPS = [
-  { id: 0, label: 'Town Square', icon: '🏛️' },
-  { id: 1, label: 'Craftsmen Bridge', icon: '🌁' },
-  { id: 2, label: 'Market Bazaar', icon: '🏪' },
-  { id: 3, label: 'Citadel Gate', icon: '🏰' },
-  { id: 4, label: 'Sovereign Shrine', icon: '⛩️' }
+const LABYRINTH_NODES = [
+  { id: 1, label: 'Town Square', icon: '🏛️' },
+  { id: 2, label: 'Craftsmen Bridge', icon: '🌁' },
+  { id: 3, label: 'Market Bazaar', icon: '🏪' },
+  { id: 4, label: 'Citadel Gate', icon: '🏰' },
+  { id: 5, label: 'King’s Shrine', icon: '⛩️' }
 ]
 
 export function PlankLabyrinthModal({ isOpen, onClose }: PlankLabyrinthModalProps) {
   const { toast } = useToast()
-  const [planksPlaced, setPlanksPlaced] = useState<number[]>([])
   const [visitedNodes, setVisitedNodes] = useState<number[]>([1])
   const [isCompleted, setIsCompleted] = useState(false)
 
