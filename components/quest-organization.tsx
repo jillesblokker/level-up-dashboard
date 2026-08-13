@@ -548,7 +548,7 @@ export function QuestOrganization({
 
                 {/* 3-Tier Horizontal Icon-Pill Category Ribbon */}
                 {showCategoryFilter && (
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar [mask-image:linear-gradient(to_right,transparent,black_4%,black_96%,transparent)]">
                     <button
                       onClick={() => setSelectedCategory('all')}
                       className={cn(
@@ -655,13 +655,13 @@ export function QuestOrganization({
               </div>
             ) : activeQuests.length === 0 && conqueredQuests.length === 0 ? (
               <EmptyState
-                title={currentLabels.noItems}
-                description={currentLabels.noItemsSubtitle}
+                title={selectedCategory !== 'all' ? `No ${categoryConfig[selectedCategory as keyof typeof categoryConfig]?.name || selectedCategory} Quests Active` : currentLabels.noItems}
+                description={selectedCategory !== 'all' ? `You have no active habits under ${categoryConfig[selectedCategory as keyof typeof categoryConfig]?.name || selectedCategory}. Tap below to forge one now!` : currentLabels.noItemsSubtitle}
                 icon={context === 'challenges' ? Dumbbell : context === 'milestones' ? Flag : Scroll}
                 action={
                   <Button
                     onClick={onAddQuest}
-                    className="bg-amber-500 hover:bg-amber-600 text-black mt-4"
+                    className="bg-amber-500 hover:bg-amber-600 text-black mt-4 font-bold font-serif shadow-lg"
                   >
                     {currentLabels.addButton}
                   </Button>

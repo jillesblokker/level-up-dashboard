@@ -441,6 +441,9 @@ export default function MarketPage() {
               className="bg-purple-950/90 border border-purple-500/60 text-purple-200 hover:bg-purple-900 text-xs px-3.5 py-2 rounded-xl font-serif flex items-center justify-center gap-1.5 shadow-lg shadow-purple-950/40 shrink-0 font-bold"
             >
               🧪 Apotheca Glasshouse
+              <Badge className="bg-purple-500/30 text-purple-200 text-[9px] font-mono border-purple-400/40 ml-1">
+                Brew Ready ✨
+              </Badge>
             </Button>
 
             {/* Current Currency HUD */}

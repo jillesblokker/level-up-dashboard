@@ -209,6 +209,11 @@ export default function ChroniclePage() {
                                                 {formatDate(entry.entry_date)}
                                             </span>
                                             {getMoodIcon(entry.mood_score)}
+                                            {entry.mood_tag && (
+                                                <Badge className="bg-amber-950/80 border-amber-500/30 text-amber-300 text-[9px] font-mono">
+                                                    {entry.mood_tag}
+                                                </Badge>
+                                            )}
                                         </div>
                                         <p className="text-xs text-zinc-300 line-clamp-1 italic font-serif">
                                             {entry.content}

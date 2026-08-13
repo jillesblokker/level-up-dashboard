@@ -415,6 +415,21 @@ export default function SettingsPage() {
                     {vacationShieldDays > 0 ? "Deactivate Shield" : "Activate 3-Day Shield"}
                   </Button>
                 </div>
+                {/* Detected Local Timezone Display */}
+                <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10">
+                  <div className="space-y-1">
+                    <Label className="text-white text-base font-medium flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                      Local Timezone Reset Engine
+                    </Label>
+                    <p className="text-sm text-zinc-400 max-w-md">
+                      Daily quests reset strictly at local midnight to present fresh habits every morning.
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono font-bold px-3 py-1.5 bg-amber-950/80 border border-amber-500/40 text-amber-300 rounded-xl">
+                    🌐 {typeof window !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'Local Time'}
+                  </span>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

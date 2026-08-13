@@ -1279,7 +1279,12 @@ export default function DungeonPage() {
                         </span>
                       </div>
 
-                      <div className="absolute top-2.5 right-2.5 z-20">
+                      <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5">
+                        {selectedCreature && (
+                          <span className="text-[10px] font-mono font-bold px-2 py-1 bg-amber-950/90 border border-amber-500/40 text-amber-300 rounded-lg shadow-md">
+                            ⚡ {getMatchupMultiplier(selectedCreature.type, enemyDef.type)}x Matchup
+                          </span>
+                        )}
                         <span className="p-1.5 bg-zinc-950/90 border border-white/10 rounded-lg text-lg filter drop-shadow-lg inline-block">
                           {getTypeEmoji(enemyDef.type)}
                         </span>
