@@ -1,5 +1,6 @@
 import { logger } from "@/lib/logger";
 import { auth } from '@clerk/nextjs/server';
+import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { getStartOfWeek } from "@/lib/date-utils";
 
