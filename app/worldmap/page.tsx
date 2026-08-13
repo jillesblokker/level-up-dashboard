@@ -139,6 +139,35 @@ export default function WorldMapPage() {
           <p className="text-zinc-300 text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed italic">
             Fast travel across the realm to manage citizen garrisons, trade botanical potion ingredients, harvest farm crops, and reclaim ancient citadel ruins.
           </p>
+        {/* Ether Fuel Generator HUD Banner */}
+        <div className="bg-zinc-900/90 border border-amber-500/30 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="w-11 h-11 rounded-xl bg-amber-950/80 border border-amber-500/40 flex items-center justify-center text-2xl shrink-0 shadow-md">
+              ⛵
+            </div>
+            <div>
+              <h4 className="font-medieval text-amber-300 text-sm sm:text-base flex items-center gap-2">
+                Airship Ether Fuel Engine
+                <Badge className="bg-emerald-950 border-emerald-500/40 text-emerald-300 text-[9px] font-mono">
+                  ⚡ 2x Speed Active
+                </Badge>
+              </h4>
+              <p className="text-xs text-zinc-400">
+                Ether fuel is generated directly by completing real-world daily habits!
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 w-full md:w-auto justify-end flex-wrap">
+            <Badge className="bg-amber-950/80 border-amber-500/40 text-amber-300 text-xs font-mono py-1 px-3">
+              ⛽ Ether Generated Today: +35 Fuel
+            </Badge>
+            <Link href="/quests">
+              <Button size="sm" variant="outline" className="h-8 text-xs border-amber-500/40 text-amber-300 hover:bg-amber-950/60 font-bold font-serif">
+                📜 Complete Habits
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Territory Grid (Horizontal Touch Snap Carousel on Mobile) */}

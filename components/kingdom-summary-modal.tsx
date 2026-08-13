@@ -42,29 +42,39 @@ export function KingdomSummaryModal({ isOpen, onClose, rewards }: KingdomSummary
             <div className="flex items-center justify-center gap-3 mb-2">
                 <Trophy className="h-6 w-6 text-amber-500 animate-pulse" />
                 <DialogTitle className="font-serif text-2xl text-amber-100 tracking-tight">
-                    Kingdom Harvest Report
+                    Royal Treasury Tax Receipt 📜
                 </DialogTitle>
                 <Trophy className="h-6 w-6 text-amber-500 animate-pulse" />
             </div>
           <DialogDescription className="text-zinc-400 text-sm italic">
-            Your subjects have gathered resources from across the realm.
+            Your subjects have harvested taxes and materials from across your realm properties.
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col flex-1 overflow-hidden">
+            {/* Citizen Loyalty Multiplier Indicator */}
+            <div className="px-6 pt-2">
+              <div className="bg-amber-950/40 border border-amber-500/30 rounded-xl px-3 py-1.5 flex items-center justify-between text-xs font-mono">
+                <span className="text-amber-300 font-bold flex items-center gap-1.5">
+                  👑 Citizen Loyalty Bonus:
+                </span>
+                <span className="text-emerald-400 font-bold">+15% Tax Multiplier</span>
+              </div>
+            </div>
+
             {/* Totals Banner */}
-            <div className="px-6 py-4 grid grid-cols-2 gap-4">
+            <div className="px-6 py-3 grid grid-cols-2 gap-4">
                 <div className="bg-amber-900/20 border border-amber-500/20 rounded-xl p-3 flex flex-col items-center">
                     <div className="flex items-center gap-2 text-amber-400 mb-1">
                         <Coins className="h-4 w-4" />
-                        <span className="text-xs font-bold tracking-wider">Total gold</span>
+                        <span className="text-xs font-bold tracking-wider uppercase">Total Gold</span>
                     </div>
                     <span className="text-2xl font-bold font-serif text-amber-200">+{totalGold}</span>
                 </div>
                 <div className="bg-blue-900/20 border border-blue-500/20 rounded-xl p-3 flex flex-col items-center">
                     <div className="flex items-center gap-2 text-blue-400 mb-1">
                         <Star className="h-4 w-4" />
-                        <span className="text-xs font-bold tracking-wider">Total XP</span>
+                        <span className="text-xs font-bold tracking-wider uppercase">Total XP</span>
                     </div>
                     <span className="text-2xl font-bold font-serif text-blue-200">+{totalExp}</span>
                 </div>

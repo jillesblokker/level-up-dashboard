@@ -32,6 +32,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service';
 import { toast } from '@/components/ui/use-toast';
 
@@ -186,6 +187,7 @@ export default function DungeonPage() {
   const [petStrikerUsed, setPetStrikerUsed] = useState(false);
   const [monsterStatus, setMonsterStatus] = useState<MonsterStatusState>({ burnTurns: 0, sleepTurns: 0, confusionTurns: 0 });
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
+  const [bossVictoryData, setBossVictoryData] = useState<{ roomNumber: number; blueprintName: string; blueprintImage: string; reagentName: string } | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
 
   const { getToken } = useAuth();
@@ -738,18 +740,24 @@ export default function DungeonPage() {
       setBattleLog(prev => [...prev, ...logEntries]);
 
       if (run.currentRoom % 5 === 0) {
+        const blueprints = [
+          { name: 'Blueprint: Serene Lake', img: '/images/Kingdom.webp', desc: 'Unlocks serene water canal tiles for your realm sandbox (+10 DEF).' },
+          { name: 'Blueprint: Zen Garden', img: '/images/Kingdom.webp', desc: 'Unlocks peaceful zen stone gardens (+15 Spell Power).' },
+          { name: 'Blueprint: Astral Citadel', img: '/images/Kingdom.webp', desc: 'Unlocks celestial star towers for your realm (+25 ATK).' },
+          { name: 'Blueprint: Waterway Canal', img: '/images/Kingdom.webp', desc: 'Unlocks capital water trade canals (+30% Tax Gold).' }
+        ];
+        const bp = blueprints[(Math.floor(run.currentRoom / 5) - 1) % blueprints.length] || blueprints[0]!;
+        
+        setBossVictoryData({
+          roomNumber: run.currentRoom,
+          blueprintName: bp.name,
+          blueprintImage: bp.img,
+          reagentName: crystal?.name || 'Apotheca Crystal Reagent'
+        });
+
         toast({
-          title: "🏆 Boss Dual Drop Reclaim!",
-          description: "Defeated Boss Keep! Received Kingdom Blueprint & Apotheca Potion Reagents! Tap to brew in Apotheca.",
-          action: (
-            <Button
-              size="sm"
-              className="bg-amber-500 hover:bg-amber-400 text-black font-bold text-[10px]"
-              onClick={() => router.push('/market')}
-            >
-              Brew Potion 🧪
-            </Button>
-          )
+          title: "🏆 Boss Keep Cleared!",
+          description: `Defeated Room ${run.currentRoom} Boss! Unlocked ${bp.name} & Apotheca Reagents!`,
         });
       }
 
@@ -1758,6 +1766,64 @@ export default function DungeonPage() {
         </div>
 
       </div>
+
+      {/* Boss Floor Victory Loot Modal */}
+      {bossVictoryData && (
+        <Dialog open={!!bossVictoryData} onOpenChange={() => setBossVictoryData(null)}>
+          <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border-2 border-amber-500/50 text-white p-6 rounded-2xl shadow-2xl font-serif text-center z-[100] animate-in zoom-in-95">
+            <DialogHeader>
+              <div className="mx-auto w-16 h-16 rounded-full bg-amber-900/60 border-2 border-amber-400 flex items-center justify-center mb-2 shadow-[0_0_25px_rgba(245,158,11,0.5)] animate-bounce">
+                <span className="text-3xl">🏆</span>
+              </div>
+              <DialogTitle className="text-2xl font-medieval text-amber-300">
+                Boss Keep Floor Cleared!
+              </DialogTitle>
+              <DialogDescription className="text-xs text-amber-200/80 italic">
+                Defeated Floor {bossVictoryData.roomNumber} Guardian Boss!
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="my-4 p-4 bg-zinc-950/90 rounded-2xl border border-amber-900/40 space-y-3 text-left">
+              <div className="flex items-center gap-3 border-b border-amber-900/30 pb-3">
+                <div className="w-12 h-12 rounded-xl bg-amber-950 border border-amber-500/40 flex items-center justify-center text-2xl shrink-0">
+                  📜
+                </div>
+                <div>
+                  <h4 className="font-bold text-amber-200 text-sm font-serif">{bossVictoryData.blueprintName}</h4>
+                  <span className="text-[11px] text-zinc-400 block font-mono">Rare Kingdom Blueprint Unlocked!</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-xs font-mono font-bold text-emerald-400 bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-500/30">
+                <span>🧪 Apotheca Reagent:</span>
+                <span className="text-emerald-300">{bossVictoryData.reagentName}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <Button
+                onClick={() => {
+                  setBossVictoryData(null);
+                  router.push('/kingdom');
+                }}
+                className="w-full py-2.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-extrabold text-xs rounded-xl shadow-lg"
+              >
+                Build in Realm 🏰
+              </Button>
+              <Button
+                onClick={() => {
+                  setBossVictoryData(null);
+                  router.push('/market');
+                }}
+                variant="outline"
+                className="w-full py-2.5 border-amber-500/40 text-amber-300 hover:bg-amber-950/50 font-bold text-xs rounded-xl"
+              >
+                Brew in Apotheca 🧪
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
