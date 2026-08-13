@@ -2251,6 +2251,7 @@ export function KingdomGridWithTimers({
     }
 
     setTileTimers(updatedTimers);
+    window.dispatchEvent(new CustomEvent('kingdom-taxes-count-update', { detail: { count: 0 } }));
     window.dispatchEvent(new CustomEvent('kingdom-building-collected'));
     hapticMedium();
     

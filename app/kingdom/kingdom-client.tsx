@@ -1722,6 +1722,7 @@ export function KingdomClient() {
           !isVisiting && collectableTaxesCount > 0 && (
             <Button
               onClick={() => {
+                setCollectableTaxesCount(0);
                 if (typeof window !== 'undefined') {
                   window.dispatchEvent(new Event('collect-all-kingdom-taxes'));
                 }
