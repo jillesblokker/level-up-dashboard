@@ -102,6 +102,14 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
             await updateCharacterStats({ experience: 30 }) // Increased reward to 30 XP
             toast.success("You feel deeply centered.", { description: "+30 XP" })
             
+            // Auto-complete Zen Garden Meditation quest
+            try {
+              const { recordZenMeditationCompletion } = await import('@/lib/tile-quest-service');
+              await recordZenMeditationCompletion();
+            } catch (err) {
+              logger.warn('Zen meditation quest auto-complete error:', err);
+            }
+
             notificationService.addNotification(
                 "Meditation Complete 🧘",
                 "You feel deeply centered and gained +30 XP!",

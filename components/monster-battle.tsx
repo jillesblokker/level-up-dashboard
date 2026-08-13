@@ -367,6 +367,14 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     gainGold(earnedGold, 'monster-battle-win')
     addToCharacterStat('experience', earnedXP, 'monster-battle-win')
 
+    // Track dungeon battle win & auto-complete "Complete 3 Dungeon Battles" quest
+    try {
+      const { recordDungeonBattleWin } = await import('@/lib/tile-quest-service');
+      recordDungeonBattleWin();
+    } catch (err) {
+      logger.warn('Dungeon battle quest track error:', err);
+    }
+
     // Add success animation class
     const battleContainer = document.querySelector('.monster-battle-container')
     if (battleContainer) {

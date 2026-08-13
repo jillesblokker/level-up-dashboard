@@ -23,6 +23,7 @@ import { useWeather } from '@/hooks/use-weather'
 import { TEXT_CONTENT } from '@/lib/text-content'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LuckyCelebration } from '@/components/lucky-celebration'
+import { checkAndUnlockTileQuests } from '@/lib/tile-quest-service'
 import { TileActionSheet } from '@/components/tile-action-sheet'
 import { KingdomSummaryModal } from './kingdom-summary-modal'
 import { FortuneTellerModal } from './fortune-teller-modal'
@@ -580,6 +581,13 @@ export function KingdomGridWithTimers({
       }
     }, 60000);
     return () => clearInterval(interval);
+  }, [grid]);
+
+  // Auto-unlock daily quests when Zen Garden or Combat tiles are present on map
+  useEffect(() => {
+    if (grid && Array.isArray(grid) && grid.length > 0) {
+      checkAndUnlockTileQuests(grid);
+    }
   }, [grid]);
   // Tiles affected by winter event bonus
   const WINTER_EVENT_TILE_IDS = new Set([
