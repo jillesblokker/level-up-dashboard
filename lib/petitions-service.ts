@@ -548,7 +548,7 @@ function generateProceduralPool(): Petition[] {
   ];
 
   for (let i = 11; i <= 100; i++) {
-    const template = roles[(i - 11) % roles.length];
+    const template = roles[(i - 11) % roles.length] || roles[0]!;
     list.push({
       id: `pet-${i}`,
       title: `${template.title} #${i}`,
