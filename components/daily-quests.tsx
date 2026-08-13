@@ -9,6 +9,7 @@ import { useSupabaseSync } from '@/hooks/use-supabase-sync'
 import { questCache } from '@/lib/cache-manager'
 import { CategoryQuestSection, type QuestItem } from "./category-quest-section"
 import { type QuestCategory } from "./quest-form-dialog"
+import { getUserScopedItem, setUserScopedItem } from "@/lib/user-scoped-storage"
 
 // Default quest data - organized by category
 const defaultQuestItems: QuestItem[] = [
@@ -83,21 +84,26 @@ export function DailyQuests() {
   // Check for daily reset
   const checkForReset = useCallback(() => {
     const currentDate = new Date().toISOString().slice(0, 10)
-    const lastReset = localStorage.getItem('daily-quests-reset-date')
+    const lastReset = getUserScopedItem('last-quest-reset-date') || localStorage.getItem('daily-quests-reset-date')
 
     if (lastReset !== currentDate) {
       questCache.clear()
       setQuestItems(prevQuests =>
         prevQuests.map(quest => ({ ...quest, completed: false }))
       )
+      setUserScopedItem('last-quest-reset-date', currentDate)
       localStorage.setItem('daily-quests-reset-date', currentDate)
     }
   }, [])
 
-  // Check for daily reset on mount and interval
+  // Check for daily reset on mount and interval when tab is visible
   useEffect(() => {
     checkForReset()
-    const interval = setInterval(checkForReset, 60000)
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        checkForReset()
+      }
+    }, 60000)
     return () => clearInterval(interval)
   }, [checkForReset])
 

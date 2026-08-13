@@ -65,4 +65,40 @@ export async function saveQuestProgress(questId: string, progress: number): Prom
   // This could be implemented as a separate endpoint if needed
   logger.debug('[Quests Persistence] saveQuestProgress called for quest:', questId, 'progress:', progress);
   return true;
+}
+
+/**
+ * Reconciles server quest response with local cached quest state.
+ * Performs bi-directional lookup by ID, Name, Title (and case-insensitive matches)
+ * to ensure checked quests are never accidentally unchecked or duplicated.
+ */
+export function reconcileQuestList(serverQuests: any[], localQuests: any[] = [], isSameDay: boolean = true): any[] {
+  const serverList = Array.isArray(serverQuests) ? serverQuests : [];
+  const localList = Array.isArray(localQuests) ? localQuests : [];
+
+  if (serverList.length === 0 && localList.length > 0) {
+    return localList;
+  }
+
+  // Index local quests by ID, Name, and Title
+  const localMap = new Map<string, any>();
+  localList.forEach((lq: any) => {
+    if (lq.id) localMap.set(String(lq.id).toLowerCase(), lq);
+    if (lq.name) localMap.set(String(lq.name).toLowerCase().trim(), lq);
+    if (lq.title) localMap.set(String(lq.title).toLowerCase().trim(), lq);
+  });
+
+  return serverList.map((sq: any) => {
+    const sqId = String(sq.id || '').toLowerCase();
+    const sqName = String(sq.name || sq.title || '').toLowerCase().trim();
+
+    const localMatch = localMap.get(sqId) || (sqName ? localMap.get(sqName) : undefined);
+    const isCompleted = Boolean(sq.completed || (isSameDay && localMatch?.completed));
+
+    return {
+      ...sq,
+      completed: isCompleted,
+      date: isCompleted ? (sq.date || localMatch?.date || new Date().toISOString()) : null
+    };
+  });
 } 

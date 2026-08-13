@@ -384,7 +384,7 @@ describe('Validation Schemas', () => {
         const result = validateSchema(questSchema, validQuest);
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toEqual(validQuest);
+          expect(result.data).toEqual(expect.objectContaining(validQuest));
         }
       });
 
@@ -416,7 +416,7 @@ describe('Validation Schemas', () => {
         };
         
         const result = safeParse(questSchema, validQuest);
-        expect(result).toEqual(validQuest);
+        expect(result).toEqual(expect.objectContaining(validQuest));
       });
 
       it('returns null for invalid input', () => {

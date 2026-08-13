@@ -573,9 +573,12 @@ export function KingdomGridWithTimers({
       }
     };
 
-    fetchQuests();
-    // Refresh periodically or on focus
-    const interval = setInterval(fetchQuests, 60000);
+    // Refresh periodically when tab is visible
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        fetchQuests();
+      }
+    }, 60000);
     return () => clearInterval(interval);
   }, [grid]);
   // Tiles affected by winter event bonus

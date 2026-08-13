@@ -161,10 +161,10 @@ export default function CharacterPage() {
     });
   }, []);
 
-  // Check for perk unlocks when character level changes or perks are loaded
+  // Check for perk unlocks when character level changes
   useEffect(() => {
     checkAndUnlockPerks(characterStats.level);
-  }, [characterStats.level, perks, checkAndUnlockPerks]);
+  }, [characterStats.level, checkAndUnlockPerks]);
 
   // Load character stats and perks (Supabase first, then localStorage)
   useEffect(() => {
@@ -474,8 +474,23 @@ export default function CharacterPage() {
           description: "You have been reborn with new power. Level reset to 1.",
         });
 
-        // Reload page to reflect deep changes
-        window.location.reload();
+        // Dynamically re-hydrate stats & perks without forced page reload
+        await characterStatsService.fetchAndMerge();
+        const freshStats = getCharacterStats();
+        const calculatedLevel = calculateLevelFromExperience(freshStats.experience || 0);
+        setCharacterStats(prev => ({
+          ...prev,
+          level: calculatedLevel,
+          experience: freshStats.experience || 0,
+          experienceToNextLevel: calculateExperienceForLevel(calculatedLevel),
+          gold: freshStats.gold || 0,
+          ascension_level: freshStats.ascension_level || 0,
+          ember_essence: freshStats.ember_essence || 0,
+          frost_essence: freshStats.frost_essence || 0,
+          tide_essence: freshStats.tide_essence || 0,
+          verdant_essence: freshStats.verdant_essence || 0,
+          focus_points: freshStats.focus_points || 0,
+        }));
       } else {
         toast({
           title: "Ascension Failed",

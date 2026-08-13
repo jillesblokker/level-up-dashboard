@@ -77,6 +77,9 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
     return (
       <Dialog open={isOpen} onOpenChange={(op) => { if (!op) onClose(); }}>
         <DialogContent className="max-w-md bg-zinc-950 border border-amber-900/40 text-amber-100 p-8 text-center">
+          <DialogHeader className="sr-only">
+            <DialogTitle>House Cup Standings</DialogTitle>
+          </DialogHeader>
           <Sparkles className="w-8 h-8 text-amber-400 animate-spin mx-auto mb-3" />
           <p className="font-medieval text-lg">Gathering House Cup Standings...</p>
         </DialogContent>

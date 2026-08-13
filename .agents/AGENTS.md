@@ -19,6 +19,10 @@ Started as a personal tool. Now intended to help **everyone** start building hab
 | **Milestone** | Cumulative goal | 100 push-ups in a row | Milestones tab |
 
 - Reset: **local timezone midnight** (NOT hardcoded Amsterdam)
+- **Strict Reset Anti-Regression Rule**: Daily quest reset MUST use strict calendar date matching (`cDate === today || cDateUtc === todayUtc`) in the user's local timezone. **NEVER use a rolling 24-hour window (`isRecent` / `< 24h`)** for daily quest completion queries, as rolling time windows span across midnight and auto-check yesterday's habits on the new day.
+- **Quests (Daily Habits)**: Everyday repeating routines (brushing teeth, 10 push-ups) that reset at local timezone midnight to present a fresh, un-checked batch of daily quests every morning.
+- **Challenges (Weekly Focus)**: Multi-day or higher-intensity goals (run 5km, read a chapter) running on a weekly cadence for larger gold/XP and virtue rewards.
+- **Milestones (Lifetime Cumulative)**: Long-term lifetime achievements (100 total push-ups) that continuously accumulate progress over time and **never reset**.
 - Undo: user should be able to uncheck a quest they accidentally marked complete
 - Sweet spot: **5/day = "Great"**, 10 = "Awesome", 15+ = "Super", 20+ = "Amazing"
 - Mix simple habits (wake before 10) with aspirational ones (10 push-ups)

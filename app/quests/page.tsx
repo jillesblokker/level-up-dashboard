@@ -19,6 +19,7 @@ import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
 import { useUser, useAuth } from '@clerk/nextjs'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
+import { reconcileQuestList } from '@/lib/quests-persistence'
 import { Milestones } from '@/components/milestones'
 import { updateCharacterStats, getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service'
 import { recordCompletion } from '@/lib/daily-activity-summary-service'
@@ -646,7 +647,9 @@ export default function QuestsPage() {
     if (!user) {
       return;
     }
-    setLoading(true);
+    if (quests.length === 0) {
+      setLoading(true);
+    }
     async function fetchQuests(retryCount = 0) {
       try {
         logger.debug('[Quests Debug] Fetching /api/quests... (attempt', retryCount + 1, ')');
@@ -703,41 +706,11 @@ export default function QuestsPage() {
         });
 
         // SMART HYDRATION MERGE: Merge server response with local today's completions
-        // If a quest was completed today in local cache, retain completed: true so UI never unchecks it
         setQuests(prevQuests => {
           const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
           const cacheDate = getUserScopedItem('quests-cache-date');
           const isSameDay = cacheDate === todayStr;
-          const serverList = (data || []);
-
-          const serverMap = new Map<string, any>();
-          serverList.forEach((sq: any) => {
-            if (sq.id) serverMap.set(String(sq.id).toLowerCase(), sq);
-            if (sq.name) serverMap.set(String(sq.name).toLowerCase(), sq);
-            if (sq.title) serverMap.set(String(sq.title).toLowerCase(), sq);
-          });
-
-          // Merge server data with local state
-          const merged = serverList.map((serverQuest: any) => {
-            const sqId = String(serverQuest.id || '').toLowerCase();
-            const sqName = String(serverQuest.name || '').toLowerCase();
-            const sqTitle = String(serverQuest.title || '').toLowerCase();
-
-            const localQuest = prevQuests.find((pq: any) => {
-              const pqId = String(pq.id || '').toLowerCase();
-              const pqName = String(pq.name || '').toLowerCase();
-              return pqId === sqId || (pqName && (pqName === sqName || pqName === sqTitle));
-            });
-
-            // Completed if server says completed OR (if same day) local state says completed
-            const isCompleted = Boolean(serverQuest.completed || (isSameDay && localQuest?.completed));
-
-            return {
-              ...serverQuest,
-              completed: isCompleted,
-              date: isCompleted ? (serverQuest.date || localQuest?.date || new Date().toISOString()) : null
-            };
-          });
+          const merged = reconcileQuestList(data || [], prevQuests, isSameDay);
 
           try {
             setUserScopedItem('quests-cache', JSON.stringify(merged));
@@ -760,38 +733,24 @@ export default function QuestsPage() {
     fetchFavorites();
   }, [token, user, refreshTrigger]);
 
-  // Listen for periodic cross-device global sync events to keep quest completions synced across browsers
+  // Listen for periodic cross-device global sync events to keep quest completions synced without redundant GET requests
   useEffect(() => {
-    const handleGlobalSync = () => {
+    const handleGlobalSync = (e: Event) => {
       if (user && typeof window !== 'undefined' && document.visibilityState === 'visible') {
-        // Re-fetch quests when global 45s sync fires
-        const resPromise = fetchWithAuth(`/api/quests?t=${Date.now()}`);
-        resPromise.then(res => {
-          if (res.ok) {
-            res.json().then(data => {
-              if (Array.isArray(data)) {
-                setQuests(prevQuests => {
-                  const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
-                  const cacheDate = getUserScopedItem('quests-cache-date');
-                  const merged = data.map((serverQuest: any) => {
-                    if (cacheDate === todayStr) {
-                      const localQuest = prevQuests.find((pq: any) => pq.id === serverQuest.id || (pq.name && pq.name === serverQuest.name));
-                      if (localQuest?.completed && !serverQuest.completed) {
-                        return { ...serverQuest, completed: true };
-                      }
-                    }
-                    return serverQuest;
-                  });
-                  try {
-                    setUserScopedItem('quests-cache', JSON.stringify(merged));
-                    setUserScopedItem('quests-cache-date', todayStr);
-                  } catch {}
-                  return merged;
-                });
-              }
-            }).catch(() => {});
-          }
-        }).catch(() => {});
+        const detailQuests = (e as CustomEvent)?.detail?.quests;
+        if (Array.isArray(detailQuests) && detailQuests.length > 0) {
+          setQuests(prevQuests => {
+            const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+            const cacheDate = getUserScopedItem('quests-cache-date');
+            const isSameDay = cacheDate === todayStr;
+            const merged = reconcileQuestList(detailQuests, prevQuests, isSameDay);
+            try {
+              setUserScopedItem('quests-cache', JSON.stringify(merged));
+              setUserScopedItem('quests-cache-date', todayStr);
+            } catch {}
+            return merged;
+          });
+        }
       }
     };
     window.addEventListener('global-sync-tick', handleGlobalSync);
@@ -911,12 +870,6 @@ export default function QuestsPage() {
             // The quest completion logic will naturally show quests as incomplete
             // if there's no completed=true record for today
             logger.debug('[Daily Reset] ✅ Preserving quest state - no manual reset to prevent data loss');
-
-            // Optimized delay before refreshing to ensure reset completion
-            setTimeout(() => {
-              logger.debug('[Daily Reset] Refreshing quest data after reset...');
-              setRefreshTrigger(prev => prev + 1);
-            }, 1500); // Reduced delay since UI-only reset is instant
 
             toast({
               title: 'Daily Reset',
@@ -2841,7 +2794,7 @@ export default function QuestsPage() {
 
 
 
-  if (loading) {
+  if (loading && quests.length === 0) {
     return (
       <LoadingScreen
         title="Seeking your quests"

@@ -37,9 +37,7 @@ export async function GET(req: NextRequest) {
             const todayCompletions = (completions || []).filter((c: any) => {
                 const cDate = formatDate(c.completed_at || '', requestTz);
                 const cDateUtc = (c.completed_at || '').split('T')[0];
-                const compMs = new Date(c.completed_at || '').getTime();
-                const isRecent = !isNaN(compMs) && (Date.now() - compMs) < (24 * 60 * 60 * 1000);
-                return cDate === today || cDateUtc === todayUtc || isRecent;
+                return cDate === today || cDateUtc === todayUtc;
             });
 
             // 5. Build the SAME completion map as GET /api/quests does
@@ -61,9 +59,7 @@ export async function GET(req: NextRequest) {
                 const todayComp = comps.find((c: any) => {
                     const cDate = formatDate(c.completed_at || '', requestTz);
                     const cDateUtc = (c.completed_at || '').split('T')[0];
-                    const compMs = new Date(c.completed_at || '').getTime();
-                    const isRecent = !isNaN(compMs) && (Date.now() - compMs) < (24 * 60 * 60 * 1000);
-                    return cDate === today || cDateUtc === todayUtc || isRecent;
+                    return cDate === today || cDateUtc === todayUtc;
                 });
                 if (todayComp && todayComp.completed !== false) {
                     completedQuestsMap[questId] = true;

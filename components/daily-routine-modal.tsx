@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Trophy, Calendar, CheckSquare, Gift, ArrowRight, Flame, Shield, Sun } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { addToCharacterStat } from '@/lib/character-stats-service';
+import { getUserScopedItem } from "@/lib/user-scoped-storage";
 
 interface DailyRoutineModalProps {
   isOpen: boolean;
@@ -20,8 +21,19 @@ interface DailyRoutineModalProps {
 export function DailyRoutineModal({
   isOpen,
   onClose,
-  yesterdayStats = { questsCompleted: 5, streak: 7, goldEarned: 120 }
+  yesterdayStats: propStats
 }: DailyRoutineModalProps) {
+  const [cachedStats] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = getUserScopedItem('yesterday-activity-summary');
+        if (stored) return JSON.parse(stored);
+      } catch {}
+    }
+    return null;
+  });
+
+  const yesterdayStats = propStats || cachedStats || { questsCompleted: 5, streak: 7, goldEarned: 120 };
   const { toast } = useToast();
   const [step, setStep] = useState<1 | 2>(1);
   const [claimed, setClaimed] = useState(false);
@@ -63,6 +75,10 @@ export function DailyRoutineModal({
   return (
     <Dialog open={isOpen} onOpenChange={(op) => { if (!op) handleModalClose(); }}>
       <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border border-amber-500/40 text-amber-100 p-6 rounded-2xl shadow-2xl overflow-hidden font-serif">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Daily Opening Sequence</DialogTitle>
+          <DialogDescription>Daily habit focus and opening routine</DialogDescription>
+        </DialogHeader>
         {/* Step Indicator */}
         <div className="flex items-center justify-between pb-3 border-b border-amber-900/30 text-xs text-amber-400 font-bold uppercase tracking-wider">
           <span className="flex items-center gap-1.5">

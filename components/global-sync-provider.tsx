@@ -142,22 +142,18 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
         }
 
         // 3b. PULL & MERGE (Union Truth): Combine server completions & local completions
-        const mergedQuests = (serverArray.length > 0 ? serverArray : localArray).map((sq: any) => {
-          const sqName = String(sq.name || sq.title || '').toLowerCase().trim();
-          const localMatch = localArray.find((lq: any) => {
-            const lqName = String(lq.name || lq.title || '').toLowerCase().trim();
-            return (lq.id && lq.id === sq.id) || (lqName && lqName === sqName);
-          });
-
-          const isCompleted = Boolean(sq.completed || localMatch?.completed);
-          return {
-            ...sq,
-            completed: isCompleted
-          };
-        });
+        const { reconcileQuestList } = await import('@/lib/quests-persistence');
+        const mergedQuests = reconcileQuestList(serverArray, localArray, true);
 
         setUserScopedItem('quests-cache', JSON.stringify(mergedQuests));
         setUserScopedItem('quests-cache-date', todayStr);
+
+        // 5. Dispatch cross-component / cross-page sync event for active views
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('global-sync-tick', { detail: { quests: mergedQuests } }));
+          window.dispatchEvent(new Event('character-stats-update'));
+          window.dispatchEvent(new Event('quest-added'));
+        }
       }
 
       // 4. Auto-hydrate Daily Fate tarot card
@@ -173,13 +169,6 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
             localStorage.setItem('daily_fate', JSON.stringify(val));
           }
         }
-      }
-
-      // 5. Dispatch cross-component / cross-page sync event for active views
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('global-sync-tick'));
-        window.dispatchEvent(new Event('character-stats-update'));
-        window.dispatchEvent(new Event('quest-added'));
       }
     } catch {
       // Silent error logging to avoid UI disruption

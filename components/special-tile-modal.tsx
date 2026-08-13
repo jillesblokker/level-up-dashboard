@@ -125,8 +125,11 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
   const rarity = kingdomTile?.rarity || "common"
 
   const isObelisk = typeLower === "mystic-obelisk"
-  const isPantheon = typeLower === "golden-pantheon"
-  
+  const [isCollecting, setIsCollecting] = React.useState(false);
+  React.useEffect(() => {
+    if (!isOpen) setIsCollecting(false);
+  }, [isOpen]);
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-md w-full bg-zinc-950 border border-amber-900/40 text-white rounded-2xl p-6 shadow-2xl overflow-hidden font-serif">
@@ -245,9 +248,13 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
             >
               Close
             </Button>
+
             {isReady && (
               <Button
+                disabled={isCollecting}
                 onClick={() => {
+                  if (isCollecting) return;
+                  setIsCollecting(true);
                   onCollect();
                   onClose();
                 }}

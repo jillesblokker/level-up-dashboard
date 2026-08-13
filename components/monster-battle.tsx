@@ -253,6 +253,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
 
     // Check if round is complete
     if (newPlayerSequence.length === sequence.length) {
+      setIsPlayerTurn(false)
       if (currentRound === 5) {
         // Game won!
         handleGameWin()

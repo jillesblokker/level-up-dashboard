@@ -16,6 +16,9 @@ export function BossLootChestModal({ isOpen, onClose, roomLevel, blueprintName =
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
       <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border-2 border-amber-500/60 text-amber-100 p-6 rounded-2xl shadow-2xl font-serif text-center relative overflow-hidden">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Boss Victory Chest Unlocked</DialogTitle>
+        </DialogHeader>
         <div className="absolute -top-12 -right-12 w-40 h-40 bg-amber-500/20 blur-3xl rounded-full pointer-events-none" />
 
         {/* Glowing 3D Treasure Chest Opening Animation Stage */}

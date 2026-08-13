@@ -326,11 +326,9 @@ export async function GET(request: Request) {
           const cDate = formatDate(c.completed_at || c.created_at, requestTz);
           const cDateUtc = new Date(c.completed_at || c.created_at).toISOString().split('T')[0];
           const todayUtc = new Date().toISOString().split('T')[0];
-          const compMs = new Date(c.completed_at || c.created_at).getTime();
-          const isRecent = !isNaN(compMs) && (Date.now() - compMs) < (24 * 60 * 60 * 1000);
 
-          // Match local today's date, UTC today's date, OR completion within last 24 hours
-          return cDate === today || cDateUtc === todayUtc || isRecent;
+          // STRICT DATE MATCHING: Must match local today's date or UTC today's date (no 24h rolling window that breaks daily reset)
+          return cDate === today || cDateUtc === todayUtc;
         });
 
         // Show as completed if there's a valid completion record for today

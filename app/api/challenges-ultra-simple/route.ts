@@ -1,7 +1,7 @@
 import { logger } from "@/lib/logger";
 import { auth } from '@clerk/nextjs/server';
-import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { getStartOfWeek } from "@/lib/date-utils";
 
 // Force dynamic route to prevent caching
 export const dynamic = 'force-dynamic';
@@ -81,12 +81,12 @@ export async function GET(request: Request) {
 
     // ... (rest of processing logic stays roughly the same, but needs to be adapted to not use return { data: ... })
 
-    // Filter to only today's completions
+    // Filter to this week's completions for weekly challenges
+    const startOfWeek = getStartOfWeek();
     const todaysCompletions = (allCompletions || []).filter((completion: any) => {
       if (!completion.date) return false;
       const dbDate = String(completion.date).split('T')[0];
-      const todayDate = today.split('T')[0];
-      return dbDate === todayDate;
+      return dbDate >= startOfWeek;
     });
 
     const completedChallenges = new Map();
