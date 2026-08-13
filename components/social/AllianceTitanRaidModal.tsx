@@ -89,9 +89,11 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
                 <Progress value={hpPercent} className="h-3 bg-zinc-800 transition-all duration-1000 ease-out transform-gpu" />
                 <div className="absolute inset-0 bg-red-500/20 rounded-full blur-[2px] animate-pulse pointer-events-none" />
               </div>
-              <div className="flex items-center justify-between text-[11px] text-zinc-300 pt-1">
-                <span>Your contribution: <strong className="text-amber-400 font-bold">{userDamageToday} raid damage</strong></span>
-                <span className="text-emerald-400 font-mono font-bold">⚡ Active Fellowship Raid</span>
+              <div className="flex items-center justify-between text-[11px] text-zinc-300 pt-1.5 flex-wrap gap-1">
+                <Badge className="bg-amber-950/80 border-amber-500/50 text-amber-300 text-[10px] font-mono font-bold shadow-sm">
+                  ⚔️ Your Habits Dealt {userDamageToday} DMG Today!
+                </Badge>
+                <span className="text-emerald-400 font-mono font-bold text-[10px]">⚡ Active Fellowship Raid</span>
               </div>
             </div>
           </div>

@@ -988,6 +988,22 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
               <h4 className={cn('font-bold text-sm truncate', item.equipped ? 'text-amber-300' : 'text-white')}>{displayName}</h4>
               <p className="text-[10px] text-zinc-400 line-clamp-3 min-h-[36px] mt-0.5" title={item.description || ''}>{item.description || ''}</p>
 
+              {/* Live Stat Diff Badges */}
+              {item.stats && (
+                <div className="flex items-center gap-1.5 mt-1.5 font-mono text-[10px] flex-wrap">
+                  {item.stats.attack ? (
+                    <Badge className="bg-red-950/80 border-red-500/40 text-red-300 font-bold px-1.5 py-0">
+                      ⚔️ +{item.stats.attack} ATK
+                    </Badge>
+                  ) : null}
+                  {item.stats.defense ? (
+                    <Badge className="bg-blue-950/80 border-blue-500/40 text-blue-300 font-bold px-1.5 py-0">
+                      🛡️ +{item.stats.defense} DEF
+                    </Badge>
+                  ) : null}
+                </div>
+              )}
+
               {/* Material Stock Cap Progress Bar (Point 4) */}
               {(cleanName.startsWith('material-') || item.category === 'material' || item.type === 'material') && (() => {
                 const isRareMat = item.id === 'material-crystal' || item.id === 'material-steel' || item.id === 'material-silver' || item.id === 'material-gold';

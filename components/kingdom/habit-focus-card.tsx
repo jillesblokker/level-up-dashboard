@@ -514,9 +514,14 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
                       ))}
                     </div>
                     {focusData.guildBlessingUntil && new Date(focusData.guildBlessingUntil).getTime() > Date.now() ? (
-                      <p className="text-xs text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-950/40 p-2 rounded-xl border border-emerald-500/30">
-                        <Sparkles className="w-4 h-4 animate-spin text-emerald-400" /> Guild Blessing Active! (+20% Forge rate & Double Training XP)
-                      </p>
+                      <div className="space-y-1 bg-emerald-950/60 p-2.5 rounded-xl border border-emerald-500/40 shadow-md">
+                        <p className="text-xs text-emerald-300 font-bold flex items-center gap-1.5 font-serif">
+                          <Sparkles className="w-4 h-4 animate-spin text-emerald-400" /> Guild Blessing Active! (+20% Forge & Double EXP)
+                        </p>
+                        <span className="text-[10px] text-emerald-400/90 font-mono font-bold block">
+                          ⏱️ Expires in {Math.max(0, Math.floor((new Date(focusData.guildBlessingUntil).getTime() - Date.now()) / 3600000))}h {Math.max(0, Math.floor(((new Date(focusData.guildBlessingUntil).getTime() - Date.now()) % 3600000) / 60000))}m
+                        </span>
+                      </div>
                     ) : (
                       <p className="text-[11px] text-zinc-400 leading-relaxed italic">
                         Completing matching habits charges the Guild Altar to unlock realm blessings.

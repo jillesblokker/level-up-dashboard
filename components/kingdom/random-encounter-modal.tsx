@@ -110,17 +110,19 @@ export function RandomEncounterModal() {
   const [timerCompleted, setTimerCompleted] = useState(false);
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
+  const [revealedReward, setRevealedReward] = useState<{ title: string; desc: string; items: { name: string; icon: string }[] } | null>(null);
 
   useEffect(() => {
     const handleTrigger = (e: Event) => {
-      const customEvt = e as CustomEvent<{ eventType: EncounterType }>;
-      if (customEvt.detail?.eventType) {
-        setCurrentType(customEvt.detail.eventType);
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && customEvent.detail.type) {
+        setCurrentType(customEvent.detail.type);
         setTimerSeconds(10);
         setIsTimerActive(false);
         setTimerCompleted(false);
         setSelectedCard(null);
         setIsClaiming(false);
+        setRevealedReward(null);
       }
     };
 
@@ -183,7 +185,14 @@ export function RandomEncounterModal() {
       toast.success('Zenith’s Blessing Granted! 🍃', {
         description: 'Received 10x Water and 10x Building Planks.',
       });
-      handleClose();
+      setRevealedReward({
+        title: 'Zenith’s Blessing Granted! 🍃',
+        desc: 'Zenith bestowed forest materials upon your kingdom.',
+        items: [
+          { name: '10x Fresh Water', icon: '💧' },
+          { name: '10x Building Planks', icon: '🪵' }
+        ]
+      });
     } catch (e) {
       toast.error('Failed to claim rewards.');
     } finally {
@@ -212,7 +221,14 @@ export function RandomEncounterModal() {
       toast.success('Royal Celebration Concluded! 👑✨', {
         description: 'Gained +250 EXP and +10 Royal Gems!',
       });
-      handleClose();
+      setRevealedReward({
+        title: 'Royal Celebration Concluded! 👑✨',
+        desc: 'Queen Valandriel honored your castle with imperial gifts.',
+        items: [
+          { name: '+250 EXP', icon: '⭐' },
+          { name: '+10 Royal Gems', icon: '💎' }
+        ]
+      });
     } catch (e) {
       toast.error('Failed to claim gala rewards.');
     } finally {
@@ -326,8 +342,28 @@ export function RandomEncounterModal() {
   return (
     <Dialog open={!!currentType} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg bg-[#0f1115] border border-amber-950/40 text-white overflow-hidden shadow-2xl p-0 rounded-2xl">
-        {/* Header Hero Banner */}
-        <div className="relative h-44 w-full overflow-hidden border-b border-white/10 flex items-end">
+        {revealedReward ? (
+          <div className="p-6 text-center space-y-4 animate-in zoom-in-95 duration-300">
+            <div className="w-20 h-20 mx-auto rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-4xl shadow-[0_0_25px_rgba(245,158,11,0.5)] animate-pulse">
+              🎁
+            </div>
+            <h3 className="font-serif text-2xl font-bold text-amber-300">{revealedReward.title}</h3>
+            <p className="text-xs text-zinc-300 italic">{revealedReward.desc}</p>
+            <div className="flex justify-center gap-2 flex-wrap">
+              {revealedReward.items.map((item, i) => (
+                <Badge key={i} className="bg-amber-950/80 border-amber-500/40 text-amber-300 text-xs px-3 py-1 font-mono font-bold">
+                  {item.icon} {item.name}
+                </Badge>
+              ))}
+            </div>
+            <Button onClick={handleClose} className="w-full bg-amber-600 hover:bg-amber-500 text-black font-extrabold text-sm py-2.5 rounded-xl shadow-lg">
+              Claim & Continue
+            </Button>
+          </div>
+        ) : (
+          <>
+            {/* Header Hero Banner */}
+            <div className="relative h-44 w-full overflow-hidden border-b border-white/10 flex items-end">
           <Image
             src={data.heroImg}
             alt={data.title}
@@ -489,6 +525,8 @@ export function RandomEncounterModal() {
             </div>
           )}
         </div>
+        </>
+        )}
       </DialogContent>
     </Dialog>
   );
