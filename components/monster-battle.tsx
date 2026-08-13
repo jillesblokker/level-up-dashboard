@@ -18,6 +18,7 @@ import { useUser } from "@clerk/nextjs"
 import { useCitizensStore } from "@/stores/citizensStore"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager"
 import { fetchWithAuth } from "@/lib/fetchWithAuth"
+import { recordDungeonBattleWin } from "@/lib/tile-quest-service"
 
 interface MonsterBattleProps {
   isOpen: boolean
@@ -368,12 +369,9 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     addToCharacterStat('experience', earnedXP, 'monster-battle-win')
 
     // Track dungeon battle win & auto-complete "Complete 3 Dungeon Battles" quest
-    try {
-      const { recordDungeonBattleWin } = await import('@/lib/tile-quest-service');
-      recordDungeonBattleWin();
-    } catch (err) {
+    recordDungeonBattleWin().catch(err => {
       logger.warn('Dungeon battle quest track error:', err);
-    }
+    });
 
     // Add success animation class
     const battleContainer = document.querySelector('.monster-battle-container')
