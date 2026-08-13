@@ -87,7 +87,7 @@ export async function GET(request: Request) {
     const todaysCompletions = (allCompletions || []).filter((completion: any) => {
       if (!completion.date) return false;
       const dbDate = String(completion.date).split('T')[0];
-      return dbDate >= startOfWeek;
+      return Boolean(dbDate && dbDate >= startOfWeek);
     });
 
     const completedChallenges = new Map();
