@@ -143,7 +143,21 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                                     return (
                                         <button
                                             key={m.score}
-                                            onClick={() => setMood(m.score)}
+                                            onClick={() => {
+                                                setMood(m.score)
+                                                if (!content.trim()) {
+                                                    const prompts: Record<number, string> = {
+                                                        1: "What felt overwhelming today, and how can you reset tomorrow?",
+                                                        2: "What was one small habit that kept you going through a slow day?",
+                                                        3: "What habits went smoothly today? Reflect on your daily rhythm.",
+                                                        4: "What made today feel productive and focused? Capture the momentum!",
+                                                        5: "You smashed your goals today! What streak or win are you proudest of?",
+                                                    }
+                                                    if (prompts[m.score]) {
+                                                        setContent(prompts[m.score]!)
+                                                    }
+                                                }
+                                            }}
                                             className={cn(
                                                 "relative flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-300 group",
                                                 isSelected

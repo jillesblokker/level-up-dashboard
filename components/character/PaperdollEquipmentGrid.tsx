@@ -407,15 +407,25 @@ function EquipmentSlotButton({
   const icon = slotConfig?.icon || null
   const [isHovered, setIsHovered] = React.useState(false)
 
+  const handleSlotClick = () => {
+    if (item) {
+      onClick();
+    } else {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('open-inventory-bag'));
+      }
+    }
+  };
+
   return (
     <div className="relative group">
       <button
         type="button"
-        onClick={onClick}
+        onClick={handleSlotClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl transition-all duration-200 flex flex-col items-center justify-center bg-zinc-950/95 shadow-xl backdrop-blur-md relative overflow-hidden group/btn hover:scale-105 active:scale-95"
-        aria-label={`Inspect ${label}`}
+        aria-label={item ? `Inspect ${item.name}` : `Empty ${label} slot. Tap to open inventory.`}
       >
         {item ? (
           <div className="absolute inset-0 w-full h-full p-0 overflow-hidden bg-zinc-950 flex items-center justify-center rounded-[14px] transform-gpu translate-z-0">
@@ -431,6 +441,13 @@ function EquipmentSlotButton({
           <div className="flex flex-col items-center gap-1">
             {icon}
             <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wide">{label}</span>
+          </div>
+        )}
+
+        {/* Actionable Empty-State Hover Tooltip */}
+        {isHovered && !item && (
+          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-30 whitespace-nowrap bg-zinc-900 border border-amber-500/40 text-[10px] text-amber-300 font-mono px-2 py-0.5 rounded-md shadow-lg pointer-events-none animate-in fade-in duration-200">
+            ⚔️ Empty {label} — Tap to open inventory
           </div>
         )}
 

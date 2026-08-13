@@ -579,11 +579,11 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                   ⚡ Striker Skill Ready!
                 </span>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 {activeSupporters.map(c => (
-                  <div key={c.id} className="flex items-center gap-2.5 text-xs text-amber-200 bg-zinc-950/80 p-2 rounded-lg border border-amber-500/20 flex-1">
+                  <div key={c.id} className="flex items-center gap-2 text-xs text-amber-200 bg-zinc-950/80 p-2 rounded-lg border border-amber-500/20 flex-1 min-w-0 overflow-hidden">
                     {/* Glowing Cooldown Ring вокруг pet icon */}
-                    <div className="w-10 h-10 rounded-full bg-zinc-950 border-2 border-cyan-400 p-0.5 flex items-center justify-center shrink-0 relative overflow-hidden shadow-[0_0_12px_rgba(6,182,212,0.6)] animate-pulse">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-zinc-950 border-2 border-cyan-400 p-0.5 flex items-center justify-center shrink-0 relative overflow-hidden shadow-[0_0_12px_rgba(6,182,212,0.6)] animate-pulse">
                       <Image
                         src={c.filename ? `/images/creatures/${c.filename}` : '/images/placeholders/creature.webp'}
                         alt={c.name}
@@ -592,12 +592,12 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                         className="object-contain rounded-full"
                       />
                     </div>
-                    <div>
-                      <p className="font-bold text-[11px] text-white leading-none flex items-center gap-1">
-                        {c.name} <span className="text-[9px] text-emerald-400">🔥 Striker Active</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-[11px] text-white leading-none flex items-center gap-1 truncate">
+                        <span className="truncate">{c.name}</span> <span className="text-[9px] text-emerald-400 shrink-0">🔥 Striker Active</span>
                       </p>
                       <div className="flex items-center gap-1 mt-1">
-                        <Badge variant="outline" className="text-[8px] border-amber-500/40 text-amber-300 bg-amber-950/40 font-mono font-bold">
+                        <Badge variant="outline" className="text-[8px] border-amber-500/40 text-amber-300 bg-amber-950/40 font-mono font-bold truncate">
                           🛡️ {getPassiveShortLabel(c)}
                         </Badge>
                       </div>
@@ -642,14 +642,14 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
           </div>
 
           {/* Weapons Grid */}
-          <div className="grid grid-cols-5 gap-3">
+          <div className="grid grid-cols-5 gap-1.5 sm:gap-3 w-full">
             {weapons.map((weapon) => (
               <Button
                 key={weapon.id}
                 onClick={() => handleWeaponClick(weapon.id)}
                 disabled={!isPlayerTurn || isShowingSequence || gameState !== 'playing'}
                 className={cn(
-                  "h-20 flex flex-col items-center justify-center gap-2 transition-all duration-150 active:scale-95 transform-gpu shadow-md",
+                  "h-16 sm:h-20 p-1 sm:p-2 flex flex-col items-center justify-center gap-1 sm:gap-2 transition-all duration-150 active:scale-95 transform-gpu shadow-md min-w-0",
                   highlightedWeapon === weapon.id && "ring-4 ring-orange-500 bg-orange-600 scale-125 shadow-xl animate-pulse",
                   isPlayerTurn && !isShowingSequence && "hover:bg-opacity-80",
                   weapon.color
@@ -657,7 +657,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                 aria-label={`Select ${weapon.name}`}
               >
                 {weapon.icon}
-                <span className="text-xs font-medium">{weapon.name}</span>
+                <span className="text-[9px] sm:text-xs font-medium truncate max-w-full">{weapon.name}</span>
               </Button>
             ))}
           </div>

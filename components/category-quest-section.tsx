@@ -118,6 +118,23 @@ export function CategoryQuestSection({
                     ))}
                 </div>
 
+                {/* Category Completed Celebration Card */}
+                {quests.length > 0 && quests.every(q => q.completed) && (
+                    <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-3 mb-3 text-center flex items-center justify-between text-xs text-emerald-300 shadow-sm animate-in fade-in duration-300">
+                        <span className="flex items-center gap-1.5 font-medium">
+                            ✨ All {categoryLabels[category]} habits completed today! (+Bonus House Cup Virtue)
+                        </span>
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 text-[11px] text-amber-400 hover:text-amber-300 hover:bg-amber-950/40 px-2 font-mono"
+                            onClick={() => onDialogOpenChange(true, category)}
+                        >
+                            + Add Habit
+                        </Button>
+                    </div>
+                )}
+
                 {/* Desktop/tablet: grid layout */}
                 <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                     {quests.map((quest) => (
