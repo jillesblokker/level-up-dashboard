@@ -130,6 +130,7 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
   const rarity = kingdomTile?.rarity || "common"
 
   const isObelisk = typeLower === "mystic-obelisk"
+  const isPantheon = typeLower === "golden-pantheon"
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
