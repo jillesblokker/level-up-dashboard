@@ -462,7 +462,12 @@ export function DailyHubClient() {
                             {/* Morning Focus 5 Target Progress Ring (3-Tier Hierarchy) */}
                             <div className="rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-950/80 via-zinc-900 to-zinc-950 p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xl relative overflow-hidden">
                                 {count >= 5 && (
-                                    <div className="absolute -left-6 -top-6 w-32 h-32 bg-amber-500/30 rounded-full blur-2xl pointer-events-none animate-pulse" />
+                                    <>
+                                        <div className="absolute -left-6 -top-6 w-32 h-32 bg-amber-500/30 rounded-full blur-2xl pointer-events-none animate-pulse" />
+                                        <div className="absolute top-0 right-0 px-3 py-0.5 bg-gradient-to-r from-amber-400 to-yellow-300 text-zinc-950 text-[9px] font-black font-mono uppercase tracking-wider rounded-bl-xl shadow-md z-20">
+                                            🎉 5/5 Sweet Spot Achieved! (+50 Gold & Virtue)
+                                        </div>
+                                    </>
                                 )}
                                 <div className="flex items-center gap-3 relative z-10">
                                     <div className={`relative w-10 h-10 rounded-full border flex items-center justify-center text-amber-300 font-bold text-base transition-all duration-500 ${count >= 5 ? 'bg-amber-500/30 border-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.8)] scale-105' : 'bg-amber-500/20 border-amber-400/80'}`}>

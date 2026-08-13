@@ -338,11 +338,11 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {[
-                            { month: 'July 2026', winner: 'Sovereign Hero', virtue: 'Knowledge & Might', points: '14,250 pts', title: 'Virtue Sovereign', avatar: '/images/creatures/Necrion.png', border: 'ring-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.5)]' },
-                            { month: 'June 2026', winner: 'Grand Architect', virtue: 'Castle & Craft', points: '12,800 pts', title: 'High Builder', avatar: '/images/creatures/EmberDrake.webp', border: 'ring-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.5)]' }
+                            { month: 'July 2026', winner: 'Jilles', virtue: 'Knowledge & Might', points: '14,250 pts', title: 'Virtue Champion', avatar: '/images/creatures/Necrion.png', border: 'border-amber-400 ring-2 ring-amber-400/80 shadow-[0_0_20px_rgba(245,158,11,0.6)]' },
+                            { month: 'June 2026', winner: 'Grand Architect', virtue: 'Castle & Craft', points: '12,800 pts', title: 'High Builder', avatar: '/images/creatures/EmberDrake.webp', border: 'border-purple-400 ring-2 ring-purple-400/80 shadow-[0_0_20px_rgba(168,85,247,0.6)]' }
                         ].map((champion, idx) => (
-                            <div key={idx} className="p-3 rounded-xl bg-zinc-950/80 border border-amber-900/40 flex items-center gap-3">
-                                <div className={`relative w-10 h-10 rounded-full border-2 border-amber-400 ring-2 ${champion.border} shrink-0 overflow-hidden bg-zinc-900`}>
+                            <div key={idx} className="p-3.5 rounded-xl bg-gradient-to-r from-zinc-950 via-amber-950/20 to-zinc-950 border border-amber-500/30 flex items-center gap-3 shadow-md hover:border-amber-500/50 transition-all">
+                                <div className={`relative w-11 h-11 rounded-full border-2 ${champion.border} shrink-0 overflow-hidden bg-zinc-900 animate-pulse`}>
                                     <Image
                                         src={champion.avatar}
                                         alt={champion.winner}
@@ -353,11 +353,11 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <div className="flex items-center justify-between text-xs">
-                                        <span className="font-bold text-amber-200 truncate">{champion.winner}</span>
-                                        <span className="text-[9px] text-amber-400/80 font-mono">{champion.month}</span>
+                                        <span className="font-bold text-amber-100 font-serif truncate">{champion.winner}</span>
+                                        <span className="text-[9px] text-amber-400 font-mono font-bold bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-500/30">{champion.month}</span>
                                     </div>
-                                    <p className="text-[10px] text-zinc-400 italic truncate">{champion.title} • {champion.virtue}</p>
-                                    <span className="text-[9px] font-mono text-emerald-400 font-bold">{champion.points}</span>
+                                    <p className="text-[10px] text-amber-300/90 italic truncate font-serif">{champion.title} • {champion.virtue}</p>
+                                    <span className="text-[9px] font-mono text-emerald-400 font-bold block mt-0.5">⚜️ {champion.points}</span>
                                 </div>
                             </div>
                         ))}

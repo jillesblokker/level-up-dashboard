@@ -3,6 +3,7 @@
 import { type LucideIcon } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button"
 import { cn, renderSafeNode } from "@/lib/utils"
 import { QuestFormDialog, type QuestCategory } from "./quest-form-dialog"
 

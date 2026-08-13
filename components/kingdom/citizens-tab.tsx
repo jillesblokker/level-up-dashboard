@@ -549,6 +549,8 @@ export function CitizensTab() {
                 <Card 
                   key={citizen.id} 
                   className={`relative overflow-hidden flex flex-col border transition-all duration-300 rounded-xl ${habitatColorClass} ${
+                    citizen.active ? 'border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'border-zinc-800'
+                  } ${
                     citizen.favorite ? 'ring-1 ring-amber-500/30 shadow-md shadow-amber-500/5' : ''
                   }`}
                 >
@@ -656,7 +658,9 @@ export function CitizensTab() {
                       </div>
                       
                       <div className="flex justify-between items-center bg-zinc-950 p-2 rounded border border-zinc-800/20">
-                        <span className="text-zinc-400 font-serif">Affection:</span>
+                        <span className="text-zinc-400 font-serif flex items-center gap-1">
+                          Affection: <span className="text-[10px] text-pink-300 font-mono font-bold">({citizen.affection || 0}% • +{Math.floor((citizen.affection || 0) / 10)}% Yield)</span>
+                        </span>
                         <div className="flex gap-0.5">
                           {Array.from({ length: 5 }).map((_, i) => {
                             const isFilled = i < Math.floor((citizen.affection || 0) / 20);

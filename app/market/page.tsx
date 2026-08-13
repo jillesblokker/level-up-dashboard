@@ -434,6 +434,15 @@ export default function MarketPage() {
             <p className="text-xs text-zinc-400 mt-1 italic">Trade construction materials, purchase resource packs, and unlock mystery chests.</p>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto z-10">
+            {/* Apotheca Glasshouse Direct Shortcut Button */}
+            <Button
+              size="sm"
+              onClick={() => setApothecaOpen(true)}
+              className="bg-purple-950/90 border border-purple-500/60 text-purple-200 hover:bg-purple-900 text-xs px-3.5 py-2 rounded-xl font-serif flex items-center justify-center gap-1.5 shadow-lg shadow-purple-950/40 shrink-0 font-bold"
+            >
+              🧪 Apotheca Glasshouse
+            </Button>
+
             {/* Current Currency HUD */}
             <div className="flex items-center justify-between sm:justify-start gap-4 bg-zinc-950/90 border border-amber-900/40 p-2.5 px-4 rounded-xl shadow-lg w-full sm:w-auto">
               <div className="flex items-center gap-2">
@@ -829,7 +838,18 @@ export default function MarketPage() {
                     <CardContent className="pt-6 space-y-4 flex-1">
                       <div className="flex justify-between items-center text-sm text-zinc-400 bg-zinc-950 p-2 rounded-lg">
                         <span>Available for Sale:</span>
-                        <span className="font-mono text-white font-bold">{getInventoryQuantity(material.id)}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-white font-bold">{getInventoryQuantity(material.id)}</span>
+                          {getInventoryQuantity(material.id) > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleQuantityChange(material.id, String(getInventoryQuantity(material.id)))}
+                              className="text-[10px] font-mono px-2 py-0.5 rounded border bg-emerald-950/80 border-emerald-500/40 text-emerald-300 font-bold hover:bg-emerald-900 shadow-sm transition-all"
+                            >
+                              Sell Max
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       <div className="flex items-end gap-3">
