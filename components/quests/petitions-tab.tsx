@@ -5,14 +5,30 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/use-toast';
-import { getCitizenHappiness, getHappinessTier, getActivePetitions, resolvePetition, Petition, CitizenHappinessState } from '@/lib/petitions-service';
+import {
+  getCitizenHappiness,
+  getHappinessTier,
+  getActivePetitions,
+  resolvePetition,
+  refreshAllPetitions,
+  Petition,
+  PetitionOutcome,
+  CitizenHappinessState
+} from '@/lib/petitions-service';
 import { addToCharacterStat } from '@/lib/character-stats-service';
-import { Crown, Sparkles, Scale, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { Crown, Sparkles, Scale, AlertTriangle, ShieldCheck, RefreshCw, Scroll } from 'lucide-react';
 
 export function PetitionsTab() {
   const [happiness, setHappiness] = useState<CitizenHappinessState>({ score: 75, lastUpdated: '' });
   const [petitions, setPetitions] = useState<Petition[]>([]);
+  const [activeOutcomeModal, setActiveOutcomeModal] = useState<{
+    isOpen: boolean;
+    petitionTitle: string;
+    chosenOptionLabel: string;
+    outcome: PetitionOutcome;
+  } | null>(null);
 
   useEffect(() => {
     setHappiness(getCitizenHappiness());
@@ -22,17 +38,32 @@ export function PetitionsTab() {
   const tier = getHappinessTier(happiness.score);
 
   const handleChoice = (petitionId: string, choice: 'A' | 'B') => {
+    const target = petitions.find(p => p.id === petitionId);
+    if (!target) return;
+
     const res = resolvePetition(petitionId, choice);
     setHappiness(res.happiness);
     setPetitions(getActivePetitions());
 
     if (res.goldChange !== 0) {
-      addToCharacterStat('gold', res.goldChange);
+      addToCharacterStat('gold', res.goldChange, `petition-${petitionId}`);
     }
 
+    // Open post-choice story outcome reveal dialog
+    setActiveOutcomeModal({
+      isOpen: true,
+      petitionTitle: target.title,
+      chosenOptionLabel: res.chosenOptionLabel,
+      outcome: res.outcome
+    });
+  };
+
+  const handleRefreshPetitions = () => {
+    const fresh = refreshAllPetitions();
+    setPetitions(fresh);
     toast({
-      title: "Royal Decree Enacted!",
-      description: `Citizen Loyalty is now ${res.happiness.score}%. Treasury change: ${res.goldChange >= 0 ? '+' : ''}${res.goldChange} Gold.`,
+      title: "📜 4 New Petitions Summoned!",
+      description: "Fresh realm decrees have arrived from petitioners across the realm.",
     });
   };
 
@@ -51,7 +82,7 @@ export function PetitionsTab() {
                   King&apos;s rules & town mood
                 </CardTitle>
                 <CardDescription className="text-zinc-400 text-[11px] sm:text-xs">
-                  Help your town people to earn bonus gold.
+                  Guide town petitions with blind royal decrees to build loyalty and gold.
                 </CardDescription>
               </div>
             </div>
@@ -82,47 +113,71 @@ export function PetitionsTab() {
         </CardContent>
       </Card>
 
-      {/* Active Petitions List */}
+      {/* Active Petitions List (Mobile Carousel & Desktop 2-Column Grid) */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-serif font-bold text-amber-300 uppercase tracking-wider flex items-center gap-2">
-            <Scale className="w-4 h-4 text-amber-400" /> Pending Realm Petitions
+            <Scale className="w-4 h-4 text-amber-400" /> Pending Realm Petitions (4 Active)
           </h3>
-          <span className="text-xs text-zinc-400 font-mono">
-            {petitions.filter(p => !p.completed).length} Pending Decrees
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-zinc-400 font-mono hidden sm:inline">
+              {petitions.filter(p => !p.completed).length} Pending Decrees
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleRefreshPetitions}
+              className="h-8 text-xs border-amber-900/40 text-amber-300 hover:bg-amber-950/40 font-mono font-bold"
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1" /> New 4 Petitions
+            </Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          {petitions.map(p => (
-            <Card key={p.id} className={`transition-all ${p.completed ? 'opacity-50 bg-zinc-950/40 border-white/5' : 'bg-zinc-900/90 border-amber-900/40 hover:border-amber-500/40'}`}>
-              <CardContent className="p-5 space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl">{p.requesterAvatar}</span>
-                    <div>
-                      <h4 className="font-serif font-bold text-amber-200 text-base flex items-center gap-2">
-                        {p.title}
-                        {p.completed && <Badge className="bg-emerald-950 text-emerald-300 text-[10px]">Decree Enacted</Badge>}
-                      </h4>
-                      <span className="text-xs text-zinc-400 font-mono">Petitioner: {p.requesterRole}</span>
+        {/* Swipe Carousel on Mobile (< 768px), 2-Column Grid on Desktop (>= 768px) */}
+        <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible custom-scrollbar mobile-scroll-hide">
+          {petitions.map((p, idx) => (
+            <Card
+              key={p.id}
+              className={`snap-start shrink-0 w-[88vw] max-w-[340px] sm:w-auto sm:max-w-none transition-all ${
+                p.completed
+                  ? 'opacity-60 bg-zinc-950/60 border-zinc-800'
+                  : 'bg-zinc-900/95 border-amber-900/40 hover:border-amber-500/50 shadow-xl'
+              }`}
+            >
+              <CardContent className="p-5 space-y-4 flex flex-col justify-between h-full">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-3 border-b border-amber-900/30 pb-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl filter drop-shadow">{p.requesterAvatar}</span>
+                      <div>
+                        <h4 className="font-serif font-bold text-amber-200 text-base leading-snug">
+                          {p.title}
+                        </h4>
+                        <span className="text-xs text-zinc-400 font-mono block">Petitioner: {p.requesterRole}</span>
+                      </div>
                     </div>
+                    {p.completed && (
+                      <Badge className="bg-emerald-950 border-emerald-500/40 text-emerald-300 text-[10px] shrink-0">
+                        Enacted ✓
+                      </Badge>
+                    )}
                   </div>
-                </div>
 
-                <p className="text-xs text-zinc-300 leading-relaxed bg-zinc-950/60 p-3 rounded-xl border border-white/5">
-                  &quot;{p.description}&quot;
-                </p>
+                  <p className="text-xs text-zinc-300 leading-relaxed bg-zinc-950/80 p-3 rounded-xl border border-white/5 italic font-serif">
+                    &quot;{p.description}&quot;
+                  </p>
+                </div>
 
                 {!p.completed ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                    {/* Option A */}
+                    {/* Option A (Blind Choice — No upfront stats) */}
                     <button
                       type="button"
                       onClick={() => handleChoice(p.id, 'A')}
-                      className="w-full h-auto min-h-[68px] p-4 flex flex-col justify-center items-start bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 rounded-xl text-left transition-all space-y-1 text-emerald-200"
+                      className="w-full h-auto min-h-[64px] p-3.5 flex flex-col justify-center items-start bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 rounded-xl text-left transition-all space-y-1 text-emerald-200 active:scale-95 cursor-pointer shadow-md"
                     >
-                      <span className="font-bold text-emerald-300 text-xs flex items-center gap-1.5 leading-snug">
+                      <span className="font-bold text-emerald-300 text-xs flex items-center gap-1.5 leading-snug font-serif">
                         👑 Option 1: {p.optionA.label}
                       </span>
                       <span className="text-[11px] text-emerald-200/90 leading-snug break-words">
@@ -130,13 +185,13 @@ export function PetitionsTab() {
                       </span>
                     </button>
 
-                    {/* Option B */}
+                    {/* Option B (Blind Choice — No upfront stats) */}
                     <button
                       type="button"
                       onClick={() => handleChoice(p.id, 'B')}
-                      className="w-full h-auto min-h-[68px] p-4 flex flex-col justify-center items-start bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 rounded-xl text-left transition-all space-y-1 text-amber-200"
+                      className="w-full h-auto min-h-[64px] p-3.5 flex flex-col justify-center items-start bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 rounded-xl text-left transition-all space-y-1 text-amber-200 active:scale-95 cursor-pointer shadow-md"
                     >
-                      <span className="font-bold text-amber-300 text-xs flex items-center gap-1.5 leading-snug">
+                      <span className="font-bold text-amber-300 text-xs flex items-center gap-1.5 leading-snug font-serif">
                         📜 Option 2: {p.optionB.label}
                       </span>
                       <span className="text-[11px] text-amber-200/90 leading-snug break-words">
@@ -145,8 +200,13 @@ export function PetitionsTab() {
                     </button>
                   </div>
                 ) : (
-                  <div className="text-xs text-emerald-400 font-bold flex items-center gap-1.5 pt-1">
-                    <ShieldCheck className="w-4 h-4" /> This petition has been resolved by royal decree.
+                  <div className="bg-zinc-950/80 p-3 rounded-xl border border-emerald-500/30 text-xs space-y-1.5">
+                    <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block font-mono">
+                      Chosen Decree Outcome:
+                    </span>
+                    <p className="text-zinc-300 italic font-serif text-[11px] leading-relaxed">
+                      {p.chosenOutcome?.storyText || "Decree executed cleanly."}
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -154,6 +214,49 @@ export function PetitionsTab() {
           ))}
         </div>
       </div>
+
+      {/* Post-Choice Story Outcome Reveal Dialog */}
+      {activeOutcomeModal && (
+        <Dialog open={activeOutcomeModal.isOpen} onOpenChange={() => setActiveOutcomeModal(null)}>
+          <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border-2 border-amber-500/50 text-amber-100 p-6 rounded-2xl shadow-2xl font-serif text-center overflow-hidden z-[100] animate-in zoom-in-95">
+            <DialogHeader>
+              <div className="mx-auto w-14 h-14 rounded-full bg-amber-900/60 border-2 border-amber-400 flex items-center justify-center mb-2 shadow-[0_0_20px_rgba(245,158,11,0.4)] animate-bounce">
+                <span className="text-3xl">
+                  {activeOutcomeModal.outcome.isFunnyTwist ? '🤪' : '🌟'}
+                </span>
+              </div>
+              <DialogTitle className="text-xl sm:text-2xl font-medieval text-amber-300">
+                Royal Decree Outcome
+              </DialogTitle>
+              <DialogDescription className="text-xs text-amber-200/80 italic">
+                Decree: &quot;{activeOutcomeModal.chosenOptionLabel}&quot;
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="my-4 p-4 bg-zinc-950/90 rounded-2xl border border-amber-900/40 space-y-4 text-left">
+              <p className="text-sm font-bold text-amber-100 leading-relaxed italic border-b border-amber-900/30 pb-3">
+                {activeOutcomeModal.outcome.storyText}
+              </p>
+
+              <div className="flex items-center justify-between text-xs font-mono font-bold flex-wrap gap-2">
+                <span className={activeOutcomeModal.outcome.goldChange >= 0 ? "text-amber-400" : "text-red-400"}>
+                  🪙 Treasury Gold: {activeOutcomeModal.outcome.goldChange >= 0 ? '+' : ''}{activeOutcomeModal.outcome.goldChange} Gold
+                </span>
+                <span className={activeOutcomeModal.outcome.loyaltyChange >= 0 ? "text-emerald-400" : "text-orange-400"}>
+                  👑 Town Loyalty: {activeOutcomeModal.outcome.loyaltyChange >= 0 ? '+' : ''}{activeOutcomeModal.outcome.loyaltyChange}%
+                </span>
+              </div>
+            </div>
+
+            <Button
+              onClick={() => setActiveOutcomeModal(null)}
+              className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-amber-950 font-extrabold uppercase tracking-wider text-xs shadow-lg rounded-xl"
+            >
+              Enact & Continue ✓
+            </Button>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
