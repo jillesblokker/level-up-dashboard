@@ -378,9 +378,9 @@ export function DailyHubClient() {
     }
     const getTimeBasedGreeting = () => {
         const hour = new Date().getHours()
-        const name = user?.firstName || TEXT_CONTENT.dailyHub.header.defaultName
-        if (hour < 5) return `The night is dark, ${name}`
-        if (hour < 12) return `A bright morning for a quest, ${name}`
+        const name = user?.firstName || "Jilles"
+        if (hour < 5) return `Good night, ${name}`
+        if (hour < 12) return `Good morning, ${name}`
         if (hour < 18) return `Good afternoon, ${name}`
         return `Good evening, ${name}`
     }

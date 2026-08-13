@@ -276,7 +276,12 @@ export function DailyQuests() {
       <Card className="bg-zinc-950 border-amber-800/50 ">
         <CardHeader>
           <CardTitle className="text-amber-500 flex items-center justify-between">
-            <span>Daily Quests</span>
+            <span className="flex items-center gap-2">
+              Daily Quests
+              <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-800/60 text-cyan-300 flex items-center gap-1 font-sans font-medium">
+                🛡️ Streak Protected
+              </span>
+            </span>
             <span className="text-sm font-normal">{completedCount}/{totalCount} ({completionPercentage}%)</span>
           </CardTitle>
           <CardDescription>Track your daily tasks by category</CardDescription>
