@@ -12,7 +12,7 @@ export const TEXT_CONTENT = {
             "Completing routines extends citizen fed time and boosts passive crop harvesting.",
             "Zenith teaches that a quiet mind is the foundation for building a magnificent settlement.",
             "Consistency is the true magic that reconstructs the shattered Ether Crystal.",
-            "A disciplined Sovereign strengthens both their hero stats and their entire kingdom.",
+            "A disciplined King strengthens both their hero stats and their entire kingdom.",
         ]
     },
     errorPage: {

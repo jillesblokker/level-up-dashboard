@@ -13,7 +13,7 @@ interface TarotReadingModalProps {
 }
 
 const TOWN_TAROT_CARDS = [
-  { name: 'The Sovereign Sun ☀️', buff: '+20% Gold on all habit completions today!', icon: '☀️', goldBonus: 150 },
+  { name: 'The King’s Sun ☀️', buff: '+20% Gold on all habit completions today!', icon: '☀️', goldBonus: 150 },
   { name: 'The Dragon of Might 🐉', buff: '+15% Dungeon Fighter Attack Power today!', icon: '🐉', goldBonus: 200 },
   { name: 'The Sage of Wisdom 🦉', buff: 'Double Experience on all Knowledge habits!', icon: '🦉', goldBonus: 180 },
   { name: 'The Aegis Shield 🛡️', buff: 'Streak Protection active for the next 24 hours!', icon: '🛡️', goldBonus: 120 },

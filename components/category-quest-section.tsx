@@ -136,8 +136,8 @@ export function CategoryQuestSection({
                     </div>
                 )}
 
-                {/* Desktop/tablet: grid layout */}
-                <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                {/* Desktop/tablet: clean 2-column grid layout */}
+                <div className="hidden md:grid grid-cols-1 md:grid-cols-2 gap-3">
                     {quests.map((quest) => (
                         <QuestCard
                             key={quest.id}

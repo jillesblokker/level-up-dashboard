@@ -23,7 +23,7 @@ const TOWN_RIDDLES = [
   {
     id: 'r-2',
     question: "I am forged in dragonfire and wielded by Round Table champions to slay keep monsters. What am I?",
-    options: ["A Sovereign Blade", "An Oak Shield", "A Blacksmith Hammer", "A Magic Wand"],
+    options: ["A King's Blade", "An Oak Shield", "A Blacksmith Hammer", "A Magic Wand"],
     correctIndex: 0,
     rewardDesc: "+200 Gold & 2x Steel Blocks"
   },
@@ -58,7 +58,7 @@ const TOWN_RIDDLES = [
   {
     id: 'r-7',
     question: "I am completed 5 times a day for a Great score, 10 times for Awesome, and 15 times for Super. What am I?",
-    options: ["Sovereign Habit Cadence", "Monster Encounters", "Dice Rolls", "Airship Voyages"],
+    options: ["King's Habit Cadence", "Monster Encounters", "Dice Rolls", "Airship Voyages"],
     correctIndex: 0,
     rewardDesc: "+175 Gold & 100 Character XP"
   },

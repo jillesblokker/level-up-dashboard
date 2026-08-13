@@ -194,6 +194,15 @@ export default function WorldMapPage() {
                     <p className="text-xs text-zinc-400 leading-relaxed font-sans">
                       {province.desc}
                     </p>
+                    {/* Category Synergy & Airship Streak Speed Multiplier */}
+                    <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                      <Badge className="bg-amber-950/80 border-amber-500/40 text-amber-300 text-[9px] font-mono font-bold">
+                        ⛵ Synergy: Knowledge +20% Speed
+                      </Badge>
+                      <Badge className="bg-emerald-950/80 border-emerald-500/40 text-emerald-300 text-[9px] font-mono font-bold">
+                        🔥 7+ Streak: 2x Speed
+                      </Badge>
+                    </div>
                   </div>
 
                   <Link href={province.href} className="w-full pt-2">

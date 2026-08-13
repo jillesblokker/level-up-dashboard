@@ -23,82 +23,89 @@ const PATH_STEPS = [
 export function PlankLabyrinthModal({ isOpen, onClose }: PlankLabyrinthModalProps) {
   const { toast } = useToast()
   const [planksPlaced, setPlanksPlaced] = useState<number[]>([])
+  const [visitedNodes, setVisitedNodes] = useState<number[]>([1])
   const [isCompleted, setIsCompleted] = useState(false)
 
   useEffect(() => {
     if (!isOpen) return
     const today = new Date().toDateString()
-    const lastLabyrinth = localStorage.getItem('town_labyrinth_solve_date')
+    const lastLabyrinth = localStorage.getItem('plank_labyrinth_solve_date')
     if (lastLabyrinth === today) {
       setIsCompleted(true)
-      setPlanksPlaced([0, 1, 2, 3, 4])
+      setVisitedNodes([1, 2, 3, 4, 5])
     } else {
       setIsCompleted(false)
-      setPlanksPlaced([])
+      setVisitedNodes([1])
     }
   }, [isOpen])
 
-  const handleStepClick = async (stepIndex: number) => {
+  const handleNodeClick = async (id: number) => {
     if (isCompleted) return
-    if (planksPlaced.length === stepIndex) {
-      const nextPlaced = [...planksPlaced, stepIndex]
-      setPlanksPlaced(nextPlaced)
-
-      if (nextPlaced.length === PATH_STEPS.length) {
+    const nextExpected = visitedNodes.length + 1
+    if (id === nextExpected) {
+      const nextVisited = [...visitedNodes, id]
+      setVisitedNodes(nextVisited)
+      if (nextVisited.length === LABYRINTH_NODES.length) {
         setIsCompleted(true)
         const today = new Date().toDateString()
-        localStorage.setItem('town_labyrinth_solve_date', today)
-        await addToCharacterStat('gold', 250, 'town-plank-labyrinth')
+        localStorage.setItem('plank_labyrinth_solve_date', today)
+        await addToCharacterStat('gold', 250, 'plank-labyrinth-solve')
         toast({
-          title: "🧩 Town Cobblestone Path Completed!",
-          description: "Sovereign path paved! Awarded +250 Gold & 3x Crafting Blocks.",
+          title: "🧱 Plank Labyrinth Mastered!",
+          description: "King’s path paved! Awarded +250 Gold & 3x Crafting Blocks.",
         })
       }
+    } else if (!visitedNodes.includes(id)) {
+      toast({
+        title: "⚡ Path Blocked",
+        description: `Follow the sequential path! Step on node ${nextExpected} next.`,
+        variant: "destructive"
+      })
     }
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={(op) => { if (!op) onClose() }}>
-      <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border border-amber-500/40 text-amber-100 p-6 rounded-2xl shadow-2xl font-serif text-center overflow-hidden z-[100]">
+      <DialogContent className="max-w-md w-full bg-[#120e0b] border border-amber-800/40 text-amber-100 p-6 rounded-2xl shadow-2xl font-serif text-center overflow-hidden z-[100]">
         <DialogHeader>
-          <div className="mx-auto w-12 h-12 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center mb-2 shadow-[0_0_20px_rgba(245,158,11,0.4)]">
-            <Footprints className="w-6 h-6 text-amber-300 animate-bounce" />
+          <div className="mx-auto w-12 h-12 rounded-full bg-amber-950 border border-amber-500/40 flex items-center justify-center mb-2 shadow-lg">
+            <Footprints className="w-6 h-6 text-amber-400 animate-pulse" />
           </div>
-          <DialogTitle className="text-2xl font-medieval text-amber-200">
-            Town Cobblestone Path Labyrinth
+          <DialogTitle className="text-2xl font-medieval text-amber-300">
+            Plank Labyrinth Trail
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400 italic">
-            Tap the town tiles sequentially (1 → 2 → 3 → 4 → 5) to pave the road to the Sovereign Altar!
+            Tap the town tiles sequentially (1 → 2 → 3 → 4 → 5) to pave the road to the King’s Altar!
           </DialogDescription>
         </DialogHeader>
 
-        <div className="my-4 p-5 bg-zinc-950/90 rounded-2xl border border-amber-900/40 space-y-4">
+        <div className="my-4 p-4 bg-zinc-950/90 rounded-2xl border border-amber-950/60 space-y-4">
           <div className="grid grid-cols-5 gap-2">
-            {PATH_STEPS.map((step) => {
-              const isPlaced = planksPlaced.includes(step.id)
+            {LABYRINTH_NODES.map((node) => {
+              const isVisited = visitedNodes.includes(node.id)
+              const isNext = visitedNodes.length + 1 === node.id
               return (
                 <button
-                  key={step.id}
-                  disabled={isCompleted || planksPlaced.length !== step.id}
-                  onClick={() => handleStepClick(step.id)}
-                  className={`h-20 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
-                    isPlaced
-                      ? 'bg-amber-600/30 border-amber-400 text-amber-200 shadow-[0_0_12px_rgba(245,158,11,0.3)]'
-                      : planksPlaced.length === step.id
-                      ? 'bg-amber-950/60 border-amber-500 text-amber-300 animate-pulse'
-                      : 'bg-zinc-900 border-zinc-800 text-zinc-600 opacity-40 cursor-not-allowed'
+                  key={node.id}
+                  onClick={() => handleNodeClick(node.id)}
+                  className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${
+                    isVisited
+                      ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
+                      : isNext
+                      ? 'bg-amber-950/80 border-amber-500/50 text-amber-200 animate-bounce'
+                      : 'bg-zinc-900 border-zinc-800 text-zinc-600 opacity-60'
                   }`}
                 >
-                  <span className="text-xl">{step.icon}</span>
-                  <span className="text-[9px] font-bold uppercase truncate max-w-[50px]">{step.label}</span>
+                  <span className="text-lg">{node.icon}</span>
+                  <span className="text-[10px] font-bold font-mono">#{node.id}</span>
                 </button>
               )
             })}
           </div>
 
           {isCompleted && (
-            <div className="p-3 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-xs text-emerald-300 font-bold animate-in fade-in">
-              ✨ Sovereign Path Connected! +250 Gold & 3x Building Blocks awarded.
+            <div className="p-3 bg-amber-500/20 border border-amber-400/50 rounded-xl text-xs font-bold text-amber-300 animate-in fade-in">
+              ✨ King’s Path Connected! +250 Gold & 3x Building Blocks awarded.
             </div>
           )}
         </div>

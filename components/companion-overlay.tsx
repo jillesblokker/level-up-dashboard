@@ -351,6 +351,23 @@ export function CompanionOverlay() {
               </button>
             </div>
 
+            {/* Treat Feeding & Affection Quick Action */}
+            <div className="pt-1.5 border-t border-zinc-200 flex items-center justify-between gap-2">
+              <span className="text-[10px] text-amber-800 font-bold flex items-center gap-1 font-serif">
+                ❤️ Affection Active
+              </span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  window.location.href = '/kingdom'
+                }}
+                className="text-[9px] font-bold font-mono bg-amber-600 hover:bg-amber-700 text-white px-2 py-0.5 rounded-full shadow-sm"
+              >
+                🥩 Feed Treat (+5%)
+              </button>
+            </div>
+
             {/* Classic White Speech Tail */}
             <div className="absolute -bottom-2 right-6 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-white"></div>
           </motion.div>

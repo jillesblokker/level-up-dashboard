@@ -250,6 +250,12 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
       {isWinner && (
         <div className="absolute inset-0 bg-radial from-amber-400/30 via-transparent to-transparent blur-xl animate-pulse pointer-events-none z-20" />
       )}
+      {/* Layout-Safe Winner Banner Overlay */}
+      {revealed && isWinner && (
+        <div className="absolute top-2 inset-x-2 z-30 bg-amber-950/90 border border-amber-400 text-amber-300 text-[9px] font-mono font-bold py-1 px-1.5 rounded-lg text-center shadow-lg animate-in zoom-in-95 pointer-events-none truncate">
+          🎉 Winner Uncovered!
+        </div>
+      )}
       {/* Background Reward Face */}
       {hasImage && imagePath ? (
         <div className="absolute inset-0 w-full h-full overflow-hidden bg-gradient-to-b from-zinc-900 via-zinc-950 to-amber-950/40">

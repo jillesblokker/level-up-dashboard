@@ -141,9 +141,31 @@ export function NotificationBellDrawer() {
                   <span className="text-[10px] text-zinc-500 font-mono">{n.timestamp}</span>
                 </div>
                 <p className="text-[11px] text-zinc-400 leading-snug">{n.message}</p>
+                {/* 1-Tap Action Pill */}
+                {!n.read && (
+                  <div className="pt-1.5 flex justify-end">
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setNotifications(notifications.map(item => item.id === n.id ? { ...item, read: true } : item));
+                        if (n.type === 'dare') window.location.href = '/quests';
+                        else if (n.type === 'alliance') window.location.href = '/kingdom';
+                      }}
+                      className="h-6 text-[10px] font-bold bg-amber-600 hover:bg-amber-500 text-black px-2.5 rounded-lg shadow-sm"
+                    >
+                      {n.type === 'dare' ? '⚔️ Accept Dare' : n.type === 'alliance' ? '🏆 View Raid' : 'View Action'}
+                    </Button>
+                  </div>
+                )}
               </div>
             ))
           )}
+        </div>
+
+        {/* 24-Hour Auto-Archiving Badge */}
+        <div className="pt-2 border-t border-zinc-900 flex items-center justify-between text-[10px] text-zinc-500 font-mono">
+          <span>📦 24h Auto-Archiving Inbox</span>
+          <span className="text-emerald-400 font-bold">● Active</span>
         </div>
       </PopoverContent>
     </Popover>
