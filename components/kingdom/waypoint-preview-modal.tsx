@@ -184,6 +184,50 @@ const WAYPOINT_REGISTRY: Record<string, WaypointInfo> = {
     icon: '⚔️',
     badgeText: 'Citizen Vault',
     badgeColor: 'bg-red-950/80 border-red-500/50 text-red-300'
+  },
+  'monument': {
+    title: 'Hall of Fame Monument',
+    subtitle: 'Kingdom Achievements & Glory',
+    image: '/images/kingdom-tiles/Monument.webp',
+    description: 'View player achievements, completed milestones, and kingdom glory rankings.',
+    destination: '/chronicle',
+    buttonText: '📜 Enter Hall of Fame',
+    icon: '🏆',
+    badgeText: 'Hall of Fame',
+    badgeColor: 'bg-yellow-950/80 border-yellow-500/50 text-yellow-300'
+  },
+  'hall_of_fame': {
+    title: 'Hall of Fame Monument',
+    subtitle: 'Kingdom Achievements & Glory',
+    image: '/images/kingdom-tiles/Monument.webp',
+    description: 'View player achievements, completed milestones, and kingdom glory rankings.',
+    destination: '/chronicle',
+    buttonText: '📜 Enter Hall of Fame',
+    icon: '🏆',
+    badgeText: 'Hall of Fame',
+    badgeColor: 'bg-yellow-950/80 border-yellow-500/50 text-yellow-300'
+  },
+  'dailyhub': {
+    title: 'Daily Habit Hub',
+    subtitle: 'Morning Routine & Streak Headquarters',
+    image: '/images/kingdom-tiles/Dailyhub.png',
+    description: 'Enter your main habit dashboard to view streak progress, check off daily routines, and earn House Cup virtue energy.',
+    destination: '/daily-hub',
+    buttonText: '🚀 Enter Daily Hub',
+    icon: '📅',
+    badgeText: 'Habit Engine',
+    badgeColor: 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300'
+  },
+  'daily_hub': {
+    title: 'Daily Habit Hub',
+    subtitle: 'Morning Routine & Streak Headquarters',
+    image: '/images/kingdom-tiles/Dailyhub.png',
+    description: 'Enter your main habit dashboard to view streak progress, check off daily routines, and earn House Cup virtue energy.',
+    destination: '/daily-hub',
+    buttonText: '🚀 Enter Daily Hub',
+    icon: '📅',
+    badgeText: 'Habit Engine',
+    badgeColor: 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300'
   }
 };
 
@@ -240,13 +284,6 @@ export function WaypointPreviewModal({
             <span>{info.icon}</span>
             <span>{info.badgeText}</span>
           </div>
-
-          <button
-            onClick={onClose}
-            className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-black/60 border border-zinc-700 text-zinc-300 hover:text-white flex items-center justify-center transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
         </div>
 
         {/* Content Section */}

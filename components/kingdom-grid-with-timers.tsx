@@ -1457,10 +1457,10 @@ export function KingdomGridWithTimers({
 
     // Flavor 3: Waypoint Landmark Tiles Preview Modal
     const WAYPOINT_TILES = [
-      'daily-hub', 'dungeon', 'dungeon-keep', 'quest-board', 'market',
+      'daily-hub', 'dailyhub', 'daily_hub', 'dungeon', 'dungeon-keep', 'quest-board', 'market',
       'market-stalls', 'mystic_bazaar', 'airship_harbor', 'housecup',
       'observatory', 'hall_of_champions', 'titan_watchtower', 'castle',
-      'library', 'training-grounds'
+      'library', 'training-grounds', 'monument', 'hall_of_fame'
     ];
     if (WAYPOINT_TILES.includes(tile.type)) {
       setSelectedWaypointTileType(tile.type);

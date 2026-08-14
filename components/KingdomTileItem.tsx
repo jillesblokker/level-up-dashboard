@@ -393,17 +393,31 @@ export const KingdomTileItem = React.memo(({
       {/* Timer overlay */}
       {isKingdomTile && (
         (() => {
-          const isNonProducer = (libraryTile && libraryTile.timerMinutes === 0) ||
-            (kingdomTile && kingdomTile.timerMinutes === 0) ||
-            ['vacant', 'empty', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue'].includes(type) ||
+          const isRoadOrTerrain = ['vacant', 'empty', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall'].includes(type) ||
             type.includes('road') ||
             type.includes('path') ||
             type.includes('cobble') ||
             type.includes('dirt');
 
-          if (isNonProducer) return null;
-
           const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'plank_labyrinth', 'fortune_teller', 'fortune-teller', 'zen-garden', 'zen_garden'].includes(type);
+
+          const isNonProducer = ((libraryTile && libraryTile.timerMinutes === 0) ||
+            (kingdomTile && kingdomTile.timerMinutes === 0) ||
+            isRoadOrTerrain) && !isMinigame;
+
+          if (isNonProducer) {
+            if (isRoadOrTerrain) return null;
+            const landmarkName = libraryTile?.name || kingdomTile?.name || (type === 'daily-hub' ? 'Daily Hub' : type === 'monument' ? 'Hall of Fame' : '');
+            if (!landmarkName) return null;
+
+            return (
+              <div className="transition-opacity duration-200 absolute bottom-1 left-1 right-1 pointer-events-none group-hover:opacity-100 opacity-100 md:opacity-0">
+                <div className="text-[9px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded-lg text-center font-mono font-bold shadow-md min-h-[16px] md:min-h-[22px] flex items-center justify-center shrink-0 border bg-zinc-950/90 border-amber-500/40 text-amber-200 truncate">
+                  <span className="truncate">{landmarkName}</span>
+                </div>
+              </div>
+            );
+          }
           
           if (!timer && !isMinigame) return null;
 
