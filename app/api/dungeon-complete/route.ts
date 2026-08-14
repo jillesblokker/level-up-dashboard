@@ -226,42 +226,47 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        // Boss Floor Dual Drops (Kingdom Blueprint + Apotheca Reagent)
+        // Boss Floor Dual Drops (Apotheca Potion + Botanical Reagent)
         let bossDualDrop = null;
         if (status === 'completed' || status === 'victory') {
             try {
-                const blueprintsPool = [
-                    { id: 'serene_lake', name: 'Serene Lake Blueprint', image: '/images/kingdom-tiles/SereneLake.webp' },
-                    { id: 'waterway_canal', name: 'Waterway Canal Blueprint', image: '/images/kingdom-tiles/WaterwayCanal.webp' },
-                    { id: 'astral_citadel_monument', name: 'Astral Citadel Monument Blueprint', image: '/images/kingdom-tiles/AstralCitadel.webp' },
-                    { id: 'zen-garden', name: 'Zen Garden Blueprint', image: '/images/kingdom-tiles/ZenGarden.webp' }
+                const potionsPool = [
+                    { id: 'potion-exp', name: 'Exp Potion', icon: '🧪', type: 'potion', description: 'Grants +150 bonus experience.' },
+                    { id: 'potion-gold', name: 'Gold Potion', icon: '🍯', type: 'potion', description: 'Grants +100 bonus gold.' },
+                    { id: 'potion-health', name: 'Health Potion', icon: '❤️', type: 'potion', description: 'Restores 100% dungeon party HP.' }
                 ];
-                const selectedBlueprint = (blueprintsPool[Math.floor(Math.random() * blueprintsPool.length)] || blueprintsPool[0])!;
+                const selectedPotion = (potionsPool[Math.floor(Math.random() * potionsPool.length)] || potionsPool[0])!;
 
-                // Insert into realm_inventory
-                const { data: existingBp } = await supabaseServer
-                    .from('realm_inventory')
+                const { data: existingPotion } = await supabaseServer
+                    .from('inventory_items')
                     .select('*')
                     .eq('user_id', userId)
-                    .eq('tile_id', selectedBlueprint.id)
+                    .eq('item_id', selectedPotion.id)
                     .maybeSingle();
 
-                if (existingBp) {
+                if (existingPotion) {
                     await supabaseServer
-                        .from('realm_inventory')
-                        .update({ quantity: (existingBp.quantity || 0) + 1 })
-                        .eq('id', existingBp.id);
+                        .from('inventory_items')
+                        .update({ quantity: (existingPotion.quantity || 0) + 1 })
+                        .eq('id', existingPotion.id);
                 } else {
                     await supabaseServer
-                        .from('realm_inventory')
+                        .from('inventory_items')
                         .insert({
                             user_id: userId,
-                            tile_id: selectedBlueprint.id,
-                            quantity: 1
+                            item_id: selectedPotion.id,
+                            name: selectedPotion.name,
+                            type: selectedPotion.type,
+                            category: 'consumable',
+                            description: selectedPotion.description,
+                            emoji: selectedPotion.icon,
+                            quantity: 1,
+                            equipped: false,
+                            is_default: false
                         });
                 }
 
-                // Grant Apotheca Reagent item (Water, Botanical Essence, Crystal)
+                // Grant Apotheca Reagent item (Water, Botanical Essence, Crystal Dust)
                 const reagentsPool = [
                     { id: 'material-water', name: 'Pure Spring Water', icon: '💧' },
                     { id: 'material-crystal', name: 'Astral Crystal Dust', icon: '🔮' },
@@ -299,7 +304,7 @@ export async function POST(req: NextRequest) {
                 }
 
                 bossDualDrop = {
-                    blueprint: selectedBlueprint,
+                    potion: selectedPotion,
                     reagent: { ...selectedReagent, amount: 2 }
                 };
             } catch (dropErr) {
