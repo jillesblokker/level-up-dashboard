@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import { motion } from "framer-motion"
 import Image from "next/image"
-import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Target, Star, Crown, Zap, Heart, Book, Hammer, Coins, Gift, HelpCircle, UserCheck, Flame } from "lucide-react"
+import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Target, Star, Crown, Zap, Heart, Book, Hammer, Coins, Gift, HelpCircle, UserCheck, Flame, Dices } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
@@ -56,9 +56,9 @@ const HouseCupPanel = dynamic(() => import("@/components/house-cup/house-cup-pan
     ssr: false,
     loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading House Cup...</div>
 })
-const RiddleChallenge = dynamic(() => import("@/components/riddle-challenge").then(m => m.RiddleChallenge), { 
+const TavernDiceGame = dynamic(() => import("@/components/tavern-dice-game").then(m => m.TavernDiceGame), { 
     ssr: false,
-    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Preparing Riddle Chamber...</div>
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading Tavern Dice Game...</div>
 })
 import { GiftModal } from "@/components/gift-modal"
 import { TEXT_CONTENT } from '@/lib/text-content'
@@ -510,8 +510,8 @@ export default function AlliesPage() {
                             <Crown className="w-4 h-4 text-amber-300" />
                             Legends
                         </TabsTrigger>
-                        <TabsTrigger value="riddles" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-                            <HelpCircle className="w-4 h-4 text-purple-400" />
+                        <TabsTrigger value="tavern-dice" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                            <Dices className="w-4 h-4 text-amber-400" />
                             Dice
                         </TabsTrigger>
                     </TabsList>
@@ -551,8 +551,8 @@ export default function AlliesPage() {
                     </TabsContent>
 
                     {/* DICE TAB */}
-                    <TabsContent value="riddles" className="space-y-4 max-w-4xl mx-auto">
-                        <RiddleChallenge />
+                    <TabsContent value="tavern-dice" className="space-y-4 max-w-4xl mx-auto">
+                        <TavernDiceGame />
                     </TabsContent>
 
                     {/* MY FRIENDS TAB */}
