@@ -11,6 +11,11 @@ export interface CreatureDef {
         spd: number;
     };
     description?: string;
+    isMythic?: boolean;
+    filename?: string;
+    rarity?: string;
+    cardId?: number;
+    variantId?: number;
     evolutionRequirement?: {
         essenceType: 'ember_essence' | 'frost_essence' | 'tide_essence' | 'verdant_essence';
         amount: number;
@@ -18,7 +23,7 @@ export interface CreatureDef {
     };
 }
 
-export const CREATURE_DATA: Record<string, CreatureDef> = {
+export const BASE_CREATURE_DATA: Record<string, CreatureDef> = {
     // Fire
     '001': { id: '001', name: 'Flamio', type: 'Fire', stats: { atk: 12, def: 8, spd: 10 }, description: 'A fiery spirit.', evolutionRequirement: { essenceType: 'ember_essence', amount: 100, evolvesTo: '002' } },
     '002': { id: '002', name: 'Embera', type: 'Fire', stats: { atk: 15, def: 10, spd: 12 }, description: 'Burning with intensity.', evolutionRequirement: { essenceType: 'ember_essence', amount: 300, evolvesTo: '003' } },
@@ -45,7 +50,47 @@ export const CREATURE_DATA: Record<string, CreatureDef> = {
     '015': { id: '015', name: 'Glacior', type: 'Ice', stats: { atk: 22, def: 15, spd: 20 }, description: 'Frozen wasteland ruler.' },
 };
 
-export const CREATURE_IDS = Object.keys(CREATURE_DATA);
+export const MYTHIC_CREATURE_DATA: Record<string, CreatureDef> = {
+    'mythic-1': { id: 'mythic-1', name: 'Minotaur', type: 'Grass', isMythic: true, filename: 'Mythic1red.png', cardId: 1, stats: { atk: 22, def: 20, spd: 14 }, description: 'Ancient horned guardian of the labyrinth.' },
+    'mythic-2': { id: 'mythic-2', name: 'Cyclops', type: 'Rock', isMythic: true, filename: 'Mythic2red.png', cardId: 2, stats: { atk: 24, def: 22, spd: 10 }, description: 'One-eyed behemoth forged from volcanic stone.' },
+    'mythic-3': { id: 'mythic-3', name: 'Gryphon', type: 'Grass', isMythic: true, filename: 'Mythic3red.png', cardId: 3, stats: { atk: 20, def: 18, spd: 22 }, description: 'Feathered apex predator of mountain crests.' },
+    'mythic-4': { id: 'mythic-4', name: 'Kraken', type: 'Water', isMythic: true, filename: 'Mythic4red.png', cardId: 4, stats: { atk: 26, def: 24, spd: 14 }, description: 'Terrifying sea beast from oceanic abysses.' },
+    'mythic-5': { id: 'mythic-5', name: 'Wyvern', type: 'Fire', isMythic: true, filename: 'Mythic5red.png', cardId: 5, stats: { atk: 25, def: 18, spd: 20 }, description: 'Winged dragon breathing scorching infernos.' },
+    'mythic-6': { id: 'mythic-6', name: 'Chimera', type: 'Rock', isMythic: true, filename: 'Mythic6red.png', cardId: 6, stats: { atk: 24, def: 20, spd: 16 }, description: 'Triple-headed mythic beast of ancient legend.' },
+    'mythic-7': { id: 'mythic-7', name: 'Behemoth', type: 'Water', isMythic: true, filename: 'Mythic7red.png', cardId: 7, stats: { atk: 28, def: 26, spd: 12 }, description: 'Colossal land-shaking leviathan.' },
+    'mythic-8': { id: 'mythic-8', name: 'Hydra', type: 'Fire', isMythic: true, filename: 'Mythic8red.png', cardId: 8, stats: { atk: 27, def: 22, spd: 18 }, description: 'Nine-headed serpent with dragonfire blood.' },
+    'mythic-9': { id: 'mythic-9', name: 'Phoenix', type: 'Fire', isMythic: true, filename: 'Mythic9red.png', cardId: 9, stats: { atk: 30, def: 20, spd: 26 }, description: 'Immortal bird of pure incandescent flames.' },
+    'mythic-10': { id: 'mythic-10', name: 'Leviathan', type: 'Water', isMythic: true, filename: 'Mythic10red.png', cardId: 10, stats: { atk: 30, def: 28, spd: 22 }, description: 'Abyssal sovereign of deep ocean abysses.' },
+};
+
+export const MYTHIC_CREATURE_IDS = Object.keys(MYTHIC_CREATURE_DATA);
+
+export const CREATURE_DATA: Record<string, CreatureDef> = new Proxy({ ...BASE_CREATURE_DATA, ...MYTHIC_CREATURE_DATA }, {
+    get: (target, prop: string) => {
+        if (target[prop]) return target[prop];
+        if (typeof prop === 'string' && prop.startsWith('mythic-')) {
+            const parts = prop.split('-');
+            const cardId = parseInt(parts[1] || '1', 10);
+            const variantId = parseInt(parts[2] || '0', 10);
+            const colors = ['red', 'green', 'blue', 'white', 'black'];
+            const colorName = colors[variantId] || 'red';
+            const base = MYTHIC_CREATURE_DATA[`mythic-${cardId}`] || MYTHIC_CREATURE_DATA['mythic-1']!;
+            const colorTitle = colorName.charAt(0).toUpperCase() + colorName.slice(1);
+            return {
+                ...base,
+                id: prop,
+                name: `${colorTitle} ${base.name.toLowerCase()}`,
+                filename: `Mythic${cardId}${colorName}.png`,
+                cardId,
+                variantId,
+                isMythic: true
+            };
+        }
+        return target[prop];
+    }
+});
+
+export const CREATURE_IDS = Object.keys(BASE_CREATURE_DATA);
 
 export interface HabitCombatBuffs {
   atkBonusPercent: number; // From Might habits (+5% per habit, max 25%)
@@ -199,7 +244,41 @@ export interface SignatureMove {
     description: string;
 }
 
-export function getSignatureMoveForLevel(type: CreatureType, level: number = 1): SignatureMove {
+export function getSignatureMoveForLevel(type: CreatureType, level: number = 1, creatureName?: string): SignatureMove {
+    const nameLower = (creatureName || '').toLowerCase();
+
+    // Mythic Specific Moves
+    if (nameLower.includes('minotaur')) {
+        return { name: 'Earthshaker Stampede', emoji: '🦬🍃', multiplier: Math.min(3.2, 1.8 + level * 0.03), unlockedAtLevel: 1, description: 'Tramples target with labyrinth fury.' };
+    }
+    if (nameLower.includes('cyclops')) {
+        return { name: 'Monocular Cataclysm', emoji: '👁️🪨', multiplier: Math.min(3.2, 1.8 + level * 0.03), unlockedAtLevel: 1, description: 'Fires concentrated volcanic stone beam.' };
+    }
+    if (nameLower.includes('gryphon')) {
+        return { name: 'Tempest Wing Strike', emoji: '🦅🍃', multiplier: Math.min(3.2, 1.8 + level * 0.03), unlockedAtLevel: 1, description: 'Slashes with mountain gale talons.' };
+    }
+    if (nameLower.includes('kraken')) {
+        return { name: 'Abyssal Maelstrom Crush', emoji: '🦑💧', multiplier: Math.min(3.2, 2.0 + level * 0.03), unlockedAtLevel: 1, description: 'Crushes target in oceanic whirlpool.' };
+    }
+    if (nameLower.includes('wyvern')) {
+        return { name: 'Dragonfire Sweep', emoji: '🐉🔥', multiplier: Math.min(3.2, 2.0 + level * 0.03), unlockedAtLevel: 1, description: 'Rains scorching inferno from above.' };
+    }
+    if (nameLower.includes('chimera')) {
+        return { name: 'Tri-Element Calamity', emoji: '🦁🔥', multiplier: Math.min(3.2, 2.0 + level * 0.03), unlockedAtLevel: 1, description: 'Triple-element ancestral blast.' };
+    }
+    if (nameLower.includes('behemoth')) {
+        return { name: 'Tectonic Tidal Crush', emoji: '🦣💧', multiplier: Math.min(3.2, 2.1 + level * 0.03), unlockedAtLevel: 1, description: 'Colossal shockwave shaking earth and sea.' };
+    }
+    if (nameLower.includes('hydra')) {
+        return { name: 'Nine-Headed Inferno', emoji: '🐍🔥', multiplier: Math.min(3.2, 2.2 + level * 0.03), unlockedAtLevel: 1, description: 'Volley of dragonfire venom bursts.' };
+    }
+    if (nameLower.includes('phoenix')) {
+        return { name: 'Solar Rebirth Pyre', emoji: '✨🔥', multiplier: Math.min(3.2, 2.4 + level * 0.03), unlockedAtLevel: 1, description: 'Celestial burst of incandescent flame.' };
+    }
+    if (nameLower.includes('leviathan')) {
+        return { name: 'Oceanic Extinction Wave', emoji: '🌊⚡', multiplier: Math.min(3.2, 2.5 + level * 0.03), unlockedAtLevel: 1, description: 'Summons abyssal tidal obliteration.' };
+    }
+
     if (level >= 100) {
         switch (type) {
             case 'Fire': return { name: 'God-King Pyre', emoji: '🔱🔥', multiplier: 3.2, unlockedAtLevel: 100, description: 'Unleashes divine cataclysmic fire.' };

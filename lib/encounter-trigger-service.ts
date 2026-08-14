@@ -22,6 +22,7 @@ function getRandomInt(min: number, max: number): number {
 
 export function checkAndTriggerEncounter(type: EncounterType) {
   if (typeof window === 'undefined') return;
+  if (window.location.pathname.startsWith('/dungeon')) return;
 
   try {
     const counterKey = `encounter_cnt_${type}`;

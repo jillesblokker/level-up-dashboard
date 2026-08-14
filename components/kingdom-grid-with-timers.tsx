@@ -615,13 +615,34 @@ export function KingdomGridWithTimers({
     }
   }, [grid]);
 
-  // Broadcast ready tax collection count to header
+  // Broadcast ready tax collection count to header (Property tiles like pond, farm, house, sawmill, etc.; excluding roads & minigames)
   useEffect(() => {
-    if (typeof window !== 'undefined' && Array.isArray(tileTimers)) {
-      const readyCount = tileTimers.filter((t: any) => t.isReady || (t.endTime && Date.now() >= t.endTime)).length;
+    if (typeof window !== 'undefined' && Array.isArray(tileTimers) && Array.isArray(grid)) {
+      const readyCount = tileTimers.filter((t: any) => {
+        if (!t.isReady && (!t.endTime || Date.now() < t.endTime)) return false;
+        const tile = grid[t.y]?.[t.x];
+        if (!tile || tile.type === 'vacant' || tile.type === 'empty') return false;
+        const tileTypeLower = (tile.type || '').toLowerCase();
+        
+        // Exclude minigames
+        const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'plank_labyrinth', 'fortune_teller', 'fortune-teller', 'zen-garden', 'zen_garden'].some(m => tileTypeLower.includes(m));
+        if (isMinigame) return false;
+
+        // Exclude roads and paths
+        const isRoadOrPath = tileTypeLower.includes('road') || tileTypeLower.includes('path') || tileTypeLower.includes('cobble');
+        if (isRoadOrPath) return false;
+
+        const kingdomTile = KINGDOM_TILES.find(kt =>
+          kt.id === tileTypeLower ||
+          kt.name.toLowerCase() === tile.name.toLowerCase() ||
+          kt.image === tile.image
+        );
+        return kingdomTile && kingdomTile.timerMinutes > 0;
+      }).length;
+
       window.dispatchEvent(new CustomEvent('kingdom-taxes-count-update', { detail: { count: readyCount } }));
     }
-  }, [tileTimers]);
+  }, [tileTimers, grid]);
   // Tiles affected by winter event bonus
   const WINTER_EVENT_TILE_IDS = new Set([
     'winter-fountain',
@@ -2201,7 +2222,7 @@ export function KingdomGridWithTimers({
   }
 
   const handleCollectAllReady = async () => {
-    const readyTimers = tileTimers.filter(t => t.isReady);
+    const readyTimers = tileTimers.filter(t => t.isReady || (t.endTime && Date.now() >= t.endTime));
     if (readyTimers.length === 0) {
       toast({ title: "Nothing to collect", description: "Wait for your buildings to finish production!" });
       return;
@@ -2224,7 +2245,16 @@ export function KingdomGridWithTimers({
     for (const timer of readyTimers) {
       const { x, y } = timer;
       const tile = grid[y]?.[x];
-      if (!tile || tile.type === 'vacant') continue;
+      if (!tile || tile.type === 'vacant' || tile.type === 'empty') continue;
+      const tileTypeLower = (tile.type || '').toLowerCase();
+
+      // Exclude minigames
+      const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'plank_labyrinth', 'fortune_teller', 'fortune-teller', 'zen-garden', 'zen_garden'].some(m => tileTypeLower.includes(m));
+      if (isMinigame) continue;
+
+      // Exclude roads and paths
+      const isRoadOrPath = tileTypeLower.includes('road') || tileTypeLower.includes('path') || tileTypeLower.includes('cobble');
+      if (isRoadOrPath) continue;
 
       const kingdomTile = KINGDOM_TILES.find(kt =>
         kt.id === tile.type.toLowerCase() ||

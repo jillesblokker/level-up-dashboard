@@ -114,6 +114,7 @@ export function RandomEncounterModal() {
 
   useEffect(() => {
     const handleTrigger = (e: Event) => {
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/dungeon')) return;
       const customEvent = e as CustomEvent;
       if (customEvent.detail && customEvent.detail.type) {
         setCurrentType(customEvent.detail.type);

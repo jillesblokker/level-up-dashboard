@@ -12,6 +12,7 @@ import { comprehensiveItems } from '@/app/lib/comprehensive-items';
 import {
   CREATURE_DATA,
   CREATURE_IDS,
+  MYTHIC_CREATURE_IDS,
   CreatureDef,
   CreatureType,
   getMatchupMultiplier,
@@ -28,10 +29,11 @@ import {
   MonsterStatusState
 } from './game-logic';
 import { useAuth } from '@clerk/nextjs';
+import { useCitizensStore } from '@/stores/citizensStore';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service';
 import { toast } from '@/components/ui/use-toast';
@@ -95,6 +97,14 @@ const DEFAULT_CREATURE: CreatureDef = {
   description: 'A brave adventurer.'
 };
 
+function getCreatureImage(id?: string, filename?: string, isMythic?: boolean): string {
+  if (isMythic || id?.startsWith('mythic-') || filename?.startsWith('Mythic')) {
+    const fn = filename || (id ? `${id}.png` : 'Mythic1red.png');
+    return `/images/Mythics/${fn}?v=2`;
+  }
+  return `/images/creatures/${id || '001'}.png`;
+}
+
 function generateEncounter(roomLevel: number, playerLevel: number = 1): Encounter {
   const isTreasure = false;
   if (isTreasure) {
@@ -104,11 +114,21 @@ function generateEncounter(roomLevel: number, playerLevel: number = 1): Encounte
     };
   }
 
-  // Pick random creature
-  const randomId = CREATURE_IDS[Math.floor(Math.random() * CREATURE_IDS.length)] || '001';
+  // Determine if encounter is a Mythic Boss or Rare Elite
+  const isBossRoom = roomLevel % 5 === 0;
+  const isEliteMythic = !isBossRoom && roomLevel >= 3 && Math.random() < 0.20;
+  const isMythic = isBossRoom || isEliteMythic;
+
+  let creatureId = '001';
+  if (isMythic) {
+    const mythicList = MYTHIC_CREATURE_IDS;
+    creatureId = mythicList[Math.floor(Math.random() * mythicList.length)] || 'mythic-1';
+  } else {
+    creatureId = CREATURE_IDS[Math.floor(Math.random() * CREATURE_IDS.length)] || '001';
+  }
 
   // Dynamic Monster Scaling formula based on room depth and player level
-  const baseHp = 25 + (roomLevel * 12);
+  const baseHp = (25 + (roomLevel * 12)) * (isMythic ? 1.35 : 1.0);
   const playerScaleHp = 1 + (Math.max(1, playerLevel) - 1) * 0.08;
   const scaledHp = Math.round(baseHp * playerScaleHp);
 
@@ -117,7 +137,7 @@ function generateEncounter(roomLevel: number, playerLevel: number = 1): Encounte
     hp: scaledHp,
     maxHp: scaledHp,
     difficulty: roomLevel,
-    creatureId: randomId
+    creatureId
   };
 }
 
@@ -245,6 +265,53 @@ export default function DungeonPage() {
     }
     loadBuffs();
   }, [getToken]);
+
+  // Load unlocked citizens and Mythic cards from store to build dungeon party draft pool
+  useEffect(() => {
+    try {
+      const citizens = useCitizensStore.getState().citizens;
+      if (citizens && citizens.length > 0) {
+        const merged: CreatureDef[] = [];
+        const base = CREATURE_IDS.map(id => CREATURE_DATA[id]).filter((c): c is CreatureDef => !!c);
+        merged.push(...base);
+
+        citizens.forEach(c => {
+          const cType: CreatureType = 
+            c.type === 'fire' ? 'Fire' :
+            c.type === 'water' ? 'Water' :
+            c.type === 'nature' ? 'Grass' :
+            c.type === 'earth' ? 'Rock' :
+            c.type === 'ice' ? 'Ice' : 'Fire';
+          
+          const lvl = c.level || 1;
+          const statAtk = (c.isMythic ? 22 : 12) + (lvl * 2);
+          const statDef = (c.isMythic ? 20 : 10) + (lvl * 2);
+          const statSpd = (c.isMythic ? 16 : 10) + lvl;
+
+          const newItem: CreatureDef = {
+            id: c.id,
+            name: c.name,
+            type: cType,
+            level: lvl,
+            stats: { atk: statAtk, def: statDef, spd: statSpd },
+            description: c.isMythic ? 'Rare Mythic creature unlocked from card collection.' : 'Unlocked town citizen.',
+            isMythic: c.isMythic,
+            filename: c.filename,
+          };
+          if (c.cardId !== undefined) newItem.cardId = c.cardId;
+          if (c.variantId !== undefined) newItem.variantId = c.variantId;
+
+          merged.push(newItem);
+        });
+
+        const uniqueMap = new Map<string, CreatureDef>();
+        merged.forEach(c => uniqueMap.set(c.id, c));
+        setUnlockedCreatures(Array.from(uniqueMap.values()));
+      }
+    } catch (err) {
+      logger.error('[Dungeon] Failed to merge citizens into draft pool:', err);
+    }
+  }, []);
 
   // Helper values for active fighter combat stats
   const selectedPartyMember = run?.party.find(c => c.id === selectedCreature?.id) || null;
@@ -592,7 +659,7 @@ export default function DungeonPage() {
         logEntries.push(`💫 ${activeFighter.name} cast ${statusSpell.emoji} ${statusSpell.name}! ${enemyDef.name} became confused for ${confusionTurns} turn(s)!`);
       }
     } else if (actionType === 'signature') {
-      const sigMove = getSignatureMoveForLevel(activeFighter.type, activeFighter.level || Math.max(1, run.currentRoom * 2));
+      const sigMove = getSignatureMoveForLevel(activeFighter.type, activeFighter.level || Math.max(1, run.currentRoom * 2), activeFighter.name);
       playerCritChance += 0.35;
       isPlayerCrit = Math.random() < playerCritChance;
       enemyDefStat = Math.floor(enemyDefStat * 0.6);
@@ -1269,10 +1336,15 @@ export default function DungeonPage() {
                     
                     {/* Natural Aspect Creature Image with Top Badges Overlay */}
                     <div className="relative w-full overflow-hidden bg-zinc-950">
-                      <div className="absolute top-2.5 left-2.5 z-20">
+                      <div className="absolute top-2.5 left-2.5 z-20 flex flex-col gap-1">
                         <span className="text-xs text-red-300 font-extrabold bg-red-950/90 px-2.5 py-1 rounded-lg border border-red-500/40 shadow-md">
                           Lv.{enemyLevel}
                         </span>
+                        {enemyDef.isMythic && (
+                          <span className="text-[10px] font-extrabold bg-gradient-to-r from-amber-500 via-purple-600 to-indigo-600 text-amber-100 px-2 py-0.5 rounded-lg border border-amber-300/40 shadow-lg flex items-center gap-1 animate-pulse">
+                            <Sparkles className="w-3 h-3 text-amber-300" /> Mythic
+                          </span>
+                        )}
                       </div>
 
                       <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5">
@@ -1287,7 +1359,7 @@ export default function DungeonPage() {
                       </div>
 
                       <Image
-                        src={`/images/creatures/${enemyId}.png`}
+                        src={getCreatureImage(enemyDef.id, enemyDef.filename, enemyDef.isMythic)}
                         alt={enemyDef.name}
                         width={768}
                         height={1106}
@@ -1402,7 +1474,7 @@ export default function DungeonPage() {
 
                               {/* Natural Aspect Creature Image */}
                               <Image
-                                src={`/images/creatures/${creature.id}.png`}
+                                src={getCreatureImage(creature.id, creature.filename, creature.isMythic)}
                                 alt={creature.name}
                                 width={768}
                                 height={1106}
@@ -1461,10 +1533,15 @@ export default function DungeonPage() {
                                 
                                 <div className="relative w-full overflow-hidden bg-zinc-950">
                                   {/* Level Badge Overlay */}
-                                  <div className="absolute top-2 left-2 z-10">
+                                  <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
                                     <span className="text-xs text-amber-300 font-extrabold bg-amber-950/90 px-2 py-0.5 rounded border border-amber-500/30">
                                       Lv.{selectedCreature?.level || 1}
                                     </span>
+                                    {selectedCreature?.isMythic && (
+                                      <span className="text-[9px] text-amber-100 font-extrabold bg-gradient-to-r from-amber-500 to-purple-600 px-1.5 py-0.5 rounded border border-amber-300/40">
+                                        ✨ Mythic
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="absolute top-2 right-2 z-10">
                                     <span className="text-sm filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
@@ -1478,7 +1555,7 @@ export default function DungeonPage() {
                                   </div>
 
                                   <Image
-                                    src={`/images/creatures/${selectedCreature!.id}.png`}
+                                    src={getCreatureImage(selectedCreature!.id, selectedCreature!.filename, selectedCreature!.isMythic)}
                                     alt={selectedCreature!.name}
                                     width={768}
                                     height={1106}
@@ -1586,7 +1663,7 @@ export default function DungeonPage() {
                               {/* Choice 2: Burst / Elemental Attack (2 Turn Cooldown) */}
                               {(() => {
                                 const isSigAvailable = (selectedCreature?.level || 1) >= 10 && cooldowns.signature === 0;
-                                const sigMove = getSignatureMoveForLevel(selectedCreature!.type, selectedCreature!.level || Math.max(1, run.currentRoom * 2));
+                                const sigMove = getSignatureMoveForLevel(selectedCreature!.type, selectedCreature!.level || Math.max(1, run.currentRoom * 2), selectedCreature!.name);
                                 const spellName = isSigAvailable ? sigMove.name.split(' ')[0] : activeSpell.name;
                                 const spellEmoji = isSigAvailable ? sigMove.emoji : activeSpell.emoji;
                                 const actionTarget = isSigAvailable ? 'signature' : 'elemental';

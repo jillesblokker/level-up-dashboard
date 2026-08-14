@@ -347,7 +347,7 @@ export const KingdomTileItem = React.memo(({
               state.isClosed ? "bg-red-950/90 border-red-500/50 text-red-300" : "bg-purple-950/90 border-purple-500/50 text-purple-200"
             )}>
               <span>⚔️</span>
-              <span className="hidden sm:inline">{state.badge}</span>
+              <span>{state.badge}</span>
             </div>
           );
         }
@@ -359,7 +359,7 @@ export const KingdomTileItem = React.memo(({
               state.isClosed ? "bg-red-950/90 border-red-500/50 text-red-300" : "bg-cyan-950/90 border-cyan-500/50 text-cyan-200"
             )}>
               <span>🧩</span>
-              <span className="hidden sm:inline">{state.badge}</span>
+              <span>{state.badge}</span>
             </div>
           );
         }
@@ -371,7 +371,7 @@ export const KingdomTileItem = React.memo(({
               state.isClosed ? "bg-red-950/90 border-red-500/50 text-red-300" : "bg-fuchsia-950/90 border-fuchsia-500/50 text-fuchsia-200"
             )}>
               <span>🔮</span>
-              <span className="hidden sm:inline">{state.badge}</span>
+              <span>{state.badge}</span>
             </div>
           );
         }
@@ -383,7 +383,7 @@ export const KingdomTileItem = React.memo(({
               state.isClosed ? "bg-red-950/90 border-red-500/50 text-red-300" : "bg-emerald-950/90 border-emerald-500/50 text-emerald-200"
             )}>
               <span>🧘</span>
-              <span className="hidden sm:inline">{state.badge}</span>
+              <span>{state.badge}</span>
             </div>
           );
         }
@@ -493,14 +493,35 @@ export const KingdomTileItem = React.memo(({
                   <div className="flex items-center justify-center gap-1">
                     {(() => {
                       const state = getMinigameBadgeState(type);
-                      if (state.isClosed) {
-                        return <span className="text-amber-200 font-bold text-[9px]">{state.formattedTimer || '⏳ Midnight Reset'}</span>;
+                      if (type.includes('dungeon')) {
+                        return (
+                          <span>
+                            ⚔️ {state.badge} {state.isClosed ? `(${state.formattedTimer || 'Reset at Midnight'})` : 'Attempts'}
+                          </span>
+                        );
                       }
-                      if (type.includes('dungeon')) return <span>⚔️ {state.badge} Ready</span>;
-                      if (type.includes('labyrinth')) return <span>🧩 {state.badge} Ready</span>;
-                      if (type.includes('fortune')) return <span>🔮 {state.badge} Cards</span>;
-                      if (type.includes('zen')) return <span>🧘 {state.badge} Ready</span>;
-                      return <span>{state.badge} Ready</span>;
+                      if (type.includes('labyrinth')) {
+                        return (
+                          <span>
+                            🧩 {state.badge} {state.isClosed ? `(${state.formattedTimer || 'Reset at Midnight'})` : 'Attempts'}
+                          </span>
+                        );
+                      }
+                      if (type.includes('fortune')) {
+                        return (
+                          <span>
+                            🔮 {state.badge} {state.isClosed ? `(${state.formattedTimer || 'Reset at Midnight'})` : 'Cards'}
+                          </span>
+                        );
+                      }
+                      if (type.includes('zen')) {
+                        return (
+                          <span>
+                            🧘 {state.badge} {state.isClosed ? `(${state.formattedTimer || 'Reset at Midnight'})` : 'Attempts'}
+                          </span>
+                        );
+                      }
+                      return <span>{state.badge} {state.isClosed ? `(${state.formattedTimer})` : 'Ready'}</span>;
                     })()}
                   </div>
                 ) : isReady ? (
