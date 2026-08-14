@@ -226,6 +226,87 @@ export async function POST(req: NextRequest) {
             }
         }
 
+        // Boss Floor Dual Drops (Kingdom Blueprint + Apotheca Reagent)
+        let bossDualDrop = null;
+        if (status === 'completed' || status === 'victory') {
+            try {
+                const blueprintsPool = [
+                    { id: 'serene_lake', name: 'Serene Lake Blueprint', image: '/images/kingdom-tiles/SereneLake.webp' },
+                    { id: 'waterway_canal', name: 'Waterway Canal Blueprint', image: '/images/kingdom-tiles/WaterwayCanal.webp' },
+                    { id: 'astral_citadel_monument', name: 'Astral Citadel Monument Blueprint', image: '/images/kingdom-tiles/AstralCitadel.webp' },
+                    { id: 'zen-garden', name: 'Zen Garden Blueprint', image: '/images/kingdom-tiles/ZenGarden.webp' }
+                ];
+                const selectedBlueprint = (blueprintsPool[Math.floor(Math.random() * blueprintsPool.length)] || blueprintsPool[0])!;
+
+                // Insert into realm_inventory
+                const { data: existingBp } = await supabaseServer
+                    .from('realm_inventory')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .eq('tile_id', selectedBlueprint.id)
+                    .maybeSingle();
+
+                if (existingBp) {
+                    await supabaseServer
+                        .from('realm_inventory')
+                        .update({ quantity: (existingBp.quantity || 0) + 1 })
+                        .eq('id', existingBp.id);
+                } else {
+                    await supabaseServer
+                        .from('realm_inventory')
+                        .insert({
+                            user_id: userId,
+                            tile_id: selectedBlueprint.id,
+                            quantity: 1
+                        });
+                }
+
+                // Grant Apotheca Reagent item (Water, Botanical Essence, Crystal)
+                const reagentsPool = [
+                    { id: 'material-water', name: 'Pure Spring Water', icon: '💧' },
+                    { id: 'material-crystal', name: 'Astral Crystal Dust', icon: '🔮' },
+                    { id: 'material-logs', name: 'Elder Wood Essence', icon: '🪵' }
+                ];
+                const selectedReagent = (reagentsPool[Math.floor(Math.random() * reagentsPool.length)] || reagentsPool[0])!;
+
+                const { data: existingReagent } = await supabaseServer
+                    .from('inventory_items')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .eq('item_id', selectedReagent.id)
+                    .maybeSingle();
+
+                if (existingReagent) {
+                    await supabaseServer
+                        .from('inventory_items')
+                        .update({ quantity: (existingReagent.quantity || 0) + 2 })
+                        .eq('id', existingReagent.id);
+                } else {
+                    await supabaseServer
+                        .from('inventory_items')
+                        .insert({
+                            user_id: userId,
+                            item_id: selectedReagent.id,
+                            name: selectedReagent.name,
+                            type: 'reagent',
+                            category: 'crafting',
+                            description: 'Apotheca potion brewing reagent.',
+                            emoji: selectedReagent.icon,
+                            quantity: 2,
+                            equipped: false,
+                            is_default: false
+                        });
+                }
+
+                bossDualDrop = {
+                    blueprint: selectedBlueprint,
+                    reagent: { ...selectedReagent, amount: 2 }
+                };
+            } catch (dropErr) {
+                apiLogger.error("Failed to grant Boss Dual Drops:", dropErr);
+            }
+        }
+
         return NextResponse.json({
             success: true,
             rewards: {
@@ -234,6 +315,7 @@ export async function POST(req: NextRequest) {
                 gems: totalGems,
                 items: itemDrops.length
             },
+            bossDualDrop,
             discoveredRecipe,
             milestoneMessage
         });
