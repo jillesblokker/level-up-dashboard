@@ -174,6 +174,11 @@ export const initialInventory: Record<TileType, Tile> = {
     astral_citadel_monument: { ...defaultTile('astral_citadel_monument'), cost: 1500, owned: 1 },
     serene_lake: { ...defaultTile('serene_lake'), cost: 25, owned: 2 },
     mystic_bazaar: { ...defaultTile('mystic_bazaar'), cost: 850, owned: 0 },
+    airship_harbor: { ...defaultTile('airship_harbor'), cost: 1200, owned: 0 },
+    housecup: { ...defaultTile('housecup'), cost: 1000, owned: 0 },
+    observatory: { ...defaultTile('observatory'), cost: 1100, owned: 0 },
+    hall_of_champions: { ...defaultTile('hall_of_champions'), cost: 1500, owned: 0 },
+    titan_watchtower: { ...defaultTile('titan_watchtower'), cost: 1300, owned: 0 },
 };
 
 function safeCheck(obj: any, key: any) {
@@ -215,6 +220,11 @@ export const getTileImage = (type: TileType): string => {
     if (type === 'astral_citadel_monument') return '/images/kingdom-tiles/AstralCitadelMonument.webp';
     if (type === 'serene_lake') return '/images/kingdom-tiles/SereneLake.webp';
     if (type === 'mystic_bazaar') return '/images/kingdom-tiles/Mystic_bazaar.webp';
+    if (type === 'airship_harbor') return '/images/kingdom-tiles/Airship_harbor.webp';
+    if (type === 'housecup') return '/images/kingdom-tiles/Housecup.webp';
+    if (type === 'observatory') return '/images/kingdom-tiles/Observatory.webp';
+    if (type === 'hall_of_champions') return '/images/kingdom-tiles/Hall_of_champions.webp';
+    if (type === 'titan_watchtower') return '/images/kingdom-tiles/Titan_watchtower.webp';
     return `/images/tiles/${type}-tile.webp`;
 };
 

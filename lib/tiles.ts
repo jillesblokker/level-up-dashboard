@@ -89,6 +89,11 @@ export function getTileName(type: TileType): string {
     astral_citadel_monument: 'Astral Citadel Monument',
     serene_lake: 'Serene Lake',
     mystic_bazaar: 'Mystic Bazaar',
+    airship_harbor: 'Airship Harbor',
+    housecup: 'Hourglass Spire',
+    observatory: 'Cartography Observatory',
+    hall_of_champions: 'Hall of Champions',
+    titan_watchtower: 'Titan Watchtower',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -182,6 +187,11 @@ export function getDefaultConnections(type: TileType): string[] {
     astral_citadel_monument: ['grass', 'city', 'town', 'castle'],
     serene_lake: ['water', 'grass'],
     mystic_bazaar: ['grass', 'city', 'town', 'market'],
+    airship_harbor: ['grass', 'city', 'town', 'mountain'],
+    housecup: ['grass', 'city', 'town', 'castle'],
+    observatory: ['grass', 'city', 'mountain'],
+    hall_of_champions: ['grass', 'city', 'town', 'castle'],
+    titan_watchtower: ['grass', 'city', 'town', 'mountain'],
   };
   return defaultConnections[type] || [];
 }

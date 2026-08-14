@@ -87,7 +87,12 @@ export type TileType =
   | 'waterway_canal'
   | 'astral_citadel_monument'
   | 'serene_lake'
-  | 'mystic_bazaar';
+  | 'mystic_bazaar'
+  | 'airship_harbor'
+  | 'housecup'
+  | 'observatory'
+  | 'hall_of_champions'
+  | 'titan_watchtower';
 
 export type MysteryEventType = 'treasure' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle';
 

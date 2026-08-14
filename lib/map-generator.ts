@@ -236,7 +236,12 @@ export class MapGenerator {
       waterway_canal: 'Waterway Canal & Stone Bridge',
       astral_citadel_monument: 'Astral Citadel Monument',
       serene_lake: 'Serene Lake',
-      mystic_bazaar: 'Mystic Bazaar'
+      mystic_bazaar: 'Mystic Bazaar',
+      airship_harbor: 'Airship Harbor',
+      housecup: 'Hourglass Spire',
+      observatory: 'Cartography Observatory',
+      hall_of_champions: 'Hall of Champions',
+      titan_watchtower: 'Titan Watchtower'
     };
 
     const tileDescriptions = {
@@ -327,7 +332,12 @@ export class MapGenerator {
       waterway_canal: 'A serene stone canal tile with vertical aquamarine waters and arched stone bridge',
       astral_citadel_monument: 'A colossal high-tier monument crowned with a glowing floating purple crystal orb',
       serene_lake: 'A tranquil aquamarine lake tile with pure shimmering water ripples',
-      mystic_bazaar: 'An enchanted trading post to open mystic card packs'
+      mystic_bazaar: 'An enchanted trading post to open mystic card packs',
+      airship_harbor: 'A floating skydock for habit-powered airship expeditions',
+      housecup: 'A gothic tower housing the 7 Virtue Hourglasses',
+      observatory: 'A cartography dome for province expeditions and fast travel',
+      hall_of_champions: 'A golden shrine honoring past season champions and Paragon legacy',
+      titan_watchtower: 'A dragon-slayer watchtower for co-op Titan Wyrm raids'
     };
 
     const tileImages = {
@@ -418,7 +428,12 @@ export class MapGenerator {
       waterway_canal: '/images/kingdom-tiles/WaterwayCanal.webp',
       astral_citadel_monument: '/images/kingdom-tiles/AstralCitadelMonument.webp',
       serene_lake: '/images/kingdom-tiles/SereneLake.webp',
-      mystic_bazaar: '/images/kingdom-tiles/Mystic_bazaar.webp'
+      mystic_bazaar: '/images/kingdom-tiles/Mystic_bazaar.webp',
+      airship_harbor: '/images/kingdom-tiles/Airship_harbor.webp',
+      housecup: '/images/kingdom-tiles/Housecup.webp',
+      observatory: '/images/kingdom-tiles/Observatory.webp',
+      hall_of_champions: '/images/kingdom-tiles/Hall_of_champions.webp',
+      titan_watchtower: '/images/kingdom-tiles/Titan_watchtower.webp'
     };
 
     return {

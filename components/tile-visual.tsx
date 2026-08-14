@@ -98,6 +98,16 @@ export function TileVisual({
         return '/images/kingdom-tiles/SereneLake.webp'
       case 'mystic_bazaar':
         return '/images/kingdom-tiles/Mystic_bazaar.webp'
+      case 'airship_harbor':
+        return '/images/kingdom-tiles/Airship_harbor.webp'
+      case 'housecup':
+        return '/images/kingdom-tiles/Housecup.webp'
+      case 'observatory':
+        return '/images/kingdom-tiles/Observatory.webp'
+      case 'hall_of_champions':
+        return '/images/kingdom-tiles/Hall_of_champions.webp'
+      case 'titan_watchtower':
+        return '/images/kingdom-tiles/Titan_watchtower.webp'
       default:
         return `/images/tiles/${tile.type}-tile.webp`
     }

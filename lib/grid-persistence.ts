@@ -92,6 +92,11 @@ const tileTypeToNumeric: Record<TileType, number> = {
   astral_citadel_monument: 83,
   serene_lake: 84,
   mystic_bazaar: 85,
+  airship_harbor: 86,
+  housecup: 87,
+  observatory: 88,
+  hall_of_champions: 89,
+  titan_watchtower: 90,
 };
 
 // Convert numeric value back to tile type

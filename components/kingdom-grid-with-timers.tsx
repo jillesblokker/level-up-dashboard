@@ -199,6 +199,11 @@ export function KingdomGridWithTimers({
       astral_citadel_monument: { category: 'prestige', levelRequired: 1 },
       serene_lake: { category: 'basic', levelRequired: 1 },
       mystic_bazaar: { category: 'mystic', levelRequired: 1 },
+      airship_harbor: { category: 'advanced', levelRequired: 1 },
+      housecup: { category: 'mystic', levelRequired: 1 },
+      observatory: { category: 'advanced', levelRequired: 1 },
+      hall_of_champions: { category: 'prestige', levelRequired: 1 },
+      titan_watchtower: { category: 'advanced', levelRequired: 1 },
     };
 
     return KINGDOM_TILES.map(tile => {
@@ -1470,6 +1475,46 @@ export function KingdomGridWithTimers({
         description: "Navigating to the Mystic Bazaar pack shop..."
       });
       router.push('/market?tab=mystic-bazaar');
+      return;
+    }
+    if (tile.type === 'airship_harbor') {
+      toast({
+        title: "🛸 Airship Harbor Skydock",
+        description: "Navigating to Airship Harbor expeditions..."
+      });
+      router.push('/city/Grand Citadel/tavern?tab=airship');
+      return;
+    }
+    if (tile.type === 'housecup') {
+      toast({
+        title: "🏆 Hourglass Spire",
+        description: "Opening House Cup & 7 Virtue Hourglasses..."
+      });
+      router.push('/social?tab=house-cup');
+      return;
+    }
+    if (tile.type === 'observatory') {
+      toast({
+        title: "🗺️ Cartography Observatory",
+        description: "Opening World Map & Provinces..."
+      });
+      router.push('/worldmap');
+      return;
+    }
+    if (tile.type === 'hall_of_champions') {
+      toast({
+        title: "📜 Hall of Champions",
+        description: "Opening Chronicle Hall of Champions..."
+      });
+      router.push('/chronicle');
+      return;
+    }
+    if (tile.type === 'titan_watchtower') {
+      toast({
+        title: "🐉 Titan Wyrm Watchtower",
+        description: "Opening Alliance Titan Raid Boss..."
+      });
+      router.push('/social?tab=alliances');
       return;
     }
     if (tile.type === 'apotheca') {
