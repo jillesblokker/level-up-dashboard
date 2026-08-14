@@ -200,20 +200,27 @@ export const KingdomTileItem = React.memo(({
       )}
 
       {/* Hover Info-Card (Desktop Only) */}
-      {(tile.type === 'quest-board' || tile.type === 'market' ||
-        tile.type === 'dungeon' ||
-        tile.type === 'monument' || auraColor ||
-        tile.type?.toLowerCase() === 'market-stalls') && (
+      {(['daily-hub', 'dailyhub', 'daily_hub', 'quest-board', 'market', 'market-stalls', 'dungeon', 'dungeon-keep', 'monument', 'mystic_bazaar', 'airship_harbor', 'housecup', 'observatory', 'hall_of_champions', 'titan_watchtower', 'castle', 'library', 'training-grounds', 'serene_lake'].includes(type) || auraColor) && (
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-zinc-950/80 transition-all pointer-events-none hidden md:flex flex-col items-center justify-center p-1 z-50">
             <div className="bg-zinc-900/95 border border-white/10 rounded-lg p-2 shadow-2xl scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-300 ">
-              <p className="text-[10px] font-bold text-amber-100 uppercase tracking-tighter text-center">{tile.name || tile.type}</p>
+              <p className="text-[10px] font-bold text-amber-100 uppercase tracking-tighter text-center">{libraryTile?.name || kingdomTile?.name || tile.name || tile.type}</p>
               <div className="h-px bg-white/10 my-1 w-full" />
               <p className="text-[8px] text-zinc-400 text-center italic">
-                {tile.type === 'quest-board' ? 'Portal: Tasks' :
-                 tile.type === 'market' ? 'Portal: Shop' :
-                 tile.type === 'dungeon' ? 'Portal: Combat' :
-                 tile.type === 'monument' ? 'Statue: Achievements' :
-                 auraColor ? synergyLabel : 'Interaction Available'}
+                {type.includes('daily') ? 'Portal: Habit Dashboard' :
+                 type === 'quest-board' ? 'Portal: Tasks & Milestones' :
+                 type === 'market' || type === 'market-stalls' ? 'Portal: Royal Exchange' :
+                 type.includes('mystic') ? 'Portal: Mystic Bazaar' :
+                 type === 'dungeon' || type === 'dungeon-keep' ? 'Portal: Combat Depths' :
+                 type === 'monument' ? 'Statue: Achievements' :
+                 type === 'airship_harbor' ? 'Portal: Skydock Voyages' :
+                 type === 'housecup' ? 'Portal: Hourglass Spire' :
+                 type === 'observatory' ? 'Portal: Cartography Spire' :
+                 type === 'hall_of_champions' ? 'Portal: Hall of Champions' :
+                 type === 'titan_watchtower' ? 'Portal: Titan Raid' :
+                 type === 'castle' ? 'Portal: Royal Castle' :
+                 type === 'library' ? 'Portal: Archives & Lore' :
+                 type === 'training-grounds' ? 'Portal: Barracks Vault' :
+                 auraColor ? synergyLabel : 'Waypoint Available'}
               </p>
               
               <div className="flex items-center justify-between text-[10px] text-zinc-400 border-t border-white/5 pt-2 mt-2">
@@ -224,13 +231,24 @@ export const KingdomTileItem = React.memo(({
           </div>
       )}
 
-      {/* Move/Delete Controls - Desktop only */}
+      {/* Move/Rotate/Delete Controls - Desktop Hover & Edit Overlay */}
       {isKingdomTile && !placementMode && !readOnly && (
-        <div className="absolute top-1 right-1 flex gap-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex">
+        <div className="absolute top-1 right-1 flex gap-1 z-[60] opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex">
           <div
             role="button"
-            title="Move"
-            className="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 shadow-md transform hover:scale-110 transition-transform"
+            title="Rotate 90°"
+            className="bg-amber-600 text-white p-1 rounded hover:bg-amber-700 shadow-md transform hover:scale-110 transition-transform cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation()
+              onRotate(x, y, tile)
+            }}
+          >
+            <RotateCw className="w-3 h-3" />
+          </div>
+          <div
+            role="button"
+            title="Move Tile"
+            className="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 shadow-md transform hover:scale-110 transition-transform cursor-pointer"
             onClick={(e) => {
               e.stopPropagation()
               onMove(x, y, tile)
@@ -241,24 +259,13 @@ export const KingdomTileItem = React.memo(({
           <div
             role="button"
             title="Store in Inventory"
-            className="bg-red-600 text-white p-1 rounded hover:bg-red-700 shadow-md transform hover:scale-110 transition-transform"
+            className="bg-red-600 text-white p-1 rounded hover:bg-red-700 shadow-md transform hover:scale-110 transition-transform cursor-pointer"
             onClick={(e) => {
               e.stopPropagation()
               onDelete(x, y, tile)
             }}
           >
             <Trash2 className="w-3 h-3" />
-          </div>
-          <div
-            role="button"
-            title="Rotate 90°"
-            className="bg-amber-600 text-white p-1 rounded hover:bg-amber-700 shadow-md transform hover:scale-110 transition-transform"
-            onClick={(e) => {
-              e.stopPropagation()
-              onRotate(x, y, tile)
-            }}
-          >
-            <RotateCw className="w-3 h-3" />
           </div>
         </div>
       )}

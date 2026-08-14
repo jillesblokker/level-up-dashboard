@@ -974,7 +974,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'mystic_bazaar',
     name: 'Mystic Bazaar',
-    timerMinutes: 1440,
+    timerMinutes: 0,
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
