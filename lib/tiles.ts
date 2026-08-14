@@ -88,6 +88,7 @@ export function getTileName(type: TileType): string {
     waterway_canal: 'Waterway Canal & Stone Bridge',
     astral_citadel_monument: 'Astral Citadel Monument',
     serene_lake: 'Serene Lake',
+    mystic_bazaar: 'Mystic Bazaar',
   };
   return tileNames[type] || 'Unknown';
 }
@@ -180,6 +181,7 @@ export function getDefaultConnections(type: TileType): string[] {
     waterway_canal: ['grass', 'water', 'city', 'town'],
     astral_citadel_monument: ['grass', 'city', 'town', 'castle'],
     serene_lake: ['water', 'grass'],
+    mystic_bazaar: ['grass', 'city', 'town', 'market'],
   };
   return defaultConnections[type] || [];
 }

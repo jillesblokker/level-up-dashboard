@@ -198,6 +198,7 @@ export function KingdomGridWithTimers({
       waterway_canal: { category: 'basic', levelRequired: 1 },
       astral_citadel_monument: { category: 'prestige', levelRequired: 1 },
       serene_lake: { category: 'basic', levelRequired: 1 },
+      mystic_bazaar: { category: 'mystic', levelRequired: 1 },
     };
 
     return KINGDOM_TILES.map(tile => {
@@ -1461,6 +1462,14 @@ export function KingdomGridWithTimers({
     }
     if (tile.type === 'prison') {
       setPrisonModalOpen(true);
+      return;
+    }
+    if (tile.type === 'mystic_bazaar') {
+      toast({
+        title: "✨ Opening Mystic Bazaar",
+        description: "Navigating to the Mystic Bazaar pack shop..."
+      });
+      router.push('/market?tab=mystic-bazaar');
       return;
     }
     if (tile.type === 'apotheca') {

@@ -96,6 +96,8 @@ export function TileVisual({
         return '/images/kingdom-tiles/AstralCitadelMonument.webp'
       case 'serene_lake':
         return '/images/kingdom-tiles/SereneLake.webp'
+      case 'mystic_bazaar':
+        return '/images/kingdom-tiles/Mystic_bazaar.webp'
       default:
         return `/images/tiles/${tile.type}-tile.webp`
     }

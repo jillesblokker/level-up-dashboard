@@ -235,7 +235,8 @@ export class MapGenerator {
       abbey: 'Silent Abbey',
       waterway_canal: 'Waterway Canal & Stone Bridge',
       astral_citadel_monument: 'Astral Citadel Monument',
-      serene_lake: 'Serene Lake'
+      serene_lake: 'Serene Lake',
+      mystic_bazaar: 'Mystic Bazaar'
     };
 
     const tileDescriptions = {
@@ -325,7 +326,8 @@ export class MapGenerator {
       abbey: 'A silent gothic monastery offering daily vows of focus and benedictions',
       waterway_canal: 'A serene stone canal tile with vertical aquamarine waters and arched stone bridge',
       astral_citadel_monument: 'A colossal high-tier monument crowned with a glowing floating purple crystal orb',
-      serene_lake: 'A tranquil aquamarine lake tile with pure shimmering water ripples'
+      serene_lake: 'A tranquil aquamarine lake tile with pure shimmering water ripples',
+      mystic_bazaar: 'An enchanted trading post to open mystic card packs'
     };
 
     const tileImages = {
@@ -415,7 +417,8 @@ export class MapGenerator {
       abbey: '/images/tiles/abbey-tile.webp',
       waterway_canal: '/images/kingdom-tiles/WaterwayCanal.webp',
       astral_citadel_monument: '/images/kingdom-tiles/AstralCitadelMonument.webp',
-      serene_lake: '/images/kingdom-tiles/SereneLake.webp'
+      serene_lake: '/images/kingdom-tiles/SereneLake.webp',
+      mystic_bazaar: '/images/kingdom-tiles/Mystic_bazaar.webp'
     };
 
     return {

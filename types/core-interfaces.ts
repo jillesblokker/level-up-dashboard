@@ -86,7 +86,8 @@ export type TileType =
   | 'abbey'
   | 'waterway_canal'
   | 'astral_citadel_monument'
-  | 'serene_lake';
+  | 'serene_lake'
+  | 'mystic_bazaar';
 
 export type MysteryEventType = 'treasure' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle';
 

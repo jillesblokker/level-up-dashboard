@@ -93,6 +93,12 @@ export default function MarketPage() {
           setUnlockStartTimestamps(JSON.parse(storedUnlocks))
         } catch (e) {}
       }
+
+      const params = new URLSearchParams(window.location.search)
+      const tabParam = params.get("tab")
+      if (tabParam === "mystic-bazaar" || tabParam === "mystic-shop" || tabParam === "mystic_bazaar") {
+        setActiveTab("mystic-shop")
+      }
     }
 
     const timer = setInterval(() => {

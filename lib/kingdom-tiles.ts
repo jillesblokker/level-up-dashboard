@@ -970,6 +970,21 @@ export const KINGDOM_TILES: KingdomTile[] = [
     image: '/images/kingdom-tiles/SereneLake.webp',
     cost: 25,
     levelRequired: 1
+  },
+  {
+    id: 'mystic_bazaar',
+    name: 'Mystic Bazaar',
+    timerMinutes: 1440,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
+    clickMessage: 'Enchanted trading post to open mystic card packs.',
+    possibleItems: [],
+    itemType: 'none',
+    rarity: 'epic',
+    image: '/images/kingdom-tiles/Mystic_bazaar.webp',
+    cost: 850,
+    levelRequired: 1
   }
 ]
 

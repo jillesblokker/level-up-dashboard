@@ -173,6 +173,7 @@ export const initialInventory: Record<TileType, Tile> = {
     waterway_canal: { ...defaultTile('waterway_canal'), cost: 750, owned: 1 },
     astral_citadel_monument: { ...defaultTile('astral_citadel_monument'), cost: 1500, owned: 1 },
     serene_lake: { ...defaultTile('serene_lake'), cost: 25, owned: 2 },
+    mystic_bazaar: { ...defaultTile('mystic_bazaar'), cost: 850, owned: 0 },
 };
 
 function safeCheck(obj: any, key: any) {
@@ -213,6 +214,7 @@ export const getTileImage = (type: TileType): string => {
     if (type === 'waterway_canal') return '/images/kingdom-tiles/WaterwayCanal.webp';
     if (type === 'astral_citadel_monument') return '/images/kingdom-tiles/AstralCitadelMonument.webp';
     if (type === 'serene_lake') return '/images/kingdom-tiles/SereneLake.webp';
+    if (type === 'mystic_bazaar') return '/images/kingdom-tiles/Mystic_bazaar.webp';
     return `/images/tiles/${type}-tile.webp`;
 };
 
