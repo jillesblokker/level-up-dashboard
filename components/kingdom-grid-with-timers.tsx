@@ -36,6 +36,7 @@ import { PlankPuzzleModal } from './plank-puzzle-modal'
 import { SpecialTileModal } from './special-tile-modal'
 import { getActiveEvent } from '@/lib/seasonal-events'
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage'
+import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager'
 import { hapticLight, hapticMedium, hapticSuccess } from '@/lib/haptics'
 import confetti from 'canvas-confetti'
 
@@ -1559,6 +1560,35 @@ export function KingdomGridWithTimers({
     }
     if (tile.type === 'apotheca') {
       setApothecaModalOpen(true);
+      return;
+    }
+    if (tile.type.includes('astral')) {
+      (async () => {
+        const now = Date.now();
+        try {
+          const activeBuffs = await getUserPreference('active_alchemy_buffs') as any || {};
+          const astralUntil = now + (2 * 60 * 60 * 1000);
+          await setUserPreference('active_alchemy_buffs', {
+            ...activeBuffs,
+            astralFortuneUntil: astralUntil
+          });
+        } catch (err) {
+          console.error('Failed to set astral fortune buff:', err);
+        }
+
+        const { goldManager } = await loadManagers();
+        goldManager.gainGold(250, `tile-collect:${tile.type}`);
+        addToCharacterStat('focus_points', 5, 'astral-monument-awakened');
+
+        toast({
+          title: "🔮 Astral Citadel Monument Awakened!",
+          description: "Channeled cosmic crystal power: +250 Gold, +5 Focus Points, and 2 Hours of Astral Fortune (+15% unowned scratch card odds)!"
+        });
+
+        window.dispatchEvent(new CustomEvent('coin-burst', {
+          detail: { amount: 250, x: window.innerWidth / 2, y: window.innerHeight / 2 }
+        }));
+      })();
       return;
     }
     if (tile.type === 'abbey') {

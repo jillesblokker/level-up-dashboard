@@ -772,7 +772,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'daily-hub',
     name: TEXT_CONTENT.kingdomTiles['daily-hub'].name,
-    timerMinutes: 60,
+    timerMinutes: 0,
     normalGoldRange: [12, 22],
     luckyGoldAmount: 90,
     luckyChance: 0.15,
@@ -959,7 +959,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'serene_lake',
     name: 'Serene Lake',
-    timerMinutes: 30,
+    timerMinutes: 0,
     normalGoldRange: [10, 25],
     luckyGoldAmount: 75,
     luckyChance: 0.15,
