@@ -293,7 +293,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
                       src={tile.image || `/images/kingdom-tiles/${tile.type}.webp`}
                       alt={tile.type}
                       fill
-                      className="object-contain"
+                      className="object-cover"
                       sizes="48px"
                     />
                   </div>

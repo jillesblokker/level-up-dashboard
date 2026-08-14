@@ -121,7 +121,7 @@ export const KingdomTileItem = React.memo(({
             alt={tile.name || tile.type}
             fill
             sizes="(max-width: 768px) 10vw, 5vw"
-            className="object-contain transition-transform duration-500 group-hover:scale-110"
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
             unoptimized={true}
           />
         )}
