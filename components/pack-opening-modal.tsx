@@ -18,6 +18,7 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
   const router = useRouter();
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
   const [claimed, setClaimed] = useState(false);
+  const [isNewCard, setIsNewCard] = useState<boolean | null>(null);
   
   const winnerCount = packData.cards.filter((c: any) => revealedIds.has(c.id) && c.isWinnerCard).length;
   const isWon = winnerCount >= 3;
@@ -45,6 +46,18 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
           try {
             const data = await res.json();
             isNew = !!data.isNew;
+            setIsNewCard(isNew);
+            
+            if (isNew && typeof window !== 'undefined') {
+              import('canvas-confetti').then(confetti => {
+                confetti.default({
+                  particleCount: 120,
+                  spread: 80,
+                  origin: { y: 0.5 },
+                  colors: ['#f59e0b', '#ec4899', '#3b82f6', '#10b981', '#ffffff']
+                });
+              }).catch(() => {});
+            }
           } catch (e) {
             console.error('Failed to parse claim response:', e);
           }
@@ -73,14 +86,41 @@ export function PackOpeningModal({ packData, onClose, onClaimed }: PackOpeningMo
         </button>
 
         <div className="text-center mb-6 sm:mb-8 px-4">
-          <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-amber-500 mb-1 sm:mb-2 drop-shadow-sm">
-            {isWon ? "✨ You Won Mythic Card! ✨" : "Scratch 3 to Win"}
-          </h2>
-          <p className="text-xs sm:text-sm text-zinc-400 font-medium tracking-wide">
-            {isWon ? "Card added to your Mythics collection!" : "Find 3 matching cards to claim the prize"}
-          </p>
-          <div className="mt-2 inline-flex items-center gap-1.5 bg-amber-500/20 border border-amber-400/40 text-amber-300 px-3 py-1 rounded-full text-[10px] sm:text-xs font-mono font-bold shadow-md">
-            <span>✨ 100% Guaranteed Mythic Blueprint Drop Rate Active</span>
+          {isWon ? (
+            isNewCard === true ? (
+              <div className="space-y-2 animate-bounce">
+                <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-yellow-300 text-zinc-950 px-4 py-1.5 rounded-full text-xs font-black tracking-widest uppercase shadow-[0_0_20px_rgba(245,158,11,0.8)] border border-amber-200">
+                  ✨ NEW CREATURE UNLOCKED! ✨
+                </div>
+                <h2 className="text-3xl sm:text-5xl font-serif font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500 drop-shadow-md">
+                  🎉 FIRST-TIME DISCOVERY! 🎉
+                </h2>
+                <p className="text-xs sm:text-sm text-amber-200 font-bold tracking-wide">
+                  New creature added to your Mythic Vault Collection!
+                </p>
+              </div>
+            ) : (
+              <div>
+                <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-amber-500 mb-1 sm:mb-2 drop-shadow-sm">
+                  ✨ Mythic Card Claimed! ✨
+                </h2>
+                <p className="text-xs sm:text-sm text-zinc-400 font-medium tracking-wide">
+                  {isNewCard === false ? "🔄 Duplicate Card (+50 Alchemy Essences Granted)" : "Card added to your Mythics collection!"}
+                </p>
+              </div>
+            )
+          ) : (
+            <div>
+              <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-amber-500 mb-1 sm:mb-2 drop-shadow-sm">
+                Scratch 3 to Win
+              </h2>
+              <p className="text-xs sm:text-sm text-zinc-400 font-medium tracking-wide">
+                Find 3 matching cards to claim the prize
+              </p>
+            </div>
+          )}
+          <div className="mt-3 inline-flex items-center gap-1.5 bg-amber-500/20 border border-amber-400/40 text-amber-300 px-3 py-1 rounded-full text-[10px] sm:text-xs font-mono font-bold shadow-md">
+            <span>✨ 100% Guaranteed Mythic Drop Rate Active</span>
           </div>
         </div>
 
