@@ -1060,6 +1060,36 @@ export const KINGDOM_TILES: KingdomTile[] = [
     image: '/images/kingdom-tiles/Titan_watchtower.webp',
     cost: 1300,
     levelRequired: 1
+  },
+  {
+    id: 'dragon_den',
+    name: 'Mythic Dragon Den',
+    timerMinutes: 360,
+    normalGoldRange: [500, 1500],
+    luckyGoldAmount: 5000,
+    luckyChance: 0.25,
+    clickMessage: 'Level 100 Prestige Monument! Yields massive gem hoards and rare botanical materials.',
+    possibleItems: ['material-crystal', 'material-steel', 'material-stone-block'],
+    itemType: 'material',
+    rarity: 'legendary',
+    image: '/images/kingdom-tiles/DragonDen.jpg',
+    cost: 10000,
+    levelRequired: 100
+  },
+  {
+    id: 'kraken_cove',
+    name: 'Kraken Sea Cove',
+    timerMinutes: 360,
+    normalGoldRange: [750, 2000],
+    luckyGoldAmount: 6000,
+    luckyChance: 0.30,
+    clickMessage: 'Level 100 Prestige Aquatic Monument! Yields rare sunken ship material cargo and gems.',
+    possibleItems: ['material-water', 'material-crystal', 'material-planks'],
+    itemType: 'material',
+    rarity: 'legendary',
+    image: '/images/kingdom-tiles/KrakenCove.jpg',
+    cost: 12000,
+    levelRequired: 100
   }
 ]
 

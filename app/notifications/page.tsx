@@ -33,9 +33,8 @@ export default function NotificationsPage() {
   const [selectedType, setSelectedType] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("all")
 
-  // Load notifications data
+  // Load notifications data with 24-hour auto-archiving of read items
   useEffect(() => {
-    // In a real app, this would come from an API or database
     const sampleNotifications: Notification[] = [
       {
         id: "n1",
@@ -43,7 +42,7 @@ export default function NotificationsPage() {
         message: "You've earned the 'Early Riser' achievement for completing 5 tasks before 9 AM.",
         type: "achievement",
         read: false,
-        timestamp: "2025-03-15T08:30:00Z",
+        timestamp: new Date().toISOString(),
         action: {
           label: "View Achievement",
           href: "/character",
@@ -51,63 +50,40 @@ export default function NotificationsPage() {
       },
       {
         id: "n2",
-        title: "Quest Completed",
-        message: "You've successfully completed the 'Strength Foundation' quest and earned 50 gold!",
-        type: "quest",
+        title: "Friend Dare Received",
+        message: "Sarah issued a 1v1 Daily Habit Race Dare!",
+        type: "friend",
         read: false,
-        timestamp: "2025-03-14T16:45:00Z",
+        timestamp: new Date().toISOString(),
         action: {
-          label: "View Rewards",
-          href: "/quests",
+          label: "Accept Dare",
+          href: "/social",
         },
       },
       {
         id: "n3",
-        title: "Friend Request",
-        message: "Michael Chen has sent you a friend request.",
-        type: "friend",
-        read: true,
-        timestamp: "2025-03-13T12:20:00Z",
-        action: {
-          label: "View Request",
-          href: "/community",
-        },
-      },
-      {
-        id: "n4",
-        title: "New Challenge Available",
-        message: "A new seasonal challenge 'Spring Renewal' is now available!",
+        title: "Titan Victory Chest Ready",
+        message: "Alliance defeated Titan Wyrm! Claim your share of victory loot.",
         type: "system",
-        read: true,
-        timestamp: "2025-03-12T09:15:00Z",
-        action: {
-          label: "View Challenge",
-          href: "/events",
-        },
-      },
-      {
-        id: "n5",
-        title: "Daily Streak Bonus",
-        message: "You've maintained a 7-day streak! You've earned a bonus of 25 gold.",
-        type: "achievement",
-        read: true,
-        timestamp: "2025-03-11T22:00:00Z",
-      },
-      {
-        id: "n6",
-        title: "New Challenge",
-        message: "Sarah has challenged you to a 'Push-up Challenge'!",
-        type: "friend",
         read: false,
-        timestamp: "2025-03-10T14:30:00Z",
+        timestamp: new Date(Date.now() - 3600000).toISOString(),
         action: {
-          label: "Accept Challenge",
-          href: "/challenges",
+          label: "Claim Chest",
+          href: "/social",
         },
-      },
+      }
     ]
 
-    setNotifications(sampleNotifications)
+    // 24-Hour Auto-Archiving Rule: Read notifications older than 24h are archived automatically
+    const now = Date.now();
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+    const activeUnarchived = sampleNotifications.filter(n => {
+      if (!n.read) return true;
+      const age = now - new Date(n.timestamp).getTime();
+      return age < twentyFourHours;
+    });
+
+    setNotifications(activeUnarchived)
   }, [])
 
   // Filter notifications based on search and type
