@@ -327,8 +327,8 @@ export async function GET(request: Request) {
           const cDateUtc = new Date(c.completed_at || c.created_at).toISOString().split('T')[0];
           const todayUtc = new Date().toISOString().split('T')[0];
 
-          // STRICT DATE MATCHING: Must match local today's date or UTC today's date (no 24h rolling window that breaks daily reset)
-          return cDate === today || cDateUtc === todayUtc;
+          // STRICT DATE MATCHING: Must match local today's date in user's timezone (no UTC date mix-up that breaks daily reset)
+          return cDate === today;
         });
 
         // Show as completed if there's a valid completion record for today
@@ -371,6 +371,8 @@ export async function GET(request: Request) {
       });
     }
 
+    const processedCompletionIds = new Set<string>();
+
     // Convert quests to quest format with completion status
     const questsWithCompletions = (quests || []).map((quest: any) => {
       const qId = String(quest.id || '');
@@ -385,6 +387,10 @@ export async function GET(request: Request) {
 
       const isCompleted = completion ? (completion.completed !== false) : false;
       const completionDate = completion ? (completion.completedAt || completion.completed_at) : null;
+
+      if (completion && completion.completionId) {
+        processedCompletionIds.add(String(completion.completionId));
+      }
 
       logger.debug('[Quests API] Mapping quest:', {
         questId: quest.id,
@@ -417,21 +423,6 @@ export async function GET(request: Request) {
         mandate_count: quest.mandate_count || 1
       };
 
-      // RECURRENCE LOGIC:
-      // If it's recurring, check if the "completedAt" is within the reset window.
-      // e.g. Daily = completed TODAY. Weekly = completed THIS WEEK.
-      // The current "completedQuests" map ALREADY filters for "TODAY" above for daily habit tracking.
-      // So if it's in the map, it's completed for the current period (assuming the map logic holds).
-
-      // Let's refine the map logic slightly to be robust:
-      // content above ALREADY does: `return netherlandsDate === today;`
-      // This effectively treats ALL quests as "Daily Recurring" from a display perspective.
-      // If we want "Weekly", we'd need to change that filter.
-
-      // For now, let's trust the existing "Today" filter implies "Daily reset" behavior is desired for habit tracking.
-      // If isRecurring=false (One-time), and it IS completed (ever), we might want to hide it?
-      // Or show it as "Done forever". The checklist asks for "Onboarding quests only once".
-
       if (quest.recurrence_interval === 'once' && completion) {
         mappedQuest.isOneTime = true;
       }
@@ -440,38 +431,39 @@ export async function GET(request: Request) {
     });
 
     // Synthesize completion-only quests from quest_completion table that are missing from rawQuests
-    const existingQuestIds = new Set((quests || []).map((q: any) => String(q.id || '').toLowerCase()));
-    const existingQuestNames = new Set((quests || []).map((q: any) => String(q.name || '').toLowerCase()));
-
-    completedQuests.forEach((compObj: any, compKey: string) => {
-      const lowerKey = String(compKey).toLowerCase();
-      if (!existingQuestIds.has(lowerKey) && !existingQuestNames.has(lowerKey)) {
-        existingQuestIds.add(lowerKey);
-        existingQuestNames.add(lowerKey);
-
-        const displayName = compKey.charAt(0).toUpperCase() + compKey.slice(1);
-        questsWithCompletions.push({
-          id: compKey,
-          name: displayName,
-          title: displayName,
-          description: `Completed habit`,
-          category: 'might',
-          difficulty: 'medium',
-          xp: compObj.xpEarned || 50,
-          gold: compObj.goldEarned || 25,
-          completed: true,
-          date: compObj.completedAt,
-          isNew: false,
-          completionId: compObj.completionId || compKey,
-          xpEarned: compObj.xpEarned || 0,
-          goldEarned: compObj.goldEarned || 0,
-          isRecurring: true,
-          recurrenceInterval: 'daily',
-          mandate_period: 'daily',
-          mandate_count: 1
-        });
-      }
-    });
+    if (questCompletions) {
+      questCompletions.forEach((c: any) => {
+        const cDate = formatDate(c.completed_at || c.created_at, requestTz);
+        const matchesToday = allTime ? c.completed === true : cDate === today;
+        if (matchesToday && c.completed !== false) {
+          const compId = String(c.id || c.quest_id);
+          if (!processedCompletionIds.has(compId)) {
+            processedCompletionIds.add(compId);
+            const displayName = c.quest_id ? (String(c.quest_id).charAt(0).toUpperCase() + String(c.quest_id).slice(1)) : 'Completed habit';
+            questsWithCompletions.push({
+              id: c.quest_id || compId,
+              name: displayName,
+              title: displayName,
+              description: 'Completed habit',
+              category: 'might',
+              difficulty: 'medium',
+              xp: c.xp_earned || 50,
+              gold: c.gold_earned || 25,
+              completed: true,
+              date: c.completed_at,
+              isNew: false,
+              completionId: c.id,
+              xpEarned: c.xp_earned || 0,
+              goldEarned: c.gold_earned || 0,
+              isRecurring: true,
+              recurrenceInterval: 'daily',
+              mandate_period: 'daily',
+              mandate_count: 1
+            });
+          }
+        }
+      });
+    }
 
     logger.warn('[QUEST-BOARD-DIAGNOSTIC][GET /api/quests] Sending response to client', {
       totalQuests: questsWithCompletions.length,

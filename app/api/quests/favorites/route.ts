@@ -1,12 +1,31 @@
 import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth, getAuth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
+
+async function getUserIdFromRequest(request: NextRequest): Promise<string | null> {
+  try {
+    const { verifyClerkJWT } = await import('@/lib/supabase/jwt-verification');
+    const authResult = await verifyClerkJWT(request);
+    if (authResult?.userId) return authResult.userId;
+
+    const { userId: authUserId } = await auth();
+    if (authUserId) return authUserId;
+
+    const { userId: getAuthUserId } = await getAuth(request);
+    if (getAuthUserId) return getAuthUserId;
+
+    return null;
+  } catch (e) {
+    logger.error('[Clerk] JWT verification failed:', e);
+    return null;
+  }
+}
 
 // GET - Fetch user's favorited quests
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const userId = await getUserIdFromRequest(request);
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -36,7 +55,7 @@ export async function GET(request: NextRequest) {
 // POST - Add a quest to favorites
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const userId = await getUserIdFromRequest(request);
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -75,7 +94,7 @@ export async function POST(request: NextRequest) {
 // DELETE - Remove a quest from favorites
 export async function DELETE(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const userId = await getUserIdFromRequest(request);
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

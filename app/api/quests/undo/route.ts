@@ -51,11 +51,8 @@ export async function POST(request: NextRequest) {
             }
 
             const latestCompletion = matchingCompletions.find(c => {
-                if (!c.completed_at && !c.created_at) return false;
                 const cDate = formatDate(c.completed_at || c.created_at, requestTz);
-                const cDateUtc = new Date(c.completed_at || c.created_at).toISOString().split('T')[0];
-                const todayUtc = new Date().toISOString().split('T')[0];
-                return cDate === todayStr || cDateUtc === todayUtc;
+                return cDate === todayStr;
             }) || matchingCompletions[0];
 
             const xpEarned = latestCompletion?.xp_earned || 0;

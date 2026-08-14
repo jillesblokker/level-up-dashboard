@@ -478,9 +478,7 @@ function toValidUUID(str: string): string {
             const existing = userCompletions.find(c => {
                 if (!c.completed_at && !c.created_at) return false;
                 const cDate = formatDate(c.completed_at || c.created_at, requestTz);
-                const cDateUtc = new Date(c.completed_at || c.created_at).toISOString().split('T')[0];
-                const todayUtc = new Date().toISOString().split('T')[0];
-                return cDate === todayStr || cDateUtc === todayUtc;
+                return cDate === todayStr;
             });
 
             logger.info('[QUEST-BOARD-DIAGNOSTIC][POST /api/quests/smart-completion] Database lookup result', {

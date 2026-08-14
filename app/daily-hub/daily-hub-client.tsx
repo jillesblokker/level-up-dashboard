@@ -278,39 +278,53 @@ export function DailyHubClient() {
         try {
             logger.debug(`[Daily Hub] ${TEXT_CONTENT.dailyHub.log.loading}`)
 
-            const favoritesResponse = await fetchWithAuth('/api/quests/favorites')
-            if (!favoritesResponse.ok) {
-                throw new Error('Failed to fetch favorite ids')
+            let favoriteIds: string[] = []
+            try {
+                const favoritesResponse = await fetchWithAuth('/api/quests/favorites')
+                if (favoritesResponse.ok) {
+                    const favoritesData = await favoritesResponse.json()
+                    favoriteIds = favoritesData.favorites || []
+                }
+            } catch (err) {
+                logger.warn('Failed to fetch favorite ids:', err)
             }
-            const favoritesData = await favoritesResponse.json()
-            const favoriteIds = favoritesData.favorites || []
 
             const questsResponse = await fetchWithAuth(`/api/quests?t=${Date.now()}`)
             if (questsResponse.ok) {
                 const questsData = await questsResponse.json()
                 const allQuests = Array.isArray(questsData) ? questsData : (questsData.quests || [])
 
-                const favoriteQuests = allQuests
-                    .filter((q: any) => {
-                        const isFavorite = favoriteIds.includes(q.id)
-                        return isFavorite
-                    })
-                    .slice(0, 6)
-                    .map((q: any) => ({
-                        ...q,
-                        difficulty: ['easy', 'medium', 'hard', 'epic'].includes(q.difficulty) ? q.difficulty : 'medium'
-                    }))
+                const favoritedQuestSet = new Set(
+                    favoriteIds.map((id: any) => String(id).toLowerCase())
+                )
 
-                setFavoritedQuests(favoriteQuests)
+                let favoriteQuests = allQuests.filter((q: any) => {
+                    const idLower = String(q.id || '').toLowerCase()
+                    const nameLower = String(q.name || q.title || '').toLowerCase()
+                    return favoritedQuestSet.has(idLower) || favoritedQuestSet.has(nameLower)
+                })
+
+                if (favoriteQuests.length === 0 && allQuests.length > 0) {
+                    favoriteQuests = allQuests.slice(0, 6)
+                } else {
+                    favoriteQuests = favoriteQuests.slice(0, 6)
+                }
+
+                const mappedFavoriteQuests = favoriteQuests.map((q: any) => ({
+                    ...q,
+                    difficulty: ['easy', 'medium', 'hard', 'epic'].includes(q.difficulty) ? q.difficulty : 'medium'
+                }))
+
+                setFavoritedQuests(mappedFavoriteQuests)
 
                 const completed = new Set<string>()
-                favoriteQuests.forEach((q: Quest) => {
+                allQuests.forEach((q: any) => {
                     if (q.completed) completed.add(q.id)
                 })
                 setCompletedQuestIds(completed)
             }
         } catch (error) {
-            logger.error('[Daily Hub] Error loading favorited quests:', error)
+            logger.error('Error loading favorited quests:', error)
             setFavoritedQuests([])
         } finally {
             setLoading(false)
