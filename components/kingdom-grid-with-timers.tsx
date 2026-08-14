@@ -34,6 +34,7 @@ import { AbbeyModal } from '@/components/kingdom/abbey-modal'
 import { useGameStore } from '@/stores/game-store'
 import { PlankPuzzleModal } from './plank-puzzle-modal'
 import { SpecialTileModal } from './special-tile-modal'
+import { WaypointPreviewModal } from '@/components/kingdom/waypoint-preview-modal'
 import { getActiveEvent } from '@/lib/seasonal-events'
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage'
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager'
@@ -465,6 +466,8 @@ export function KingdomGridWithTimers({
   const [plankTileData, setPlankTileData] = useState<{ x: number, y: number } | null>(null);
   const [specialModalOpen, setSpecialModalOpen] = useState(false);
   const [specialTileData, setSpecialTileData] = useState<{ x: number, y: number, tile: Tile, timer: TileTimer | undefined } | null>(null);
+  const [waypointModalOpen, setWaypointModalOpen] = useState(false);
+  const [selectedWaypointTileType, setSelectedWaypointTileType] = useState<string | null>(null);
 
   // Batch collection state
   const [showSummaryModal, setShowSummaryModal] = useState(false)
@@ -1452,110 +1455,16 @@ export function KingdomGridWithTimers({
       return;
     }
 
-    // Handle Functional Buildings (Hub Navigation)
-    if (tile.type === 'daily-hub') {
-      toast({ title: "Entering daily hub", description: "Opening your habits dashboard." });
-      router.push('/daily-hub');
-      return;
-    }
-    if (tile.type === 'quest-board') {
-      toast({ title: "Checking quest board", description: "Going to quests." });
-      router.push('/quests');
-      return;
-    }
-    if (tile.type === 'market' || tile.type === 'market-stalls') {
-      toast({ title: "Entering market", description: "Going to market." });
-      router.push('/market');
-      return;
-    }
-    if (tile.type === 'dungeon') {
-      toast({ title: "Entering dungeon", description: "Teleporting to dungeon." });
-      router.push('/dungeon');
-      return;
-    }
-    if (tile.type === 'fortune_teller') {
-      const activeTimer = tileTimers.find(t => t.x === x && t.y === y);
-      if (activeTimer && !activeTimer.isReady) {
-        const stats = getCharacterStats();
-        const currentFocus = stats.focus_points || 0;
-        if (currentFocus >= 5) {
-          addToCharacterStat('focus_points', -5, 'unlock-fortune-teller');
-          setTileTimers(prev => prev.map(t => (t.x === x && t.y === y ? { ...t, isReady: true } : t)));
-          fetchAuthRetry('/api/property-timers', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ x, y, isReady: true, endTime: new Date(Date.now() - 1000).toISOString() })
-          }).catch(() => {});
-
-          toast({
-            title: "Fortune reading unlocked 🧠",
-            description: "Spent 5 Focus Points to instantly awaken the Fortune Teller!"
-          });
-          setFortuneTileData({ x, y, tileId: tile.type });
-          setFortuneModalOpen(true);
-        } else {
-          toast({
-            title: "Fortune Teller resting 🧠",
-            description: `The Fortune Teller is resting. Earn ${5 - currentFocus} more Focus Points to awaken her immediately!`,
-            variant: "destructive"
-          });
-        }
-      } else {
-        setFortuneTileData({ x, y, tileId: tile.type });
-        setFortuneModalOpen(true);
-      }
-      return;
-    }
-    if (tile.type === 'prison') {
-      setPrisonModalOpen(true);
-      return;
-    }
-    if (tile.type === 'mystic_bazaar') {
-      toast({
-        title: "✨ Opening Mystic Bazaar",
-        description: "Navigating to the Mystic Bazaar pack shop..."
-      });
-      router.push('/market?tab=mystic-bazaar');
-      return;
-    }
-    if (tile.type === 'airship_harbor') {
-      toast({
-        title: "🛸 Airship Harbor Skydock",
-        description: "Navigating to Airship Harbor expeditions..."
-      });
-      router.push('/city/Grand Citadel/tavern?tab=airship');
-      return;
-    }
-    if (tile.type === 'housecup') {
-      toast({
-        title: "🏆 Hourglass Spire",
-        description: "Opening House Cup & 7 Virtue Hourglasses..."
-      });
-      router.push('/social?tab=house-cup');
-      return;
-    }
-    if (tile.type === 'observatory') {
-      toast({
-        title: "🗺️ Cartography Observatory",
-        description: "Opening World Map & Provinces..."
-      });
-      router.push('/worldmap');
-      return;
-    }
-    if (tile.type === 'hall_of_champions') {
-      toast({
-        title: "📜 Hall of Champions",
-        description: "Opening Chronicle Hall of Champions..."
-      });
-      router.push('/chronicle');
-      return;
-    }
-    if (tile.type === 'titan_watchtower') {
-      toast({
-        title: "🐉 Titan Wyrm Watchtower",
-        description: "Opening Alliance Titan Raid Boss..."
-      });
-      router.push('/social?tab=alliances');
+    // Flavor 3: Waypoint Landmark Tiles Preview Modal
+    const WAYPOINT_TILES = [
+      'daily-hub', 'dungeon', 'dungeon-keep', 'quest-board', 'market',
+      'market-stalls', 'mystic_bazaar', 'airship_harbor', 'housecup',
+      'observatory', 'hall_of_champions', 'titan_watchtower', 'castle',
+      'library', 'training-grounds'
+    ];
+    if (WAYPOINT_TILES.includes(tile.type)) {
+      setSelectedWaypointTileType(tile.type);
+      setWaypointModalOpen(true);
       return;
     }
     if (tile.type === 'apotheca') {
@@ -3180,6 +3089,17 @@ export function KingdomGridWithTimers({
           onCollect={() => {
             collectPropertyTile(specialTileData.x, specialTileData.y, specialTileData.tile);
           }}
+        />
+      )}
+      {waypointModalOpen && selectedWaypointTileType && (
+        <WaypointPreviewModal
+          isOpen={waypointModalOpen}
+          onClose={() => {
+            setWaypointModalOpen(false);
+            setSelectedWaypointTileType(null);
+          }}
+          tileType={selectedWaypointTileType}
+          onConfirmNavigate={(url) => router.push(url)}
         />
       )}
     </div >
