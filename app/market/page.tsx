@@ -510,56 +510,36 @@ export default function MarketPage() {
 
           {/* MYSTIC SHOP TAB */}
           <TabsContent value="mystic-shop" className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* MYSTIC BAZAAR HERO HEADER BANNER (Inspired by screenshots 1 & 2) */}
-            <div className="relative rounded-3xl overflow-hidden border-2 border-emerald-500/40 shadow-2xl bg-gradient-to-r from-emerald-950 via-zinc-950 to-zinc-950 p-6 sm:p-8 space-y-4">
-              {/* Aurora Airship Harbor Image Background */}
-              <div className="absolute inset-0 -z-10 opacity-35">
-                <Image
-                  src="/images/headers/mystic-bazaar-hero.jpg"
-                  alt="Mystic Bazaar Aurora Harbor"
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/85 to-transparent -z-10" />
-
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                <div className="space-y-2 max-w-2xl">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 font-medieval text-xs tracking-wider shadow-md">
-                    <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" /> Mystic Bazaar • Cards of Fate
-                  </div>
-                  <h2 className="font-medieval text-3xl sm:text-4xl text-amber-300 tracking-wide">
-                    The Mystic Bazaar Card Shop
-                  </h2>
-                  <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed italic">
-                    Find your destiny! Unroll daily Chrono Chests, collect Mythic creature card packs, and unlock legendary realm blueprint tiles.
-                  </p>
-                  <div className="flex items-center gap-2 flex-wrap pt-2">
-                    <Badge className="bg-emerald-950/80 border-emerald-500/40 text-emerald-300 text-[10px] font-mono font-bold px-2.5 py-1">
-                      🎁 Free Daily Chrono Chests
-                    </Badge>
-                    <Badge className="bg-amber-950/80 border-amber-500/40 text-amber-300 text-[10px] font-mono font-bold px-2.5 py-1">
-                      🃏 Mythic Creature Card Packs
-                    </Badge>
-                    <Badge className="bg-purple-950/80 border-purple-500/40 text-purple-300 text-[10px] font-mono font-bold px-2.5 py-1">
-                      🔮 100% Guaranteed Tile Drops
-                    </Badge>
-                  </div>
-                </div>
-
-                {/* Storefront Badge Image Preview */}
-                <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden border-2 border-emerald-500/40 shadow-2xl shrink-0 hidden sm:block">
-                  <Image
-                    src="/images/headers/mystic-bazaar-shop.jpg"
-                    alt="Mystic Bazaar Shopfront"
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent" />
-                  <span className="absolute bottom-2 left-2 text-[9px] font-mono font-bold text-emerald-300 bg-zinc-950/90 px-2 py-0.5 rounded border border-emerald-500/40">
-                    Cards of Fate 🔮
-                  </span>
+            {/* MYSTIC BAZAAR HERO HEADER BANNER (Matching Airship Harbor Header Structure & Art Style) */}
+            <div className="relative h-60 md:h-72 rounded-2xl overflow-hidden border border-emerald-500/40 shadow-2xl flex items-end">
+              <Image
+                src="/images/headers/mystic-bazaar-header.jpg"
+                alt="Mystic Bazaar Card Shop"
+                fill
+                priority
+                className="object-cover brightness-90 select-none pointer-events-none"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+              <div className="p-6 relative z-10 space-y-2">
+                <Badge className="bg-emerald-600 text-black font-extrabold text-[9px] tracking-wider uppercase mb-1">
+                  ✨ Mystic Bazaar • Cards of Fate
+                </Badge>
+                <h2 className="font-medieval text-2xl sm:text-4xl text-amber-300 tracking-wide drop-shadow-md">
+                  The Mystic Bazaar Card Shop
+                </h2>
+                <p className="text-xs sm:text-sm text-zinc-200 max-w-2xl leading-relaxed italic drop-shadow-sm">
+                  Find your destiny! Unroll daily Chrono Chests, collect Mythic creature card packs, and unlock legendary realm blueprint tiles.
+                </p>
+                <div className="flex items-center gap-2 flex-wrap pt-1">
+                  <Badge className="bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-sm">
+                    🎁 Free Daily Chrono Chests
+                  </Badge>
+                  <Badge className="bg-amber-950/90 border border-amber-500/50 text-amber-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-sm">
+                    🃏 Mythic Creature Card Packs
+                  </Badge>
+                  <Badge className="bg-purple-950/90 border border-purple-500/50 text-purple-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-sm">
+                    🔮 100% Guaranteed Tile Drops
+                  </Badge>
                 </div>
               </div>
             </div>
