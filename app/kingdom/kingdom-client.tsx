@@ -358,49 +358,26 @@ function createEmptyKingdomGrid(): Tile[][] {
 
 // Helper to get the kingdom tile inventory with build tokens
 function getKingdomTileInventoryWithBuildTokens(): Tile[] {
-  const KINGDOM_TILE_IMAGES = [
-    'Crossroad.png', 'Straightroad.png', 'Cornerroad.png', 'Tsplitroad.png', 'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png', 'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png', 'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png', 'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png', 'ZenGarden.png', 'Dailyhub.png', 'fortune_teller.png'
-  ];
-  return KINGDOM_TILE_IMAGES.map((filename, idx) => {
-    const tileName = filename.replace('.png', '');
-    const isCastle = filename === 'Castle.png';
-    // Find the corresponding kingdom tile configuration
-    let kingdomTileConfig = KINGDOM_TILES.find(kt =>
-      kt.name.toLowerCase() === tileName.toLowerCase() ||
-      kt.name.toLowerCase().replace(' ', '') === tileName.toLowerCase()
-    );
-
-    // Fallback logic to ensure visibility
-    if (!kingdomTileConfig) {
-      if (tileName === 'Crossroad') {
-        kingdomTileConfig = { id: 'crossroad', name: 'Crossroad', clickMessage: 'A Crossroad tile', image: '/images/kingdom-tiles/Crossroad.webp' } as any;
-      } else if (tileName === 'Straightroad') {
-        kingdomTileConfig = { id: 'straightroad', name: 'Straight Road', clickMessage: 'A Straight Road tile', image: '/images/kingdom-tiles/Straightroad.webp' } as any;
-      } else if (tileName === 'Cornerroad') {
-        kingdomTileConfig = { id: 'cornerroad', name: 'Corner Road', clickMessage: 'A Corner Road tile', image: '/images/kingdom-tiles/Cornerroad.webp' } as any;
-      } else if (tileName === 'Tsplitroad') {
-        kingdomTileConfig = { id: 'tsplitroad', name: 'T-Split Road', clickMessage: 'A T-Split Road tile', image: '/images/kingdom-tiles/Tsplitroad.webp' } as any;
-      }
-    }
-
+  return KINGDOM_TILES.map((kt, idx) => {
+    const isCastle = kt.id === 'castle';
     return {
-      id: kingdomTileConfig ? kingdomTileConfig.id : `kingdom-tile-${idx}`,
-      type: kingdomTileConfig ? (kingdomTileConfig.id as TileType) : 'special',
-      name: tileName,
-      description: kingdomTileConfig ? kingdomTileConfig.clickMessage : `${TEXT_CONTENT.kingdomTiles.specialPrefix}${tileName}`,
+      id: kt.id,
+      type: kt.id as TileType,
+      name: kt.name,
+      description: kt.clickMessage || `${TEXT_CONTENT.kingdomTiles.specialPrefix}${kt.name}`,
       connections: [] as ConnectionDirection[],
       rotation: 0 as 0 | 90 | 180 | 270,
       revealed: true,
       isVisited: false,
       x: 0,
       y: 0,
-      ariaLabel: `Kingdom tile: ${tileName}`,
-      image: `/images/kingdom-tiles/${filename}`,
-      cost: kingdomTileConfig?.cost || 0,
-      tokenCost: kingdomTileConfig?.tokenCost,
-      materialCost: kingdomTileConfig?.materialCost,
+      ariaLabel: `Kingdom tile: ${kt.name}`,
+      image: kt.image || '/images/kingdom-tiles/default.webp',
+      cost: kt.cost || 0,
+      tokenCost: kt.tokenCost,
+      materialCost: kt.materialCost,
       quantity: isCastle ? 1 : 0,
-      levelRequired: kingdomTileConfig?.levelRequired,
+      levelRequired: kt.levelRequired,
     };
   });
 }
@@ -1430,9 +1407,18 @@ export function KingdomClient() {
         setEquippedItems(normEquipped);
       }
 
-      setStoredItems(normalize(stored));
-      // Clear local optimistic offsets since server data is now the source of truth
-      setLocalItems([]);
+      const normStored = normalize(stored);
+      setStoredItems(normStored);
+      // Keep local items that haven't shown up in server data yet to prevent optimistic purchases from resetting
+      setLocalItems(prev => prev.filter(localItem => {
+        const localId = localItem.id?.toLowerCase();
+        const localName = localItem.name?.toLowerCase();
+        return !normStored.some((s: any) => {
+          const sId = s.id?.toLowerCase();
+          const sName = s.name?.toLowerCase();
+          return sId === localId || sId === `${localId}-item` || (localName && sName === localName);
+        });
+      }));
 
       // 4. Update Stats
       setTotalStats(stats || { movement: 0, attack: 0, defense: 0 });

@@ -229,21 +229,40 @@ export function KingdomGridWithTimers({
   useEffect(() => {
     if (!inventory) return;
     setPropertyInventory(prev => {
-      const inventoryMap = new Map();
+      const inventoryMap = new Map<string, number>();
       inventory.forEach(i => {
-        inventoryMap.set(i.id, i.quantity || 0);
-        if (i.id.endsWith('-item')) {
-          inventoryMap.set(i.id.replace('-item', ''), i.quantity || 0);
+        if (!i) return;
+        const q = i.quantity || 0;
+        if (i.id) {
+          inventoryMap.set(i.id, q);
+          inventoryMap.set(i.id.toLowerCase(), q);
+          inventoryMap.set(i.id.replace(/-/g, '_'), q);
+          inventoryMap.set(i.id.replace(/_/g, '-'), q);
+          if (i.id.endsWith('-item')) {
+            inventoryMap.set(i.id.replace('-item', ''), q);
+          }
         }
         if (i.name) {
-          inventoryMap.set(i.name.toLowerCase(), i.quantity || 0);
+          inventoryMap.set(i.name.toLowerCase(), q);
         }
       });
 
       return prev.map(prop => {
-        const qty = inventoryMap.get(prop.id) ||
-          inventoryMap.get(prop.name?.toLowerCase()) ||
-          0;
+        const hasKey = inventoryMap.has(prop.id) || 
+                       inventoryMap.has(prop.id.toLowerCase()) || 
+                       inventoryMap.has(prop.id.replace(/-/g, '_')) || 
+                       inventoryMap.has(prop.id.replace(/_/g, '-')) || 
+                       (prop.name && inventoryMap.has(prop.name.toLowerCase()));
+        
+        const mappedQty = inventoryMap.get(prop.id) ??
+          inventoryMap.get(prop.id.toLowerCase()) ??
+          inventoryMap.get(prop.id.replace(/-/g, '_')) ??
+          inventoryMap.get(prop.id.replace(/_/g, '-')) ??
+          (prop.name ? inventoryMap.get(prop.name.toLowerCase()) : undefined);
+
+        // If key is present in inventory, update quantity. If missing entirely, retain current optimistic quantity.
+        const qty = hasKey && mappedQty !== undefined ? mappedQty : (prop.quantity || 0);
+
         if (prop.quantity !== qty) {
           return { ...prop, quantity: qty };
         }
