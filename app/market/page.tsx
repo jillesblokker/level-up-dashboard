@@ -432,67 +432,29 @@ export default function MarketPage() {
   return (
     <div className="min-h-screen thrivehaven-page-bg text-zinc-100 p-4 sm:p-6 lg:p-8 font-serif">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Clean Top Navigation Bar with Back Button & Refined Header */}
-        <div className="medieval-card p-6 rounded-2xl border border-amber-900/50 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="absolute top-0 right-0 w-80 h-full bg-[radial-gradient(ellipse_at_top_right,rgba(245,158,11,0.12),transparent_70%)] pointer-events-none" />
-
-          {/* Left: Clean Back Button + Title */}
-          <div className="flex items-center gap-4 z-10">
-            <Link href="/kingdom">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-amber-400 hover:text-amber-200 hover:bg-amber-950/60 rounded-full h-11 w-11 border border-amber-500/40 shadow-lg shrink-0 cursor-pointer"
-                title="Back to Kingdom"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-widest text-amber-500 block">Royal Commerce Hub</span>
-              <h1 className="text-2xl sm:text-3xl font-medieval tracking-tight text-amber-300">Royal Exchange & Bazaar</h1>
-              <p className="text-xs text-zinc-400 mt-0.5 italic">Trade construction materials, purchase resource packs, and unlock mystery card chests.</p>
-            </div>
-          </div>
-
-          {/* Right: Treasury Currency HUD & Single Apotheca Action Button */}
-          <div className="flex flex-wrap items-center gap-3.5 z-10 w-full md:w-auto justify-start md:justify-end">
-            {/* Apotheca Glasshouse Action Button */}
+        {/* Sleek Top Action Bar: Back Button on Left, Apotheca Glasshouse on Right */}
+        <div className="flex items-center justify-between gap-4">
+          <Link href="/kingdom">
             <Button
-              size="sm"
-              onClick={() => setApothecaOpen(true)}
-              className="bg-purple-950/90 border border-purple-500/60 text-purple-200 hover:bg-purple-900 text-xs px-4 py-2.5 rounded-xl font-serif flex items-center justify-center gap-2 shadow-lg shadow-purple-950/40 shrink-0 font-bold cursor-pointer"
+              variant="ghost"
+              size="icon"
+              className="text-amber-400 hover:text-amber-200 hover:bg-amber-950/60 rounded-full h-11 w-11 border border-amber-500/40 shadow-lg shrink-0 cursor-pointer"
+              title="Back to Kingdom"
             >
-              🧪 Apotheca Glasshouse
-              <Badge className="bg-purple-500/30 text-purple-200 text-[9px] font-mono border-purple-400/40 ml-0.5">
-                Brew Ready ✨
-              </Badge>
+              <ArrowLeft className="w-5 h-5" />
             </Button>
+          </Link>
 
-            {/* Treasury Currency HUD */}
-            <div className="flex items-center justify-between sm:justify-start gap-4 bg-zinc-950/90 border border-amber-900/40 p-2.5 px-4 rounded-xl shadow-lg shrink-0">
-              <div className="flex items-center gap-2">
-                <Gem className="h-5 w-5 text-pink-400 animate-pulse shrink-0" />
-                <div className="text-left mr-2 border-r border-amber-900/40 pr-4">
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Gems</p>
-                  <AnimatedNumber 
-                    value={gemBalance} 
-                    className="text-base font-serif font-bold text-pink-200" 
-                    title={`${gemBalance.toLocaleString()} Gems`}
-                  />
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Coins className="h-5 w-5 text-amber-400 animate-pulse shrink-0" />
-                <div className="text-right">
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Treasury</p>
-                  <div className="text-base font-serif font-bold text-amber-200" title={`${goldBalance.toLocaleString()} Gold`}>
-                    <AnimatedNumber value={goldBalance} formatFn={formatGold} /> <span className="text-xs text-amber-500">Gold</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Button
+            size="sm"
+            onClick={() => setApothecaOpen(true)}
+            className="bg-purple-950/90 border border-purple-500/60 text-purple-200 hover:bg-purple-900 text-xs px-4 py-2.5 rounded-xl font-serif flex items-center justify-center gap-2 shadow-lg shadow-purple-950/40 shrink-0 font-bold cursor-pointer"
+          >
+            🧪 Apotheca Glasshouse
+            <Badge className="bg-purple-500/30 text-purple-200 text-[9px] font-mono border-purple-400/40 ml-0.5">
+              Brew Ready ✨
+            </Badge>
+          </Button>
         </div>
 
         <Tabs value={activeTab} onValueChange={(val) => { setActiveTab(val); setSearchQuery(""); }} className="space-y-6">
