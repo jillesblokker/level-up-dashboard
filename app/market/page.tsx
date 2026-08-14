@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { ArrowLeft, Coins, TrendingUp, TrendingDown, Package, ShoppingBag, Search, Gem } from "lucide-react"
+import { ArrowLeft, Coins, TrendingUp, TrendingDown, Package, ShoppingBag, Search, Gem, Sparkles } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { getCharacterStats, addToCharacterStat, fetchFreshCharacterStats } from "@/lib/character-stats-service"
 import { useUser } from "@clerk/nextjs"
 import { useRealmInventory } from '@/hooks/use-realm-inventory'
@@ -431,29 +432,45 @@ export default function MarketPage() {
   return (
     <div className="min-h-screen thrivehaven-page-bg text-zinc-100 p-4 sm:p-6 lg:p-8 font-serif">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="medieval-card p-6 rounded-2xl border border-amber-900/50 flex flex-col md:flex-row items-center justify-between gap-4 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-full bg-[radial-gradient(ellipse_at_top_right,rgba(245,158,11,0.15),transparent_70%)] pointer-events-none" />
-          <div className="z-10">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-amber-500">Royal Commerce Hub</span>
-            <h1 className="text-3xl font-medieval tracking-tight text-amber-300">Royal Exchange & Bazaar</h1>
-            <p className="text-xs text-zinc-400 mt-1 italic">Trade construction materials, purchase resource packs, and unlock mystery chests.</p>
+        {/* Clean Top Navigation Bar with Back Button & Refined Header */}
+        <div className="medieval-card p-6 rounded-2xl border border-amber-900/50 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="absolute top-0 right-0 w-80 h-full bg-[radial-gradient(ellipse_at_top_right,rgba(245,158,11,0.12),transparent_70%)] pointer-events-none" />
+
+          {/* Left: Clean Back Button + Title */}
+          <div className="flex items-center gap-4 z-10">
+            <Link href="/kingdom">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-amber-400 hover:text-amber-200 hover:bg-amber-950/60 rounded-full h-11 w-11 border border-amber-500/40 shadow-lg shrink-0 cursor-pointer"
+                title="Back to Kingdom"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+            <div>
+              <span className="text-[10px] uppercase font-bold tracking-widest text-amber-500 block">Royal Commerce Hub</span>
+              <h1 className="text-2xl sm:text-3xl font-medieval tracking-tight text-amber-300">Royal Exchange & Bazaar</h1>
+              <p className="text-xs text-zinc-400 mt-0.5 italic">Trade construction materials, purchase resource packs, and unlock mystery card chests.</p>
+            </div>
           </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto z-10">
-            {/* Apotheca Glasshouse Direct Shortcut Button */}
+
+          {/* Right: Treasury Currency HUD & Single Apotheca Action Button */}
+          <div className="flex flex-wrap items-center gap-3.5 z-10 w-full md:w-auto justify-start md:justify-end">
+            {/* Apotheca Glasshouse Action Button */}
             <Button
               size="sm"
               onClick={() => setApothecaOpen(true)}
-              className="bg-purple-950/90 border border-purple-500/60 text-purple-200 hover:bg-purple-900 text-xs px-3.5 py-2 rounded-xl font-serif flex items-center justify-center gap-1.5 shadow-lg shadow-purple-950/40 shrink-0 font-bold"
+              className="bg-purple-950/90 border border-purple-500/60 text-purple-200 hover:bg-purple-900 text-xs px-4 py-2.5 rounded-xl font-serif flex items-center justify-center gap-2 shadow-lg shadow-purple-950/40 shrink-0 font-bold cursor-pointer"
             >
               🧪 Apotheca Glasshouse
-              <Badge className="bg-purple-500/30 text-purple-200 text-[9px] font-mono border-purple-400/40 ml-1">
+              <Badge className="bg-purple-500/30 text-purple-200 text-[9px] font-mono border-purple-400/40 ml-0.5">
                 Brew Ready ✨
               </Badge>
             </Button>
 
-            {/* Current Currency HUD */}
-            <div className="flex items-center justify-between sm:justify-start gap-4 bg-zinc-950/90 border border-amber-900/40 p-2.5 px-4 rounded-xl shadow-lg w-full sm:w-auto">
+            {/* Treasury Currency HUD */}
+            <div className="flex items-center justify-between sm:justify-start gap-4 bg-zinc-950/90 border border-amber-900/40 p-2.5 px-4 rounded-xl shadow-lg shrink-0">
               <div className="flex items-center gap-2">
                 <Gem className="h-5 w-5 text-pink-400 animate-pulse shrink-0" />
                 <div className="text-left mr-2 border-r border-amber-900/40 pr-4">
@@ -475,47 +492,7 @@ export default function MarketPage() {
                 </div>
               </div>
             </div>
-
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Button
-                variant="outline"
-                onClick={() => setApothecaOpen(true)}
-                className="w-full sm:w-auto justify-center text-xs border-purple-500/40 text-purple-300 hover:bg-purple-950/40 font-bold"
-              >
-                🧪 Open Apotheca Glasshouse
-              </Button>
-              <Link href="/" className="w-full sm:w-auto">
-                <Button variant="medieval" className="w-full justify-center text-xs">
-                  <ArrowLeft className="h-4 w-4" />
-                  Return to Kingdom
-                </Button>
-              </Link>
-            </div>
           </div>
-        </div>
-
-        {/* Grand Apotheca Glasshouse Shortcut Header Card */}
-        <div className="bg-gradient-to-r from-emerald-950/80 via-zinc-950 to-zinc-950 border border-emerald-500/40 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-2xl text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.4)] animate-pulse">
-              🧪
-            </div>
-            <div>
-              <h3 className="font-serif font-bold text-base text-emerald-200 flex items-center gap-2">
-                Grand Apotheca Glasshouse
-                <Badge className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[9px] font-mono font-bold">
-                  Master Brew Ready
-                </Badge>
-              </h3>
-              <p className="text-xs text-zinc-300">Distill botanical materials into gold surges, experience elixirs, and health potions.</p>
-            </div>
-          </div>
-          <Button
-            onClick={() => setApothecaOpen(true)}
-            className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-zinc-950 font-bold text-xs px-5 py-2.5 rounded-xl shadow-md gap-2 uppercase tracking-wider shrink-0"
-          >
-            Brew Potions ✨
-          </Button>
         </div>
 
         <Tabs value={activeTab} onValueChange={(val) => { setActiveTab(val); setSearchQuery(""); }} className="space-y-6">
@@ -532,7 +509,60 @@ export default function MarketPage() {
           </TabsList>
 
           {/* MYSTIC SHOP TAB */}
-          <TabsContent value="mystic-shop" className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <TabsContent value="mystic-shop" className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* MYSTIC BAZAAR HERO HEADER BANNER (Inspired by screenshots 1 & 2) */}
+            <div className="relative rounded-3xl overflow-hidden border-2 border-emerald-500/40 shadow-2xl bg-gradient-to-r from-emerald-950 via-zinc-950 to-zinc-950 p-6 sm:p-8 space-y-4">
+              {/* Aurora Airship Harbor Image Background */}
+              <div className="absolute inset-0 -z-10 opacity-35">
+                <Image
+                  src="/images/headers/mystic-bazaar-hero.jpg"
+                  alt="Mystic Bazaar Aurora Harbor"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/85 to-transparent -z-10" />
+
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="space-y-2 max-w-2xl">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 font-medieval text-xs tracking-wider shadow-md">
+                    <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" /> Mystic Bazaar • Cards of Fate
+                  </div>
+                  <h2 className="font-medieval text-3xl sm:text-4xl text-amber-300 tracking-wide">
+                    The Mystic Bazaar Card Shop
+                  </h2>
+                  <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed italic">
+                    Find your destiny! Unroll daily Chrono Chests, collect Mythic creature card packs, and unlock legendary realm blueprint tiles.
+                  </p>
+                  <div className="flex items-center gap-2 flex-wrap pt-2">
+                    <Badge className="bg-emerald-950/80 border-emerald-500/40 text-emerald-300 text-[10px] font-mono font-bold px-2.5 py-1">
+                      🎁 Free Daily Chrono Chests
+                    </Badge>
+                    <Badge className="bg-amber-950/80 border-amber-500/40 text-amber-300 text-[10px] font-mono font-bold px-2.5 py-1">
+                      🃏 Mythic Creature Card Packs
+                    </Badge>
+                    <Badge className="bg-purple-950/80 border-purple-500/40 text-purple-300 text-[10px] font-mono font-bold px-2.5 py-1">
+                      🔮 100% Guaranteed Tile Drops
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Storefront Badge Image Preview */}
+                <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden border-2 border-emerald-500/40 shadow-2xl shrink-0 hidden sm:block">
+                  <Image
+                    src="/images/headers/mystic-bazaar-shop.jpg"
+                    alt="Mystic Bazaar Shopfront"
+                    fill
+                    className="object-cover hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent" />
+                  <span className="absolute bottom-2 left-2 text-[9px] font-mono font-bold text-emerald-300 bg-zinc-950/90 px-2 py-0.5 rounded border border-emerald-500/40">
+                    Cards of Fate 🔮
+                  </span>
+                </div>
+              </div>
+            </div>
             {/* Free Packs Section (Horizontal Touch Snap Carousel on Mobile) */}
             <div className="space-y-4">
               <div className="flex items-center gap-3">
