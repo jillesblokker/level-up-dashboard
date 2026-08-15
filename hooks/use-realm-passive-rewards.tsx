@@ -4,6 +4,7 @@ import { ToastAction } from '@/components/ui/toast';
 import { gainGold } from '@/lib/gold-manager';
 import { gainExperience } from '@/lib/experience-manager';
 import { Tile } from '@/types/core-interfaces';
+import { notificationService } from '@/lib/notification-service';
 
 import { useWeather } from '@/hooks/use-weather';
 
@@ -159,13 +160,22 @@ export function useRealmPassiveRewards(grid: Tile[][], isMounted: boolean) {
         localStorage.setItem('kingdom_last_collection', now.toString());
         setPassiveRewards(null);
 
+        const descMsg = maintenanceDecayed
+            ? `Collected ${passiveRewards.gold} Gold and ${passiveRewards.xp} XP (−30% decay — buildings need maintenance!)`
+            : `You collected ${passiveRewards.gold} Gold and ${passiveRewards.xp} XP from your kingdom!`;
+
         toast({
             title: maintenanceDecayed ? "⚠️ Reduced Treasury Collected" : "💰 Royal Treasury Collected!",
-            description: maintenanceDecayed
-                ? `Collected ${passiveRewards.gold} Gold and ${passiveRewards.xp} XP (−30% decay — buildings need maintenance!)`
-                : `You collected ${passiveRewards.gold} Gold and ${passiveRewards.xp} XP from your kingdom!`,
+            description: descMsg,
             className: "bg-black bg-gradient-to-r from-amber-900 via-amber-800 to-yellow-900 border-amber-500 border-2 text-white shadow-2xl opacity-100"
         });
+
+        notificationService.addNotification(
+            maintenanceDecayed ? "⚠️ Reduced Treasury Collected" : "💰 Royal Treasury Collected!",
+            descMsg,
+            "success",
+            "medium"
+        );
 
         window.dispatchEvent(new CustomEvent('coin-burst', {
             detail: { amount: passiveRewards.gold, x: window.innerWidth / 2, y: window.innerHeight / 2 }

@@ -4,7 +4,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
 
-export type OrbCategory = 'purple' | 'green' | 'red' | 'gold' | 'cyan';
+export type OrbCategory = 'purple' | 'green' | 'red' | 'gold' | 'cyan' | 'orange' | 'blue' | 'slate';
 
 interface SwordStaffOrbCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
@@ -28,10 +28,13 @@ export function SwordStaffOrbCard({
   ...props
 }: SwordStaffOrbCardProps) {
   const orbGlowStyles: Record<OrbCategory, string> = {
-    purple: 'border-2 border-purple-400 bg-radial from-purple-600 via-purple-900 to-[#120524] text-purple-100 shadow-[0_0_20px_rgba(168,85,247,0.65),inset_0_2px_4px_rgba(255,255,255,0.4)]',
-    green: 'border-2 border-emerald-400 bg-radial from-emerald-500 via-emerald-900 to-[#042116] text-emerald-100 shadow-[0_0_20px_rgba(34,197,94,0.65),inset_0_2px_4px_rgba(255,255,255,0.4)]',
-    red: 'border-2 border-red-500 bg-radial from-rose-600 via-red-900 to-[#280404] text-yellow-200 shadow-[0_0_20px_rgba(239,68,68,0.65),inset_0_2px_4px_rgba(255,255,255,0.4)]',
+    orange: 'border-2 border-orange-500 bg-radial from-orange-500 via-amber-800 to-[#281004] text-amber-100 shadow-[0_0_20px_rgba(249,115,22,0.75),inset_0_2px_4px_rgba(255,255,255,0.4)]',
+    blue: 'border-2 border-sky-400 bg-radial from-sky-500 via-blue-900 to-[#041224] text-sky-100 shadow-[0_0_20px_rgba(56,189,248,0.65),inset_0_2px_4px_rgba(255,255,255,0.4)]',
     gold: 'border-2 border-amber-400 bg-radial from-amber-400 via-amber-700 to-[#2a1704] text-amber-100 shadow-[0_0_20px_rgba(245,158,11,0.7),inset_0_2px_4px_rgba(255,255,255,0.5)]',
+    slate: 'border-2 border-slate-400 bg-radial from-slate-400 via-slate-800 to-[#0f172a] text-slate-100 shadow-[0_0_20px_rgba(148,163,184,0.65),inset_0_2px_4px_rgba(255,255,255,0.4)]',
+    red: 'border-2 border-red-500 bg-radial from-rose-600 via-red-900 to-[#280404] text-yellow-200 shadow-[0_0_20px_rgba(239,68,68,0.65),inset_0_2px_4px_rgba(255,255,255,0.4)]',
+    green: 'border-2 border-emerald-400 bg-radial from-emerald-500 via-emerald-900 to-[#042116] text-emerald-100 shadow-[0_0_20px_rgba(34,197,94,0.65),inset_0_2px_4px_rgba(255,255,255,0.4)]',
+    purple: 'border-2 border-purple-400 bg-radial from-purple-600 via-purple-900 to-[#120524] text-purple-100 shadow-[0_0_20px_rgba(168,85,247,0.65),inset_0_2px_4px_rgba(255,255,255,0.4)]',
     cyan: 'border-2 border-cyan-400 bg-radial from-cyan-500 via-cyan-900 to-[#041a24] text-cyan-100 shadow-[0_0_20px_rgba(6,182,212,0.65),inset_0_2px_4px_rgba(255,255,255,0.4)]',
   };
 

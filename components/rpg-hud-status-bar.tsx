@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { getHealthVitalitySync, getTaxMultiplier, drinkHealthPotion } from '@/lib/health-vitality-manager';
 import { getManaSync } from '@/lib/mana-manager';
@@ -140,8 +141,8 @@ export function RpgHudStatusBar() {
             className="group relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-amber-900 via-amber-950 to-black border-2 border-amber-400 shadow-[0_8px_32px_rgba(0,0,0,0.9),0_0_20px_rgba(245,158,11,0.4)] hover:scale-110 active:scale-95 transition-all cursor-pointer"
             title="Click to Expand RPG Status Carousel"
           >
-            <div className="w-10 h-10 rounded-full bg-amber-950/80 flex items-center justify-center overflow-hidden border border-amber-300/40">
-              <span className="text-xl">👑</span>
+            <div className="relative w-10 h-10 rounded-full bg-amber-950/80 flex items-center justify-center overflow-hidden border border-amber-300/40">
+              <Image src="/images/character/count.webp" alt="Character Avatar" width={36} height={36} className="object-contain p-0.5" unoptimized />
             </div>
             {/* Level Badge Overlay */}
             <span className="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded-full bg-emerald-600 border border-amber-300 text-[9px] font-mono font-bold text-white shadow-md">
@@ -155,10 +156,10 @@ export function RpgHudStatusBar() {
             <button
               type="button"
               onClick={() => toggleCollapse(true)}
-              className="w-8 h-8 rounded-full bg-amber-950 border border-amber-400 flex items-center justify-center shrink-0 hover:scale-105 transition-transform"
+              className="relative w-8 h-8 rounded-full bg-amber-950 border border-amber-400 flex items-center justify-center shrink-0 hover:scale-105 transition-transform overflow-hidden"
               title="Click to Collapse HUD"
             >
-              <span className="text-xs">👑</span>
+              <Image src="/images/character/count.webp" alt="Character Avatar" width={30} height={30} className="object-contain p-0.5" unoptimized />
             </button>
 
             <div className="w-px h-6 bg-zinc-800 shrink-0" />

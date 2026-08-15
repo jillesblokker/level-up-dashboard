@@ -1326,12 +1326,15 @@ export default function CharacterPage() {
                   <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                     {strengths.map((strength) => {
                       const categoryMap: Record<string, { icon: any; category: any }> = {
-                        might: { icon: Sword, category: 'red' },
-                        knowledge: { icon: Brain, category: 'purple' },
+                        might: { icon: Sword, category: 'orange' },
+                        knowledge: { icon: Brain, category: 'blue' },
                         honor: { icon: Crown, category: 'gold' },
-                        castle: { icon: CastleIcon, category: 'cyan' },
-                        craft: { icon: Hammer, category: 'gold' },
-                        vitality: { icon: Heart, category: 'green' }
+                        castle: { icon: CastleIcon, category: 'slate' },
+                        craft: { icon: Hammer, category: 'slate' },
+                        vitality: { icon: Heart, category: 'red' },
+                        wellness: { icon: Sparkles, category: 'green' },
+                        exploration: { icon: Compass, category: 'purple' },
+                        conquest: { icon: Shield, category: 'cyan' },
                       };
                       const config = categoryMap[strength.category?.toLowerCase()] || { icon: Sparkles, category: 'gold' };
 

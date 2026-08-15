@@ -27,13 +27,13 @@ import { getCharacterStats } from "@/lib/character-stats-service"
 import { Hourglass } from '@/components/house-cup/hourglass'
 
 const CATEGORY_META: Record<string, { name: string; emoji: string; color: string }> = {
-  might: { name: 'Might', emoji: '💪', color: '#ef4444' },
-  knowledge: { name: 'Knowledge', emoji: '📚', color: '#3b82f6' },
+  might: { name: 'Might', emoji: '💪', color: '#f97316' },
+  knowledge: { name: 'Knowledge', emoji: '📚', color: '#38bdf8' },
   honor: { name: 'Honor', emoji: '👑', color: '#eab308' },
-  castle: { name: 'Castle', emoji: '🏰', color: '#a855f7' },
-  craft: { name: 'Craft', emoji: '⚒️', color: '#f97316' },
-  vitality: { name: 'Vitality', emoji: '❤️', color: '#ec4899' },
-  wellness: { name: 'Wellness', emoji: '🌿', color: '#10b981' },
+  castle: { name: 'Castle', emoji: '🏰', color: '#cbd5e1' },
+  craft: { name: 'Craft', emoji: '⚒️', color: '#94a3b8' },
+  vitality: { name: 'Vitality', emoji: '❤️', color: '#ef4444' },
+  wellness: { name: 'Wellness', emoji: '🌿', color: '#22c55e' },
 };
 
 interface Friend {

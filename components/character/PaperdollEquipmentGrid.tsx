@@ -150,9 +150,6 @@ export function PaperdollEquipmentGrid({
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-xl sm:text-2xl font-serif font-bold text-amber-300">{heroName}</h2>
-                <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-400 bg-amber-950/40 font-mono">
-                  Current Title
-                </Badge>
                 <Badge variant="outline" className="text-[10px] border-emerald-500/50 text-emerald-300 bg-emerald-950/50 font-mono font-bold">
                   ⚡ Gear Score: {(gearScore + 1000).toLocaleString()} (Sovereign Knight)
                 </Badge>

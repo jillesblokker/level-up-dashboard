@@ -3108,57 +3108,6 @@ function RealmPageContent() {
                         </DialogContent>
                     </Dialog>
                 )}
-
-                {/* Passive Rewards Treasury UI */}
-                {passiveRewards && (passiveRewards.gold > 0 || passiveRewards.xp > 0) && (
-                    <div className="fixed top-24 right-4 z-40 animate-in slide-in-from-right-5 fade-in duration-500">
-                        <Card className="bg-gradient-to-br from-zinc-900 to-amber-950/80 border-amber-500/50 shadow-xl shadow-amber-900/20  w-64 overflow-hidden group hover:scale-105 transition-transform duration-300">
-                            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent opacity-50 animate-pulse" />
-                            <CardContent className="p-4 relative">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h3 className="font-bold text-amber-400 text-sm uppercase tracking-wider flex items-center gap-2">
-                                        <Crown className="w-4 h-4" /> {TEXT_CONTENT.realm.treasury.title}
-                                    </h3>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <div className="flex justify-between items-center text-amber-200">
-                                        <span className="text-xs text-amber-400/80">{TEXT_CONTENT.realm.treasury.taxes}</span>
-                                    </div>
-
-                                    <div className="flex gap-3">
-                                        <div className="flex-1 bg-zinc-950 rounded p-2 border border-amber-500/20 flex flex-col items-center">
-                                            <span className="text-xl font-bold text-amber-400">{passiveRewards.gold}</span>
-                                            <span className="text-[10px] text-amber-500/70 uppercase">{TEXT_CONTENT.realm.treasury.gold}</span>
-                                        </div>
-                                        <div className="flex-1 bg-zinc-950 rounded p-2 border border-blue-500/20 flex flex-col items-center">
-                                            <span className="text-xl font-bold text-blue-400">{passiveRewards.xp}</span>
-                                            <span className="text-[10px] text-blue-500/70 uppercase">{TEXT_CONTENT.realm.treasury.xp}</span>
-                                        </div>
-                                    </div>
-
-                                    <Button
-                                        className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold border-t border-white/20 shadow-lg active:scale-95 transition-all"
-                                        onClick={handleCollectRewards}
-                                    >
-                                        {TEXT_CONTENT.realm.treasury.collect}
-                                    </Button>
-                                    <div className="text-center">
-                                        <button
-                                            onClick={() => {
-                                                setInventoryTab('guide');
-                                                setShowInventory(true);
-                                            }}
-                                            className="text-[10px] text-amber-500/70 hover:text-amber-400 underline decoration-dotted transition-colors"
-                                        >
-                                            {TEXT_CONTENT.realm.treasury.earnMore}
-                                        </button>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                )}
             </RealmAnimationWrapper>
         </div >
     );
