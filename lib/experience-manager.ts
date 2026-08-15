@@ -1,6 +1,7 @@
 import { logger } from "@/lib/logger";
 import { toast } from "@/components/ui/use-toast"
 import { calculateLevelFromExperience, calculateExperienceToNextLevel, CharacterStats } from "@/types/character"
+export { calculateLevelFromExperience, calculateExperienceToNextLevel }
 import { createLevelUpNotification, createExperienceGainedNotification } from "@/lib/notifications"
 import { emitExperienceGained } from "@/lib/kingdom-events"
 import { getCharacterStats, addToCharacterStat, updateCharacterStats } from "@/lib/character-stats-service"
