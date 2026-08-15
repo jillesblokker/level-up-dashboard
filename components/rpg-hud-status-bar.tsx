@@ -31,7 +31,7 @@ export function RpgHudStatusBar() {
   const taxMultiplier = getTaxMultiplier(health);
 
   const taxBadgeText = isPeakKing
-    ? '👑 +10% Bonus Taxes'
+    ? '👑 +10% Taxes'
     : health >= 50
     ? '🛡️ 1.0x Base Taxes'
     : health >= 10
@@ -62,16 +62,16 @@ export function RpgHudStatusBar() {
         </div>
       )}
 
-      {/* Floating RPG Status HUD Container: Desktop = Bottom Left Corner, Mobile = Top Left Corner */}
-      <div className="fixed bottom-4 left-4 max-md:top-4 max-md:bottom-auto z-[9999] pointer-events-auto">
+      {/* Floating RPG Status HUD Container: Desktop = Bottom Left Corner, Mobile = Top Full Width below notch */}
+      <div className="fixed top-[calc(env(safe-area-inset-top,0px)+0.75rem)] left-3 right-3 w-[calc(100%-1.5rem)] md:top-auto md:bottom-4 md:left-4 md:right-auto md:w-auto z-[9999] pointer-events-auto">
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex items-center gap-2.5 bg-[#0f1526]/95 backdrop-blur-md px-3 py-2 rounded-xl border-1.5 border-amber-500/60 shadow-[0_8px_30px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(254,240,138,0.2)]">
+            <div className="flex items-center justify-between md:justify-start gap-1.5 sm:gap-2.5 bg-[#0f1526]/95 backdrop-blur-md px-3 py-2 rounded-xl border-1.5 border-amber-500/60 shadow-[0_8px_30px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(254,240,138,0.2)]">
               {/* Health Flask (Red) */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <div
                   className={cn(
-                    "w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs text-yellow-200 relative overflow-hidden transition-all shrink-0",
+                    "w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 flex items-center justify-center text-xs text-yellow-200 relative overflow-hidden transition-all shrink-0",
                     isPeakKing
                       ? "border-amber-300 bg-radial from-amber-400 via-red-600 to-red-950 shadow-[0_0_20px_rgba(245,158,11,0.9)] scale-105"
                       : isPoisoned
@@ -83,30 +83,30 @@ export function RpgHudStatusBar() {
                   <div className="absolute top-0.5 left-1 w-2.5 h-1 rounded-full bg-white/40 blur-[0.5px] pointer-events-none" />
                   <span className="relative z-10 font-bold">{isPoisoned ? '🟢' : '🔴'}</span>
                 </div>
-                <div className="flex flex-col min-w-[90px]">
+                <div className="flex flex-col min-w-[70px] sm:min-w-[90px]">
                   <span className="text-[10px] font-bold text-red-400 uppercase tracking-widest font-serif leading-tight">
-                    {isPoisoned ? 'Poisoned Health' : 'Health Vitality'} ({health}%)
+                    {isPoisoned ? 'Poisoned' : 'Health'} ({health}%)
                   </span>
-                  <span className={cn("text-[10px] font-mono leading-tight", taxBadgeColor)}>
+                  <span className={cn("text-[9px] sm:text-[10px] font-mono leading-tight", taxBadgeColor)}>
                     {taxBadgeText}
                   </span>
                 </div>
               </div>
 
-              <div className="w-px h-7 bg-amber-900/50 hidden sm:block" />
+              <div className="w-px h-7 bg-amber-900/50" />
 
-              {/* Mana / Stamina Flask (Blue) */}
-              <div className="hidden sm:flex items-center gap-2">
-                <div className="w-9 h-9 rounded-full border-2 border-cyan-400 bg-radial from-cyan-500 via-cyan-900 to-[#041a24] flex items-center justify-center text-xs text-cyan-100 shadow-[0_0_15px_rgba(6,182,212,0.7),inset_0_2px_4px_rgba(255,255,255,0.4)] relative overflow-hidden shrink-0">
+              {/* Mana Flask (Blue) */}
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-cyan-400 bg-radial from-cyan-500 via-cyan-900 to-[#041a24] flex items-center justify-center text-xs text-cyan-100 shadow-[0_0_15px_rgba(6,182,212,0.7),inset_0_2px_4px_rgba(255,255,255,0.4)] relative overflow-hidden shrink-0">
                   <div className="absolute top-0.5 left-1 w-2.5 h-1 rounded-full bg-white/40 blur-[0.5px] pointer-events-none" />
                   <span className="relative z-10 font-bold">🔵</span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-serif leading-tight">
-                    Focus Stamina
+                    Mana
                   </span>
-                  <span className="text-[10px] font-mono text-cyan-200 font-bold leading-tight">
-                    Full Mana
+                  <span className="text-[9px] sm:text-[10px] font-mono text-cyan-200 font-bold leading-tight">
+                    Full
                   </span>
                 </div>
               </div>
@@ -124,12 +124,12 @@ export function RpgHudStatusBar() {
                     hapticSuccess();
                     toast({
                       title: "🧪 Drank Health Potion!",
-                      description: `Restored +30% Health Vitality! Current Health: ${res.newHealth}%.`
+                      description: `Restored +30% Health! Current Health: ${res.newHealth}%.`
                     });
                   } else {
                     toast({
-                      title: "Full King Vitality!",
-                      description: "Your Health Vitality is already at 100% Peak King fitness!"
+                      title: "Full Health!",
+                      description: "Your Health is already at 100% Peak King fitness!"
                     });
                   }
                 }}
@@ -142,7 +142,7 @@ export function RpgHudStatusBar() {
           <TooltipContent className="bg-zinc-950 border-amber-500/50 text-amber-200 z-[99999]">
             <p className="font-bold">🧪 King Health & Tax Multiplier HUD</p>
             <p className="text-xs text-zinc-400">
-              • 100% Health: +10% Bonus Taxes (Peak King)<br />
+              • 100% Health: +10% Taxes (Peak King)<br />
               • Under 10% Health: -75% Tax Penalty (Poisoned)<br />
               • Click Drink Potion to restore +30% Health!
             </p>

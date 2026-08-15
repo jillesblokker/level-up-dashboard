@@ -44,7 +44,7 @@ export function setHealthVitality(health: number): number {
 
 /**
  * Calculates Tax Multiplier based on Health Vitality:
- * - 100% Health: 1.10x (+10% Bonus Taxes)
+ * - 100% Health: 1.10x (+10% Taxes)
  * - 50% - 99% Health: 1.00x (Normal)
  * - 10% - 49% Health: 0.75x (-25% Sluggish)
  * - < 10% Health: 0.25x (-75% Critical Weakness Penalty)

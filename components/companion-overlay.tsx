@@ -323,7 +323,7 @@ export function CompanionOverlay() {
   }
 
   return (
-    <div className="fixed bottom-[68px] right-3 md:bottom-0 md:right-6 z-40 flex flex-col items-end pointer-events-none transition-all duration-300">
+    <div className="fixed bottom-[calc(76px+env(safe-area-inset-bottom,0px))] right-3 md:bottom-0 md:right-6 z-50 flex flex-col items-end pointer-events-none transition-all duration-300">
       {/* Speech Bulb Popup (Only appears on tap or quest completion) */}
       <AnimatePresence>
         {showSpeech && currentHint && (

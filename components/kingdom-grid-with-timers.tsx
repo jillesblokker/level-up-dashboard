@@ -2602,17 +2602,17 @@ export function KingdomGridWithTimers({
       <div className="w-full mb-6 flex md:flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-zinc-950 border border-zinc-800/50 shadow-xl overflow-x-auto snap-x snap-mandatory custom-scrollbar mobile-scroll-hide">
         {/* Left: Weather Info, Seasonal Festival, Sanctuary Shield & Focus Mode */}
         <div className="flex items-center gap-3 snap-start shrink-0">
-          {/* RPG Vitality & Potion Alchemy HUD */}
+          {/* RPG Health & Potion Alchemy HUD */}
           {(() => {
             const currentHealth = getHealthVitalitySync();
             const taxMult = getTaxMultiplier(currentHealth);
-            const taxBadgeText = currentHealth >= 100 ? '👑 +10% Bonus Taxes' : currentHealth >= 50 ? '🛡️ 1.0x Base Taxes' : currentHealth >= 10 ? '⚠️ -25% Sluggish Taxes' : '💀 -75% Tax Penalty';
+            const taxBadgeText = currentHealth >= 100 ? '👑 +10% Taxes' : currentHealth >= 50 ? '🛡️ 1.0x Base Taxes' : currentHealth >= 10 ? '⚠️ -25% Sluggish Taxes' : '💀 -75% Tax Penalty';
             const taxBadgeColor = currentHealth >= 100 ? 'text-yellow-300 font-black drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : currentHealth >= 50 ? 'text-slate-300 font-bold' : currentHealth >= 10 ? 'text-amber-400 font-bold' : 'text-red-400 font-black animate-pulse';
 
             return (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center gap-3 cursor-pointer transition-transform hover:scale-[1.02] snap-start shrink-0 bg-gradient-to-r from-red-950/80 via-zinc-950 to-blue-950/80 px-3 py-1.5 rounded-xl border border-amber-500/40 shadow-lg">
+                  <div className="hidden md:flex items-center gap-3 cursor-pointer transition-transform hover:scale-[1.02] snap-start shrink-0 bg-gradient-to-r from-red-950/80 via-zinc-950 to-blue-950/80 px-3 py-1.5 rounded-xl border border-amber-500/40 shadow-lg">
                     {/* Health Flask (Red) */}
                     <div className="flex items-center gap-2">
                       <div className={cn(
@@ -2627,7 +2627,7 @@ export function KingdomGridWithTimers({
                         <span className="relative z-10 font-bold">🔴</span>
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-red-400 uppercase tracking-widest font-serif">Vitality ({currentHealth}%)</span>
+                        <span className="text-[10px] font-bold text-red-400 uppercase tracking-widest font-serif">Health ({currentHealth}%)</span>
                         <span className={cn("text-[10px] font-mono", taxBadgeColor)}>{taxBadgeText}</span>
                       </div>
                     </div>
@@ -2641,8 +2641,8 @@ export function KingdomGridWithTimers({
                         <span className="relative z-10 font-bold">🔵</span>
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-serif">Focus Mana</span>
-                        <span className="text-[10px] font-mono text-cyan-200 font-bold">Full Mana</span>
+                        <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-serif">Mana</span>
+                        <span className="text-[10px] font-mono text-cyan-200 font-bold">Full</span>
                       </div>
                     </div>
 
@@ -2657,9 +2657,9 @@ export function KingdomGridWithTimers({
                         const res = drinkHealthPotion();
                         if (res.success) {
                           hapticSuccess();
-                          toast({ title: "🧪 Drank Health Potion!", description: `Restored +30% Health Vitality! Current Health: ${res.newHealth}%.` });
+                          toast({ title: "🧪 Drank Health Potion!", description: `Restored +30% Health! Current Health: ${res.newHealth}%.` });
                         } else {
-                          toast({ title: "Full Vitality!", description: "Your Health Vitality is already at 100% Peak King!" });
+                          toast({ title: "Full Health!", description: "Your Health is already at 100% Peak King!" });
                         }
                       }}
                     >
@@ -2669,8 +2669,8 @@ export function KingdomGridWithTimers({
                   </div>
                 </TooltipTrigger>
                 <TooltipContent className="bg-zinc-950 border-amber-500/50 text-amber-200">
-                  <p className="font-bold">🧪 Vitality & Tax Multiplier HUD</p>
-                  <p className="text-xs text-zinc-400">• 100% Health: +10% Bonus Taxes<br/>• Under 10% Health: -75% Tax Penalty<br/>• Click Potion to restore +30% Health!</p>
+                  <p className="font-bold">🧪 Health & Tax Multiplier HUD</p>
+                  <p className="text-xs text-zinc-400">• 100% Health: +10% Taxes<br/>• Under 10% Health: -75% Tax Penalty<br/>• Click Potion to restore +30% Health!</p>
                 </TooltipContent>
               </Tooltip>
             );
