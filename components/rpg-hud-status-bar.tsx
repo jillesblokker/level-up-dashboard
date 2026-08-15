@@ -66,6 +66,18 @@ export function RpgHudStatusBar() {
   const currentXpInLevel = Math.max(0, charStats.experience % 100);
   const xpPercent = Math.min(100, Math.max(0, Math.round((currentXpInLevel / 100) * 100)));
 
+  const formatShortGold = (amount: number): string => {
+    if (amount >= 1_000_000) {
+      const formatted = (amount / 1_000_000).toFixed(1);
+      return formatted.endsWith('.0') ? `${Math.floor(amount / 1_000_000)}M` : `${formatted}M`;
+    }
+    if (amount >= 1_000) {
+      const formatted = (amount / 1_000).toFixed(1);
+      return formatted.endsWith('.0') ? `${Math.floor(amount / 1_000)}k` : `${formatted}k`;
+    }
+    return `${amount}`;
+  };
+
   const taxBadgeText = isPeakKing
     ? '👑 +10% Taxes'
     : health >= 50
@@ -163,9 +175,9 @@ export function RpgHudStatusBar() {
                 <div className="w-px h-5 bg-zinc-800" />
 
                 {/* 4. Gold Pill */}
-                <div className="flex items-center gap-1 text-xs font-mono font-bold text-amber-300" title="Kingdom Gold">
-                  <span>👑</span>
-                  <span>{charStats.gold.toLocaleString()}g</span>
+                <div className="flex items-center gap-1 text-xs font-mono font-bold text-amber-300" title={`Kingdom Gold: ${charStats.gold.toLocaleString()}`}>
+                  <span className="text-xs">🟡</span>
+                  <span>{formatShortGold(charStats.gold)}</span>
                 </div>
 
                 <div className="w-px h-5 bg-zinc-800" />
@@ -248,7 +260,10 @@ export function RpgHudStatusBar() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-[10px] font-mono font-bold text-amber-300">👑 {charStats.gold}g</span>
+                    <span className="text-[10px] font-mono font-bold text-amber-300 flex items-center gap-1">
+                      <span>🟡</span>
+                      <span>{formatShortGold(charStats.gold)}</span>
+                    </span>
                     <button
                       type="button"
                       className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-950 border border-amber-400/60 text-xs text-amber-200"
