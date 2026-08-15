@@ -11,9 +11,9 @@ import { SpellMenuModal } from '@/components/spell-menu-modal';
 import { FocusPointsModal } from '@/components/focus-points-modal';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from '@/components/ui/use-toast';
-import { hapticSuccess, hapticMedium } from '@/lib/haptics';
+import { hapticSuccess, hapticMedium, hapticLight } from '@/lib/haptics';
 import { useGameStore } from '@/stores/game-store';
-import { ChevronLeft, X, Heart, Sparkles, Zap, Snowflake, Brain, Flame, Shield, Sword, Wand2, Coins, Trophy, ArrowRight, ExternalLink } from 'lucide-react';
+import { ChevronLeft, X, Heart, Sparkles, Zap, Snowflake, Brain, Flame, Shield, Sword, Wand2, Coins, Trophy, ArrowRight, ExternalLink, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function RpgHudStatusBar() {
@@ -31,6 +31,15 @@ export function RpgHudStatusBar() {
 
   const sanctuaryMode = useGameStore(s => s.sanctuaryMode);
   const setSanctuaryMode = useGameStore(s => s.setSanctuaryMode);
+
+  // Low health heartbeat haptics (< 25% Health)
+  useEffect(() => {
+    if (health >= 25) return;
+    const interval = setInterval(() => {
+      hapticLight();
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [health]);
 
   // Auto-hide HUD when scrolling down on mobile, reveal when scrolling up
   useEffect(() => {
@@ -144,11 +153,13 @@ export function RpgHudStatusBar() {
   };
 
   const nextSlide = () => {
-    setActiveSlide((prev) => (prev + 1) % 5);
+    hapticLight();
+    setActiveSlide((prev) => (prev + 1) % 6);
   };
 
   const prevSlide = () => {
-    setActiveSlide((prev) => (prev - 1 + 5) % 5);
+    hapticLight();
+    setActiveSlide((prev) => (prev - 1 + 6) % 6);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -185,7 +196,7 @@ export function RpgHudStatusBar() {
   };
 
   const openDrawer = (drawerKey: 'health' | 'level' | 'gold' | 'essences' | 'fuel' | 'freeze' | 'event' | 'recovery' | 'buffs') => {
-    hapticSuccess();
+    hapticMedium();
     setActiveDrawer(drawerKey);
   };
 
@@ -203,7 +214,7 @@ export function RpgHudStatusBar() {
       {/* Floating RPG Status HUD Container (Auto-Hides on Mobile Scroll Down, Reveals on Scroll Up) */}
       <div
         className={cn(
-          "fixed top-[calc(env(safe-area-inset-top,0px)+0.75rem)] left-3 right-3 w-[calc(100%-1.5rem)] md:top-auto md:bottom-4 md:left-4 md:right-auto md:w-auto z-[9999] transition-all duration-300 ease-in-out",
+          "fixed top-[calc(env(safe-area-inset-top,0px)+0.75rem)] left-[max(0.75rem,env(safe-area-inset-left))] right-[max(0.75rem,env(safe-area-inset-right))] w-[calc(100%-1.5rem)] md:top-auto md:bottom-4 md:left-4 md:right-auto md:w-auto z-[9999] transition-all duration-300 ease-in-out",
           isVisible
             ? "translate-y-0 opacity-100 pointer-events-auto"
             : "-translate-y-24 opacity-0 pointer-events-none md:translate-y-0 md:opacity-100 md:pointer-events-auto"
@@ -259,17 +270,18 @@ export function RpgHudStatusBar() {
                 ◀
               </button>
               <div className="flex gap-1">
-                {[0, 1, 2, 3].map((idx) => (
+                {[0, 1, 2, 3, 4].map((idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
+                      hapticLight();
                       setActiveSlide(idx);
                     }}
                     className={cn(
                       "w-1.5 h-1.5 rounded-full transition-all cursor-pointer",
-                      activeSlide % 4 === idx ? "bg-amber-400 w-3" : "bg-zinc-600 hover:bg-zinc-400"
+                      activeSlide % 5 === idx ? "bg-amber-400 w-3" : "bg-zinc-600 hover:bg-zinc-400"
                     )}
                   />
                 ))}
@@ -290,7 +302,7 @@ export function RpgHudStatusBar() {
             <div className="flex-1 overflow-hidden min-w-0">
               {/* DESKTOP VIEW SLIDES (md:) */}
               <div className="hidden md:block">
-                {activeSlide % 4 === 0 && (
+                {activeSlide % 5 === 0 && (
                   <div className="flex items-center justify-between gap-3 animate-fadeIn">
                     {/* Health Bar */}
                     <div className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => openDrawer('health')} title={`Health: ${health}%`}>
@@ -351,7 +363,7 @@ export function RpgHudStatusBar() {
                   </div>
                 )}
 
-                {activeSlide % 4 === 1 && (
+                {activeSlide % 5 === 1 && (
                   <div className="flex items-center justify-around gap-2 text-xs font-mono font-bold animate-fadeIn py-0.5">
                     <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 cursor-pointer hover:bg-emerald-900/60 transition-colors" onClick={() => openDrawer('essences')}>
                       <span>✨</span> <span>12 Essences</span>
@@ -368,7 +380,7 @@ export function RpgHudStatusBar() {
                   </div>
                 )}
 
-                {activeSlide % 4 === 2 && (
+                {activeSlide % 5 === 2 && (
                   <div className="flex items-center justify-between gap-1.5 text-[10px] font-bold font-serif animate-fadeIn overflow-x-auto custom-scrollbar py-0.5">
                     <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-950/80 border border-amber-500/50 text-amber-300 shrink-0 cursor-pointer" onClick={() => openDrawer('event')}>
                       <span>🔥</span> <span className="uppercase text-[9px]">Forge Fire</span>
@@ -377,6 +389,7 @@ export function RpgHudStatusBar() {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
+                        hapticMedium();
                         setSanctuaryMode(!sanctuaryMode);
                       }}
                       className={cn(
@@ -393,7 +406,7 @@ export function RpgHudStatusBar() {
                   </div>
                 )}
 
-                {activeSlide % 4 === 3 && (
+                {activeSlide % 5 === 3 && (
                   <div className="flex items-center justify-between gap-2 text-[10px] animate-fadeIn py-0.5">
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-950/60 border border-amber-500/30 text-amber-200 cursor-pointer" onClick={() => openDrawer('recovery')}>
                       <span>🛡️</span>
@@ -406,12 +419,59 @@ export function RpgHudStatusBar() {
                     </div>
                   </div>
                 )}
+
+                {/* DESKTOP SLIDE 4: QUICK ACTIONS RIBBON */}
+                {activeSlide % 5 === 4 && (
+                  <div className="flex items-center justify-around gap-2 text-xs font-mono font-bold animate-fadeIn py-0.5">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const res = drinkHealthPotion();
+                        if (res.success) {
+                          hapticSuccess();
+                          toast({ title: "🧪 Drank Health Potion!", description: "Restored +30% Health!" });
+                        } else {
+                          hapticSuccess();
+                          window.dispatchEvent(new CustomEvent('open-inventory-bag', { detail: { tab: 'stored', filter: 'consumable' } }));
+                        }
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-950/80 border border-amber-500/50 text-amber-300 hover:bg-amber-900 transition-colors cursor-pointer"
+                    >
+                      <span>🧪</span> <span>Auto-Potion (+30% HP)</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        hapticMedium();
+                        setShowFocusModal(true);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-purple-950/80 border border-purple-500/50 text-purple-200 hover:bg-purple-900 transition-colors cursor-pointer"
+                    >
+                      <span>🧠</span> <span>Quick Focus ({charStats.focus_points || 102} FP)</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        hapticSuccess();
+                        setShowSpellModal(true);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-950/80 border border-cyan-500/50 text-cyan-200 hover:bg-cyan-900 transition-colors cursor-pointer"
+                    >
+                      <span>🪄</span> <span>Arcane Spells</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
-              {/* MOBILE VIEW SLIDES (Clickable items opening interactive drawers!) */}
+              {/* MOBILE VIEW SLIDES (Clickable items opening interactive drawers & Quick Actions!) */}
               <div className="block md:hidden">
                 {/* Mobile Slide 0: Health, Mana, Level */}
-                {activeSlide % 5 === 0 && (
+                {activeSlide % 6 === 0 && (
                   <div className="flex items-center justify-between gap-2 animate-fadeIn">
                     <div className="flex items-center gap-1 cursor-pointer active:scale-95 transition-transform" onClick={() => openDrawer('health')}>
                       <span className="text-xs">{isPoisoned ? '🟢' : '❤️'}</span>
@@ -444,7 +504,7 @@ export function RpgHudStatusBar() {
                 )}
 
                 {/* Mobile Slide 1: Gold, Potion, Focus */}
-                {activeSlide % 5 === 1 && (
+                {activeSlide % 6 === 1 && (
                   <div className="flex items-center justify-around gap-2 animate-fadeIn">
                     <div className="flex items-center gap-1 text-xs font-mono font-bold text-amber-300 cursor-pointer active:scale-95 transition-transform" onClick={() => openDrawer('gold')}>
                       <span>🟡</span>
@@ -477,7 +537,7 @@ export function RpgHudStatusBar() {
                 )}
 
                 {/* Mobile Slide 2: Essences, Fuel, Streak Freeze */}
-                {activeSlide % 5 === 2 && (
+                {activeSlide % 6 === 2 && (
                   <div className="flex items-center justify-around gap-2 text-xs font-mono font-bold animate-fadeIn">
                     <div className="flex items-center gap-1 text-emerald-300 cursor-pointer active:scale-95 transition-transform" onClick={() => openDrawer('essences')}>
                       <span>✨</span> <span>12</span>
@@ -492,7 +552,7 @@ export function RpgHudStatusBar() {
                 )}
 
                 {/* Mobile Slide 3: Forge Fire, Sanctuary, Multipliers */}
-                {activeSlide % 5 === 3 && (
+                {activeSlide % 6 === 3 && (
                   <div className="flex items-center justify-between gap-1.5 text-[9px] font-bold font-serif animate-fadeIn">
                     <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-950 border border-amber-500/50 text-amber-300 cursor-pointer" onClick={() => openDrawer('event')}>
                       <span>🔥</span> <span>Forge Fire</span>
@@ -501,6 +561,7 @@ export function RpgHudStatusBar() {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
+                        hapticMedium();
                         setSanctuaryMode(!sanctuaryMode);
                       }}
                       className={cn(
@@ -515,7 +576,7 @@ export function RpgHudStatusBar() {
                 )}
 
                 {/* Mobile Slide 4: Recovery & Dungeon Buffs */}
-                {activeSlide % 5 === 4 && (
+                {activeSlide % 6 === 4 && (
                   <div className="flex items-center justify-between gap-1 text-[9px] animate-fadeIn">
                     <span className="px-1.5 py-0.5 rounded bg-amber-950/60 border border-amber-500/30 text-amber-200 font-serif font-bold cursor-pointer" onClick={() => openDrawer('recovery')}>
                       🛡️ Recovery (0/2)
@@ -524,6 +585,53 @@ export function RpgHudStatusBar() {
                       <span className="px-1 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-500/40">⚔️ +15%</span>
                       <span className="px-1 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-500/40">🪄 +10%</span>
                     </div>
+                  </div>
+                )}
+
+                {/* Mobile Slide 5: Quick Actions Ribbon */}
+                {activeSlide % 6 === 5 && (
+                  <div className="flex items-center justify-around gap-1 text-[9px] font-bold animate-fadeIn">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const res = drinkHealthPotion();
+                        if (res.success) {
+                          hapticSuccess();
+                          toast({ title: "🧪 Drank Potion!", description: "Restored +30% Health!" });
+                        } else {
+                          hapticSuccess();
+                          window.dispatchEvent(new CustomEvent('open-inventory-bag', { detail: { tab: 'stored', filter: 'consumable' } }));
+                        }
+                      }}
+                      className="flex items-center gap-1 px-2 py-0.5 rounded bg-amber-950 border border-amber-500/50 text-amber-300 active:scale-95 transition-transform"
+                    >
+                      <span>🧪</span> <span>Auto-Potion</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        hapticMedium();
+                        setShowFocusModal(true);
+                      }}
+                      className="flex items-center gap-1 px-2 py-0.5 rounded bg-purple-950 border border-purple-500/50 text-purple-200 active:scale-95 transition-transform"
+                    >
+                      <span>🧠</span> <span>Focus ({charStats.focus_points || 102})</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        hapticSuccess();
+                        setShowSpellModal(true);
+                      }}
+                      className="flex items-center gap-1 px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500/50 text-cyan-200 active:scale-95 transition-transform"
+                    >
+                      <span>🪄</span> <span>Spells</span>
+                    </button>
                   </div>
                 )}
               </div>
@@ -567,12 +675,12 @@ export function RpgHudStatusBar() {
           <div
             onTouchStart={handleDrawerTouchStart}
             onTouchEnd={handleDrawerTouchEnd}
-            className="w-full max-w-lg bg-zinc-950 border-t-2 border-amber-500/60 shadow-[0_-12px_48px_rgba(0,0,0,0.95)] rounded-t-3xl p-5 text-white flex flex-col gap-4 animate-slideUp pb-safe"
+            className="w-full max-w-lg bg-zinc-950 border-t-2 border-amber-500/60 shadow-[0_-12px_48px_rgba(0,0,0,0.95)] rounded-t-3xl p-5 text-white flex flex-col gap-4 animate-slideUp pb-[max(1.5rem,env(safe-area-inset-bottom))]"
           >
             {/* Top Drag Handle Bar */}
             <div className="w-12 h-1.5 bg-amber-500/40 rounded-full mx-auto cursor-grab active:cursor-grabbing mb-1" />
 
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800 pt-[max(0.25rem,env(safe-area-inset-top))]">
               <div className="flex items-center gap-2.5">
                 <span className="text-2xl">
                   {activeDrawer === 'health' && '❤️'}
@@ -772,6 +880,7 @@ export function RpgHudStatusBar() {
     </>
   );
 }
+
 
 
 
