@@ -332,6 +332,7 @@ export function RpgHudStatusBar() {
             <div className="flex-1 overflow-hidden min-w-0">
               {/* DESKTOP VIEW SLIDES (md:) */}
               <div className="hidden md:block">
+                {/* Desktop Slide 0: Health, Mana, Level, Gold, Potion */}
                 {activeSlide % 5 === 0 && (
                   <div className="flex items-center justify-between gap-3 animate-fadeIn">
                     {/* Health Bar */}
@@ -367,15 +368,15 @@ export function RpgHudStatusBar() {
                     </div>
 
                     {/* Gold Pill */}
-                    <div className="flex items-center gap-1 text-xs font-mono font-bold text-amber-300 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => openDrawer('gold')} title={`Gold: ${charStats.gold.toLocaleString()}`}>
+                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-950/60 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold cursor-pointer hover:bg-amber-900/60 transition-colors" onClick={() => openDrawer('gold')} title={`Gold: ${charStats.gold.toLocaleString()}`}>
                       <span>🟡</span>
                       <span>{formatShortGold(charStats.gold)}</span>
                     </div>
 
-                    {/* Potion Button */}
+                    {/* Potion Button (Written text with icon!) */}
                     <button
                       type="button"
-                      className="w-7 h-7 rounded-full bg-amber-950 border border-amber-400/60 flex items-center justify-center text-xs shrink-0 active:scale-95 cursor-pointer"
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-950/80 border border-amber-400/60 text-amber-300 hover:bg-amber-900 text-xs font-mono font-bold shrink-0 active:scale-95 transition-all cursor-pointer shadow-sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         const res = drinkHealthPotion();
@@ -388,11 +389,12 @@ export function RpgHudStatusBar() {
                         }
                       }}
                     >
-                      🧪
+                      <span>🧪</span> <span>Potion</span>
                     </button>
                   </div>
                 )}
 
+                {/* Desktop Slide 1: Essences, Fuel, Freeze, Focus */}
                 {activeSlide % 5 === 1 && (
                   <div className="flex items-center justify-around gap-2 text-xs font-mono font-bold animate-fadeIn py-0.5">
                     <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 cursor-pointer hover:bg-emerald-900/60 transition-colors" onClick={() => openDrawer('essences')}>
@@ -410,10 +412,11 @@ export function RpgHudStatusBar() {
                   </div>
                 )}
 
+                {/* Desktop Slide 2: Festival, Sanctuary, Multipliers */}
                 {activeSlide % 5 === 2 && (
-                  <div className="flex items-center justify-between gap-1.5 text-[10px] font-bold font-serif animate-fadeIn overflow-x-auto custom-scrollbar py-0.5">
-                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-950/80 border border-amber-500/50 text-amber-300 shrink-0 cursor-pointer" onClick={() => openDrawer('event')}>
-                      <span>🔥</span> <span className="uppercase text-[9px]">Forge Fire</span>
+                  <div className="flex items-center justify-between gap-2 text-xs font-mono font-bold animate-fadeIn py-0.5">
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-950/80 border border-amber-500/50 text-amber-300 shrink-0 cursor-pointer" onClick={() => openDrawer('event')}>
+                      <span>🔥</span> <span>Forge Fire</span>
                     </div>
                     <button
                       type="button"
@@ -423,34 +426,32 @@ export function RpgHudStatusBar() {
                         setSanctuaryMode(!sanctuaryMode);
                       }}
                       className={cn(
-                        "flex items-center gap-1 px-2.5 py-1 rounded-lg border shrink-0 transition-colors cursor-pointer",
+                        "flex items-center gap-1.5 px-3 py-1 rounded-lg border shrink-0 transition-colors cursor-pointer font-mono font-bold text-xs",
                         sanctuaryMode ? "bg-indigo-950 border-indigo-400 text-indigo-200" : "bg-zinc-900 border-zinc-700 text-zinc-400"
                       )}
                     >
                       <span>🛡️</span> <span>Sanctuary</span>
                     </button>
-                    <span className="px-2 py-0.5 rounded bg-orange-950 border border-orange-500/40 text-orange-300 shrink-0 cursor-pointer" onClick={() => openDrawer('event')}>⚔️ MIGHT x4</span>
-                    <span className="px-2 py-0.5 rounded bg-sky-950 border border-sky-500/40 text-sky-300 shrink-0 cursor-pointer" onClick={() => openDrawer('event')}>📖 KNOWLEDGE x2</span>
-                    <span className="px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300 shrink-0 cursor-pointer" onClick={() => openDrawer('event')}>🧘 WELLNESS x3</span>
-                    <span className="px-2 py-0.5 rounded bg-amber-950 border border-amber-500/40 text-amber-300 shrink-0 cursor-pointer" onClick={() => openDrawer('event')}>👑 HONOR x4</span>
+                    <span className="px-2.5 py-1 rounded-lg bg-orange-950/80 border border-orange-500/40 text-orange-300 shrink-0 cursor-pointer" onClick={() => openDrawer('event')}>⚔️ Might x4</span>
+                    <span className="px-2.5 py-1 rounded-lg bg-sky-950/80 border border-sky-500/40 text-sky-300 shrink-0 cursor-pointer" onClick={() => openDrawer('event')}>📖 Knowledge x2</span>
                   </div>
                 )}
 
+                {/* Desktop Slide 3: Recovery & Dungeon Buffs */}
                 {activeSlide % 5 === 3 && (
-                  <div className="flex items-center justify-between gap-2 text-[10px] animate-fadeIn py-0.5">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-950/60 border border-amber-500/30 text-amber-200 cursor-pointer" onClick={() => openDrawer('recovery')}>
-                      <span>🛡️</span>
-                      <span className="font-serif font-bold">Streak Recovery (0/2)</span>
+                  <div className="flex items-center justify-between gap-2 text-xs font-mono font-bold animate-fadeIn py-0.5">
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-950/60 border border-amber-500/40 text-amber-200 cursor-pointer" onClick={() => openDrawer('recovery')}>
+                      <span>🛡️</span> <span>Recovery (0/2)</span>
                     </div>
-                    <div className="flex items-center gap-1.5 font-mono font-bold text-[9px] cursor-pointer" onClick={() => openDrawer('buffs')}>
-                      <span className="px-2 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-500/40">⚔️ +15% ATK</span>
-                      <span className="px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-500/40">🪄 +10% Magic</span>
-                      <span className="px-2 py-0.5 rounded bg-slate-900 text-slate-200 border border-slate-500/40">🛡️ +10% Armor</span>
+                    <div className="flex items-center gap-2 font-mono font-bold text-xs cursor-pointer" onClick={() => openDrawer('buffs')}>
+                      <span className="px-2.5 py-1 rounded-lg bg-orange-950/80 text-orange-300 border border-orange-500/40">⚔️ +15% ATK</span>
+                      <span className="px-2.5 py-1 rounded-lg bg-sky-950/80 text-sky-300 border border-sky-500/40">🪄 +10% Magic</span>
+                      <span className="px-2.5 py-1 rounded-lg bg-slate-900/80 text-slate-200 border border-slate-500/40">🛡️ +10% Armor</span>
                     </div>
                   </div>
                 )}
 
-                {/* DESKTOP SLIDE 4: QUICK ACTIONS RIBBON */}
+                {/* Desktop Slide 4: Quick Actions Ribbon */}
                 {activeSlide % 5 === 4 && (
                   <div className="flex items-center justify-around gap-2 text-xs font-mono font-bold animate-fadeIn py-0.5">
                     <button
@@ -533,7 +534,7 @@ export function RpgHudStatusBar() {
                   </div>
                 )}
 
-                {/* Mobile Slide 1: Gold, Potion, Focus */}
+                {/* Mobile Slide 1: Gold, Potion (Written text with icon!), Focus */}
                 {activeSlide % 6 === 1 && (
                   <div className="flex items-center justify-around gap-2 animate-fadeIn">
                     <div className="flex items-center gap-1 text-xs font-mono font-bold text-amber-300 cursor-pointer active:scale-95 transition-transform" onClick={() => openDrawer('gold')}>
@@ -543,7 +544,7 @@ export function RpgHudStatusBar() {
 
                     <button
                       type="button"
-                      className="w-6 h-6 rounded-full bg-amber-950 border border-amber-400/60 flex items-center justify-center text-xs shrink-0 active:scale-95 cursor-pointer"
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-950 border border-amber-400/60 text-amber-300 text-[10px] font-bold shrink-0 active:scale-95 cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
                         const res = drinkHealthPotion();
@@ -556,7 +557,7 @@ export function RpgHudStatusBar() {
                         }
                       }}
                     >
-                      🧪
+                      <span>🧪</span> <span>Potion</span>
                     </button>
 
                     <div className="flex items-center gap-1 text-xs font-mono font-bold text-purple-300 cursor-pointer active:scale-95 transition-transform" onClick={() => setShowFocusModal(true)}>
@@ -583,7 +584,7 @@ export function RpgHudStatusBar() {
 
                 {/* Mobile Slide 3: Forge Fire, Sanctuary, Multipliers */}
                 {activeSlide % 6 === 3 && (
-                  <div className="flex items-center justify-between gap-1.5 text-[9px] font-bold font-serif animate-fadeIn">
+                  <div className="flex items-center justify-between gap-1.5 text-[10px] font-mono font-bold animate-fadeIn">
                     <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-950 border border-amber-500/50 text-amber-300 cursor-pointer" onClick={() => openDrawer('event')}>
                       <span>🔥</span> <span>Forge Fire</span>
                     </div>
@@ -595,7 +596,7 @@ export function RpgHudStatusBar() {
                         setSanctuaryMode(!sanctuaryMode);
                       }}
                       className={cn(
-                        "flex items-center gap-1 px-1.5 py-0.5 rounded border transition-colors cursor-pointer",
+                        "flex items-center gap-1 px-1.5 py-0.5 rounded border transition-colors cursor-pointer text-[10px] font-mono font-bold",
                         sanctuaryMode ? "bg-indigo-950 border-indigo-400 text-indigo-200" : "bg-zinc-900 border-zinc-700 text-zinc-400"
                       )}
                     >
@@ -607,8 +608,8 @@ export function RpgHudStatusBar() {
 
                 {/* Mobile Slide 4: Recovery & Dungeon Buffs */}
                 {activeSlide % 6 === 4 && (
-                  <div className="flex items-center justify-between gap-1 text-[9px] animate-fadeIn">
-                    <span className="px-1.5 py-0.5 rounded bg-amber-950/60 border border-amber-500/30 text-amber-200 font-serif font-bold cursor-pointer" onClick={() => openDrawer('recovery')}>
+                  <div className="flex items-center justify-between gap-1 text-[10px] font-mono font-bold animate-fadeIn">
+                    <span className="px-1.5 py-0.5 rounded bg-amber-950/60 border border-amber-500/30 text-amber-200 cursor-pointer" onClick={() => openDrawer('recovery')}>
                       🛡️ Recovery (0/2)
                     </span>
                     <div className="flex items-center gap-1 font-mono font-bold cursor-pointer" onClick={() => openDrawer('buffs')}>
@@ -620,7 +621,7 @@ export function RpgHudStatusBar() {
 
                 {/* Mobile Slide 5: Quick Actions Ribbon */}
                 {activeSlide % 6 === 5 && (
-                  <div className="flex items-center justify-around gap-1 text-[9px] font-bold animate-fadeIn">
+                  <div className="flex items-center justify-around gap-1 text-[10px] font-mono font-bold animate-fadeIn">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -699,18 +700,22 @@ export function RpgHudStatusBar() {
         }}
       />
 
-      {/* Interactive Mobile & Desktop Status Item Bottom Sheet Drawer */}
+      {/* Interactive Status Item Modal: Centered Dialog on Desktop (md:), Bottom Sheet Drawer on Mobile (< md:) */}
       {activeDrawer && (
-        <div className="fixed inset-0 z-[99999] flex items-end justify-center bg-black/70 backdrop-blur-sm animate-fadeIn">
+        <div
+          className="fixed inset-0 z-[99999] flex items-end md:items-center justify-center bg-black/70 backdrop-blur-sm animate-fadeIn p-0 md:p-4"
+          onClick={() => setActiveDrawer(null)}
+        >
           <div
+            onClick={(e) => e.stopPropagation()}
             onTouchStart={handleDrawerTouchStart}
             onTouchEnd={handleDrawerTouchEnd}
-            className="w-full max-w-lg bg-zinc-950 border-t-2 border-amber-500/60 shadow-[0_-12px_48px_rgba(0,0,0,0.95)] rounded-t-3xl p-5 text-white flex flex-col gap-4 animate-slideUp pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+            className="w-full max-w-lg bg-zinc-950 border-t-2 md:border-2 border-amber-500/60 shadow-[0_-12px_48px_rgba(0,0,0,0.95)] md:shadow-[0_0_50px_rgba(0,0,0,0.95)] rounded-t-3xl md:rounded-2xl p-5 md:p-6 text-white flex flex-col gap-4 animate-slideUp md:animate-scaleIn pb-[max(1.5rem,env(safe-area-inset-bottom))] md:pb-6"
           >
-            {/* Top Drag Handle Bar */}
-            <div className="w-12 h-1.5 bg-amber-500/40 rounded-full mx-auto cursor-grab active:cursor-grabbing mb-1" />
+            {/* Top Drag Handle Bar (Mobile Only) */}
+            <div className="w-12 h-1.5 bg-amber-500/40 rounded-full mx-auto cursor-grab active:cursor-grabbing mb-1 block md:hidden" />
 
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800 pt-[max(0.25rem,env(safe-area-inset-top))]">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800 pt-[max(0.25rem,env(safe-area-inset-top))] md:pt-0">
               <div className="flex items-center gap-2.5">
                 <span className="text-2xl">
                   {activeDrawer === 'health' && '❤️'}
@@ -735,13 +740,13 @@ export function RpgHudStatusBar() {
                     {activeDrawer === 'recovery' && 'Overdrive Streak Recovery'}
                     {activeDrawer === 'buffs' && 'Today\'s Dungeon Combat Stat Buffs'}
                   </h3>
-                  <p className="text-xs text-zinc-400 mt-0.5">RPG Status Status Overview</p>
+                  <p className="text-xs text-zinc-400 mt-0.5">RPG Status Overview</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveDrawer(null)}
-                className="p-1.5 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+                className="p-1.5 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
