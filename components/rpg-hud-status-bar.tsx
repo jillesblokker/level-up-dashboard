@@ -26,10 +26,36 @@ export function RpgHudStatusBar() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [drawerTouchStartY, setDrawerTouchStartY] = useState<number | null>(null);
+  const [isVisible, setIsVisible] = useState(true);
   const [charStats, setCharStats] = useState({ level: 1, experience: 0, gold: 0, focus_points: 102 });
 
   const sanctuaryMode = useGameStore(s => s.sanctuaryMode);
   const setSanctuaryMode = useGameStore(s => s.setSanctuaryMode);
+
+  // Auto-hide HUD when scrolling down on mobile, reveal when scrolling up
+  useEffect(() => {
+    let prevScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Filter out small jitter movements (< 10px)
+      if (Math.abs(currentScrollY - prevScrollY) < 10) return;
+
+      if (currentScrollY > 50 && currentScrollY > prevScrollY) {
+        // Scrolling down past top threshold -> hide HUD
+        setIsVisible(false);
+      } else if (currentScrollY < prevScrollY || currentScrollY <= 30) {
+        // Scrolling up or returning to top -> reveal HUD
+        setIsVisible(true);
+      }
+
+      prevScrollY = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     setHealth(getHealthVitalitySync());
@@ -160,8 +186,15 @@ export function RpgHudStatusBar() {
         </div>
       )}
 
-      {/* Floating RPG Status HUD Container */}
-      <div className="fixed top-[calc(env(safe-area-inset-top,0px)+0.75rem)] left-3 right-3 w-[calc(100%-1.5rem)] md:top-auto md:bottom-4 md:left-4 md:right-auto md:w-auto z-[9999] pointer-events-auto">
+      {/* Floating RPG Status HUD Container (Auto-Hides on Mobile Scroll Down, Reveals on Scroll Up) */}
+      <div
+        className={cn(
+          "fixed top-[calc(env(safe-area-inset-top,0px)+0.75rem)] left-3 right-3 w-[calc(100%-1.5rem)] md:top-auto md:bottom-4 md:left-4 md:right-auto md:w-auto z-[9999] transition-all duration-300 ease-in-out",
+          isVisible
+            ? "translate-y-0 opacity-100 pointer-events-auto"
+            : "-translate-y-24 opacity-0 pointer-events-none md:translate-y-0 md:opacity-100 md:pointer-events-auto"
+        )}
+      >
         {isCollapsed ? (
           /* COLLAPSED STATE: UNCROPPED TALL CHARACTER AVATAR BUTTON */
           <button
