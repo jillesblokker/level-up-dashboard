@@ -697,278 +697,81 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-6">
-          {/* Audio Settings */}
-          <Card className="bg-zinc-900 border-amber-800/20">
+          <Card className="bg-zinc-900 border-amber-800/30 text-white shadow-xl">
             <CardHeader>
-              <CardTitle className="text-xl text-amber-400 flex items-center">
-                <Volume2 className="w-5 h-5" />
-                Audio Settings
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20">
-                <div className="flex items-center gap-3">
-                  {settings.musicEnabled ? (
-                    <Volume2 className="h-5 w-5 text-amber-400" />
-                  ) : (
-                    <VolumeX className="h-5 w-5 text-zinc-400" />
-                  )}
-                  <div>
-                    <p className="text-base font-medium text-white">
-                      {settings.musicEnabled ? 'Audio Enabled' : 'Audio Disabled'}
-                    </p>
-                    <p className="text-xs text-zinc-400">
-                      {settings.musicEnabled ? 'Background music and sounds are playing' : 'All audio is muted'}
-                    </p>
-                  </div>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <CardTitle className="text-xl text-amber-400 font-serif flex items-center gap-2">
+                    <Settings className="w-5 h-5" />
+                    Unified Realm Settings Portal
+                  </CardTitle>
+                  <p className="text-xs text-zinc-400 mt-1">
+                    Manage your visual theme, audio preferences, profile credentials, and game settings without duplication.
+                  </p>
                 </div>
-                <Button
-                  onClick={toggleMusic}
-                  variant="outline"
-                  className="border-amber-800/30 text-amber-400 hover:bg-amber-900/20"
-                >
-                  {settings.musicEnabled ? 'Disable' : 'Enable'}
-                </Button>
+                <Link href="/settings">
+                  <Button size="sm" className="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs gap-1.5 cursor-pointer">
+                    <Settings className="w-4 h-4" /> Open Full Settings
+                  </Button>
+                </Link>
               </div>
-
-              <div className="flex items-center justify-between p-4 rounded-lg bg-red-900/10 border border-red-800/20">
-                <div className="flex items-center gap-3">
-                  <VolumeX className="h-5 w-5 text-red-400" />
-                  <div>
-                    <p className="text-base font-medium text-white">Disable All Audio</p>
-                    <p className="text-xs text-zinc-400">
-                      Turn off all music and sound effects completely
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  onClick={() => {
-                    setSettings(prev => ({
-                      ...prev,
-                      musicEnabled: false,
-                      sfxEnabled: false
-                    }));
-                    stopMusic();
-                  }}
-                  variant="outline"
-                  className="border-red-800/30 text-red-400 hover:bg-red-900/20"
-                >
-                  Disable All
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* App Settings */}
-          <Card className="bg-zinc-900 border-amber-800/20">
-            <CardHeader>
-              <CardTitle className="text-xl text-amber-400 flex items-center">
-                <Settings className="w-5 h-5" />
-                App Settings
-              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <Link href="/daily-hub" className="block">
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
-                  <Settings className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-base font-medium text-white">Daily Hub</p>
-                    <p className="text-xs text-zinc-400">View streaks and progress</p>
-                  </div>
-                </div>
-              </Link>
-
-              <Link href="/chronicle" className="block">
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
-                  <BookOpen className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-base font-medium text-white">My Chronicle</p>
-                    <p className="text-xs text-zinc-400">Write your daily journal</p>
-                  </div>
-                </div>
-              </Link>
-
-              <Link href="/requirements" className="block">
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
-                  <ClipboardCheck className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-base font-medium text-white">Adventurer&apos;s Guide</p>
-                    <p className="text-xs text-zinc-400">View system requirements</p>
-                  </div>
-                </div>
-              </Link>
-
-              {isAdmin && (
-                <>
-                  <Link href="/design-system" className="block">
-                    <div className="flex items-center gap-3 p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
-                      <Palette className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-base font-medium text-white">Design System</p>
-                        <p className="text-xs text-zinc-400">View design components</p>
-                      </div>
+            <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <Link href="/settings?tab=appearance" className="block group">
+                <div className="p-4 rounded-xl bg-zinc-800/60 border border-amber-800/20 hover:border-amber-500/50 hover:bg-amber-950/30 transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-110 transition-transform">
+                      <Palette className="w-5 h-5" />
                     </div>
-                  </Link>
-
-                  <Link href="/admin/stored-data" className="block">
-                    <div className="flex items-center gap-3 p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:bg-amber-900/10 transition-all duration-200">
-                      <Database className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-base font-medium text-white">Stored Data</p>
-                        <p className="text-xs text-zinc-400">Manage local data</p>
-                      </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-zinc-100 group-hover:text-amber-300">Visual Aesthetic Theme</h4>
+                      <p className="text-xs text-zinc-400">Classic Dark vs Medieval RPG (Sword & Staff)</p>
                     </div>
-                  </Link>
-                </>
-              )}
-
-              {/* Day/Night Cycle Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:border-amber-500/30 transition-all">
-                <div className="flex items-center gap-3">
-                  <Palette className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-base font-medium text-white">Day/Night Cycle</p>
-                    <p className="text-xs text-zinc-400">Atmosphere changes based on local time</p>
                   </div>
                 </div>
-                <Switch
-                  checked={dayNightEnabled}
-                  onCheckedChange={(checked) => {
-                    setDayNightEnabled(checked);
-                    localStorage.setItem("day-night-cycle-enabled", checked.toString());
-                    setUserPreference("day-night-cycle-enabled", checked);
+              </Link>
 
-                    // Dispatch event for components to react
-                    window.dispatchEvent(new CustomEvent('settings:dayNightChanged', { detail: { enabled: checked } }));
-
-                    toast.success(checked ? TEXT_CONTENT.profile.settings.app.dayNight.enabledToast : TEXT_CONTENT.profile.settings.app.dayNight.disabledToast);
-                  }}
-                />
-              </div>
-
-              {/* Zen Mode Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:border-amber-500/30 transition-all">
-                <div className="flex items-center gap-3">
-                  <BookOpen className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-base font-medium text-white">Zen Mode</p>
-                    <p className="text-xs text-zinc-400">Minimal interface for focused adventuring</p>
+              <Link href="/settings?tab=audio" className="block group">
+                <div className="p-4 rounded-xl bg-zinc-800/60 border border-amber-800/20 hover:border-amber-500/50 hover:bg-amber-950/30 transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-110 transition-transform">
+                      <Volume2 className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-zinc-100 group-hover:text-emerald-300">Audio & Sound FX</h4>
+                      <p className="text-xs text-zinc-400">Background music, SFX & volume controls</p>
+                    </div>
                   </div>
                 </div>
-                <Switch
-                  checked={zenMode}
-                  onCheckedChange={(checked) => {
-                    setZenMode(checked);
-                    localStorage.setItem("zen-mode", checked.toString());
-                    setUserPreference("zen-mode", checked);
+              </Link>
 
-                    // Apply global class
-                    if (checked) {
-                      document.body.classList.add('zen-mode');
-                    } else {
-                      document.body.classList.remove('zen-mode');
-                    }
-
-                    window.dispatchEvent(new CustomEvent('settings:zenModeChanged', { detail: { enabled: checked } }));
-                    toast.success(checked ? TEXT_CONTENT.profile.settings.app.zenMode.enabledToast : TEXT_CONTENT.profile.settings.app.zenMode.disabledToast);
-                  }}
-                />
-              </div>
-
-              {/* Animation Quality Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50 border border-amber-800/20 hover:border-amber-500/30 transition-all">
-                <div className="flex items-center gap-3">
-                  <Palette className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-base font-medium text-white">Visual FX</p>
-                    <p className="text-xs text-zinc-400">Toggle between high and minimal animations</p>
+              <Link href="/settings?tab=profile" className="block group">
+                <div className="p-4 rounded-xl bg-zinc-800/60 border border-amber-800/20 hover:border-amber-500/50 hover:bg-amber-950/30 transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400 shrink-0 group-hover:scale-110 transition-transform">
+                      <User className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-zinc-100 group-hover:text-blue-300">Profile & Credentials</h4>
+                      <p className="text-xs text-zinc-400">Display name, email & OAuth providers</p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex bg-zinc-900 p-1 rounded-md border border-amber-800/20">
-                  <button
-                    onClick={() => {
-                      setAnimationQuality('high');
-                      localStorage.setItem("animation-quality", 'high');
-                      setUserPreference("animation-quality", 'high');
-                      document.body.classList.remove('fx-low');
-                      window.dispatchEvent(new CustomEvent('settings:animationQualityChanged', { detail: { quality: 'high' } }));
-                    }}
-                    className={cn(
-                      "px-3 py-1 text-xs rounded transition-all",
-                      animationQuality === 'high' ? "bg-amber-600 text-white" : "text-zinc-400 hover:text-zinc-200"
-                    )}
-                  >
-                    High
-                  </button>
-                  <button
-                    onClick={() => {
-                      setAnimationQuality('low');
-                      localStorage.setItem("animation-quality", 'low');
-                      setUserPreference("animation-quality", 'low');
-                      document.body.classList.add('fx-low');
-                      window.dispatchEvent(new CustomEvent('settings:animationQualityChanged', { detail: { quality: 'low' } }));
-                    }}
-                    className={cn(
-                      "px-3 py-1 text-xs rounded transition-all",
-                      animationQuality === 'low' ? "bg-amber-600 text-white" : "text-zinc-400 hover:text-zinc-200"
-                    )}
-                  >
-                    Low
-                  </button>
+              </Link>
+
+              <Link href="/settings?tab=preferences" className="block group">
+                <div className="p-4 rounded-xl bg-zinc-800/60 border border-amber-800/20 hover:border-amber-500/50 hover:bg-amber-950/30 transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 shrink-0 group-hover:scale-110 transition-transform">
+                      <Shield className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-zinc-100 group-hover:text-purple-300">Game Preferences</h4>
+                      <p className="text-xs text-zinc-400">Vacation shield & daily habit targets</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Account Actions */}
-          <Card className="bg-zinc-900 border-amber-800/20">
-            <CardHeader>
-              <CardTitle className="text-xl text-amber-400 flex items-center">
-                <User className="w-5 h-5" />
-                Account Actions
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {/* User ID Display */}
-              <div className="p-3 bg-zinc-800/50 rounded-lg border border-amber-800/10 flex items-center justify-between group">
-                <div className="overflow-hidden">
-                  <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">User ID</p>
-                  <p className="text-sm text-zinc-300 font-mono truncate" title={user?.id}>{user?.id}</p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-amber-500 hover:text-amber-400 hover:bg-amber-900/20 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => {
-                    if (user?.id) {
-                      navigator.clipboard.writeText(user.id);
-                      toast.success("User ID copied to clipboard");
-                    }
-                  }}
-                >
-                  <ClipboardCheck className="w-4 h-4" />
-                </Button>
-              </div>
-
-              <form action={logout}>
-                <Button
-                  type="submit"
-                  variant="outline"
-                  className="w-full border-red-800/30 text-red-400 hover:bg-red-900/20"
-                >
-                  <Settings className="h-5 w-5" />
-                  Log out
-                </Button>
-              </form>
-
-              <Button
-                onClick={() => setShowDeleteDialog(true)}
-                variant="outline"
-                className="w-full border-red-800/50 text-red-500 hover:bg-red-900/30 hover:border-red-700"
-              >
-                <Trash2 className="h-5 w-5" />
-                Delete Account
-              </Button>
+              </Link>
             </CardContent>
           </Card>
         </TabsContent>
