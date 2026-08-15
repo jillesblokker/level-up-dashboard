@@ -110,11 +110,13 @@ export function RpgHudStatusBar() {
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStartX(e.touches[0].clientX);
+    if (e.touches && e.touches[0]) {
+      setTouchStartX(e.touches[0].clientX);
+    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX === null) return;
+    if (touchStartX === null || !e.changedTouches || !e.changedTouches[0]) return;
     const touchEndX = e.changedTouches[0].clientX;
     const diff = touchStartX - touchEndX;
     if (diff > 35) {
