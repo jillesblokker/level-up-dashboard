@@ -2683,31 +2683,32 @@ export function KingdomGridWithTimers({
           </Tooltip>
 
           {/* Category Focus Mode Toggles */}
-          <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-white/5 snap-start shrink-0">
+          <div className="flex items-center gap-1.5 bg-zinc-950/80 p-1 rounded-xl border border-amber-900/30 snap-start shrink-0">
             {[
-              { id: 'might', icon: '⚔️', label: 'Might', types: ['training-grounds', 'blacksmith', 'archery', 'jousting', 'watchtower'] },
-              { id: 'knowledge', icon: '📖', label: 'Knowledge', types: ['library', 'wizard', 'temple', 'monument'] },
-              { id: 'wellness', icon: '🧘', label: 'Wellness', types: ['zen-garden', 'temple', 'fountain', 'well', 'pond', 'park'] },
-              { id: 'honor', icon: '👑', label: 'Honor', types: ['castle', 'mansion', 'mayor', 'monument'] }
+              { id: 'might', icon: '⚔️', label: 'Might', color: 'border-red-500/80 text-red-300 bg-red-950/40', types: ['training-grounds', 'blacksmith', 'archery', 'jousting', 'watchtower'] },
+              { id: 'knowledge', icon: '📖', label: 'Knowledge', color: 'border-purple-500/80 text-purple-300 bg-purple-950/40', types: ['library', 'wizard', 'temple', 'monument'] },
+              { id: 'wellness', icon: '🧘', label: 'Wellness', color: 'border-emerald-500/80 text-emerald-300 bg-emerald-950/40', types: ['zen-garden', 'temple', 'fountain', 'well', 'pond', 'park'] },
+              { id: 'honor', icon: '👑', label: 'Honor', color: 'border-amber-500/80 text-amber-300 bg-amber-950/40', types: ['castle', 'mansion', 'mayor', 'monument'] }
             ].map(cat => {
               const count = grid.flat().filter(cell => cell && cat.types.includes(cell.type?.toLowerCase() || '')).length;
+              const isSelected = focusCategory === cat.id;
               return (
                 <button
                   key={cat.id}
-                  onClick={() => setFocusCategory(focusCategory === cat.id ? null : cat.id)}
+                  onClick={() => setFocusCategory(isSelected ? null : cat.id)}
                   className={cn(
-                    "p-1.5 rounded-lg transition-all flex items-center gap-3 min-w-[170px] sm:min-w-0 justify-between",
-                    focusCategory === cat.id 
-                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]" 
-                      : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5 opacity-50 grayscale"
+                    "px-2.5 py-1 rounded-lg transition-all flex items-center gap-2 border text-xs font-bold font-serif cursor-pointer",
+                    isSelected
+                      ? cn("border-amber-400 text-yellow-200 bg-amber-950/80 shadow-[0_0_12px_rgba(245,158,11,0.4)]", cat.color)
+                      : "border-amber-900/30 text-amber-200/70 hover:text-amber-100 hover:bg-amber-950/20"
                   )}
                   title={`Filter for ${cat.label} synergy`}
                 >
                   <span className="text-sm">{cat.icon}</span>
-                  <span className="text-[9px] font-bold uppercase tracking-tight inline sm:hidden md:inline">{cat.label}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-tight">{cat.label}</span>
                   <span className={cn(
-                    "text-[8px] px-1 rounded-full",
-                    focusCategory === cat.id ? "bg-amber-500 text-black" : "bg-white/10 text-zinc-400"
+                    "text-[9px] px-1.5 py-0.5 rounded font-mono font-bold border",
+                    isSelected ? "bg-amber-500 text-black border-amber-300" : "bg-zinc-900 text-amber-400 border-amber-900/40"
                   )}>x{count}</span>
                 </button>
               );
@@ -2716,14 +2717,14 @@ export function KingdomGridWithTimers({
         </div>
 
         {/* Center: Resource HUD */}
-        <div className="flex items-center gap-3 bg-zinc-950 px-4 py-2 rounded-xl border border-white/5 shadow-inner overflow-x-auto max-w-full mobile-scroll-hide whitespace-nowrap snap-start shrink-0">
+        <div className="flex items-center gap-2 bg-zinc-950/90 px-3 py-1.5 rounded-xl border border-amber-900/30 shadow-inner overflow-x-auto max-w-full mobile-scroll-hide whitespace-nowrap snap-start shrink-0">
           {/* Build Tokens */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 transition-colors cursor-help">
-                <span className="text-lg filter drop-shadow hover:scale-110 transition-transform">👑</span>
+              <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-amber-950/40 border border-amber-500/40 hover:bg-amber-900/30 transition-all cursor-help">
+                <span className="text-base filter drop-shadow">👑</span>
                 <div className="flex flex-col leading-none">
-                  <span className="font-bold font-mono text-amber-400 text-sm">{buildTokens}</span>
+                  <span className="font-bold font-mono text-yellow-300 text-xs">{buildTokens}</span>
                 </div>
               </div>
             </TooltipTrigger>
@@ -2732,7 +2733,7 @@ export function KingdomGridWithTimers({
             </TooltipContent>
           </Tooltip>
 
-          <div className="w-px h-6 bg-white/10 mx-1" />
+          <div className="w-px h-5 bg-amber-900/40 mx-0.5" />
 
           {/* Construction Materials - Dynamic List */}
           {[
@@ -2748,9 +2749,9 @@ export function KingdomGridWithTimers({
             return (
               <Tooltip key={mat.id}>
                 <TooltipTrigger asChild>
-                  <div className={`flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 transition-colors cursor-help ${qty === 0 ? 'opacity-50 grayscale' : ''}`}>
-                    <span className="text-lg filter drop-shadow hover:scale-110 transition-transform">{mat.icon}</span>
-                    <span className="font-bold font-mono text-zinc-200 text-sm">{qty}</span>
+                  <div className={`flex items-center gap-1.5 px-2 py-1 rounded-lg bg-zinc-900/80 border border-amber-900/20 hover:border-amber-500/40 transition-colors cursor-help ${qty === 0 ? 'opacity-50' : ''}`}>
+                    <span className="text-base filter drop-shadow">{mat.icon}</span>
+                    <span className="font-bold font-mono text-amber-200 text-xs">{qty}</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>

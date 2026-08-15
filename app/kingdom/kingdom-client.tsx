@@ -1792,28 +1792,28 @@ export function KingdomClient() {
 
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
           <div className="flex w-full mb-6 items-center justify-between gap-3 overflow-x-auto snap-x snap-mandatory py-1 custom-scrollbar mobile-scroll-hide">
-            <TabsList className="flex shrink-0 snap-start space-x-1 p-1 bg-zinc-950/80 border border-amber-900/30 rounded-2xl">
-              <TabsTrigger value="thrivehaven" className="snap-start shrink-0">
+            <TabsList className="flex shrink-0 snap-start space-x-1.5 p-0.5 bg-transparent border-none font-serif text-sm">
+              <TabsTrigger value="thrivehaven" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
                 <LayoutGrid className="w-4 h-4" />
                 <span>{TEXT_CONTENT.kingdom.ui.tabs.thrivehaven}</span>
               </TabsTrigger>
-              <TabsTrigger value="journey" className="snap-start shrink-0">
+              <TabsTrigger value="journey" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
                 <Compass className="w-4 h-4" />
                 <span>{TEXT_CONTENT.kingdom.ui.tabs.journey}</span>
               </TabsTrigger>
-              <TabsTrigger value="citizens" className="snap-start shrink-0">
+              <TabsTrigger value="citizens" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
                 <Users className="w-4 h-4" />
                 <span>Citizens</span>
               </TabsTrigger>
-              <TabsTrigger value="barracks" className="snap-start shrink-0">
+              <TabsTrigger value="barracks" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
                 <Sword className="w-4 h-4" />
                 <span>Barracks</span>
               </TabsTrigger>
-              <TabsTrigger value="alchemy" className="snap-start shrink-0">
+              <TabsTrigger value="alchemy" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
                 <FlaskConical className="w-4 h-4" />
                 <span>Enhanced</span>
               </TabsTrigger>
-              <TabsTrigger value="airship" className="snap-start shrink-0">
+              <TabsTrigger value="airship" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
                 <Plane className="w-4 h-4" />
                 <span>Airship Harbor</span>
               </TabsTrigger>
