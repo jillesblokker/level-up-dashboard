@@ -2324,14 +2324,12 @@ export function KingdomGridWithTimers({
       description: `Collected from ${readyTimers.length} buildings (+${totalGoldGained.toLocaleString()} Gold, +${totalExpGained.toLocaleString()} XP).` 
     });
 
-    notificationService.addNotification({
-      id: `tax-harvest-${Date.now()}`,
-      title: "💰 Kingdom Taxes Harvested!",
-      description: `Collected from ${readyTimers.length} buildings (+${totalGoldGained.toLocaleString()} Gold, +${totalExpGained.toLocaleString()} XP).`,
-      timestamp: new Date().toISOString(),
-      read: false,
-      type: "reward"
-    });
+    notificationService.addNotification(
+      "💰 Kingdom Taxes Harvested!",
+      `Collected from ${readyTimers.length} buildings (+${totalGoldGained.toLocaleString()} Gold, +${totalExpGained.toLocaleString()} XP).`,
+      "reward",
+      "medium"
+    );
   }
 
   useEffect(() => {
