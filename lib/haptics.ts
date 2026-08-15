@@ -35,6 +35,14 @@ export function hapticSuccess() {
   }
 }
 
+export function hapticError() {
+  if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate([40, 60, 40]);
+    } catch {}
+  }
+}
+
 export const HapticPatterns = {
   light: hapticLight,
   medium: hapticMedium,
@@ -42,7 +50,7 @@ export const HapticPatterns = {
   success: hapticSuccess,
   selection: hapticLight,
   warning: hapticHeavy,
-  error: hapticHeavy,
+  error: hapticError,
   tabSwitch: hapticLight,
   questComplete: hapticSuccess,
   soft: hapticLight,
