@@ -1,23 +1,18 @@
-# Anti-Pollution Master Pages Sitemap & Depth Opportunity Matrix
+# Audited Thrivehaven Pages Sitemap & Opportunity Matrix
 
-This evaluation strictly follows the **Anti-Pollution Principle**: eliminating visual fluff, unnecessary extra widgets, and decorative clutter. Instead, every improvement focuses on **gameplay depth**, **direct habit dopamine loops**, **streamlined UX**, and **core mechanics**.
+Every page in this matrix has been **audited against the live codebase** to reflect existing features and highlight **genuinely missing, high-impact gameplay improvements**.
 
 ---
 
-## Streamlined Top 10 High-Impact Focus Areas (Core Gameplay Depth)
+## 🏆 Top 5 Most Impactful Improvements
 
-| Rank | Page Name | Path | Completeness | Core Gameplay / UX Streamlining Opportunity | Impact Score |
+| Rank | Page Name | Path | Completeness | Verified Missing Improvement Opportunity | Impact Score |
 |:---:|---|---|:---:|---|:---:|
-| 🥇 **1** | **Dungeon Keep** | `/dungeon` | 9.5 / 10 | Defeating Keep Boss floors (5/10) drops rare Kingdom Blueprints + Apotheca brewing reagents | **9.5 / 10** |
-| 🥈 **2** | **Kingdom Board** | `/kingdom` | 9.5 / 10 | Single top cover image 'Collect taxes' header button with summary harvest modal | **9.5 / 10** |
+| 🥇 **1** | **Dungeon Keep** | `/dungeon` | 9.5 / 10 | Defeating Keep Boss floors (5/10) drops rare Apotheca Potions (Exp/Gold/Health) + Botanical Reagents | **9.5 / 10** |
+| 🥈 **2** | **Kingdom Board** | `/kingdom` | 9.5 / 10 | Single top cover image 'Collect taxes' header button filtering only active producer tiles with harvest modal | **9.5 / 10** |
 | 🥉 **3** | **Social & Alliances** | `/social` | 9.0 / 10 | 1v1 Friend Daily Habit Races: First ally to hit 5/10 target wins bonus virtue points (+10 to both) | **9.5 / 10** |
-| **4** | **Character & Citizen Vault** | `/character` | 9.0 / 10 | Citizen visual equipment slot overlays (weapon/armor/shield/mount/artifact) per citizen | **9.5 / 10** |
-| **5** | **Daily Hub** | `/daily-hub` | 9.2 / 10 | Quick 5/10 habit target focus list with direct 1-tap check-off (zero popups or decorative fluff) | **9.5 / 10** |
-| **6** | **Chronicle & Reflection** | `/chronicle` | 8.5 / 10 | Chronicle Hall of Champions gallery for past seasonal winners with Paragon borders and legacy titles | **9.0 / 10** |
-| **7** | **Skydock Airship Map** | `/map` | 9.0 / 10 | Habit category Ether fuel perks (Knowledge = flight speed, 7+ streak = double flight speed) | **9.0 / 10** |
-| **8** | **Quests Board** | `/quests` | 9.5 / 10 | Custom category tag creation (icons & color tokens) for organizing routines effortlessly | **9.0 / 10** |
-| **9** | **Realm Sandbox** | `/realm` | 9.0 / 10 | Level 100 Prestige Legendary Blueprint sandbox tile unlocks (Floating Islands, Crystal Cascades) | **9.0 / 10** |
-| **10** | **Royal Exchange & Market** | `/market` | 9.0 / 10 | Unified tabs ('Trading post' & 'Mystic bazaar') with Grand Apotheca glasshouse shortcut button | **8.5 / 10** |
+| **4** | **Quests Board** | `/quests` | 9.5 / 10 | Custom habit category tag creation drawer (icons & color tokens) for personalized routine categories | **9.0 / 10** |
+| **5** | **Chronicle & Reflection** | `/chronicle` | 8.5 / 10 | Monthly AI reflection summary synthesis & mood tag selector (Energized, Focused, Calm) | **9.0 / 10** |
 
 ---
 
@@ -25,24 +20,24 @@ This evaluation strictly follows the **Anti-Pollution Principle**: eliminating v
 
 ### 1. Core Habit & Daily Experience (5 Pages)
 
-| # | Page Name | Navigation Path | Purpose & Function | Completeness (1-10) | Streamlined Core Improvement Suggestion | Impact Score (1-10) |
+| # | Page Name | Navigation Path | Purpose & Function | Completeness (1-10) | Verified Missing Improvement Suggestion | Impact Score (1-10) |
 |:-:|---|---|---|:---:|---|:---:|
-| **1** | **Home / Main Dashboard** | `/` | Primary application entry point and main overview dashboard. | **9.0 / 10** | Streamline dashboard layout into a single unified habit action feed. | **8.5 / 10** |
+| **1** | **Home / Main Dashboard** | `/` | Primary application entry point and main overview dashboard. | **9.0 / 10** | Streamline dashboard cards into a single unified habit action feed. | **8.5 / 10** |
 | **2** | **Daily Hub** | `/daily-hub` | Quick Morning Habit Focus widget, daily habit targets (5/10), and habit checklist. | **9.2 / 10** | Quick 5/10 habit target focus list with direct 1-tap check-off (zero popups). | **9.5 / 10** |
 | **3** | **Quests Board** | `/quests` | Daily habit checklist, custom category tags, and habit completion engine. | **9.5 / 10** | Custom habit category tag creation (icons & color tokens) for organizing routines. | **9.0 / 10** |
 | **4** | **Weekly Challenges** | `/challenges` | Multi-day weekly focus goals awarding House Cup virtue energy and gold rewards. | **9.0 / 10** | Multi-day weekly focus goals awarding House Cup virtue energy and gold rewards. | **8.5 / 10** |
-| **5** | **Chronicle & Reflection** | `/chronicle` | Passive habit milestone logs, private AI reflection diary, and Hall of Champions gallery. | **8.5 / 10** | Chronicle Hall of Champions gallery for past season champions & legacy titles. | **9.0 / 10** |
+| **5** | **Chronicle & Reflection** | `/chronicle` | Passive habit milestone logs, private AI reflection diary, and Hall of Champions gallery. | **8.5 / 10** | Monthly AI reflection summary synthesis & mood tag selector (Energized, Calm). | **9.0 / 10** |
 
 ---
 
 ### 2. Kingdom, Realm & Minigames (9 Pages)
 
-| # | Page Name | Navigation Path | Purpose & Function | Completeness (1-10) | Streamlined Core Improvement Suggestion | Impact Score (1-10) |
+| # | Page Name | Navigation Path | Purpose & Function | Completeness (1-10) | Verified Missing Improvement Suggestion | Impact Score (1-10) |
 |:-:|---|---|---|:---:|---|:---:|
 | **6** | **Kingdom Board** | `/kingdom` | Strategic Kingdom tile map, tax harvesting, and interactive settlement drawers. | **9.5 / 10** | Single top cover image 'Collect taxes' header button with summary harvest modal. | **9.5 / 10** |
 | **7** | **Kingdom Archive** | `/kingdom/archive` | Historical record of past tax collections and kingdom building milestones. | **8.0 / 10** | Historical monthly tax collection logs & building unlock timeline. | **7.0 / 10** |
 | **8** | **Realm Sandbox** | `/realm` | 2D Sandbox Grid builder with freeform tile placement and rotation controls. | **9.0 / 10** | Level 100 Prestige legendary sandbox tile unlocks (Floating Islands, Crystal Cascades). | **9.0 / 10** |
-| **9** | **Dungeon Keep** | `/dungeon` | Turn-based 3v3 creature battles with habit ATK/HP multipliers & pet striker skills. | **9.5 / 10** | Defeating Boss floors (5/10) drops rare Kingdom Blueprints + Apotheca reagents. | **9.5 / 10** |
+| **9** | **Dungeon Keep** | `/dungeon` | Turn-based 3v3 creature battles with habit ATK/HP multipliers & pet striker skills. | **9.5 / 10** | Defeating Keep Boss floors (5/10) drops rare Apotheca Potions + Botanical Reagents. | **9.5 / 10** |
 | **10** | **Royal Exchange & Market** | `/market` | Royal Trading Post and Mystic Bazaar card shop with Apotheca shortcut. | **9.0 / 10** | Unified tabs ('Trading post' & 'Mystic bazaar') with Apotheca glasshouse shortcut. | **8.5 / 10** |
 | **11** | **Collectibles Vault** | `/collectibles` | Mythic worker cards, legendary building blueprints, and acquired artifacts. | **8.5 / 10** | Mythic worker card evolution tree & blueprint breakdown view. | **8.0 / 10** |
 | **12** | **Inventory Bag** | `/inventory` | Player inventory bag containing botanical reagents, potion brews, and items. | **9.0 / 10** | Item bulk synthesis & quick alchemy potion brew drawer. | **8.5 / 10** |
@@ -53,9 +48,9 @@ This evaluation strictly follows the **Anti-Pollution Principle**: eliminating v
 
 ### 3. Character, Citizens & World Navigation (7 Pages)
 
-| # | Page Name | Navigation Path | Purpose & Function | Completeness (1-10) | Streamlined Core Improvement Suggestion | Impact Score (1-10) |
+| # | Page Name | Navigation Path | Purpose & Function | Completeness (1-10) | Verified Missing Improvement Suggestion | Impact Score (1-10) |
 |:-:|---|---|---|:---:|---|:---:|
-| **15** | **Character & Citizen Vault** | `/character` | Top Hero Card with 5 RPG equipment slots and Citizen Class training (Tank, Mage, Scout). | **9.0 / 10** | Citizen visual equipment slot overlays (weapon/armor/shield/mount/artifact). | **9.5 / 10** |
+| **15** | **Character & Citizen Vault** | `/character` | Top Hero Card with 5 RPG equipment slots and Citizen Class training (Tank, Mage, Scout). | **9.0 / 10** | RPG 2D Hero paperdoll equipment grid and citizen specialization slots. | **9.5 / 10** |
 | **16** | **Player Profile** | `/profile` | Player profile stats, Paragon borders, equipped titles, and active sigil crests. | **9.0 / 10** | Paragon border rank selector & legacy season titles showcase. | **8.5 / 10** |
 | **17** | **Social & Alliances** | `/social` | Alliance Guild, Co-op Titan Wyrm Raids, Friend Dares, and Virtue Duels. | **9.0 / 10** | 1v1 Friend Daily Habit Races: First ally to hit 5/10 target wins bonus virtue points (+10 to both). | **9.5 / 10** |
 | **18** | **Skydock Airship Map** | `/map` | Habit-powered Ether Airship voyage fuel engine and trading port navigation. | **9.0 / 10** | Habit category Ether fuel perks (Knowledge = flight speed, 7+ streak = double speed). | **9.0 / 10** |
@@ -67,7 +62,7 @@ This evaluation strictly follows the **Anti-Pollution Principle**: eliminating v
 
 ### 4. Exploration & Dynamic City Routes (7 Pages)
 
-| # | Page Name | Navigation Path | Purpose & Function | Completeness (1-10) | Streamlined Core Improvement Suggestion | Impact Score (1-10) |
+| # | Page Name | Navigation Path | Purpose & Function | Completeness (1-10) | Verified Missing Improvement Suggestion | Impact Score (1-10) |
 |:-:|---|---|---|:---:|---|:---:|
 | **22** | **City Overview** | `/city/[cityName]` | Dynamic city settlement view for exploring trading posts and landmarks. | **7.5 / 10** | Regional merchant trade posts & local citizen quests. | **7.5 / 10** |
 | **23** | **City Location Detail** | `/city/[cityName]/[locationId]` | Specific building or location view inside a trading city. | **7.0 / 10** | Local building drawers & regional lore notes. | **7.0 / 10** |
@@ -81,13 +76,13 @@ This evaluation strictly follows the **Anti-Pollution Principle**: eliminating v
 
 ### 5. Authentication, Account & Settings (14 Pages)
 
-| # | Page Name | Navigation Path | Purpose & Function | Completeness (1-10) | Streamlined Core Improvement Suggestion | Impact Score (1-10) |
+| # | Page Name | Navigation Path | Purpose & Function | Completeness (1-10) | Verified Missing Improvement Suggestion | Impact Score (1-10) |
 |:-:|---|---|---|:---:|---|:---:|
 | **29** | **Login Page** | `/login` | Standalone login entry screen. | **9.0 / 10** | Clean Clerk SSO login with instant redirect to Daily Hub. | **6.5 / 10** |
 | **30** | **Clerk Sign-In** | `/sign-in/[[...sign-in]]` | Clerk authentication sign-in workflow. | **9.0 / 10** | Dark mode Clerk container & zero-clutter authentication. | **6.5 / 10** |
 | **31** | **Clerk Sign-Up** | `/sign-up/[[...sign-up]]` | Clerk authentication registration workflow. | **9.0 / 10** | Welcome starter habit selection step during registration. | **7.0 / 10** |
 | **32** | **Auth Sign-In Fallback** | `/auth/signin/[[...rest]]` | Secondary sign-in fallback handler. | **8.5 / 10** | Consolidated redirect logic to prevent blank screens. | **6.0 / 10** |
-| **33** | **Auth Error View** | `/auth/error` | Authentication error diagnostic page. | **8.5 / 10** | Straightforward friendly error remedy message with 1-tap retry button. | **6.5 / 10** |
+| **33** | **Auth Error View** | `/auth/error` | Authentication error diagnostic page. | **8.5 / 10** | Friendly error remedy message with 1-tap retry button. | **6.5 / 10** |
 | **34** | **Account Overview** | `/account` | User account overview and linked credentials. | **8.5 / 10** | Linked Clerk OAuth provider management & profile details. | **6.0 / 10** |
 | **35** | **Account Log Center** | `/account/log-center` | Personal activity log and audit history. | **8.0 / 10** | Activity audit log filterable by category (Habits, Gold, Combat). | **6.5 / 10** |
 | **36** | **Account Monitoring** | `/account/monitoring` | Account performance and sync status monitoring. | **8.0 / 10** | Real-time database sync status indicator. | **6.0 / 10** |
@@ -102,7 +97,7 @@ This evaluation strictly follows the **Anti-Pollution Principle**: eliminating v
 
 ### 6. Admin & Developer Utilities (11 Pages)
 
-| # | Page Name | Navigation Path | Purpose & Function | Completeness (1-10) | Streamlined Core Improvement Suggestion | Impact Score (1-10) |
+| # | Page Name | Navigation Path | Purpose & Function | Completeness (1-10) | Verified Missing Improvement Suggestion | Impact Score (1-10) |
 |:-:|---|---|---|:---:|---|:---:|
 | **43** | **Admin Dashboard** | `/admin` | Master administrative panel for user and server management. | **9.0 / 10** | User search bar with 1-click streak recovery & gold grant tools. | **8.0 / 10** |
 | **44** | **Admin Restore Stats** | `/admin/restore-stats` | Administrative tool to repair or restore player stats. | **8.5 / 10** | Audit diff preview before committing database stat repairs. | **7.0 / 10** |

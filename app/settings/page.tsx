@@ -19,11 +19,14 @@ import { toast } from "@/components/ui/use-toast"
 import { CharacterStats } from "@/types/character"
 
 
+import { getAppThemeSync, setAppTheme, AppTheme } from "@/lib/theme-manager"
+
 export default function SettingsPage() {
   const { user } = useUser()
   const { signOut, openUserProfile } = useClerk()
   const [deleteConfirmText, setDeleteConfirmText] = useState("")
   const [isDeleting, setIsDeleting] = useState(false)
+  const [selectedTheme, setSelectedTheme] = useState<AppTheme>('classic')
 
   const [characterStats, setCharacterStats] = useState<CharacterStats>({
     level: 1,
@@ -116,6 +119,9 @@ export default function SettingsPage() {
       if (savedSounds !== null) {
         setSoundsEnabled(savedSounds === "true")
       }
+
+      // Load Theme preference
+      setSelectedTheme(getAppThemeSync())
 
       // Load Vacation Shield Days
       const savedVacation = localStorage.getItem("vacation-shield-days")
@@ -441,6 +447,67 @@ export default function SettingsPage() {
                 <CardDescription className="text-zinc-400">{TEXT_CONTENT.settings.appearance.subtitle}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Visual Theme Selection (Classic Dark vs Medieval RPG) */}
+                <div className="p-4 rounded-xl bg-zinc-900/90 border border-amber-500/30 space-y-3">
+                  <div className="space-y-1">
+                    <Label className="text-white text-base font-bold flex items-center gap-2">
+                      <Palette className="w-5 h-5 text-amber-400" />
+                      Visual Aesthetic Theme
+                    </Label>
+                    <p className="text-xs text-zinc-400 max-w-md">
+                      Switch between the clean Classic Dark mode and the rich Medieval RPG (Sword & Staff) style with ornate gold filigree and classical typography.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedTheme('classic');
+                        setAppTheme('classic');
+                        toast({
+                          title: "Theme Set to Classic Dark 🌑",
+                          description: "Clean dark mode with gold accent highlights active."
+                        });
+                      }}
+                      className={`p-3.5 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
+                        selectedTheme === 'classic'
+                          ? 'border-amber-400 bg-amber-950/40 text-amber-200 shadow-md ring-1 ring-amber-400'
+                          : 'border-zinc-800 bg-zinc-950/60 text-zinc-400 hover:border-zinc-700'
+                      }`}
+                    >
+                      <div className="text-2xl">🌑</div>
+                      <div>
+                        <div className="font-bold text-sm text-white">Classic Dark</div>
+                        <div className="text-[11px] text-zinc-400">Clean modern dark interface</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedTheme('medieval');
+                        setAppTheme('medieval');
+                        toast({
+                          title: "Theme Set to Medieval RPG ⚔️",
+                          description: "Rich Sword & Staff aesthetic with gold filigree active."
+                        });
+                      }}
+                      className={`p-3.5 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
+                        selectedTheme === 'medieval'
+                          ? 'border-amber-400 bg-amber-950/40 text-amber-200 shadow-md ring-1 ring-amber-400'
+                          : 'border-zinc-800 bg-zinc-950/60 text-zinc-400 hover:border-zinc-700'
+                      }`}
+                    >
+                      <div className="text-2xl">⚔️</div>
+                      <div>
+                        <div className="font-bold text-sm text-amber-300">Medieval RPG</div>
+                        <div className="text-[11px] text-amber-400/80">Sword & Staff gold filigree style</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all">
                   <div className="space-y-1">
                     <Label className="text-white text-base font-medium flex items-center">

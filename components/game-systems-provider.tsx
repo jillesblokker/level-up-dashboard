@@ -29,6 +29,15 @@ export function GameSystemsProvider({ children }: { children: React.ReactNode })
 
     React.useEffect(() => {
         setMounted(true)
+        import('@/lib/theme-manager').then(m => m.initAppTheme());
+
+        const handleThemeChange = (e: any) => {
+            if (e.detail?.theme) {
+                import('@/lib/theme-manager').then(m => m.initAppTheme());
+            }
+        };
+        window.addEventListener('app-theme-changed', handleThemeChange);
+        return () => window.removeEventListener('app-theme-changed', handleThemeChange);
     }, [])
 
     if (!mounted) {
