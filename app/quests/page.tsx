@@ -2874,7 +2874,7 @@ export default function QuestsPage() {
 
             {/* SINGLE LAYER TAB BAR (Above content, full width) */}
             <Tabs value={forgeTab} onValueChange={(val: any) => setForgeTab(val)} className="w-full mb-8">
-              <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 gap-1 bg-zinc-950 border border-amber-900/40 p-1.5 rounded-xl">
+              <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-transparent border-none p-0">
                 <TabsTrigger value="quests" className="rounded-lg text-xs sm:text-sm font-bold font-serif py-2.5">
                   <Sword className="w-4 h-4 mr-1.5 text-amber-400" />
                   Daily Quests

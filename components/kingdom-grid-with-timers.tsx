@@ -2598,22 +2598,48 @@ export function KingdomGridWithTimers({
       <div className="w-full mb-6 flex md:flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-zinc-950 border border-zinc-800/50 shadow-xl overflow-x-auto snap-x snap-mandatory custom-scrollbar mobile-scroll-hide">
         {/* Left: Weather Info, Seasonal Festival, Sanctuary Shield & Focus Mode */}
         <div className="flex items-center gap-3 snap-start shrink-0">
+          {/* RPG Vitality & Potion Alchemy HUD */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex items-center cursor-help transition-opacity hover:opacity-80 snap-start shrink-0 bg-zinc-900/80 px-3 py-1.5 rounded-xl border border-zinc-800">
-                <div className="flex items-center gap-2.5">
-                  <div className="text-2xl filter drop-shadow-md">
-                    {weather === 'sunny' ? '☀️' : weather === 'rainy' ? '🌧️' : '🌬️'}
+              <div className="flex items-center gap-3 cursor-pointer transition-transform hover:scale-[1.02] snap-start shrink-0 bg-gradient-to-r from-red-950/80 via-zinc-950 to-blue-950/80 px-3 py-1.5 rounded-xl border border-amber-500/40 shadow-lg">
+                {/* Health Flask (Red) */}
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full border-2 border-red-400 bg-radial from-rose-600 via-red-900 to-[#280404] flex items-center justify-center text-xs text-yellow-200 shadow-[0_0_15px_rgba(239,68,68,0.7),inset_0_2px_4px_rgba(255,255,255,0.4)] relative overflow-hidden">
+                    <div className="absolute top-0.5 left-1 w-2 h-1 rounded-full bg-white/40 blur-[0.5px] pointer-events-none" />
+                    <span className="relative z-10 font-bold">🔴</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold text-amber-500 uppercase tracking-widest font-medieval shadow-black drop-shadow-sm">{getWeatherName(weather)}</span>
-                    <span className="text-[10px] text-zinc-400 italic">{getWeatherDescription(weather)}</span>
+                    <span className="text-[10px] font-bold text-red-400 uppercase tracking-widest font-serif">Vitality Flask</span>
+                    <span className="text-[10px] font-mono text-amber-300 font-bold">100% Health</span>
                   </div>
+                </div>
+
+                <div className="w-px h-6 bg-amber-900/40" />
+
+                {/* Mana Flask (Blue) */}
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full border-2 border-cyan-400 bg-radial from-cyan-500 via-cyan-900 to-[#041a24] flex items-center justify-center text-xs text-cyan-100 shadow-[0_0_15px_rgba(6,182,212,0.7),inset_0_2px_4px_rgba(255,255,255,0.4)] relative overflow-hidden">
+                    <div className="absolute top-0.5 left-1 w-2 h-1 rounded-full bg-white/40 blur-[0.5px] pointer-events-none" />
+                    <span className="relative z-10 font-bold">🔵</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-serif">Focus Mana</span>
+                    <span className="text-[10px] font-mono text-cyan-200 font-bold">Full Mana</span>
+                  </div>
+                </div>
+
+                <div className="w-px h-6 bg-amber-900/40" />
+
+                {/* Quick Potion Slot (Gold) */}
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-amber-950/60 border border-amber-500/40 hover:bg-amber-900/60">
+                  <span className="text-sm">🧪</span>
+                  <span className="text-[10px] font-serif font-bold text-amber-300 uppercase">Potion Belt</span>
                 </div>
               </div>
             </TooltipTrigger>
-            <TooltipContent>
-              <p>Current Weather: Affects resource production rates</p>
+            <TooltipContent className="bg-zinc-950 border-amber-500/50 text-amber-200">
+              <p className="font-bold">🧪 Vitality & Potion Belt HUD</p>
+              <p className="text-xs text-zinc-400">Health reflects your habit completions • Mana fuels Focus Points</p>
             </TooltipContent>
           </Tooltip>
 
