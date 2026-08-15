@@ -147,16 +147,16 @@ export default function QuestCard({
           }}
         >
           <div className={cn(
-            "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 relative shadow-md",
+            "w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-200 relative shadow-md shrink-0",
             "hover:scale-110",
             status === 'completed'
-              ? "bg-emerald-500 border-emerald-400 text-zinc-950 font-bold"
-              : "bg-zinc-950/80 border-amber-500/50 text-transparent hover:border-amber-300"
+              ? "bg-radial from-red-600 via-rose-700 to-red-950 border-amber-300 text-amber-100 font-bold shadow-[0_0_15px_rgba(239,68,68,0.7),inset_0_2px_4px_rgba(255,255,255,0.4)]"
+              : "bg-zinc-950/90 border-amber-500/60 text-transparent hover:border-amber-300"
           )}>
             {status === 'completed' ? (
-              <CheckCircle className="h-4 w-4 stroke-[3]" />
+              <CheckCircle className="h-4.5 w-4.5 stroke-[3] text-amber-200 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]" />
             ) : (
-              <div className="w-2.5 h-2.5 rounded-sm border border-amber-500/40" />
+              <div className="w-2.5 h-2.5 rounded-full border border-amber-500/40" />
             )}
             
             {/* Particle Burst Spans */}
