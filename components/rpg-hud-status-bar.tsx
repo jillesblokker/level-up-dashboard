@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { getHealthVitalitySync, getTaxMultiplier, drinkHealthPotion } from '@/lib/health-vitality-manager';
 import { getManaSync } from '@/lib/mana-manager';
@@ -17,6 +18,7 @@ import { ChevronLeft, X, Heart, Sparkles, Zap, Snowflake, Brain, Flame, Shield, 
 import { Button } from '@/components/ui/button';
 
 export function RpgHudStatusBar() {
+  const pathname = usePathname();
   const [health, setHealth] = useState(100);
   const [mana, setMana] = useState(100);
   const [showSpellModal, setShowSpellModal] = useState(false);
@@ -32,6 +34,11 @@ export function RpgHudStatusBar() {
   const sanctuaryMode = useGameStore(s => s.sanctuaryMode);
   const setSanctuaryMode = useGameStore(s => s.setSanctuaryMode);
 
+  // Reset visibility when navigating between pages
+  useEffect(() => {
+    setIsVisible(true);
+  }, [pathname]);
+
   // Low health heartbeat haptics (< 25% Health)
   useEffect(() => {
     if (health >= 25) return;
@@ -41,9 +48,10 @@ export function RpgHudStatusBar() {
     return () => clearInterval(interval);
   }, [health]);
 
-  // Auto-hide HUD when scrolling down on mobile, reveal when scrolling up
+  // Auto-hide HUD when scrolling down on all mobile pages, reveal when scrolling up
   useEffect(() => {
     let lastTop = 0;
+    let touchStartY = 0;
 
     const handleScroll = (e: Event) => {
       const target = e.target as HTMLElement | Document;
@@ -57,28 +65,50 @@ export function RpgHudStatusBar() {
 
       const diff = currentTop - lastTop;
 
-      // Filter out small jitter (< 5px)
       if (Math.abs(diff) < 5) return;
 
       if (currentTop > 30 && diff > 0) {
-        // Scrolling down -> hide HUD
         setIsVisible(false);
       } else if (diff < 0 || currentTop <= 20) {
-        // Scrolling up or near top -> reveal HUD
         setIsVisible(true);
       }
 
       lastTop = currentTop;
     };
 
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches && e.touches[0]) {
+        touchStartY = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!e.touches || !e.touches[0]) return;
+      const currentY = e.touches[0].clientY;
+      const diffY = touchStartY - currentY;
+      const currentScrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+
+      // Finger moving UP (scrolling DOWN) past 15px threshold
+      if (diffY > 15 && (currentScrollTop > 30 || lastTop > 30)) {
+        setIsVisible(false);
+      } else if (diffY < -15) {
+        // Finger moving DOWN (scrolling UP)
+        setIsVisible(true);
+      }
+    };
+
     window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
     document.addEventListener('scroll', handleScroll, { capture: true, passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
 
     return () => {
       window.removeEventListener('scroll', handleScroll, { capture: true });
       document.removeEventListener('scroll', handleScroll, { capture: true });
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
     };
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     setHealth(getHealthVitalitySync());
