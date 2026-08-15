@@ -2853,24 +2853,6 @@ export default function QuestsPage() {
           />
           <MedievalErrorBoundary componentName="QuestsSubView">
             <MobileContentWrapper>
-            <StreakRecoveryCard />
-            {/* Daily Habit Combat Stat Buff Bar */}
-            <div className="p-3.5 bg-gradient-to-r from-red-950/80 via-zinc-950 to-blue-950/80 border border-red-500/40 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xl mb-6">
-              <div className="flex items-center gap-2 text-xs font-bold text-amber-300 font-serif">
-                <span>⚔️ Today&apos;s Dungeon Combat Stat Buffs Active:</span>
-              </div>
-              <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono font-bold">
-                <span className="px-2.5 py-1 rounded-lg bg-red-950 text-red-300 border border-red-500/40">
-                  ⚔️ Might: +15% ATK
-                </span>
-                <span className="px-2.5 py-1 rounded-lg bg-blue-950 text-blue-300 border border-blue-500/40">
-                  🪄 Knowledge: +10% Magic
-                </span>
-                <span className="px-2.5 py-1 rounded-lg bg-purple-950 text-purple-300 border border-purple-500/40">
-                  🛡️ Castle: +10% Armor
-                </span>
-              </div>
-            </div>
 
             {/* SINGLE LAYER TAB BAR (Above content, full width) */}
             <Tabs value={forgeTab} onValueChange={(val: any) => setForgeTab(val)} className="w-full mb-8">

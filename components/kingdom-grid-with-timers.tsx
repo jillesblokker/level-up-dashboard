@@ -15,7 +15,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, getRarityColor } from '@/lib/kingdom-tiles'
 import { KingdomTileModal } from './kingdom-tile-modal'
 import { ZenMeditateModal } from './kingdom/ZenMeditateModal'
-import { useToast } from '@/components/ui/use-toast'
+import { toast } from '@/components/ui/use-toast';
+import { notificationService } from '@/lib/notification-service';
 import { KingdomTileItem } from './KingdomTileItem'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { CreatureLayer } from '@/components/creature-layer'
@@ -2313,9 +2314,24 @@ export function KingdomGridWithTimers({
     hapticMedium();
     
     setSummaryRewards(collectedRewards);
-    setShowSummaryModal(true);
+    setShowSummaryModal(false);
     
-    toast({ title: "Harvest complete!", description: `Collected rewards from ${readyTimers.length} buildings.` });
+    const totalGoldGained = collectedRewards.reduce((sum, r) => sum + (r.gold || 0), 0);
+    const totalExpGained = collectedRewards.reduce((sum, r) => sum + (r.exp || 0), 0);
+
+    toast({ 
+      title: "💰 Kingdom Taxes Harvested!", 
+      description: `Collected from ${readyTimers.length} buildings (+${totalGoldGained.toLocaleString()} Gold, +${totalExpGained.toLocaleString()} XP).` 
+    });
+
+    notificationService.addNotification({
+      id: `tax-harvest-${Date.now()}`,
+      title: "💰 Kingdom Taxes Harvested!",
+      description: `Collected from ${readyTimers.length} buildings (+${totalGoldGained.toLocaleString()} Gold, +${totalExpGained.toLocaleString()} XP).`,
+      timestamp: new Date().toISOString(),
+      read: false,
+      type: "reward"
+    });
   }
 
   useEffect(() => {
@@ -2598,110 +2614,8 @@ export function KingdomGridWithTimers({
 
   return (
     <div className="w-full flex flex-col items-center gap-4">
-      {/* Kingdom Control Bar - Mobile Snap Carousel / Desktop Responsive Bar */}
-      <div className="w-full mb-6 flex md:flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-zinc-950 border border-zinc-800/50 shadow-xl overflow-x-auto snap-x snap-mandatory custom-scrollbar mobile-scroll-hide">
-        {/* Left: Weather Info, Seasonal Festival, Sanctuary Shield & Focus Mode */}
-        <div className="flex items-center gap-3 snap-start shrink-0">
-
-
-          {/* Active Seasonal Event Pill */}
-          {activeEvent && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-950/30 border border-amber-800/40 rounded-xl cursor-help transition-all hover:bg-amber-950/40 hover:border-amber-700/60 snap-start shrink-0">
-                  <span className="text-base select-none">
-                    {activeEvent.id === 'winter_festival' ? '❄️' :
-                     activeEvent.id === 'festival_of_hearts' ? '💖' :
-                     activeEvent.id === 'spring_vernal' ? '🌸' :
-                     activeEvent.id === 'rain_gala' ? '🌧️' :
-                     activeEvent.id === 'shield_joust' ? '🛡️' :
-                     activeEvent.id === 'solstice_fair' ? '☀️' :
-                     activeEvent.id === 'firefly_revelry' ? '✨' :
-                     activeEvent.id === 'forge_fire' ? '🔥' :
-                     activeEvent.id === 'harvest_festival' ? '🌾' :
-                     activeEvent.id === 'shadow_festival' ? '👻' :
-                     activeEvent.id === 'remembrance_feast' ? '🕯️' : '🎄'}
-                  </span>
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest font-serif">{activeEvent.name}</span>
-                    <span className="text-[9px] text-zinc-400">Seasonal Boost Active</span>
-                  </div>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs bg-zinc-950 border-amber-900/40 text-zinc-100 p-3 rounded-lg shadow-2xl">
-                <div className="space-y-2">
-                  <h4 className="font-serif font-semibold text-amber-400 text-sm">{activeEvent.name}</h4>
-                  <p className="text-xs text-zinc-300 leading-relaxed">{activeEvent.theme}</p>
-                  <div className="h-px bg-zinc-800 my-1" />
-                  <p className="text-[10px] text-amber-500 font-bold">Affected properties gain +20% Gold and +10% XP:</p>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {activeEvent.activeTileIds.map(tileId => (
-                      <span key={tileId} className="text-[9px] px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 rounded text-zinc-300 capitalize">
-                        {tileId.replace(/-/g, ' ')}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          )}
-
-          {/* Sanctuary Toggle Button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => setSanctuaryMode(!sanctuaryMode)}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl transition-all flex items-center gap-2 border border-white/5 snap-start shrink-0",
-                  sanctuaryMode 
-                    ? "bg-indigo-500/20 text-indigo-400 border-indigo-500/30 shadow-[0_0_10px_rgba(99,102,241,0.2)]" 
-                    : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 hover:bg-white/5 grayscale"
-                )}
-              >
-                <span className="text-base">🛡️</span>
-                <span className="text-[10px] font-bold uppercase tracking-tight">Sanctuary</span>
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="max-w-xs text-xs">
-                <strong>Sanctuary Mode:</strong> {sanctuaryMode ? 'Active. Necrion\'s wards repel the ruins.' : 'Inactive. Activate to freeze streaks and prevent Ruins from creeping into your kingdom when you need a break.'}
-              </p>
-            </TooltipContent>
-          </Tooltip>
-
-          {/* Category Focus Mode Toggles */}
-          <div className="flex items-center gap-1.5 bg-zinc-950/80 p-1 rounded-xl border border-amber-900/30 snap-start shrink-0">
-            {[
-              { id: 'might', icon: '⚔️', label: 'Might', color: 'border-red-500/80 text-red-300 bg-red-950/40', types: ['training-grounds', 'blacksmith', 'archery', 'jousting', 'watchtower'] },
-              { id: 'knowledge', icon: '📖', label: 'Knowledge', color: 'border-purple-500/80 text-purple-300 bg-purple-950/40', types: ['library', 'wizard', 'temple', 'monument'] },
-              { id: 'wellness', icon: '🧘', label: 'Wellness', color: 'border-emerald-500/80 text-emerald-300 bg-emerald-950/40', types: ['zen-garden', 'temple', 'fountain', 'well', 'pond', 'park'] },
-              { id: 'honor', icon: '👑', label: 'Honor', color: 'border-amber-500/80 text-amber-300 bg-amber-950/40', types: ['castle', 'mansion', 'mayor', 'monument'] }
-            ].map(cat => {
-              const count = grid.flat().filter(cell => cell && cat.types.includes(cell.type?.toLowerCase() || '')).length;
-              const isSelected = focusCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setFocusCategory(isSelected ? null : cat.id)}
-                  className={cn(
-                    "px-2.5 py-1 rounded-lg transition-all flex items-center gap-2 border text-xs font-bold font-serif cursor-pointer",
-                    isSelected
-                      ? cn("border-amber-400 text-yellow-200 bg-amber-950/80 shadow-[0_0_12px_rgba(245,158,11,0.4)]", cat.color)
-                      : "border-amber-900/30 text-amber-200/70 hover:text-amber-100 hover:bg-amber-950/20"
-                  )}
-                  title={`Filter for ${cat.label} synergy`}
-                >
-                  <span className="text-sm">{cat.icon}</span>
-                  <span className="text-[10px] font-bold uppercase tracking-tight">{cat.label}</span>
-                  <span className={cn(
-                    "text-[9px] px-1.5 py-0.5 rounded font-mono font-bold border",
-                    isSelected ? "bg-amber-500 text-black border-amber-300" : "bg-zinc-900 text-amber-400 border-amber-900/40"
-                  )}>x{count}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+      {/* Kingdom Control Bar - Materials & Build Resources */}
+      <div className="w-full mb-6 flex items-center justify-end gap-3 px-4 sm:px-6 py-2.5 bg-zinc-950/90 border border-zinc-800/50 rounded-2xl shadow-xl overflow-x-auto custom-scrollbar">
 
         {/* Center: Resource HUD */}
         <div className="flex items-center gap-2 bg-zinc-950/90 px-3 py-1.5 rounded-xl border border-amber-900/30 shadow-inner overflow-x-auto max-w-full mobile-scroll-hide whitespace-nowrap snap-start shrink-0">
