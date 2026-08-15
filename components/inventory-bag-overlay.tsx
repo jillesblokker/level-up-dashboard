@@ -134,6 +134,16 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
   
   const [activeTab, setActiveTab] = useState('stored');
   const [storedFilter, setStoredFilter] = useState('all');
+
+  useEffect(() => {
+    const handleOpenBag = (e: Event) => {
+      const detail = (e as CustomEvent)?.detail;
+      if (detail?.tab) setActiveTab(detail.tab);
+      if (detail?.filter) setStoredFilter(detail.filter);
+    };
+    window.addEventListener('open-inventory-bag', handleOpenBag);
+    return () => window.removeEventListener('open-inventory-bag', handleOpenBag);
+  }, []);
   
   const [inventoryItems, setInventoryItems] = useState<KingdomInventoryItem[]>([]);
   const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([]);

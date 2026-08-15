@@ -71,8 +71,15 @@ export function NavBar({ session }: NavBarProps) {
     const handleAirshipStatus = (e: Event) => {
       setAirshipCargoReady((e as CustomEvent)?.detail?.ready ?? false);
     };
+    const handleOpenBag = () => {
+      setIsBagOpen(true);
+    };
     window.addEventListener('airship-cargo-status', handleAirshipStatus);
-    return () => window.removeEventListener('airship-cargo-status', handleAirshipStatus);
+    window.addEventListener('open-inventory-bag', handleOpenBag);
+    return () => {
+      window.removeEventListener('airship-cargo-status', handleAirshipStatus);
+      window.removeEventListener('open-inventory-bag', handleOpenBag);
+    };
   }, []);
 
   useEffect(() => {

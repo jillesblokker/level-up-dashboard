@@ -66,7 +66,7 @@ export function RpgHudStatusBar() {
       <div className="fixed top-[calc(env(safe-area-inset-top,0px)+0.75rem)] left-3 right-3 w-[calc(100%-1.5rem)] md:top-auto md:bottom-4 md:left-4 md:right-auto md:w-auto z-[9999] pointer-events-auto">
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex items-center justify-between md:justify-start gap-1.5 sm:gap-2.5 bg-[#0f1526]/95 backdrop-blur-md px-3 py-2 rounded-xl border-1.5 border-amber-500/60 shadow-[0_8px_30px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(254,240,138,0.2)]">
+            <div className="flex items-center justify-between md:justify-start gap-1.5 sm:gap-2.5 bg-[#0f1526]/95 backdrop-blur-md px-4 py-2 rounded-full border-1.5 border-amber-500/60 shadow-[0_8px_30px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(254,240,138,0.2)]">
               {/* Health Flask (Red) */}
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <div
@@ -113,29 +113,18 @@ export function RpgHudStatusBar() {
 
               <div className="w-px h-7 bg-amber-900/50" />
 
-              {/* Quick Potion Drink Slot */}
+              {/* Quick Potion Drink Slot -> Opens Bag on Potions Tab */}
               <button
                 type="button"
-                className="flex items-center gap-1 px-2 py-1 rounded bg-gradient-to-b from-amber-800 to-amber-950 border border-amber-400/60 hover:border-amber-300 text-amber-200 hover:text-white transition-all shadow-md active:scale-95 text-[10px] font-serif font-bold uppercase tracking-wider shrink-0"
+                className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-b from-amber-800 to-amber-950 border border-amber-400/60 hover:border-amber-300 text-amber-200 hover:text-white transition-all shadow-md active:scale-95 text-xs font-serif font-bold shrink-0"
+                title="Open Potion Bag"
                 onClick={(e) => {
                   e.stopPropagation();
-                  const res = drinkHealthPotion();
-                  if (res.success) {
-                    hapticSuccess();
-                    toast({
-                      title: "🧪 Drank Health Potion!",
-                      description: `Restored +30% Health! Current Health: ${res.newHealth}%.`
-                    });
-                  } else {
-                    toast({
-                      title: "Full Health!",
-                      description: "Your Health is already at 100% Peak King fitness!"
-                    });
-                  }
+                  hapticSuccess();
+                  window.dispatchEvent(new CustomEvent('open-inventory-bag', { detail: { tab: 'stored', filter: 'consumable' } }));
                 }}
               >
                 <span>🧪</span>
-                <span className="hidden xs:inline">Drink Potion</span>
               </button>
             </div>
           </TooltipTrigger>

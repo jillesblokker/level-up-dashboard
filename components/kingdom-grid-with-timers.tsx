@@ -2602,79 +2602,7 @@ export function KingdomGridWithTimers({
       <div className="w-full mb-6 flex md:flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-zinc-950 border border-zinc-800/50 shadow-xl overflow-x-auto snap-x snap-mandatory custom-scrollbar mobile-scroll-hide">
         {/* Left: Weather Info, Seasonal Festival, Sanctuary Shield & Focus Mode */}
         <div className="flex items-center gap-3 snap-start shrink-0">
-          {/* RPG Health & Potion Alchemy HUD */}
-          {(() => {
-            const currentHealth = getHealthVitalitySync();
-            const taxMult = getTaxMultiplier(currentHealth);
-            const taxBadgeText = currentHealth >= 100 ? '👑 +10% Taxes' : currentHealth >= 50 ? '🛡️ 1.0x Base Taxes' : currentHealth >= 10 ? '⚠️ -25% Sluggish Taxes' : '💀 -75% Tax Penalty';
-            const taxBadgeColor = currentHealth >= 100 ? 'text-yellow-300 font-black drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : currentHealth >= 50 ? 'text-slate-300 font-bold' : currentHealth >= 10 ? 'text-amber-400 font-bold' : 'text-red-400 font-black animate-pulse';
 
-            return (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="hidden md:flex items-center gap-3 cursor-pointer transition-transform hover:scale-[1.02] snap-start shrink-0 bg-gradient-to-r from-red-950/80 via-zinc-950 to-blue-950/80 px-3 py-1.5 rounded-xl border border-amber-500/40 shadow-lg">
-                    {/* Health Flask (Red) */}
-                    <div className="flex items-center gap-2">
-                      <div className={cn(
-                        "w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs text-yellow-200 relative overflow-hidden transition-all",
-                        currentHealth >= 100
-                          ? "border-amber-300 bg-radial from-amber-400 via-red-600 to-red-950 shadow-[0_0_20px_rgba(245,158,11,0.9)] scale-105"
-                          : currentHealth < 10
-                          ? "border-red-600 bg-radial from-red-950 via-zinc-950 to-black shadow-[0_0_15px_rgba(239,68,68,0.9)] animate-pulse"
-                          : "border-red-400 bg-radial from-rose-600 via-red-900 to-[#280404] shadow-[0_0_15px_rgba(239,68,68,0.7)]"
-                      )}>
-                        <div className="absolute top-0.5 left-1 w-2 h-1 rounded-full bg-white/40 blur-[0.5px] pointer-events-none" />
-                        <span className="relative z-10 font-bold">🔴</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-red-400 uppercase tracking-widest font-serif">Health ({currentHealth}%)</span>
-                        <span className={cn("text-[10px] font-mono", taxBadgeColor)}>{taxBadgeText}</span>
-                      </div>
-                    </div>
-
-                    <div className="w-px h-6 bg-amber-900/40" />
-
-                    {/* Mana Flask (Blue) */}
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full border-2 border-cyan-400 bg-radial from-cyan-500 via-cyan-900 to-[#041a24] flex items-center justify-center text-xs text-cyan-100 shadow-[0_0_15px_rgba(6,182,212,0.7),inset_0_2px_4px_rgba(255,255,255,0.4)] relative overflow-hidden">
-                        <div className="absolute top-0.5 left-1 w-2 h-1 rounded-full bg-white/40 blur-[0.5px] pointer-events-none" />
-                        <span className="relative z-10 font-bold">🔵</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-serif">Mana</span>
-                        <span className="text-[10px] font-mono text-cyan-200 font-bold">Full</span>
-                      </div>
-                    </div>
-
-                    <div className="w-px h-6 bg-amber-900/40" />
-
-                    {/* Quick Potion Slot (Gold) */}
-                    <div
-                      className="flex items-center gap-1.5 px-2 py-1 rounded bg-amber-950/60 border border-amber-500/40 hover:bg-amber-900/80 cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const { drinkHealthPotion } = require('@/lib/health-vitality-manager');
-                        const res = drinkHealthPotion();
-                        if (res.success) {
-                          hapticSuccess();
-                          toast({ title: "🧪 Drank Health Potion!", description: `Restored +30% Health! Current Health: ${res.newHealth}%.` });
-                        } else {
-                          toast({ title: "Full Health!", description: "Your Health is already at 100% Peak King!" });
-                        }
-                      }}
-                    >
-                      <span className="text-sm">🧪</span>
-                      <span className="text-[10px] font-serif font-bold text-amber-300 uppercase">Drink Potion</span>
-                    </div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent className="bg-zinc-950 border-amber-500/50 text-amber-200">
-                  <p className="font-bold">🧪 Health & Tax Multiplier HUD</p>
-                  <p className="text-xs text-zinc-400">• 100% Health: +10% Taxes<br/>• Under 10% Health: -75% Tax Penalty<br/>• Click Potion to restore +30% Health!</p>
-                </TooltipContent>
-              </Tooltip>
-            );
-          })()}
 
           {/* Active Seasonal Event Pill */}
           {activeEvent && (
