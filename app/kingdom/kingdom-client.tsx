@@ -1748,47 +1748,13 @@ export function KingdomClient() {
       {/* Main Content with Tabs */}
       <div className="container mx-auto p-4 sm:p-6 space-y-6 pb-28 sm:pb-16 pb-safe" aria-label="kingdom-main-content">
         
-        {/* Narrative Rebuilding Banner Carousel */}
-        <div className="bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 border border-amber-500/20 p-3.5 rounded-2xl flex items-center gap-3 text-xs text-amber-200 shadow-lg">
+        {/* Narrative Rebuilding Banner Carousel (Hidden on Mobile) */}
+        <div className="hidden sm:flex bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 border border-amber-500/20 p-3.5 rounded-2xl items-center gap-3 text-xs text-amber-200 shadow-lg">
           <span className="text-xl shrink-0">🏰</span>
           <p className="leading-relaxed">
             <span className="font-bold text-amber-400">Rebuilding the realm:</span> Complete daily habits to generate power, train champions, and restore your kingdom!
           </p>
         </div>
-
-        {/* Collapsible District Habit Multipliers Drawer (3-Tier Hierarchy) */}
-        <details className="group border border-amber-900/30 rounded-xl bg-zinc-950/60 overflow-hidden">
-          <summary className="px-3.5 py-2.5 flex items-center justify-between text-xs font-bold text-amber-300 font-serif cursor-pointer hover:bg-amber-950/20 transition-colors select-none">
-            <span className="flex items-center gap-2">
-              ⚡ Active District Habit Multipliers
-            </span>
-            <span className="text-[10px] text-amber-400 font-mono font-normal group-open:hidden">
-              Show Details ▾
-            </span>
-          </summary>
-          <div className="p-3 border-t border-amber-900/20 grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs font-mono bg-zinc-900/40">
-            <div className="bg-zinc-950 px-2.5 py-1.5 rounded-lg border border-orange-500/30 flex items-center justify-between text-orange-300">
-              <span className="font-bold">⚔️ Barracks</span>
-              <span className="text-[10px] bg-orange-950 px-1.5 py-0.5 rounded font-bold">+4 ATK</span>
-            </div>
-            <div className="bg-zinc-950 px-2.5 py-1.5 rounded-lg border border-blue-500/30 flex items-center justify-between text-blue-300">
-              <span className="font-bold">🧪 Apotheca</span>
-              <span className="text-[10px] bg-blue-950 px-1.5 py-0.5 rounded font-bold">+5 HP</span>
-            </div>
-            <div className="bg-zinc-950 px-2.5 py-1.5 rounded-lg border border-amber-500/30 flex items-center justify-between text-amber-300">
-              <span className="font-bold">🔨 Forge</span>
-              <span className="text-[10px] bg-amber-950 px-1.5 py-0.5 rounded font-bold">+15% Ore</span>
-            </div>
-            <div className="bg-zinc-950 px-2.5 py-1.5 rounded-lg border border-purple-500/30 flex items-center justify-between text-purple-300">
-              <span className="font-bold">📜 Library</span>
-              <span className="text-[10px] bg-purple-950 px-1.5 py-0.5 rounded font-bold">+15% XP</span>
-            </div>
-            <div className="bg-zinc-950 px-2.5 py-1.5 rounded-lg border border-emerald-500/30 flex items-center justify-between text-emerald-300">
-              <span className="font-bold">🛸 Airship</span>
-              <span className="text-[10px] bg-emerald-950 px-1.5 py-0.5 rounded font-bold">+10% Maps</span>
-            </div>
-          </div>
-        </details>
 
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
           <div className="flex w-full mb-6 items-center justify-between gap-3 overflow-x-auto snap-x snap-mandatory py-1 custom-scrollbar mobile-scroll-hide">

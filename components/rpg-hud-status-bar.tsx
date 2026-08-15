@@ -918,13 +918,38 @@ export function RpgHudStatusBar() {
 
               {activeDrawer === 'buffs' && (
                 <div className="space-y-3">
-                  <div className="p-3 bg-gradient-to-r from-red-950/60 via-zinc-900 to-blue-950/60 border border-red-500/40 rounded-xl space-y-2">
-                    <h4 className="font-serif font-bold text-amber-300">⚔️ Today&apos;s Dungeon Combat Stat Buffs</h4>
-                    <p className="text-zinc-400 text-[11px]">Completing today&apos;s habits grants dynamic combat multipliers in Dungeon Keep battles!</p>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      <span className="px-2 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-500/40 font-mono">⚔️ Might: +15% ATK</span>
-                      <span className="px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-500/40 font-mono">🪄 Knowledge: +10% Magic</span>
-                      <span className="px-2 py-0.5 rounded bg-slate-900 text-slate-200 border border-slate-500/40 font-mono">🛡️ Castle: +10% Armor</span>
+                  <div className="p-3 bg-gradient-to-r from-red-950/60 via-zinc-900 to-blue-950/60 border border-red-500/40 rounded-xl space-y-2.5">
+                    <h4 className="font-serif font-bold text-amber-300">⚔️ Combat & District Multipliers</h4>
+                    <p className="text-zinc-400 text-[11px]">Completing today&apos;s habits grants dynamic multipliers across dungeon combat and kingdom districts!</p>
+
+                    <div className="space-y-1 pt-1">
+                      <h5 className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 font-mono">Dungeon Combat Buffs</h5>
+                      <div className="flex flex-wrap gap-1.5">
+                        <span className="px-2 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-500/40 font-mono text-xs">⚔️ Might: +15% ATK</span>
+                        <span className="px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-500/40 font-mono text-xs">🪄 Knowledge: +10% Magic</span>
+                        <span className="px-2 py-0.5 rounded bg-slate-900 text-slate-200 border border-slate-500/40 font-mono text-xs">🛡️ Castle: +10% Armor</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 pt-2 border-t border-zinc-800">
+                      <h5 className="text-[10px] font-bold uppercase tracking-wider text-amber-400 font-mono">Active District Multipliers</h5>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-xs font-mono">
+                        <span className="px-2 py-1 rounded bg-zinc-950 text-orange-300 border border-orange-500/30 flex items-center justify-between">
+                          <span>⚔️ Barracks</span> <span className="font-bold">+4 ATK</span>
+                        </span>
+                        <span className="px-2 py-1 rounded bg-zinc-950 text-blue-300 border border-blue-500/30 flex items-center justify-between">
+                          <span>🧪 Apotheca</span> <span className="font-bold">+5 HP</span>
+                        </span>
+                        <span className="px-2 py-1 rounded bg-zinc-950 text-amber-300 border border-amber-500/30 flex items-center justify-between">
+                          <span>🔨 Forge</span> <span className="font-bold">+15% Ore</span>
+                        </span>
+                        <span className="px-2 py-1 rounded bg-zinc-950 text-purple-300 border border-purple-500/30 flex items-center justify-between">
+                          <span>📜 Library</span> <span className="font-bold">+15% XP</span>
+                        </span>
+                        <span className="px-2 py-1 rounded bg-zinc-950 text-emerald-300 border border-emerald-500/30 flex items-center justify-between">
+                          <span>🛸 Airship</span> <span className="font-bold">+10% Maps</span>
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>

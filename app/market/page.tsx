@@ -516,17 +516,17 @@ export default function MarketPage() {
                   ✨ Mystic Bazaar • Cards of Fate
                 </Badge>
                 <h2 className="font-medieval text-2xl sm:text-4xl text-amber-300 tracking-wide drop-shadow-md">
-                  The Mystic Bazaar Card Shop
+                  Mystic bazaar
                 </h2>
                 <p className="text-xs sm:text-sm text-zinc-200 max-w-2xl leading-relaxed italic drop-shadow-sm">
                   Find your destiny! Unroll daily Chrono Chests, collect Mythic creature card packs, and unlock legendary realm blueprint tiles.
                 </p>
                 <div className="flex items-center gap-2 flex-wrap pt-1">
                   <Badge className="bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-sm">
-                    🎁 Free Daily Chrono Chests
+                    🎁 Free chests
                   </Badge>
                   <Badge className="bg-amber-950/90 border border-amber-500/50 text-amber-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-sm">
-                    🃏 Mythic Creature Card Packs
+                    🃏 Creature packs
                   </Badge>
                 </div>
               </div>
@@ -538,7 +538,7 @@ export default function MarketPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">🎴</span>
-                    <h3 className="text-xl font-bold text-amber-300 font-serif">Owned card packs ({ownedPacksList.length})</h3>
+                    <h3 className="text-xl font-bold text-amber-300 font-serif">Owned packs ({ownedPacksList.length})</h3>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -572,7 +572,7 @@ export default function MarketPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🎁</span>
-                <h2 className="text-2xl font-bold tracking-tight text-amber-400 font-serif">Free Chrono Chests</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-amber-400 font-serif">Free chests</h2>
               </div>
               <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-3 custom-scrollbar mobile-scroll-hide sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
                 {FREE_PACK_TYPES.map((pack, index) => {
