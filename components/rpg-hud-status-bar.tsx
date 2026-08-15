@@ -34,27 +34,41 @@ export function RpgHudStatusBar() {
 
   // Auto-hide HUD when scrolling down on mobile, reveal when scrolling up
   useEffect(() => {
-    let prevScrollY = window.scrollY;
+    let lastTop = 0;
 
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+    const handleScroll = (e: Event) => {
+      const target = e.target as HTMLElement | Document;
+      let currentTop = 0;
 
-      // Filter out small jitter movements (< 10px)
-      if (Math.abs(currentScrollY - prevScrollY) < 10) return;
+      if (target === document || target === document.documentElement || target === document.body || !(target instanceof HTMLElement)) {
+        currentTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      } else {
+        currentTop = target.scrollTop || window.scrollY || 0;
+      }
 
-      if (currentScrollY > 50 && currentScrollY > prevScrollY) {
-        // Scrolling down past top threshold -> hide HUD
+      const diff = currentTop - lastTop;
+
+      // Filter out small jitter (< 5px)
+      if (Math.abs(diff) < 5) return;
+
+      if (currentTop > 30 && diff > 0) {
+        // Scrolling down -> hide HUD
         setIsVisible(false);
-      } else if (currentScrollY < prevScrollY || currentScrollY <= 30) {
-        // Scrolling up or returning to top -> reveal HUD
+      } else if (diff < 0 || currentTop <= 20) {
+        // Scrolling up or near top -> reveal HUD
         setIsVisible(true);
       }
 
-      prevScrollY = currentScrollY;
+      lastTop = currentTop;
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
+    document.addEventListener('scroll', handleScroll, { capture: true, passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll, { capture: true });
+      document.removeEventListener('scroll', handleScroll, { capture: true });
+    };
   }, []);
 
   useEffect(() => {
