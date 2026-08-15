@@ -45,6 +45,7 @@ import { getUserAlliances, checkInToAlliance, Alliance } from "@/lib/alliance-ma
 import { useToast } from "@/components/ui/use-toast"
 import { useSound, SOUNDS } from "@/lib/sound-manager"
 import { CheckCircle2, Shield } from "lucide-react"
+import { MedievalOrbIcon } from "@/components/ui/medieval-orb-icon"
 
 interface Quest {
     id: string
@@ -484,9 +485,9 @@ export function DailyHubClient() {
                                     </>
                                 )}
                                 <div className="flex items-center gap-3 relative z-10">
-                                    <div className={`relative w-10 h-10 rounded-full border flex items-center justify-center text-amber-300 font-bold text-base transition-all duration-500 ${count >= 5 ? 'bg-amber-500/30 border-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.8)] scale-105' : 'bg-amber-500/20 border-amber-400/80'}`}>
+                                    <MedievalOrbIcon color={count >= 5 ? "gold" : "green"} size="md" className={count >= 5 ? "scale-105" : ""}>
                                         🎯
-                                    </div>
+                                    </MedievalOrbIcon>
                                     <div>
                                         <div className="flex items-center gap-2">
                                             <h4 className="font-bold text-sm text-white font-serif">Morning Focus Target</h4>

@@ -917,28 +917,30 @@ export default function CharacterPage() {
                     </div>
 
                     {/* Essence Inventory */}
-                    <div className="pt-4 mt-4 border-t border-amber-900/20">
-                      <h4 className="text-sm font-medium text-amber-500 mb-3">Essence Inventory</h4>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="flex items-center gap-2 p-2 bg-orange-950/30 rounded-md border border-orange-900/50">
-                          <span className="text-orange-500">🔥</span>
-                          <span className="text-zinc-300 flex-1">Ember</span>
-                          <span className="font-bold text-orange-400">{characterStats.ember_essence || 0}</span>
+                    <div className="pt-4 mt-4 border-t border-amber-900/30">
+                      <h4 className="text-xs font-serif font-bold text-amber-300 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                        <span>🧪</span> Alchemy Essences Vault
+                      </h4>
+                      <div className="grid grid-cols-2 gap-2.5 text-xs font-serif">
+                        <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-red-950/60 via-[#181124] to-[#0f1526] rounded-lg border border-red-500/40 shadow-inner">
+                          <span className="w-7 h-7 rounded-full border border-red-400 bg-radial from-rose-500 to-red-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(239,68,68,0.5)] shrink-0">🔥</span>
+                          <span className="text-slate-200 font-bold flex-1">Ember</span>
+                          <span className="font-bold font-mono text-amber-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-amber-500/30">{characterStats.ember_essence || 0}</span>
                         </div>
-                        <div className="flex items-center gap-2 p-2 bg-cyan-950/30 rounded-md border border-cyan-900/50">
-                          <span className="text-cyan-500">❄️</span>
-                          <span className="text-zinc-300 flex-1">Frost</span>
-                          <span className="font-bold text-cyan-400">{characterStats.frost_essence || 0}</span>
+                        <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-cyan-950/60 via-[#111c2e] to-[#0f1526] rounded-lg border border-cyan-500/40 shadow-inner">
+                          <span className="w-7 h-7 rounded-full border border-cyan-400 bg-radial from-cyan-400 to-cyan-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(6,182,212,0.5)] shrink-0">❄️</span>
+                          <span className="text-slate-200 font-bold flex-1">Frost</span>
+                          <span className="font-bold font-mono text-cyan-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-cyan-500/30">{characterStats.frost_essence || 0}</span>
                         </div>
-                        <div className="flex items-center gap-2 p-2 bg-blue-950/30 rounded-md border border-blue-900/50">
-                          <span className="text-blue-500">💧</span>
-                          <span className="text-zinc-300 flex-1">Tide</span>
-                          <span className="font-bold text-blue-400">{characterStats.tide_essence || 0}</span>
+                        <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-blue-950/60 via-[#0d1c33] to-[#0f1526] rounded-lg border border-blue-500/40 shadow-inner">
+                          <span className="w-7 h-7 rounded-full border border-blue-400 bg-radial from-blue-500 to-blue-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(59,130,246,0.5)] shrink-0">💧</span>
+                          <span className="text-slate-200 font-bold flex-1">Tide</span>
+                          <span className="font-bold font-mono text-blue-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-blue-500/30">{characterStats.tide_essence || 0}</span>
                         </div>
-                        <div className="flex items-center gap-2 p-2 bg-green-950/30 rounded-md border border-green-900/50">
-                          <span className="text-green-500">🍃</span>
-                          <span className="text-zinc-300 flex-1">Verdant</span>
-                          <span className="font-bold text-green-400">{characterStats.verdant_essence || 0}</span>
+                        <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-emerald-950/60 via-[#0b241c] to-[#0f1526] rounded-lg border border-emerald-500/40 shadow-inner">
+                          <span className="w-7 h-7 rounded-full border border-emerald-400 bg-radial from-emerald-500 to-emerald-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(34,197,94,0.5)] shrink-0">🍃</span>
+                          <span className="text-slate-200 font-bold flex-1">Verdant</span>
+                          <span className="font-bold font-mono text-emerald-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-emerald-500/30">{characterStats.verdant_essence || 0}</span>
                         </div>
                       </div>
                     </div>
