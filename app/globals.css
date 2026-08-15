@@ -265,10 +265,24 @@ body {
   font-family: var(--font-libre-baskerville), serif, Georgia !important;
 }
 
-/* 1. Sharp 4px Border Radius Across Entire RPG Interface */
-[data-theme="medieval"] *,
-.theme-medieval * {
-  border-radius: 4px;
+/* 1. Sharp 4px Border Radius Across Targeted UI Components */
+[data-theme="medieval"] .card,
+.theme-medieval .card,
+[data-theme="medieval"] button,
+.theme-medieval button,
+[data-theme="medieval"] input,
+.theme-medieval input,
+[data-theme="medieval"] select,
+.theme-medieval select,
+[data-theme="medieval"] textarea,
+.theme-medieval textarea,
+[data-theme="medieval"] [role="tab"],
+.theme-medieval [role="tab"],
+[data-theme="medieval"] [role="dialog"],
+.theme-medieval [role="dialog"],
+[data-theme="medieval"] .badge,
+.theme-medieval .badge {
+  border-radius: 4px !important;
 }
 
 /* 2. Global Typography Transformation */
@@ -350,22 +364,27 @@ body {
   border-color: #fde047 !important;
 }
 
-/* 5. Header Navigation & Transparent Tab Track (Screenshot 1 Style) */
+/* 5. Header Navigation & Transparent Tab Track (No Bottom Orange Line & No Dark Blue Box) */
 [data-theme="medieval"] header,
 .theme-medieval header,
 [data-theme="medieval"] nav,
 .theme-medieval nav {
   background-color: rgba(7, 10, 19, 0.95) !important;
-  border-bottom: 2px solid rgba(217, 119, 6, 0.6) !important;
+  border-bottom: none !important;
   box-shadow: 0 4px 25px rgba(0, 0, 0, 0.9) !important;
 }
 
-/* Remove dark blue/zinc backdrops behind tab lists */
+/* Remove dark blue/zinc backdrops behind tab lists and main navigation bar */
 [data-theme="medieval"] [role="tablist"],
 .theme-medieval [role="tablist"],
+[data-theme="medieval"] [class*="NavigationMenuList"],
+.theme-medieval [class*="NavigationMenuList"],
 [data-theme="medieval"] nav [class*="bg-zinc"],
-.theme-medieval nav [class*="bg-zinc"] {
+.theme-medieval nav [class*="bg-zinc"],
+[data-theme="medieval"] nav div[class*="bg-zinc"],
+.theme-medieval nav div[class*="bg-zinc"] {
   background: transparent !important;
+  background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
 }
