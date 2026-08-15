@@ -27,6 +27,8 @@ const ApothecaModal = dynamic(
   { ssr: false }
 )
 import { formatGold, cn } from "@/lib/utils"
+import { getOwnedPacks, saveOwnedPack, OwnedPack } from "@/lib/owned-packs-service"
+import { hapticSuccess } from "@/lib/haptics"
 
 // Define available materials for trade
 const MATERIALS = [
@@ -53,6 +55,17 @@ export default function MarketPage() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [openingPack, setOpeningPack] = useState<any>(null)
   const [apothecaOpen, setApothecaOpen] = useState(false)
+  const [ownedPacksList, setOwnedPacksList] = useState<OwnedPack[]>([])
+
+  useEffect(() => {
+    setOwnedPacksList(getOwnedPacks());
+    const handleOwnedPacksChanged = (e: Event) => {
+      const detail = (e as CustomEvent)?.detail;
+      setOwnedPacksList(Array.isArray(detail) ? detail : getOwnedPacks());
+    };
+    window.addEventListener('owned-packs-changed', handleOwnedPacksChanged);
+    return () => window.removeEventListener('owned-packs-changed', handleOwnedPacksChanged);
+  }, []);
 
   const scaledMaterials = useMemo(() => {
     return MATERIALS.map(mat => {
@@ -385,9 +398,25 @@ export default function MarketPage() {
       }
     }
     
-    // Generate and open pack
-    const pack = generatePack(packType.id, Math.random, ownedMythics, hasAstralFortune)
-    setOpeningPack(pack)
+    // Generate and save pack to Owned Packs inventory (Buy Moment!)
+    const generatedPackData = generatePack(packType.id, Math.random, ownedMythics, hasAstralFortune)
+    const newOwnedPack: OwnedPack = {
+      id: `owned_pack_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      packTypeId: packType.id,
+      packTitle: packType.title || 'Mythic Card Pack',
+      shortLabel: packType.shortLabel || 'Card Pack',
+      purchasedAt: Date.now(),
+      packData: generatedPackData
+    }
+
+    saveOwnedPack(newOwnedPack)
+    setOwnedPacksList(getOwnedPacks())
+    hapticSuccess()
+
+    toast({
+      title: "🎴 Pack Added to Inventory!",
+      description: `Bought ${packType.title || 'Pack'}! Click your Owned Packs in the Mystic Bazaar to unpack anytime.`
+    })
   }
 
   // Filter and sort standard materials dynamically
@@ -499,12 +528,49 @@ export default function MarketPage() {
                   <Badge className="bg-amber-950/90 border border-amber-500/50 text-amber-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-sm">
                     🃏 Mythic Creature Card Packs
                   </Badge>
-                  <Badge className="bg-purple-950/90 border border-purple-500/50 text-purple-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-sm">
-                    🔮 100% Guaranteed Tile Drops
-                  </Badge>
                 </div>
               </div>
             </div>
+
+            {/* OWNED PACKS INVENTORY SECTION (Buy vs Unpack Flow!) */}
+            {ownedPacksList.length > 0 && (
+              <div className="space-y-4 bg-gradient-to-r from-amber-950/40 via-zinc-950 to-purple-950/40 p-5 rounded-2xl border-2 border-amber-500/50 shadow-xl animate-fadeIn">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">🎴</span>
+                    <h3 className="text-xl font-bold text-amber-300 font-serif">Owned Card Packs ({ownedPacksList.length})</h3>
+                  </div>
+                  <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-xs font-mono font-bold">
+                    Click to Open Fullscreen Unpacking
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {ownedPacksList.map((op) => (
+                    <Card
+                      key={op.id}
+                      onClick={() => {
+                        hapticSuccess();
+                        setOpeningPack({ ...op.packData, ownedPackId: op.id });
+                      }}
+                      className="bg-zinc-900 border-amber-500/50 hover:border-amber-400 cursor-pointer hover:scale-[1.02] transition-all shadow-lg group p-4 flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-14 bg-gradient-to-br from-amber-600 via-orange-600 to-amber-800 rounded-lg flex items-center justify-center text-2xl shadow-md group-hover:rotate-6 transition-transform border border-amber-300/40">
+                          🎴
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-amber-200 text-sm font-serif">{op.packTitle}</h4>
+                          <p className="text-xs text-zinc-400 font-mono">Ready to Unpack</p>
+                        </div>
+                      </div>
+                      <Button size="sm" className="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-md">
+                        Unpack ✨
+                      </Button>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
             {/* Free Packs Section (Horizontal Touch Snap Carousel on Mobile) */}
             <div className="space-y-4">
               <div className="flex items-center gap-3">
