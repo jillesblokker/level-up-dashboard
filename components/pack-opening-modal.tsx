@@ -40,9 +40,19 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
       setTimeout(() => {
         setViewMode('grid');
         hapticSuccess();
-      }, 500);
+      }, 600);
     }
   }, [allScratched, viewMode]);
+
+  // Hide floating HUD and companion overlay while unpacking modal is mounted
+  useEffect(() => {
+    document.body.setAttribute('data-unpack-open', 'true');
+    window.dispatchEvent(new CustomEvent('unpack-modal-state', { detail: { isOpen: true } }));
+    return () => {
+      document.body.removeAttribute('data-unpack-open');
+      window.dispatchEvent(new CustomEvent('unpack-modal-state', { detail: { isOpen: false } }));
+    };
+  }, []);
 
   useEffect(() => {
     if (isWon && !claimed) {
@@ -101,10 +111,10 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
 
     hapticLight();
 
-    // Auto advance to next card in single card scratch mode if not at end
+    // 1-Second Delay before advancing to next card on mobile/single mode so player sees the revealed card
     setTimeout(() => {
       setActiveCardIndex(prev => (prev < totalCards - 1 ? prev + 1 : prev));
-    }, 400);
+    }, 1000);
   }, [totalCards]);
 
   const handleScratchAll = () => {
@@ -115,19 +125,19 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-between bg-black/95 p-3 sm:p-6 overflow-y-auto animate-fadeIn select-none">
+    <div className="fixed inset-0 z-[999999] flex flex-col justify-between bg-black/95 p-3 sm:p-6 overflow-y-auto animate-fadeIn select-none min-h-dvh h-dvh max-h-dvh pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))]">
       {/* Background Radial Glow */}
       <div className="absolute inset-0 bg-radial from-amber-500/20 via-transparent to-transparent blur-3xl pointer-events-none" />
 
       {/* Header Bar */}
-      <div className="w-full max-w-4xl flex items-center justify-between z-20 pb-2 border-b border-amber-900/40">
+      <div className="w-full max-w-4xl mx-auto flex items-center justify-between z-20 pb-2 border-b border-amber-900/40 shrink-0">
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-amber-400" />
           <span className="font-serif font-bold text-amber-300 text-sm sm:text-base">
-            {packData.title || "Mythic Scratch Pack"}
+            {packData.title || "Mythic scratch pack"}
           </span>
           <span className="text-xs text-amber-500/70 font-mono font-bold hidden sm:inline">
-            ({revealedIds.size} / {totalCards} Scratched)
+            ({revealedIds.size} / {totalCards} scratched)
           </span>
         </div>
 
@@ -139,51 +149,51 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
             className="text-amber-300 hover:text-white bg-amber-950/60 hover:bg-amber-900 border border-amber-500/40 text-xs font-mono font-bold px-3 h-9"
           >
             <Grid className="w-3.5 h-3.5 mr-1" />
-            {viewMode === 'single' ? 'Grid View' : 'Single View'}
+            {viewMode === 'single' ? 'Grid view' : 'Single view'}
           </Button>
 
           <button 
             type="button"
             onClick={onClose}
             className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors cursor-pointer"
-            title="Close Unpacking Modal"
+            title="Close unpacking modal"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="relative w-full max-w-4xl flex-1 flex flex-col items-center justify-center my-4 z-10">
+      {/* Main Content Area (Dynamic viewport height flex-1) */}
+      <div className="relative w-full max-w-4xl mx-auto flex-1 flex flex-col items-center justify-center my-2 z-10 min-h-0 overflow-y-auto">
         {/* Victory Header Toast Banner */}
         {isWon ? (
-          <div className="text-center mb-6 space-y-2 animate-bounce">
-            <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 px-5 py-1.5 rounded-full text-xs font-black tracking-widest uppercase shadow-[0_0_25px_rgba(245,158,11,0.8)] border border-amber-200">
-              🎉 3 MATCHING CREATURE CARDS FOUND! 🎉
+          <div className="text-center mb-3 space-y-1 animate-bounce shrink-0">
+            <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 px-4 py-1 rounded-full text-[10px] sm:text-xs font-bold tracking-wide uppercase shadow-lg border border-amber-200">
+              🎉 3 matching cards found!
             </div>
-            <h2 className="text-3xl sm:text-5xl font-serif font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500 drop-shadow-md">
-              {isNewCard ? "✨ NEW CREATURE UNLOCKED! ✨" : "✨ MYTHIC CARD CLAIMED! ✨"}
+            <h2 className="text-2xl sm:text-4xl font-serif font-bold text-amber-300 drop-shadow-md">
+              {isNewCard ? "✨ New creature unlocked! ✨" : "✨ Mythic card claimed! ✨"}
             </h2>
-            <p className="text-xs sm:text-sm text-amber-200 font-bold">
-              {isNewCard ? "Added to your Mythic Collection Vault!" : "Duplicate converted to +50 Alchemy Essences."}
+            <p className="text-xs text-amber-200/90 font-medium">
+              {isNewCard ? "Added to your mythic collection vault!" : "Duplicate converted to +50 alchemy essences."}
             </p>
           </div>
         ) : (
-          <div className="text-center mb-4 space-y-1">
-            <h2 className="text-2xl sm:text-4xl font-serif font-bold text-amber-400 drop-shadow-sm">
-              Scratch 3 Matching Cards to Win
+          <div className="text-center mb-3 space-y-0.5 shrink-0">
+            <h2 className="text-xl sm:text-3xl font-serif font-bold text-amber-400 drop-shadow-sm">
+              Scratch 3 matching cards to win
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 font-medium">
-              {viewMode === 'single' ? `Scratching Card ${activeCardIndex + 1} of ${totalCards}` : "Scratch all 9 cards on grid to reveal matching cards"}
+            <p className="text-xs text-zinc-400 font-medium">
+              {viewMode === 'single' ? `Scratching card ${activeCardIndex + 1} of ${totalCards}` : "Scratch all 9 cards on grid to reveal matching cards"}
             </p>
           </div>
         )}
 
         {/* SINGLE CARD FULL-SCREEN SCRATCH MODE */}
         {viewMode === 'single' && (
-          <div className="flex flex-col items-center gap-6 w-full max-w-md my-auto">
+          <div className="flex flex-col items-center gap-4 w-full max-w-md my-auto">
             {/* Full-Screen Scratch Card Canvas Container */}
-            <div className="relative w-full max-w-[290px] sm:max-w-[340px] aspect-[2/3] min-h-[350px] sm:min-h-[420px] rounded-2xl overflow-hidden border-4 border-amber-500/60 shadow-[0_0_50px_rgba(245,158,11,0.5)] bg-zinc-950 flex items-center justify-center p-1">
+            <div className="relative w-full max-w-[270px] sm:max-w-[320px] aspect-[2/3] min-h-[320px] sm:min-h-[400px] rounded-2xl overflow-hidden border-4 border-amber-500/60 shadow-[0_0_40px_rgba(245,158,11,0.5)] bg-zinc-950 flex items-center justify-center p-1">
               <ScratchCard 
                 key={currentCard.id} 
                 cardData={currentCard} 
@@ -194,7 +204,7 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
             </div>
 
             {/* Navigation Dots & Step Controls */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Button
                 size="sm"
                 variant="outline"
@@ -203,9 +213,9 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
                   hapticLight();
                   setActiveCardIndex(prev => Math.max(0, prev - 1));
                 }}
-                className="bg-amber-950/60 border-amber-500/40 text-amber-300 disabled:opacity-30 h-10 px-3"
+                className="bg-amber-950/60 border-amber-500/40 text-amber-300 disabled:opacity-30 h-9 px-2.5 text-xs font-bold"
               >
-                <ChevronLeft className="w-4 h-4 mr-1" /> Prev
+                <ChevronLeft className="w-4 h-4 mr-0.5" /> Prev
               </Button>
 
               <div className="flex items-center gap-1.5 bg-zinc-900/80 px-3 py-1.5 rounded-full border border-amber-900/40">
@@ -237,9 +247,9 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
                   hapticLight();
                   setActiveCardIndex(prev => Math.min(totalCards - 1, prev + 1));
                 }}
-                className="bg-amber-950/60 border-amber-500/40 text-amber-300 disabled:opacity-30 h-10 px-3"
+                className="bg-amber-950/60 border-amber-500/40 text-amber-300 disabled:opacity-30 h-9 px-2.5 text-xs font-bold"
               >
-                Next <ChevronRight className="w-4 h-4 ml-1" />
+                Next <ChevronRight className="w-4 h-4 ml-0.5" />
               </Button>
             </div>
 
@@ -248,9 +258,9 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
                 size="sm"
                 variant="ghost"
                 onClick={handleScratchAll}
-                className="text-xs text-amber-400/80 hover:text-amber-200 underline font-mono cursor-pointer mt-1"
+                className="text-xs text-amber-400/80 hover:text-amber-200 underline font-mono cursor-pointer"
               >
-                ✨ Scratch All Cards Instantly
+                ✨ Scratch all cards
               </Button>
             )}
           </div>
@@ -258,8 +268,8 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
 
         {/* 3x3 GRID OVERVIEW MODE (Matching Cards Highlighted!) */}
         {viewMode === 'grid' && (
-          <div className="flex flex-col items-center w-full my-auto space-y-4">
-            <div className="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-6 justify-items-center w-full max-w-[390px] sm:max-w-xl">
+          <div className="flex flex-col items-center w-full my-auto space-y-3">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6 justify-items-center w-full max-w-[360px] sm:max-w-xl">
               {cards.map((card: any) => {
                 const isWinnerMatching = isWon && card.isWinnerCard;
                 return (
@@ -288,26 +298,26 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
         )}
       </div>
 
-      {/* Footer Claim Actions */}
+      {/* Footer Claim Actions — Sticky Bottom Bar Safe Area Offsets */}
       {isWon && (
-        <div className="w-full max-w-md flex flex-col sm:flex-row gap-3 z-20 pt-4 border-t border-amber-900/40">
+        <div className="sticky bottom-0 z-50 w-full max-w-md mx-auto flex flex-col sm:flex-row gap-2.5 pt-3 pb-2 border-t border-amber-900/50 bg-black/95 backdrop-blur-md shrink-0 shadow-2xl rounded-2xl p-3">
           <Button 
             size="lg" 
             variant="outline"
-            className="w-full bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border-zinc-700 font-bold text-sm rounded-xl h-12"
+            className="w-full bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border-zinc-700 font-bold text-xs sm:text-sm rounded-xl h-11"
             onClick={() => {
               onClose();
               router.push('/achievements');
             }}
           >
-            🏆 Mythic Vault Collection
+            🏆 Mythic vault collection
           </Button>
           <Button 
             size="lg" 
-            className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-base rounded-xl shadow-[0_0_30px_rgba(245,158,11,0.5)] animate-bounce h-12"
+            className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-sm rounded-xl shadow-[0_0_25px_rgba(245,158,11,0.5)] animate-bounce h-11"
             onClick={onClose}
           >
-            Collect & Return
+            Collect & return
           </Button>
         </div>
       )}

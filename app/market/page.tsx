@@ -538,11 +538,8 @@ export default function MarketPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">🎴</span>
-                    <h3 className="text-xl font-bold text-amber-300 font-serif">Owned Card Packs ({ownedPacksList.length})</h3>
+                    <h3 className="text-xl font-bold text-amber-300 font-serif">Owned card packs ({ownedPacksList.length})</h3>
                   </div>
-                  <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-xs font-mono font-bold">
-                    Click to Open Fullscreen Unpacking
-                  </Badge>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {ownedPacksList.map((op) => (
@@ -560,7 +557,7 @@ export default function MarketPage() {
                         </div>
                         <div>
                           <h4 className="font-bold text-amber-200 text-sm font-serif">{op.packTitle}</h4>
-                          <p className="text-xs text-zinc-400 font-mono">Ready to Unpack</p>
+                          <p className="text-xs text-zinc-400 font-mono">Ready to unpack</p>
                         </div>
                       </div>
                       <Button size="sm" className="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-md">
