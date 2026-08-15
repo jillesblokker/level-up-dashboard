@@ -4,6 +4,7 @@ import { calculateLevelFromExperience, calculateExperienceToNextLevel, Character
 import { createLevelUpNotification, createExperienceGainedNotification } from "@/lib/notifications"
 import { emitExperienceGained } from "@/lib/kingdom-events"
 import { getCharacterStats, addToCharacterStat, updateCharacterStats } from "@/lib/character-stats-service"
+import { gainMana } from "@/lib/mana-manager"
 import { getCurrentTitle } from "@/lib/title-manager"
 import { notificationService } from "@/lib/notification-service"
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
@@ -130,6 +131,9 @@ export async function gainExperience(amount: number, source: string, category: s
 
     // Emit kingdom event for tracking weekly progress
     emitExperienceGained(totalAmount, source)
+
+    // Habit completion awards +25 Willpower Mana
+    gainMana(25);
 
     // Create notification for experience gained
     if (totalAmount > 0) {
