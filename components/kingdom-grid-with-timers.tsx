@@ -2327,7 +2327,7 @@ export function KingdomGridWithTimers({
     notificationService.addNotification(
       "💰 Kingdom Taxes Harvested!",
       `Collected from ${readyTimers.length} buildings (+${totalGoldGained.toLocaleString()} Gold, +${totalExpGained.toLocaleString()} XP).`,
-      "reward",
+      "success",
       "medium"
     );
   }
