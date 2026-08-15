@@ -28,11 +28,11 @@ export function SwordStaffOrbCard({
   ...props
 }: SwordStaffOrbCardProps) {
   const orbGlowStyles: Record<OrbCategory, string> = {
-    purple: 'border-purple-400/90 bg-gradient-to-b from-purple-900/90 via-purple-950 to-zinc-950 text-purple-200 shadow-[0_0_25px_rgba(168,85,247,0.5)]',
-    green: 'border-emerald-400/90 bg-gradient-to-b from-emerald-900/90 via-emerald-950 to-zinc-950 text-emerald-200 shadow-[0_0_25px_rgba(34,197,94,0.5)]',
-    red: 'border-red-400/90 bg-gradient-to-b from-red-900/90 via-red-950 to-zinc-950 text-red-200 shadow-[0_0_25px_rgba(239,68,68,0.5)]',
-    gold: 'border-amber-400/90 bg-gradient-to-b from-amber-900/90 via-amber-950 to-zinc-950 text-amber-200 shadow-[0_0_25px_rgba(245,158,11,0.6)]',
-    cyan: 'border-cyan-400/90 bg-gradient-to-b from-cyan-900/90 via-cyan-950 to-zinc-950 text-cyan-200 shadow-[0_0_25px_rgba(6,182,212,0.5)]',
+    purple: 'border-2 border-purple-400 bg-radial from-purple-600 via-purple-900 to-[#120524] text-purple-100 shadow-[0_0_20px_rgba(168,85,247,0.65),inset_0_2px_4px_rgba(255,255,255,0.4)]',
+    green: 'border-2 border-emerald-400 bg-radial from-emerald-500 via-emerald-900 to-[#042116] text-emerald-100 shadow-[0_0_20px_rgba(34,197,94,0.65),inset_0_2px_4px_rgba(255,255,255,0.4)]',
+    red: 'border-2 border-red-500 bg-radial from-rose-600 via-red-900 to-[#280404] text-yellow-200 shadow-[0_0_20px_rgba(239,68,68,0.65),inset_0_2px_4px_rgba(255,255,255,0.4)]',
+    gold: 'border-2 border-amber-400 bg-radial from-amber-400 via-amber-700 to-[#2a1704] text-amber-100 shadow-[0_0_20px_rgba(245,158,11,0.7),inset_0_2px_4px_rgba(255,255,255,0.5)]',
+    cyan: 'border-2 border-cyan-400 bg-radial from-cyan-500 via-cyan-900 to-[#041a24] text-cyan-100 shadow-[0_0_20px_rgba(6,182,212,0.65),inset_0_2px_4px_rgba(255,255,255,0.4)]',
   };
 
   return (
@@ -48,19 +48,25 @@ export function SwordStaffOrbCard({
       )}
       {...props}
     >
+      {/* 4-Corner Brass Filigree Brackets */}
+      <div className="absolute top-1 left-1 text-amber-500/40 text-[9px] font-serif select-none pointer-events-none">◆</div>
+      <div className="absolute top-1 right-1 text-amber-500/40 text-[9px] font-serif select-none pointer-events-none">◆</div>
+      <div className="absolute bottom-1 left-1 text-amber-500/40 text-[9px] font-serif select-none pointer-events-none">◆</div>
+      <div className="absolute bottom-1 right-1 text-amber-500/40 text-[9px] font-serif select-none pointer-events-none">◆</div>
+
       {/* Top Gold Inset Highlight Line */}
       <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent pointer-events-none" />
 
-      {/* Vector Icon in Glowing Metallic Orb Tile */}
+      {/* Vector Icon in Glowing Metallic 3D Glass Orb Tile */}
       <div
         className={cn(
-          "w-14 h-14 rounded-full border-2 flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 relative",
+          "w-14 h-14 rounded-full flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 relative overflow-hidden",
           orbGlowStyles[category]
         )}
       >
-        {/* Inner Orb Specular Highlight */}
-        <div className="absolute top-1.5 left-2.5 w-3 h-3 rounded-full bg-white/30 blur-[0.5px] pointer-events-none" />
-        <Icon className="w-7 h-7 filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" />
+        {/* Specular Glass Curved Arc Highlight */}
+        <div className="absolute top-1 left-2 w-4 h-2 rounded-full bg-white/40 blur-[0.5px] pointer-events-none transform -rotate-12" />
+        <Icon className="w-7 h-7 filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)] relative z-10" />
       </div>
 
       {/* Text Info Hierarchy */}
