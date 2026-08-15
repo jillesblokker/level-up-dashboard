@@ -106,7 +106,7 @@ const GUARDIAN_DETAILS: GuardianDetails[] = [
       },
       {
         key: 'combatProtection',
-        name: 'Combat Protection Potion',
+        name: 'Protection Potion',
         benefit: 'Prevents gold loss on Monster Battle failures',
         icon: Shield,
         potionId: 'potion-combat-protection'

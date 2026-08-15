@@ -435,7 +435,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'potion-combat-protection',
-    name: 'Combat protection potion',
+    name: 'Protection',
     description: 'Prevents gold loss on round failures in your next Monster Battle',
     type: 'potion',
     category: 'consumable',

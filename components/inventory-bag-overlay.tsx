@@ -952,6 +952,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
     if (displayName === 'Wooden Planks' || cleanName === 'material-planks') displayName = 'Planks';
     if (displayName === 'Normalo Armor' || cleanName === 'armor-normalo') displayName = 'Normalo';
     if (cleanName === 'material-stone-block') displayName = 'Stone';
+    if (cleanName === 'potion-combat-protection' || cleanName.includes('combat-protection') || displayName.toLowerCase().includes('combat protection')) displayName = 'Protection';
 
     const displayType = item.type;
 
