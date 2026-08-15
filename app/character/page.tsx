@@ -867,7 +867,7 @@ export default function CharacterPage() {
                     <div className="relative inline-block my-2">
                       <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-amber-500 via-purple-500 to-amber-500 blur-md opacity-75 animate-pulse" />
                       <Badge className="relative bg-gradient-to-r from-amber-950 via-zinc-950 to-amber-950 border border-amber-400 text-amber-300 px-4 py-1.5 rounded-full font-medieval text-xs tracking-wider shadow-xl">
-                        👑 Paragon Champion Rank: Level {characterStats.level} Sovereign
+                        👑 Paragon Champion Rank: Level {characterStats.level} King
                       </Badge>
                     </div>
 

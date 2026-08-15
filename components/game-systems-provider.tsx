@@ -15,6 +15,7 @@ import { ParticleProvider } from '@/components/ui/particles'
 import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
 import { UserStorageInitializer } from '@/components/user-storage-initializer'
 import { CelebrationSystem } from '@/components/celebration-system'
+import { RpgHudStatusBar } from '@/components/rpg-hud-status-bar'
 import dynamic from 'next/dynamic';
 
 const HouseCupSettlementModal = dynamic(() => import('@/components/house-cup/house-cup-settlement-modal').then(m => m.HouseCupSettlementModal), { ssr: false });
@@ -68,6 +69,7 @@ export function GameSystemsProvider({ children }: { children: React.ReactNode })
             <KeyboardShortcutsProvider />
             <CelebrationSystem />
             <HouseCupSettlementModal />
+            <RpgHudStatusBar />
         </ParticleProvider>
     )
 }

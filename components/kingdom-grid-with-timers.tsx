@@ -2659,7 +2659,7 @@ export function KingdomGridWithTimers({
                           hapticSuccess();
                           toast({ title: "🧪 Drank Health Potion!", description: `Restored +30% Health Vitality! Current Health: ${res.newHealth}%.` });
                         } else {
-                          toast({ title: "Full Vitality!", description: "Your Health Vitality is already at 100% Peak Sovereign!" });
+                          toast({ title: "Full Vitality!", description: "Your Health Vitality is already at 100% Peak King!" });
                         }
                       }}
                     >
