@@ -214,7 +214,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                         </div>
 
                         {/* Lore Text Area - Weathered Parchment Layout */}
-                        <div className="relative bg-gradient-to-br from-[#fdfbf7] via-[#f7f0e3] to-[#ebdcb9] text-[#050302] rounded-2xl p-5 md:p-8 shadow-[inset_0_0_20px_rgba(92,59,20,0.2),0_4px_12px_rgba(0,0,0,0.25)] border-2 border-[#b58b4c]/30 flex flex-col overflow-visible max-w-4xl mx-auto w-full">
+                        <div className="relative bg-gradient-to-br from-[#fdfbf7] via-[#f7f0e3] to-[#ebdcb9] text-[#050302] rounded-2xl p-5 md:p-8 shadow-[inset_0_0_20px_rgba(92,59,20,0.2),0_4px_12px_rgba(0,0,0,0.25)] border-2 border-[#b58b4c]/30 flex flex-col overflow-visible max-w-4xl mx-auto w-full parchment-container">
                             {/* Burned edge shadow layer */}
                             <div className="absolute inset-0 pointer-events-none border border-amber-950/10 rounded-2xl" />
                             

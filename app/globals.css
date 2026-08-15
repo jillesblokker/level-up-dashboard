@@ -297,12 +297,41 @@ body {
 .theme-medieval h3,
 .theme-medieval h4,
 .theme-medieval h5,
-.theme-medieval h6,
+.theme-medieval h6 {
+  font-family: var(--font-gloock), var(--font-libre-baskerville), serif !important;
+  color: #fef08a;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9), 0 0 10px rgba(245, 158, 11, 0.25);
+}
+
 [data-theme="medieval"] .font-serif,
 .theme-medieval .font-serif {
   font-family: var(--font-gloock), var(--font-libre-baskerville), serif !important;
-  color: #fef08a !important;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9), 0 0 10px rgba(245, 158, 11, 0.25) !important;
+}
+
+/* Parchment Container & Light Text High-Contrast Overrides */
+.parchment-container,
+[data-theme="medieval"] .parchment-container,
+.theme-medieval .parchment-container {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+.parchment-container *,
+[data-theme="medieval"] .parchment-container *,
+.theme-medieval .parchment-container * {
+  text-shadow: none !important;
+}
+
+.parchment-container p,
+.parchment-container h1,
+.parchment-container h2,
+.parchment-container h3,
+.parchment-container h4,
+[data-theme="medieval"] .parchment-container p,
+[data-theme="medieval"] .parchment-container h4,
+[data-theme="medieval"] .parchment-container .font-serif {
+  color: #050302 !important;
+  text-shadow: none !important;
 }
 
 /* 3. Global Card & Container Transformation (Gold Filigree Frames & 4px Radius) */
