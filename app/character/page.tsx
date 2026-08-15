@@ -3,7 +3,7 @@
 import { logger } from "@/lib/logger";
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hammer, Heart, AlertCircle, Loader2, Sparkles, AlertTriangle, Star, Coins, Clock, Check, ChevronDown, Utensils } from "lucide-react"
+import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hammer, Heart, AlertCircle, Loader2, Sparkles, AlertTriangle, Star, Coins, Clock, Check, ChevronDown, Utensils, Compass, Shield } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
