@@ -415,31 +415,31 @@ export default function ProfilePage() {
           className="flex h-14 bg-zinc-950 border border-amber-900/20 p-1.5 rounded-2xl w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar  gap-2 md:gap-0"
           style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
         >
-          <TabsTrigger value="avatar" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-            <Camera className="w-4 h-4 md:" />
-            <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.avatar}</span>
+          <TabsTrigger value="avatar" className="flex items-center gap-1.5 px-3.5 md:px-6 h-full rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap min-h-[44px]">
+            <Camera className="w-4 h-4" />
+            <span>{TEXT_CONTENT.profile.tabs.avatar}</span>
           </TabsTrigger>
-          <TabsTrigger value="profile" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-            <User className="w-4 h-4 md:" />
-            <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.profile}</span>
+          <TabsTrigger value="profile" className="flex items-center gap-1.5 px-3.5 md:px-6 h-full rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap min-h-[44px]">
+            <User className="w-4 h-4" />
+            <span>{TEXT_CONTENT.profile.tabs.profile}</span>
           </TabsTrigger>
-          <TabsTrigger value="appearance" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-            <Palette className="w-4 h-4 md:" />
-            <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.colors}</span>
+          <TabsTrigger value="appearance" className="flex items-center gap-1.5 px-3.5 md:px-6 h-full rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap min-h-[44px]">
+            <Palette className="w-4 h-4" />
+            <span>{TEXT_CONTENT.profile.tabs.colors}</span>
           </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-            <Settings className="w-4 h-4 md:" />
-            <span className="hidden md:inline">{TEXT_CONTENT.profile.tabs.settings}</span>
+          <TabsTrigger value="settings" className="flex items-center gap-1.5 px-3.5 md:px-6 h-full rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap min-h-[44px]">
+            <Settings className="w-4 h-4" />
+            <span>{TEXT_CONTENT.profile.tabs.settings}</span>
           </TabsTrigger>
-          <Link href="/chronicle" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
+          <Link href="/chronicle" className="flex items-center gap-1.5 px-3.5 md:px-6 h-full rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
             <BookOpen className="w-4 h-4" />
             <span>Logbook</span>
           </Link>
-          <Link href="/market" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
+          <Link href="/market" className="flex items-center gap-1.5 px-3.5 md:px-6 h-full rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
             <Coins className="w-4 h-4" />
             <span>Market</span>
           </Link>
-          <Link href="/daily-hub" className="flex items-center gap-2 px-6 h-full rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
+          <Link href="/daily-hub" className="flex items-center gap-1.5 px-3.5 md:px-6 h-full rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
             <Compass className="w-4 h-4" />
             <span>Daily Hub</span>
           </Link>

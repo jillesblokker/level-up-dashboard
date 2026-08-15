@@ -19,11 +19,12 @@ interface ScratchCardProps {
   };
   onReveal?: (cardId: string) => void;
   isWinner?: boolean;
+  fullscreen?: boolean;
 }
 
 const AUTO_CLEAR_THRESHOLD = 0.6;
 
-export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) {
+export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: ScratchCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [revealed, setRevealed] = useState(false);
@@ -74,7 +75,7 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
     
     // Write text
     ctx.fillStyle = "#888";
-    const fontSize = Math.max(10, Math.floor(width * 0.09));
+    const fontSize = Math.max(12, Math.floor(width * 0.1));
     ctx.font = `bold ${fontSize}px sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -139,42 +140,81 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
       const currentPoint = getPointerPos(e);
       if (!lastPoint.current) lastPoint.current = currentPoint;
 
+      ctx.save();
       ctx.globalCompositeOperation = 'destination-out';
       ctx.beginPath();
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+      ctx.arc(currentPoint.x, currentPoint.y, brushRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw line between points for smooth scratching
+      ctx.beginPath();
       ctx.lineWidth = brushRadius * 2;
+      ctx.lineCap = 'round';
       ctx.moveTo(lastPoint.current.x, lastPoint.current.y);
       ctx.lineTo(currentPoint.x, currentPoint.y);
       ctx.stroke();
+      ctx.restore();
 
       lastPoint.current = currentPoint;
 
       // Haptic feedback every few pixels
       if (Math.random() > 0.8) hapticScratch();
       
-      // Calculate scratched roughly (optimised: just count transparent pixels periodically)
-      if (Math.random() > 0.9) checkReveal();
+      // Count transparent pixels periodically
+      pixelsScratched.current += brushRadius * brushRadius * Math.PI * 0.4;
+      if (pixelsScratched.current > totalPixels.current * AUTO_CLEAR_THRESHOLD) {
+        setRevealed(true);
+      }
     };
 
     const checkReveal = () => {
-      if (revealed) return;
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-      let clearPixels = 0;
-      // check alpha channel
-      for (let i = 3; i < imageData.length; i += 16) { // check every 4th pixel for speed
-        if ((imageData[i] ?? 255) < 128) clearPixels++;
-      }
-      
-      const totalChecked = imageData.length / 16;
-      if (clearPixels / totalChecked > AUTO_CLEAR_THRESHOLD) {
-        revealFull();
+      if (pixelsScratched.current > totalPixels.current * AUTO_CLEAR_THRESHOLD) {
+        setRevealed(true);
       }
     };
 
-    const revealFull = () => {
-      setRevealed(true);
-      ctx.clearRect(0, 0, width, height);
+    // Handle resize
+    const handleResize = () => {
+      if (!container || !canvas) return;
+      const rect = container.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        canvas.style.width = `${rect.width}px`;
+        canvas.style.height = `${rect.height}px`;
+        const newCtx = canvas.getContext('2d', { willReadFrequently: true });
+        if (newCtx) {
+          newCtx.scale(dpr, dpr);
+          if (!revealed) fillCoating(newCtx, rect.width, rect.height);
+        }
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Events
+    canvas.addEventListener('mousedown', handlePointerDown);
+    canvas.addEventListener('mousemove', handlePointerMove, { passive: false });
+    window.addEventListener('mouseup', handlePointerUp);
+
+    canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
+    canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
+    canvas.addEventListener('touchend', handlePointerUp);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      canvas.removeEventListener('mousedown', handlePointerDown);
+      canvas.removeEventListener('mousemove', handlePointerMove);
+      window.removeEventListener('mouseup', handlePointerUp);
+
+      canvas.removeEventListener('touchstart', handlePointerDown);
+      canvas.removeEventListener('touchmove', handlePointerMove);
+      window.removeEventListener('touchend', handlePointerUp);
+    };
+  }, [revealed]);
+
+  useEffect(() => {
+    if (revealed) {
       hapticReveal();
       
       if (isWinnerRef.current) {
@@ -189,27 +229,8 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
       if (onRevealRef.current) {
         onRevealRef.current(cardDataRef.current.id);
       }
-    };
-
-    // Events
-    canvas.addEventListener('mousedown', handlePointerDown);
-    canvas.addEventListener('mousemove', handlePointerMove, { passive: false });
-    window.addEventListener('mouseup', handlePointerUp);
-
-    canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
-    canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
-    window.addEventListener('touchend', handlePointerUp);
-
-    return () => {
-      canvas.removeEventListener('mousedown', handlePointerDown);
-      canvas.removeEventListener('mousemove', handlePointerMove);
-      window.removeEventListener('mouseup', handlePointerUp);
-
-      canvas.removeEventListener('touchstart', handlePointerDown);
-      canvas.removeEventListener('touchmove', handlePointerMove);
-      window.removeEventListener('touchend', handlePointerUp);
-    };
-  }, []);
+    }
+  }, [revealed]);
 
   // All 10 categories have 5 variants: Red (0), Green (1), Blue (2), White (3), Black (4)
   const colors = ['red', 'green', 'blue', 'white', 'black'];
@@ -242,7 +263,10 @@ export function ScratchCard({ cardData, onReveal, isWinner }: ScratchCardProps) 
       role="region"
       aria-label={`Scratch card #${cardData.number}: ${cardData.variantLabel} (${cardData.rarity}). ${revealed ? 'Revealed reward' : 'Scratch to reveal'}`}
       className={cn(
-        "relative w-full aspect-[2/3] max-w-[125px] min-[390px]:max-w-[130px] sm:max-w-[160px] md:max-w-[200px] rounded-2xl overflow-hidden shadow-2xl select-none touch-none transition-all duration-500 border-2 border-amber-800/40 hover:scale-[1.02] active:scale-95",
+        "relative rounded-2xl overflow-hidden shadow-2xl select-none touch-none transition-all duration-300 border-2 border-amber-800/40",
+        fullscreen
+          ? "w-full h-full min-h-[340px] sm:min-h-[420px] max-w-none"
+          : "w-full aspect-[2/3] max-w-[125px] min-[390px]:max-w-[130px] sm:max-w-[160px] md:max-w-[200px] hover:scale-[1.02] active:scale-95",
         getRarityGlowClass()
       )}
     >

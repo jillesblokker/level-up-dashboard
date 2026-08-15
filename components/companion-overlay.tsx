@@ -123,6 +123,17 @@ export function CompanionOverlay() {
   // Settings Toggles State
   const [showNecrion, setShowNecrion] = useState(true)
   const [showGuardian, setShowGuardian] = useState(true)
+  const [isUnpackOpen, setIsUnpackOpen] = useState(false)
+
+  // Hide companion overlay when unpacking modal is active
+  useEffect(() => {
+    const handleUnpackState = (e: Event) => {
+      const detail = (e as CustomEvent)?.detail
+      setIsUnpackOpen(!!detail?.isOpen)
+    }
+    window.addEventListener('unpack-modal-state', handleUnpackState)
+    return () => window.removeEventListener('unpack-modal-state', handleUnpackState)
+  }, [])
 
   // Dynamic Randomized Layout State (Spacing, Facing Flips, Depth Offsets)
   const [layoutState, setLayoutState] = useState({
@@ -316,6 +327,8 @@ export function CompanionOverlay() {
     randomizeLayout()
     setTimeout(() => setIsAnimating(false), 300)
   }
+
+  if (isUnpackOpen) return null
 
   // Hide completely if both toggled off or on auth pages
   if ((!showNecrion && !showGuardian) || pathname?.startsWith('/sign-in') || pathname?.startsWith('/sign-up') || pathname === '/login') {

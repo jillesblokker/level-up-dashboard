@@ -347,7 +347,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
                             sizes="64px"
                           />
                         </div>
-                        <div className="text-sm font-semibold text-white mb-1">{tile.name}</div>
+                        <div className="text-sm font-semibold text-white mb-1 hidden sm:block">{tile.name}</div>
                         <div className="text-sm text-zinc-400 mb-2">{tile.description}</div>
                         <div className="text-sm text-amber-200 mb-2">Owned: <span className="font-bold">{tile.quantity || 0}</span></div>
                         {propertyTab === 'buy' ? (

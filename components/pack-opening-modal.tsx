@@ -183,12 +183,13 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
         {viewMode === 'single' && (
           <div className="flex flex-col items-center gap-6 w-full max-w-md my-auto">
             {/* Full-Screen Scratch Card Canvas Container */}
-            <div className="relative w-72 h-96 sm:w-80 sm:h-[420px] rounded-2xl overflow-hidden border-4 border-amber-500/60 shadow-[0_0_50px_rgba(245,158,11,0.4)] bg-zinc-950 flex items-center justify-center p-2">
+            <div className="relative w-full max-w-[290px] sm:max-w-[340px] aspect-[2/3] min-h-[350px] sm:min-h-[420px] rounded-2xl overflow-hidden border-4 border-amber-500/60 shadow-[0_0_50px_rgba(245,158,11,0.5)] bg-zinc-950 flex items-center justify-center p-1">
               <ScratchCard 
                 key={currentCard.id} 
                 cardData={currentCard} 
                 onReveal={handleReveal} 
                 isWinner={isWon && currentCard.isWinnerCard}
+                fullscreen={true}
               />
             </div>
 

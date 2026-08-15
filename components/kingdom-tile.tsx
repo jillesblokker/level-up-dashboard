@@ -206,8 +206,8 @@ export function KingdomTileComponent({ tile, onReward, timer }: KingdomTileProps
               />
             </div>
 
-            {/* Tile Name */}
-            <h3 className="font-semibold text-center text-sm mb-2">{tile.name}</h3>
+            {/* Tile Name (Hidden on Mobile) */}
+            <h3 className="font-semibold text-center text-sm mb-2 hidden sm:block">{tile.name}</h3>
 
             {/* Timer or Ready Status - Only show on desktop hover */}
             <div className="hidden md:flex group-hover:opacity-100 opacity-0 transition-opacity duration-200 items-center justify-center gap-1">

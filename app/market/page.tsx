@@ -620,23 +620,23 @@ export default function MarketPage() {
                   }
 
                   return (
-                    <Card key={pack.id} style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }} className={`bg-zinc-900 border-amber-900/30 hover:border-amber-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 snap-start shrink-0 min-w-[260px] sm:min-w-0 sm:shrink ${onCooldown ? 'opacity-70' : 'shadow-amber-500/5'}`}>
+                    <Card key={pack.id} style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }} className={`bg-zinc-900 border-amber-900/30 hover:border-amber-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 snap-start shrink-0 w-[calc(100vw-3.25rem)] max-w-[285px] sm:w-auto sm:min-w-0 sm:shrink min-h-[390px] ${onCooldown ? 'opacity-70' : 'shadow-amber-500/5'}`}>
                       <div className="absolute inset-0 bg-gradient-to-b from-amber-900/10 to-transparent opacity-50"></div>
-                      <CardHeader className="text-center relative z-10 pb-2">
-                        <CardTitle className="text-lg font-bold text-amber-300 font-serif">{pack.title}</CardTitle>
-                        <CardDescription className="text-xs text-amber-200/60 font-mono font-bold">{pack.shortLabel}</CardDescription>
+                      <CardHeader className="text-center relative z-10 pb-1.5 pt-4">
+                        <CardTitle className="text-base sm:text-lg font-bold text-amber-300 font-serif leading-tight">{pack.title}</CardTitle>
+                        <CardDescription className="text-[10px] text-amber-200/60 font-mono font-bold mt-0.5">{pack.shortLabel}</CardDescription>
                       </CardHeader>
-                      <CardContent className="flex-1 text-center relative z-10 space-y-3">
-                        <div className={`w-32 h-40 mx-auto bg-gradient-to-br from-amber-800/80 to-yellow-950 rounded-lg shadow-2xl flex items-center justify-center border-2 border-amber-500/30 transform transition-transform duration-500 ${onCooldown ? 'grayscale' : 'group-hover:scale-105 group-hover:rotate-3'}`}>
-                          <span className="text-5xl drop-shadow-lg">{onCooldown ? '🔒' : '🎁'}</span>
+                      <CardContent className="flex-1 text-center relative z-10 space-y-2.5 px-3">
+                        <div className={`w-28 h-36 mx-auto bg-gradient-to-br from-amber-800/80 to-yellow-950 rounded-xl shadow-2xl flex items-center justify-center border-2 border-amber-500/30 transform transition-transform duration-500 ${onCooldown ? 'grayscale' : 'group-hover:scale-105 group-hover:rotate-3'}`}>
+                          <span className="text-4xl drop-shadow-lg">{onCooldown ? '🔒' : '🎁'}</span>
                         </div>
-                        <p className="text-sm text-zinc-300 px-4">{pack.description}</p>
+                        <p className="text-xs text-zinc-300 px-2 line-clamp-2 min-h-[32px] leading-snug">{pack.description}</p>
                         {(onCooldown && remaining) ? (
-                          <div className="text-xs font-semibold text-amber-400 bg-amber-950/40 py-1 px-3 rounded-full inline-block border border-amber-900/30">
+                          <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/40 py-1 px-2.5 rounded-full inline-block border border-amber-900/30">
                             ⏱️ {remaining}
                           </div>
                         ) : (isUnlocking && unlockRemaining) ? (
-                          <div className="text-xs font-semibold text-amber-400 bg-amber-950/40 py-1 px-3 rounded-full inline-block border border-amber-900/30">
+                          <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/40 py-1 px-2.5 rounded-full inline-block border border-amber-900/30">
                             ⏳ {unlockRemaining}
                           </div>
                         ) : null}

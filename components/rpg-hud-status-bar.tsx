@@ -34,6 +34,25 @@ export function RpgHudStatusBar() {
   const sanctuaryMode = useGameStore(s => s.sanctuaryMode);
   const setSanctuaryMode = useGameStore(s => s.setSanctuaryMode);
 
+  const [isUnpackOpen, setIsUnpackOpen] = useState(false);
+
+  // Hide HUD when unpacking cards modal is active
+  useEffect(() => {
+    const checkUnpack = () => {
+      if (typeof document !== 'undefined') {
+        setIsUnpackOpen(document.body.getAttribute('data-unpack-open') === 'true');
+      }
+    };
+    checkUnpack();
+
+    const handleUnpackState = (e: Event) => {
+      const detail = (e as CustomEvent)?.detail;
+      setIsUnpackOpen(!!detail?.isOpen);
+    };
+    window.addEventListener('unpack-modal-state', handleUnpackState);
+    return () => window.removeEventListener('unpack-modal-state', handleUnpackState);
+  }, []);
+
   // Reset visibility when navigating between pages
   useEffect(() => {
     setIsVisible(true);
@@ -229,6 +248,8 @@ export function RpgHudStatusBar() {
     hapticMedium();
     setActiveDrawer(drawerKey);
   };
+
+  if (isUnpackOpen) return null;
 
   return (
     <>
