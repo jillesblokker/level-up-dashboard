@@ -257,7 +257,6 @@ export function NavBar({ session }: NavBarProps) {
 
             {/* Desktop right-side controls */}
           </div>
-          </div>
           <div className="flex items-center space-x-1 pr-2 border-r border-zinc-800">
             <Button
               variant="ghost"
