@@ -42,6 +42,7 @@ import { gainGold } from '@/lib/gold-manager'
 import { FocusPointsModal } from '@/components/focus-points-modal'
 import { SigilCrestEditor } from '@/components/character/sigil-crest'
 import { PaperdollEquipmentGrid } from '@/components/character/PaperdollEquipmentGrid'
+import { SwordStaffOrbCard, SwordStaffSectionHeader } from '@/components/ui/sword-staff-orb-card'
 
 
 // Character progression types
@@ -1318,48 +1319,32 @@ export default function CharacterPage() {
                 </div>
               </TabsContent>
               <TabsContent value="strengths" className="mt-6">
-                <div className="max-w-7xl mx-auto w-full">
-                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                    {strengths.map((strength) => (
-                      <Card
-                        key={strength.id}
-                        className="medieval-card h-full flex flex-col w-full shadow-inner"
-                      >
-                        <CardHeader className="pb-2">
-                          <div className="flex justify-between items-start">
-                            <div className="flex items-center gap-2">
-                              <span className="text-2xl">{strength.icon}</span>
-                              <CardTitle className="font-serif">{strength.name}</CardTitle>
-                            </div>
-                            <Badge className={strength.color.replace('text-', 'bg-')}>
-                              Lvl {strength.level}
-                            </Badge>
-                          </div>
-                          <CardDescription className="text-sm line-clamp-2 min-h-[2.5rem]">
-                            {strength.description}
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-3 flex-grow">
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                              <span>{TEXT_CONTENT.character.strengths.experience}</span>
-                              <span>{strength.experience} / {strength.experienceToNextLevel}</span>
-                            </div>
-                            <Progress value={calculateStrengthProgress(strength)} className="h-2" />
-                            <p className="text-xs text-muted-foreground">
-                              {TEXT_CONTENT.character.strengths.xpToNext.replace("{amount}", String(strength.experienceToNextLevel - strength.experience)).replace("{level}", String(strength.level + 1))}
-                            </p>
-                          </div>
-                        </CardContent>
-                        <CardFooter className="mt-auto pt-2">
-                          <div className="w-full text-center">
-                            <Badge variant="outline" className="w-full justify-center">
-                              {TEXT_CONTENT.character.strengths.mastery.replace("{category}", strength.category.charAt(0).toUpperCase() + strength.category.slice(1))}
-                            </Badge>
-                          </div>
-                        </CardFooter>
-                      </Card>
-                    ))}
+                <div className="max-w-7xl mx-auto w-full space-y-4">
+                  <SwordStaffSectionHeader title="Hero Virtues & Combat Masteries" />
+                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                    {strengths.map((strength) => {
+                      const categoryMap: Record<string, { icon: any; category: any }> = {
+                        might: { icon: Sword, category: 'red' },
+                        knowledge: { icon: Brain, category: 'purple' },
+                        honor: { icon: Crown, category: 'gold' },
+                        castle: { icon: CastleIcon, category: 'cyan' },
+                        craft: { icon: Hammer, category: 'gold' },
+                        vitality: { icon: Heart, category: 'green' }
+                      };
+                      const config = categoryMap[strength.category?.toLowerCase()] || { icon: Sparkles, category: 'gold' };
+
+                      return (
+                        <SwordStaffOrbCard
+                          key={strength.id}
+                          title={`${strength.name} (Lvl ${strength.level})`}
+                          description={`${strength.description} — ${strength.experience}/${strength.experienceToNextLevel} XP to Lvl ${strength.level + 1}`}
+                          icon={config.icon}
+                          category={config.category}
+                          badge={`Lvl ${strength.level}`}
+                          isActive={strength.level >= 5}
+                        />
+                      );
+                    })}
                   </div>
                 </div>
               </TabsContent>
