@@ -15,7 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, getRarityColor } from '@/lib/kingdom-tiles'
 import { KingdomTileModal } from './kingdom-tile-modal'
 import { ZenMeditateModal } from './kingdom/ZenMeditateModal'
-import { toast } from '@/components/ui/use-toast';
+import { useToast, toast } from '@/components/ui/use-toast';
 import { notificationService } from '@/lib/notification-service';
 import { KingdomTileItem } from './KingdomTileItem'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
