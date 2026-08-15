@@ -12,7 +12,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { toast } from '@/components/ui/use-toast';
 import { hapticSuccess } from '@/lib/haptics';
 import { useGameStore } from '@/stores/game-store';
-import { ChevronLeft, ChevronRight, User, Sparkles, Zap, Snowflake, Brain, Flame, Shield, Sword, Wand2 } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 
 export function RpgHudStatusBar() {
   const [health, setHealth] = useState(100);
@@ -20,6 +20,7 @@ export function RpgHudStatusBar() {
   const [showSpellModal, setShowSpellModal] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [charStats, setCharStats] = useState({ level: 1, experience: 0, gold: 0, focus_points: 102 });
 
   const sanctuaryMode = useGameStore(s => s.sanctuaryMode);
@@ -97,24 +98,31 @@ export function RpgHudStatusBar() {
     return `${amount}`;
   };
 
-  const taxBadgeText = isPeakKing
-    ? '👑 +10% Taxes'
-    : health >= 50
-    ? '🛡️ 1.0x Base Taxes'
-    : health >= 10
-    ? '⚠️ -25% Sluggish'
-    : '💀 -75% Tax Penalty';
+  const desktopTotalSlides = 4;
+  const mobileTotalSlides = 5;
 
-  const totalSlides = 4;
-
-  const nextSlide = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setActiveSlide((prev) => (prev + 1) % totalSlides);
+  const nextSlide = () => {
+    setActiveSlide((prev) => (prev + 1) % 5);
   };
 
-  const prevSlide = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setActiveSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+  const prevSlide = () => {
+    setActiveSlide((prev) => (prev - 1 + 5) % 5);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+    if (diff > 35) {
+      nextSlide();
+    } else if (diff < -35) {
+      prevSlide();
+    }
+    setTouchStartX(null);
   };
 
   return (
@@ -131,18 +139,18 @@ export function RpgHudStatusBar() {
       {/* Floating RPG Status HUD Container */}
       <div className="fixed top-[calc(env(safe-area-inset-top,0px)+0.75rem)] left-3 right-3 w-[calc(100%-1.5rem)] md:top-auto md:bottom-4 md:left-4 md:right-auto md:w-auto z-[9999] pointer-events-auto">
         {isCollapsed ? (
-          /* COLLAPSED STATE: LARGE CHARACTER AVATAR BUTTON */
+          /* COLLAPSED STATE: UNCROPPED TALL CHARACTER AVATAR BUTTON */
           <button
             type="button"
             onClick={() => {
               hapticSuccess();
               toggleCollapse(false);
             }}
-            className="group relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-amber-900 via-amber-950 to-black border-2 border-amber-400 shadow-[0_8px_32px_rgba(0,0,0,0.9),0_0_20px_rgba(245,158,11,0.4)] hover:scale-110 active:scale-95 transition-all cursor-pointer"
+            className="group relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-amber-900 via-amber-950 to-black border-2 border-amber-400 shadow-[0_8px_32px_rgba(0,0,0,0.95),0_0_20px_rgba(245,158,11,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer p-0.5"
             title="Click to Expand RPG Status Carousel"
           >
-            <div className="relative w-10 h-10 rounded-full bg-amber-950/80 flex items-center justify-center overflow-hidden border border-amber-300/40">
-              <Image src="/images/character/count.webp" alt="Character Avatar" width={36} height={36} className="object-contain p-0.5" unoptimized />
+            <div className="relative w-12 h-12 rounded-full bg-amber-950/90 flex items-center justify-center overflow-hidden border border-amber-300/40">
+              <Image src="/images/character/count.webp" alt="Character Avatar" fill className="object-contain p-0.5" unoptimized />
             </div>
             {/* Level Badge Overlay */}
             <span className="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded-full bg-emerald-600 border border-amber-300 text-[9px] font-mono font-bold text-white shadow-md">
@@ -150,149 +158,272 @@ export function RpgHudStatusBar() {
             </span>
           </button>
         ) : (
-          /* EXPANDED CAROUSEL HUD CONTAINER */
-          <div className="flex items-center gap-2 bg-[#0a0f1d]/95 backdrop-blur-md border border-amber-500/60 shadow-[0_8px_32px_rgba(0,0,0,0.9),inset_0_1px_2px_rgba(254,240,138,0.25)] rounded-2xl md:rounded-full px-3 py-2 transition-all duration-300 max-w-full">
-            {/* Left: Avatar Thumbnail */}
+          /* EXPANDED CAROUSEL HUD CONTAINER (Taller & Fit Zero-Clipping Viewport) */
+          <div
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            className="flex items-center gap-2.5 bg-[#0a0f1d]/95 backdrop-blur-md border border-amber-500/60 shadow-[0_8px_32px_rgba(0,0,0,0.95),inset_0_1px_2px_rgba(254,240,138,0.25)] rounded-2xl md:rounded-full px-3 py-2.5 min-h-[56px] transition-all duration-300 max-w-full overflow-hidden"
+          >
+            {/* Left: Avatar Thumbnail (Clicking collapses on mobile & desktop) */}
             <button
               type="button"
-              onClick={() => toggleCollapse(true)}
-              className="relative w-8 h-8 rounded-full bg-amber-950 border border-amber-400 flex items-center justify-center shrink-0 hover:scale-105 transition-transform overflow-hidden"
-              title="Click to Collapse HUD"
+              onClick={() => {
+                hapticSuccess();
+                toggleCollapse(true);
+              }}
+              className="relative w-10 h-10 rounded-full bg-amber-950 border border-amber-400 flex items-center justify-center shrink-0 hover:scale-105 transition-transform overflow-hidden cursor-pointer shadow-md"
+              title="Click Avatar to Collapse HUD"
             >
-              <Image src="/images/character/count.webp" alt="Character Avatar" width={30} height={30} className="object-contain p-0.5" unoptimized />
+              <Image src="/images/character/count.webp" alt="Character Avatar" fill className="object-contain p-0.5" unoptimized />
             </button>
 
-            <div className="w-px h-6 bg-zinc-800 shrink-0" />
+            <div className="w-px h-7 bg-zinc-800 shrink-0" />
 
-            {/* Carousel Content */}
-            <div className="flex-1 overflow-hidden min-w-[260px] sm:min-w-[340px]">
-              {/* SLIDE 0: CORE VIGOR & WILL (Health, Mana, Solid Green Level Bar, Gold, Potion) */}
-              {activeSlide === 0 && (
-                <div className="flex items-center justify-between gap-2.5 animate-fadeIn">
-                  {/* Health Bar */}
-                  <div className="flex items-center gap-1.5" title={`Health: ${health}%`}>
-                    <span className="text-xs">{isPoisoned ? '🟢' : '❤️'}</span>
-                    <div className="w-16 sm:w-20 h-2 bg-zinc-950 rounded-full border border-red-900/60 overflow-hidden">
-                      <div
-                        className={cn("h-full transition-all duration-500 rounded-full", isPoisoned ? "bg-emerald-400" : "bg-red-500")}
-                        style={{ width: `${health}%` }}
-                      />
+            {/* Carousel Content Area */}
+            <div className="flex-1 overflow-hidden min-w-0">
+              {/* DESKTOP VIEW SLIDES (md:) */}
+              <div className="hidden md:block">
+                {activeSlide % 4 === 0 && (
+                  <div className="flex items-center justify-between gap-3 animate-fadeIn">
+                    {/* Health Bar */}
+                    <div className="flex items-center gap-1.5" title={`Health: ${health}%`}>
+                      <span className="text-xs">{isPoisoned ? '🟢' : '❤️'}</span>
+                      <div className="w-20 h-2 bg-zinc-950 rounded-full border border-red-900/60 overflow-hidden">
+                        <div className={cn("h-full transition-all duration-500 rounded-full", isPoisoned ? "bg-emerald-400" : "bg-red-500")} style={{ width: `${health}%` }} />
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Mana Bar */}
-                  <div
-                    className="flex items-center gap-1.5 cursor-pointer hover:opacity-80"
-                    title="Mana: Click to cast Spells"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      hapticSuccess();
-                      setShowSpellModal(true);
-                    }}
-                  >
-                    <span className="text-xs">🔵</span>
-                    <div className="w-16 sm:w-20 h-2 bg-zinc-950 rounded-full border border-cyan-900/60 overflow-hidden">
-                      <div className="h-full bg-cyan-400 transition-all duration-500 rounded-full" style={{ width: `${mana}%` }} />
-                    </div>
-                  </div>
-
-                  {/* Level Bar: SOLID GREEN BAR */}
-                  <div className="flex items-center gap-1.5" title={`Level ${charStats.level} (${currentXpInLevel}/100 XP)`}>
-                    <span className="text-[10px] font-bold text-emerald-300 font-mono">Lv.{charStats.level}</span>
-                    <div className="w-14 sm:w-16 h-2 bg-zinc-950 rounded-full border border-emerald-900/60 overflow-hidden">
-                      <div className="h-full bg-emerald-500 transition-all duration-500 rounded-full shadow-[0_0_6px_rgba(16,185,129,0.8)]" style={{ width: `${xpPercent}%` }} />
-                    </div>
-                  </div>
-
-                  {/* Gold Pill */}
-                  <div className="flex items-center gap-1 text-xs font-mono font-bold text-amber-300" title={`Gold: ${charStats.gold.toLocaleString()}`}>
-                    <span>🟡</span>
-                    <span>{formatShortGold(charStats.gold)}</span>
-                  </div>
-
-                  {/* Potion Button */}
-                  <button
-                    type="button"
-                    className="w-6 h-6 rounded-full bg-amber-950 border border-amber-400/60 flex items-center justify-center text-xs shrink-0 active:scale-95"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const res = drinkHealthPotion();
-                      if (res.success) {
+                    {/* Mana Bar */}
+                    <div
+                      className="flex items-center gap-1.5 cursor-pointer hover:opacity-80"
+                      title="Mana: Click to cast Spells"
+                      onClick={(e) => {
+                        e.stopPropagation();
                         hapticSuccess();
-                        toast({ title: "🧪 Drank Health Potion!", description: `Restored +30% Health!` });
-                      } else {
+                        setShowSpellModal(true);
+                      }}
+                    >
+                      <span className="text-xs">🔵</span>
+                      <div className="w-20 h-2 bg-zinc-950 rounded-full border border-cyan-900/60 overflow-hidden">
+                        <div className="h-full bg-cyan-400 transition-all duration-500 rounded-full" style={{ width: `${mana}%` }} />
+                      </div>
+                    </div>
+
+                    {/* Level Bar: SOLID GREEN BAR */}
+                    <div className="flex items-center gap-1.5" title={`Level ${charStats.level} (${currentXpInLevel}/100 XP)`}>
+                      <span className="text-[10px] font-bold text-emerald-300 font-mono">Lv.{charStats.level}</span>
+                      <div className="w-16 h-2 bg-zinc-950 rounded-full border border-emerald-900/60 overflow-hidden">
+                        <div className="h-full bg-emerald-500 transition-all duration-500 rounded-full shadow-[0_0_6px_rgba(16,185,129,0.8)]" style={{ width: `${xpPercent}%` }} />
+                      </div>
+                    </div>
+
+                    {/* Gold Pill */}
+                    <div className="flex items-center gap-1 text-xs font-mono font-bold text-amber-300" title={`Gold: ${charStats.gold.toLocaleString()}`}>
+                      <span>🟡</span>
+                      <span>{formatShortGold(charStats.gold)}</span>
+                    </div>
+
+                    {/* Potion Button */}
+                    <button
+                      type="button"
+                      className="w-7 h-7 rounded-full bg-amber-950 border border-amber-400/60 flex items-center justify-center text-xs shrink-0 active:scale-95"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const res = drinkHealthPotion();
+                        if (res.success) {
+                          hapticSuccess();
+                          toast({ title: "🧪 Drank Health Potion!", description: `Restored +30% Health!` });
+                        } else {
+                          hapticSuccess();
+                          window.dispatchEvent(new CustomEvent('open-inventory-bag', { detail: { tab: 'stored', filter: 'consumable' } }));
+                        }
+                      }}
+                    >
+                      🧪
+                    </button>
+                  </div>
+                )}
+
+                {activeSlide % 4 === 1 && (
+                  <div className="flex items-center justify-around gap-2 text-xs font-mono font-bold animate-fadeIn py-0.5">
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-300">
+                      <span>✨</span> <span>12 Essences</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-950/60 border border-blue-500/40 text-blue-300">
+                      <span>⚡</span> <span>85% Fuel</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-950/60 border border-cyan-500/40 text-cyan-300">
+                      <span>❄️</span> <span>1 Freeze</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-purple-950/60 border border-purple-500/40 text-purple-300">
+                      <span>🧠</span> <span>{charStats.focus_points || 102} Focus</span>
+                    </div>
+                  </div>
+                )}
+
+                {activeSlide % 4 === 2 && (
+                  <div className="flex items-center justify-between gap-1.5 text-[10px] font-bold font-serif animate-fadeIn overflow-x-auto custom-scrollbar py-0.5">
+                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-950/80 border border-amber-500/50 text-amber-300 shrink-0">
+                      <span>🔥</span> <span className="uppercase text-[9px]">Forge Fire</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSanctuaryMode(!sanctuaryMode);
+                      }}
+                      className={cn(
+                        "flex items-center gap-1 px-2.5 py-1 rounded-lg border shrink-0 transition-colors cursor-pointer",
+                        sanctuaryMode ? "bg-indigo-950 border-indigo-400 text-indigo-200" : "bg-zinc-900 border-zinc-700 text-zinc-400"
+                      )}
+                    >
+                      <span>🛡️</span> <span>Sanctuary</span>
+                    </button>
+                    <span className="px-2 py-0.5 rounded bg-orange-950 border border-orange-500/40 text-orange-300 shrink-0">⚔️ MIGHT x4</span>
+                    <span className="px-2 py-0.5 rounded bg-sky-950 border border-sky-500/40 text-sky-300 shrink-0">📖 KNOWLEDGE x2</span>
+                    <span className="px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300 shrink-0">🧘 WELLNESS x3</span>
+                    <span className="px-2 py-0.5 rounded bg-amber-950 border border-amber-500/40 text-amber-300 shrink-0">👑 HONOR x4</span>
+                  </div>
+                )}
+
+                {activeSlide % 4 === 3 && (
+                  <div className="flex items-center justify-between gap-2 text-[10px] animate-fadeIn py-0.5">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-950/60 border border-amber-500/30 text-amber-200">
+                      <span>🛡️</span>
+                      <span className="font-serif font-bold">Streak Recovery (0/2)</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 font-mono font-bold text-[9px]">
+                      <span className="px-2 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-500/40">⚔️ +15% ATK</span>
+                      <span className="px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-500/40">🪄 +10% Magic</span>
+                      <span className="px-2 py-0.5 rounded bg-slate-900 text-slate-200 border border-slate-500/40">🛡️ +10% Armor</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* MOBILE VIEW SLIDES (Max 3 compact items per slide for zero clipping!) */}
+              <div className="block md:hidden">
+                {/* Mobile Slide 0: Health, Mana, Level */}
+                {activeSlide % 5 === 0 && (
+                  <div className="flex items-center justify-between gap-2 animate-fadeIn">
+                    <div className="flex items-center gap-1" title={`Health: ${health}%`}>
+                      <span className="text-xs">{isPoisoned ? '🟢' : '❤️'}</span>
+                      <div className="w-12 h-2 bg-zinc-950 rounded-full border border-red-900/60 overflow-hidden">
+                        <div className={cn("h-full transition-all rounded-full", isPoisoned ? "bg-emerald-400" : "bg-red-500")} style={{ width: `${health}%` }} />
+                      </div>
+                    </div>
+
+                    <div
+                      className="flex items-center gap-1 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
                         hapticSuccess();
-                        window.dispatchEvent(new CustomEvent('open-inventory-bag', { detail: { tab: 'stored', filter: 'consumable' } }));
-                      }
-                    }}
-                  >
-                    🧪
-                  </button>
-                </div>
-              )}
+                        setShowSpellModal(true);
+                      }}
+                    >
+                      <span className="text-xs">🔵</span>
+                      <div className="w-12 h-2 bg-zinc-950 rounded-full border border-cyan-900/60 overflow-hidden">
+                        <div className="h-full bg-cyan-400 transition-all rounded-full" style={{ width: `${mana}%` }} />
+                      </div>
+                    </div>
 
-              {/* SLIDE 1: TOPBAR RESOURCES (Screenshot 1: ✨ 12, ⚡ 85%, ❄️ 1, 🧠 102) */}
-              {activeSlide === 1 && (
-                <div className="flex items-center justify-around gap-2 text-xs font-mono font-bold animate-fadeIn py-0.5">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-300">
-                    <span>✨</span> <span>12</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] font-bold text-emerald-300 font-mono">Lv.{charStats.level}</span>
+                      <div className="w-10 h-2 bg-zinc-950 rounded-full border border-emerald-900/60 overflow-hidden">
+                        <div className="h-full bg-emerald-500 transition-all rounded-full" style={{ width: `${xpPercent}%` }} />
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-950/60 border border-blue-500/40 text-blue-300">
-                    <span>⚡</span> <span>85%</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-950/60 border border-cyan-500/40 text-cyan-300">
-                    <span>❄️</span> <span>1</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-950/60 border border-purple-500/40 text-purple-300">
-                    <span>🧠</span> <span>{charStats.focus_points || 102}</span>
-                  </div>
-                </div>
-              )}
+                )}
 
-              {/* SLIDE 2: SEASONAL EVENT & CATEGORY BOOSTS (Screenshot 2) */}
-              {activeSlide === 2 && (
-                <div className="flex items-center justify-between gap-1.5 text-[10px] font-bold font-serif animate-fadeIn overflow-x-auto custom-scrollbar py-0.5">
-                  <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-950/80 border border-amber-500/50 text-amber-300 shrink-0">
-                    <span>🔥</span> <span className="uppercase text-[9px]">Forge Fire</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSanctuaryMode(!sanctuaryMode);
-                    }}
-                    className={cn(
-                      "flex items-center gap-1 px-2 py-1 rounded-lg border shrink-0 transition-colors cursor-pointer",
-                      sanctuaryMode ? "bg-indigo-950 border-indigo-400 text-indigo-200" : "bg-zinc-900 border-zinc-700 text-zinc-400"
-                    )}
-                  >
-                    <span>🛡️</span> <span>Sanctuary</span>
-                  </button>
-                  <span className="px-1.5 py-0.5 rounded bg-red-950 border border-red-500/40 text-red-300 shrink-0">⚔️ MIGHT x4</span>
-                  <span className="px-1.5 py-0.5 rounded bg-purple-950 border border-purple-500/40 text-purple-300 shrink-0">📖 KNOWLEDGE x2</span>
-                  <span className="px-1.5 py-0.5 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300 shrink-0">🧘 WELLNESS x3</span>
-                  <span className="px-1.5 py-0.5 rounded bg-amber-950 border border-amber-500/40 text-amber-300 shrink-0">👑 HONOR x4</span>
-                </div>
-              )}
+                {/* Mobile Slide 1: Gold, Potion, Focus */}
+                {activeSlide % 5 === 1 && (
+                  <div className="flex items-center justify-around gap-2 animate-fadeIn">
+                    <div className="flex items-center gap-1 text-xs font-mono font-bold text-amber-300">
+                      <span>🟡</span>
+                      <span>{formatShortGold(charStats.gold)}</span>
+                    </div>
 
-              {/* SLIDE 3: STREAK RECOVERY & COMBAT BUFFS (Screenshot 3) */}
-              {activeSlide === 3 && (
-                <div className="flex items-center justify-between gap-2 text-[10px] animate-fadeIn py-0.5">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-950/60 border border-amber-500/30 text-amber-200">
-                    <span>🛡️</span>
-                    <span className="font-serif font-bold">Streak Recovery (0/2)</span>
+                    <button
+                      type="button"
+                      className="w-6 h-6 rounded-full bg-amber-950 border border-amber-400/60 flex items-center justify-center text-xs shrink-0 active:scale-95"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const res = drinkHealthPotion();
+                        if (res.success) {
+                          hapticSuccess();
+                          toast({ title: "🧪 Drank Potion!", description: `Restored +30% Health!` });
+                        } else {
+                          hapticSuccess();
+                          window.dispatchEvent(new CustomEvent('open-inventory-bag', { detail: { tab: 'stored', filter: 'consumable' } }));
+                        }
+                      }}
+                    >
+                      🧪
+                    </button>
+
+                    <div className="flex items-center gap-1 text-xs font-mono font-bold text-purple-300">
+                      <span>🧠</span>
+                      <span>{charStats.focus_points || 102} FP</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 font-mono font-bold text-[9px]">
-                    <span className="px-1.5 py-0.5 rounded bg-red-950 text-red-300 border border-red-500/40">⚔️ +15% ATK</span>
-                    <span className="px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-500/40">🪄 +10% Magic</span>
-                    <span className="px-1.5 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-500/40">🛡️ +10% Armor</span>
+                )}
+
+                {/* Mobile Slide 2: Essences, Fuel, Streak Freeze */}
+                {activeSlide % 5 === 2 && (
+                  <div className="flex items-center justify-around gap-2 text-xs font-mono font-bold animate-fadeIn">
+                    <div className="flex items-center gap-1 text-emerald-300">
+                      <span>✨</span> <span>12</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-blue-300">
+                      <span>⚡</span> <span>85%</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-cyan-300">
+                      <span>❄️</span> <span>1</span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+
+                {/* Mobile Slide 3: Forge Fire, Sanctuary, Multiplier */}
+                {activeSlide % 5 === 3 && (
+                  <div className="flex items-center justify-between gap-1.5 text-[9px] font-bold font-serif animate-fadeIn">
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-950 border border-amber-500/50 text-amber-300">
+                      <span>🔥</span> <span>Forge Fire</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSanctuaryMode(!sanctuaryMode);
+                      }}
+                      className={cn(
+                        "flex items-center gap-1 px-1.5 py-0.5 rounded border transition-colors",
+                        sanctuaryMode ? "bg-indigo-950 border-indigo-400 text-indigo-200" : "bg-zinc-900 border-zinc-700 text-zinc-400"
+                      )}
+                    >
+                      <span>🛡️</span> <span>Sanctuary</span>
+                    </button>
+                    <span className="px-1.5 py-0.5 rounded bg-orange-950 border border-orange-500/40 text-orange-300">⚔️ x4</span>
+                  </div>
+                )}
+
+                {/* Mobile Slide 4: Recovery & Dungeon Buffs */}
+                {activeSlide % 5 === 4 && (
+                  <div className="flex items-center justify-between gap-1 text-[9px] animate-fadeIn">
+                    <span className="px-1.5 py-0.5 rounded bg-amber-950/60 border border-amber-500/30 text-amber-200 font-serif font-bold">
+                      🛡️ Recovery (0/2)
+                    </span>
+                    <div className="flex items-center gap-1 font-mono font-bold">
+                      <span className="px-1 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-500/40">⚔️ +15%</span>
+                      <span className="px-1 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-500/40">🪄 +10%</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Slide Navigation Controls */}
-            <div className="flex items-center gap-1 shrink-0">
+            {/* Desktop Slide Navigation Controls (Hidden on Mobile) */}
+            <div className="hidden md:flex items-center gap-1 shrink-0">
               <button
                 type="button"
                 onClick={prevSlide}
@@ -312,7 +443,7 @@ export function RpgHudStatusBar() {
                     }}
                     className={cn(
                       "w-1.5 h-1.5 rounded-full transition-all cursor-pointer",
-                      activeSlide === idx ? "bg-amber-400 w-3" : "bg-zinc-600 hover:bg-zinc-400"
+                      activeSlide % 4 === idx ? "bg-amber-400 w-3" : "bg-zinc-600 hover:bg-zinc-400"
                     )}
                   />
                 ))}
@@ -327,16 +458,16 @@ export function RpgHudStatusBar() {
               </button>
             </div>
 
-            <div className="w-px h-6 bg-zinc-800 shrink-0" />
+            <div className="hidden md:block w-px h-6 bg-zinc-800 shrink-0" />
 
-            {/* FAR RIGHT: CHEVRON LEFT CLOSE BUTTON TO COLLAPSE */}
+            {/* Desktop Chevron Close Button (Hidden on Mobile where Avatar tap collapses) */}
             <button
               type="button"
               onClick={() => {
                 hapticSuccess();
                 toggleCollapse(true);
               }}
-              className="p-1.5 rounded-full bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 text-amber-300 hover:text-white transition-all shrink-0 cursor-pointer shadow-sm active:scale-95"
+              className="hidden md:flex p-1.5 rounded-full bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 text-amber-300 hover:text-white transition-all shrink-0 cursor-pointer shadow-sm active:scale-95"
               title="Collapse to Character Avatar"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -350,6 +481,7 @@ export function RpgHudStatusBar() {
     </>
   );
 }
+
 
 
 
