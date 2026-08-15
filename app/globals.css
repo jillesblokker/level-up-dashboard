@@ -246,6 +246,96 @@ body {
   transition: opacity 2s ease-in-out;
 }
 
+/* ==========================================================================
+   ⚔️ SWORD & STAFF MEDIEVAL RPG MASTER THEME ENGINE (data-theme="medieval")
+   ========================================================================== */
+
+[data-theme="medieval"],
+.theme-medieval,
+[data-theme="medieval"] body,
+.theme-medieval body {
+  background-color: #0c0f1d !important;
+  background-image: radial-gradient(circle at 50% 15%, #1e1b4b 0%, #0c0f1d 60%, #070913 100%) !important;
+  background-attachment: fixed !important;
+  color: #e2e8f0 !important;
+  font-family: var(--font-libre-baskerville), serif, Georgia !important;
+}
+
+/* 1. Global Typography Transformation */
+[data-theme="medieval"] h1,
+[data-theme="medieval"] h2,
+[data-theme="medieval"] h3,
+[data-theme="medieval"] h4,
+[data-theme="medieval"] h5,
+[data-theme="medieval"] h6,
+.theme-medieval h1,
+.theme-medieval h2,
+.theme-medieval h3,
+.theme-medieval h4,
+.theme-medieval h5,
+.theme-medieval h6,
+[data-theme="medieval"] .font-serif,
+.theme-medieval .font-serif {
+  font-family: var(--font-gloock), var(--font-libre-baskerville), serif !important;
+  color: #fef08a !important;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9), 0 0 10px rgba(245, 158, 11, 0.25) !important;
+}
+
+/* 2. Global Card & Container Transformation (Triple Inset Gold Borders) */
+[data-theme="medieval"] .card,
+.theme-medieval .card,
+[data-theme="medieval"] [role="region"],
+.theme-medieval [role="region"],
+[data-theme="medieval"] .bg-zinc-900,
+.theme-medieval .bg-zinc-900,
+[data-theme="medieval"] .bg-zinc-950,
+.theme-medieval .bg-zinc-950,
+[data-theme="medieval"] .bg-black,
+.theme-medieval .bg-black {
+  background-color: #161D33 !important;
+  background-image: linear-gradient(180deg, rgba(30, 41, 69, 0.6) 0%, rgba(22, 29, 51, 0.95) 100%) !important;
+  border: 2px solid rgba(245, 158, 11, 0.45) !important;
+  border-radius: 1rem !important;
+  box-shadow: inset 0 1px 1px rgba(255, 243, 191, 0.2), inset 0 0 25px rgba(245, 158, 11, 0.05), 0 10px 35px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* 3. Global Primary CTA Button Transformation (Sword & Staff Bevelled Cyan/Gold) */
+[data-theme="medieval"] button.bg-amber-500,
+.theme-medieval button.bg-amber-500,
+[data-theme="medieval"] button.bg-amber-600,
+.theme-medieval button.bg-amber-600,
+[data-theme="medieval"] .btn-primary-cta,
+.theme-medieval .btn-primary-cta {
+  background: linear-gradient(180deg, #0e7490 0%, #1e1b4b 50%, #0e7490 100%) !important;
+  border: 2px solid #f59e0b !important;
+  border-radius: 0.75rem !important;
+  color: #fef08a !important;
+  font-family: var(--font-gloock), serif !important;
+  font-weight: 900 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9) !important;
+  box-shadow: 0 0 20px rgba(14, 116, 144, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 4px 10px rgba(0, 0, 0, 0.5) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+[data-theme="medieval"] button.bg-amber-500:hover,
+.theme-medieval button.bg-amber-500:hover,
+[data-theme="medieval"] .btn-primary-cta:hover,
+.theme-medieval .btn-primary-cta:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 0 30px rgba(6, 182, 212, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.6) !important;
+  border-color: #fde047 !important;
+}
+
+/* 4. Global Header Navigation & Topbar Transformation */
+[data-theme="medieval"] header,
+.theme-medieval header,
+[data-theme="medieval"] nav,
+.theme-medieval nav {
+  background-color: rgba(9, 13, 24, 0.95) !important;
+  border-bottom: 2px solid rgba(245, 158, 11, 0.5) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8) !important;
+}
+
 .medieval-night body {
   background-color: #0f172a !important;
   /* Slate 900 */

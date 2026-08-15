@@ -10,8 +10,12 @@ export async function setAppTheme(theme: AppTheme): Promise<void> {
   if (typeof document !== 'undefined') {
     if (theme === 'medieval') {
       document.documentElement.setAttribute('data-theme', 'medieval');
+      document.body.setAttribute('data-theme', 'medieval');
+      document.body.classList.add('theme-medieval');
     } else {
       document.documentElement.removeAttribute('data-theme');
+      document.body.removeAttribute('data-theme');
+      document.body.classList.remove('theme-medieval');
     }
     
     try {
@@ -54,7 +58,11 @@ export function initAppTheme(): void {
   const current = getAppThemeSync();
   if (current === 'medieval') {
     document.documentElement.setAttribute('data-theme', 'medieval');
+    document.body.setAttribute('data-theme', 'medieval');
+    document.body.classList.add('theme-medieval');
   } else {
     document.documentElement.removeAttribute('data-theme');
+    document.body.removeAttribute('data-theme');
+    document.body.classList.remove('theme-medieval');
   }
 }
