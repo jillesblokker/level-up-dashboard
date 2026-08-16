@@ -234,6 +234,20 @@ body {
   animation: float-up 1.5s ease-out forwards;
 }
 
+/* Toast Green Countdown Fuse Animation */
+@keyframes toast-fuse {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0%;
+  }
+}
+
+.animate-toast-fuse {
+  animation: toast-fuse linear forwards;
+}
+
 /* Medieval Night Mode */
 .medieval-night body::before {
   content: '';
