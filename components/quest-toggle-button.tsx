@@ -87,7 +87,7 @@ export function QuestToggleButton({
           }}
           disabled={isDisabled}
           className={cn(
-            "w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-amber-500/50",
+            "w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all duration-150 focus:outline-none focus:ring-1 focus:ring-amber-500/50 touch-manipulation active:scale-90",
             isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-110 hover:shadow-md",
             completed
               ? "bg-green-500 border-green-500 text-white"

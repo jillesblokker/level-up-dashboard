@@ -219,10 +219,19 @@ export default function QuestsPage() {
           cachedCount: cached ? (JSON.parse(cached) || []).length : 0,
           cachedCompleted: cached ? (JSON.parse(cached) || []).filter((q: any) => q.completed).map((q: any) => q.name || q.id) : []
         });
-        if (cacheDate === todayStr && cached) {
+        if (cached) {
           const parsed = JSON.parse(cached);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
+            if (cacheDate === todayStr) {
+              return parsed;
+            } else {
+              // Midnight has passed! Reset completed status to false for new day's un-checked batch
+              return parsed.map((q: any) => ({
+                ...q,
+                completed: false,
+                date: null
+              }));
+            }
           }
         }
       } catch (err) {
@@ -347,7 +356,12 @@ export default function QuestsPage() {
             const qTitle = String((prevQ as any).title || '').toLowerCase();
 
             const serverQ = serverMap.get(qId) || serverMap.get(qName) || serverMap.get(qTitle);
-            const isCompleted = Boolean(prevQ.completed || serverQ?.completed);
+            const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+            const cacheDate = getUserScopedItem('quests-cache-date');
+            const isSameDay = cacheDate === todayStr;
+            const isCompleted = isSameDay
+              ? Boolean((serverQ && serverQ.completed !== undefined) ? serverQ.completed : prevQ.completed)
+              : Boolean(serverQ?.completed);
 
             return {
               ...(serverQ || prevQ),
@@ -441,7 +455,7 @@ export default function QuestsPage() {
                 if (match) {
                   return {
                     ...pq,
-                    completed: Boolean(pq.completed || match.completed)
+                    completed: cacheDate === todayStr ? Boolean(match.completed) : false
                   };
                 }
                 return pq;
@@ -458,6 +472,23 @@ export default function QuestsPage() {
       window.removeEventListener('global-sync-tick', handleSyncEvent);
       window.removeEventListener('quest-added', handleSyncEvent);
     };
+  }, []);
+
+  // Periodic Midnight Auto-Reset Monitor (Guarantees un-checked quests at local midnight)
+  useEffect(() => {
+    const checkMidnight = () => {
+      const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+      const cacheDate = getUserScopedItem('quests-cache-date');
+      if (cacheDate && cacheDate !== todayStr) {
+        logger.info('[MIDNIGHT RESET] New calendar date detected! Resetting yesterday quest completions', { cacheDate, todayStr });
+        setQuests(prev => prev.map(q => ({ ...q, completed: false, date: null })));
+        setUserScopedItem('quests-cache-date', todayStr);
+        setRefreshTrigger(prev => prev + 1);
+      }
+    };
+    checkMidnight();
+    const interval = setInterval(checkMidnight, 25000);
+    return () => clearInterval(interval);
   }, []);
 
   // Debug quest filtering

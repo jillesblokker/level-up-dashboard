@@ -143,7 +143,8 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
 
         // 3b. PULL & MERGE (Union Truth): Combine server completions & local completions
         const { reconcileQuestList } = await import('@/lib/quests-persistence');
-        const mergedQuests = reconcileQuestList(serverArray, localArray, true);
+        const isSameDay = cacheDate === todayStr;
+        const mergedQuests = reconcileQuestList(serverArray, localArray, isSameDay);
 
         setUserScopedItem('quests-cache', JSON.stringify(mergedQuests));
         setUserScopedItem('quests-cache-date', todayStr);
