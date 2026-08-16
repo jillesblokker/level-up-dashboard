@@ -28,7 +28,7 @@ interface Quest {
   gold?: number
   completed: boolean
   favorited?: boolean
-  date?: Date
+  date?: Date | string | null | undefined
   isNew: boolean
   completionId?: string
   isFriendQuest?: boolean
