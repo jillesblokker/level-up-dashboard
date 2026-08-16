@@ -88,7 +88,7 @@ interface Quest {
   gold?: number;
   completed: boolean;
   favorited?: boolean;
-  date?: Date;
+  date?: Date | string | null | undefined;
   isNew: boolean;
   completionId?: string;
   mandate_period?: string;
@@ -228,8 +228,7 @@ export default function QuestsPage() {
               // Midnight has passed! Reset completed status to false for new day's un-checked batch
               return parsed.map((q: any) => ({
                 ...q,
-                completed: false,
-                date: undefined
+                completed: false
               }));
             }
           }
@@ -481,7 +480,7 @@ export default function QuestsPage() {
       const cacheDate = getUserScopedItem('quests-cache-date');
       if (cacheDate && cacheDate !== todayStr) {
         logger.info('[MIDNIGHT RESET] New calendar date detected! Resetting yesterday quest completions', { cacheDate, todayStr });
-        setQuests(prev => prev.map(q => ({ ...q, completed: false, date: undefined })));
+        setQuests(prev => prev.map(q => ({ ...q, completed: false })));
         setUserScopedItem('quests-cache-date', todayStr);
         setRefreshTrigger(prev => prev + 1);
       }
