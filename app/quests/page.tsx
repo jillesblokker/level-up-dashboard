@@ -229,7 +229,7 @@ export default function QuestsPage() {
               return parsed.map((q: any) => ({
                 ...q,
                 completed: false,
-                date: null
+                date: undefined
               }));
             }
           }
@@ -481,7 +481,7 @@ export default function QuestsPage() {
       const cacheDate = getUserScopedItem('quests-cache-date');
       if (cacheDate && cacheDate !== todayStr) {
         logger.info('[MIDNIGHT RESET] New calendar date detected! Resetting yesterday quest completions', { cacheDate, todayStr });
-        setQuests(prev => prev.map(q => ({ ...q, completed: false, date: null })));
+        setQuests(prev => prev.map(q => ({ ...q, completed: false, date: undefined })));
         setUserScopedItem('quests-cache-date', todayStr);
         setRefreshTrigger(prev => prev + 1);
       }
@@ -2977,19 +2977,11 @@ export default function QuestsPage() {
                   <Button
                     onClick={handleManualReset}
                     disabled={manualResetLoading || !token}
+                    isLoading={manualResetLoading}
                     className="bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg border border-zinc-500"
                     aria-label="Manually reset today's quests"
                   >
-                    {manualResetLoading ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        {TEXT_CONTENT.questBoard.buttons.resetting}
-                      </>
-                    ) : (
-                      <>
-                        🔄 {TEXT_CONTENT.questBoard.buttons.reset}
-                      </>
-                    )}
+                    🔄 {TEXT_CONTENT.questBoard.buttons.reset}
                   </Button>
                 </div>
 
