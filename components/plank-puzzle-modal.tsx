@@ -312,8 +312,7 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
   const [moves, setMoves] = useState(0)
   const [activeVariationIndex, setActiveVariationIndex] = useState<number>(0)
   const [hasWon, setHasWon] = useState(false)
-  const [showDpad, setShowDpad] = useState(false)
-
+  const isInitializedRef = useRef(false)
   const gridRef = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef<{
     plankId: string
@@ -326,7 +325,8 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
 
   // Reset when opening & check 1/day daily limit
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !isInitializedRef.current) {
+      isInitializedRef.current = true
       const today = new Date().toISOString().split('T')[0];
       const storage = localStorage.getItem('labyrinth_daily_limit');
       let data = storage ? JSON.parse(storage) : { date: today, count: 0 };
@@ -348,8 +348,10 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
       setSelectedId("target");
       setMoves(0);
       setHasWon(false);
+    } else if (!isOpen) {
+      isInitializedRef.current = false
     }
-  }, [isOpen, onClose]);
+  }, [isOpen])
 
   // Single capture-phase handler: blocks ALL shortcuts and handles game movement
   useEffect(() => {

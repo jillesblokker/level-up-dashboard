@@ -237,19 +237,11 @@ body {
 /* Toast Green Perimeter Countdown Fuse Animation (Top-Right Depletion) */
 @keyframes toast-perimeter-deplete {
   0% {
-    stroke-dasharray: 400;
     stroke-dashoffset: 0;
   }
   100% {
-    stroke-dasharray: 400;
-    stroke-dashoffset: 400;
+    stroke-dashoffset: var(--toast-perimeter-len, 1000px);
   }
-}
-
-.animate-toast-perimeter {
-  stroke-dasharray: 400;
-  stroke-dashoffset: 0;
-  animation: toast-perimeter-deplete linear forwards;
 }
 
 /* Medieval Night Mode */
