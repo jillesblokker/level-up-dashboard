@@ -1506,7 +1506,7 @@ export function KingdomGridWithTimers({
       setAbbeyModalOpen(true);
       return;
     }
-    if (tile.type === 'fortune_teller' || tile.type === 'fortune-teller') {
+    if (tile.type === 'fortune_teller' || (tile.type as string) === 'fortune-teller') {
       setFortuneTileData({ x, y, tileId: 'fortune_teller' });
       setFortuneModalOpen(true);
       return;
