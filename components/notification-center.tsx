@@ -272,41 +272,46 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
   // ... (keep existing helper functions)
 
   const EmptyState = () => (
-    <div className="flex flex-col items-center justify-center h-full p-6 relative overflow-hidden">
-      {/* Background with medieval theme */}
-      <div className="absolute inset-0 bg-black" />
+    <div className="flex flex-col justify-between h-full min-h-[480px] bg-black text-white relative overflow-hidden">
+      {/* Full-width Image Header */}
+      <div className="w-full relative aspect-[4/3] sm:aspect-[16/10] overflow-hidden border-b border-amber-900/30 shrink-0">
+        <Image
+          src="/images/Notifications/no-mail.webp"
+          alt="No mail"
+          fill
+          className="object-cover object-center"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+      </div>
 
-      {/* Main content */}
-      <div className="relative z-10 text-center w-full px-4 mx-auto">
-        {/* Original image */}
-        <div className="relative mb-8 w-full aspect-[4/5] max-h-[45vh]">
-          <Image
-            src="/images/Notifications/no-mail.webp"
-            alt="No mail"
-            fill
-            className="object-contain"
-            priority
-          />
+      {/* Main text & button content on pure black background */}
+      <div className="flex-1 flex flex-col justify-center items-center text-center p-6 space-y-5 bg-black z-10 w-full">
+        <div className="space-y-2">
+          <h3 className="text-xl sm:text-2xl font-bold text-amber-400 font-serif tracking-wide">
+            No Messages Await
+          </h3>
+          <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto" />
         </div>
 
-        {/* Text content */}
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <h3 className="text-xl font-bold text-amber-400 font-serif tracking-wide">
-              No Messages Await
-            </h3>
-            <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto"></div>
-          </div>
-
-          <div className="space-y-2">
-            <p className="text-zinc-200 leading-relaxed font-medium">
-              The courier has not yet arrived with news from your kingdom.
-            </p>
-            <p className="text-zinc-400 text-sm leading-relaxed">
-              Complete quests and explore your realm to receive notifications from your loyal subjects.
-            </p>
-          </div>
+        <div className="space-y-2 max-w-xs">
+          <p className="text-zinc-200 text-sm font-medium leading-relaxed">
+            The courier has not yet arrived with news from your kingdom.
+          </p>
+          <p className="text-zinc-400 text-xs leading-relaxed">
+            Complete quests and explore your realm to receive notifications from your loyal subjects.
+          </p>
         </div>
+
+        <Button
+          onClick={() => {
+            setOpen(false)
+            window.location.href = '/quests'
+          }}
+          className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg border border-amber-400/40 active:scale-95 transition-all text-sm mt-2 flex items-center gap-2"
+        >
+          📜 Go to Quests
+        </Button>
       </div>
     </div>
   )
@@ -374,7 +379,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto max-h-[calc(100vh-120px)]">
+        <div className="flex-1 overflow-y-auto max-h-[calc(100vh-120px)] bg-black">
           {isLoading ? (
             <div className="p-4 space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
