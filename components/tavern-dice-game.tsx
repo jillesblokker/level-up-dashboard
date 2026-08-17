@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Dices, Shield, Sparkles, Volume2, VolumeX, RotateCcw, Trophy, Skull, Swords } from "lucide-react";
+import Image from "next/image";
+import { Dices, Shield, Volume2, VolumeX, RotateCcw, Trophy, Skull, Swords, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,9 @@ export interface WagerTier {
   id: AIDifficulty;
   name: string;
   opponentName: string;
+  opponentId: string;
+  opponentFilename?: string;
+  isMythic?: boolean;
   wager: number;
   multiplier: number;
   requiredLevel: number;
@@ -23,10 +27,10 @@ export interface WagerTier {
 }
 
 export const WAGER_TIERS: WagerTier[] = [
-  { id: 'easy', name: 'Easy', opponentName: 'Garrick the Novice', wager: 1000, multiplier: 2, requiredLevel: 1, emoji: '🍺' },
-  { id: 'normal', name: 'Normal', opponentName: 'Barnaby the Gambler', wager: 10000, multiplier: 2.5, requiredLevel: 10, emoji: '⚔️' },
-  { id: 'hard', name: 'Hard', opponentName: 'Master Malakor', wager: 50000, multiplier: 3, requiredLevel: 20, emoji: '👑' },
-  { id: 'master', name: 'Master', opponentName: 'The Barkeep', wager: 100000, multiplier: 4, requiredLevel: 30, emoji: '🔥' },
+  { id: 'easy', name: 'Easy', opponentName: 'Leaf', opponentId: '001', wager: 1000, multiplier: 2, requiredLevel: 1, emoji: '🌱' },
+  { id: 'normal', name: 'Normal', opponentName: 'Dolphio', opponentId: '002', wager: 10000, multiplier: 2.5, requiredLevel: 10, emoji: '🐬' },
+  { id: 'hard', name: 'Hard', opponentName: 'Blizzey', opponentId: '004', wager: 50000, multiplier: 3, requiredLevel: 20, emoji: '❄️' },
+  { id: 'master', name: 'Master', opponentName: 'Ember Drake', opponentId: 'mythic-1', opponentFilename: 'Mythic1red.png', isMythic: true, wager: 100000, multiplier: 4, requiredLevel: 30, emoji: '🔥' },
 ];
 
 export interface Bid {
@@ -43,6 +47,15 @@ export type GamePhase =
   | 'challengeRevealing'
   | 'roundResult'
   | 'gameOver';
+
+// Helper function to resolve creature images
+function getCreatureImage(id?: string, filename?: string, isMythic?: boolean): string {
+  if (isMythic || id?.startsWith('mythic-') || filename?.startsWith('Mythic')) {
+    const fn = filename || (id ? `${id}.png` : 'Mythic1red.png');
+    return `/images/Mythics/${fn}?v=2`;
+  }
+  return `/images/creatures/${id || '001'}.png`;
+}
 
 // --- WEB AUDIO SYNTHESIZER ---
 class TavernAudio {
@@ -297,7 +310,7 @@ function computeAIDecision(
   };
 }
 
-// --- 3D-STYLED PHYSICAL DICE COMPONENT WITH SPINNING ANIMATIONS ---
+// --- 3D-STYLED PHYSICAL DICE COMPONENT ---
 function Die3D({ 
   value, 
   isHidden = false, 
@@ -312,7 +325,7 @@ function Die3D({
   size?: 'sm' | 'md' | 'lg' 
 }) {
   const sizeClasses = {
-    sm: 'w-8 h-8 rounded-lg text-xs border',
+    sm: 'w-10 h-10 rounded-xl text-xs border-2',
     md: 'w-12 h-12 rounded-xl text-base border-2',
     lg: 'w-16 h-16 rounded-2xl text-xl border-2'
   }[size];
@@ -321,7 +334,7 @@ function Die3D({
     return (
       <div className={cn(
         sizeClasses,
-        "bg-gradient-to-br from-amber-950 via-zinc-900 to-amber-950 border-amber-800/60 shadow-lg flex items-center justify-center relative overflow-hidden group transition-transform",
+        "bg-gradient-to-br from-amber-950 via-zinc-900 to-amber-950 border-amber-800/60 shadow-lg flex items-center justify-center relative overflow-hidden group transition-transform shrink-0",
         isSpinning && "animate-spin"
       )}>
         <div className="absolute inset-0 bg-[radial-gradient(#d97706_1px,transparent_1px)] [background-size:8px_8px] opacity-20" />
@@ -345,7 +358,7 @@ function Die3D({
   return (
     <div className={cn(
       sizeClasses,
-      "bg-gradient-to-b from-amber-50 via-[#fffbeb] to-[#fef3c7] text-zinc-950 shadow-2xl relative grid grid-cols-3 grid-rows-3 p-1.5 items-center justify-items-center transition-all duration-300 transform hover:scale-105",
+      "bg-gradient-to-b from-amber-50 via-[#fffbeb] to-[#fef3c7] text-zinc-950 shadow-2xl relative grid grid-cols-3 grid-rows-3 p-1.5 items-center justify-items-center transition-all duration-300 transform hover:scale-105 shrink-0",
       isHighlighted ? "border-amber-400 ring-4 ring-amber-400/60 shadow-[0_0_25px_#f59e0b] scale-110" : "border-amber-900/40",
       isSpinning && "animate-spin"
     )}>
@@ -447,7 +460,6 @@ export function TavernDiceGame() {
       return;
     }
 
-    // Deduct wager Gold
     await addToCharacterStat('gold', -tier.wager, 'tavern-dice-wager');
     setGoldBalance(prev => prev - tier.wager);
 
@@ -525,7 +537,6 @@ export function TavernDiceGame() {
         setCurrentTurn('player');
         setPhase('playerTurn');
 
-        // Set default player raise selectors to next valid bid
         setSelectedRaiseQty(newBid.quantity);
         setSelectedRaiseFace(Math.min(6, newBid.face + 1));
       }
@@ -604,7 +615,6 @@ export function TavernDiceGame() {
         setTimeout(() => {
           setPhase('gameOver');
           if (newPCount > 0) {
-            // Reward payout multiplier
             const payout = Math.floor(selectedTier.wager * selectedTier.multiplier);
             addToCharacterStat('gold', payout, 'liars-dice-payout');
             setGoldBalance(prev => prev + payout);
@@ -622,7 +632,6 @@ export function TavernDiceGame() {
 
   const totalDiceInPlay = playerDiceCount + computerDiceCount;
 
-  // Check if current selected raise is valid
   const isValidCurrentRaise = currentBid ? (
     selectedRaiseQty > currentBid.quantity || 
     (selectedRaiseQty === currentBid.quantity && selectedRaiseFace > currentBid.face)
@@ -648,7 +657,7 @@ export function TavernDiceGame() {
                 )}
               </CardTitle>
               <CardDescription className="text-xs text-zinc-400">
-                Outwit the tavern gambler in a medieval game of bluff & deduction
+                Outwit Thrivehaven inhabitants in a medieval game of bluff & deduction
               </CardDescription>
             </div>
           </div>
@@ -672,13 +681,13 @@ export function TavernDiceGame() {
 
       <CardContent className="p-4 sm:p-6 space-y-6">
 
-        {/* 1. WAGER TIER SELECTION SCREEN (ORIGINAL BET STAKES) */}
+        {/* 1. WAGER TIER SELECTION SCREEN (THRIVEHAVEN CREATURE INHABITANTS) */}
         {phase === 'difficultySelect' && (
           <div className="py-6 space-y-6 text-center animate-in fade-in duration-300">
             <div className="max-w-md mx-auto space-y-2">
-              <h3 className="font-serif text-2xl font-bold text-[#f5e6c8]">Set Your Wager (Gold)</h3>
+              <h3 className="font-serif text-2xl font-bold text-[#f5e6c8]">Select Tavern Table & Opponent</h3>
               <p className="text-xs text-zinc-400">
-                Choose your tavern table stake. Higher wagers match against smarter opponents with bigger payouts:
+                Challenge Thrivehaven inhabitants to a game of Liar&apos;s Dice. Higher wagers feature rarer creatures and bigger payouts:
               </p>
             </div>
 
@@ -686,6 +695,7 @@ export function TavernDiceGame() {
               {WAGER_TIERS.map((tier) => {
                 const isLocked = playerLevel < tier.requiredLevel;
                 const canAfford = goldBalance >= tier.wager;
+                const creatureImg = getCreatureImage(tier.opponentId, tier.opponentFilename, tier.isMythic);
 
                 return (
                   <button
@@ -693,19 +703,41 @@ export function TavernDiceGame() {
                     disabled={isLocked || !canAfford}
                     onClick={() => startNewGame(tier)}
                     className={cn(
-                      "group relative p-4 rounded-2xl border-2 transition-all text-center flex flex-col justify-between items-center space-y-3 shadow-lg min-h-[160px]",
+                      "group relative p-4 rounded-2xl border-2 transition-all text-center flex flex-col justify-between items-center space-y-3 shadow-lg min-h-[190px]",
                       isLocked || !canAfford
                         ? "border-zinc-900 bg-zinc-950/40 text-zinc-600 cursor-not-allowed opacity-50"
                         : "border-zinc-800 bg-gradient-to-b from-zinc-900 to-zinc-950 hover:border-amber-500/50 hover:from-amber-950/40 hover:scale-105 cursor-pointer"
                     )}
                   >
-                    <div className="text-3xl">{tier.emoji}</div>
-                    
+                    {/* Creature Inhabitant Portrait Card Frame */}
+                    <div className="relative w-16 h-16 rounded-xl border-2 border-amber-500/40 bg-zinc-950 overflow-hidden shadow-inner flex items-center justify-center">
+                      {/* Undiscovered Frame Background Texture for Mythic Creatures */}
+                      {tier.isMythic && (
+                        <div className="absolute inset-0 z-0 opacity-60 mix-blend-luminosity pointer-events-none">
+                          <Image
+                            src="/images/headers/undiscovered.webp"
+                            alt="Mythic Card Frame"
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                        </div>
+                      )}
+                      <Image
+                        src={creatureImg}
+                        alt={tier.opponentName}
+                        width={80}
+                        height={80}
+                        className={tier.isMythic ? "max-h-[85%] w-auto object-contain relative z-10 my-auto mx-auto drop-shadow-md" : "w-full h-full object-cover relative z-10"}
+                        unoptimized
+                      />
+                    </div>
+
                     <div>
                       <h4 className="font-serif font-bold text-sm text-amber-300 group-hover:text-amber-200">
-                        {tier.name}
+                        {tier.opponentName}
                       </h4>
-                      <p className="text-[10px] text-zinc-400 font-mono mt-0.5">{tier.opponentName}</p>
+                      <p className="text-[10px] text-zinc-400 font-mono mt-0.5">{tier.name} Table</p>
                     </div>
 
                     <div className="space-y-1 w-full">
@@ -734,35 +766,60 @@ export function TavernDiceGame() {
         {phase !== 'difficultySelect' && (
           <div className="space-y-6">
 
-            {/* ATMOSPHERIC WOODEN TAVERN BOARD WITH ORIGINAL WOOD BACKGROUND */}
+            {/* ATMOSPHERIC WOODEN TAVERN BOARD */}
             <div 
               className="rounded-2xl p-5 shadow-2xl relative overflow-hidden space-y-6 bg-cover bg-center border-2 border-amber-900/50"
               style={{ backgroundImage: "url('/images/backgrounds/tavern-wood-bg.png')" }}
             >
-              {/* Dark overlay mask for crisp readability */}
               <div className="absolute inset-0 bg-black/55 pointer-events-none" />
 
-              {/* Candlelight ambient glow */}
               <div className="absolute -top-12 -left-12 w-48 h-48 bg-amber-600/15 blur-3xl rounded-full pointer-events-none" />
               <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-amber-700/15 blur-3xl rounded-full pointer-events-none" />
 
-              {/* 1. OPPONENT AREA */}
+              {/* 1. OPPONENT CREATURE INHABITANT AREA */}
               <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 bg-black/60 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-950 to-zinc-900 border border-red-500/40 flex items-center justify-center text-2xl shadow-lg">
-                      {selectedTier.emoji}
+                    
+                    {/* Opponent Inhabitant Creature Portrait Card Frame */}
+                    <div className="relative w-14 h-14 rounded-xl border-2 border-amber-500/50 bg-zinc-950 overflow-hidden shadow-lg flex items-center justify-center shrink-0">
+                      {selectedTier.isMythic && (
+                        <div className="absolute inset-0 z-0 opacity-60 mix-blend-luminosity pointer-events-none">
+                          <Image
+                            src="/images/headers/undiscovered.webp"
+                            alt="Mythic Card Frame"
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                        </div>
+                      )}
+                      <Image
+                        src={getCreatureImage(selectedTier.opponentId, selectedTier.opponentFilename, selectedTier.isMythic)}
+                        alt={selectedTier.opponentName}
+                        width={80}
+                        height={80}
+                        className={selectedTier.isMythic ? "max-h-[85%] w-auto object-contain relative z-10 my-auto mx-auto drop-shadow-md" : "w-full h-full object-cover relative z-10"}
+                        unoptimized
+                      />
                     </div>
+
                     {currentTurn === 'computer' && phase === 'computerTurn' && (
-                      <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                      <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 z-20">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500" />
+                        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500" />
                       </span>
                     )}
                   </div>
+
                   <div>
                     <h4 className="font-serif font-bold text-sm text-zinc-200 flex items-center gap-2">
                       {selectedTier.opponentName}
+                      {selectedTier.isMythic && (
+                        <span className="text-[10px] text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-500/30 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-amber-400" /> Mythic
+                        </span>
+                      )}
                     </h4>
                     <div className="flex items-center gap-2 text-xs text-zinc-400">
                       <span>Dice remaining:</span>
@@ -800,11 +857,11 @@ export function TavernDiceGame() {
                 <div className="flex items-center justify-center gap-2 text-xs text-zinc-400 font-mono">
                   <span>Total Dice in Play:</span>
                   <Badge className="bg-amber-950 text-amber-300 border border-amber-500/30 font-extrabold text-xs">
-                    {totalDiceInPlay} Dice ({playerDiceCount} You vs {computerDiceCount} Opponent)
+                    {totalDiceInPlay} Dice ({playerDiceCount} You vs {computerDiceCount} {selectedTier.opponentName})
                   </Badge>
                 </div>
 
-                {/* Current Claimed Bid Display Banner */}
+                {/* Current Claimed Bid Display Banner (Using IDENTICAL Die3D size="md" as hand dice) */}
                 {currentBid ? (
                   <div className="space-y-1">
                     <div className="text-[11px] uppercase tracking-widest font-bold text-zinc-400">
@@ -814,25 +871,29 @@ export function TavernDiceGame() {
                       <span className="text-xl font-mono font-black text-amber-300">
                         {currentBid.quantity} ×
                       </span>
-                      <Die3D value={currentBid.face} isHighlighted size="sm" />
+                      
+                      {/* IDENTICAL Die3D size="md" as player hand dice */}
+                      <Die3D value={currentBid.face} isHighlighted size="md" />
+
                       <span className="text-xs font-serif font-bold text-zinc-300">
                         ({currentBid.quantity} {currentBid.face === 1 ? 'Ones' : currentBid.face === 2 ? 'Twos' : currentBid.face === 3 ? 'Threes' : currentBid.face === 4 ? 'Fours' : currentBid.face === 5 ? 'Fives' : 'Sixes'})
                       </span>
+                      
                       <Badge className={currentBid.bidder === 'player' ? 'bg-blue-950 text-blue-300 border-blue-500/40 text-[10px]' : 'bg-red-950 text-red-300 border-red-500/40 text-[10px]'}>
-                        By {currentBid.bidder === 'player' ? 'You' : 'Opponent'}
+                        By {currentBid.bidder === 'player' ? 'You' : selectedTier.opponentName}
                       </Badge>
                     </div>
                   </div>
                 ) : (
                   <div className="text-sm font-serif italic text-amber-200/90 py-2">
-                    {startingPlayer === 'player' ? 'Your turn to open the bidding!' : 'Opponent is opening the bidding...'}
+                    {startingPlayer === 'player' ? 'Your turn to open the bidding!' : `${selectedTier.opponentName} is opening the bidding...`}
                   </div>
                 )}
 
                 {/* Status Message / Thinking Banner */}
                 {phase === 'computerTurn' && (
                   <div className="text-xs text-amber-400 font-serif italic animate-pulse flex items-center justify-center gap-2">
-                    <Swords className="w-4 h-4 animate-spin" /> Opponent is contemplating the dice...
+                    <Swords className="w-4 h-4 animate-spin" /> {selectedTier.opponentName} is contemplating the dice...
                   </div>
                 )}
 
@@ -843,12 +904,22 @@ export function TavernDiceGame() {
                 )}
               </div>
 
-              {/* 3. PLAYER AREA */}
+              {/* 3. PLAYER HERO AREA */}
               <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 bg-black/60 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-950 to-zinc-900 border border-blue-500/40 flex items-center justify-center text-2xl shadow-lg">
-                    🧙‍♂️
+                  
+                  {/* Player Hero Portrait Frame (Matching Opponent Card Style) */}
+                  <div className="relative w-14 h-14 rounded-xl border-2 border-blue-500/50 bg-zinc-950 overflow-hidden shadow-lg flex items-center justify-center shrink-0">
+                    <Image
+                      src="/images/creatures/003.png"
+                      alt="Hero Adventurer"
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover relative z-10"
+                      unoptimized
+                    />
                   </div>
+
                   <div>
                     <h4 className="font-serif font-bold text-sm text-zinc-200 flex items-center gap-2">
                       Your Hand
@@ -899,7 +970,6 @@ export function TavernDiceGame() {
                 {/* Unified Selectors & Action Buttons */}
                 <div className="space-y-4">
                   
-                  {/* Quantity & Face Selectors Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     
                     {/* Quantity Picker */}
@@ -975,24 +1045,26 @@ export function TavernDiceGame() {
               </div>
             )}
 
-            {/* 5. CHALLENGE REVEAL / ROUND RESULT MODAL */}
+            {/* 5. CHALLENGE REVEAL / ROUND RESULT MODAL (SIMPLIFIED & REALISTIC WORDING) */}
             {(phase === 'challengeRevealing' || phase === 'roundResult') && challengeInfo && (
               <div className="bg-zinc-950 border-2 border-amber-500/50 rounded-2xl p-6 text-center space-y-4 shadow-2xl animate-in zoom-in-95 duration-300">
-                <Badge className="bg-amber-950 text-amber-300 border border-amber-500/40 text-xs uppercase font-serif px-3 py-1">
-                  Challenge Resolution
-                </Badge>
+                
+                {/* Simplified Realistic Callout Banner */}
+                <div className="text-xs uppercase tracking-widest font-mono text-amber-400 font-bold">
+                  {challengeInfo.challenger === 'player' ? `You called ${selectedTier.opponentName}'s claim a bluff!` : `${selectedTier.opponentName} called your claim a bluff!`}
+                </div>
 
                 <div className="space-y-2">
-                  <h3 className="font-serif text-2xl font-bold text-[#f5e6c8]">
-                    {challengeInfo.bidTruthful ? 'TRUTH!' : 'LIAR!'}
+                  <h3 className="font-serif text-3xl font-black text-[#f5e6c8]">
+                    {challengeInfo.bidTruthful ? 'TRUTH REVEALED!' : 'BLUFF CALLED!'}
                   </h3>
 
                   <div className="text-sm text-zinc-300 max-w-md mx-auto">
-                    Claimed Bid: <strong className="text-amber-300">{challengeInfo.bid.quantity} × {challengeInfo.bid.face}s</strong> by <strong className="text-zinc-100">{challengeInfo.bidder === 'player' ? 'You' : 'Opponent'}</strong>.
+                    Claimed Bid: <strong className="text-amber-300">{challengeInfo.bid.quantity} × {challengeInfo.bid.face}s</strong> by <strong className="text-zinc-100">{challengeInfo.bidder === 'player' ? 'You' : selectedTier.opponentName}</strong>.
                   </div>
 
                   <div className="inline-flex items-center gap-2 bg-zinc-900 border border-amber-500/30 px-4 py-2 rounded-xl text-xs font-mono text-amber-200">
-                    <span>Actual Total Found:</span>
+                    <span>Actual Dice Found:</span>
                     <strong className="text-base text-amber-400 font-mono">{challengeInfo.totalMatches} × {challengeInfo.bid.face}s</strong>
                   </div>
                 </div>
@@ -1001,7 +1073,7 @@ export function TavernDiceGame() {
                   {challengeInfo.loser === 'player' ? (
                     <span>😭 You lost the challenge and lost 1 die!</span>
                   ) : (
-                    <span>🎉 Opponent was wrong! Opponent lost 1 die!</span>
+                    <span>🎉 {selectedTier.opponentName} was wrong and lost 1 die!</span>
                   )}
                 </div>
 
