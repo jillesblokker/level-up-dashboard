@@ -25,19 +25,18 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-lg border p-6 pr-8 shadow-xl transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
+  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-xl border p-4 shadow-xl transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
   {
     variants: {
       variant: {
-        default: "border-amber-800/30 bg-gradient-to-r from-zinc-900 to-zinc-800 text-white shadow-amber-500/10",
-        destructive:
-          "border-red-600/30 bg-gradient-to-r from-red-900 to-red-800 text-red-100 shadow-red-500/10",
-        success: "border-emerald-600/30 bg-gradient-to-r from-emerald-900 to-emerald-800 text-emerald-100 shadow-emerald-500/10",
-        warning: "border-amber-600/30 bg-gradient-to-r from-amber-900 to-amber-800 text-amber-100 shadow-amber-500/10",
-        info: "border-blue-600/30 bg-gradient-to-r from-blue-900 to-blue-800 text-blue-100 shadow-blue-500/10",
-        achievement: "border-amber-500/40 bg-gradient-to-r from-amber-900/90 to-yellow-800/90 text-amber-100 shadow-amber-400/20",
-        quest: "border-amber-600/40 bg-gradient-to-r from-amber-900/90 to-orange-800/90 text-amber-100 shadow-amber-500/20",
-        levelup: "border-purple-600/40 bg-gradient-to-r from-purple-900/90 to-indigo-800/90 text-purple-100 shadow-purple-500/20",
+        default: "border-emerald-500/40 bg-zinc-950/95 text-white shadow-emerald-950/30",
+        destructive: "border-red-600/40 bg-zinc-950/95 text-red-100 shadow-red-950/30",
+        success: "border-emerald-600/40 bg-zinc-950/95 text-emerald-100 shadow-emerald-950/30",
+        warning: "border-amber-600/40 bg-zinc-950/95 text-amber-100 shadow-amber-950/30",
+        info: "border-blue-600/40 bg-zinc-950/95 text-blue-100 shadow-blue-950/30",
+        achievement: "border-amber-500/40 bg-zinc-950/95 text-amber-100 shadow-amber-950/30",
+        quest: "border-amber-600/40 bg-zinc-950/95 text-amber-100 shadow-amber-950/30",
+        levelup: "border-purple-600/40 bg-zinc-950/95 text-purple-100 shadow-purple-950/30",
       },
     },
     defaultVariants: {
