@@ -98,6 +98,13 @@ const DEFAULT_CREATURE: CreatureDef = {
   description: 'A brave adventurer.'
 };
 
+function normalizeCreatureLevel(rawLevel: number = 1): number {
+  if (rawLevel > 100) {
+    return Math.min(100, Math.max(1, Math.floor(rawLevel / 100)));
+  }
+  return Math.min(100, Math.max(1, rawLevel));
+}
+
 function isMythicCreature(id?: string, filename?: string, isMythic?: boolean): boolean {
   return !!(isMythic || id?.startsWith('mythic-') || filename?.startsWith('Mythic'));
 }
@@ -288,7 +295,7 @@ export default function DungeonPage() {
             c.type === 'earth' ? 'Rock' :
             c.type === 'ice' ? 'Ice' : 'Fire';
           
-          const lvl = Math.min(100, Math.max(1, c.level || 1));
+          const lvl = normalizeCreatureLevel(c.level || 1);
           const statAtk = (c.isMythic ? 22 : 12) + (lvl * 2);
           const statDef = (c.isMythic ? 20 : 10) + (lvl * 2);
           const statSpd = (c.isMythic ? 16 : 10) + lvl;
@@ -1339,11 +1346,11 @@ export default function DungeonPage() {
 
                   <div className={`relative w-full max-w-[310px] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col ${(run.currentEncounter.hp || 0) <= 0 ? 'animate-card-shatter-top pointer-events-none' : ''}`}>
                     
-                    {/* Natural Aspect Creature Image (Centered Undiscovered Frame for Mythics ONLY) */}
+                    {/* Creature Card Canvas (Equal Aspect & Height for Mythic & Standard Cards) */}
                     {(() => {
                       const isMythic = isMythicCreature(enemyDef.id, enemyDef.filename, enemyDef.isMythic);
                       return (
-                        <div className={`relative w-full overflow-hidden bg-zinc-950 ${isMythic ? 'min-h-[220px] sm:min-h-[250px] flex items-center justify-center p-4' : ''}`}>
+                        <div className="relative w-full aspect-[768/1106] flex items-center justify-center overflow-hidden bg-zinc-950">
                           {/* Undiscovered Mystic Card Background Texture (Mythics ONLY) */}
                           {isMythic && (
                             <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-luminosity">
@@ -1381,9 +1388,8 @@ export default function DungeonPage() {
                           <Image
                             src={getCreatureImage(enemyDef.id, enemyDef.filename, enemyDef.isMythic)}
                             alt={enemyDef.name}
-                            width={768}
-                            height={1106}
-                            className={isMythic ? "max-h-[180px] sm:max-h-[210px] w-auto object-contain block drop-shadow-2xl transition-transform duration-300 group-hover:scale-105 relative z-10 my-auto mx-auto" : "w-full h-auto object-contain block drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"}
+                            fill
+                            className={isMythic ? "object-contain p-3 block drop-shadow-2xl transition-transform duration-300 group-hover:scale-105 relative z-10 my-auto mx-auto" : "object-contain block drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"}
                             unoptimized
                           />
                         </div>
@@ -1479,7 +1485,7 @@ export default function DungeonPage() {
                             {(() => {
                               const isMythic = isMythicCreature(creature.id, creature.filename, creature.isMythic);
                               return (
-                                <div className={`relative w-full overflow-hidden bg-zinc-950 ${isMythic ? 'min-h-[150px] flex items-center justify-center p-2' : ''}`}>
+                                <div className="relative w-full aspect-[768/1106] flex items-center justify-center overflow-hidden bg-zinc-950">
                                   {/* Undiscovered Mystic Card Background Texture (Mythics ONLY) */}
                                   {isMythic && (
                                     <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-luminosity">
@@ -1513,9 +1519,8 @@ export default function DungeonPage() {
                                   <Image
                                     src={getCreatureImage(creature.id, creature.filename, creature.isMythic)}
                                     alt={creature.name}
-                                    width={768}
-                                    height={1106}
-                                    className={isMythic ? "max-h-[130px] w-auto object-contain block drop-shadow-lg relative z-10 my-auto mx-auto" : "w-full h-auto object-contain block drop-shadow-lg"}
+                                    fill
+                                    className={isMythic ? "object-contain p-2 block drop-shadow-lg relative z-10 my-auto mx-auto" : "object-contain block drop-shadow-lg"}
                                     unoptimized
                                   />
                                 </div>
@@ -1573,7 +1578,7 @@ export default function DungeonPage() {
                                 {(() => {
                                   const isMythic = isMythicCreature(selectedCreature!.id, selectedCreature!.filename, selectedCreature!.isMythic);
                                   return (
-                                    <div className={`relative w-full overflow-hidden bg-zinc-950 ${isMythic ? 'min-h-[170px] flex items-center justify-center p-3' : ''}`}>
+                                    <div className="relative w-full aspect-[768/1106] flex items-center justify-center overflow-hidden bg-zinc-950">
                                       {/* Undiscovered Mystic Card Background Texture (Mythics ONLY) */}
                                       {isMythic && (
                                         <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-luminosity">
@@ -1611,9 +1616,8 @@ export default function DungeonPage() {
                                       <Image
                                         src={getCreatureImage(selectedCreature!.id, selectedCreature!.filename, selectedCreature!.isMythic)}
                                         alt={selectedCreature!.name}
-                                        width={768}
-                                        height={1106}
-                                        className={isMythic ? "max-h-[140px] w-auto object-contain block drop-shadow-lg relative z-10 my-auto mx-auto" : "w-full h-auto object-contain block drop-shadow-lg"}
+                                        fill
+                                        className={isMythic ? "object-contain p-2 block drop-shadow-lg relative z-10 my-auto mx-auto" : "object-contain block drop-shadow-lg"}
                                         unoptimized
                                       />
                                     </div>

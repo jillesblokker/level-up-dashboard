@@ -349,7 +349,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
           const targetGroup = unhiddenGroup.length > 0 ? unhiddenGroup : group;
           const primary = [...targetGroup].sort((a, b) => (b.active ? 100 : 0) + (b.level || 1) - ((a.active ? 100 : 0) + (a.level || 1)))[0]!;
           const rawTotalLevel = mergedLevels[speciesKey] || group.reduce((sum, c) => sum + (c.level || 1), 0);
-          const totalLevel = Math.min(100, Math.max(1, rawTotalLevel));
+          const totalLevel = rawTotalLevel > 100 ? Math.min(100, Math.max(1, Math.floor(rawTotalLevel / 100))) : Math.min(100, Math.max(1, rawTotalLevel));
           const totalExp = group.reduce((sum, c) => sum + (c.experience || 0), 0);
           const maxAffection = Math.max(...group.map(c => c.affection || 0));
 
@@ -1037,7 +1037,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
         // Sort: active ones or highest level first
         const primary = [...group].sort((a, b) => (b.active ? 100 : 0) + (b.level || 1) - ((a.active ? 100 : 0) + (a.level || 1)))[0]!;
-        const combinedLevel = Math.min(100, Math.max(1, group.reduce((sum, c) => sum + (c.level || 1), 0)));
+        const rawCombinedLevel = group.reduce((sum, c) => sum + (c.level || 1), 0);
+        const combinedLevel = rawCombinedLevel > 100 ? Math.min(100, Math.max(1, Math.floor(rawCombinedLevel / 100))) : Math.min(100, Math.max(1, rawCombinedLevel));
         const combinedExp = group.reduce((sum, c) => sum + (c.experience || 0), 0);
         const maxAffection = Math.max(...group.map(c => c.affection || 0));
 
