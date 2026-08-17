@@ -3,6 +3,7 @@
 import { logger } from "@/lib/logger";
 
 import { useState, useEffect, useRef, useCallback } from "react"
+import Image from "next/image"
 import { MainNav } from "@/components/main-nav"
 import { Session } from '@supabase/supabase-js'
 import { Castle, Coins, Star, Brain } from "lucide-react"
@@ -261,20 +262,21 @@ export function NavBar({ session }: NavBarProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 rounded-full text-xl relative"
+              className="hover:bg-amber-500/10 rounded-full relative p-1 transition-transform hover:scale-105 active:scale-95"
               onClick={() => {
                 audioManager.playClick();
                 setIsBagOpen(true);
               }}
-              title={hasActiveBuffs ? "Open Bag (Active Multipliers Active! ✨)" : "Open Bag"}
+              title="Open Bag"
             >
-              🎒
-              {hasActiveBuffs && (
-                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-purple-500 text-[8px] font-bold text-white items-center justify-center shadow-lg">✨</span>
-                </span>
-              )}
+              <Image
+                src="/images/ui/medieval-backpack.png"
+                alt="Medieval Backpack"
+                width={26}
+                height={26}
+                className="object-contain drop-shadow"
+                unoptimized
+              />
             </Button>
 
           </div>

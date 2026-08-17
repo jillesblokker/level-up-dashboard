@@ -112,7 +112,7 @@ const FORGE_RECIPES: Recipe[] = [
 ];
 
 const ITEM_CATEGORIES = [
-  { value: 'all',        label: 'All',         emoji: '🎒' },
+  { value: 'all',        label: 'All',         emoji: '📦' },
   { value: 'weapon',     label: 'Weapons',     emoji: '🗡️' },
   { value: 'shield',     label: 'Shields',     emoji: '🛡️' },
   { value: 'armor',      label: 'Armor',       emoji: '🦺' },
@@ -1128,7 +1128,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
         <div className="flex items-center justify-between p-6 border-b border-amber-900/20 bg-[#13161b]">
           <div className="flex items-center gap-6">
             <h2 className="text-2xl font-bold font-serif text-amber-300 flex items-center gap-3 drop-shadow-sm">
-              <span className="text-3xl filter drop-shadow-md">🎒</span>
+              <Image src="/images/ui/medieval-backpack.png" alt="Medieval Backpack" width={32} height={32} className="object-contain drop-shadow" unoptimized />
               Your Bag
             </h2>
           </div>
@@ -1194,7 +1194,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
 
               {filteredStored.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center text-zinc-400 border border-dashed border-zinc-700 rounded-xl bg-zinc-950">
-                  <span className="text-5xl mb-4">🎒</span>
+                  <Image src="/images/ui/medieval-backpack.png" alt="Medieval Backpack" width={56} height={56} className="object-contain mb-3 drop-shadow opacity-90 mx-auto" unoptimized />
                   <h3 className="text-lg font-medium text-amber-500/80 mb-1">
                     {storedFilter === 'all' ? 'Bag is Empty' : `No ${storedFilter} items`}
                   </h3>
