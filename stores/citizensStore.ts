@@ -348,7 +348,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         if (isSpeciesMerged) {
           const targetGroup = unhiddenGroup.length > 0 ? unhiddenGroup : group;
           const primary = [...targetGroup].sort((a, b) => (b.active ? 100 : 0) + (b.level || 1) - ((a.active ? 100 : 0) + (a.level || 1)))[0]!;
-          const totalLevel = mergedLevels[speciesKey] || group.reduce((sum, c) => sum + (c.level || 1), 0);
+          const rawTotalLevel = mergedLevels[speciesKey] || group.reduce((sum, c) => sum + (c.level || 1), 0);
+          const totalLevel = Math.min(100, Math.max(1, rawTotalLevel));
           const totalExp = group.reduce((sum, c) => sum + (c.experience || 0), 0);
           const maxAffection = Math.max(...group.map(c => c.affection || 0));
 
@@ -805,7 +806,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
     // 100 EXP required per level
     const expPerLevel = 100;
-    const newLvl = Math.max(1, currentLvl + Math.floor(totalExp / expPerLevel));
+    const newLvl = Math.min(100, Math.max(1, currentLvl + Math.floor(totalExp / expPerLevel)));
     const remainderExp = totalExp % expPerLevel;
     const leveledUp = newLvl > currentLvl;
 
@@ -909,9 +910,9 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     if (citizen.lockedReason) return { success: false, error: 'Citizen is currently away on an airship expedition' };
 
     const level = citizen.level || 1;
-    if (level >= 10) return { success: false, error: 'Maximum level (+10) reached' };
+    if (level >= 100) return { success: false, error: 'Maximum level (+100) reached' };
 
-    const goldCost = 50 * level;
+    const goldCost = Math.min(500, 50 * level);
 
     // Check stats & gold
     try {
@@ -959,7 +960,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
       if (newXP >= xpReq) {
         newXP = newXP - xpReq;
-        newLevel = Math.min(10, level + 1);
+        newLevel = Math.min(100, level + 1);
         leveledUp = true;
       }
 
@@ -1036,7 +1037,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
         // Sort: active ones or highest level first
         const primary = [...group].sort((a, b) => (b.active ? 100 : 0) + (b.level || 1) - ((a.active ? 100 : 0) + (a.level || 1)))[0]!;
-        const combinedLevel = group.reduce((sum, c) => sum + (c.level || 1), 0);
+        const combinedLevel = Math.min(100, Math.max(1, group.reduce((sum, c) => sum + (c.level || 1), 0)));
         const combinedExp = group.reduce((sum, c) => sum + (c.experience || 0), 0);
         const maxAffection = Math.max(...group.map(c => c.affection || 0));
 

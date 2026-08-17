@@ -288,7 +288,7 @@ export default function DungeonPage() {
             c.type === 'earth' ? 'Rock' :
             c.type === 'ice' ? 'Ice' : 'Fire';
           
-          const lvl = c.level || 1;
+          const lvl = Math.min(100, Math.max(1, c.level || 1));
           const statAtk = (c.isMythic ? 22 : 12) + (lvl * 2);
           const statDef = (c.isMythic ? 20 : 10) + (lvl * 2);
           const statSpd = (c.isMythic ? 16 : 10) + lvl;
@@ -1200,7 +1200,7 @@ export default function DungeonPage() {
   // 3. MAIN GAME SCREEN
   const enemyId = run.currentEncounter.creatureId || '001';
   const enemyDef = CREATURE_DATA[enemyId];
-  const enemyLevel = Math.max(1, run.currentRoom * 2);
+  const enemyLevel = Math.min(100, Math.max(1, run.currentRoom * 2));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-950 via-[#0b0d10] to-black p-4 sm:p-6 lg:p-8 text-white font-sans">
