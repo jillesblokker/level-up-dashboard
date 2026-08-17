@@ -98,8 +98,12 @@ const DEFAULT_CREATURE: CreatureDef = {
   description: 'A brave adventurer.'
 };
 
+function isMythicCreature(id?: string, filename?: string, isMythic?: boolean): boolean {
+  return !!(isMythic || id?.startsWith('mythic-') || filename?.startsWith('Mythic'));
+}
+
 function getCreatureImage(id?: string, filename?: string, isMythic?: boolean): string {
-  if (isMythic || id?.startsWith('mythic-') || filename?.startsWith('Mythic')) {
+  if (isMythicCreature(id, filename, isMythic)) {
     const fn = filename || (id ? `${id}.png` : 'Mythic1red.png');
     return `/images/Mythics/${fn}?v=2`;
   }
@@ -1335,49 +1339,56 @@ export default function DungeonPage() {
 
                   <div className={`relative w-full max-w-[310px] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col ${(run.currentEncounter.hp || 0) <= 0 ? 'animate-card-shatter-top pointer-events-none' : ''}`}>
                     
-                    {/* Natural Aspect Creature Image with Centered Undiscovered Card Texture & Top Badges Overlay */}
-                    <div className="relative w-full min-h-[220px] sm:min-h-[250px] flex items-center justify-center p-4 overflow-hidden bg-zinc-950">
-                      {/* Undiscovered Mystic Card Background Texture */}
-                      <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-luminosity">
-                        <Image
-                          src="/images/headers/undiscovered.webp"
-                          alt="Mystic Card Frame"
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
-                      </div>
-                      <div className="absolute top-2.5 left-2.5 z-20 flex flex-col gap-1">
-                        <span className="text-xs text-red-300 font-extrabold bg-red-950/90 px-2.5 py-1 rounded-lg border border-red-500/40 shadow-md">
-                          Lv.{enemyLevel}
-                        </span>
-                        {enemyDef.isMythic && (
-                          <span className="text-[10px] font-extrabold bg-gradient-to-r from-amber-500 via-purple-600 to-indigo-600 text-amber-100 px-2 py-0.5 rounded-lg border border-amber-300/40 shadow-lg flex items-center gap-1">
-                            <Sparkles className="w-3 h-3 text-amber-300" /> Mythic
-                          </span>
-                        )}
-                      </div>
+                    {/* Natural Aspect Creature Image (Centered Undiscovered Frame for Mythics ONLY) */}
+                    {(() => {
+                      const isMythic = isMythicCreature(enemyDef.id, enemyDef.filename, enemyDef.isMythic);
+                      return (
+                        <div className={`relative w-full overflow-hidden bg-zinc-950 ${isMythic ? 'min-h-[220px] sm:min-h-[250px] flex items-center justify-center p-4' : ''}`}>
+                          {/* Undiscovered Mystic Card Background Texture (Mythics ONLY) */}
+                          {isMythic && (
+                            <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-luminosity">
+                              <Image
+                                src="/images/headers/undiscovered.webp"
+                                alt="Mystic Card Frame"
+                                fill
+                                className="object-cover"
+                                unoptimized
+                              />
+                            </div>
+                          )}
+                          <div className="absolute top-2.5 left-2.5 z-20 flex flex-col gap-1">
+                            <span className="text-xs text-red-300 font-extrabold bg-red-950/90 px-2.5 py-1 rounded-lg border border-red-500/40 shadow-md">
+                              Lv.{enemyLevel}
+                            </span>
+                            {enemyDef.isMythic && (
+                              <span className="text-[10px] font-extrabold bg-gradient-to-r from-amber-500 via-purple-600 to-indigo-600 text-amber-100 px-2 py-0.5 rounded-lg border border-amber-300/40 shadow-lg flex items-center gap-1">
+                                <Sparkles className="w-3 h-3 text-amber-300" /> Mythic
+                              </span>
+                            )}
+                          </div>
 
-                      <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5">
-                        {selectedCreature && (
-                          <span className="text-[10px] font-mono font-bold px-2 py-1 bg-amber-950/90 border border-amber-500/40 text-amber-300 rounded-lg shadow-md">
-                            ⚡ {getMatchupMultiplier(selectedCreature.type, enemyDef.type)}x Matchup
-                          </span>
-                        )}
-                        <span className="p-1.5 bg-zinc-950/90 border border-white/10 rounded-lg text-lg filter drop-shadow-lg inline-block">
-                          {getTypeEmoji(enemyDef.type)}
-                        </span>
-                      </div>
+                          <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5">
+                            {selectedCreature && (
+                              <span className="text-[10px] font-mono font-bold px-2 py-1 bg-amber-950/90 border border-amber-500/40 text-amber-300 rounded-lg shadow-md">
+                                ⚡ {getMatchupMultiplier(selectedCreature.type, enemyDef.type)}x Matchup
+                              </span>
+                            )}
+                            <span className="p-1.5 bg-zinc-950/90 border border-white/10 rounded-lg text-lg filter drop-shadow-lg inline-block">
+                              {getTypeEmoji(enemyDef.type)}
+                            </span>
+                          </div>
 
-                      <Image
-                        src={getCreatureImage(enemyDef.id, enemyDef.filename, enemyDef.isMythic)}
-                        alt={enemyDef.name}
-                        width={768}
-                        height={1106}
-                        className="max-h-[180px] sm:max-h-[210px] w-auto object-contain block drop-shadow-2xl transition-transform duration-300 group-hover:scale-105 relative z-10 my-auto mx-auto"
-                        unoptimized
-                      />
-                    </div>
+                          <Image
+                            src={getCreatureImage(enemyDef.id, enemyDef.filename, enemyDef.isMythic)}
+                            alt={enemyDef.name}
+                            width={768}
+                            height={1106}
+                            className={isMythic ? "max-h-[180px] sm:max-h-[210px] w-auto object-contain block drop-shadow-2xl transition-transform duration-300 group-hover:scale-105 relative z-10 my-auto mx-auto" : "w-full h-auto object-contain block drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"}
+                            unoptimized
+                          />
+                        </div>
+                      );
+                    })()}
 
                     {/* Bottom Stats Banner (Natural height panel below image) */}
                     <div className="bg-zinc-950 border-t border-white/10 p-3.5 space-y-2.5 z-10 w-full">
@@ -1465,44 +1476,51 @@ export default function DungeonPage() {
                                 : `${getTypeColor(creature.type)} hover:scale-[1.02] hover:shadow-lg active:scale-95`
                             } ${selectedCreature?.id === creature.id ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-slate-900 border-transparent' : 'border-opacity-40 hover:border-opacity-100'}`}
                           >
-                            <div className="relative w-full min-h-[150px] flex items-center justify-center p-2 overflow-hidden bg-zinc-950">
-                              {/* Undiscovered Mystic Card Background Texture */}
-                              <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-luminosity">
-                                <Image
-                                  src="/images/headers/undiscovered.webp"
-                                  alt="Mystic Card Frame"
-                                  fill
-                                  className="object-cover"
-                                  unoptimized
-                                />
-                              </div>
-                              {/* Top Level Badge & Element Emoji */}
-                              <div className="absolute top-2 left-2 z-10">
-                                <span className="text-[10px] text-amber-300 font-extrabold bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/30 shadow">
-                                  Lv.{fighterLevel}
-                                </span>
-                              </div>
-                              <div className="absolute top-2 right-2 z-10">
-                                <span className="text-xs filter drop-shadow-md">{getTypeEmoji(creature.type)}</span>
-                              </div>
+                            {(() => {
+                              const isMythic = isMythicCreature(creature.id, creature.filename, creature.isMythic);
+                              return (
+                                <div className={`relative w-full overflow-hidden bg-zinc-950 ${isMythic ? 'min-h-[150px] flex items-center justify-center p-2' : ''}`}>
+                                  {/* Undiscovered Mystic Card Background Texture (Mythics ONLY) */}
+                                  {isMythic && (
+                                    <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-luminosity">
+                                      <Image
+                                        src="/images/headers/undiscovered.webp"
+                                        alt="Mystic Card Frame"
+                                        fill
+                                        className="object-cover"
+                                        unoptimized
+                                      />
+                                    </div>
+                                  )}
+                                  {/* Top Level Badge & Element Emoji */}
+                                  <div className="absolute top-2 left-2 z-10">
+                                    <span className="text-[10px] text-amber-300 font-extrabold bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/30 shadow">
+                                      Lv.{fighterLevel}
+                                    </span>
+                                  </div>
+                                  <div className="absolute top-2 right-2 z-10">
+                                    <span className="text-xs filter drop-shadow-md">{getTypeEmoji(creature.type)}</span>
+                                  </div>
 
-                              {/* Centered Matchup text overlay inside cards */}
-                              {matchupText && !isFainted && (
-                                <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border px-2 py-0.5 rounded-full text-[8px] uppercase tracking-widest shadow-2xl z-20 transition-transform duration-300 group-hover:scale-110 ${matchupColor}`}>
-                                  {matchupText}
+                                  {/* Centered Matchup text overlay inside cards */}
+                                  {matchupText && !isFainted && (
+                                    <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border px-2 py-0.5 rounded-full text-[8px] uppercase tracking-widest shadow-2xl z-20 transition-transform duration-300 group-hover:scale-110 ${matchupColor}`}>
+                                      {matchupText}
+                                    </div>
+                                  )}
+
+                                  {/* Creature Image */}
+                                  <Image
+                                    src={getCreatureImage(creature.id, creature.filename, creature.isMythic)}
+                                    alt={creature.name}
+                                    width={768}
+                                    height={1106}
+                                    className={isMythic ? "max-h-[130px] w-auto object-contain block drop-shadow-lg relative z-10 my-auto mx-auto" : "w-full h-auto object-contain block drop-shadow-lg"}
+                                    unoptimized
+                                  />
                                 </div>
-                              )}
-
-                              {/* Centered Creature Image */}
-                              <Image
-                                src={getCreatureImage(creature.id, creature.filename, creature.isMythic)}
-                                alt={creature.name}
-                                width={768}
-                                height={1106}
-                                className="max-h-[130px] w-auto object-contain block drop-shadow-lg relative z-10 my-auto mx-auto"
-                                unoptimized
-                              />
-                            </div>
+                              );
+                            })()}
 
                             {/* Bottom Health Stats & Info Banner */}
                             <div className="space-y-1 z-10 w-full bg-zinc-950 p-2 border-t border-white/10">
@@ -1552,48 +1570,55 @@ export default function DungeonPage() {
                             <div className="relative group w-full max-w-[210px] animate-in zoom-in-95 duration-300">
                               <div className={`w-full border-2 ${getTypeColor(selectedCreature!.type)} bg-zinc-950 relative overflow-hidden shadow-2xl flex flex-col justify-between rounded-2xl ${activeFighterHp <= 0 ? 'animate-card-faint pointer-events-none' : ''}`}>
                                 
-                                <div className="relative w-full min-h-[170px] flex items-center justify-center p-3 overflow-hidden bg-zinc-950">
-                                  {/* Undiscovered Mystic Card Background Texture */}
-                                  <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-luminosity">
-                                    <Image
-                                      src="/images/headers/undiscovered.webp"
-                                      alt="Mystic Card Frame"
-                                      fill
-                                      className="object-cover"
-                                      unoptimized
-                                    />
-                                  </div>
-                                  {/* Level Badge Overlay */}
-                                  <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
-                                    <span className="text-xs text-amber-300 font-extrabold bg-amber-950/90 px-2 py-0.5 rounded border border-amber-500/30">
-                                      Lv.{selectedCreature?.level || 1}
-                                    </span>
-                                    {selectedCreature?.isMythic && (
-                                      <span className="text-[9px] text-amber-100 font-extrabold bg-gradient-to-r from-amber-500 to-purple-600 px-1.5 py-0.5 rounded border border-amber-300/40">
-                                        ✨ Mythic
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="absolute top-2 right-2 z-10">
-                                    <span className="text-sm filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
-                                  </div>
+                                {(() => {
+                                  const isMythic = isMythicCreature(selectedCreature!.id, selectedCreature!.filename, selectedCreature!.isMythic);
+                                  return (
+                                    <div className={`relative w-full overflow-hidden bg-zinc-950 ${isMythic ? 'min-h-[170px] flex items-center justify-center p-3' : ''}`}>
+                                      {/* Undiscovered Mystic Card Background Texture (Mythics ONLY) */}
+                                      {isMythic && (
+                                        <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-luminosity">
+                                          <Image
+                                            src="/images/headers/undiscovered.webp"
+                                            alt="Mystic Card Frame"
+                                            fill
+                                            className="object-cover"
+                                            unoptimized
+                                          />
+                                        </div>
+                                      )}
+                                      {/* Level Badge Overlay */}
+                                      <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+                                        <span className="text-xs text-amber-300 font-extrabold bg-amber-950/90 px-2 py-0.5 rounded border border-amber-500/30">
+                                          Lv.{selectedCreature?.level || 1}
+                                        </span>
+                                        {selectedCreature?.isMythic && (
+                                          <span className="text-[9px] text-amber-100 font-extrabold bg-gradient-to-r from-amber-500 to-purple-600 px-1.5 py-0.5 rounded border border-amber-300/40">
+                                            ✨ Mythic
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="absolute top-2 right-2 z-10">
+                                        <span className="text-sm filter drop-shadow-md">{getTypeEmoji(selectedCreature!.type)}</span>
+                                      </div>
 
-                                  {/* Prominent Matchup Badge Overlay */}
-                                  <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
-                                    <span className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full border shadow-md ${matchupBadgeColor}`}>
-                                      {matchupLabel.split(' ')[0]}
-                                    </span>
-                                  </div>
+                                      {/* Prominent Matchup Badge Overlay */}
+                                      <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
+                                        <span className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full border shadow-md ${matchupBadgeColor}`}>
+                                          {matchupLabel.split(' ')[0]}
+                                        </span>
+                                      </div>
 
-                                  <Image
-                                    src={getCreatureImage(selectedCreature!.id, selectedCreature!.filename, selectedCreature!.isMythic)}
-                                    alt={selectedCreature!.name}
-                                    width={768}
-                                    height={1106}
-                                    className="max-h-[140px] w-auto object-contain block drop-shadow-lg relative z-10 my-auto mx-auto"
-                                    unoptimized
-                                  />
-                                </div>
+                                      <Image
+                                        src={getCreatureImage(selectedCreature!.id, selectedCreature!.filename, selectedCreature!.isMythic)}
+                                        alt={selectedCreature!.name}
+                                        width={768}
+                                        height={1106}
+                                        className={isMythic ? "max-h-[140px] w-auto object-contain block drop-shadow-lg relative z-10 my-auto mx-auto" : "w-full h-auto object-contain block drop-shadow-lg"}
+                                        unoptimized
+                                      />
+                                    </div>
+                                  );
+                                })()}
 
                                 <div className="bg-zinc-950 border-t border-white/10 p-3 space-y-1.5 z-10 w-full">
                                   <div className="flex justify-between text-[10px] text-zinc-400 font-bold">
