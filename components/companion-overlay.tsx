@@ -381,7 +381,7 @@ export function CompanionOverlay() {
             exit={{ opacity: 0, y: 10, scale: 0.9 }}
             transition={{ duration: 0.2 }}
             onClick={() => handleTapCharacter(speakerName)}
-            className="mb-2 bg-white text-zinc-950 border-2 border-zinc-200 p-3 rounded-2xl shadow-2xl pointer-events-auto cursor-pointer max-w-[200px] sm:max-w-[240px] relative group"
+            className="mb-2 bg-white text-zinc-950 border-2 border-zinc-200 p-3 rounded-2xl pointer-events-auto cursor-pointer max-w-[200px] sm:max-w-[240px] relative group"
           >
             <div className="flex items-start justify-between gap-1.5">
               <p className="text-[11px] font-medium text-zinc-900 leading-snug">

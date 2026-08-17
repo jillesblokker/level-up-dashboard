@@ -333,12 +333,12 @@ function toValidUUID(str: string): string {
                                          "A patrol through the wild outskirts of Thrivehaven tested the leader's endurance, keeping Necrion's beasts at bay."
                                      ],
                                      knowledge: [
-                                         "By helping Archmage Silvo organize ancient scrolls in the citadel library, the leader restored order to the archives.",
+                                         "By helping Archmage Turtoisy organize ancient scrolls in the citadel library, the leader restored order to the archives.",
                                          "The leader spent the evening observing stars from the high watchtower, drawing cosmic maps for the Airship crew.",
                                          "A deep study of local flora expanded the leader's knowledge, discovering new elixir ingredients for the Alchemist Cauldron."
                                      ],
                                      honor: [
-                                         "Standing guard at the outer gates of Castle Valoreth, the leader protected wandering merchants arriving from Sunspire.",
+                                         "Standing guard at the outer gates of Castle Valoreth, the leader protected wandering merchants arriving from Iron Peaks.",
                                          "The leader assisted returning citizens with repairing the town fountain, earning the respect of the elders.",
                                          "By helping town guards secure the gates of Castle Valoreth, the leader earned the respect of Queen Valandriel's envoys."
                                      ],

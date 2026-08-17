@@ -2884,6 +2884,23 @@ export default function QuestsPage() {
           <MedievalErrorBoundary componentName="QuestsSubView">
             <MobileContentWrapper>
 
+            {/* 2-Column Row ABOVE TAB FILTERS: Activity Rings (Daily Momentum) on Left, Daily Fate (Tarot Card) on Right */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch mb-6">
+              <div className="w-full h-full">
+                <ActivityRingsCard
+                  completedCount={quests.filter(q => q.completed).length}
+                  dailyGoal={dailyGoal}
+                  xpEarnedToday={quests.filter(q => q.completed).reduce((sum, q) => sum + (q.xp || 25), 0)}
+                  xpDailyTarget={dailyGoal * 25}
+                  categoriesTouched={new Set(quests.filter(q => q.completed).map(q => q.category)).size}
+                  totalCategories={8}
+                />
+              </div>
+              <div className="w-full h-full">
+                <TarotCardDisplay />
+              </div>
+            </div>
+
             {/* SINGLE LAYER TAB BAR (Above content, full width) */}
             <Tabs value={forgeTab} onValueChange={(val: any) => setForgeTab(val)} className="w-full mb-8">
               <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-transparent border-none p-0">
@@ -3093,23 +3110,6 @@ export default function QuestsPage() {
                         </div>
                       </div>
                       <GameplayLoopIndicator />
-                    </div>
-
-                    {/* 2-Column Row: Activity Rings (Graph) on Left, Daily Fate (Tarot Card) on Right */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                      <div className="w-full h-full">
-                        <ActivityRingsCard
-                          completedCount={quests.filter(q => q.completed).length}
-                          dailyGoal={dailyGoal}
-                          xpEarnedToday={quests.filter(q => q.completed).reduce((sum, q) => sum + (q.xp || 25), 0)}
-                          xpDailyTarget={dailyGoal * 25}
-                          categoriesTouched={new Set(quests.filter(q => q.completed).map(q => q.category)).size}
-                          totalCategories={8}
-                        />
-                      </div>
-                      <div className="w-full h-full">
-                        <TarotCardDisplay />
-                      </div>
                     </div>
 
                     {/* Chronicles Section (Full Width Below) */}

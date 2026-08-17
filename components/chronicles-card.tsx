@@ -27,10 +27,40 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
     const latestUnlockedChapter = useMemo(() => getCurrentChapter(currentLevel), [currentLevel])
 
     // State for the currently viewed chapter (default to the latest unlocked)
-    const [viewedChapterId, setViewedChapterId] = useState<string>(latestUnlockedChapter.id.toString())
-    const [allFillerEpisodes, setAllFillerEpisodes] = useState<any[]>([])
-    const [showFiller, setShowFiller] = useState<boolean>(true)
-    const [imageErrorMap, setImageErrorMap] = useState<Record<string, boolean>>({})
+    const [currentFeatIndex, setCurrentFeatIndex] = useState<number>(0)
+
+    const DEFAULT_LORE_RECORDS = useMemo(() => [
+        {
+            id: 'feat-knowledge-red-tower',
+            category: 'Knowledge',
+            date: new Date().toISOString(),
+            content: "By completing daily study routines, the Red Tower of the Royal Library in Castle Valoreth was rebuilt book by book. Archmage Turtoisy praised your diligence as ancient scrolls of alchemy and spellcraft were safely restored to the upper archives."
+        },
+        {
+            id: 'feat-exploration-iron-peaks',
+            category: 'Exploration',
+            date: new Date().toISOString(),
+            content: "Your relentless habit momentum cleared the mountain path. The ancient stone waypoints along the frost road to Iron Peaks were restored, allowing merchant caravans to travel safely between settlements."
+        },
+        {
+            id: 'feat-might-granite-quarry',
+            category: 'Might & Defense',
+            date: new Date().toISOString(),
+            content: "Heavy granite stones were hauled from the quarries of the Iron Peaks. Rockie and Buldour helped reinforce the main watchtowers of Thrivehaven against shadow beasts."
+        },
+        {
+            id: 'feat-craft-apotheca-glasshouse',
+            category: 'Craft & Vitality',
+            date: new Date().toISOString(),
+            content: "Craftsmen restored the Grand Apotheca glasshouse and the central market square, filling the town with fragrant herbs, fresh bread from the bakery, and gleaming elixirs."
+        }
+    ], [])
+
+    const displayFeats = useMemo(() => {
+        return fillerEpisodes.length > 0 ? fillerEpisodes : DEFAULT_LORE_RECORDS;
+    }, [fillerEpisodes, DEFAULT_LORE_RECORDS]);
+
+    const activeFeat = displayFeats[currentFeatIndex % displayFeats.length] || displayFeats[0];
 
     useEffect(() => {
         const loadPreferences = async () => {
@@ -248,63 +278,98 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                                 })}
                             </div>
 
-                            {showFiller && fillerEpisodes.length > 0 && (
-                                <div className="mt-6 border-t border-[#b58b4c]/40 pt-4 space-y-4" style={{ textShadow: 'none' }}>
-                                    <h4 
-                                        className="font-serif font-black text-xs md:text-sm uppercase tracking-widest text-[#050302] flex items-center gap-1.5"
-                                        style={{ textShadow: 'none' }}
-                                    >
-                                        📜 Thrivehaven Records
-                                    </h4>
-                                    <div className="space-y-4" style={{ textShadow: 'none' }}>
-                                        {fillerEpisodes.map((ep: any, index: number) => {
-                                            const formatMedievalDate = (dateStr: string) => {
-                                                if (!dateStr) return '';
-                                                const date = new Date(dateStr);
-                                                if (isNaN(date.getTime())) return dateStr;
-                                                const day = date.getDate();
-                                                const daySuffix = (d: number) => {
-                                                    if (d > 3 && d < 21) return 'th';
-                                                    switch (d % 10) {
-                                                        case 1: return 'st';
-                                                        case 2: return 'nd';
-                                                        case 3: return 'rd';
-                                                        default: return 'th';
-                                                    }
-                                                };
-                                                const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-                                                return `On the ${day}${daySuffix(day)} of ${months[date.getMonth()]} in the year ${date.getFullYear()}`;
-                                            };
+                            {showFiller && (
+                                <div className="mt-6 border-t border-[#b58b4c]/40 pt-4 space-y-3" style={{ textShadow: 'none' }}>
+                                    <div className="flex items-center justify-between">
+                                        <h4 
+                                            className="font-serif font-black text-xs md:text-sm uppercase tracking-widest text-[#050302] flex items-center gap-1.5"
+                                            style={{ textShadow: 'none' }}
+                                        >
+                                            📜 Thrivehaven Records
+                                        </h4>
 
-                                            return (
-                                                <div 
-                                                    key={ep.id || index} 
-                                                    className="space-y-3 bg-[#fffdfb] p-4 md:p-5 rounded-2xl border border-[#b58b4c]/40 shadow-[0_2px_6px_rgba(0,0,0,0.06)]"
-                                                    style={{ textShadow: 'none' }}
-                                                >
-                                                    <div 
-                                                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs md:text-sm font-serif border-b border-[#b58b4c]/30 pb-2"
-                                                        style={{ textShadow: 'none', opacity: 1 }}
-                                                    >
-                                                        <span className="uppercase tracking-wide font-black" style={{ color: '#000000', textShadow: 'none', opacity: 1 }}>
-                                                            FEAT {index + 1}: <span className="font-extrabold" style={{ color: '#3b0d02', textShadow: 'none', opacity: 1 }}>{ep.category}</span>
-                                                        </span>
-                                                        <span className="text-xs font-serif italic font-bold" style={{ color: '#050302', textShadow: 'none', opacity: 1 }}>
-                                                            {formatMedievalDate(ep.date)}
-                                                        </span>
-                                                    </div>
-
-                                                    {/* 2-Column Paragraph Layout */}
-                                                    <div 
-                                                        className="md:columns-2 md:gap-8 font-serif text-xs md:text-sm leading-relaxed text-justify pt-1 font-medium"
-                                                        style={{ color: '#000000', textShadow: 'none', opacity: 1 }}
-                                                    >
-                                                        <p style={{ color: '#000000', textShadow: 'none', opacity: 1 }}>{ep.content}</p>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
+                                        {/* Carousel Navigation */}
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-mono font-bold text-[#3b0d02]">
+                                                FEAT {((currentFeatIndex % displayFeats.length) + 1)} / {displayFeats.length}
+                                            </span>
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
+                                                onClick={() => setCurrentFeatIndex(prev => (prev - 1 + displayFeats.length) % displayFeats.length)}
+                                                className="h-7 w-7 rounded-lg border-[#b58b4c]/40 bg-[#fffdfb] hover:bg-[#f5e6c8] text-[#3b0d02]"
+                                            >
+                                                <ChevronLeft className="w-4 h-4" />
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
+                                                onClick={() => setCurrentFeatIndex(prev => (prev + 1) % displayFeats.length)}
+                                                className="h-7 w-7 rounded-lg border-[#b58b4c]/40 bg-[#fffdfb] hover:bg-[#f5e6c8] text-[#3b0d02]"
+                                            >
+                                                <ChevronRight className="w-4 h-4" />
+                                            </Button>
+                                        </div>
                                     </div>
+
+                                    {/* Active Carousel Card */}
+                                    {activeFeat && (
+                                        <div 
+                                            className="space-y-3 bg-[#fffdfb] p-4 md:p-5 rounded-2xl border border-[#b58b4c]/40 shadow-[0_2px_6px_rgba(0,0,0,0.06)] transition-all duration-300"
+                                            style={{ textShadow: 'none' }}
+                                        >
+                                            <div 
+                                                className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs md:text-sm font-serif border-b border-[#b58b4c]/30 pb-2"
+                                                style={{ textShadow: 'none', opacity: 1 }}
+                                            >
+                                                <span className="uppercase tracking-wide font-black" style={{ color: '#000000', textShadow: 'none', opacity: 1 }}>
+                                                    FEAT {((currentFeatIndex % displayFeats.length) + 1)}: <span className="font-extrabold" style={{ color: '#3b0d02', textShadow: 'none', opacity: 1 }}>{activeFeat.category}</span>
+                                                </span>
+                                                <span className="text-xs font-serif italic font-bold" style={{ color: '#050302', textShadow: 'none', opacity: 1 }}>
+                                                    {(() => {
+                                                        if (!activeFeat.date) return '';
+                                                        const date = new Date(activeFeat.date);
+                                                        if (isNaN(date.getTime())) return activeFeat.date;
+                                                        const day = date.getDate();
+                                                        const daySuffix = (d: number) => {
+                                                            if (d > 3 && d < 21) return 'th';
+                                                            switch (d % 10) {
+                                                                case 1: return 'st';
+                                                                case 2: return 'nd';
+                                                                case 3: return 'rd';
+                                                                default: return 'th';
+                                                            }
+                                                        };
+                                                        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                                                        return `On the ${day}${daySuffix(day)} of ${months[date.getMonth()]} in the year ${date.getFullYear()}`;
+                                                    })()}
+                                                </span>
+                                            </div>
+
+                                            <div 
+                                                className="font-serif text-xs md:text-sm leading-relaxed text-justify pt-1 font-medium"
+                                                style={{ color: '#000000', textShadow: 'none', opacity: 1 }}
+                                            >
+                                                <p style={{ color: '#000000', textShadow: 'none', opacity: 1 }}>{activeFeat.content}</p>
+                                            </div>
+
+                                            {/* Dots Indicator */}
+                                            <div className="flex items-center justify-center gap-1.5 pt-2">
+                                                {displayFeats.map((_, idx) => (
+                                                    <button
+                                                        key={idx}
+                                                        onClick={() => setCurrentFeatIndex(idx)}
+                                                        className={cn(
+                                                            "h-1.5 rounded-full transition-all cursor-pointer",
+                                                            (currentFeatIndex % displayFeats.length) === idx
+                                                                ? "w-4 bg-[#802409]"
+                                                                : "w-1.5 bg-[#b58b4c]/40 hover:bg-[#b58b4c]"
+                                                        )}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>

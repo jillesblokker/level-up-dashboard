@@ -6,9 +6,9 @@ export const TEXT_CONTENT = {
         title: "Rebuilding Thrivehaven...",
         tips: [
             "Every daily habit mastered emits Ether Sparks that clear the mist from ruined land tiles.",
-            "Archmage Silvo synthesizes rare Ether Essence into legendary dragon-tempered armor.",
+            "Archmage Turtoisy synthesizes rare Ether Essence into legendary dragon-tempered armor.",
             "Restoring your daily streak shield keeps the fires of Castle Valoreth burning brightly.",
-            "Queen Beatrice of Sunspire observes your realm's revival with keen interest.",
+            "Queen Beatrice of Iron Peaks observes your realm's revival with keen interest.",
             "Completing routines extends citizen fed time and boosts passive crop harvesting.",
             "Zenith teaches that a quiet mind is the foundation for building a magnificent settlement.",
             "Consistency is the true magic that reconstructs the shattered Ether Crystal.",
@@ -26,7 +26,7 @@ export const TEXT_CONTENT = {
         generic: {
             title: "Ether Interruption",
             description: "The Void Drift has temporarily disrupted the spell matrix.",
-            investigate: "Archmage Silvo's mages are restoring the Ether Crystal connection. You may try again shortly.",
+            investigate: "Archmage Turtoisy's mages are restoring the Ether Crystal connection. You may try again shortly.",
             tryAgain: "Channel Ether Again",
             return: "Return to Castle Valoreth"
         }
