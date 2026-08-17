@@ -600,7 +600,7 @@ export function TavernDiceGame() {
             </div>
             <div>
               <CardTitle className="font-serif text-xl sm:text-2xl font-bold tracking-wider text-[#f5e6c8] flex items-center gap-2">
-                Liar's Dice Tavern
+                Liar&apos;s Dice Tavern
                 <Badge variant="outline" className="text-[10px] font-mono border-amber-500/40 text-amber-300 uppercase">
                   {difficulty} AI
                 </Badge>
@@ -928,7 +928,7 @@ export function TavernDiceGame() {
                         <Skull className="w-4 h-4 text-red-400" /> 3. Call Liar
                       </div>
                       <p className="text-[10px] text-red-200 opacity-80">
-                        Challenge opponent's claim! Reveal all dice. Loser loses 1 die.
+                        Challenge opponent&apos;s claim! Reveal all dice. Loser loses 1 die.
                       </p>
                     </div>
 
@@ -996,7 +996,7 @@ export function TavernDiceGame() {
                     <Trophy className="w-16 h-16 text-amber-400 mx-auto filter drop-shadow-[0_0_20px_#f59e0b] animate-bounce" />
                     <h2 className="font-serif text-3xl font-black text-amber-300 tracking-wider uppercase">VICTORY!</h2>
                     <p className="text-sm text-zinc-300 max-w-md mx-auto">
-                      You have outwitted the tavern's finest liar and claimed your prize!
+                      You have outwitted the tavern&apos;s finest liar and claimed your prize!
                     </p>
                     <Badge className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-sm px-4 py-1 font-mono">
                       +{(difficulty === 'hard' ? 300 : difficulty === 'normal' ? 150 : 75)} Gold Earned 🪙
