@@ -1096,8 +1096,7 @@ export default function DungeonPage() {
           </div>
 
           {/* Habit Combat Buff Header */}
-          <div className="relative bg-gradient-to-r from-red-950/60 via-purple-950/40 to-zinc-950 p-4 rounded-2xl border border-red-500/30 shadow-xl text-left space-y-2 overflow-hidden">
-            <PerimeterFuseBorder color="amber" borderRadius={16} animated={true} />
+          <div className="bg-gradient-to-r from-red-950/60 via-purple-950/40 to-zinc-950 p-4 rounded-2xl border border-red-500/30 shadow-xl text-left space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
                 <span>🔥</span> Active Habit Combat Multipliers
@@ -1178,7 +1177,7 @@ export default function DungeonPage() {
                 });
               }}
               size="lg"
-              className="w-full h-14 text-base font-bold bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 shadow-xl mt-3 animate-pulse"
+              className="w-full h-14 text-base font-bold bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 shadow-xl mt-3"
             >
               🧠 Spend 5 Focus Points for +1 Extra Attempt
             </Button>
@@ -1308,7 +1307,7 @@ export default function DungeonPage() {
                 {(() => {
                   const telegraph = getEnemyTelegraphAction(battleLog.length + 1, enemyDef.type);
                   return (
-                    <div className="w-full bg-gradient-to-r from-red-950/80 via-zinc-950 to-red-950/80 border border-red-500/40 p-2.5 rounded-xl text-xs text-red-200 shadow-lg text-center font-bold flex items-center justify-center gap-2 animate-pulse">
+                    <div className="w-full bg-gradient-to-r from-red-950/80 via-zinc-950 to-red-950/80 border border-red-500/40 p-2.5 rounded-xl text-xs text-red-200 shadow-lg text-center font-bold flex items-center justify-center gap-2">
                       <span>{telegraph.warningText}</span>
                     </div>
                   );
@@ -1336,14 +1335,24 @@ export default function DungeonPage() {
 
                   <div className={`relative w-full max-w-[310px] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col ${(run.currentEncounter.hp || 0) <= 0 ? 'animate-card-shatter-top pointer-events-none' : ''}`}>
                     
-                    {/* Natural Aspect Creature Image with Top Badges Overlay */}
+                    {/* Natural Aspect Creature Image with Undiscovered Card Texture & Top Badges Overlay */}
                     <div className="relative w-full overflow-hidden bg-zinc-950">
+                      {/* Undiscovered Mystic Card Background Texture */}
+                      <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-luminosity">
+                        <Image
+                          src="/images/headers/undiscovered.webp"
+                          alt="Mystic Card Frame"
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
                       <div className="absolute top-2.5 left-2.5 z-20 flex flex-col gap-1">
                         <span className="text-xs text-red-300 font-extrabold bg-red-950/90 px-2.5 py-1 rounded-lg border border-red-500/40 shadow-md">
                           Lv.{enemyLevel}
                         </span>
                         {enemyDef.isMythic && (
-                          <span className="text-[10px] font-extrabold bg-gradient-to-r from-amber-500 via-purple-600 to-indigo-600 text-amber-100 px-2 py-0.5 rounded-lg border border-amber-300/40 shadow-lg flex items-center gap-1 animate-pulse">
+                          <span className="text-[10px] font-extrabold bg-gradient-to-r from-amber-500 via-purple-600 to-indigo-600 text-amber-100 px-2 py-0.5 rounded-lg border border-amber-300/40 shadow-lg flex items-center gap-1">
                             <Sparkles className="w-3 h-3 text-amber-300" /> Mythic
                           </span>
                         )}
@@ -1534,6 +1543,16 @@ export default function DungeonPage() {
                               <div className={`w-full border-2 ${getTypeColor(selectedCreature!.type)} bg-zinc-950 relative overflow-hidden shadow-2xl flex flex-col justify-between rounded-2xl ${activeFighterHp <= 0 ? 'animate-card-faint pointer-events-none' : ''}`}>
                                 
                                 <div className="relative w-full overflow-hidden bg-zinc-950">
+                                  {/* Undiscovered Mystic Card Background Texture */}
+                                  <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-luminosity">
+                                    <Image
+                                      src="/images/headers/undiscovered.webp"
+                                      alt="Mystic Card Frame"
+                                      fill
+                                      className="object-cover"
+                                      unoptimized
+                                    />
+                                  </div>
                                   {/* Level Badge Overlay */}
                                   <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
                                     <span className="text-xs text-amber-300 font-extrabold bg-amber-950/90 px-2 py-0.5 rounded border border-amber-500/30">
@@ -1590,7 +1609,7 @@ export default function DungeonPage() {
                                 if (!bestBench || mult > 1.0) return null;
 
                                 return (
-                                  <div className="flex items-center justify-between bg-gradient-to-r from-emerald-950/90 via-zinc-950 to-emerald-950/90 p-2.5 rounded-xl border border-emerald-500/50 text-xs shadow-lg animate-pulse">
+                                  <div className="flex items-center justify-between bg-gradient-to-r from-emerald-950/90 via-zinc-950 to-emerald-950/90 p-2.5 rounded-xl border border-emerald-500/50 text-xs shadow-lg">
                                     <div className="flex items-center gap-2">
                                       <span className="text-base">💡</span>
                                       <span className="text-emerald-200 font-medium text-[11px]">
@@ -1619,7 +1638,7 @@ export default function DungeonPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => setBattlePhase('select')}
-                                  className={`text-xs text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 h-6 px-2 ${telegraphWarning ? 'ring-2 ring-amber-400 ring-offset-1 animate-pulse font-bold' : ''}`}
+                                  className={`text-xs text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 h-6 px-2 ${telegraphWarning ? 'border border-amber-400/80 font-bold bg-amber-950/50' : ''}`}
                                 >
                                   🔄 Swap Fighter
                                 </Button>
@@ -1644,7 +1663,7 @@ export default function DungeonPage() {
                           <div className="space-y-3 w-full max-w-md mx-auto pt-1">
                             <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest text-center flex items-center justify-center gap-2">
                               <span>Choose Action</span>
-                              {telegraphWarning && <span className="text-amber-400 text-[10px] font-bold animate-pulse">⚠️ Incoming Heavy Attack! Guard or Swap!</span>}
+                              {telegraphWarning && <span className="text-amber-400 text-[10px] font-bold">⚠️ Incoming Heavy Attack! Guard or Swap!</span>}
                             </div>
                             
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
@@ -1714,7 +1733,7 @@ export default function DungeonPage() {
                                 );
                               })()}
 
-                              {/* Choice 4: Guard (1 Turn Cooldown + Glowing Aura on Telegraph) */}
+                              {/* Choice 4: Guard (1 Turn Cooldown + Solid Gold Accent on Telegraph) */}
                               <Button
                                 onClick={() => fight('counter')}
                                 disabled={cooldowns.guard > 0}
@@ -1722,7 +1741,7 @@ export default function DungeonPage() {
                                   cooldowns.guard > 0
                                     ? 'bg-zinc-900 border-zinc-700 text-zinc-500 opacity-60 cursor-not-allowed'
                                     : `bg-gradient-to-b from-blue-700 to-blue-950 hover:from-blue-600 hover:to-blue-900 border-blue-400/50 text-white active:scale-95 ${
-                                        telegraphWarning ? 'ring-2 ring-amber-400 ring-offset-1 animate-pulse border-amber-400 font-bold' : ''
+                                        telegraphWarning ? 'border-amber-400 bg-amber-950/50 font-bold' : ''
                                       }`
                                 }`}
                               >
