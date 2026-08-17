@@ -370,7 +370,7 @@ export function TavernDiceGame() {
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   // Selected Wager Tier
-  const [selectedTier, setSelectedTier] = useState<WagerTier>(WAGER_TIERS[0]);
+  const [selectedTier, setSelectedTier] = useState<WagerTier>(WAGER_TIERS[0]!);
   const [difficulty, setDifficulty] = useState<AIDifficulty>('easy');
   const [phase, setPhase] = useState<GamePhase>('difficultySelect');
   
