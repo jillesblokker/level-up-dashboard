@@ -908,14 +908,14 @@ export function TavernDiceGame() {
               <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 bg-black/60 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
                 <div className="flex items-center gap-3">
                   
-                  {/* Player Hero Portrait Frame (Matching Opponent Card Style) */}
+                  {/* Player Hero Portrait Frame (Matching RPG HUD Avatar) */}
                   <div className="relative w-14 h-14 rounded-xl border-2 border-blue-500/50 bg-zinc-950 overflow-hidden shadow-lg flex items-center justify-center shrink-0">
                     <Image
-                      src="/images/creatures/003.png"
+                      src="/images/character/count.webp"
                       alt="Hero Adventurer"
                       width={80}
                       height={80}
-                      className="w-full h-full object-cover relative z-10"
+                      className="w-full h-full object-contain p-0.5 relative z-10"
                       unoptimized
                     />
                   </div>
