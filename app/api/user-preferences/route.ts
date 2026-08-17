@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   try {
     const { userId } = await auth();
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ success: true, value: null, preferences: {}, isGuest: true });
     }
 
     const { searchParams } = new URL(request.url);
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
   try {
     const { userId } = await auth();
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ success: true, message: 'Saved preference to local session', isGuest: true });
     }
 
     const body = await request.json();

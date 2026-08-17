@@ -1287,8 +1287,6 @@ export default function QuestsPage() {
   };
 
   const handleQuestToggle = async (questId: string, newCompleted: boolean) => {
-    if (!user) return;
-
     // Find the quest object
     const questObj = quests.find(q => q.id === questId);
     if (!questObj) {
@@ -1369,7 +1367,7 @@ export default function QuestsPage() {
         // Category Affinity matching bonus (Point 3)
         const isMatched = isCategoryMatchedWithElement(questObj.category, activePartner.type);
         if (isMatched) {
-          useCitizensStore.getState().increaseAffection(user.id, activePartner.id, 5);
+          useCitizensStore.getState().increaseAffection(user?.id || 'guest', activePartner.id, 5);
           toast({
             title: "Elemental Affinity! 🌟",
             description: `${activePartner.name} matches this quest's essence! Affection +5`,
@@ -1390,7 +1388,7 @@ export default function QuestsPage() {
             });
           } else {
             // Companion Gift (Affection boost)
-            useCitizensStore.getState().increaseAffection(user.id, activePartner.id, 5);
+            useCitizensStore.getState().increaseAffection(user?.id || 'guest', activePartner.id, 5);
             toast({
               title: "Companion Gift! 🎁",
               description: `${activePartner.name} gave you a gift! Affection +5`,
