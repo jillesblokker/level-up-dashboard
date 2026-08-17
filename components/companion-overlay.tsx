@@ -192,6 +192,8 @@ export function CompanionOverlay() {
     randomizeLayout()
   }, [pathname, randomizeLayout])
 
+  const [showHintsSetting, setShowHintsSetting] = useState(true)
+
   // Load Settings and Guardian State
   const loadVisibilitySettings = async () => {
     try {
@@ -202,6 +204,10 @@ export function CompanionOverlay() {
       const savedGuardian = localStorage.getItem("show-guardian-partner")
       if (savedGuardian !== null) {
         setShowGuardian(savedGuardian === "true")
+      }
+      const savedHints = localStorage.getItem("show-companion-hints")
+      if (savedHints !== null) {
+        setShowHintsSetting(savedHints === "true")
       }
 
       // Check user preferences & local storage for active guardian
@@ -374,7 +380,7 @@ export function CompanionOverlay() {
     <div className="fixed bottom-[calc(76px+env(safe-area-inset-bottom,0px))] right-3 md:bottom-0 md:right-6 z-50 flex flex-col items-end pointer-events-none transition-all duration-300">
       {/* Speech Bulb Popup (Only appears AFTER slide-in animation completes) */}
       <AnimatePresence>
-        {showSpeech && !isExitingRight && currentHint && (
+        {showSpeech && !isExitingRight && currentHint && showHintsSetting && (
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

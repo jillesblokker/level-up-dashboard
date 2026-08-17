@@ -37,17 +37,17 @@ export async function setAppTheme(theme: AppTheme): Promise<void> {
  * Retrieves the current app theme ('classic' or 'medieval').
  */
 export function getAppThemeSync(): AppTheme {
-  if (typeof window === 'undefined') return 'classic';
+  if (typeof window === 'undefined') return 'medieval';
   try {
     const saved = localStorage.getItem('app-theme') || localStorage.getItem('pref:app-theme');
     if (saved) {
       const clean = saved.replace(/"/g, '');
-      if (clean === 'medieval') return 'medieval';
+      if (clean === 'classic' || clean === 'medieval') return clean as AppTheme;
     }
   } catch {
     // Ignore
   }
-  return 'classic';
+  return 'medieval';
 }
 
 /**
