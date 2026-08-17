@@ -184,12 +184,15 @@ function computeAIDecision(
   if (!currentBid) {
     // Pick AI's most frequent face
     const counts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-    aiDice.forEach(d => counts[d]++);
+    aiDice.forEach(d => {
+      counts[d] = (counts[d] ?? 0) + 1;
+    });
     let bestFace = 1;
     let maxCount = -1;
     for (let f = 6; f >= 1; f--) {
-      if (counts[f] > maxCount) {
-        maxCount = counts[f];
+      const cnt = counts[f] ?? 0;
+      if (cnt > maxCount) {
+        maxCount = cnt;
         bestFace = f;
       }
     }
