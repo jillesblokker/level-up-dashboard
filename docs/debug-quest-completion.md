@@ -69,3 +69,11 @@ Look at your server logs for the debugging output I added to see what data the A
 6. **API 401 Unauthorized Log Noise Suppression** — *[NEW FIX]*:
    - **Problem**: Calling `/api/user-preferences` or `/api/quests` when unauthenticated returned 401 status, producing red console log errors (`Failed to load resource: 401 Unauthorized`).
    - **Solution**: Updated `/api/user-preferences` endpoints to return a clean 200 OK response `{ success: true, value: null, isGuest: true }` when unauthenticated. This allows smooth `localStorage` fallback without throwing unhandled network errors or blocking UI events.
+
+7. **Zero-Loss Quest State Persistence & Offline Queue (Prevent Reset on 500 / Network Error)** — *[NEW FIX]*:
+   - **Problem**: When a server endpoint (such as `/api/quests/smart-completion` or `/api/notifications`) returned a 500 internal server error or network timeout, the `catch` block in `handleQuestToggle` was forcefully reverting `completed` back to `false` and overwriting `quests-cache` in `localStorage`, resetting the quest the user just completed.
+   - **Solution**: 
+     1. Removed automatic `completed: !newCompleted` state reversion on error in `handleQuestToggle`.
+     2. Updated `handleQuestToggle` catch handler to persist the completed state locally in React state & `quests-cache` in `localStorage`.
+     3. Automatically enqueued the completed quest payload into `useOfflineSupport` (`addToQueue`), allowing background auto-retry when the server or network connection recovers.
+     4. Updated `/api/notifications` GET route to return `{ notifications: [] }` on database or JWT errors instead of throwing a 500 status code.

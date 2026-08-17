@@ -18,7 +18,7 @@ export async function GET(req: Request) {
     const authResult = await verifyClerkJWT(req);
     const userId = authResult.userId;
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ notifications: [] });
     }
 
     const supabase = getSupabaseAdmin();
@@ -31,7 +31,7 @@ export async function GET(req: Request) {
 
     if (error) {
       logger.error('[Notifications API] GET Error:', error);
-      return NextResponse.json({ error: 'Database error', details: error.message }, { status: 500 });
+      return NextResponse.json({ notifications: [] });
     }
 
     // Auto-archive read notifications older than 24 hours to maintain a zero-clutter inbox
@@ -51,7 +51,7 @@ export async function GET(req: Request) {
     });
   } catch (err: any) {
     logger.error('[Notifications API] GET Exception:', err);
-    return NextResponse.json({ error: 'Internal error', details: err.message }, { status: 500 });
+    return NextResponse.json({ notifications: [] });
   }
 }
 

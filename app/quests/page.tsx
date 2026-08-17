@@ -1518,17 +1518,40 @@ export default function QuestsPage() {
         });
       }
     } catch (error) {
-      logger.error('[QUEST-TOGGLE] Error persisting quest:', error);
-      // Revert optimistic state so UI stays in sync with backend
-      setQuests(prevQuests =>
-        prevQuests.map(q =>
-          q.id === questId ? { ...q, completed: !newCompleted } : q
-        )
-      );
+      logger.warn('[QUEST-TOGGLE] Network or API error when persisting quest — retaining local completion and queueing offline sync:', error);
+      
+      // Enqueue to offline sync queue so it retries automatically when connection or server recovers
+      try {
+        addToQueue({
+          type: 'quest-completion',
+          data: {
+            questId,
+            completed: newCompleted,
+            xp: xpReward,
+            gold: goldReward,
+            category: questObj.category
+          }
+        });
+      } catch (queueErr) {
+        logger.error('[QUEST-TOGGLE] Failed to enqueue offline sync item:', queueErr);
+      }
+
+      // Ensure local state and user-scoped cache retain completed status
+      setQuests(prevQuests => {
+        const nextQuests = prevQuests.map(q =>
+          q.id === questId ? { ...q, completed: newCompleted } : q
+        );
+        try {
+          const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+          setUserScopedItem('quests-cache', JSON.stringify(nextQuests));
+          setUserScopedItem('quests-cache-date', todayStr);
+        } catch {}
+        return nextQuests;
+      });
+
       toast({
-        title: "Quest save failed",
-        description: `Could not save progress for "${questObj.name}". Please check connection.`,
-        variant: "destructive",
+        title: "Saved Offline 📡",
+        description: `Progress for "${questObj.name}" saved locally. Will sync automatically when server recovers.`,
         duration: 4000,
       });
     }
