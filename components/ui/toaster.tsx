@@ -57,22 +57,25 @@ function ToastItem({
   }, [duration, onDismiss]);
 
   useLayoutEffect(() => {
-    if (!containerRef.current) return;
+    const el = containerRef.current;
+    if (!el) return undefined;
+
     const updateSize = () => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0) {
-          setDims({ w: Math.round(rect.width), h: Math.round(rect.height) });
-        }
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        setDims({ w: Math.round(rect.width), h: Math.round(rect.height) });
       }
     };
     updateSize();
 
     if (typeof ResizeObserver !== 'undefined') {
       const ro = new ResizeObserver(updateSize);
-      ro.observe(containerRef.current);
-      return () => ro.disconnect();
+      ro.observe(el);
+      return () => {
+        ro.disconnect();
+      };
     }
+    return undefined;
   }, []);
 
   useEffect(() => {
