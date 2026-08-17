@@ -1335,10 +1335,10 @@ export default function DungeonPage() {
 
                   <div className={`relative w-full max-w-[310px] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col ${(run.currentEncounter.hp || 0) <= 0 ? 'animate-card-shatter-top pointer-events-none' : ''}`}>
                     
-                    {/* Natural Aspect Creature Image with Undiscovered Card Texture & Top Badges Overlay */}
-                    <div className="relative w-full overflow-hidden bg-zinc-950">
+                    {/* Natural Aspect Creature Image with Centered Undiscovered Card Texture & Top Badges Overlay */}
+                    <div className="relative w-full min-h-[220px] sm:min-h-[250px] flex items-center justify-center p-4 overflow-hidden bg-zinc-950">
                       {/* Undiscovered Mystic Card Background Texture */}
-                      <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-luminosity">
+                      <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-luminosity">
                         <Image
                           src="/images/headers/undiscovered.webp"
                           alt="Mystic Card Frame"
@@ -1374,7 +1374,7 @@ export default function DungeonPage() {
                         alt={enemyDef.name}
                         width={768}
                         height={1106}
-                        className="w-full h-auto object-contain block drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"
+                        className="max-h-[180px] sm:max-h-[210px] w-auto object-contain block drop-shadow-2xl transition-transform duration-300 group-hover:scale-105 relative z-10 my-auto mx-auto"
                         unoptimized
                       />
                     </div>
@@ -1465,7 +1465,17 @@ export default function DungeonPage() {
                                 : `${getTypeColor(creature.type)} hover:scale-[1.02] hover:shadow-lg active:scale-95`
                             } ${selectedCreature?.id === creature.id ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-slate-900 border-transparent' : 'border-opacity-40 hover:border-opacity-100'}`}
                           >
-                            <div className="relative w-full overflow-hidden bg-zinc-950">
+                            <div className="relative w-full min-h-[150px] flex items-center justify-center p-2 overflow-hidden bg-zinc-950">
+                              {/* Undiscovered Mystic Card Background Texture */}
+                              <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-luminosity">
+                                <Image
+                                  src="/images/headers/undiscovered.webp"
+                                  alt="Mystic Card Frame"
+                                  fill
+                                  className="object-cover"
+                                  unoptimized
+                                />
+                              </div>
                               {/* Top Level Badge & Element Emoji */}
                               <div className="absolute top-2 left-2 z-10">
                                 <span className="text-[10px] text-amber-300 font-extrabold bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/30 shadow">
@@ -1483,13 +1493,13 @@ export default function DungeonPage() {
                                 </div>
                               )}
 
-                              {/* Natural Aspect Creature Image */}
+                              {/* Centered Creature Image */}
                               <Image
                                 src={getCreatureImage(creature.id, creature.filename, creature.isMythic)}
                                 alt={creature.name}
                                 width={768}
                                 height={1106}
-                                className="w-full h-auto object-contain block drop-shadow-lg"
+                                className="max-h-[130px] w-auto object-contain block drop-shadow-lg relative z-10 my-auto mx-auto"
                                 unoptimized
                               />
                             </div>
@@ -1542,9 +1552,9 @@ export default function DungeonPage() {
                             <div className="relative group w-full max-w-[210px] animate-in zoom-in-95 duration-300">
                               <div className={`w-full border-2 ${getTypeColor(selectedCreature!.type)} bg-zinc-950 relative overflow-hidden shadow-2xl flex flex-col justify-between rounded-2xl ${activeFighterHp <= 0 ? 'animate-card-faint pointer-events-none' : ''}`}>
                                 
-                                <div className="relative w-full overflow-hidden bg-zinc-950">
+                                <div className="relative w-full min-h-[170px] flex items-center justify-center p-3 overflow-hidden bg-zinc-950">
                                   {/* Undiscovered Mystic Card Background Texture */}
-                                  <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-luminosity">
+                                  <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-luminosity">
                                     <Image
                                       src="/images/headers/undiscovered.webp"
                                       alt="Mystic Card Frame"
@@ -1580,7 +1590,7 @@ export default function DungeonPage() {
                                     alt={selectedCreature!.name}
                                     width={768}
                                     height={1106}
-                                    className="w-full h-auto object-contain block drop-shadow-lg"
+                                    className="max-h-[140px] w-auto object-contain block drop-shadow-lg relative z-10 my-auto mx-auto"
                                     unoptimized
                                   />
                                 </div>
@@ -1671,12 +1681,12 @@ export default function DungeonPage() {
                               {/* Choice 1: Strike (Basic Physical Attack - 0 Cooldown) */}
                               <Button
                                 onClick={() => fight('strike')}
-                                className="h-16 px-3 flex flex-col items-center justify-center bg-gradient-to-b from-red-700 to-red-950 hover:from-red-600 hover:to-red-900 border border-red-500/50 rounded-xl shadow-lg transition-all active:scale-95 text-center overflow-hidden"
+                                className="h-16 px-3 flex flex-col items-center justify-center bg-gradient-to-b from-zinc-900 to-zinc-950 hover:from-zinc-800 hover:to-zinc-900 border border-amber-500/40 hover:border-amber-400 rounded-xl shadow-lg transition-all active:scale-95 text-center overflow-hidden group"
                               >
-                                <span className="text-sm font-black uppercase tracking-wider flex items-center gap-1 truncate text-white">
+                                <span className="text-sm font-serif font-bold uppercase tracking-wider flex items-center gap-1.5 truncate text-[#f5e6c8] group-hover:text-amber-300">
                                   ⚔️ Strike
                                 </span>
-                                <span className="text-[10px] text-red-200 opacity-90 font-mono truncate">
+                                <span className="text-[10px] text-zinc-400 font-mono truncate mt-0.5">
                                   1.0x Dmg (⚡ Ready)
                                 </span>
                               </Button>
@@ -1694,16 +1704,16 @@ export default function DungeonPage() {
                                   <Button
                                     onClick={() => fight(actionTarget as any)}
                                     disabled={cdValue > 0}
-                                    className={`h-16 px-3 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all text-center overflow-hidden ${
+                                    className={`h-16 px-3 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all text-center overflow-hidden group ${
                                       cdValue > 0
-                                        ? 'bg-zinc-900 border-zinc-700 text-zinc-500 opacity-60 cursor-not-allowed'
-                                        : 'bg-gradient-to-b from-amber-600 to-amber-900 hover:from-amber-500 hover:to-amber-800 border-amber-400/50 text-white active:scale-95'
+                                        ? 'bg-zinc-950 border-zinc-850 text-zinc-600 opacity-50 cursor-not-allowed'
+                                        : 'bg-gradient-to-b from-zinc-900 to-zinc-950 hover:from-zinc-800 hover:to-zinc-900 border-amber-500/40 hover:border-amber-400 text-[#f5e6c8] active:scale-95'
                                     }`}
                                   >
-                                    <span className="text-sm font-black uppercase tracking-wider flex items-center gap-1 truncate">
+                                    <span className="text-sm font-serif font-bold uppercase tracking-wider flex items-center gap-1.5 truncate text-[#f5e6c8] group-hover:text-amber-300">
                                       {spellEmoji} {spellName}
                                     </span>
-                                    <span className="text-[10px] font-mono truncate">
+                                    <span className="text-[10px] font-mono text-zinc-400 truncate mt-0.5">
                                       {cdValue > 0 ? `⏳ Cooldown (${cdValue}t)` : `1.4x Dmg (⚡ Ready)`}
                                     </span>
                                   </Button>
@@ -1717,16 +1727,16 @@ export default function DungeonPage() {
                                   <Button
                                     onClick={() => fight('status')}
                                     disabled={cooldowns.status > 0}
-                                    className={`h-16 px-3 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all text-center overflow-hidden ${
+                                    className={`h-16 px-3 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all text-center overflow-hidden group ${
                                       cooldowns.status > 0
-                                        ? 'bg-zinc-900 border-zinc-700 text-zinc-500 opacity-60 cursor-not-allowed'
-                                        : 'bg-gradient-to-b from-emerald-700 to-emerald-950 hover:from-emerald-600 hover:to-emerald-900 border-emerald-400/50 text-white active:scale-95'
+                                        ? 'bg-zinc-950 border-zinc-850 text-zinc-600 opacity-50 cursor-not-allowed'
+                                        : 'bg-gradient-to-b from-zinc-900 to-zinc-950 hover:from-zinc-800 hover:to-zinc-900 border-emerald-500/40 hover:border-emerald-400 text-[#f5e6c8] active:scale-95'
                                     }`}
                                   >
-                                    <span className="text-sm font-black uppercase tracking-wider flex items-center gap-1 truncate">
+                                    <span className="text-sm font-serif font-bold uppercase tracking-wider flex items-center gap-1.5 truncate text-[#f5e6c8] group-hover:text-emerald-300">
                                       {statusSpell.emoji} {statusSpell.name}
                                     </span>
-                                    <span className="text-[10px] font-mono truncate">
+                                    <span className="text-[10px] font-mono text-zinc-400 truncate mt-0.5">
                                       {cooldowns.status > 0 ? `⏳ Cooldown (${cooldowns.status}t)` : `${statusSpell.desc} (⚡ Ready)`}
                                     </span>
                                   </Button>
@@ -1737,18 +1747,18 @@ export default function DungeonPage() {
                               <Button
                                 onClick={() => fight('counter')}
                                 disabled={cooldowns.guard > 0}
-                                className={`h-16 px-3 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all text-center overflow-hidden ${
+                                className={`h-16 px-3 flex flex-col items-center justify-center border rounded-xl shadow-lg transition-all text-center overflow-hidden group ${
                                   cooldowns.guard > 0
-                                    ? 'bg-zinc-900 border-zinc-700 text-zinc-500 opacity-60 cursor-not-allowed'
-                                    : `bg-gradient-to-b from-blue-700 to-blue-950 hover:from-blue-600 hover:to-blue-900 border-blue-400/50 text-white active:scale-95 ${
-                                        telegraphWarning ? 'border-amber-400 bg-amber-950/50 font-bold' : ''
+                                    ? 'bg-zinc-950 border-zinc-850 text-zinc-600 opacity-50 cursor-not-allowed'
+                                    : `bg-gradient-to-b from-zinc-900 to-zinc-950 hover:from-zinc-800 hover:to-zinc-900 border-amber-900/40 hover:border-amber-400 text-[#f5e6c8] active:scale-95 ${
+                                        telegraphWarning ? 'border-amber-400 bg-amber-950/40 text-amber-200 font-bold' : ''
                                       }`
                                 }`}
                               >
-                                <span className="text-sm font-black uppercase tracking-wider flex items-center gap-1 truncate">
+                                <span className="text-sm font-serif font-bold uppercase tracking-wider flex items-center gap-1.5 truncate text-[#f5e6c8] group-hover:text-amber-300">
                                   🛡️ Guard
                                 </span>
-                                <span className="text-[10px] font-mono truncate">
+                                <span className="text-[10px] font-mono text-zinc-400 truncate mt-0.5">
                                   {cooldowns.guard > 0 ? `⏳ Cooldown (${cooldowns.guard}t)` : `-60% Dmg (⚡ Ready)`}
                                 </span>
                               </Button>
@@ -1768,29 +1778,28 @@ export default function DungeonPage() {
                                   setPetStrikerUsed(true);
 
                                   setBattleLog(prev => [
-                                    ...prev,
-                                    `🐾 Guardian Pet ${petName} leaped onto the battlefield!`,
-                                    `Executed ${petSkill}! Dealt ${petDmg} damage to monster!`
+                                    `🐾 Guardian Pet ${petName} summoned! Used ${petSkill} dealing ${petDmg} DMG!`,
+                                    ...prev
                                   ]);
 
-                                  setRun({
-                                    ...run,
-                                    currentHp: Math.min(run.maxHp, run.currentHp + 35),
-                                    currentEncounter: { ...run.currentEncounter, hp: newMonsterHp }
-                                  });
-
-                                  toast({
-                                    title: `🐾 Guardian Pet ${petName} Striker!`,
-                                    description: `Unleashed ${petSkill}! Dealt ${petDmg} elemental damage!`,
+                                  setRun(prev => {
+                                    if (!prev) return prev;
+                                    return {
+                                      ...prev,
+                                      currentEncounter: {
+                                        ...prev.currentEncounter,
+                                        hp: newMonsterHp
+                                      }
+                                    };
                                   });
                                 }}
-                                className={`w-full h-10 font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2 border transition-all ${
+                                className={`w-full h-12 flex items-center justify-center gap-2 rounded-xl text-xs font-serif font-bold tracking-wider transition-all border shadow-lg ${
                                   petStrikerUsed
-                                    ? 'bg-zinc-900 border-zinc-800 text-zinc-600 opacity-60'
-                                    : 'bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 hover:from-amber-500 hover:to-orange-500 text-white border-amber-400/60 shadow-amber-950/50'
+                                    ? 'bg-zinc-950 border-zinc-850 text-zinc-600 opacity-50 cursor-not-allowed'
+                                    : 'bg-gradient-to-r from-zinc-900 via-amber-950/40 to-zinc-900 border-amber-500/40 hover:border-amber-400 text-amber-200 active:scale-95'
                                 }`}
                               >
-                                🐾 Guardian Pet Striker {petStrikerUsed ? '(Used this Floor)' : '• Ready (Click to Strike!)'}
+                                🐾 Guardian Pet Striker • {petStrikerUsed ? 'Used This Battle' : 'Ready (Click to Strike!)'}
                               </Button>
                             </div>
 
