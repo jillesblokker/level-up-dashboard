@@ -403,7 +403,8 @@ export default function QuestsPage() {
     isProcessing: isQueueProcessing,
     processQueue,
     clearQueue,
-    getQueueStats
+    getQueueStats,
+    addToQueue
   } = useOfflineSupport();
 
   const queueStats = getQueueStats();
