@@ -407,7 +407,7 @@ export function CompanionOverlay() {
 
             {/* Treat Feeding & Affection Quick Action */}
             <div className="pt-1.5 border-t border-zinc-200 flex items-center justify-between gap-2">
-              <span className="text-[10px] text-amber-800 font-bold flex items-center gap-1 font-serif">
+              <span className="text-[10px] text-amber-900 font-bold flex items-center gap-1 font-serif [text-shadow:none] !drop-shadow-none [filter:none]">
                 ❤️ Affection Active
               </span>
               <button
@@ -416,7 +416,7 @@ export function CompanionOverlay() {
                   e.stopPropagation()
                   window.location.href = '/kingdom'
                 }}
-                className="text-[9px] font-bold font-mono bg-amber-600 hover:bg-amber-700 text-white px-2 py-0.5 rounded-full shadow-sm"
+                className="text-[9px] font-bold font-mono bg-amber-600 hover:bg-amber-700 text-white px-2 py-0.5 rounded-full shadow-sm [text-shadow:none] !drop-shadow-none"
               >
                 🥩 Feed Treat (+5%)
               </button>
