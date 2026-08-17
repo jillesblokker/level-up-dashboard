@@ -279,8 +279,8 @@ function computeAIDecision(
   // Sort by score descending
   scoredRaises.sort((a, b) => b.score - a.score);
 
-  // If even the best raise is very unlikely, challenge!
-  if (scoredRaises[0].prob < 0.12 && Math.random() > 0.15) {
+  const bestRaise = scoredRaises[0];
+  if (!bestRaise || (bestRaise.prob < 0.12 && Math.random() > 0.15)) {
     return { action: 'challenge' };
   }
 
@@ -292,9 +292,11 @@ function computeAIDecision(
     chosenIdx = Math.random() < 0.75 ? 0 : Math.floor(Math.random() * Math.min(2, scoredRaises.length));
   }
 
+  const selectedRaise = scoredRaises[chosenIdx] || bestRaise;
+
   return {
     action: 'raise',
-    nextBid: scoredRaises[chosenIdx].bid
+    nextBid: selectedRaise.bid
   };
 }
 
