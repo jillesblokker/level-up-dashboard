@@ -343,7 +343,9 @@ export function CompanionOverlay() {
     setIsAnimating(true)
     setSpeakerName(speaker)
     setHintIndex(prev => prev + 1)
-    setShowSpeech(true)
+    
+    // Immediately hide speech bulb during transition so it never floats
+    setShowSpeech(false)
 
     // Trigger smooth slide out right animation on click
     setIsExitingRight(true)
@@ -353,7 +355,12 @@ export function CompanionOverlay() {
       randomizeLayout()
       setIsExitingRight(false)
       setIsAnimating(false)
-    }, 500)
+
+      // ONLY show speech bulb after the slide-in transition finishes (750ms later)
+      setTimeout(() => {
+        setShowSpeech(true)
+      }, 750)
+    }, 450)
   }
 
   if (isUnpackOpen) return null
@@ -365,9 +372,9 @@ export function CompanionOverlay() {
 
   return (
     <div className="fixed bottom-[calc(76px+env(safe-area-inset-bottom,0px))] right-3 md:bottom-0 md:right-6 z-50 flex flex-col items-end pointer-events-none transition-all duration-300">
-      {/* Speech Bulb Popup (Only appears on tap or quest completion) */}
+      {/* Speech Bulb Popup (Only appears AFTER slide-in animation completes) */}
       <AnimatePresence>
-        {showSpeech && currentHint && (
+        {showSpeech && !isExitingRight && currentHint && (
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
