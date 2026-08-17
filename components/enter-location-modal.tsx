@@ -95,7 +95,7 @@ export function EnterLocationModal({
             <div className="flex flex-wrap gap-2">
               {locationType === 'city' ? (
                 <>
-                  <span className="text-xs bg-amber-900/30 text-amber-200/80 px-2 py-1 rounded">🛒 Shop</span>
+                  <span className="text-xs bg-amber-900/30 text-amber-200/80 px-2 py-1 rounded">⚖️ Shop</span>
                   <span className="text-xs bg-amber-900/30 text-amber-200/80 px-2 py-1 rounded">🏰 Castle</span>
                   <span className="text-xs bg-amber-900/30 text-amber-200/80 px-2 py-1 rounded">🍺 Tavern</span>
                   <span className="text-xs bg-amber-900/30 text-amber-200/80 px-2 py-1 rounded">⛪ Temple</span>

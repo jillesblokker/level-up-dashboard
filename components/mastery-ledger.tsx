@@ -494,7 +494,7 @@ export function MasteryLedger() {
                     <Card className="bg-zinc-950 border-green-900/30 p-4">
                         <div className="text-[10px] text-green-200/50 uppercase font-bold tracking-wider mb-1">Momentum</div>
                         <div className="flex items-end gap-2 mt-1.5">
-                            <span className="text-lg font-bold text-green-400">{weeklySummary.questsThisWeek >= weeklySummary.questsLastWeek ? 'Growing 🚀' : 'Resting ⛺'}</span>
+                            <span className="text-lg font-bold text-green-400">{weeklySummary.questsThisWeek >= weeklySummary.questsLastWeek ? 'Growing 🌿' : 'Resting ⛺'}</span>
                         </div>
                     </Card>
                 </div>

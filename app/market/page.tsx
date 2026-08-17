@@ -708,7 +708,7 @@ export default function MarketPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
               <div className="p-6 relative z-10 space-y-2">
                 <Badge className="bg-amber-600 text-black font-extrabold text-[9px] tracking-wider uppercase mb-1">
-                  🛒 ROYAL TRADE WAREHOUSE • MATERIAL COMMERCE
+                  ⚖️ ROYAL TRADE WAREHOUSE • MATERIAL COMMERCE
                 </Badge>
                 <h2 className="font-medieval text-2xl sm:text-4xl text-amber-300 tracking-wide drop-shadow-md">
                   Royal Material Exchange

@@ -202,7 +202,7 @@ export function AirshipHarborTab() {
       await setUserPreference('active_expeditions', newVoyage);
 
       toast({
-        title: "Airship Launched! 🚀✨",
+        title: "Airship Launched! ⛵✨",
         description: `${selectedJourney.name} has begun with ${selectedCrew.length} crew member(s). Match habits to advance progress!`
       });
 
@@ -651,7 +651,7 @@ export function AirshipHarborTab() {
                       : "bg-zinc-950 text-zinc-600 border border-zinc-800 cursor-not-allowed"
                   )}
                 >
-                  {isLaunching ? <>⏳ Prepping airship voyage...</> : <>🚀 Launch airship voyage</>}
+                  {isLaunching ? <>⏳ Prepping airship voyage...</> : <>⛵ Launch airship voyage</>}
                 </Button>
               </div>
 

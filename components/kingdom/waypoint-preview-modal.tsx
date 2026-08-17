@@ -26,7 +26,7 @@ const WAYPOINT_REGISTRY: Record<string, WaypointInfo> = {
     image: '/images/kingdom-tiles/Dailyhub.png',
     description: 'Enter your main habit dashboard to view streak progress, check off daily routines, and earn House Cup virtue energy.',
     destination: '/daily-hub',
-    buttonText: '🚀 Enter Daily Hub',
+    buttonText: '🏰 Enter Daily Hub',
     icon: '📅',
     badgeText: 'Habit Engine',
     badgeColor: 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300'
@@ -70,8 +70,8 @@ const WAYPOINT_REGISTRY: Record<string, WaypointInfo> = {
     image: '/images/kingdom-tiles/MarketStalls.webp',
     description: 'Trade harvested wood, stone, fish, and botanical reagents at the Royal Exchange trading post.',
     destination: '/market',
-    buttonText: '🛒 Enter Royal Exchange',
-    icon: '🛒',
+    buttonText: '⚖️ Enter Royal Exchange',
+    icon: '⚖️',
     badgeText: 'Trading Post',
     badgeColor: 'bg-yellow-950/80 border-yellow-500/50 text-yellow-300'
   },
@@ -81,8 +81,8 @@ const WAYPOINT_REGISTRY: Record<string, WaypointInfo> = {
     image: '/images/kingdom-tiles/MarketStalls.webp',
     description: 'Trade harvested wood, stone, fish, and botanical reagents at the Royal Exchange trading post.',
     destination: '/market',
-    buttonText: '🛒 Enter Royal Exchange',
-    icon: '🛒',
+    buttonText: '⚖️ Enter Royal Exchange',
+    icon: '⚖️',
     badgeText: 'Trading Post',
     badgeColor: 'bg-yellow-950/80 border-yellow-500/50 text-yellow-300'
   },
@@ -213,7 +213,7 @@ const WAYPOINT_REGISTRY: Record<string, WaypointInfo> = {
     image: '/images/kingdom-tiles/Dailyhub.png',
     description: 'Enter your main habit dashboard to view streak progress, check off daily routines, and earn House Cup virtue energy.',
     destination: '/daily-hub',
-    buttonText: '🚀 Enter Daily Hub',
+    buttonText: '🏰 Enter Daily Hub',
     icon: '📅',
     badgeText: 'Habit Engine',
     badgeColor: 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300'
@@ -224,7 +224,7 @@ const WAYPOINT_REGISTRY: Record<string, WaypointInfo> = {
     image: '/images/kingdom-tiles/Dailyhub.png',
     description: 'Enter your main habit dashboard to view streak progress, check off daily routines, and earn House Cup virtue energy.',
     destination: '/daily-hub',
-    buttonText: '🚀 Enter Daily Hub',
+    buttonText: '🏰 Enter Daily Hub',
     icon: '📅',
     badgeText: 'Habit Engine',
     badgeColor: 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300'

@@ -73,3 +73,21 @@
 1. **Dungeon Pet Attack Button** ([`app/dungeon/page.tsx`](file:///Users/jilles/Thrivehaven/app/dungeon/page.tsx#L1831)):
    - **Before**: `🐾 Guardian Pet Striker • Ready (Click to Strike!)` / `🐾 Guardian Pet Striker • Used This Battle`
    - **After**: `🐾 Pet attack` (Disabled state uses implicit `opacity-50 cursor-not-allowed` without redundant text).
+
+---
+
+## 🎨 Medieval Emoji & Icon Audit Matrix
+
+> Comprehensive audit of all emojis in Thrivehaven to replace modern, out-of-place, or non-medieval symbols with authentic fantasy alternatives.
+
+| Category / Location | Current Emoji & Text | Reason for Change | Suggested Medieval Alternative |
+|---|---|---|---|
+| **Topbar Bag Button** | `🎒` (Red School Backpack) & `✨` Sparkle Badge Overlay | Red school backpacks and bright pulsing badges clash with medieval saddlebags. | **[FIXED]** `<Image src="/images/ui/medieval-backpack.png" ... />` (Rustic leather adventurer backpack) + Sparkle badge removed |
+| **Airship Harbor & Expeditions** | `🚀` (`"Airship Launched! 🚀✨"`, `"🚀 Launch airship"`, `"Away 🚀"`) | Space rockets do not exist in a medieval fantasy setting. | **`⛵` Airship / Galleon** (`"Airship Launched! ⛵✨"`, `"⛵ Launch airship"`, `"Away ⛵"`) |
+| **Kingdom Grid & Daily Hub** | `🚀` (`"🚀 Enter Daily Hub"`, `"🚀 Expand Kingdom Grid"`, `"Growing 🚀"`) | Modern space rocket symbol in kingdom building UI. | **`🏰` Castle / `🌿` Growth** (`"🏰 Enter Daily Hub"`, `"🏰 Expand Kingdom Grid"`, `"Growing 🌿"`) |
+| **Royal Exchange & Market** | `🛒` (`"🛒 ROYAL TRADE WAREHOUSE"`, `"🛒 Enter Royal Exchange"`, `"🛒 Shop"`) | Supermarket metal wire shopping carts are 20th-century items. | **`⚖️` Merchant Scales / `🏪` Stall** (`"⚖️ ROYAL TRADE WAREHOUSE"`, `"⚖️ Enter Royal Exchange"`, `"🏪 Shop"`) |
+| **Celebrations & Level Ups** | `🎉` (`"🎉 LEVEL UP! 🎉"`, `"Quest Completed! 🎉"`, `"🎉 New Blueprint Discovered!"`) | Plastic party poppers with paper streamers are modern novelties. | **`👑` Crown / `🎺` Trumpet** (`"👑 LEVEL UP! 👑"`, `"Quest Completed! 🎺"`, `"✨ New Blueprint Discovered!"`) |
+| **Ether Energy & Speed** | `⚡` (`"⚡ 85% Fuel"`, `"⚡ Speed"`, `"⚡ CHARGING ALTAR"`, `"⚡ Active Raid"`) | Industrial high-voltage electrical hazard symbol. | **`🔮` Ether Crystal / `💫` Celestial Spark** (`"🔮 85% Ether Fuel"`, `"💫 Speed"`, `"🔮 CHARGING ALTAR"`) |
+| **System Notifications** | `⚙️` (System Category Icon) | Industrial factory steel cogwheel. | **`📜` Royal Decree / `🗝️` Citadel Key** |
+| **Habit Targets & Focus** | `🎯` (`"🎯 Sovereign Habit Cadence"`, `"🎯 Base Goal"`) | Modern painted dartboard target. | **`🏹` Archery Bow & Target** (`"🏹 Sovereign Habit Cadence"`) |
+
