@@ -27,40 +27,11 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
     const latestUnlockedChapter = useMemo(() => getCurrentChapter(currentLevel), [currentLevel])
 
     // State for the currently viewed chapter (default to the latest unlocked)
+    const [viewedChapterId, setViewedChapterId] = useState<string>(latestUnlockedChapter.id.toString())
+    const [allFillerEpisodes, setAllFillerEpisodes] = useState<any[]>([])
+    const [showFiller, setShowFiller] = useState<boolean>(true)
+    const [imageErrorMap, setImageErrorMap] = useState<Record<string, boolean>>({})
     const [currentFeatIndex, setCurrentFeatIndex] = useState<number>(0)
-
-    const DEFAULT_LORE_RECORDS = useMemo(() => [
-        {
-            id: 'feat-knowledge-red-tower',
-            category: 'Knowledge',
-            date: new Date().toISOString(),
-            content: "By completing daily study routines, the Red Tower of the Royal Library in Castle Valoreth was rebuilt book by book. Archmage Turtoisy praised your diligence as ancient scrolls of alchemy and spellcraft were safely restored to the upper archives."
-        },
-        {
-            id: 'feat-exploration-iron-peaks',
-            category: 'Exploration',
-            date: new Date().toISOString(),
-            content: "Your relentless habit momentum cleared the mountain path. The ancient stone waypoints along the frost road to Iron Peaks were restored, allowing merchant caravans to travel safely between settlements."
-        },
-        {
-            id: 'feat-might-granite-quarry',
-            category: 'Might & Defense',
-            date: new Date().toISOString(),
-            content: "Heavy granite stones were hauled from the quarries of the Iron Peaks. Rockie and Buldour helped reinforce the main watchtowers of Thrivehaven against shadow beasts."
-        },
-        {
-            id: 'feat-craft-apotheca-glasshouse',
-            category: 'Craft & Vitality',
-            date: new Date().toISOString(),
-            content: "Craftsmen restored the Grand Apotheca glasshouse and the central market square, filling the town with fragrant herbs, fresh bread from the bakery, and gleaming elixirs."
-        }
-    ], [])
-
-    const displayFeats = useMemo(() => {
-        return fillerEpisodes.length > 0 ? fillerEpisodes : DEFAULT_LORE_RECORDS;
-    }, [fillerEpisodes, DEFAULT_LORE_RECORDS]);
-
-    const activeFeat = displayFeats[currentFeatIndex % displayFeats.length] || displayFeats[0];
 
     useEffect(() => {
         const loadPreferences = async () => {
@@ -96,6 +67,39 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
     const fillerEpisodes = useMemo(() => {
         return allFillerEpisodes.filter((ep: any) => ep.chapterId.toString() === viewedChapterId)
     }, [allFillerEpisodes, viewedChapterId])
+
+    const DEFAULT_LORE_RECORDS = useMemo(() => [
+        {
+            id: 'feat-knowledge-red-tower',
+            category: 'Knowledge',
+            date: new Date().toISOString(),
+            content: "By completing daily study routines, the Red Tower of the Royal Library in Castle Valoreth was rebuilt book by book. Archmage Turtoisy praised your diligence as ancient scrolls of alchemy and spellcraft were safely restored to the upper archives."
+        },
+        {
+            id: 'feat-exploration-iron-peaks',
+            category: 'Exploration',
+            date: new Date().toISOString(),
+            content: "Your relentless habit momentum cleared the mountain path. The ancient stone waypoints along the frost road to Iron Peaks were restored, allowing merchant caravans to travel safely between settlements."
+        },
+        {
+            id: 'feat-might-granite-quarry',
+            category: 'Might & Defense',
+            date: new Date().toISOString(),
+            content: "Heavy granite stones were hauled from the quarries of the Iron Peaks. Rockie and Buldour helped reinforce the main watchtowers of Thrivehaven against shadow beasts."
+        },
+        {
+            id: 'feat-craft-apotheca-glasshouse',
+            category: 'Craft & Vitality',
+            date: new Date().toISOString(),
+            content: "Craftsmen restored the Grand Apotheca glasshouse and the central market square, filling the town with fragrant herbs, fresh bread from the bakery, and gleaming elixirs."
+        }
+    ], [])
+
+    const displayFeats = useMemo(() => {
+        return fillerEpisodes.length > 0 ? fillerEpisodes : DEFAULT_LORE_RECORDS;
+    }, [fillerEpisodes, DEFAULT_LORE_RECORDS]);
+
+    const activeFeat = displayFeats[currentFeatIndex % displayFeats.length] || displayFeats[0];
 
     // Get the current chapter index in CHRONICLES_DATA
     const currentChapterIndex = CHRONICLES_DATA.findIndex(c => c.id.toString() === viewedChapterId)
