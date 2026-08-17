@@ -135,6 +135,31 @@ export function CompanionOverlay() {
     return () => window.removeEventListener('unpack-modal-state', handleUnpackState)
   }, [])
 
+  // Dynamic Randomized Layout State (Spacing, Facing Flips, Depth Offsets, Single/Dual Visibility)
+  const [layoutState, setLayoutState] = useState({
+    gapClass: 'gap-4',
+    necrionScaleX: 1,
+    guardianScaleX: 1,
+    necrionY: 0,
+    guardianY: 0,
+    visibleNecrion: true,
+    visibleGuardian: true,
+  })
+
+  const randomizeLayout = React.useCallback(() => {
+    const gaps = ['gap-2 sm:gap-3', 'gap-4 sm:gap-6', 'gap-6 sm:gap-8', 'gap-3 sm:gap-5']
+    const randomGap = gaps[Math.floor(Math.random() * gaps.length)]
+    
+    // 50% chance Necrion faces right towards Guardian, 50% faces left
+    const necrionFlipped = Math.random() > 0.5
+    
+    // 50% chance Guardian faces left towards Necrion, 50% faces right
+    const guardianFlipped = Math.random() > 0.5
+
+    // Subtle depth offset (-2px to +3px vertical shift)
+    const nY = Math.floor(Math.random() * 6) - 3
+    const gY = Math.floor(Math.random() * 6) - 3
+
     // Dynamic single vs dual companion visibility (40% Necrion only, 40% Guardian only, 20% Both)
     const visRoll = Math.random();
     let visNecrion = true;
