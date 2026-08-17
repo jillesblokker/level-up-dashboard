@@ -1131,23 +1131,23 @@ export default function DungeonPage() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 w-full">
-            <Button
-              onClick={startRun}
-              disabled={dailyCount >= 3}
-              size="lg"
-              className={`w-full sm:flex-1 h-14 sm:h-16 text-base sm:text-lg font-bold tracking-wide transition-all ${dailyCount >= 3 ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 border border-red-500/30 shadow-xl shadow-red-900/20 active:scale-95'}`}
-            >
-              {dailyCount >= 3 ? '🔒 LOCKED' : '⚔️ ENTER DUNGEON'}
-            </Button>
+          <div className="flex flex-col gap-3 w-full max-w-md mx-auto">
             <Button
               onClick={() => router.push('/kingdom?tab=thrivehaven&openDrawer=barracks')}
               variant="outline"
               size="lg"
-              className="w-full sm:w-auto h-14 sm:h-16 px-6 border-amber-500/40 text-amber-300 hover:bg-amber-950/40 font-bold text-xs flex items-center justify-center gap-2 shrink-0 min-h-[44px]"
+              className="w-full h-12 sm:h-14 px-6 border-amber-500/40 text-amber-300 hover:bg-amber-950/40 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shrink-0 min-h-[44px] rounded-xl shadow-lg"
             >
               <span>🛡️ Squad Management</span>
               <span className="text-[10px] text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/30 font-mono">(Barracks)</span>
+            </Button>
+            <Button
+              onClick={startRun}
+              disabled={dailyCount >= 3}
+              size="lg"
+              className={`w-full h-14 sm:h-16 text-base sm:text-lg font-bold tracking-wide transition-all rounded-xl ${dailyCount >= 3 ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 border border-red-500/30 shadow-xl shadow-red-900/20 active:scale-95'}`}
+            >
+              {dailyCount >= 3 ? '🔒 LOCKED' : '⚔️ ENTER DUNGEON'}
             </Button>
           </div>
 

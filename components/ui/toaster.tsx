@@ -61,21 +61,28 @@ function ToastItem({
     if (!el) return undefined;
 
     const updateSize = () => {
-      const rect = el.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
-        setDims({ w: Math.round(rect.width), h: Math.round(rect.height) });
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          setDims({ w: rect.width, h: rect.height });
+        }
       }
     };
+
     updateSize();
+
+    // Re-measure after CSS entry slide-in animation completes (350ms)
+    const animTimer = setTimeout(updateSize, 350);
 
     if (typeof ResizeObserver !== 'undefined') {
       const ro = new ResizeObserver(updateSize);
       ro.observe(el);
       return () => {
+        clearTimeout(animTimer);
         ro.disconnect();
       };
     }
-    return undefined;
+    return () => clearTimeout(animTimer);
   }, []);
 
   useEffect(() => {
