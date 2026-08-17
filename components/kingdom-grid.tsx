@@ -265,7 +265,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
                 className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900"
                 aria-label="Expand kingdom grid"
               >
-                🏰 Expand Kingdom Grid
+                🗺️ Expand Kingdom Grid
               </Button>
             </div>
           )}

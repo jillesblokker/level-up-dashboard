@@ -76,18 +76,21 @@
 
 ---
 
-## 🎨 Medieval Emoji & Icon Audit Matrix
+## 🎨 Medieval Emoji & Icon Alignment Registry
 
-> Comprehensive audit of all emojis in Thrivehaven to replace modern, out-of-place, or non-medieval symbols with authentic fantasy alternatives.
+> Refined based on user feedback: Valid medieval symbols (**Target `🎯`**, **Cog `⚙️`**, **Lightning `⚡`**) are retained. Each feature uses a **unique, non-colliding icon** to preserve visual clarity across all pages.
 
-| Category / Location | Current Emoji & Text | Reason for Change | Suggested Medieval Alternative |
-|---|---|---|---|
-| **Topbar Bag Button** | `🎒` (Red School Backpack) & `✨` Sparkle Badge Overlay | Red school backpacks and bright pulsing badges clash with medieval saddlebags. | **[FIXED]** `<Image src="/images/ui/medieval-backpack.png" ... />` (Rustic leather adventurer backpack) + Sparkle badge removed |
-| **Airship Harbor & Expeditions** | `🚀` (`"Airship Launched! 🚀✨"`, `"🚀 Launch airship"`, `"Away 🚀"`) | Space rockets do not exist in a medieval fantasy setting. | **`⛵` Airship / Galleon** (`"Airship Launched! ⛵✨"`, `"⛵ Launch airship"`, `"Away ⛵"`) |
-| **Kingdom Grid & Daily Hub** | `🚀` (`"🚀 Enter Daily Hub"`, `"🚀 Expand Kingdom Grid"`, `"Growing 🚀"`) | Modern space rocket symbol in kingdom building UI. | **`🏰` Castle / `🌿` Growth** (`"🏰 Enter Daily Hub"`, `"🏰 Expand Kingdom Grid"`, `"Growing 🌿"`) |
-| **Royal Exchange & Market** | `🛒` (`"🛒 ROYAL TRADE WAREHOUSE"`, `"🛒 Enter Royal Exchange"`, `"🛒 Shop"`) | Supermarket metal wire shopping carts are 20th-century items. | **`⚖️` Merchant Scales / `🏪` Stall** (`"⚖️ ROYAL TRADE WAREHOUSE"`, `"⚖️ Enter Royal Exchange"`, `"🏪 Shop"`) |
-| **Celebrations & Level Ups** | `🎉` (`"🎉 LEVEL UP! 🎉"`, `"Quest Completed! 🎉"`, `"🎉 New Blueprint Discovered!"`) | Plastic party poppers with paper streamers are modern novelties. | **`👑` Crown / `🎺` Trumpet** (`"👑 LEVEL UP! 👑"`, `"Quest Completed! 🎺"`, `"✨ New Blueprint Discovered!"`) |
-| **Ether Energy & Speed** | `⚡` (`"⚡ 85% Fuel"`, `"⚡ Speed"`, `"⚡ CHARGING ALTAR"`, `"⚡ Active Raid"`) | Industrial high-voltage electrical hazard symbol. | **`🔮` Ether Crystal / `💫` Celestial Spark** (`"🔮 85% Ether Fuel"`, `"💫 Speed"`, `"🔮 CHARGING ALTAR"`) |
-| **System Notifications** | `⚙️` (System Category Icon) | Industrial factory steel cogwheel. | **`📜` Royal Decree / `🗝️` Citadel Key** |
-| **Habit Targets & Focus** | `🎯` (`"🎯 Sovereign Habit Cadence"`, `"🎯 Base Goal"`) | Modern painted dartboard target. | **`🏹` Archery Bow & Target** (`"🏹 Sovereign Habit Cadence"`) |
+| Feature / UI Location | Assigned Symbol | Icon Rationale & Medieval Authenticity |
+|---|:---:|---|
+| **Topbar Bag & Overlay** | `<Image src="/images/ui/medieval-backpack.png" />` | Custom transparent PNG of rustic leather & canvas adventurer bag *(Replaced red school backpack)* |
+| **Daily Hub Navigation** | `📅` Daily Scroll / Schedule | Unique daily schedule symbol *(Avoids collision with Castle `🏰`)* |
+| **Kingdom Grid Expansion** | `🗺️` Realm Map | Unique cartography map for grid expansion *(Avoids collision with Castle `🏰`)* |
+| **Castle & Citadel Keep** | `🏰` Citadel Fortress | Exclusively reserved for Citadel & Castle Keep tiles |
+| **Royal Exchange & Market** | `⚖️` Merchant Scales | Merchant trade balance scales for material commerce *(Replaced supermarket cart `🛒`)* |
+| **Airship Expeditions** | `⛵` Airship Vessel | Ether sky vessel for harbor voyages *(Replaced modern rocket `🚀`)* |
+| **Habit Targets & Goals** | `🎯` Archery Target | **Retained**: Archery target practice is authentic medieval |
+| **Ether Energy & Speed** | `⚡` Elemental Lightning | **Retained**: Elemental lightning spells and ether fuel speed |
+| **System Notifications** | `⚙️` Citadel Mechanisms | **Retained**: Clockwork cogs and citadel mechanism settings |
+| **Momentum & Growth** | `🌿` Growth Sprout | Botanical growth for weekly momentum |
+
 
