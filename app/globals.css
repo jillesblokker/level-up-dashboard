@@ -234,18 +234,22 @@ body {
   animation: float-up 1.5s ease-out forwards;
 }
 
-/* Toast Green Countdown Fuse Animation */
-@keyframes toast-fuse {
+/* Toast Green Perimeter Countdown Fuse Animation (Top-Right Depletion) */
+@keyframes toast-perimeter-deplete {
   0% {
-    width: 100%;
+    stroke-dasharray: 400;
+    stroke-dashoffset: 0;
   }
   100% {
-    width: 0%;
+    stroke-dasharray: 400;
+    stroke-dashoffset: 400;
   }
 }
 
-.animate-toast-fuse {
-  animation: toast-fuse linear forwards;
+.animate-toast-perimeter {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 0;
+  animation: toast-perimeter-deplete linear forwards;
 }
 
 /* Medieval Night Mode */

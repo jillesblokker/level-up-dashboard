@@ -89,11 +89,17 @@ export function checkAndUnlockTileQuests(gridTiles: any[]): void {
       updatedQuests.push(newQuestObj);
       newlyUnlockedCount++;
 
-      toast({
-        title: "Daily Quest Unlocked! 🗺️✨",
-        description: `New daily habit added: "${def.questName}". Complete it today for extra rewards!`,
-        duration: 5000,
-      });
+      const notifyKey = `tile_quest_notified_${def.questName.toLowerCase().replace(/\s+/g, '-')}`;
+      const alreadyNotified = getUserScopedItem(notifyKey);
+
+      if (!alreadyNotified) {
+        setUserScopedItem(notifyKey, 'true');
+        toast({
+          title: "Daily Quest Unlocked! 🗺️✨",
+          description: `New daily habit added: "${def.questName}". Complete it today for extra rewards!`,
+          duration: 2000,
+        });
+      }
     }
   });
 
