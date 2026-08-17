@@ -110,7 +110,7 @@ function ToastItem({
       className="relative overflow-hidden cursor-pointer active:scale-98 transition-transform"
       onClick={onDismiss}
     >
-      <div className="grid gap-1 relative z-10">
+      <div className="grid gap-1 relative z-10 p-4 pr-10">
         {title && <ToastTitle>{title}</ToastTitle>}
         {description && (
           <ToastDescription>{description}</ToastDescription>
