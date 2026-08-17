@@ -330,7 +330,8 @@ function Die3D({ value, isHidden = false, isHighlighted = false, size = 'md' }: 
     6: ['col-start-1 row-start-1', 'col-start-3 row-start-1', 'col-start-1 row-start-2', 'col-start-3 row-start-2', 'col-start-1 row-start-3', 'col-start-3 row-start-3']
   };
 
-  const pips = pipsMap[value] || pipsMap[1];
+  const defaultPips = ['col-start-2 row-start-2'];
+  const pips = pipsMap[value] ?? defaultPips;
 
   return (
     <div className={cn(
