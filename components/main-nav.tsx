@@ -12,19 +12,26 @@ import { useState, useEffect } from "react"
 
 export function MainNav() {
   const pathname = usePathname()
-  const [readyCount, setReadyCount] = useState(0)
+  const [readyCount, setReadyCount] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('kingdom_collectable_taxes_count');
+      return saved ? parseInt(saved, 10) || 0 : 0;
+    }
+    return 0;
+  });
 
   useEffect(() => {
     const handleReadyUpdate = (event: CustomEvent) => {
       const cnt = event.detail?.count ?? 0;
       setReadyCount(cnt);
+      try {
+        localStorage.setItem('kingdom_collectable_taxes_count', String(cnt));
+      } catch {}
     };
 
     window.addEventListener('kingdom-taxes-count-update', handleReadyUpdate as EventListener);
-    window.addEventListener('kingdom-buildings-ready', handleReadyUpdate as EventListener);
     return () => {
       window.removeEventListener('kingdom-taxes-count-update', handleReadyUpdate as EventListener);
-      window.removeEventListener('kingdom-buildings-ready', handleReadyUpdate as EventListener);
     };
   }, []);
 

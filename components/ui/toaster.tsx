@@ -57,11 +57,21 @@ function ToastItem({
   }, [duration, onDismiss]);
 
   useLayoutEffect(() => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
-        setDims({ w: Math.round(rect.width), h: Math.round(rect.height) });
+    if (!containerRef.current) return;
+    const updateSize = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          setDims({ w: Math.round(rect.width), h: Math.round(rect.height) });
+        }
       }
+    };
+    updateSize();
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(updateSize);
+      ro.observe(containerRef.current);
+      return () => ro.disconnect();
     }
   }, []);
 
@@ -75,8 +85,8 @@ function ToastItem({
   }, [dims]);
 
   const { w, h } = dims;
-  const sw = 3;
-  const inset = 1.5; // Half of strokeWidth so stroke sits 100% unclipped inside card bounds
+  const sw = 2;
+  const inset = 1; // 1px stroke inset aligns 100% unclipped with 1px border bounds
   const r = 8;
   const rx = Math.max(1, r - inset);
 
@@ -87,7 +97,7 @@ function ToastItem({
     <Toast
       {...props}
       ref={containerRef}
-      className="relative overflow-hidden border border-emerald-500/50 bg-zinc-950/95 text-white shadow-xl shadow-emerald-950/40 cursor-pointer active:scale-98 transition-transform"
+      className="relative overflow-hidden border border-emerald-500/30 bg-zinc-950/95 text-white shadow-xl shadow-emerald-950/40 cursor-pointer active:scale-98 transition-transform"
       onClick={onDismiss}
     >
       <div className="grid gap-1 relative z-10">
@@ -121,7 +131,7 @@ function ToastItem({
             d={pathD}
             fill="none"
             stroke={`url(#toast-emerald-gradient-${id})`}
-            strokeWidth="3"
+            strokeWidth={sw}
             filter={`url(#toast-emerald-glow-${id})`}
             style={{
               strokeDasharray: totalLen ? `${totalLen} ${totalLen}` : '1000 1000',

@@ -54,9 +54,6 @@ export function KingdomNotificationManager() {
                     window.dispatchEvent(new CustomEvent('kingdom-buildings-ready', {
                         detail: { count: currentReadyCount }
                     }))
-                    window.dispatchEvent(new CustomEvent('kingdom-taxes-count-update', {
-                        detail: { count: currentReadyCount }
-                    }))
 
                     // Show toast and notification if we went from 0 to some ready buildings
                     if (lastReadyCountRef.current === 0 && currentReadyCount > 0) {

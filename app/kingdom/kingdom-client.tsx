@@ -454,12 +454,21 @@ export function KingdomClient() {
   const [openingPack, setOpeningPack] = useState<any>(null);
 
 
-  const [collectableTaxesCount, setCollectableTaxesCount] = useState<number>(0);
+  const [collectableTaxesCount, setCollectableTaxesCount] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('kingdom_collectable_taxes_count');
+      return saved ? parseInt(saved, 10) || 0 : 0;
+    }
+    return 0;
+  });
 
   useEffect(() => {
     const handleCountUpdate = (e: Event) => {
       const cnt = (e as CustomEvent)?.detail?.count ?? 0;
       setCollectableTaxesCount(cnt);
+      try {
+        localStorage.setItem('kingdom_collectable_taxes_count', String(cnt));
+      } catch {}
     };
     window.addEventListener('kingdom-taxes-count-update', handleCountUpdate);
     return () => window.removeEventListener('kingdom-taxes-count-update', handleCountUpdate);
@@ -1710,6 +1719,10 @@ export function KingdomClient() {
               onClick={() => {
                 setCollectableTaxesCount(0);
                 if (typeof window !== 'undefined') {
+                  try {
+                    localStorage.setItem('kingdom_collectable_taxes_count', '0');
+                  } catch {}
+                  window.dispatchEvent(new CustomEvent('kingdom-taxes-count-update', { detail: { count: 0 } }));
                   window.dispatchEvent(new Event('collect-all-kingdom-taxes'));
                 }
               }}
