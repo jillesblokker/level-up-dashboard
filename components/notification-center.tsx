@@ -272,21 +272,20 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
   // ... (keep existing helper functions)
 
   const EmptyState = () => (
-    <div className="flex flex-col justify-between h-full min-h-[480px] bg-black text-white relative overflow-hidden">
-      {/* Full-width Image Header */}
-      <div className="w-full relative aspect-[4/3] sm:aspect-[16/10] overflow-hidden border-b border-amber-900/30 shrink-0">
+    <div className="flex-1 flex flex-col justify-between items-center h-full w-full bg-black text-white relative overflow-y-auto p-4 sm:p-6 space-y-4">
+      {/* Full Height Mailbox Image */}
+      <div className="relative w-full aspect-[4/5] max-h-[42vh] shrink-0 my-auto">
         <Image
           src="/images/Notifications/no-mail.webp"
           alt="No mail"
           fill
-          className="object-cover object-center"
+          className="object-contain object-center"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
       </div>
 
       {/* Main text & button content on pure black background */}
-      <div className="flex-1 flex flex-col justify-center items-center text-center p-6 space-y-5 bg-black z-10 w-full">
+      <div className="space-y-4 text-center max-w-xs mx-auto shrink-0 w-full pb-4">
         <div className="space-y-2">
           <h3 className="text-xl sm:text-2xl font-bold text-amber-400 font-serif tracking-wide">
             No Messages Await
@@ -294,7 +293,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
           <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto" />
         </div>
 
-        <div className="space-y-2 max-w-xs">
+        <div className="space-y-2">
           <p className="text-zinc-200 text-sm font-medium leading-relaxed">
             The courier has not yet arrived with news from your kingdom.
           </p>
@@ -308,7 +307,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
             setOpen(false)
             window.location.href = '/quests'
           }}
-          className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg border border-amber-400/40 active:scale-95 transition-all text-sm mt-2 flex items-center gap-2"
+          className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg border border-amber-400/40 active:scale-95 transition-all text-sm mt-2 inline-flex items-center gap-2"
         >
           📜 Go to Quests
         </Button>
@@ -331,9 +330,9 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
           </Button>
         )}
       </SheetTrigger>
-      <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-[95vw] md:w-96 bg-black border-l border-amber-800/20 p-0" aria-modal="true">
+      <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-[95vw] md:w-96 !bg-black border-l border-amber-800/20 p-0 flex flex-col h-full overflow-hidden" aria-modal="true">
         {/* Enhanced Header */}
-        <div className="relative p-6 border-b border-amber-800/20 bg-gradient-to-r from-zinc-900 to-zinc-800">
+        <div className="relative p-6 border-b border-amber-800/20 bg-gradient-to-r from-zinc-900 to-zinc-800 shrink-0">
           <div className="flex flex-col gap-4">
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-4">
@@ -379,7 +378,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto max-h-[calc(100vh-120px)] bg-black">
+        <div className="flex-1 flex flex-col overflow-y-auto !bg-black min-h-0">
           {isLoading ? (
             <div className="p-4 space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
