@@ -234,13 +234,13 @@ body {
   animation: float-up 1.5s ease-out forwards;
 }
 
-/* Toast Green Perimeter Countdown Fuse Animation (Top-Right Depletion) */
+/* Toast Green Perimeter Countdown Fuse Animation (True Clockwise Top-Right Depletion) */
 @keyframes toast-perimeter-deplete {
   0% {
     stroke-dashoffset: 0;
   }
   100% {
-    stroke-dashoffset: var(--toast-perimeter-len, 1000px);
+    stroke-dashoffset: calc(-1 * var(--toast-perimeter-len, 1000px));
   }
 }
 
