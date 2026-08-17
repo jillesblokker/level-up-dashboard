@@ -124,6 +124,7 @@ export function CompanionOverlay() {
   const [showNecrion, setShowNecrion] = useState(true)
   const [showGuardian, setShowGuardian] = useState(true)
   const [isUnpackOpen, setIsUnpackOpen] = useState(false)
+  const [isExitingRight, setIsExitingRight] = useState(false)
 
   // Hide companion overlay when unpacking modal is active
   useEffect(() => {
@@ -343,8 +344,16 @@ export function CompanionOverlay() {
     setSpeakerName(speaker)
     setHintIndex(prev => prev + 1)
     setShowSpeech(true)
-    randomizeLayout()
-    setTimeout(() => setIsAnimating(false), 300)
+
+    // Trigger smooth slide out right animation on click
+    setIsExitingRight(true)
+
+    // After 450ms slide out exit, randomize layout and slowly slide back in from right
+    setTimeout(() => {
+      randomizeLayout()
+      setIsExitingRight(false)
+      setIsAnimating(false)
+    }, 500)
   }
 
   if (isUnpackOpen) return null
@@ -406,8 +415,19 @@ export function CompanionOverlay() {
         )}
       </AnimatePresence>
 
-      {/* Characters Standing Side-by-Side with Dynamic Single/Dual Visibility & Facing Directions */}
-      <div className={`flex items-end ${layoutState.gapClass} pointer-events-auto transition-all duration-500`}>
+      {/* Characters Standing Side-by-Side with Slow Entry from Right & Exit Right on Click */}
+      <motion.div
+        initial={{ x: 120, opacity: 0 }}
+        animate={{ 
+          x: isExitingRight ? 180 : 0, 
+          opacity: isExitingRight ? 0 : 1 
+        }}
+        transition={{ 
+          duration: isExitingRight ? 0.45 : 0.75, 
+          ease: isExitingRight ? [0.4, 0, 1, 1] : [0.16, 1, 0.3, 1] 
+        }}
+        className={`flex items-end ${layoutState.gapClass} pointer-events-auto`}
+      >
         {/* 1. Necrion (Realm Mentor Companion) */}
         {showNecrion && (layoutState.visibleNecrion || (!layoutState.visibleGuardian && !showGuardian)) && (
           <div
@@ -455,7 +475,7 @@ export function CompanionOverlay() {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }
