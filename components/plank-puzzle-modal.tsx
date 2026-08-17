@@ -312,6 +312,7 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
   const [moves, setMoves] = useState(0)
   const [activeVariationIndex, setActiveVariationIndex] = useState<number>(0)
   const [hasWon, setHasWon] = useState(false)
+  const [showDpad, setShowDpad] = useState(false)
   const isInitializedRef = useRef(false)
   const gridRef = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef<{
