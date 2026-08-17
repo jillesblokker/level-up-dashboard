@@ -1828,7 +1828,7 @@ export default function DungeonPage() {
                                     : 'bg-gradient-to-r from-zinc-900 via-amber-950/40 to-zinc-900 border-amber-500/40 hover:border-amber-400 text-amber-200 active:scale-95'
                                 }`}
                               >
-                                🐾 Guardian Pet Striker • {petStrikerUsed ? 'Used This Battle' : 'Ready (Click to Strike!)'}
+                                🐾 Pet Attack
                               </Button>
                             </div>
 
