@@ -272,20 +272,20 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
   // ... (keep existing helper functions)
 
   const EmptyState = () => (
-    <div className="flex-1 flex flex-col justify-between items-center h-full w-full bg-black text-white relative overflow-y-auto p-4 sm:p-6 space-y-4">
-      {/* Full Height Mailbox Image */}
-      <div className="relative w-full aspect-[4/5] max-h-[42vh] shrink-0 my-auto">
+    <div className="flex-1 flex flex-col justify-between items-center h-full w-full bg-black text-white relative overflow-y-auto">
+      {/* Full-width Image Banner directly under header (no spacing above, left, or right) */}
+      <div className="w-full relative aspect-[4/5] overflow-hidden shrink-0 border-b border-amber-900/30">
         <Image
           src="/images/Notifications/no-mail.webp"
           alt="No mail"
           fill
-          className="object-contain object-center"
+          className="object-cover object-center"
           priority
         />
       </div>
 
-      {/* Main text & button content on pure black background */}
-      <div className="space-y-4 text-center max-w-xs mx-auto shrink-0 w-full pb-4">
+      {/* Main text & button content on solid black background */}
+      <div className="flex-1 flex flex-col justify-center items-center text-center p-6 space-y-4 bg-black z-10 w-full">
         <div className="space-y-2">
           <h3 className="text-xl sm:text-2xl font-bold text-amber-400 font-serif tracking-wide">
             No Messages Await
@@ -293,7 +293,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
           <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto" />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 max-w-xs">
           <p className="text-zinc-200 text-sm font-medium leading-relaxed">
             The courier has not yet arrived with news from your kingdom.
           </p>
@@ -330,7 +330,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
           </Button>
         )}
       </SheetTrigger>
-      <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-[95vw] md:w-96 !bg-black border-l border-amber-800/20 p-0 flex flex-col h-full overflow-hidden" aria-modal="true">
+      <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-[95vw] md:w-96 !bg-black border-l border-amber-800/20 !p-0 !gap-0 flex flex-col h-full overflow-hidden" aria-modal="true">
         {/* Enhanced Header */}
         <div className="relative p-6 border-b border-amber-800/20 bg-gradient-to-r from-zinc-900 to-zinc-800 shrink-0">
           <div className="flex flex-col gap-4">
