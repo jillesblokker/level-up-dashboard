@@ -16,6 +16,7 @@ import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { FortuneTellerModal } from "@/components/fortune-teller-modal"
 import { TownRiddleModal } from "@/components/minigames/TownRiddleModal"
 import { PlankPuzzleModal } from "@/components/plank-puzzle-modal"
+import { PerimeterFuseBorder } from "@/components/ui/perimeter-fuse-border"
 
 interface HabitFocusData {
   locationName: string;
@@ -399,6 +400,7 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
 
   return (
     <Card className="bg-[#0f1115] border border-amber-950/20 rounded-3xl p-6 shadow-2xl relative overflow-hidden mb-6">
+      <PerimeterFuseBorder color="emerald" borderRadius={24} animated={true} />
       
       {/* Background Lighting Flare */}
       <div className="absolute -top-12 -right-12 w-32 h-32 bg-amber-500/5 blur-3xl rounded-full pointer-events-none" />

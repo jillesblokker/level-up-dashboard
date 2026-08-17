@@ -16,6 +16,7 @@ import { hapticSuccess, hapticMedium, hapticLight } from '@/lib/haptics';
 import { useGameStore } from '@/stores/game-store';
 import { ChevronLeft, X, Heart, Sparkles, Zap, Snowflake, Brain, Flame, Shield, Sword, Wand2, Coins, Trophy, ArrowRight, ExternalLink, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PerimeterFuseBorder } from '@/components/ui/perimeter-fuse-border';
 
 export function RpgHudStatusBar() {
   const pathname = usePathname();

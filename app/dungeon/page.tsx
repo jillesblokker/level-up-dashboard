@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useRouter } from 'next/navigation';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { PerimeterFuseBorder } from "@/components/ui/perimeter-fuse-border";
 import { comprehensiveItems } from '@/app/lib/comprehensive-items';
 import {
   CREATURE_DATA,
@@ -1095,7 +1096,8 @@ export default function DungeonPage() {
           </div>
 
           {/* Habit Combat Buff Header */}
-          <div className="bg-gradient-to-r from-red-950/60 via-purple-950/40 to-zinc-950 p-4 rounded-2xl border border-red-500/30 shadow-xl text-left space-y-2">
+          <div className="relative bg-gradient-to-r from-red-950/60 via-purple-950/40 to-zinc-950 p-4 rounded-2xl border border-red-500/30 shadow-xl text-left space-y-2 overflow-hidden">
+            <PerimeterFuseBorder color="amber" borderRadius={16} animated={true} />
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
                 <span>🔥</span> Active Habit Combat Multipliers
