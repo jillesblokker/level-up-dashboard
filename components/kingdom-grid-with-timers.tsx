@@ -1506,6 +1506,11 @@ export function KingdomGridWithTimers({
       setAbbeyModalOpen(true);
       return;
     }
+    if (tile.type === 'fortune_teller' || tile.type === 'fortune-teller') {
+      setFortuneTileData({ x, y, tileId: 'fortune_teller' });
+      setFortuneModalOpen(true);
+      return;
+    }
     if (tile.type === 'plank-labyrinth') {
       const activeTimer = tileTimers.find(t => t.x === x && t.y === y);
       if (activeTimer && !activeTimer.isReady) {

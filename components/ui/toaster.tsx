@@ -114,7 +114,7 @@ function ToastItem({
 
       {/* Vibrant Single Green Perimeter Fuse Border (Starts top-right, depletes clockwise over 2s) */}
       <div className="absolute inset-0 pointer-events-none rounded-lg overflow-hidden z-20">
-        <svg className="w-full h-full text-emerald-400 overflow-visible">
+        <svg className="w-full h-full text-emerald-400 overflow-visible" viewBox={`0 0 ${w} ${h}`}>
           <defs>
             <linearGradient id={`toast-emerald-gradient-${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#34d399" />
