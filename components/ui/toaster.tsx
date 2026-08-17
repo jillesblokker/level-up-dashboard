@@ -75,9 +75,13 @@ function ToastItem({
   }, [dims]);
 
   const { w, h } = dims;
+  const sw = 3;
+  const inset = 1.5; // Half of strokeWidth so stroke sits 100% unclipped inside card bounds
   const r = 8;
-  // Clockwise path starting at EXACT top-right corner (w - r, 0)
-  const pathD = `M ${w - r} 0 A ${r} ${r} 0 0 1 ${w} ${r} L ${w} ${h - r} A ${r} ${r} 0 0 1 ${w - r} ${h} L ${r} ${h} A ${r} ${r} 0 0 1 0 ${h - r} L 0 ${r} A ${r} ${r} 0 0 1 ${r} 0 Z`;
+  const rx = Math.max(1, r - inset);
+
+  // Clockwise path starting at EXACT top-right corner (w - r, inset)
+  const pathD = `M ${w - r} ${inset} A ${rx} ${rx} 0 0 1 ${w - inset} ${r} L ${w - inset} ${h - r} A ${rx} ${rx} 0 0 1 ${w - r} ${h - inset} L ${r} ${h - inset} A ${rx} ${rx} 0 0 1 ${inset} ${h - r} L ${inset} ${r} A ${rx} ${rx} 0 0 1 ${r} ${inset} Z`;
 
   return (
     <Toast
@@ -105,7 +109,7 @@ function ToastItem({
               <stop offset="100%" stopColor="#059669" />
             </linearGradient>
             <filter id={`toast-emerald-glow-${id}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="1.5" result="blur" />
+              <feGaussianBlur stdDeviation="1" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
@@ -117,7 +121,7 @@ function ToastItem({
             d={pathD}
             fill="none"
             stroke={`url(#toast-emerald-gradient-${id})`}
-            strokeWidth="3.5"
+            strokeWidth="3"
             filter={`url(#toast-emerald-glow-${id})`}
             style={{
               strokeDasharray: totalLen ? `${totalLen} ${totalLen}` : '1000 1000',

@@ -16,12 +16,17 @@ export function MainNav() {
 
   useEffect(() => {
     const handleReadyUpdate = (event: CustomEvent) => {
-      setReadyCount(event.detail.count)
-    }
+      const cnt = event.detail?.count ?? 0;
+      setReadyCount(cnt);
+    };
 
-    window.addEventListener('kingdom-buildings-ready', handleReadyUpdate as EventListener)
-    return () => window.removeEventListener('kingdom-buildings-ready', handleReadyUpdate as EventListener)
-  }, [])
+    window.addEventListener('kingdom-taxes-count-update', handleReadyUpdate as EventListener);
+    window.addEventListener('kingdom-buildings-ready', handleReadyUpdate as EventListener);
+    return () => {
+      window.removeEventListener('kingdom-taxes-count-update', handleReadyUpdate as EventListener);
+      window.removeEventListener('kingdom-buildings-ready', handleReadyUpdate as EventListener);
+    };
+  }, []);
 
   return (
     <div className="mr-4 hidden md:flex pl-6">
