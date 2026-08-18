@@ -22,26 +22,27 @@ export function SeasonalHuntCompletionModal({ isOpen, onClose, eventKey }: Seaso
   const eventConfig: SeasonalEvent = SEASONAL_EVENTS[currentEventKey] || SEASONAL_EVENTS['newyear']!;
 
   useEffect(() => {
-    if (isOpen) {
-      // Trigger multi-stage confetti explosion
-      const duration = 2.5 * 1000;
-      const animationEnd = Date.now() + duration;
+    if (!isOpen) return;
 
-      const interval: any = setInterval(() => {
-        const timeLeft = animationEnd - Date.now();
-        if (timeLeft <= 0) {
-          return clearInterval(interval);
-        }
-        const particleCount = 50 * (timeLeft / duration);
-        confetti({
-          particleCount,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-      }, 250);
+    // Trigger multi-stage confetti explosion
+    const duration = 2.5 * 1000;
+    const animationEnd = Date.now() + duration;
 
-      return () => clearInterval(interval);
-    }
+    const interval: any = setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        return;
+      }
+      const particleCount = 50 * (timeLeft / duration);
+      confetti({
+        particleCount,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }, 250);
+
+    return () => clearInterval(interval);
   }, [isOpen]);
 
   if (!isOpen) return null;
