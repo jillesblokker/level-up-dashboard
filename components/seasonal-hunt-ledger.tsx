@@ -186,7 +186,7 @@ export function SeasonalHuntLedger() {
                 {/* Clue Text Accordion */}
                 {isClueRevealed && (
                   <div className="p-2.5 rounded-lg bg-zinc-950 border border-amber-500/30 text-xs text-amber-200/90 italic animate-in fade-in-50">
-                    💡 <span className="font-semibold text-amber-300">Riddle:</span> "{spot.clue}"
+                    💡 <span className="font-semibold text-amber-300">Riddle:</span> &quot;{spot.clue}&quot;
                   </div>
                 )}
 
