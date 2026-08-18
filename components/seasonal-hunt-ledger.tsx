@@ -220,9 +220,16 @@ export function SeasonalHuntLedger() {
           </Button>
 
           {foundCount === totalCount && (
-            <span className="text-xs font-bold text-amber-400 flex items-center gap-1">
-              <Trophy className="w-4 h-4 text-yellow-400" /> All 10 Collected! 🎉
-            </span>
+            <Button
+              size="sm"
+              onClick={() => {
+                setOpen(false)
+                window.dispatchEvent(new CustomEvent('open-seasonal-hunt-completion'))
+              }}
+              className="text-xs bg-amber-600 hover:bg-amber-700 text-white font-bold flex items-center gap-1"
+            >
+              <Trophy className="w-4 h-4 text-yellow-300" /> View Victory! 🎉
+            </Button>
           )}
         </div>
       </SheetContent>
