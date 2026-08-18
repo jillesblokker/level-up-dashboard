@@ -390,14 +390,26 @@ class SeasonalHuntManagerClass {
         throw new Error(`Failed to reset items: ${response.statusText}`);
       }
 
-      // Re-initialize fresh items
-      this.items = [];
-      this.initialized = false;
-      await this.initialize(userId);
+      const data = await response.json();
+      if (Array.isArray(data.items) && data.items.length > 0) {
+        this.items = data.items;
+      } else if (Array.isArray(data.item) && data.item.length > 0) {
+        this.items = data.item;
+      } else {
+        this.items = this.items.map(item => ({ ...item, found: false, found_at: undefined }));
+      }
+      
+      this.initialized = true;
+
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('seasonal-hunt:updated'));
       }
     } catch (error) {
+      // Fallback local reset
+      this.items = this.items.map(item => ({ ...item, found: false, found_at: undefined }));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('seasonal-hunt:updated'));
+      }
       throw error;
     }
   }

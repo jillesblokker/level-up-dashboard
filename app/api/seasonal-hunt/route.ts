@@ -85,14 +85,18 @@ export async function POST(req: NextRequest) {
         return data;
 
       } else if (action === 'reset') {
-        // Delete all seasonal hunt items for this user so fresh ones can be hidden
-        const { error } = await supabase
+        // Mark all items as un-found for this user so they can be hunted again
+        const { data, error } = await supabase
           .from('seasonal_hunt')
-          .delete()
-          .eq('user_id', userId);
+          .update({ 
+            found: false, 
+            found_at: null 
+          })
+          .eq('user_id', userId)
+          .select();
 
         if (error) throw error;
-        return { reset: true };
+        return data || [];
       }
       
       throw new Error('Invalid action');

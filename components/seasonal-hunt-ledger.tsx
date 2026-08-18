@@ -40,8 +40,14 @@ export function SeasonalHuntLedger() {
   useEffect(() => {
     loadProgress()
     const handleProgressUpdate = () => loadProgress()
+    const handleOpenLedger = () => setOpen(true)
+
     window.addEventListener('seasonal-hunt:updated', handleProgressUpdate)
-    return () => window.removeEventListener('seasonal-hunt:updated', handleProgressUpdate)
+    window.addEventListener('open-seasonal-hunt-ledger', handleOpenLedger)
+    return () => {
+      window.removeEventListener('seasonal-hunt:updated', handleProgressUpdate)
+      window.removeEventListener('open-seasonal-hunt-ledger', handleOpenLedger)
+    }
   }, [user?.id, pathname])
 
   const handleToggleClue = (itemId: number) => {
@@ -88,28 +94,6 @@ export function SeasonalHuntLedger() {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <button
-          type="button"
-          aria-label="Open Seasonal Event Hide and Seek Ledger"
-          className="fixed bottom-20 left-3 md:bottom-6 md:left-6 z-40 bg-zinc-950/90 border border-amber-500/40 hover:border-amber-400 text-amber-300 px-3 py-2 rounded-2xl shadow-xl backdrop-blur-md flex items-center gap-2 text-xs font-bold font-serif transition-all hover:scale-105 group"
-        >
-          <div className="relative">
-            <Image
-              src={eventConfig.image}
-              alt={eventConfig.name}
-              width={22}
-              height={22}
-              className="drop-shadow group-hover:rotate-12 transition-transform"
-            />
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-400 rounded-full animate-ping" />
-          </div>
-          <span>{eventConfig.name}</span>
-          <span className="bg-amber-950/90 text-amber-200 border border-amber-500/30 px-1.5 py-0.5 rounded-md font-mono text-[10px]">
-            {foundCount}/{totalCount}
-          </span>
-        </button>
-      </SheetTrigger>
       <SheetContent side="left" className="w-[95vw] sm:w-96 !bg-black border-r border-amber-800/30 text-white p-0 flex flex-col h-full overflow-hidden">
         {/* Header */}
         <div className="p-5 border-b border-amber-800/30 bg-gradient-to-r from-zinc-900 via-amber-950/30 to-zinc-900 shrink-0 space-y-2">

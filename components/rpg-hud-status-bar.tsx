@@ -448,8 +448,10 @@ export function RpgHudStatusBar() {
                     {/* Seasonal Hunt Pill matching user screenshot */}
                     <div
                       className="flex items-center gap-2 px-3 py-1 rounded-xl bg-zinc-950/90 border border-amber-800/60 text-amber-100 cursor-pointer hover:border-amber-500/80 hover:bg-zinc-900 transition-all shadow-sm shrink-0"
-                      onClick={() => openDrawer('event')}
-                      title="View Seasonal Hunt Progress"
+                      onClick={() => {
+                        window.dispatchEvent(new CustomEvent('open-seasonal-hunt-ledger'));
+                      }}
+                      title="View Seasonal Hunt Clues & Progress"
                     >
                       <span className="font-serif font-bold text-xs tracking-wide text-amber-100">
                         {seasonalConfig ? seasonalConfig.name : 'Forge Ingot Hunt'}
@@ -628,7 +630,9 @@ export function RpgHudStatusBar() {
 
                     <div
                       className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-zinc-950 border border-amber-800/60 text-amber-100 cursor-pointer active:scale-95 transition-transform shrink-0"
-                      onClick={() => openDrawer('event')}
+                      onClick={() => {
+                        window.dispatchEvent(new CustomEvent('open-seasonal-hunt-ledger'));
+                      }}
                     >
                       <span className="font-serif font-bold text-[10px] text-amber-100 truncate max-w-[70px]">
                         {seasonalConfig ? seasonalConfig.name.replace(' Hunt', '') : 'Forge Ingot'}
@@ -997,11 +1001,11 @@ export function RpgHudStatusBar() {
                       <Button
                         onClick={() => {
                           setActiveDrawer(null);
-                          window.location.href = '/daily-hub';
+                          window.dispatchEvent(new CustomEvent('open-seasonal-hunt-ledger'));
                         }}
-                        className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold h-10 flex items-center justify-center gap-2"
+                        className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold h-10 flex items-center justify-center gap-2 font-serif tracking-wide"
                       >
-                        <Search className="w-4 h-4" /> Start hunting <ArrowRight className="w-4 h-4" />
+                        <Search className="w-4 h-4" /> View Hide & Seek Clues <ArrowRight className="w-4 h-4" />
                       </Button>
                     </>
                   ) : (
