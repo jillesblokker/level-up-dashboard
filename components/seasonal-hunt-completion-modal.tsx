@@ -51,12 +51,12 @@ export function SeasonalHuntCompletionModal({ isOpen, onClose, eventKey }: Seaso
     // 1. Grant 1,000 Gold
     gainGold(1000, 'seasonal-hunt-completion');
 
-    // 2. Grant +100 Virtue Energy / Character Stat
-    try {
-      addToCharacterStat('virtue_points', 100, 'seasonal-hunt-completion');
-    } catch {
-      // Ignore if stat key differs
-    }
+    // 2. Grant +100 Experience & +240 Elemental Essences
+    addToCharacterStat('experience', 100, 'seasonal-hunt-completion');
+    addToCharacterStat('ember_essence', 60, 'seasonal-hunt-completion');
+    addToCharacterStat('frost_essence', 60, 'seasonal-hunt-completion');
+    addToCharacterStat('tide_essence', 60, 'seasonal-hunt-completion');
+    addToCharacterStat('verdant_essence', 60, 'seasonal-hunt-completion');
 
     // 3. Dispatch completion events
     if (typeof window !== 'undefined') {
