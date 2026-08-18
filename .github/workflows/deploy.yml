@@ -76,20 +76,22 @@ jobs:
             mkdir -p .next/standalone/.next
             cp -r .next/static .next/standalone/.next/
             
-            # Absolute bundling
-            cd .next/standalone && tar -czf ../../deploy.tar.gz . && cd ../..
+            # Absolute bundling with fast gzip compression
+            cd .next/standalone && GZIP=-1 tar -czf ../../deploy.tar.gz . && cd ../..
           else
             echo "::error::STANDALONE ERROR: Build output missing."
             exit 1
           fi
 
       - name: Send Snapshot to server
-        timeout-minutes: 3
+        timeout-minutes: 8
         run: |
           scp -i ~/.ssh/deploy_key \
             -o StrictHostKeyChecking=no \
             -o ConnectTimeout=30 \
-            -o ConnectionAttempts=3 \
+            -o ConnectionAttempts=5 \
+            -o ServerAliveInterval=15 \
+            -o ServerAliveCountMax=5 \
             deploy.tar.gz root@165.232.86.194:/tmp/deploy.tar.gz
 
       - name: Deploy to server
