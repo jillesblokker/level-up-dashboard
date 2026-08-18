@@ -19,7 +19,7 @@ interface SeasonalHuntCompletionModalProps {
 
 export function SeasonalHuntCompletionModal({ isOpen, onClose, eventKey }: SeasonalHuntCompletionModalProps) {
   const currentEventKey = eventKey || 'newyear';
-  const eventConfig: SeasonalEvent = SEASONAL_EVENTS[currentEventKey] || SEASONAL_EVENTS.newyear!;
+  const eventConfig: SeasonalEvent = SEASONAL_EVENTS[currentEventKey] || SEASONAL_EVENTS['newyear']!;
 
   useEffect(() => {
     if (isOpen) {
