@@ -107,6 +107,7 @@ export function useSupabase() {
                                 },
                             },
                             auth: {
+                                storageKey: 'thrivehaven-hooks-client',
                                 // Use safe storage adapter to prevent iOS Safari crashes
                                 storage: createSafeStorageAdapter(),
                                 // Disable session persistence - we use Clerk for auth

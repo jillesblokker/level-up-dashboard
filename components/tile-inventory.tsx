@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 ;
 
 import Image from "next/image"
-import { BookOpen, MapPin, ArrowUpRight, Droplets, Trees, Home, Mountain, Info, Check } from 'lucide-react'
+import { BookOpen, MapPin, ArrowUpRight, Droplets, Trees, Home, Mountain, Info, Check, ChevronDown } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -446,29 +446,31 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               <label className="text-sm font-medium text-zinc-300">Tile Category</label>
               <span className="text-xs text-zinc-500">Level {userLevelValue}</span>
             </div>
-            <Select value={selectedCategory} onValueChange={(val) => { if (val) setSelectedCategory(val); }}>
-              <SelectTrigger className="w-full bg-zinc-900 border-zinc-700">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent className="bg-zinc-900 border-zinc-700 min-w-[280px]">
+            <div className="relative">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full bg-zinc-900 border border-zinc-700 hover:border-amber-500/50 text-white rounded-lg px-4 py-2.5 text-sm font-serif focus:outline-none focus:ring-2 focus:ring-amber-500/50 shadow-inner cursor-pointer appearance-none pr-10 transition-colors"
+                aria-label="Select Tile Category"
+              >
                 {tileCategories.map(category => {
                   const isUnlocked = userLevelValue >= category.minLevel;
                   return (
-                    <SelectItem
+                    <option
                       key={category.id}
                       value={category.id}
                       disabled={!isUnlocked}
-                      className={cn(
-                        "cursor-pointer",
-                        !isUnlocked && "opacity-60 cursor-not-allowed text-zinc-500"
-                      )}
+                      className="bg-zinc-900 text-zinc-100 py-2 disabled:text-zinc-500 disabled:bg-zinc-950"
                     >
-                      {category.name} (Lvl {category.minLevel}-{category.maxLevel})
-                    </SelectItem>
+                      {category.name} (Lvl {category.minLevel}-{category.maxLevel}){!isUnlocked ? ' 🔒 Locked' : ''}
+                    </option>
                   );
                 })}
-              </SelectContent>
-            </Select>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-amber-500">
+                <ChevronDown className="h-4 w-4 opacity-70" />
+              </div>
+            </div>
           </div>
 
           <div className="flex-1 min-h-0 w-full">
@@ -604,29 +606,31 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               <label className="text-sm font-medium text-zinc-300">Tile Category</label>
               <span className="text-xs text-zinc-500">Level {userLevelValue}</span>
             </div>
-            <Select value={selectedCategory} onValueChange={(val) => { if (val) setSelectedCategory(val); }}>
-              <SelectTrigger className="w-full bg-zinc-900 border-zinc-700">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent className="bg-zinc-900 border-zinc-700 min-w-[280px]">
+            <div className="relative">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full bg-zinc-900 border border-zinc-700 hover:border-amber-500/50 text-white rounded-lg px-4 py-2.5 text-sm font-serif focus:outline-none focus:ring-2 focus:ring-amber-500/50 shadow-inner cursor-pointer appearance-none pr-10 transition-colors"
+                aria-label="Select Tile Category"
+              >
                 {tileCategories.map(category => {
                   const isUnlocked = userLevelValue >= category.minLevel;
                   return (
-                    <SelectItem
+                    <option
                       key={category.id}
                       value={category.id}
                       disabled={!isUnlocked}
-                      className={cn(
-                        "cursor-pointer",
-                        !isUnlocked && "opacity-60 cursor-not-allowed text-zinc-500"
-                      )}
+                      className="bg-zinc-900 text-zinc-100 py-2 disabled:text-zinc-500 disabled:bg-zinc-950"
                     >
-                      {category.name} (Lvl {category.minLevel}-{category.maxLevel})
-                    </SelectItem>
+                      {category.name} (Lvl {category.minLevel}-{category.maxLevel}){!isUnlocked ? ' 🔒 Locked' : ''}
+                    </option>
                   );
                 })}
-              </SelectContent>
-            </Select>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-amber-500">
+                <ChevronDown className="h-4 w-4 opacity-70" />
+              </div>
+            </div>
           </div>
 
           <div className="flex-1 min-h-0 w-full">

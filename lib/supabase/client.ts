@@ -10,6 +10,7 @@ export const supabase = (() => {
     const key = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
     supabaseInstance = createClient<Database>(url, key, {
       auth: {
+        storageKey: 'thrivehaven-singleton-client',
         persistSession: false,
         autoRefreshToken: false,
         detectSessionInUrl: false,
