@@ -9,6 +9,7 @@ import { toast } from '@/components/ui/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Gift, Egg, Circle, Heart, Clover, Shield, Sun, Sparkles, Hammer, Wheat, Scroll } from 'lucide-react';
+import { formatCount, pluralize } from '@/lib/utils';
 
 interface SeasonalHuntItemProps {
   item: SeasonalItem;
@@ -73,7 +74,7 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
         // Show success toast
         toast({
           title: `🎉 ${eventConfig.name}!`,
-          description: `You found a ${getEventItemName(currentEvent)}! Earned +${eventConfig.goldReward} Gold & +25 Essences. ${currentProgress.remaining} remaining.`,
+          description: `You found a ${getEventItemName(currentEvent)}! Earned +${eventConfig.goldReward} Gold & +25 Essences. ${formatCount(currentProgress.remaining, 'hidden item')} remaining.`,
         });
 
         setIsFound(true);
@@ -143,7 +144,7 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
           />
           {/* Hide & Seek Peeking Badge */}
           <span className="absolute -top-2 -right-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold font-mono text-[9px] px-1.5 py-0.5 rounded-full shadow border border-amber-300/40 animate-bounce">
-            ✨ Peek!
+            Peek!
           </span>
         </div>
       </div>
@@ -197,7 +198,7 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
                 
                 <p className="text-[11px] text-center text-zinc-400">
                   {progress.remaining > 0 
-                    ? `🔍 ${progress.remaining} hidden items remaining across the kingdom!`
+                    ? `🔍 ${formatCount(progress.remaining, 'hidden item')} remaining across the kingdom!`
                     : `🏆 Master Hunter! All 10 seasonal items collected!`}
                 </p>
               </div>

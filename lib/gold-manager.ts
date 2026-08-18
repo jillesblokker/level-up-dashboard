@@ -1,5 +1,6 @@
 import { logger } from "@/lib/logger";
 import { toast } from "@/components/ui/use-toast";
+import { dedupedToast } from "@/lib/toast-utils";
 import { emitGoldGained } from "@/lib/kingdom-events";
 import { getCharacterStats, addToCharacterStat } from "@/lib/character-stats-service";
 import { createGoldGainedNotification } from "@/lib/notifications";
@@ -81,10 +82,15 @@ export async function gainGold(amount: number, source: string, metadata?: any) {
                       source === 'penguin-play';
 
       if (!isMuted || !isMinor) {
-        toast({
-          title,
-          description,
-        });
+        if (isMinor) {
+          // Batch rapid-fire minor collections into a single updating toast
+          const dedupeKey = source.startsWith('tile-collect:') ? 'tile-collect'
+            : source.startsWith('citizen-collect:') ? 'citizen-collect'
+            : source;
+          dedupedToast(dedupeKey, { title, description, windowMs: 2000 });
+        } else {
+          toast({ title, description });
+        }
       }
     }
 

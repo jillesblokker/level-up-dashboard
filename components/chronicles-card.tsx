@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress"
 import Image from "next/image"
 import { Scroll, BookOpen, Map, Lock, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
 import { CHRONICLES_DATA, getCurrentChapter, getNextChapter } from "@/lib/chronicles-data"
-import { cn } from "@/lib/utils"
+import { cn, formatCount } from "@/lib/utils"
 import {
     Select,
     SelectContent,
@@ -385,7 +385,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                     <div className="mt-6 space-y-2 pt-4 border-t border-amber-800/30">
                         <div className="flex items-center justify-between text-xs text-amber-400/70">
                             <span>Next: {nextChapter.title}</span>
-                            <span>{levelsRemaining} levels to go</span>
+                            <span>{formatCount(levelsRemaining, 'level')} to go</span>
                         </div>
                         <div className="relative h-1.5 bg-zinc-950 rounded-full overflow-hidden border border-amber-900/30">
                             <div

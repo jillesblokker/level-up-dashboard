@@ -1,3 +1,5 @@
+import { fetchWithAuth } from './fetchWithAuth';
+
 export interface SeasonalItem {
   id: number;
   user_id: string;
@@ -289,7 +291,7 @@ class SeasonalHuntManagerClass {
       }
 
       // Load existing items from API
-      const response = await fetch('/api/seasonal-hunt');
+      const response = await fetchWithAuth('/api/seasonal-hunt');
       if (!response.ok) {
         throw new Error(`Failed to load items: ${response.statusText}`);
       }
@@ -311,7 +313,7 @@ class SeasonalHuntManagerClass {
 
   private async createItems(userId: string, eventKey: string): Promise<void> {
     try {
-      const response = await fetch('/api/seasonal-hunt', {
+      const response = await fetchWithAuth('/api/seasonal-hunt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'initialize', eventKey })
@@ -330,7 +332,7 @@ class SeasonalHuntManagerClass {
 
   async findItem(userId: string, itemId: number): Promise<SeasonalItem | null> {
     try {
-      const response = await fetch('/api/seasonal-hunt', {
+      const response = await fetchWithAuth('/api/seasonal-hunt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'find', itemId })
@@ -371,7 +373,7 @@ class SeasonalHuntManagerClass {
 
   async resetItems(userId: string): Promise<void> {
     try {
-      const response = await fetch('/api/seasonal-hunt', {
+      const response = await fetchWithAuth('/api/seasonal-hunt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'reset' })

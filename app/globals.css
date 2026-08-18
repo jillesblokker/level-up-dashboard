@@ -10,6 +10,28 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* -----------------------------------------------------------------------
+   Accessibility: Gold keyboard focus rings
+   Replaces the browser's jarring blue outline with a medieval amber ring
+   that's still WCAG-compliant (contrast: inner #000 + outer amber glow).
+   ----------------------------------------------------------------------- */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #000, 0 0 0 4px rgba(245, 158, 11, 0.85);
+  border-radius: 3px;
+}
+
+/* Buttons inside rounded containers inherit the border radius */
+button:focus-visible,
+[role="button"]:focus-visible {
+  border-radius: inherit;
+}
+
+
 /* Line clamp utilities for text truncation */
 .line-clamp-1 {
   overflow: hidden;

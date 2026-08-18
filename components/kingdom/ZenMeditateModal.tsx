@@ -10,6 +10,7 @@ import { updateCharacterStats } from '@/lib/character-stats-service'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { notificationService } from "@/lib/notification-service"
+import { fetchWithAuth } from '@/lib/fetchWithAuth'
 
 interface ZenMeditateModalProps {
     isOpen: boolean
@@ -31,7 +32,7 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
             setIsSubmitting(false)
 
             // Auto-initialize meditation quest if it doesn't exist
-            fetch('/api/quests/init-special', {
+            fetchWithAuth('/api/quests/init-special', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ type: 'meditation' })
@@ -72,20 +73,21 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
         setIsSubmitting(true);
         try {
             // 1. Record meditation in database for Journey stats
-            await fetch('/api/meditations', { method: 'POST' });
+            await fetchWithAuth('/api/meditations', { method: 'POST' });
 
             // 2. Try to auto-complete the "Daily Meditation" quest if it exists
             try {
-                const questsRes = await fetch('/api/quests');
+                const questsRes = await fetchWithAuth('/api/quests');
                 if (questsRes.ok) {
                     const quests = await questsRes.json();
-                    const meditationQuest = quests.find((q: any) => 
+                    const allQuests = Array.isArray(quests) ? quests : (quests.quests || []);
+                    const meditationQuest = allQuests.find((q: any) => 
                         q.name === 'Daily Meditation' && !q.completed
                     );
                     
                     if (meditationQuest) {
                         logger.debug('[ZenMeditate] Auto-completing meditation quest:', meditationQuest.id);
-                        await fetch('/api/quests/smart-completion', {
+                        await fetchWithAuth('/api/quests/smart-completion', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -93,6 +95,10 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
                                 completed: true
                             })
                         });
+                        // Notify the quest board to re-sync
+                        if (typeof window !== 'undefined') {
+                            window.dispatchEvent(new CustomEvent('quest-completed', { detail: { questId: meditationQuest.id } }));
+                        }
                     }
                 }
             } catch (qErr) {

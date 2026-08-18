@@ -14,6 +14,7 @@ import { KeyboardShortcutsProvider } from '@/components/keyboard-shortcuts'
 import { ParticleProvider } from '@/components/ui/particles'
 import { SeasonalHuntWrapper } from '@/components/seasonal-hunt-wrapper'
 import { UserStorageInitializer } from '@/components/user-storage-initializer'
+import { OfflineBanner } from '@/components/offline-banner'
 import { CelebrationSystem } from '@/components/celebration-system'
 import { RpgHudStatusBar } from '@/components/rpg-hud-status-bar'
 import dynamic from 'next/dynamic';
@@ -56,6 +57,9 @@ export function GameSystemsProvider({ children }: { children: React.ReactNode })
                 {children}
                 <SeasonalHuntWrapper />
             </div>
+
+            {/* Offline Status */}
+            <OfflineBanner />
 
             {/* Background Systems */}
             <UserStorageInitializer />

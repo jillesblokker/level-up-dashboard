@@ -14,9 +14,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { toast } from '@/components/ui/use-toast';
 import { hapticSuccess, hapticMedium, hapticLight } from '@/lib/haptics';
 import { useGameStore } from '@/stores/game-store';
-import { ChevronLeft, X, Heart, Sparkles, Zap, Snowflake, Brain, Flame, Shield, Sword, Wand2, Coins, Trophy, ArrowRight, ExternalLink, Play } from 'lucide-react';
+import { ChevronLeft, X, Heart, Sparkles, Zap, Snowflake, Brain, Flame, Shield, Sword, Wand2, Coins, Trophy, ArrowRight, ExternalLink, Play, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PerimeterFuseBorder } from '@/components/ui/perimeter-fuse-border';
+import { SeasonalHuntManager, SEASONAL_EVENTS } from '@/lib/seasonal-hunt-manager';
 
 export function RpgHudStatusBar() {
   const pathname = usePathname();
@@ -31,6 +32,11 @@ export function RpgHudStatusBar() {
   const [drawerTouchStartY, setDrawerTouchStartY] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(true);
   const [charStats, setCharStats] = useState({ level: 1, experience: 0, gold: 0, focus_points: 102 });
+
+  // Seasonal Hunt live state
+  const [seasonalEventKey, setSeasonalEventKey] = useState<string>('');
+  const [seasonalFound, setSeasonalFound] = useState(0);
+  const [seasonalTotal, setSeasonalTotal] = useState(10);
 
   const sanctuaryMode = useGameStore(s => s.sanctuaryMode);
   const setSanctuaryMode = useGameStore(s => s.setSanctuaryMode);
@@ -52,6 +58,22 @@ export function RpgHudStatusBar() {
     };
     window.addEventListener('unpack-modal-state', handleUnpackState);
     return () => window.removeEventListener('unpack-modal-state', handleUnpackState);
+  }, []);
+
+  // Seasonal Hunt live state loader
+  useEffect(() => {
+    const loadSeasonalHunt = () => {
+      try {
+        const eventKey = SeasonalHuntManager.getCurrentEvent();
+        setSeasonalEventKey(eventKey || '');
+        const progress = SeasonalHuntManager.getProgress();
+        setSeasonalFound(progress.found);
+        setSeasonalTotal(progress.total || 10);
+      } catch {}
+    };
+    loadSeasonalHunt();
+    window.addEventListener('seasonal-hunt:updated', loadSeasonalHunt);
+    return () => window.removeEventListener('seasonal-hunt:updated', loadSeasonalHunt);
   }, []);
 
   // Reset visibility when navigating between pages
@@ -189,6 +211,10 @@ export function RpgHudStatusBar() {
   const isPeakKing = health >= 100;
   const currentXpInLevel = Math.max(0, charStats.experience % 100);
   const xpPercent = Math.min(100, Math.max(0, Math.round((currentXpInLevel / 100) * 100)));
+
+  // Derived seasonal hunt display data
+  const seasonalConfig = seasonalEventKey ? SEASONAL_EVENTS[seasonalEventKey] : null;
+  const seasonalLabel = seasonalConfig ? seasonalConfig.name.replace(' Hunt', '').replace("'s Hunt", '') : 'Forge Ingot';
 
   const formatShortGold = (amount: number): string => {
     if (amount >= 1_000_000) {
@@ -434,11 +460,18 @@ export function RpgHudStatusBar() {
                   </div>
                 )}
 
-                {/* Desktop Slide 2: Festival, Sanctuary, Multipliers */}
+                {/* Desktop Slide 2: Seasonal Hunt, Sanctuary, Multipliers */}
                 {activeSlide % 5 === 2 && (
                   <div className="flex items-center justify-between gap-2 text-xs font-mono font-bold animate-fadeIn py-0.5">
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-950/80 border border-amber-500/50 text-amber-300 shrink-0 cursor-pointer" onClick={() => openDrawer('event')}>
-                      <span>🔥</span> <span>Forge Fire</span>
+                    {/* Seasonal Hunt Pill */}
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-950/80 border border-amber-500/50 text-amber-300 shrink-0 cursor-pointer hover:bg-amber-900/60 transition-colors" onClick={() => openDrawer('event')}>
+                      <Search className="w-3 h-3" />
+                      <span>{seasonalLabel}</span>
+                      {seasonalTotal > 0 && (
+                        <span className="ml-0.5 px-1.5 py-0.5 rounded-full bg-amber-700/60 text-amber-200 text-[9px] font-mono border border-amber-500/30">
+                          {seasonalFound}/{seasonalTotal}
+                        </span>
+                      )}
                     </div>
                     <button
                       type="button"
@@ -454,10 +487,10 @@ export function RpgHudStatusBar() {
                     >
                       <span>🛡️</span> <span>Sanctuary</span>
                     </button>
-                    <span className="px-2.5 py-1 rounded-lg bg-orange-950/80 border border-orange-500/40 text-orange-300 shrink-0 cursor-pointer" onClick={() => openDrawer('event')}>⚔️ Might x4</span>
-                    <span className="px-2.5 py-1 rounded-lg bg-sky-950/80 border border-sky-500/40 text-sky-300 shrink-0 cursor-pointer" onClick={() => openDrawer('event')}>📖 Knowledge x2</span>
+                    <span className="px-2.5 py-1 rounded-lg bg-orange-950/80 border border-orange-500/40 text-orange-300 shrink-0 cursor-pointer" onClick={() => openDrawer('buffs')}>⚔️ Might x4</span>
                   </div>
                 )}
+
 
                 {/* Desktop Slide 3: Recovery & Dungeon Buffs */}
                 {activeSlide % 5 === 3 && (
@@ -604,11 +637,15 @@ export function RpgHudStatusBar() {
                   </div>
                 )}
 
-                {/* Mobile Slide 3: Forge Fire, Sanctuary, Multipliers */}
+                {/* Mobile Slide 3: Seasonal Hunt, Sanctuary, Multipliers */}
                 {activeSlide % 6 === 3 && (
                   <div className="flex items-center justify-between gap-1.5 text-[10px] font-mono font-bold animate-fadeIn">
                     <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-950 border border-amber-500/50 text-amber-300 cursor-pointer" onClick={() => openDrawer('event')}>
-                      <span>🔥</span> <span>Forge Fire</span>
+                      <Search className="w-2.5 h-2.5" />
+                      <span className="truncate max-w-[60px]">{seasonalLabel}</span>
+                      {seasonalTotal > 0 && (
+                        <span className="text-amber-200 text-[8px]">{seasonalFound}/{seasonalTotal}</span>
+                      )}
                     </div>
                     <button
                       type="button"
@@ -624,7 +661,7 @@ export function RpgHudStatusBar() {
                     >
                       <span>🛡️</span> <span>Sanctuary</span>
                     </button>
-                    <span className="px-1.5 py-0.5 rounded bg-orange-950 border border-orange-500/40 text-orange-300 cursor-pointer" onClick={() => openDrawer('event')}>⚔️ x4</span>
+                    <span className="px-1.5 py-0.5 rounded bg-orange-950 border border-orange-500/40 text-orange-300 cursor-pointer" onClick={() => openDrawer('buffs')}>⚔️ x4</span>
                   </div>
                 )}
 
@@ -896,15 +933,64 @@ export function RpgHudStatusBar() {
 
               {activeDrawer === 'event' && (
                 <div className="space-y-3">
-                  <div className="p-3 bg-amber-950/40 border border-amber-500/40 rounded-xl space-y-2">
-                    <h4 className="font-serif font-bold text-amber-300 text-sm">🔥 FORGE FIRE FESTIVAL (Active)</h4>
-                    <p className="text-zinc-400 text-[11px]">Blacksmith, Archery, and Jousting properties gain +20% Gold and +10% XP output during this festival.</p>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      <span className="px-2 py-0.5 rounded bg-orange-950 border border-orange-500/40 text-orange-300">⚔️ MIGHT x4</span>
-                      <span className="px-2 py-0.5 rounded bg-sky-950 border border-sky-500/40 text-sky-300">📖 KNOWLEDGE x2</span>
-                      <span className="px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300">🧘 WELLNESS x3</span>
+                  {seasonalConfig ? (
+                    <>
+                      {/* Hunt header */}
+                      <div className="p-3 bg-amber-950/40 border border-amber-500/40 rounded-xl space-y-2">
+                        <div className="flex items-center gap-2.5">
+                          {seasonalConfig.image && (
+                            <Image
+                              src={seasonalConfig.image}
+                              alt={seasonalConfig.name}
+                              width={28}
+                              height={28}
+                              className="rounded object-contain flex-shrink-0"
+                            />
+                          )}
+                          <div>
+                            <h4 className="font-serif font-bold text-amber-300 text-sm leading-tight">
+                              {seasonalConfig.name} <span className="text-emerald-400 text-[10px] font-mono uppercase tracking-wide">Active</span>
+                            </h4>
+                            <p className="text-zinc-400 text-[11px] leading-snug mt-0.5">{seasonalConfig.description}</p>
+                          </div>
+                        </div>
+
+                        {/* Progress bar */}
+                        {seasonalTotal > 0 && (
+                          <div className="space-y-1 pt-1">
+                            <div className="flex justify-between text-[10px] font-mono text-amber-200">
+                              <span>Items found</span>
+                              <span className="font-bold">{seasonalFound} / {seasonalTotal}</span>
+                            </div>
+                            <div className="w-full h-2 bg-zinc-900 rounded-full border border-amber-900/40 overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-amber-600 to-amber-400 transition-all duration-500"
+                                style={{ width: `${seasonalTotal > 0 ? Math.round((seasonalFound / seasonalTotal) * 100) : 0}%` }}
+                              />
+                            </div>
+                            {seasonalFound >= seasonalTotal && (
+                              <p className="text-emerald-400 text-[10px] font-mono font-bold">🎉 Hunt complete! Claim your {seasonalConfig.goldReward}g reward!</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* CTA */}
+                      <Button
+                        onClick={() => {
+                          setActiveDrawer(null);
+                          window.location.href = '/daily-hub';
+                        }}
+                        className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold h-10 flex items-center justify-center gap-2"
+                      >
+                        <Search className="w-4 h-4" /> Start hunting <ArrowRight className="w-4 h-4" />
+                      </Button>
+                    </>
+                  ) : (
+                    <div className="p-3 bg-zinc-900/60 border border-zinc-700 rounded-xl">
+                      <p className="text-zinc-400 text-[11px]">No active seasonal hunt right now. Check back soon!</p>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
 

@@ -3,6 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Trophy, Target, Zap } from "lucide-react"
+import { formatCount } from "@/lib/utils"
 
 interface DailyProgressCardProps {
     completedCount: number
@@ -39,7 +40,7 @@ export function DailyProgressCard({
                         </div>
                         <Progress value={completionPercentage} className="h-2 bg-amber-950/50" />
                         <p className="text-sm text-amber-200/70">
-                            {totalCount - completedCount} quests remaining
+                            {formatCount(totalCount - completedCount, 'quest')} remaining
                         </p>
                     </div>
 

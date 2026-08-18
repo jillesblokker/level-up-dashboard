@@ -26,6 +26,12 @@ export function DayNightCycle() {
             }
         }
 
+        const updateThemeColor = (night: boolean) => {
+            const color = night ? '#0b1329' : '#f59e0b';
+            const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', color);
+        }
+
         const checkTime = () => {
             // Re-check setting on each interval
             const currentSetting = localStorage.getItem("day-night-cycle-enabled")
@@ -45,9 +51,11 @@ export function DayNightCycle() {
 
             if (nightTime) {
                 document.documentElement.classList.add('medieval-night')
+                updateThemeColor(true)
             } else {
                 document.documentElement.classList.remove('medieval-night')
                 document.body.classList.remove('medieval-night')
+                updateThemeColor(false)
             }
         }
 
@@ -58,6 +66,7 @@ export function DayNightCycle() {
                 if (!e.detail.enabled) {
                     document.documentElement.classList.remove('medieval-night')
                     document.body.classList.remove('medieval-night')
+                    updateThemeColor(false) // Reset to day color when disabled
                 } else {
                     checkTime() // Re-evaluate immediately if enabled
                 }

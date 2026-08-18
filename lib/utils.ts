@@ -149,3 +149,22 @@ export function formatSentenceCase(text: string): string {
   if (!text) return '';
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
+
+/**
+ * Returns the correctly pluralized word for a given count.
+ * pluralize(1, 'item') → "item"
+ * pluralize(3, 'item') → "items"
+ * pluralize(1, 'quest', 'quests') → "quest"
+ */
+export function pluralize(count: number, singular: string, plural?: string): string {
+  return count === 1 ? singular : (plural ?? `${singular}s`);
+}
+
+/**
+ * Returns a formatted count string with correct pluralization.
+ * formatCount(1, 'item') → "1 item"
+ * formatCount(3, 'item') → "3 items"
+ */
+export function formatCount(count: number, singular: string, plural?: string): string {
+  return `${count} ${pluralize(count, singular, plural)}`;
+}
