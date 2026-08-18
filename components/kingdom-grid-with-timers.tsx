@@ -145,9 +145,23 @@ export function KingdomGridWithTimers({
   const setSanctuaryMode = useGameStore(s => s.setSanctuaryMode)
 
   // -- Hoisted Properties Search/Logic for Type Safety --
-  // Seasonal event flags (hoisted for property filtering)
-  const [winterFestivalActive, setWinterFestivalActive] = useState(false)
-  const [harvestFestivalActive, setHarvestFestivalActive] = useState(false)
+  // Seasonal event flags (hoisted for property filtering and calendar automation)
+  const [winterFestivalActive, setWinterFestivalActive] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const override = localStorage.getItem("active-seasonal-event-override");
+      if (override === 'christmas' || override === 'newyear') return true;
+    }
+    const m = new Date().getMonth();
+    return m === 11 || m === 0; // December or January
+  });
+  const [harvestFestivalActive, setHarvestFestivalActive] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const override = localStorage.getItem("active-seasonal-event-override");
+      if (override === 'harvest' || override === 'halloween') return true;
+    }
+    const m = new Date().getMonth();
+    return m === 8 || m === 9; // September or October
+  });
 
   const activeEvent = useMemo(() => {
     return getActiveEvent(winterFestivalActive, harvestFestivalActive)

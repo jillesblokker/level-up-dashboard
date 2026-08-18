@@ -270,8 +270,22 @@ class SeasonalHuntManagerClass {
       }
     }
 
-    // Default to Easter Egg Hunt if outside specific holiday dates
-    return 'easter';
+    // Default to current month's event mapping if outside specific holiday dates
+    const monthToEventKey: Record<number, string> = {
+      1: 'newyear',
+      2: 'valentine',
+      3: 'spring',
+      4: 'easter',
+      5: 'shield_joust',
+      6: 'solstice',
+      7: 'firefly',
+      8: 'forge_fire',
+      9: 'harvest',
+      10: 'halloween',
+      11: 'remembrance',
+      12: 'christmas'
+    };
+    return monthToEventKey[month] || 'forge_fire';
   }
 
   getCurrentEventConfig(): SeasonalEvent {
