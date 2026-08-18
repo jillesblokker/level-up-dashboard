@@ -124,18 +124,102 @@ export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   }
 };
 
-// Predefined item positions across different pages
-export const SEASONAL_ITEM_POSITIONS = [
-  { itemId: 1, page: '/', x: 100, y: 200 },
-  { itemId: 2, page: '/', x: 300, y: 150 },
-  { itemId: 3, page: '/quests', x: 200, y: 100 },
-  { itemId: 4, page: '/quests', x: 400, y: 250 },
-  { itemId: 5, page: '/kingdom', x: 150, y: 300 },
-  { itemId: 6, page: '/kingdom', x: 350, y: 200 },
-  { itemId: 7, page: '/realm', x: 250, y: 150 },
-  { itemId: 8, page: '/realm', x: 450, y: 100 },
-  { itemId: 9, page: '/inventory', x: 200, y: 200 },
-  { itemId: 10, page: '/inventory', x: 400, y: 300 }
+export interface SeasonalHidingSpot {
+  itemId: number;
+  page: string;
+  pageName: string;
+  locationName: string;
+  clue: string;
+  style: {
+    top?: string;
+    bottom?: string;
+    left?: string;
+    right?: string;
+  };
+}
+
+// Predefined responsive hiding spots across core kingdom pages
+export const SEASONAL_ITEM_POSITIONS: SeasonalHidingSpot[] = [
+  { 
+    itemId: 1, 
+    page: '/daily-hub', 
+    pageName: 'Daily Hub',
+    locationName: 'Morning Focus Header',
+    clue: 'Hiding near the Morning Focus 5/10 habit target banner...', 
+    style: { top: '140px', right: '16px' }
+  },
+  { 
+    itemId: 2, 
+    page: '/quests', 
+    pageName: 'Daily Quests',
+    locationName: 'Habit Routine Checklist',
+    clue: 'Peeking out behind the daily habit routine checklist...', 
+    style: { bottom: '110px', left: '16px' }
+  },
+  { 
+    itemId: 3, 
+    page: '/kingdom', 
+    pageName: 'Kingdom Board',
+    locationName: 'Tax Harvest Cover',
+    clue: 'Nestled beside the Royal Tax Collection cover header...', 
+    style: { top: '85px', right: '24px' }
+  },
+  { 
+    itemId: 4, 
+    page: '/realm', 
+    pageName: 'Sandbox Realm',
+    locationName: '2D Grid Toolbar',
+    clue: 'Tucked behind the 2D Sandbox Grid tile toolbar...', 
+    style: { bottom: '90px', right: '20px' }
+  },
+  { 
+    itemId: 5, 
+    page: '/dungeon', 
+    pageName: 'Dungeon Keep',
+    locationName: 'Keep Boss Gateway',
+    clue: 'Lurking in the shadows of the Dungeon Keep Boss chamber entrance...', 
+    style: { top: '120px', left: '20px' }
+  },
+  { 
+    itemId: 6, 
+    page: '/airship-harbor', 
+    pageName: 'Airship Harbor',
+    locationName: 'Ether Engine Harbor',
+    clue: 'Floating secretly near the Airship Harbor Ether Fuel engine...', 
+    style: { bottom: '100px', left: '24px' }
+  },
+  { 
+    itemId: 7, 
+    page: '/market', 
+    pageName: 'Bazaar & Market',
+    locationName: 'Apotheca Glasshouse Shortcut',
+    clue: 'Hiding near the Apotheca Potion Brewing glasshouse shortcut...', 
+    style: { top: '160px', right: '18px' }
+  },
+  { 
+    itemId: 8, 
+    page: '/chronicle', 
+    pageName: 'Chronicle Journal',
+    locationName: 'Hall of Champions',
+    clue: 'Hidden among the season champions in the Chronicle archives...', 
+    style: { bottom: '120px', right: '18px' }
+  },
+  { 
+    itemId: 9, 
+    page: '/character', 
+    pageName: 'Hero Vault',
+    locationName: 'RPG Equipment Paperdoll',
+    clue: 'Tucked beside the Hero Equipment Vault Mount paperdoll slot...', 
+    style: { top: '210px', left: '16px' }
+  },
+  { 
+    itemId: 10, 
+    page: '/settings', 
+    pageName: 'Settings Portal',
+    locationName: 'Medieval RPG Theme Banner',
+    clue: 'Peeking out behind the Medieval RPG filigree theme banner...', 
+    style: { bottom: '130px', left: '20px' }
+  }
 ];
 
 class SeasonalHuntManagerClass {
@@ -153,7 +237,14 @@ class SeasonalHuntManagerClass {
     return SeasonalHuntManagerClass.instance;
   }
 
-  getCurrentEvent(): string | null {
+  getCurrentEvent(): string {
+    if (typeof window !== 'undefined') {
+      const override = localStorage.getItem("active-seasonal-event-override");
+      if (override && SEASONAL_EVENTS[override]) {
+        return override;
+      }
+    }
+
     const now = new Date();
     const month = now.getMonth() + 1; // getMonth() returns 0-11
     const day = now.getDate();
@@ -177,12 +268,14 @@ class SeasonalHuntManagerClass {
       }
     }
 
-    return null;
+    // Default to Easter Egg Hunt if outside specific holiday dates
+    return 'easter';
   }
 
-  getCurrentEventConfig(): SeasonalEvent | null {
+  getCurrentEventConfig(): SeasonalEvent {
     const eventKey = this.getCurrentEvent();
-    return eventKey ? SEASONAL_EVENTS[eventKey] || null : null;
+    const fallback = Object.values(SEASONAL_EVENTS)[0] as SeasonalEvent;
+    return (SEASONAL_EVENTS[eventKey] || fallback) as SeasonalEvent;
   }
 
   async initialize(userId: string): Promise<void> {

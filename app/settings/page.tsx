@@ -3,7 +3,7 @@
 import { logger } from "@/lib/logger";
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Save, User, Shield, Play, Palette, Bell, HeartPulse, Gamepad2, LogOut, KeyRound, Trash2, AlertTriangle, ShieldCheck } from "lucide-react"
+import { ArrowLeft, Save, User, Shield, Play, Palette, Bell, HeartPulse, Gamepad2, LogOut, KeyRound, Trash2, AlertTriangle, ShieldCheck, Sparkles } from "lucide-react"
 import { setUserPreference, getUserPreference } from "@/lib/user-preferences-manager"
 import Link from "next/link"
 import { useClerk, useUser } from "@clerk/nextjs"
@@ -57,10 +57,15 @@ export default function SettingsPage() {
   const [sanctuaryModeActive, setSanctuaryModeActive] = useState(false)
   const [soundsEnabled, setSoundsEnabled] = useState(true)
   const [vacationShieldDays, setVacationShieldDays] = useState(0)
+  const [activeSeasonalEvent, setActiveSeasonalEvent] = useState('easter')
 
   // Load user data
   useEffect(() => {
     try {
+      const savedEvent = localStorage.getItem("active-seasonal-event-override")
+      if (savedEvent) {
+        setActiveSeasonalEvent(savedEvent)
+      }
       // Load character stats
       const savedStats = localStorage.getItem("character-stats")
       if (savedStats) {
@@ -444,6 +449,43 @@ export default function SettingsPage() {
                   <span className="text-xs font-mono font-bold px-3 py-1.5 bg-amber-950/80 border border-amber-500/40 text-amber-300 rounded-xl">
                     🌐 {typeof window !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'Local Time'}
                   </span>
+                </div>
+
+                {/* Active Seasonal Hide & Seek Event Selector */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg bg-zinc-900 border border-amber-800/10 hover:border-amber-800/30 transition-all gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-white text-base font-medium flex items-center gap-3">
+                      <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                      Active Seasonal Hide & Seek Event
+                    </Label>
+                    <p className="text-sm text-zinc-400 max-w-md">
+                      Select which seasonal item hunt (e.g. Easter Egg Hunt, Halloween Pumpkin Hunt) is active across your kingdom.
+                    </p>
+                  </div>
+                  <select
+                    value={activeSeasonalEvent}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setActiveSeasonalEvent(val);
+                      localStorage.setItem("active-seasonal-event-override", val);
+                      window.dispatchEvent(new CustomEvent('seasonal-hunt:updated'));
+                      toast({
+                        title: "🎉 Seasonal Event Updated!",
+                        description: `Activated ${val.toUpperCase()} Hide & Seek hunt!`,
+                      });
+                    }}
+                    className="bg-black border border-amber-500/40 text-amber-300 font-bold text-xs rounded-xl p-2.5 outline-none cursor-pointer shrink-0"
+                  >
+                    <option value="easter">🥚 Easter Egg Hunt (Spring)</option>
+                    <option value="halloween">🎃 Halloween Pumpkin Hunt (Autumn)</option>
+                    <option value="christmas">🎄 Christmas Present Hunt (Winter)</option>
+                    <option value="newyear">🎆 New Year Sparkler Hunt</option>
+                    <option value="valentine">❤️ Valentine Heart Hunt</option>
+                    <option value="spring">🍀 Spring Clover Hunt</option>
+                    <option value="harvest">🌾 Harvest Wheat Hunt</option>
+                    <option value="solstice">☀️ Solstice Sun Hunt</option>
+                    <option value="forge_fire">⚒️ Forge Iron Ingot Hunt</option>
+                  </select>
                 </div>
               </CardContent>
             </Card>

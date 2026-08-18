@@ -1,12 +1,13 @@
 "use client"
 
-import { useSeasonalHunt } from '@/hooks/use-seasonal-hunt';
-import { SeasonalHuntItem } from '@/components/seasonal-hunt-item';
+import { useSeasonalHunt } from '@/hooks/use-seasonal-hunt'
+import { SeasonalHuntItem } from '@/components/seasonal-hunt-item'
+import { SeasonalHuntLedger } from '@/components/seasonal-hunt-ledger'
 
 export function SeasonalHuntWrapper() {
-  const { items, isLoading, handleItemFound } = useSeasonalHunt();
+  const { items, isLoading, handleItemFound } = useSeasonalHunt()
 
-  if (isLoading) return null;
+  if (isLoading) return null
 
   return (
     <>
@@ -17,6 +18,7 @@ export function SeasonalHuntWrapper() {
           onFound={handleItemFound}
         />
       ))}
+      <SeasonalHuntLedger />
     </>
-  );
-} 
+  )
+}
