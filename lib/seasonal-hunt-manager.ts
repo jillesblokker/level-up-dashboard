@@ -5,7 +5,7 @@ export interface SeasonalItem {
   user_id: string;
   item_id: number;
   found: boolean;
-  found_at?: string;
+  found_at?: string | null;
   position: { x: number; y: number };
   created_at: string;
   updated_at: string;
@@ -396,7 +396,10 @@ class SeasonalHuntManagerClass {
       } else if (Array.isArray(data.item) && data.item.length > 0) {
         this.items = data.item;
       } else {
-        this.items = this.items.map(item => ({ ...item, found: false, found_at: undefined }));
+        this.items = this.items.map(item => {
+          const { found_at, ...rest } = item;
+          return { ...rest, found: false };
+        });
       }
       
       this.initialized = true;
@@ -406,7 +409,10 @@ class SeasonalHuntManagerClass {
       }
     } catch (error) {
       // Fallback local reset
-      this.items = this.items.map(item => ({ ...item, found: false, found_at: undefined }));
+      this.items = this.items.map(item => {
+        const { found_at, ...rest } = item;
+        return { ...rest, found: false };
+      });
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('seasonal-hunt:updated'));
       }
