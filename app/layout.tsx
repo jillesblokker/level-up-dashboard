@@ -64,9 +64,31 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "Level Up - Medieval Habit Tracker",
-  description: "A medieval-themed habit tracking app with quests, kingdom building, and character progression",
+  title: "Thrivehaven — Grow With Persistency | Habit Tracking RPG",
+  description: "Transform daily habits into real-life growth. Build routines, train citizens, clear dungeon battles, and unlock realm tiles in the world of Thrivehaven.",
   manifest: "/manifest.webmanifest",
+  openGraph: {
+    title: "Thrivehaven — Grow With Persistency",
+    description: "Build real-world habits that power your medieval RPG kingdom, citizens, airship voyages, and dungeon keep squad battles.",
+    url: "https://lvlup.jillesblokker.com",
+    siteName: "Thrivehaven",
+    images: [
+      {
+        url: "/images/og-preview.png",
+        width: 1200,
+        height: 630,
+        alt: "Thrivehaven Medieval Habit RPG",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Thrivehaven — Grow With Persistency",
+    description: "Transform daily habits into real-life growth in a medieval RPG kingdom.",
+    images: ["/images/og-preview.png"],
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", type: "image/x-icon" },
@@ -88,7 +110,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Level Up",
+    title: "Thrivehaven",
   },
   other: {
     "mobile-web-app-capable": "yes",
