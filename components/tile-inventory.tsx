@@ -446,7 +446,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               <label className="text-sm font-medium text-zinc-300">Tile Category</label>
               <span className="text-xs text-zinc-500">Level {userLevelValue}</span>
             </div>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <Select value={selectedCategory} onValueChange={(val) => { if (val) setSelectedCategory(val); }}>
               <SelectTrigger className="w-full bg-zinc-900 border-zinc-700">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
@@ -457,24 +457,13 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                     <SelectItem
                       key={category.id}
                       value={category.id}
+                      disabled={!isUnlocked}
                       className={cn(
                         "cursor-pointer",
-                        !isUnlocked && "opacity-60"
+                        !isUnlocked && "opacity-60 cursor-not-allowed text-zinc-500"
                       )}
                     >
-                      <div className="flex items-center justify-between w-full">
-                        <span className={cn(
-                          !isUnlocked && "text-zinc-400"
-                        )}>
-                          {category.name}
-                        </span>
-                        <span className={cn(
-                          "text-xs ml-2",
-                          !isUnlocked ? "text-zinc-500" : "text-zinc-400"
-                        )}>
-                          Lvl {category.minLevel}-{category.maxLevel}
-                        </span>
-                      </div>
+                      {category.name} (Lvl {category.minLevel}-{category.maxLevel})
                     </SelectItem>
                   );
                 })}
@@ -615,7 +604,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
               <label className="text-sm font-medium text-zinc-300">Tile Category</label>
               <span className="text-xs text-zinc-500">Level {userLevelValue}</span>
             </div>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <Select value={selectedCategory} onValueChange={(val) => { if (val) setSelectedCategory(val); }}>
               <SelectTrigger className="w-full bg-zinc-900 border-zinc-700">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
@@ -626,24 +615,13 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                     <SelectItem
                       key={category.id}
                       value={category.id}
+                      disabled={!isUnlocked}
                       className={cn(
                         "cursor-pointer",
-                        !isUnlocked && "opacity-60"
+                        !isUnlocked && "opacity-60 cursor-not-allowed text-zinc-500"
                       )}
                     >
-                      <div className="flex items-center justify-between w-full">
-                        <span className={cn(
-                          !isUnlocked && "text-zinc-400"
-                        )}>
-                          {category.name}
-                        </span>
-                        <span className={cn(
-                          "text-xs ml-2",
-                          !isUnlocked ? "text-zinc-500" : "text-zinc-400"
-                        )}>
-                          Lvl {category.minLevel}-{category.maxLevel}
-                        </span>
-                      </div>
+                      {category.name} (Lvl {category.minLevel}-{category.maxLevel})
                     </SelectItem>
                   );
                 })}

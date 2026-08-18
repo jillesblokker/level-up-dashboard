@@ -241,7 +241,7 @@ function RealmPageContent() {
                     goldEarned: 150,
                     experienceEarned: 30,
                     isLucky: true,
-                    itemFound: { image: '/images/items/wood-log.webp', name: 'Oak Timber', type: 'material' }
+                    itemFound: { image: '/images/items/materials/material-logs.webp', name: 'Oak Timber', type: 'material' }
                 },
                 {
                     tileName: 'Frontier Abbey & Settlement',
@@ -260,7 +260,7 @@ function RealmPageContent() {
                     goldEarned,
                     experienceEarned,
                     isLucky,
-                    itemFound: isLucky ? { image: '/images/items/wood-log.webp', name: 'Tax Timber', type: 'material' } : undefined
+                    itemFound: isLucky ? { image: '/images/items/materials/material-logs.webp', name: 'Tax Timber', type: 'material' } : undefined
                 };
             });
         }
