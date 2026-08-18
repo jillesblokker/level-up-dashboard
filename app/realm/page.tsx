@@ -213,9 +213,10 @@ function RealmPageContent() {
         const settlements: Tile[] = [];
         grid.forEach(row => {
             row.forEach(tile => {
-                if (!tile || tile.type === 'grass' || tile.type === 'water' || tile.type === 'tree') return;
-                const tType = (tile.type || '').toLowerCase();
+                if (!tile) return;
+                const tType = (tile.type ? String(tile.type) : '').toLowerCase();
                 const tName = (tile.name || '').toLowerCase();
+                if (tType === 'grass' || tType === 'water' || tType === 'tree') return;
                 if (
                     tType.includes('city') || tType.includes('town') || tType.includes('abbey') ||
                     tType.includes('settlement') || tType.includes('village') || tType.includes('hamlet') ||
