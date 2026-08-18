@@ -140,14 +140,9 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                             });
 
                             if (tilesToMigrate.length > 0) {
-                                const token = await getToken({ template: 'supabase' });
-                                await fetch('/api/realm-tiles', {
+                                const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+                                await fetchWithAuth('/api/realm-tiles', {
                                     method: 'POST',
-                                    credentials: 'include',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        ...(token && { 'Authorization': `Bearer ${token}` })
-                                    },
                                     body: JSON.stringify(tilesToMigrate)
                                 });
                                 logger.info('[useRealmGridManager] Migration successful: ' + tilesToMigrate.length + ' tiles.');
@@ -279,14 +274,9 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                     meta: {}
                 }));
 
-                const token = await getToken({ template: 'supabase' });
-                const res = await fetch('/api/realm-tiles', {
+                const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+                const res = await fetchWithAuth('/api/realm-tiles', {
                     method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...(token && { 'Authorization': `Bearer ${token}` })
-                    },
                     body: JSON.stringify(payload)
                 });
 

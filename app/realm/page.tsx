@@ -947,9 +947,9 @@ function RealmPageContent() {
         // Save tile to backend
         try {
             const tileTypeNum = tileTypeToNumeric[tileType];
-            const res = await fetch('/api/realm-tiles', {
+            const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+            const res = await fetchWithAuth('/api/realm-tiles', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ x, y, tile_type: tileTypeNum })
             });
 
@@ -1179,9 +1179,9 @@ function RealmPageContent() {
         });
 
         try {
-            const res = await fetch('/api/realm-tiles', {
+            const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+            const res = await fetchWithAuth('/api/realm-tiles', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ x, y, tile_type: 0 })
             });
 
@@ -1237,9 +1237,9 @@ function RealmPageContent() {
         });
 
         try {
-            const res = await fetch('/api/realm-tiles', {
+            const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+            const res = await fetchWithAuth('/api/realm-tiles', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ x, y, tile_type: numericType })
             });
             if (!res.ok) throw new Error('Failed to transform tile');
@@ -1257,12 +1257,9 @@ function RealmPageContent() {
     const handleResetMap = async () => {
         if (!window.confirm("Are you sure you want to reset your entire realm? This cannot be undone!")) return;
         try {
-            const token = await getToken({ template: 'supabase' });
-            const res = await fetch('/api/realm-tiles/reset', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+            const res = await fetchWithAuth('/api/realm-tiles/reset', {
+                method: 'POST'
             });
             if (res.ok) {
                 window.location.reload();
@@ -1747,9 +1744,9 @@ function RealmPageContent() {
         });
 
         try {
-            const res = await fetch('/api/realm-tiles', {
+            const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+            const res = await fetchWithAuth('/api/realm-tiles', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ x, y, tile_type: 0 })
             });
 
@@ -1797,9 +1794,9 @@ function RealmPageContent() {
             // Since we don't have existing meta in local state usually (except maybe 'revealed'?), 
             // let's just send rotation.
 
-            await fetch('/api/realm-tiles', {
+            const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+            await fetchWithAuth('/api/realm-tiles', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     x,
                     y,

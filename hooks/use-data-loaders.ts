@@ -41,14 +41,8 @@ export function useDataLoaders() {
       async () => {
         try {
           // PRIMARY: Try to load from the normalized realm_tiles table
-          const token = await getToken({ template: 'supabase' });
-
-          const tilesResponse = await fetch(`/api/realm-tiles?userId=${userId}`, {
-            headers: {
-              'Content-Type': 'application/json',
-              ...(token && { 'Authorization': `Bearer ${token}` })
-            }
-          });
+          const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+          const tilesResponse = await fetchWithAuth(`/api/realm-tiles?userId=${userId}`);
 
           if (tilesResponse.ok) {
             const tilesData = await tilesResponse.json();
