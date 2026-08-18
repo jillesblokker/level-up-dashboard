@@ -142,10 +142,6 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
             height={44}
             className="relative z-10 drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)] group-hover:rotate-12 transition-transform duration-300"
           />
-          {/* Hide & Seek Peeking Badge */}
-          <span className="absolute -top-2 -right-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold font-mono text-[9px] px-1.5 py-0.5 rounded-full shadow border border-amber-300/40 animate-bounce">
-            Peek!
-          </span>
         </div>
       </div>
 

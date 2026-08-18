@@ -30,7 +30,7 @@ export interface SeasonalEvent {
 export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   newyear: {
     name: "New Year's Hunt",
-    image: "/images/firework.webp",
+    image: "/images/seasonal-hunt/firework.webp",
     startDate: { month: 1, day: 1 },
     endDate: { month: 1, day: 31 },
     goldReward: 100,
@@ -38,7 +38,7 @@ export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   },
   valentine: {
     name: "Valentine Heart Hunt",
-    image: "/images/heart.webp",
+    image: "/images/seasonal-hunt/heart.webp",
     startDate: { month: 2, day: 1 },
     endDate: { month: 2, day: 28 },
     goldReward: 100,
@@ -46,7 +46,7 @@ export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   },
   spring: {
     name: "Spring Clover Hunt",
-    image: "/images/clover.webp",
+    image: "/images/seasonal-hunt/clover.webp",
     startDate: { month: 3, day: 1 },
     endDate: { month: 3, day: 19 },
     goldReward: 100,
@@ -54,7 +54,7 @@ export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   },
   easter: {
     name: "Easter Egg Hunt",
-    image: "/images/items/egg.webp",
+    image: "/images/seasonal-hunt/egg.webp",
     startDate: { month: 3, day: 20 },
     endDate: { month: 4, day: 30 },
     goldReward: 100,
@@ -62,7 +62,7 @@ export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   },
   shield_joust: {
     name: "Shield-Maiden's Hunt",
-    image: "/images/shield.webp",
+    image: "/images/seasonal-hunt/shield.webp",
     startDate: { month: 5, day: 1 },
     endDate: { month: 5, day: 31 },
     goldReward: 100,
@@ -70,7 +70,7 @@ export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   },
   solstice: {
     name: "Solstice Sun Hunt",
-    image: "/images/sun.webp",
+    image: "/images/seasonal-hunt/sun.webp",
     startDate: { month: 6, day: 1 },
     endDate: { month: 6, day: 30 },
     goldReward: 100,
@@ -78,7 +78,7 @@ export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   },
   firefly: {
     name: "Firefly Lantern Hunt",
-    image: "/images/firefly.webp",
+    image: "/images/seasonal-hunt/firefly.webp",
     startDate: { month: 7, day: 1 },
     endDate: { month: 7, day: 31 },
     goldReward: 100,
@@ -86,7 +86,7 @@ export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   },
   forge_fire: {
     name: "Forge Ingot Hunt",
-    image: "/images/ingot.webp",
+    image: "/images/seasonal-hunt/ingot.webp",
     startDate: { month: 8, day: 1 },
     endDate: { month: 8, day: 31 },
     goldReward: 100,
@@ -94,7 +94,7 @@ export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   },
   harvest: {
     name: "Harvest Wheat Hunt",
-    image: "/images/wheat.webp",
+    image: "/images/seasonal-hunt/wheat.webp",
     startDate: { month: 9, day: 1 },
     endDate: { month: 9, day: 30 },
     goldReward: 100,
@@ -102,7 +102,7 @@ export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   },
   halloween: {
     name: "Halloween Pumpkin Hunt",
-    image: "/images/items/pumpkin.webp",
+    image: "/images/seasonal-hunt/pumpkin.webp",
     startDate: { month: 10, day: 1 },
     endDate: { month: 10, day: 31 },
     goldReward: 120,
@@ -110,7 +110,7 @@ export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   },
   remembrance: {
     name: "Heritage Scroll Hunt",
-    image: "/images/scroll.webp",
+    image: "/images/seasonal-hunt/scroll.webp",
     startDate: { month: 11, day: 1 },
     endDate: { month: 11, day: 30 },
     goldReward: 100,
@@ -118,7 +118,7 @@ export const SEASONAL_EVENTS: Record<string, SeasonalEvent> = {
   },
   christmas: {
     name: "Christmas Present Hunt",
-    image: "/images/items/present.webp",
+    image: "/images/seasonal-hunt/present.webp",
     startDate: { month: 12, day: 1 },
     endDate: { month: 12, day: 31 },
     goldReward: 150,
