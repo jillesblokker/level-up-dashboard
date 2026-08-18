@@ -34,6 +34,7 @@ import Image from 'next/image'
 import { AbbeyModal } from '@/components/kingdom/abbey-modal';
 import { setUserPreference } from "@/lib/user-preferences-manager"
 import { TravelingBardWidget } from "@/components/traveling-bard-modal"
+import { KingdomSummaryModal } from "@/components/kingdom-summary-modal";
 
 import dynamic from 'next/dynamic';
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage';
@@ -202,6 +203,81 @@ function RealmPageContent() {
         animalType: 'horse' | 'sheep' | 'penguin' | 'eagle';
         animalName: string;
     } | null>(null);
+
+    // Realm Tax Collection State
+    const [showRealmSummaryModal, setShowRealmSummaryModal] = useState(false);
+    const [realmSummaryRewards, setRealmSummaryRewards] = useState<any[]>([]);
+
+    const realmSettlementTiles = React.useMemo(() => {
+        if (!grid || !grid.length) return [];
+        const settlements: Tile[] = [];
+        grid.forEach(row => {
+            row.forEach(tile => {
+                if (!tile || tile.type === 'grass' || tile.type === 'water' || tile.type === 'tree') return;
+                const tType = (tile.type || '').toLowerCase();
+                const tName = (tile.name || '').toLowerCase();
+                if (
+                    tType.includes('city') || tType.includes('town') || tType.includes('abbey') ||
+                    tType.includes('settlement') || tType.includes('village') || tType.includes('hamlet') ||
+                    tType.includes('castle') || tType.includes('manor') || tType.includes('monastery') ||
+                    tType.includes('church') || tType.includes('farm') || tType.includes('house') ||
+                    tName.includes('city') || tName.includes('town') || tName.includes('abbey') ||
+                    tName.includes('settlement') || tName.includes('village')
+                ) {
+                    settlements.push(tile);
+                }
+            });
+        });
+        return settlements;
+    }, [grid]);
+
+    const handleCollectRealmTaxes = () => {
+        let rewards: any[] = [];
+        if (realmSettlementTiles.length === 0) {
+            rewards = [
+                {
+                    tileName: 'Grand Citadel Realm District',
+                    goldEarned: 150,
+                    experienceEarned: 30,
+                    isLucky: true,
+                    itemFound: { image: '/images/items/wood-log.webp', name: 'Oak Timber', type: 'material' }
+                },
+                {
+                    tileName: 'Frontier Abbey & Settlement',
+                    goldEarned: 120,
+                    experienceEarned: 25,
+                    isLucky: false
+                }
+            ];
+        } else {
+            rewards = realmSettlementTiles.map(tile => {
+                const isLucky = Math.random() < 0.25;
+                const goldEarned = isLucky ? 220 : 140;
+                const experienceEarned = isLucky ? 40 : 25;
+                return {
+                    tileName: tile.name || 'Realm Settlement',
+                    goldEarned,
+                    experienceEarned,
+                    isLucky,
+                    itemFound: isLucky ? { image: '/images/items/wood-log.webp', name: 'Tax Timber', type: 'material' } : undefined
+                };
+            });
+        }
+
+        const totalGold = rewards.reduce((sum, r) => sum + r.goldEarned, 0);
+        const totalExp = rewards.reduce((sum, r) => sum + r.experienceEarned, 0);
+
+        gainGold(totalGold, 'realm-taxes');
+        gainExperience(totalExp, 'realm-taxes');
+
+        setRealmSummaryRewards(rewards);
+        setShowRealmSummaryModal(true);
+
+        toast({
+            title: "🪙 Realm Settlement Taxes Collected!",
+            description: `Harvested +${totalGold.toLocaleString()} Gold & +${totalExp.toLocaleString()} XP across your cities, towns, abbeys, and settlements!`,
+        });
+    };
 
     // Scout Expedition State (Point 6)
     interface ScoutExpedition {
@@ -1783,6 +1859,16 @@ function RealmPageContent() {
                 imageSrc="/images/headers/realm-header.webp"
                 defaultBgColor="bg-blue-900"
                 shouldRevealImage={true}
+                ctaButton={
+                    !isVisiting && (
+                        <Button
+                            onClick={handleCollectRealmTaxes}
+                            className="btn-primary-cta shadow-lg shadow-amber-500/20 animate-in fade-in zoom-in duration-300 font-serif font-bold text-sm px-5 py-2.5"
+                        >
+                            💰 Collect realm taxes ({realmSettlementTiles.length || 2})
+                        </Button>
+                    )
+                }
                 guideComponent={
                     <PageGuide
                         title={TEXT_CONTENT.realm.guide.title}
@@ -3108,6 +3194,15 @@ function RealmPageContent() {
                         </DialogContent>
                     </Dialog>
                 )}
+
+                {/* Realm Tax Summary Modal */}
+                <KingdomSummaryModal
+                    isOpen={showRealmSummaryModal}
+                    onClose={() => setShowRealmSummaryModal(false)}
+                    rewards={realmSummaryRewards}
+                    title="Realm Tax Receipt 📜"
+                    description="Taxes and resources harvested from cities, towns, abbeys, and settlements across your sandbox realm."
+                />
             </RealmAnimationWrapper>
         </div >
     );

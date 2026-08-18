@@ -83,6 +83,16 @@ export async function POST(req: NextRequest) {
 
         if (error) throw error;
         return data;
+
+      } else if (action === 'reset') {
+        // Delete all seasonal hunt items for this user so fresh ones can be hidden
+        const { error } = await supabase
+          .from('seasonal_hunt')
+          .delete()
+          .eq('user_id', userId);
+
+        if (error) throw error;
+        return { reset: true };
       }
       
       throw new Error('Invalid action');
@@ -92,7 +102,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: result.error || 'Unauthorized' }, { status: 401 });
     }
 
-    return NextResponse.json({ success: true, items: result.data });
+    return NextResponse.json({ 
+      success: true, 
+      item: result.data,
+      items: Array.isArray(result.data) ? result.data : undefined
+    });
 
   } catch (err: any) {
     logger.error('[Seasonal Hunt API] POST Error:', err);

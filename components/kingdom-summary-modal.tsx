@@ -23,9 +23,17 @@ interface KingdomSummaryModalProps {
   isOpen: boolean
   onClose: () => void
   rewards: SummaryReward[]
+  title?: string
+  description?: string
 }
 
-export function KingdomSummaryModal({ isOpen, onClose, rewards }: KingdomSummaryModalProps) {
+export function KingdomSummaryModal({
+  isOpen,
+  onClose,
+  rewards,
+  title = "Royal Treasury Tax Receipt 📜",
+  description = "Your subjects have harvested taxes and materials from across your realm properties."
+}: KingdomSummaryModalProps) {
   const totalGold = rewards.reduce((sum, r) => sum + r.goldEarned, 0)
   const totalExp = rewards.reduce((sum, r) => sum + r.experienceEarned, 0)
   const itemsFound = rewards.filter(r => r.itemFound).map(r => r.itemFound!)
@@ -42,12 +50,12 @@ export function KingdomSummaryModal({ isOpen, onClose, rewards }: KingdomSummary
             <div className="flex items-center justify-center gap-3 mb-2">
                 <Trophy className="h-6 w-6 text-amber-500 animate-pulse" />
                 <DialogTitle className="font-serif text-2xl text-amber-100 tracking-tight">
-                    Royal Treasury Tax Receipt 📜
+                    {title}
                 </DialogTitle>
                 <Trophy className="h-6 w-6 text-amber-500 animate-pulse" />
             </div>
           <DialogDescription className="text-zinc-400 text-sm italic">
-            Your subjects have harvested taxes and materials from across your realm properties.
+            {description}
           </DialogDescription>
         </DialogHeader>
 

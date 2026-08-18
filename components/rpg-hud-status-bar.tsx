@@ -442,20 +442,31 @@ export function RpgHudStatusBar() {
                   </div>
                 )}
 
-                {/* Desktop Slide 1: Essences, Fuel, Freeze, Focus */}
+                {/* Desktop Slide 1: Seasonal Hunt (Slide after Potion), Essences, Fuel, Freeze */}
                 {activeSlide % 5 === 1 && (
-                  <div className="flex items-center justify-around gap-2 text-xs font-mono font-bold animate-fadeIn py-0.5">
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 cursor-pointer hover:bg-emerald-900/60 transition-colors" onClick={() => openDrawer('essences')}>
+                  <div className="flex items-center justify-between gap-2 text-xs font-mono font-bold animate-fadeIn py-0.5">
+                    {/* Seasonal Hunt Pill matching user screenshot */}
+                    <div
+                      className="flex items-center gap-2 px-3 py-1 rounded-xl bg-zinc-950/90 border border-amber-800/60 text-amber-100 cursor-pointer hover:border-amber-500/80 hover:bg-zinc-900 transition-all shadow-sm shrink-0"
+                      onClick={() => openDrawer('event')}
+                      title="View Seasonal Hunt Progress"
+                    >
+                      <span className="font-serif font-bold text-xs tracking-wide text-amber-100">
+                        {seasonalConfig ? seasonalConfig.name : 'Forge Ingot Hunt'}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md bg-amber-950 border border-amber-600/70 text-amber-300 font-mono font-bold text-[11px]">
+                        {seasonalFound}/{seasonalTotal}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 cursor-pointer hover:bg-emerald-900/60 transition-colors" onClick={() => openDrawer('essences')}>
                       <span>✨</span> <span>12 Essences</span>
                     </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-950/60 border border-blue-500/40 text-blue-300 cursor-pointer hover:bg-blue-900/60 transition-colors" onClick={() => openDrawer('fuel')}>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-950/60 border border-blue-500/40 text-blue-300 cursor-pointer hover:bg-blue-900/60 transition-colors" onClick={() => openDrawer('fuel')}>
                       <span>⚡</span> <span>85% Fuel</span>
                     </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 cursor-pointer hover:bg-cyan-900/60 transition-colors" onClick={() => openDrawer('freeze')}>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 cursor-pointer hover:bg-cyan-900/60 transition-colors" onClick={() => openDrawer('freeze')}>
                       <span>❄️</span> <span>1 Freeze</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-purple-950/60 border border-purple-500/40 text-purple-200 cursor-pointer hover:bg-purple-900/60 transition-colors" onClick={() => setShowFocusModal(true)}>
-                      <span>🧠</span> <span>{charStats.focus_points || 102} Focus</span>
                     </div>
                   </div>
                 )}
@@ -589,9 +600,9 @@ export function RpgHudStatusBar() {
                   </div>
                 )}
 
-                {/* Mobile Slide 1: Gold, Potion (Written text with icon!), Focus */}
+                {/* Mobile Slide 1: Gold, Potion, Seasonal Hunt */}
                 {activeSlide % 6 === 1 && (
-                  <div className="flex items-center justify-around gap-2 animate-fadeIn">
+                  <div className="flex items-center justify-between gap-1.5 animate-fadeIn">
                     <div className="flex items-center gap-1 text-xs font-mono font-bold text-amber-300 cursor-pointer active:scale-95 transition-transform" onClick={() => openDrawer('gold')}>
                       <span>🟡</span>
                       <span>{formatShortGold(charStats.gold)}</span>
@@ -615,9 +626,16 @@ export function RpgHudStatusBar() {
                       <span>🧪</span> <span>Potion</span>
                     </button>
 
-                    <div className="flex items-center gap-1 text-xs font-mono font-bold text-purple-300 cursor-pointer active:scale-95 transition-transform" onClick={() => setShowFocusModal(true)}>
-                      <span>🧠</span>
-                      <span>{charStats.focus_points || 102} FP</span>
+                    <div
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-zinc-950 border border-amber-800/60 text-amber-100 cursor-pointer active:scale-95 transition-transform shrink-0"
+                      onClick={() => openDrawer('event')}
+                    >
+                      <span className="font-serif font-bold text-[10px] text-amber-100 truncate max-w-[70px]">
+                        {seasonalConfig ? seasonalConfig.name.replace(' Hunt', '') : 'Forge Ingot'}
+                      </span>
+                      <span className="px-1.5 py-0.2 rounded bg-amber-950 border border-amber-600/70 text-amber-300 font-mono font-bold text-[9px]">
+                        {seasonalFound}/{seasonalTotal}
+                      </span>
                     </div>
                   </div>
                 )}

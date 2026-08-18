@@ -343,14 +343,21 @@ class SeasonalHuntManagerClass {
       }
 
       const data = await response.json();
+      const updatedItem = data.item || (Array.isArray(data.items) ? data.items.find((i: any) => i.item_id === itemId) : data.items);
       
       // Update local state
       const itemIndex = this.items.findIndex(item => item.item_id === itemId);
       if (itemIndex !== -1 && this.items[itemIndex]) {
-        this.items[itemIndex] = data.item;
+        this.items[itemIndex] = updatedItem || { ...this.items[itemIndex]!, found: true, found_at: new Date().toISOString() };
+      } else if (updatedItem) {
+        this.items.push(updatedItem);
       }
 
-      return data.item;
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('seasonal-hunt:updated'));
+      }
+
+      return updatedItem || this.items[itemIndex] || null;
     } catch (error) {
       return null;
     }
@@ -383,10 +390,13 @@ class SeasonalHuntManagerClass {
         throw new Error(`Failed to reset items: ${response.statusText}`);
       }
 
-      // Re-initialize
+      // Re-initialize fresh items
       this.items = [];
       this.initialized = false;
       await this.initialize(userId);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('seasonal-hunt:updated'));
+      }
     } catch (error) {
       throw error;
     }

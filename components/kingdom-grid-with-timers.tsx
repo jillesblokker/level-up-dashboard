@@ -2319,10 +2319,10 @@ export function KingdomGridWithTimers({
     hapticMedium();
     
     setSummaryRewards(collectedRewards);
-    setShowSummaryModal(false);
+    setShowSummaryModal(true);
     
-    const totalGoldGained = collectedRewards.reduce((sum, r) => sum + (r.gold || 0), 0);
-    const totalExpGained = collectedRewards.reduce((sum, r) => sum + (r.exp || 0), 0);
+    const totalGoldGained = collectedRewards.reduce((sum, r) => sum + (r.goldEarned || 0), 0);
+    const totalExpGained = collectedRewards.reduce((sum, r) => sum + (r.experienceEarned || 0), 0);
 
     toast({ 
       title: "💰 Kingdom Taxes Harvested!", 
