@@ -8,7 +8,13 @@ export const supabase = (() => {
   if (!supabaseInstance) {
     const url = process.env['NEXT_PUBLIC_SUPABASE_URL'] || 'https://placeholder.supabase.co';
     const key = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
-    supabaseInstance = createClient<Database>(url, key);
+    supabaseInstance = createClient<Database>(url, key, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    });
   }
   return supabaseInstance;
 })();
