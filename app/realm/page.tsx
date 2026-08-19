@@ -1077,7 +1077,7 @@ function RealmPageContent() {
 
     const handleTileSelection = (tile: TileInventoryItem | null) => {
         // Check if tile can be selected - either from main inventory (owned) or from tile itself (quantity)
-        const hasMainInventory = tile?.type && inventory[tile.type] && (inventory[tile.type].owned ?? 0) > 0;
+        const hasMainInventory = tile?.type && inventory[tile.type] && ((inventory[tile.type]?.owned) ?? 0) > 0;
         const hasTileQuantity = tile && (tile.quantity ?? 0) > 0;
 
         if (hasMainInventory || hasTileQuantity) {
