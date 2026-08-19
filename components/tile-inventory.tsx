@@ -754,34 +754,6 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 </ScrollArea>
               );
             })()}
-                                      className={cn(
-                                        "h-9 px-3 rounded-xl font-extrabold transition-all shrink-0 active:scale-95 shadow-md",
-                                        userLevelValue >= category.minLevel
-                                          ? "bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border border-emerald-400/40 shadow-[0_0_12px_rgba(16,185,129,0.3)]"
-                                          : "bg-zinc-800/60 border-zinc-700 text-zinc-400 cursor-not-allowed"
-                                      )}
-                                      onClick={(e) => userLevelValue >= category.minLevel && handleBuyTile(tile, e)}
-                                      aria-label={`Confirm purchase of ${buyQuantities[tile.type] || 1} ${tile.name || tile.type} tile(s)`}
-                                    >
-                                      <Check className="w-4 h-4 stroke-[3]" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              </Card>
-                            </TooltipTrigger>
-                            {category.id === 'rare' && !tile.unlocked && (
-                              <TooltipContent>
-                                <p>A secret... come back another day... :)</p>
-                              </TooltipContent>
-                            )}
-                          </Tooltip>
-                        </TooltipProvider>
-                      )
-                    })}
-                  </div>
-                </ScrollArea>
-              );
-            })()}
           </div>
         </TabsContent>
 
