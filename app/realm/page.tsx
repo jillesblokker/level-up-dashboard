@@ -920,6 +920,7 @@ function RealmPageContent() {
 
         // Use the selectedTile if it has quantity, otherwise fall back to inventory
         const tileToUse = hasTileInSelected ? currentSelectedTile : tileToPlace;
+        if (!tileToUse) return;
 
         // Optimistically update the UI first
         setGrid(prevGrid => {
