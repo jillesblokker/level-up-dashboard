@@ -6,81 +6,82 @@ export const EXPANSION_INCREMENT = 3;
 export const AUTOSAVE_INTERVAL = 30000;
 export const INITIAL_POS = { x: 6, y: 3 };
 
-export const defaultTile = (type: TileType): Tile => {
-    let image = `/images/tiles/${type}-tile.webp`;
-    if (type === 'crossroad') image = '/images/kingdom-tiles/Crossroad.webp';
-    if (type === 'straightroad') image = '/images/kingdom-tiles/Straightroad.webp';
-    if (type === 'cornerroad') image = '/images/kingdom-tiles/Cornerroad.webp';
-    if (type === 'tsplitroad') image = '/images/kingdom-tiles/Tsplitroad.webp';
-    if (type === 'zen-garden') image = '/images/kingdom-tiles/ZenGarden.webp';
+export const defaultTile = (type: TileType | string): Tile => {
+    const t = String(type || '');
+    let image = `/images/tiles/${t}-tile.webp`;
+    if (t === 'crossroad') image = '/images/kingdom-tiles/Crossroad.webp';
+    if (t === 'straightroad') image = '/images/kingdom-tiles/Straightroad.webp';
+    if (t === 'cornerroad') image = '/images/kingdom-tiles/Cornerroad.webp';
+    if (t === 'tsplitroad') image = '/images/kingdom-tiles/Tsplitroad.webp';
+    if (t === 'zen-garden') image = '/images/kingdom-tiles/ZenGarden.webp';
     // Navigation Hub Overrides
-    if (type === 'quest-board') image = '/images/kingdom-tiles/QuestBoard.webp';
-    if (type === 'monument') image = '/images/kingdom-tiles/Monument.webp';
-    if (type === 'training-grounds') image = '/images/kingdom-tiles/TrainingGrounds.webp';
-    if (type === 'tavern') image = '/images/kingdom-tiles/Inn.webp';
-    if (type === 'market') image = '/images/kingdom-tiles/MarketStalls.webp';
-    if (type === 'market-stalls') image = '/images/kingdom-tiles/MarketStalls.webp';
+    if (t === 'quest-board') image = '/images/kingdom-tiles/QuestBoard.webp';
+    if (t === 'monument') image = '/images/kingdom-tiles/Monument.webp';
+    if (t === 'training-grounds') image = '/images/kingdom-tiles/TrainingGrounds.webp';
+    if (t === 'tavern') image = '/images/kingdom-tiles/Inn.webp';
+    if (t === 'market') image = '/images/kingdom-tiles/MarketStalls.webp';
+    if (t === 'market-stalls') image = '/images/kingdom-tiles/MarketStalls.webp';
 
-    if (type === 'crystal_cavern') image = '/images/kingdom-tiles/CrystalCavern.webp';
-    if (type === 'watchtower') image = '/images/kingdom-tiles/Watchtower.webp';
-    if (type === 'library') image = '/images/kingdom-tiles/Library.webp';
-    if (type === 'wizard') image = '/images/kingdom-tiles/Wizard.webp';
-    if (type === 'temple') image = '/images/kingdom-tiles/Temple.webp';
+    if (t === 'crystal_cavern') image = '/images/kingdom-tiles/CrystalCavern.webp';
+    if (t === 'watchtower') image = '/images/kingdom-tiles/Watchtower.webp';
+    if (t === 'library') image = '/images/kingdom-tiles/Library.webp';
+    if (t === 'wizard') image = '/images/kingdom-tiles/Wizard.webp';
+    if (t === 'temple') image = '/images/kingdom-tiles/Temple.webp';
 
-    if (type === 'pyramid') image = '/images/tiles/pyramid-tile.webp';
-    if (type === 'whispering-well') image = '/images/tiles/whispering-well-tile.webp';
-    if (type === 'sphinx-gates') image = '/images/tiles/sphinx-gates-tile.webp';
-    if (type === 'whispering-canopy') image = '/images/tiles/whispering-canopy-tile.webp';
-    if (type === 'frostfire-obelisk') image = '/images/tiles/frostfire-obelisk-tile.webp';
-    if (type === 'fairy-ring') image = '/images/tiles/fairy-ring-tile.webp';
-    if (type === 'settlement') image = '/images/tiles/settlement-tile.webp';
-    if (type === 'megapolis') image = '/images/tiles/megapolis-tile.webp';
-    if (type === 'mystic-obelisk') image = '/images/tiles/mystic-obelisk-tile.webp';
-    if (type === 'golden-pantheon') image = '/images/tiles/golden-pantheon-tile.webp';
-    if (type === 'plank-labyrinth') image = '/images/tiles/plank-labyrinth-tile.webp';
-    if (type === 'prison') image = '/images/tiles/prison-tile.webp';
-    if (type === 'apotheca') image = '/images/tiles/apotheca-tile.webp';
-    if (type === 'abbey') image = '/images/tiles/abbey-tile.webp';
-    if (type === 'waterway_canal') image = '/images/kingdom-tiles/WaterwayCanal.webp';
-    if (type === 'astral_citadel_monument') image = '/images/kingdom-tiles/AstralCitadelMonument.webp';
-    if (type === 'serene_lake') image = '/images/kingdom-tiles/SereneLake.webp';
+    if (t === 'pyramid') image = '/images/tiles/pyramid-tile.webp';
+    if (t === 'whispering-well') image = '/images/tiles/whispering-well-tile.webp';
+    if (t === 'sphinx-gates') image = '/images/tiles/sphinx-gates-tile.webp';
+    if (t === 'whispering-canopy') image = '/images/tiles/whispering-canopy-tile.webp';
+    if (t === 'frostfire-obelisk') image = '/images/tiles/frostfire-obelisk-tile.webp';
+    if (t === 'fairy-ring') image = '/images/tiles/fairy-ring-tile.webp';
+    if (t === 'settlement') image = '/images/tiles/settlement-tile.webp';
+    if (t === 'megapolis') image = '/images/tiles/megapolis-tile.webp';
+    if (t === 'mystic-obelisk') image = '/images/tiles/mystic-obelisk-tile.webp';
+    if (t === 'golden-pantheon') image = '/images/tiles/golden-pantheon-tile.webp';
+    if (t === 'plank-labyrinth') image = '/images/tiles/plank-labyrinth-tile.webp';
+    if (t === 'prison') image = '/images/tiles/prison-tile.webp';
+    if (t === 'apotheca') image = '/images/tiles/apotheca-tile.webp';
+    if (t === 'abbey') image = '/images/tiles/abbey-tile.webp';
+    if (t === 'waterway_canal') image = '/images/kingdom-tiles/WaterwayCanal.webp';
+    if (t === 'astral_citadel_monument') image = '/images/kingdom-tiles/AstralCitadelMonument.webp';
+    if (t === 'serene_lake') image = '/images/kingdom-tiles/SereneLake.webp';
 
-    let name = type.charAt(0).toUpperCase() + type.slice(1);
-    if (type === 'coral_reef') name = 'Mermaid';
-    if (type === 'floating_island') name = 'Island';
-    if (type === 'ruins') name = 'Ancient Ruins';
-    if (type === 'crystal_cavern') name = 'Crystal Cavern';
-    if (type === 'zen-garden') name = 'Zen Garden';
-    if (type === 'pyramid') name = 'Monolith of Devotion';
-    if (type === 'whispering-well') name = 'Whispering Well';
-    if (type === 'sphinx-gates') name = "Sphinx's Gates";
-    if (type === 'whispering-canopy') name = 'Whispering Canopy';
-    if (type === 'frostfire-obelisk') name = 'Frostfire Obelisk';
-    if (type === 'fairy-ring') name = 'Fairy Ring';
-    if (type === 'settlement') name = 'Settlement';
-    if (type === 'megapolis') name = 'Megapolis';
-    if (type === 'mystic-obelisk') name = 'Mystic Obelisk';
-    if (type === 'golden-pantheon') name = 'Golden Pantheon';
-    if (type === 'plank-labyrinth') name = 'Plank Labyrinth';
-    if (type === 'prison') name = 'Iron Citadel Prison';
-    if (type === 'apotheca') name = 'Grand Apotheca';
-    if (type === 'abbey') name = 'Silent Abbey';
-    if (type === 'waterway_canal') name = 'Waterway Canal & Stone Bridge';
-    if (type === 'astral_citadel_monument') name = 'Astral Citadel Monument';
-    if (type === 'serene_lake') name = 'Serene Lake';
+    let name = t.charAt(0).toUpperCase() + t.slice(1);
+    if (t === 'coral_reef') name = 'Mermaid';
+    if (t === 'floating_island') name = 'Island';
+    if (t === 'ruins') name = 'Ancient Ruins';
+    if (t === 'crystal_cavern') name = 'Crystal Cavern';
+    if (t === 'zen-garden') name = 'Zen Garden';
+    if (t === 'pyramid') name = 'Monolith of Devotion';
+    if (t === 'whispering-well') name = 'Whispering Well';
+    if (t === 'sphinx-gates') name = "Sphinx's Gates";
+    if (t === 'whispering-canopy') name = 'Whispering Canopy';
+    if (t === 'frostfire-obelisk') name = 'Frostfire Obelisk';
+    if (t === 'fairy-ring') name = 'Fairy Ring';
+    if (t === 'settlement') name = 'Settlement';
+    if (t === 'megapolis') name = 'Megapolis';
+    if (t === 'mystic-obelisk') name = 'Mystic Obelisk';
+    if (t === 'golden-pantheon') name = 'Golden Pantheon';
+    if (t === 'plank-labyrinth') name = 'Plank Labyrinth';
+    if (t === 'prison') name = 'Iron Citadel Prison';
+    if (t === 'apotheca') name = 'Grand Apotheca';
+    if (t === 'abbey') name = 'Silent Abbey';
+    if (t === 'waterway_canal') name = 'Waterway Canal & Stone Bridge';
+    if (t === 'astral_citadel_monument') name = 'Astral Citadel Monument';
+    if (t === 'serene_lake') name = 'Serene Lake';
 
     return {
-        id: type,
+        id: t,
         name,
         description: `${name} tile`,
-        type,
+        type: t as TileType,
         connections: [],
         rotation: 0,
         revealed: true,
         isVisited: false,
         x: 0,
         y: 0,
-        ariaLabel: `${type} tile`,
+        ariaLabel: `${t} tile`,
         image,
         cost: 0,
         quantity: 0
@@ -159,55 +160,56 @@ function safeCheck(obj: any, key: any) {
     return obj && obj[key] !== undefined;
 }
 
-export const getTileImage = (type: TileType): string => {
-    if (type === 'crossroad') return '/images/kingdom-tiles/Crossroad.webp';
-    if (type === 'straightroad') return '/images/kingdom-tiles/Straightroad.webp';
-    if (type === 'cornerroad') return '/images/kingdom-tiles/Cornerroad.webp';
-    if (type === 'tsplitroad') return '/images/kingdom-tiles/Tsplitroad.webp';
-    if (type === 'quest-board') return '/images/kingdom-tiles/QuestBoard.webp';
-    if (type === 'monument') return '/images/kingdom-tiles/Monument.webp';
-    if (type === 'training-grounds') return '/images/kingdom-tiles/TrainingGrounds.webp';
-    if (type === 'tavern') return '/images/kingdom-tiles/Inn.webp';
-    if (type === 'market') return '/images/kingdom-tiles/MarketStalls.webp';
-    if (type === 'market-stalls') return '/images/kingdom-tiles/MarketStalls.webp';
-    if (type === 'crystal_cavern') return '/images/kingdom-tiles/CrystalCavern.webp';
-    if (type === 'watchtower') return '/images/kingdom-tiles/Watchtower.webp';
-    if (type === 'sawmill') return '/images/kingdom-tiles/Sawmill.webp';
-    if (type === 'stone-quarry') return '/images/kingdom-tiles/StoneQuarry.webp';
-    if (type === 'windmill') return '/images/kingdom-tiles/Windmill.webp';
-    if (type === 'royal-stables') return '/images/locations/royal-stables.webp';
-    if (type === 'embers-anvil') return '/images/locations/embers-anvil.webp';
-    if (type === 'archery') return '/images/kingdom-tiles/Archery.webp';
-    if (type === 'fisherman') return '/images/kingdom-tiles/Fisherman.webp';
-    if (type === 'pond') return '/images/kingdom-tiles/Pond.webp';
-    if (type === 'library') return '/images/kingdom-tiles/Library.webp';
-    if (type === 'wizard') return '/images/kingdom-tiles/Wizard.webp';
-    if (type === 'temple') return '/images/kingdom-tiles/Temple.webp';
-    if (type === 'fortune_teller') return '/images/kingdom-tiles/fortune_teller.webp';
-    if (type === 'pyramid') return '/images/tiles/pyramid-tile.webp';
-    if (type === 'whispering-well') return '/images/tiles/whispering-well-tile.webp';
-    if (type === 'sphinx-gates') return '/images/tiles/sphinx-gates-tile.webp';
-    if (type === 'whispering-canopy') return '/images/tiles/whispering-canopy-tile.webp';
-    if (type === 'frostfire-obelisk') return '/images/tiles/frostfire-obelisk-tile.webp';
-    if (type === 'fairy-ring') return '/images/tiles/fairy-ring-tile.webp';
-    if (type === 'settlement') return '/images/tiles/settlement-tile.webp';
-    if (type === 'megapolis') return '/images/tiles/megapolis-tile.webp';
-    if (type === 'mystic-obelisk') return '/images/tiles/mystic-obelisk-tile.webp';
-    if (type === 'golden-pantheon') return '/images/tiles/golden-pantheon-tile.webp';
-    if (type === 'plank-labyrinth') return '/images/tiles/plank-labyrinth-tile.webp';
-    if (type === 'prison') return '/images/tiles/prison-tile.webp';
-    if (type === 'apotheca') return '/images/tiles/apotheca-tile.webp';
-    if (type === 'abbey') return '/images/tiles/abbey-tile.webp';
-    if (type === 'waterway_canal') return '/images/kingdom-tiles/WaterwayCanal.webp';
-    if (type === 'astral_citadel_monument') return '/images/kingdom-tiles/AstralCitadelMonument.webp';
-    if (type === 'serene_lake') return '/images/kingdom-tiles/SereneLake.webp';
-    if (type === 'mystic_bazaar') return '/images/kingdom-tiles/Mystic_bazaar.webp';
-    if (type === 'airship_harbor') return '/images/kingdom-tiles/Airship_harbor.webp';
-    if (type === 'housecup') return '/images/kingdom-tiles/Housecup.webp';
-    if (type === 'observatory') return '/images/kingdom-tiles/Observatory.webp';
-    if (type === 'hall_of_champions') return '/images/kingdom-tiles/Hall_of_champions.webp';
-    if (type === 'titan_watchtower') return '/images/kingdom-tiles/Titan_watchtower.webp';
-    return `/images/tiles/${type}-tile.webp`;
+export const getTileImage = (type: TileType | string): string => {
+    const t = String(type || '');
+    if (t === 'crossroad') return '/images/kingdom-tiles/Crossroad.webp';
+    if (t === 'straightroad') return '/images/kingdom-tiles/Straightroad.webp';
+    if (t === 'cornerroad') return '/images/kingdom-tiles/Cornerroad.webp';
+    if (t === 'tsplitroad') return '/images/kingdom-tiles/Tsplitroad.webp';
+    if (t === 'quest-board') return '/images/kingdom-tiles/QuestBoard.webp';
+    if (t === 'monument') return '/images/kingdom-tiles/Monument.webp';
+    if (t === 'training-grounds') return '/images/kingdom-tiles/TrainingGrounds.webp';
+    if (t === 'tavern') return '/images/kingdom-tiles/Inn.webp';
+    if (t === 'market') return '/images/kingdom-tiles/MarketStalls.webp';
+    if (t === 'market-stalls') return '/images/kingdom-tiles/MarketStalls.webp';
+    if (t === 'crystal_cavern') return '/images/kingdom-tiles/CrystalCavern.webp';
+    if (t === 'watchtower') return '/images/kingdom-tiles/Watchtower.webp';
+    if (t === 'sawmill') return '/images/kingdom-tiles/Sawmill.webp';
+    if (t === 'stone-quarry') return '/images/kingdom-tiles/StoneQuarry.webp';
+    if (t === 'windmill') return '/images/kingdom-tiles/Windmill.webp';
+    if (t === 'royal-stables') return '/images/locations/royal-stables.webp';
+    if (t === 'embers-anvil') return '/images/locations/embers-anvil.webp';
+    if (t === 'archery') return '/images/kingdom-tiles/Archery.webp';
+    if (t === 'fisherman') return '/images/kingdom-tiles/Fisherman.webp';
+    if (t === 'pond') return '/images/kingdom-tiles/Pond.webp';
+    if (t === 'library') return '/images/kingdom-tiles/Library.webp';
+    if (t === 'wizard') return '/images/kingdom-tiles/Wizard.webp';
+    if (t === 'temple') return '/images/kingdom-tiles/Temple.webp';
+    if (t === 'fortune_teller') return '/images/kingdom-tiles/fortune_teller.webp';
+    if (t === 'pyramid') return '/images/tiles/pyramid-tile.webp';
+    if (t === 'whispering-well') return '/images/tiles/whispering-well-tile.webp';
+    if (t === 'sphinx-gates') return '/images/tiles/sphinx-gates-tile.webp';
+    if (t === 'whispering-canopy') return '/images/tiles/whispering-canopy-tile.webp';
+    if (t === 'frostfire-obelisk') return '/images/tiles/frostfire-obelisk-tile.webp';
+    if (t === 'fairy-ring') return '/images/tiles/fairy-ring-tile.webp';
+    if (t === 'settlement') return '/images/tiles/settlement-tile.webp';
+    if (t === 'megapolis') return '/images/tiles/megapolis-tile.webp';
+    if (t === 'mystic-obelisk') return '/images/tiles/mystic-obelisk-tile.webp';
+    if (t === 'golden-pantheon') return '/images/tiles/golden-pantheon-tile.webp';
+    if (t === 'plank-labyrinth') return '/images/tiles/plank-labyrinth-tile.webp';
+    if (t === 'prison') return '/images/tiles/prison-tile.webp';
+    if (t === 'apotheca') return '/images/tiles/apotheca-tile.webp';
+    if (t === 'abbey') return '/images/tiles/abbey-tile.webp';
+    if (t === 'waterway_canal') return '/images/kingdom-tiles/WaterwayCanal.webp';
+    if (t === 'astral_citadel_monument') return '/images/kingdom-tiles/AstralCitadelMonument.webp';
+    if (t === 'serene_lake') return '/images/kingdom-tiles/SereneLake.webp';
+    if (t === 'mystic_bazaar') return '/images/kingdom-tiles/Mystic_bazaar.webp';
+    if (t === 'airship_harbor') return '/images/kingdom-tiles/Airship_harbor.webp';
+    if (t === 'housecup') return '/images/kingdom-tiles/Housecup.webp';
+    if (t === 'observatory') return '/images/kingdom-tiles/Observatory.webp';
+    if (t === 'hall_of_champions') return '/images/kingdom-tiles/Hall_of_champions.webp';
+    if (t === 'titan_watchtower') return '/images/kingdom-tiles/Titan_watchtower.webp';
+    return `/images/tiles/${t}-tile.webp`;
 };
 
 export const createBaseGrid = (): Tile[][] => {
