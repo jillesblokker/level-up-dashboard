@@ -393,6 +393,7 @@ export default function QuestsPage() {
       setSyncError(error.message);
       // Clear error after 5 seconds
       setTimeout(() => setSyncError(null), 5000);
+    },
   });
 
   const [isRetrievingData, setIsRetrievingData] = useState(false);
