@@ -233,12 +233,21 @@ export async function GET(request: Request) {
     // This bypasses all the complex logic and uses the proven method
     logger.debug('[Quests API] Using proven simple approach...');
 
-    // Get user's quest completions from quest_completion table (ordered by newest first so recent completions are never truncated by 1000 limit)
-    const { data: questCompletions, error: completionsError } = await supabase
+    // SMART DATE-BOUNDED FETCH:
+    // Daily quests only need completions from today/yesterday (48-hour window).
+    // This reduces DB payload from 1,000+ rows down to ~20-50 lean rows, preventing row limit truncation forever!
+    let completionQuery = supabase
       .from('quest_completion')
-      .select('*')
+      .select('id, quest_id, completed, completed_at, created_at, xp_earned, gold_earned')
       .eq('user_id', userId)
       .order('completed_at', { ascending: false });
+
+    if (!allTime) {
+      const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+      completionQuery = completionQuery.gte('completed_at', twoDaysAgo);
+    }
+
+    const { data: questCompletions, error: completionsError } = await completionQuery;
 
     logger.debug('[Quests API] Quest completions fetched:', {
       count: questCompletions?.length || 0,
