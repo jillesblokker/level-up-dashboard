@@ -26,7 +26,7 @@ import { getUserScopedItem } from "@/lib/user-scoped-storage"
 
 // Static definition of all possible tiles to prevent re-creation on every render
 const allPossibleTiles: Tile[] = [
-  // Foundation Tiles (Level 0-20)
+  // Foundation & Terrain Tiles (Level 1-25)
   { id: 'grass', name: 'Grass', type: 'grass', quantity: 0, cost: 25, connections: [], description: 'Basic terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Grass tile', image: '/images/tiles/grass-tile.webp' },
   { id: 'crossroad', name: 'Crossroad', type: 'crossroad', quantity: 0, cost: 0, connections: [], description: 'Connecting path', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Crossroad tile', image: '/images/kingdom-tiles/Crossroad.webp' },
   { id: 'straightroad', name: 'Straight Road', type: 'straightroad', quantity: 0, cost: 0, connections: [], description: 'Connecting path', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Straight Road tile', image: '/images/kingdom-tiles/Straightroad.webp' },
@@ -37,84 +37,73 @@ const allPossibleTiles: Tile[] = [
   { id: 'mountain', name: 'Mountain', type: 'mountain', quantity: 0, cost: 100, connections: [], description: 'Rocky terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mountain tile', image: '/images/tiles/mountain-tile.webp' },
   { id: 'desert', name: 'Desert', type: 'desert', quantity: 0, cost: 125, connections: [], description: 'Arid terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Desert tile', image: '/images/tiles/desert-tile.webp' },
   { id: 'ice', name: 'Ice', type: 'ice', quantity: 0, cost: 150, connections: [], description: 'Frozen terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Ice tile', image: '/images/tiles/ice-tile.webp' },
-
-  // Settlement Tiles (Level 20-40)
-  { id: 'town', name: 'Town', type: 'town', quantity: 0, cost: 200, connections: [], description: 'Small settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Town tile', image: '/images/tiles/town-tile.webp' },
-  { id: 'city', name: 'City', type: 'city', quantity: 0, cost: 400, connections: [], description: 'Large settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'City tile', image: '/images/tiles/city-tile.webp' },
-  { id: 'settlement', name: 'Settlement', type: 'settlement', quantity: 0, cost: 600, connections: [], description: 'A growing community of adventurous pioneers', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Settlement tile', image: '/images/tiles/settlement-tile.webp' },
-  { id: 'megapolis', name: 'Megapolis', type: 'megapolis', quantity: 0, cost: 3000, connections: [], description: 'A grand fortress city with six unique trade districts', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Megapolis tile', image: '/images/tiles/megapolis-tile.webp' },
-  { id: 'abbey', name: 'Silent Abbey', type: 'abbey', quantity: 0, cost: 600, connections: [], description: 'A silent gothic monastery offering daily vows of focus & benedictions', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Silent Abbey tile', image: '/images/tiles/abbey-tile.webp' },
-
-  // Development & Workshop Tiles (Level 40-70)
-  { id: 'portal-entrance', name: 'Portal Entrance', type: 'portal-entrance', quantity: 0, cost: 1000, connections: [], description: 'Portal entry point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal entrance tile', image: '/images/tiles/portal-entrance-tile.webp' },
-  { id: 'portal-exit', name: 'Portal Exit', type: 'portal-exit', quantity: 0, cost: 1000, connections: [], description: 'Portal exit point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal exit tile', image: '/images/tiles/portal-exit-tile.webp' },
-  { id: 'sawmill', name: 'Sawmill', type: 'sawmill', quantity: 0, cost: 450, connections: [], description: 'Timber workshop for processing forest logs', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Sawmill tile', image: '/images/kingdom-tiles/Sawmill.webp' },
-  { id: 'stone-quarry', name: 'Stone Quarry', type: 'stone-quarry', quantity: 0, cost: 500, connections: [], description: 'Stonecutting quarry for extracting granite and marble', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Stone Quarry tile', image: '/images/kingdom-tiles/StoneQuarry.webp' },
-  { id: 'windmill', name: 'Windmill', type: 'windmill', quantity: 0, cost: 550, connections: [], description: 'Wind-powered grain mill', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Windmill tile', image: '/images/kingdom-tiles/Windmill.webp' },
-  { id: 'watchtower', name: 'Watchtower', type: 'watchtower', quantity: 0, cost: 600, connections: [], description: 'Border lookout tower', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Watchtower tile', image: '/images/kingdom-tiles/Watchtower.webp' },
-  { id: 'royal-stables', name: 'Royal Stables', type: 'royal-stables', quantity: 0, cost: 700, connections: [], description: 'Stables for breeding swift steeds and airship mounts', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Royal Stables tile', image: '/images/locations/royal-stables.webp' },
-  { id: 'embers-anvil', name: 'Ember\'s Anvil', type: 'embers-anvil', quantity: 0, cost: 800, connections: [], description: 'Legendary blacksmith forge studio', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Ember\'s Anvil tile', image: '/images/locations/embers-anvil.webp' },
-  { id: 'archery', name: 'Archery Range', type: 'archery', quantity: 0, cost: 850, connections: [], description: 'Training range for marksmen and scouts', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Archery Range tile', image: '/images/kingdom-tiles/Archery.webp' },
-  { id: 'fisherman', name: 'Fisherman\'s Hut', type: 'fisherman', quantity: 0, cost: 900, connections: [], description: 'Coastal fishing lodge', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Fisherman\'s Hut tile', image: '/images/kingdom-tiles/Fisherman.webp' },
-  { id: 'pond', name: 'Pond', type: 'pond', quantity: 0, cost: 400, connections: [], description: 'Tranquil garden pond', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Pond tile', image: '/images/kingdom-tiles/Pond.webp' },
-
-  // Advanced Tiles (Level 60-80)
-  { id: 'volcano', name: 'Volcano', type: 'volcano', quantity: 0, cost: 1500, connections: [], description: 'Active volcano', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Volcano tile', image: '/images/tiles/volcano-tile.webp' },
-  { id: 'lava', name: 'Lava', type: 'lava', quantity: 0, cost: 1800, connections: [], description: 'Molten rock', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Lava tile', image: '/images/tiles/lava-tile.webp' },
-  { id: 'cave', name: 'Cave', type: 'cave', quantity: 0, cost: 800, connections: [], description: 'Natural cave', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Cave tile', image: '/images/tiles/cave-tile.webp' },
   { id: 'snow', name: 'Snow', type: 'snow', quantity: 0, cost: 300, connections: [], description: 'Snowy terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Snow tile', image: '/images/tiles/snow-tile.webp' },
-
-  // New Realm Tiles (Adventure & Landscape Wonders Level 70-100+)
+  { id: 'cave', name: 'Cave', type: 'cave', quantity: 0, cost: 800, connections: [], description: 'Natural cave', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Cave tile', image: '/images/tiles/cave-tile.webp' },
   { id: 'farmland', name: 'Farmland', type: 'farmland', quantity: 0, cost: 80, connections: [], description: 'Fertile land for crops', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Farmland tile', image: '/images/tiles/farmland-tile.webp' },
   { id: 'jungle', name: 'Jungle', type: 'jungle', quantity: 0, cost: 100, connections: [], description: 'Dense tropical jungle', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Jungle tile', image: '/images/tiles/jungle-tile.webp' },
   { id: 'oasis', name: 'Oasis', type: 'oasis', quantity: 0, cost: 120, connections: [], description: 'A refreshing desert oasis', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Oasis tile', image: '/images/tiles/oasis-tile.webp' },
-  { id: 'coral_reef', name: 'Mermaid', type: 'coral_reef', quantity: 0, cost: 150, connections: [], description: 'A mermaid resting on a rock', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mermaid tile', image: '/images/tiles/coral_reef-tile.webp' },
   { id: 'graveyard', name: 'Graveyard', type: 'graveyard', quantity: 0, cost: 150, connections: [], description: 'Spooky resting place', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Graveyard tile', image: '/images/tiles/graveyard-tile.webp' },
+
+  // Landscape Districts (Level 25-50)
+  { id: 'town', name: 'Town District', type: 'town', quantity: 0, cost: 200, connections: [], description: 'Small landscape settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Town tile', image: '/images/tiles/town-tile.webp' },
+  { id: 'city', name: 'City District', type: 'city', quantity: 0, cost: 400, connections: [], description: 'Large landscape settlement', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'City tile', image: '/images/tiles/city-tile.webp' },
+  { id: 'settlement', name: 'Pioneer Settlement', type: 'settlement', quantity: 0, cost: 600, connections: [], description: 'A growing community of adventurous pioneers', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Settlement tile', image: '/images/tiles/settlement-tile.webp' },
+  { id: 'megapolis', name: 'Megapolis', type: 'megapolis', quantity: 0, cost: 3000, connections: [], description: 'A grand fortress city landscape', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Megapolis tile', image: '/images/tiles/megapolis-tile.webp' },
+  { id: 'abbey', name: 'Silent Abbey', type: 'abbey', quantity: 0, cost: 600, connections: [], description: 'A silent gothic monastery sanctuary', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Silent Abbey tile', image: '/images/tiles/abbey-tile.webp' },
+  { id: 'coral_reef', name: 'Mermaid Coral Reef', type: 'coral_reef', quantity: 0, cost: 150, connections: [], description: 'A mermaid resting on a rock reef', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mermaid tile', image: '/images/tiles/coral_reef-tile.webp' },
+
+  // Ancient Ruins & Caverns (Level 50-75)
   { id: 'ruins', name: 'Ancient Ruins', type: 'ruins', quantity: 0, cost: 150, connections: [], description: 'Ancient mysterious ruins', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Ancient Ruins tile', image: '/images/tiles/ruins-tile.webp' },
   { id: 'crystal_cavern', name: 'Crystal Cavern', type: 'crystal_cavern', quantity: 0, cost: 200, connections: [], description: 'Cave filled with magical crystals', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Crystal Cavern tile', image: '/images/tiles/crystal_cavern-tile.webp' },
-  { id: 'floating_island', name: 'Island', type: 'floating_island', quantity: 0, cost: 500, connections: [], description: 'A mysterious island accessible by boat', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Island tile', image: '/images/tiles/floating_island-tile.webp' }
+  { id: 'lava', name: 'Lava Fields', type: 'lava', quantity: 0, cost: 1800, connections: [], description: 'Molten rock landscape', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Lava tile', image: '/images/tiles/lava-tile.webp' },
+  { id: 'volcano', name: 'Active Volcano', type: 'volcano', quantity: 0, cost: 1500, connections: [], description: 'Active volcano peak', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Volcano tile', image: '/images/tiles/volcano-tile.webp' },
+
+  // Mythic Sandbox Wonders (Level 75-100+)
+  { id: 'portal-entrance', name: 'Portal Entrance', type: 'portal-entrance', quantity: 0, cost: 1000, connections: [], description: 'Portal entry point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal entrance tile', image: '/images/tiles/portal-entrance-tile.webp' },
+  { id: 'portal-exit', name: 'Portal Exit', type: 'portal-exit', quantity: 0, cost: 1000, connections: [], description: 'Portal exit point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal exit tile', image: '/images/tiles/portal-exit-tile.webp' },
+  { id: 'floating_island', name: 'Floating Island', type: 'floating_island', quantity: 0, cost: 500, connections: [], description: 'A mysterious floating island landscape', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Island tile', image: '/images/tiles/floating_island-tile.webp' }
 ];
 
 // Tile categories with logical organization
 const tileCategories = [
   {
     id: 'foundation',
-    name: 'Foundation & Roads',
+    name: 'Terrain & Roads',
     minLevel: 0,
-    maxLevel: 20,
-    description: 'Basic terrain and natural features',
-    tiles: ['grass', 'water', 'serene_lake', 'waterway_canal', 'forest', 'mountain', 'desert', 'ice', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'farmland', 'jungle', 'oasis', 'coral_reef', 'graveyard', 'ruins', 'crystal_cavern', 'floating_island', 'astral_citadel_monument']
+    maxLevel: 25,
+    description: 'Basic terrain, paths, and natural features',
+    tiles: ['grass', 'water', 'serene_lake', 'waterway_canal', 'forest', 'mountain', 'desert', 'ice', 'snow', 'cave', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'farmland', 'jungle', 'oasis', 'graveyard']
   },
   {
     id: 'settlement',
-    name: 'Settlement Tiles',
-    minLevel: 20,
-    maxLevel: 40,
-    description: 'Human settlements and communities',
-    tiles: ['town', 'city', 'settlement', 'megapolis', 'abbey']
+    name: 'Landscape Districts',
+    minLevel: 25,
+    maxLevel: 50,
+    description: 'Macro settlement districts and sanctuaries',
+    tiles: ['settlement', 'town', 'city', 'megapolis', 'abbey', 'coral_reef']
   },
   {
     id: 'development',
-    name: 'Development Tiles',
-    minLevel: 40,
-    maxLevel: 70,
-    description: 'Advanced infrastructure, workshops, and architectural structures',
-    tiles: ['portal-entrance', 'portal-exit', 'sawmill', 'stone-quarry', 'windmill', 'watchtower', 'royal-stables', 'embers-anvil', 'archery', 'fisherman', 'pond']
+    name: 'Ancient Ruins & Caverns',
+    minLevel: 50,
+    maxLevel: 75,
+    description: 'Ancient ruins, crystal caves, and volcanic terrain',
+    tiles: ['ruins', 'crystal_cavern', 'lava', 'volcano']
   },
   {
     id: 'advanced',
-    name: 'Advanced Tiles',
-    minLevel: 70,
+    name: 'Mythic Sandbox Wonders',
+    minLevel: 75,
     maxLevel: 100,
-    description: 'Complex structures and magical landscape elements',
-    tiles: ['volcano', 'lava', 'cave', 'snow']
+    description: 'Floating islands, portals, and mythic landscape monuments',
+    tiles: ['portal-entrance', 'portal-exit', 'floating_island', 'astral_citadel_monument']
   },
   {
     id: 'rare',
-    name: 'Rare Tiles',
+    name: 'Rare Event Tiles',
     minLevel: 0,
     maxLevel: 100,
-    description: 'Special seasonal event blueprints available during seasonal months',
+    description: 'Special seasonal event blueprints available during active seasonal months',
     tiles: (Array.isArray(RARE_TILES) ? RARE_TILES : []).map(tile => tile && tile.type ? tile.type : '').filter(Boolean)
   }
 ];
