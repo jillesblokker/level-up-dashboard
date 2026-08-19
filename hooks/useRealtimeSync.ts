@@ -23,24 +23,29 @@ export function useRealtimeSync(
     onFocus = true,
   } = options;
 
+  const callbacksRef = useRef(callbacks);
+  useEffect(() => {
+    callbacksRef.current = callbacks;
+  }, [callbacks]);
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const isSyncingRef = useRef(false);
   const lastSyncRef = useRef<number>(0);
 
   const performSync = useCallback(async () => {
-    if (isSyncingRef.current || !callbacks.onSync) return;
+    if (isSyncingRef.current || !callbacksRef.current.onSync) return;
     
     isSyncingRef.current = true;
     try {
-      await callbacks.onSync();
+      await callbacksRef.current.onSync();
       lastSyncRef.current = Date.now();
     } catch (error) {
       console.error('[Realtime Sync] Sync failed:', error);
-      callbacks.onError?.(error instanceof Error ? error : new Error(String(error)));
+      callbacksRef.current.onError?.(error instanceof Error ? error : new Error(String(error)));
     } finally {
       isSyncingRef.current = false;
     }
-  }, [callbacks]);
+  }, []);
 
   const startPolling = useCallback(() => {
     if (intervalRef.current) return; // Already polling

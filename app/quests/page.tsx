@@ -437,31 +437,23 @@ export default function QuestsPage() {
   const todaysCompleted = todaysQuests.filter(q => q.completed).length;
   const todaysTotal = todaysQuests.length;
 
-  // Automatic cross-device auto-sync whenever tab becomes visible, window gets focused, or background tick fires
+  // Automatic cross-device event listeners for global sync ticks and quest additions
   useEffect(() => {
     const handleAutoSync = () => {
       if (typeof window !== 'undefined' && document.visibilityState === 'visible') {
-        logger.debug('[AUTO-SYNC] Triggering automatic cross-device background sync...');
-        syncNow();
+        logger.debug('[AUTO-SYNC] Global sync event received...');
         window.dispatchEvent(new Event('character-stats-update'));
         window.dispatchEvent(new Event('milestone-update'));
       }
     };
 
-    // Immediate auto-sync on mount
-    handleAutoSync();
-
-    window.addEventListener('visibilitychange', handleAutoSync);
-    window.addEventListener('focus', handleAutoSync);
     window.addEventListener('global-sync-tick', handleAutoSync);
     window.addEventListener('quest-added', handleAutoSync);
     return () => {
-      window.removeEventListener('visibilitychange', handleAutoSync);
-      window.removeEventListener('focus', handleAutoSync);
       window.removeEventListener('global-sync-tick', handleAutoSync);
       window.removeEventListener('quest-added', handleAutoSync);
     };
-  }, [syncNow]);
+  }, []);
 
   // Periodic Midnight Auto-Reset Monitor (Guarantees un-checked quests at local midnight)
   useEffect(() => {
