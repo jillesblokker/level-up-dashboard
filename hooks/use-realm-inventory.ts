@@ -83,12 +83,14 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
                 // Update the legacy inventory mapping if still needed
                 const mergedInventory = { ...initialInventory };
                 items.forEach(item => {
-                    if (mergedInventory[item.type]) {
+                    const existing = mergedInventory[item.type];
+                    if (existing) {
                         mergedInventory[item.type] = {
-                            ...mergedInventory[item.type],
+                            ...existing,
+                            id: existing.id || item.type,
                             quantity: item.quantity ?? 0,
                             owned: item.quantity ?? 0
-                        };
+                        } as Tile;
                     }
                 });
                 setInventory(mergedInventory);
@@ -174,10 +176,16 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
             }
             if (!prev[tileType]) return prev;
 
-            const newQuantity = Math.max(0, (prev[tileType].quantity ?? 0) + delta);
+            const existingTile = prev[tileType];
+            const newQuantity = Math.max(0, (existingTile?.quantity ?? 0) + delta);
             return {
                 ...prev,
-                [tileType]: { ...prev[tileType], quantity: newQuantity, owned: newQuantity }
+                [tileType]: {
+                    ...existingTile,
+                    id: existingTile?.id || tileType,
+                    quantity: newQuantity,
+                    owned: newQuantity
+                } as Tile
             };
         });
     }, [userId, saveTileInventory]);
