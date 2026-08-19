@@ -57,7 +57,7 @@ export default function SettingsPage() {
   const [sanctuaryModeActive, setSanctuaryModeActive] = useState(false)
   const [soundsEnabled, setSoundsEnabled] = useState(true)
   const [vacationShieldDays, setVacationShieldDays] = useState(0)
-  const [activeSeasonalEvent, setActiveSeasonalEvent] = useState('easter')
+  const [activeSeasonalEvent, setActiveSeasonalEvent] = useState('auto')
 
   // Load user data
   useEffect(() => {
@@ -65,6 +65,8 @@ export default function SettingsPage() {
       const savedEvent = localStorage.getItem("active-seasonal-event-override")
       if (savedEvent) {
         setActiveSeasonalEvent(savedEvent)
+      } else {
+        setActiveSeasonalEvent('auto')
       }
       // Load character stats
       const savedStats = localStorage.getItem("character-stats")
@@ -467,24 +469,31 @@ export default function SettingsPage() {
                     onChange={(e) => {
                       const val = e.target.value;
                       setActiveSeasonalEvent(val);
-                      localStorage.setItem("active-seasonal-event-override", val);
+                      if (val === 'auto') {
+                        localStorage.setItem("active-seasonal-event-override", "auto");
+                      } else {
+                        localStorage.setItem("active-seasonal-event-override", val);
+                      }
                       window.dispatchEvent(new CustomEvent('seasonal-hunt:updated'));
                       toast({
                         title: "🎉 Seasonal Event Updated!",
-                        description: `Activated ${val.toUpperCase()} Hide & Seek hunt!`,
+                        description: val === 'auto' ? "Reverted to automatic real-time seasonal event!" : `Activated ${val.toUpperCase()} Hide & Seek hunt & seasonal tiles!`,
                       });
                     }}
                     className="bg-black border border-amber-500/40 text-amber-300 font-bold text-xs rounded-xl p-2.5 outline-none cursor-pointer shrink-0"
                   >
-                    <option value="easter">🥚 Easter Egg Hunt (Spring)</option>
-                    <option value="halloween">🎃 Halloween Pumpkin Hunt (Autumn)</option>
+                    <option value="auto">🌐 Automatic (Real-Time Season/Month)</option>
                     <option value="christmas">🎄 Christmas Present Hunt (Winter)</option>
                     <option value="newyear">🎆 New Year Sparkler Hunt</option>
+                    <option value="easter">🥚 Easter Egg Hunt (Spring)</option>
+                    <option value="halloween">🎃 Halloween Pumpkin Hunt (Autumn)</option>
                     <option value="valentine">❤️ Valentine Heart Hunt</option>
                     <option value="spring">🍀 Spring Clover Hunt</option>
                     <option value="harvest">🌾 Harvest Wheat Hunt</option>
                     <option value="solstice">☀️ Solstice Sun Hunt</option>
+                    <option value="firefly">🏮 Firefly Lantern Hunt</option>
                     <option value="forge_fire">⚒️ Forge Iron Ingot Hunt</option>
+                    <option value="remembrance">📜 Heritage Scroll Hunt</option>
                   </select>
                 </div>
               </CardContent>

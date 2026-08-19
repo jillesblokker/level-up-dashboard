@@ -369,6 +369,21 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
               Placed: {placedCount}
             </Badge>
           )}
+          {(tile.id.includes('winter') || tile.id.includes('snowy') || tile.id.includes('ice')) && (
+            <Badge variant="secondary" className="text-[9px] py-0.5 px-2 bg-blue-950/80 text-blue-300 border border-blue-500/30 whitespace-nowrap">
+              ❄️ Winter Variant
+            </Badge>
+          )}
+          {tile.id.includes('fireworks') && (
+            <Badge variant="secondary" className="text-[9px] py-0.5 px-2 bg-purple-950/80 text-purple-300 border border-purple-500/30 whitespace-nowrap">
+              🎆 Festival Variant
+            </Badge>
+          )}
+          {(tile.id.includes('pumpkin') || tile.id.includes('harvest')) && (
+            <Badge variant="secondary" className="text-[9px] py-0.5 px-2 bg-orange-950/80 text-orange-300 border border-orange-500/30 whitespace-nowrap">
+              🎃 Harvest Variant
+            </Badge>
+          )}
         </div>
 
         <div className="flex gap-3">

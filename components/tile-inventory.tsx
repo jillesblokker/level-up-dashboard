@@ -183,9 +183,13 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
 
     // Listen for character stats updates from the service
     window.addEventListener('character-stats-update', loadUserLevel);
+    window.addEventListener('seasonal-hunt:updated', loadRareTilesData);
+    window.addEventListener('storage', loadRareTilesData);
 
     return () => {
       window.removeEventListener('character-stats-update', loadUserLevel);
+      window.removeEventListener('seasonal-hunt:updated', loadRareTilesData);
+      window.removeEventListener('storage', loadRareTilesData);
     };
   }, [user?.id, supabase, isLoading]);
 

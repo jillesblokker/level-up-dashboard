@@ -242,7 +242,7 @@ class SeasonalHuntManagerClass {
   getCurrentEvent(): string {
     if (typeof window !== 'undefined') {
       const override = localStorage.getItem("active-seasonal-event-override");
-      if (override && SEASONAL_EVENTS[override]) {
+      if (override && override !== 'auto' && SEASONAL_EVENTS[override]) {
         return override;
       }
     }

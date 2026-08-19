@@ -97,11 +97,23 @@ export const RARE_TILES: RareTile[] = [
 ]
 
 export function isRareTileUnlocked(tile: RareTile): boolean {
-  const today = new Date()
-  const currentDay = today.getDate()
-  const currentMonth = today.getMonth() + 1 // getMonth() returns 0-11
+  if (typeof window !== 'undefined') {
+    const override = localStorage.getItem("active-seasonal-event-override");
+    if (override && override !== 'auto') {
+      if ((override === 'christmas') && (tile.type === 'christmas' || tile.type === 'fifth')) return true;
+      if ((override === 'newyear') && tile.type === 'newyear') return true;
+      if ((override === 'easter' || override === 'spring') && (tile.type === 'eastern' || tile.type === 'orange')) return true;
+      if (override === 'valentine' && tile.type === 'valentine') return true;
+      if ((override === 'harvest' || override === 'halloween') && tile.type === 'mango') return true;
+    }
+  }
 
-  return currentDay === tile.unlockDate.day && currentMonth === tile.unlockDate.month
+  const today = new Date();
+  const currentDay = today.getDate();
+  const currentMonth = today.getMonth() + 1; // getMonth() returns 0-11
+
+  // Unlock throughout the entire seasonal month or on the specific unlock date
+  return currentMonth === tile.unlockDate.month || (currentDay === tile.unlockDate.day && currentMonth === tile.unlockDate.month);
 }
 
 export function getRareTileUnlockDate(tile: RareTile): string {

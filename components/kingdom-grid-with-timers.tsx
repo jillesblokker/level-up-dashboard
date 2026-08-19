@@ -146,22 +146,46 @@ export function KingdomGridWithTimers({
 
   // -- Hoisted Properties Search/Logic for Type Safety --
   // Seasonal event flags (hoisted for property filtering and calendar automation)
-  const [winterFestivalActive, setWinterFestivalActive] = useState(() => {
+  const getWinterActive = () => {
     if (typeof window !== 'undefined') {
       const override = localStorage.getItem("active-seasonal-event-override");
-      if (override === 'christmas' || override === 'newyear') return true;
+      if (override && override !== 'auto') {
+        return override === 'christmas' || override === 'newyear';
+      }
     }
     const m = new Date().getMonth();
     return m === 11 || m === 0; // December or January
-  });
-  const [harvestFestivalActive, setHarvestFestivalActive] = useState(() => {
+  };
+
+  const getHarvestActive = () => {
     if (typeof window !== 'undefined') {
       const override = localStorage.getItem("active-seasonal-event-override");
-      if (override === 'harvest' || override === 'halloween') return true;
+      if (override && override !== 'auto') {
+        return override === 'harvest' || override === 'halloween';
+      }
     }
     const m = new Date().getMonth();
     return m === 8 || m === 9; // September or October
-  });
+  };
+
+  const [winterFestivalActive, setWinterFestivalActive] = useState(getWinterActive);
+  const [harvestFestivalActive, setHarvestFestivalActive] = useState(getHarvestActive);
+
+  // Synchronize seasonal flags when settings or storage updates
+  useEffect(() => {
+    const updateEvents = () => {
+      setWinterFestivalActive(getWinterActive());
+      setHarvestFestivalActive(getHarvestActive());
+    };
+
+    updateEvents();
+    window.addEventListener('seasonal-hunt:updated', updateEvents);
+    window.addEventListener('storage', updateEvents);
+    return () => {
+      window.removeEventListener('seasonal-hunt:updated', updateEvents);
+      window.removeEventListener('storage', updateEvents);
+    };
+  }, []);
 
   const activeEvent = useMemo(() => {
     return getActiveEvent(winterFestivalActive, harvestFestivalActive)
