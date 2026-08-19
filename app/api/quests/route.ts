@@ -327,8 +327,8 @@ export async function GET(request: Request) {
           const cDateUtc = new Date(c.completed_at || c.created_at).toISOString().split('T')[0];
           const todayUtc = new Date().toISOString().split('T')[0];
 
-          // STRICT DATE MATCHING: Must match local today's date in user's timezone (no UTC date mix-up that breaks daily reset)
-          return cDate === today;
+          // STRICT DATE MATCHING: Check both local timezone date and UTC date to guarantee cross-device sync
+          return cDate === today || (cDateUtc && cDateUtc === todayUtc);
         });
 
         // Show as completed if there's a valid completion record for today
@@ -434,7 +434,9 @@ export async function GET(request: Request) {
     if (questCompletions) {
       questCompletions.forEach((c: any) => {
         const cDate = formatDate(c.completed_at || c.created_at, requestTz);
-        const matchesToday = allTime ? c.completed === true : cDate === today;
+        const cDateUtc = (c.completed_at || c.created_at) ? new Date(c.completed_at || c.created_at).toISOString().split('T')[0] : null;
+        const todayUtc = new Date().toISOString().split('T')[0];
+        const matchesToday = allTime ? c.completed === true : (cDate === today || (cDateUtc && cDateUtc === todayUtc));
         if (matchesToday && c.completed !== false) {
           const compId = String(c.id || c.quest_id);
           if (!processedCompletionIds.has(compId)) {

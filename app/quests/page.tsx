@@ -437,49 +437,31 @@ export default function QuestsPage() {
   const todaysCompleted = todaysQuests.filter(q => q.completed).length;
   const todaysTotal = todaysQuests.length;
 
-  // Listen for background sync updates to re-hydrate quest completion status live on screen
+  // Automatic cross-device auto-sync whenever tab becomes visible, window gets focused, or background tick fires
   useEffect(() => {
-    const handleSyncEvent = () => {
-      const cached = getUserScopedItem('quests-cache');
-      const cacheDate = getUserScopedItem('quests-cache-date');
-      const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
-
-      if (cached && cacheDate === todayStr) {
-        try {
-          const parsed: any[] = JSON.parse(cached);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setQuests(prevQuests => {
-              const cacheMap = new Map<string, any>();
-              parsed.forEach(p => {
-                if (p.id) cacheMap.set(String(p.id).toLowerCase(), p);
-                if (p.name) cacheMap.set(String(p.name).toLowerCase(), p);
-              });
-
-              return prevQuests.map(pq => {
-                const qId = String(pq.id || '').toLowerCase();
-                const qName = String(pq.name || '').toLowerCase();
-                const match = cacheMap.get(qId) || cacheMap.get(qName);
-                if (match) {
-                  return {
-                    ...pq,
-                    completed: cacheDate === todayStr ? Boolean(match.completed) : false
-                  };
-                }
-                return pq;
-              });
-            });
-          }
-        } catch {}
+    const handleAutoSync = () => {
+      if (typeof window !== 'undefined' && document.visibilityState === 'visible') {
+        logger.debug('[AUTO-SYNC] Triggering automatic cross-device background sync...');
+        syncNow().catch(() => {});
+        window.dispatchEvent(new Event('character-stats-update'));
+        window.dispatchEvent(new Event('milestone-update'));
       }
     };
 
-    window.addEventListener('global-sync-tick', handleSyncEvent);
-    window.addEventListener('quest-added', handleSyncEvent);
+    // Immediate auto-sync on mount
+    handleAutoSync();
+
+    window.addEventListener('visibilitychange', handleAutoSync);
+    window.addEventListener('focus', handleAutoSync);
+    window.addEventListener('global-sync-tick', handleAutoSync);
+    window.addEventListener('quest-added', handleAutoSync);
     return () => {
-      window.removeEventListener('global-sync-tick', handleSyncEvent);
-      window.removeEventListener('quest-added', handleSyncEvent);
+      window.removeEventListener('visibilitychange', handleAutoSync);
+      window.removeEventListener('focus', handleAutoSync);
+      window.removeEventListener('global-sync-tick', handleAutoSync);
+      window.removeEventListener('quest-added', handleAutoSync);
     };
-  }, []);
+  }, [syncNow]);
 
   // Periodic Midnight Auto-Reset Monitor (Guarantees un-checked quests at local midnight)
   useEffect(() => {
