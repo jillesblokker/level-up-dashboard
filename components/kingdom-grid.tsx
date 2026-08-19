@@ -50,10 +50,10 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
   // Dynamically generate property inventory
   const [propertyInventory, setPropertyInventory] = useState<Tile[]>(() => {
     const tileImageFiles = [
-      'Archery.png', 'Blacksmith.png', 'Castle.png', 'Fisherman.png', 'Foodcourt.png',
-      'Fountain.png', 'Grocery.png', 'House.png', 'Inn.png', 'Jousting.png',
-      'Mansion.png', 'Mayor.png', 'Pond.png', 'Sawmill.png', 'Temple.png',
-      'Vegetables.png', 'Watchtower.png', 'Well.png', 'Windmill.png', 'Wizard.png', 'Dailyhub.png', 'fortune_teller.png'
+      'Archery.webp', 'Blacksmith.webp', 'Castle.webp', 'Fisherman.webp', 'Foodcourt.webp',
+      'Fountain.webp', 'Grocery.webp', 'House.webp', 'Inn.webp', 'Jousting.webp',
+      'Mansion.webp', 'Mayor.webp', 'Pond.webp', 'Sawmill.webp', 'Temple.webp',
+      'Vegetables.webp', 'Watchtower.webp', 'Well.webp', 'Windmill.webp', 'Wizard.webp', 'Dailyhub.webp', 'fortune_teller.webp'
     ];
 
     const tileNames: Record<string, string> = {
@@ -65,7 +65,7 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
     };
 
     return tileImageFiles.map((file: string) => {
-      const name = file.replace('.png', '');
+      const name = file.replace(/\.(png|webp)$/, '');
       const typeId = name.toLowerCase() === 'dailyhub' ? 'daily-hub' : name.toLowerCase();
       return {
         id: typeId,

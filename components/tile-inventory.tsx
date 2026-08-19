@@ -45,12 +45,18 @@ const allPossibleTiles: Tile[] = [
   { id: 'megapolis', name: 'Megapolis', type: 'megapolis', quantity: 0, cost: 3000, connections: [], description: 'A grand fortress city with six unique trade districts', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Megapolis tile', image: '/images/tiles/megapolis-tile.webp' },
   { id: 'abbey', name: 'Silent Abbey', type: 'abbey', quantity: 0, cost: 600, connections: [], description: 'A silent gothic monastery offering daily vows of focus & benedictions', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Silent Abbey tile', image: '/images/tiles/abbey-tile.webp' },
 
-  // Development Tiles (Level 40-60)
-  { id: 'castle', name: 'Castle', type: 'castle', quantity: 0, cost: 800, connections: [], description: 'Fortified structure', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Castle tile', image: '/images/tiles/castle-tile.webp' },
-  { id: 'dungeon', name: 'Dungeon', type: 'dungeon', quantity: 0, cost: 600, connections: [], description: 'Underground complex', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Dungeon tile', image: '/images/tiles/dungeon-tile.webp' },
+  // Development & Workshop Tiles (Level 40-70)
   { id: 'portal-entrance', name: 'Portal Entrance', type: 'portal-entrance', quantity: 0, cost: 1000, connections: [], description: 'Portal entry point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal entrance tile', image: '/images/tiles/portal-entrance-tile.webp' },
   { id: 'portal-exit', name: 'Portal Exit', type: 'portal-exit', quantity: 0, cost: 1000, connections: [], description: 'Portal exit point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal exit tile', image: '/images/tiles/portal-exit-tile.webp' },
-  { id: 'fortune_teller', name: 'Fortune Teller', type: 'fortune_teller', quantity: 0, cost: 200, connections: [], description: 'A mysterious entity offering fortunes', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Fortune Teller tile', image: '/images/kingdom-tiles/fortune_teller.webp' },
+  { id: 'sawmill', name: 'Sawmill', type: 'sawmill', quantity: 0, cost: 450, connections: [], description: 'Timber workshop for processing forest logs', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Sawmill tile', image: '/images/kingdom-tiles/Sawmill.webp' },
+  { id: 'stone-quarry', name: 'Stone Quarry', type: 'stone-quarry', quantity: 0, cost: 500, connections: [], description: 'Stonecutting quarry for extracting granite and marble', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Stone Quarry tile', image: '/images/kingdom-tiles/StoneQuarry.webp' },
+  { id: 'windmill', name: 'Windmill', type: 'windmill', quantity: 0, cost: 550, connections: [], description: 'Wind-powered grain mill', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Windmill tile', image: '/images/kingdom-tiles/Windmill.webp' },
+  { id: 'watchtower', name: 'Watchtower', type: 'watchtower', quantity: 0, cost: 600, connections: [], description: 'Border lookout tower', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Watchtower tile', image: '/images/kingdom-tiles/Watchtower.webp' },
+  { id: 'royal-stables', name: 'Royal Stables', type: 'royal-stables', quantity: 0, cost: 700, connections: [], description: 'Stables for breeding swift steeds and airship mounts', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Royal Stables tile', image: '/images/locations/royal-stables.webp' },
+  { id: 'embers-anvil', name: 'Ember\'s Anvil', type: 'embers-anvil', quantity: 0, cost: 800, connections: [], description: 'Legendary blacksmith forge studio', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Ember\'s Anvil tile', image: '/images/locations/embers-anvil.webp' },
+  { id: 'archery', name: 'Archery Range', type: 'archery', quantity: 0, cost: 850, connections: [], description: 'Training range for marksmen and scouts', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Archery Range tile', image: '/images/kingdom-tiles/Archery.webp' },
+  { id: 'fisherman', name: 'Fisherman\'s Hut', type: 'fisherman', quantity: 0, cost: 900, connections: [], description: 'Coastal fishing lodge', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Fisherman\'s Hut tile', image: '/images/kingdom-tiles/Fisherman.webp' },
+  { id: 'pond', name: 'Pond', type: 'pond', quantity: 0, cost: 400, connections: [], description: 'Tranquil garden pond', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Pond tile', image: '/images/kingdom-tiles/Pond.webp' },
 
   // Advanced Tiles (Level 60-80)
   { id: 'volcano', name: 'Volcano', type: 'volcano', quantity: 0, cost: 1500, connections: [], description: 'Active volcano', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Volcano tile', image: '/images/tiles/volcano-tile.webp' },
@@ -58,18 +64,7 @@ const allPossibleTiles: Tile[] = [
   { id: 'cave', name: 'Cave', type: 'cave', quantity: 0, cost: 800, connections: [], description: 'Natural cave', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Cave tile', image: '/images/tiles/cave-tile.webp' },
   { id: 'snow', name: 'Snow', type: 'snow', quantity: 0, cost: 300, connections: [], description: 'Snowy terrain', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Snow tile', image: '/images/tiles/snow-tile.webp' },
 
-  // Consumables
-  { id: 'streak-scroll', name: 'Streak Freeze', type: 'streak-scroll', quantity: 0, cost: 500, connections: [], description: 'Protects your streak if you miss a day. Automatically consumed.', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Streak Freeze Scroll', image: '/images/tiles/streak-scroll.webp', unlocked: true },
-
-  // Landmark Tiles
-  { id: 'whispering-canopy', name: 'Whispering Canopy', type: 'whispering-canopy', quantity: 0, cost: 1200, connections: [], description: 'An ancient forest canopy where you can seal a focus pact of silence', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Whispering Canopy tile', image: '/images/tiles/whispering-canopy-tile.webp' },
-  { id: 'frostfire-obelisk', name: 'Frostfire Obelisk', type: 'frostfire-obelisk', quantity: 0, cost: 1500, connections: [], description: 'A frozen monument that can seal a daily streak freeze pact or award glacial shards', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Frostfire Obelisk tile', image: '/images/tiles/frostfire-obelisk-tile.webp' },
-  { id: 'fairy-ring', name: 'Fairy Ring', type: 'fairy-ring', quantity: 0, cost: 1200, connections: [], description: 'A mystical circle of toadstools where pixies trade resources and play luck games', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Fairy Ring tile', image: '/images/tiles/fairy-ring-tile.webp' },
-  { id: 'mystic-obelisk', name: 'Mystic Obelisk', type: 'mystic-obelisk', quantity: 0, cost: 1500, connections: [], description: 'A celestial spire that grants the Astral Fortune perk (+15% unowned scratch card chance)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mystic Obelisk tile', image: '/images/tiles/mystic-obelisk-tile.webp' },
-  { id: 'golden-pantheon', name: 'Golden Pantheon', type: 'golden-pantheon', quantity: 0, cost: 100000, connections: [], description: 'A magnificent golden temple yielding massive wealth and rare Crown card packs daily', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Golden Pantheon tile', image: '/images/tiles/golden-pantheon-tile.webp' },
-  { id: 'plank-labyrinth', name: 'Plank Labyrinth', type: 'plank-labyrinth', quantity: 0, cost: 10000, connections: [], description: 'A complex puzzle maze of wooden planks. Solve it to retrieve legendary treasures!', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Plank Labyrinth tile', image: '/images/tiles/plank-labyrinth-tile.webp' },
-
-  // New Realm Tiles (Adventure & Mystic)
+  // New Realm Tiles (Adventure & Landscape Wonders Level 70-100+)
   { id: 'farmland', name: 'Farmland', type: 'farmland', quantity: 0, cost: 80, connections: [], description: 'Fertile land for crops', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Farmland tile', image: '/images/tiles/farmland-tile.webp' },
   { id: 'jungle', name: 'Jungle', type: 'jungle', quantity: 0, cost: 100, connections: [], description: 'Dense tropical jungle', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Jungle tile', image: '/images/tiles/jungle-tile.webp' },
   { id: 'oasis', name: 'Oasis', type: 'oasis', quantity: 0, cost: 120, connections: [], description: 'A refreshing desert oasis', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Oasis tile', image: '/images/tiles/oasis-tile.webp' },
@@ -102,16 +97,16 @@ const tileCategories = [
     id: 'development',
     name: 'Development Tiles',
     minLevel: 40,
-    maxLevel: 60,
-    description: 'Advanced infrastructure and specialized buildings',
-    tiles: ['castle', 'dungeon', 'portal-entrance', 'portal-exit', 'fortune_teller', 'whispering-canopy', 'frostfire-obelisk', 'fairy-ring', 'mystic-obelisk', 'golden-pantheon', 'plank-labyrinth']
+    maxLevel: 70,
+    description: 'Advanced infrastructure, workshops, and architectural structures',
+    tiles: ['portal-entrance', 'portal-exit', 'sawmill', 'stone-quarry', 'windmill', 'watchtower', 'royal-stables', 'embers-anvil', 'archery', 'fisherman', 'pond']
   },
   {
     id: 'advanced',
     name: 'Advanced Tiles',
-    minLevel: 60,
-    maxLevel: 80,
-    description: 'Complex structures and magical elements',
+    minLevel: 70,
+    maxLevel: 100,
+    description: 'Complex structures and magical landscape elements',
     tiles: ['volcano', 'lava', 'cave', 'snow']
   },
   {
@@ -119,16 +114,8 @@ const tileCategories = [
     name: 'Rare Tiles',
     minLevel: 0,
     maxLevel: 100,
-    description: 'Special tiles available on specific dates',
+    description: 'Special seasonal event blueprints available during seasonal months',
     tiles: (Array.isArray(RARE_TILES) ? RARE_TILES : []).map(tile => tile && tile.type ? tile.type : '').filter(Boolean)
-  },
-  {
-    id: 'consumables',
-    name: 'Consumables',
-    minLevel: 0,
-    maxLevel: 100,
-    description: 'Special items to help your journey',
-    tiles: ['streak-scroll']
   }
 ];
 

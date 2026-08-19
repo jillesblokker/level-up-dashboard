@@ -150,23 +150,20 @@ export const initialInventory: Record<TileType, Tile> = {
     monument: { ...defaultTile('monument'), cost: 500, owned: 1 },
     'training-grounds': { ...defaultTile('training-grounds'), cost: 200, owned: 1 },
     tavern: { ...defaultTile('tavern'), cost: 200, owned: 1 },
-    watchtower: { ...defaultTile('watchtower'), cost: 300, owned: 0 },
-    library: { ...defaultTile('library'), cost: 300, owned: 0 },
-    wizard: { ...defaultTile('wizard'), cost: 400, owned: 0 },
-    temple: { ...defaultTile('temple'), cost: 400, owned: 0 },
-    fortune_teller: { ...defaultTile('fortune_teller'), cost: 200, owned: 0 },
-    'market-stalls': { ...defaultTile('market-stalls'), cost: 400, owned: 0 },
+    sawmill: { ...defaultTile('sawmill'), cost: 450, owned: 1 },
+    'stone-quarry': { ...defaultTile('stone-quarry'), cost: 500, owned: 1 },
+    windmill: { ...defaultTile('windmill'), cost: 550, owned: 1 },
+    watchtower: { ...defaultTile('watchtower'), cost: 600, owned: 0 },
+    'royal-stables': { ...defaultTile('royal-stables'), cost: 700, owned: 0 },
+    'embers-anvil': { ...defaultTile('embers-anvil'), cost: 800, owned: 0 },
+    archery: { ...defaultTile('archery'), cost: 850, owned: 0 },
+    fisherman: { ...defaultTile('fisherman'), cost: 900, owned: 0 },
+    pond: { ...defaultTile('pond'), cost: 400, owned: 1 },
     pyramid: { ...defaultTile('pyramid'), cost: 1000, owned: 0 },
     'whispering-well': { ...defaultTile('whispering-well'), cost: 1000, owned: 0 },
     'sphinx-gates': { ...defaultTile('sphinx-gates'), cost: 1000, owned: 0 },
-    'whispering-canopy': { ...defaultTile('whispering-canopy'), cost: 1200, owned: 0 },
-    'frostfire-obelisk': { ...defaultTile('frostfire-obelisk'), cost: 1500, owned: 0 },
-    'fairy-ring': { ...defaultTile('fairy-ring'), cost: 1200, owned: 0 },
     settlement: { ...defaultTile('settlement'), cost: 300, owned: 0 },
     megapolis: { ...defaultTile('megapolis'), cost: 3000, owned: 0 },
-    'mystic-obelisk': { ...defaultTile('mystic-obelisk'), cost: 1500, owned: 0 },
-    'golden-pantheon': { ...defaultTile('golden-pantheon'), cost: 100000, owned: 0 },
-    'plank-labyrinth': { ...defaultTile('plank-labyrinth'), cost: 10000, owned: 0 },
     prison: { ...defaultTile('prison'), cost: 500, owned: 0 },
     apotheca: { ...defaultTile('apotheca'), cost: 500, owned: 0 },
     abbey: { ...defaultTile('abbey'), cost: 600, owned: 0 },
@@ -198,6 +195,14 @@ export const getTileImage = (type: TileType): string => {
     if (type === 'market-stalls') return '/images/kingdom-tiles/MarketStalls.webp';
     if (type === 'crystal_cavern') return '/images/kingdom-tiles/CrystalCavern.webp';
     if (type === 'watchtower') return '/images/kingdom-tiles/Watchtower.webp';
+    if (type === 'sawmill') return '/images/kingdom-tiles/Sawmill.webp';
+    if (type === 'stone-quarry') return '/images/kingdom-tiles/StoneQuarry.webp';
+    if (type === 'windmill') return '/images/kingdom-tiles/Windmill.webp';
+    if (type === 'royal-stables') return '/images/locations/royal-stables.webp';
+    if (type === 'embers-anvil') return '/images/locations/embers-anvil.webp';
+    if (type === 'archery') return '/images/kingdom-tiles/Archery.webp';
+    if (type === 'fisherman') return '/images/kingdom-tiles/Fisherman.webp';
+    if (type === 'pond') return '/images/kingdom-tiles/Pond.webp';
     if (type === 'library') return '/images/kingdom-tiles/Library.webp';
     if (type === 'wizard') return '/images/kingdom-tiles/Wizard.webp';
     if (type === 'temple') return '/images/kingdom-tiles/Temple.webp';
