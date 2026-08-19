@@ -14,7 +14,7 @@ import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { cn, renderSafeNode } from '@/lib/utils'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame, Star, CheckCircle2, Zap, Scroll } from 'lucide-react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame, Star, CheckCircle2, Zap, Scroll, RefreshCw } from 'lucide-react'
 import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
 import { useUser, useAuth } from '@clerk/nextjs'
@@ -393,8 +393,34 @@ export default function QuestsPage() {
       setSyncError(error.message);
       // Clear error after 5 seconds
       setTimeout(() => setSyncError(null), 5000);
-    },
   });
+
+  const [isRetrievingData, setIsRetrievingData] = useState(false);
+
+  const handleRetrieveLatestData = async () => {
+    if (isRetrievingData || isSyncing) return;
+    setIsRetrievingData(true);
+    try {
+      logger.info('[Quest Page] Manual Retrieve Latest Data triggered by user');
+      await syncNow();
+      window.dispatchEvent(new Event('character-stats-update'));
+      toast({
+        title: "Latest Data Retrieved 🔄",
+        description: "Successfully fetched latest quest progress and character stats from server.",
+        duration: 3500,
+      });
+    } catch (err) {
+      logger.error('[Quest Page] Failed to retrieve latest data:', err);
+      toast({
+        title: "Sync Status",
+        description: "Unable to reach server. Showing latest cached data.",
+        variant: "destructive",
+        duration: 3500,
+      });
+    } finally {
+      setIsRetrievingData(false);
+    }
+  };
 
   // --- Offline Support ---
   const {
@@ -3067,7 +3093,7 @@ export default function QuestsPage() {
                     </div>
 
                     {/* Sync Status Indicators */}
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-wrap justify-between items-center gap-3">
                       <OfflineQueueIndicator
                         isOnline={isOnline}
                         queueStats={queueStats}
@@ -3075,11 +3101,23 @@ export default function QuestsPage() {
                         onProcessQueue={processQueue}
                         onClearQueue={clearQueue}
                       />
-                      <SyncStatusIndicator
-                        isSyncing={isSyncing}
-                        lastSync={lastSync}
-                        error={syncError}
-                      />
+                      <div className="flex items-center gap-2">
+                        <SyncStatusIndicator
+                          isSyncing={isSyncing || isRetrievingData}
+                          lastSync={lastSync}
+                          error={syncError}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleRetrieveLatestData}
+                          disabled={isRetrievingData || isSyncing}
+                          className="h-8 px-3 text-xs font-bold bg-amber-950/40 border border-amber-800/40 text-amber-300 hover:bg-amber-900/60 hover:text-amber-200 transition-all flex items-center gap-1.5 shadow-sm"
+                        >
+                          <RefreshCw className={cn("w-3.5 h-3.5 text-amber-400", (isRetrievingData || isSyncing) && "animate-spin")} />
+                          <span>{isRetrievingData ? 'Retrieving...' : 'Retrieve latest data'}</span>
+                        </Button>
+                      </div>
                     </div>
 
                     {/* Gameplay Loop Indicator */}

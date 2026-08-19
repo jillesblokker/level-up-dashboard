@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { DebouncedInput } from '@/components/debounced-input'
-import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Pencil, Trash2, Plus, Minus, Copy, Scroll, Dumbbell, Flag, Crown } from 'lucide-react'
+import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Check, Pencil, Trash2, Plus, Minus, Copy, Scroll, Dumbbell, Flag, Crown } from 'lucide-react'
 import { QuestToggleButton } from '@/components/quest-toggle-button'
 import { QuestCardSkeleton } from '@/components/skeletons/quest-card-skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -924,8 +924,12 @@ export function QuestOrganization({
                   >
                     <div className="flex items-center gap-2">
                       <CheckCircle className="w-5 h-5 text-green-500" />
-                      <span className="font-serif font-bold text-sm text-zinc-100 group-hover:text-amber-400 transition-colors">
-                        Conquered Today ({conqueredQuests.length})
+                      <span className="font-serif font-bold text-sm text-zinc-100 group-hover:text-amber-400 transition-colors flex items-center gap-2">
+                        <span>Conquered Today ({conqueredQuests.length})</span>
+                        <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-bold gap-1 shrink-0 shadow-sm" title="Data uploaded and synced with server">
+                          <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
+                          <span className="text-[10px] uppercase tracking-wider font-semibold">Uploaded</span>
+                        </span>
                       </span>
                     </div>
                     <span className="text-zinc-500 group-hover:text-amber-500 transition-colors text-xs font-semibold">
