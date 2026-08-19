@@ -342,8 +342,7 @@ export function DailyHubClient() {
                 setCompletedQuestIds(completed)
             }
         } catch (error) {
-            logger.error('Error loading favorited quests:', error)
-            setFavoritedQuests([])
+            logger.error('Error loading favorited quests, retaining local cache:', error)
         } finally {
             setLoading(false)
         }
@@ -352,31 +351,31 @@ export function DailyHubClient() {
     const handleCompleteQuest = async (quest: Quest) => {
         if (completedQuestIds.has(quest.id)) return
 
+        // Immediate Optimistic Update
+        confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
+        const nextCount = completedQuestIds.size + 1;
+        if (nextCount === 5) {
+            toast.success("🔥 5/10 Daily Habit Target Hit! +25% Gold & Essences Streak Multiplier Unlocked!");
+        }
+        setCompletedQuestIds(prev => new Set(prev).add(quest.id))
+        setFavoritedQuests(prev => prev.map(q =>
+            q.id === quest.id ? { ...q, completed: true } : q
+        ))
+
         try {
-            const response = await fetchWithAuth('/api/quests/smart-completion', {
+            fetchWithAuth('/api/quests/smart-completion', {
                 method: 'POST',
                 body: JSON.stringify({ questId: quest.id, completed: true })
-            })
+            }).catch(err => {
+                logger.warn('[Daily Hub] Smart completion network error, retaining optimistic state:', err);
+            });
 
-            if (response.ok) {
-                confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
-                const nextCount = completedQuestIds.size + 1;
-                if (nextCount === 5) {
-                    toast.success("🔥 5/10 Daily Habit Target Hit! +25% Gold & Essences Streak Multiplier Unlocked!");
-                }
-                setCompletedQuestIds(prev => new Set(prev).add(quest.id))
-
-                setFavoritedQuests(prev => prev.map(q =>
-                    q.id === quest.id ? { ...q, completed: true } : q
-                ))
-
-                setTimeout(() => {
-                    loadCharacterStats()
-                    loadWeeklyGoldStats()
-                }, 1500)
-            }
+            setTimeout(() => {
+                loadCharacterStats()
+                loadWeeklyGoldStats()
+            }, 1000)
         } catch (error) {
-            logger.error('Failed to complete quest:', error)
+            logger.error('Failed to complete quest server sync:', error)
         }
     }
 

@@ -128,6 +128,22 @@ export function useQuestCompletion() {
       });
 
       if (!response.ok) {
+        if (response.status >= 500) {
+          console.warn('[Quest Completion] Server 5xx/502 error — preserving optimistic completion and queueing offline sync');
+          addToQueue({
+            type: 'quest-completion',
+            data: {
+              questId,
+              completed: newCompleted,
+              xp: xpReward,
+              gold: goldReward,
+              ...(questData.category !== undefined && { category: questData.category }),
+            },
+          });
+          questToasts.showOfflineQuest(questData.name);
+          return { success: true, data: { offline: true } };
+        }
+
         const errorText = await response.text();
         let errorMessage = `Failed to update quest (${response.status})`;
 
@@ -257,19 +273,22 @@ export function useQuestCompletion() {
       return { success: true, data: responseData };
 
     } catch (error) {
-      // Rollback optimistic update on error
-      onSuccess?.(currentCompleted);
-
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      console.error('[Quest Completion] Error:', errorMessage);
+      console.error('[Quest Completion] Error handling completion, queueing offline sync:', errorMessage);
 
-      // Show error toast
-      questToasts.showQuestError(questData.name, errorMessage);
+      // Enqueue to offline sync queue so completion is never lost on network failures
+      addToQueue({
+        type: 'quest-completion',
+        data: {
+          questId,
+          completed: newCompleted,
+          xp: xpReward,
+          gold: goldReward,
+          ...(questData.category !== undefined && { category: questData.category }),
+        },
+      });
 
-      // Call error callback
-      onError?.(errorMessage);
-
-      return { success: false, error: errorMessage };
+      return { success: true, data: { offline: true } };
 
     } finally {
       // Remove from pending set

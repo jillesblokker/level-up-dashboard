@@ -4,18 +4,34 @@ import { defaultQuests } from "@/lib/default-quests";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 export async function fetchQuestsFromSupabase(): Promise<Quest[]> {
+  const getCachedQuests = (): Quest[] | null => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const cached = localStorage.getItem('quests-cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return null;
+  };
+
   try {
     const response = await fetchWithAuth('/api/quests');
 
     if (!response.ok) {
-      logger.error('[Quests Persistence] Failed to fetch quests:', response.status, response.statusText, 'returning default');
-      return defaultQuests;
+      logger.error('[Quests Persistence] Failed to fetch quests:', response.status, response.statusText, 'retaining local cache');
+      return getCachedQuests() || defaultQuests;
     }
 
     const data = await response.json();
+    if (!data || !Array.isArray(data)) {
+      return getCachedQuests() || defaultQuests;
+    }
+
     logger.debug('[Quests Persistence] Successfully fetched quests from API');
     
-    return (data || []).map((q: any) => ({
+    const mapped = data.map((q: any) => ({
       id: q.id,
       title: q.title || q.name,
       description: q.description,
@@ -28,9 +44,17 @@ export async function fetchQuestsFromSupabase(): Promise<Quest[]> {
       createdAt: q.created_at,
       updatedAt: q.updated_at || q.created_at,
     }));
+
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('quests-cache', JSON.stringify(mapped));
+      }
+    } catch {}
+
+    return mapped;
   } catch (error) {
-    logger.error('[Quests Persistence] Error fetching quests from API, returning default:', error);
-    return defaultQuests;
+    logger.error('[Quests Persistence] Error fetching quests from API, retaining local cache:', error);
+    return getCachedQuests() || defaultQuests;
   }
 }
 
