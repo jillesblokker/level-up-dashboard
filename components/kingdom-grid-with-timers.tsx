@@ -171,11 +171,45 @@ export function KingdomGridWithTimers({
   const [winterFestivalActive, setWinterFestivalActive] = useState(getWinterActive);
   const [harvestFestivalActive, setHarvestFestivalActive] = useState(getHarvestActive);
 
+  const getSpringActive = () => {
+    if (typeof window !== 'undefined') {
+      const override = localStorage.getItem("active-seasonal-event-override");
+      if (override && override !== 'auto') return override === 'spring' || override === 'easter';
+    }
+    const m = new Date().getMonth();
+    return m === 2 || m === 3;
+  };
+
+  const getSolsticeActive = () => {
+    if (typeof window !== 'undefined') {
+      const override = localStorage.getItem("active-seasonal-event-override");
+      if (override && override !== 'auto') return override === 'solstice' || override === 'firefly';
+    }
+    const m = new Date().getMonth();
+    return m === 5 || m === 6;
+  };
+
+  const getForgeActive = () => {
+    if (typeof window !== 'undefined') {
+      const override = localStorage.getItem("active-seasonal-event-override");
+      if (override && override !== 'auto') return override === 'forge_fire';
+    }
+    const m = new Date().getMonth();
+    return m === 7;
+  };
+
+  const [springActive, setSpringActive] = useState(getSpringActive);
+  const [solsticeActive, setSolsticeActive] = useState(getSolsticeActive);
+  const [forgeActive, setForgeActive] = useState(getForgeActive);
+
   // Synchronize seasonal flags when settings or storage updates
   useEffect(() => {
     const updateEvents = () => {
       setWinterFestivalActive(getWinterActive());
       setHarvestFestivalActive(getHarvestActive());
+      setSpringActive(getSpringActive());
+      setSolsticeActive(getSolsticeActive());
+      setForgeActive(getForgeActive());
     };
 
     updateEvents();
@@ -216,6 +250,9 @@ export function KingdomGridWithTimers({
       'pumpkin-patch': { category: 'basic', levelRequired: 1, isSeasonal: true, eventType: 'harvest' },
       'winter-fountain': { category: 'basic', levelRequired: 1, isSeasonal: true, eventType: 'winter' },
       'ice-sculpture': { category: 'basic', levelRequired: 1, isSeasonal: true, eventType: 'winter' },
+      'spring-park': { category: 'basic', levelRequired: 1, isSeasonal: true, eventType: 'spring' },
+      'solstice-altar': { category: 'advanced', levelRequired: 1, isSeasonal: true, eventType: 'solstice' },
+      'royal-forge': { category: 'production', levelRequired: 1, isSeasonal: true, eventType: 'forge' },
       library: { category: 'advanced', levelRequired: 3 },
       temple: { category: 'advanced', levelRequired: 3 },
       fountain: { category: 'advanced', levelRequired: 2 },
@@ -318,9 +355,12 @@ export function KingdomGridWithTimers({
       if (!property.isSeasonal) return true;
       if (property.eventType === 'winter') return winterFestivalActive;
       if (property.eventType === 'harvest') return harvestFestivalActive;
+      if (property.eventType === 'spring') return springActive;
+      if (property.eventType === 'solstice') return solsticeActive;
+      if (property.eventType === 'forge') return forgeActive;
       return false;
     });
-  }, [propertyInventory, winterFestivalActive, harvestFestivalActive]);
+  }, [propertyInventory, winterFestivalActive, harvestFestivalActive, springActive, solsticeActive, forgeActive]);
 
   const [selectedInventoryTile, setSelectedInventoryTile] = useState<typeof propertyInventory[0] | null>(null)
   const [selectedProperty, setSelectedProperty] = useState<typeof propertyInventory[0] | null>(null)

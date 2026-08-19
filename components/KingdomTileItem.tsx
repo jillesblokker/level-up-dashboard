@@ -67,9 +67,48 @@ export const KingdomTileItem = React.memo(({
     }
   }, [tile.type])
   
-  // Use KINGDOM_TILES as the source of truth for the image to bypass stale paths in DB
-  const libraryTile = KINGDOM_TILES.find(t => t.id === type)
-  const actualImage = libraryTile?.image || tile.image || ''
+  // Automatic Seasonal Tile Morphing Logic
+  const getSeasonalTileOverride = (baseType: string): string => {
+    if (typeof window === 'undefined') return '';
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const override = localStorage.getItem("active-seasonal-event-override");
+
+    const isWinter = override === 'christmas' || ((!override || override === 'auto') && (month === 12 || month === 1));
+    const isAutumn = override === 'halloween' || override === 'harvest' || ((!override || override === 'auto') && (month === 9 || month === 10));
+    const isNewYear = override === 'newyear' || ((!override || override === 'auto') && month === 1);
+    const isSpring = override === 'spring' || override === 'easter' || ((!override || override === 'auto') && (month === 3 || month === 4));
+    const isSolstice = override === 'solstice' || override === 'firefly' || ((!override || override === 'auto') && (month === 6 || month === 7));
+    const isForge = override === 'forge_fire' || ((!override || override === 'auto') && month === 8);
+
+    if (isWinter) {
+      if (baseType === 'fountain') return '/images/kingdom-tiles/WinterFountain.webp';
+      if (baseType === 'inn' || baseType === 'house') return '/images/kingdom-tiles/SnowyInn.webp';
+      if (baseType === 'monument') return '/images/kingdom-tiles/IceSculpture.webp';
+    }
+    if (isAutumn) {
+      if (baseType === 'farmland' || baseType === 'vegetables') return '/images/kingdom-tiles/PumpkinPatch.webp';
+      if (baseType === 'sawmill') return '/images/kingdom-tiles/Harvest_barn.webp';
+    }
+    if (isNewYear) {
+      if (baseType === 'market-stalls' || baseType === 'grocery') return '/images/kingdom-tiles/FireworksStand.webp';
+    }
+    if (isSpring) {
+      if (baseType === 'zen-garden' || baseType === 'pond') return '/images/kingdom-tiles/SpringPark.webp';
+    }
+    if (isSolstice) {
+      if (baseType === 'temple' || baseType === 'monument') return '/images/kingdom-tiles/SolsticeAltar.webp';
+    }
+    if (isForge) {
+      if (baseType === 'blacksmith') return '/images/kingdom-tiles/RoyalForge.webp';
+    }
+
+    return '';
+  };
+
+  const seasonalOverrideImg = getSeasonalTileOverride(type);
+  const libraryTile = KINGDOM_TILES.find(t => t.id === type);
+  const actualImage = seasonalOverrideImg || libraryTile?.image || tile.image || '';
 
   const isNonProducerTile = useMemo(() => {
     if (tile.type === 'vacant' || tile.type === 'empty') return true;

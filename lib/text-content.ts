@@ -918,6 +918,18 @@ export const TEXT_CONTENT = {
             name: "Winter Fountain",
             clickMessage: "Icicles glisten as the fountain flows with enchanted winter water. You scoop out a handful of coins sparkling like snow."
         },
+        "spring-park": {
+            name: "Cherry Blossom Park",
+            clickMessage: "Pink cherry blossoms drift in the gentle spring breeze. Tucked beneath the flower petals, you find sparkling coins."
+        },
+        "solstice-altar": {
+            name: "Solstice Sun Altar",
+            clickMessage: "Sunbeams focus upon the ancient golden altar. The zenith rays illuminate a sun-kissed cache of coins."
+        },
+        "royal-forge": {
+            name: "Royal Flame Forge",
+            clickMessage: "Sparks fly from the glowing anvil as master smiths work. Glowing gold ingots and coins are pulled from the forge."
+        },
         "snowy-inn": {
             name: "Snowy Inn",
             clickMessage: "Warm lights and cinnamon scents spill from the inn. The keeper slips you a festive pouch jingling with coins."

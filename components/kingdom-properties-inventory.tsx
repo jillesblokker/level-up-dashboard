@@ -384,6 +384,21 @@ function TileCard({ tile, owned, placedCount, mode, playerLevel = 1, tokens = 0,
               🎃 Harvest Variant
             </Badge>
           )}
+          {tile.id.includes('spring') && (
+            <Badge variant="secondary" className="text-[9px] py-0.5 px-2 bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 whitespace-nowrap">
+              🌸 Spring Variant
+            </Badge>
+          )}
+          {tile.id.includes('solstice') && (
+            <Badge variant="secondary" className="text-[9px] py-0.5 px-2 bg-amber-950/80 text-amber-300 border border-amber-500/30 whitespace-nowrap">
+              ☀️ Solstice Variant
+            </Badge>
+          )}
+          {tile.id.includes('forge') && (
+            <Badge variant="secondary" className="text-[9px] py-0.5 px-2 bg-rose-950/80 text-rose-300 border border-rose-500/30 whitespace-nowrap">
+              ⚒️ Forge Variant
+            </Badge>
+          )}
         </div>
 
         <div className="flex gap-3">

@@ -553,6 +553,57 @@ export const KINGDOM_TILES: KingdomTile[] = [
     cost: 300
   },
   {
+    id: 'spring-park',
+    name: TEXT_CONTENT.kingdomTiles['spring-park'].name,
+    timerMinutes: 120,
+    normalGoldRange: [8, 20],
+    luckyGoldAmount: 80,
+    luckyChance: 0.18,
+    clickMessage: TEXT_CONTENT.kingdomTiles['spring-park'].clickMessage,
+    possibleItems: [
+      '/images/items/potion/potion-health.webp',
+      '/images/items/food/fish-blue.webp'
+    ],
+    itemType: 'potion',
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/SpringPark.webp',
+    cost: 450
+  },
+  {
+    id: 'solstice-altar',
+    name: TEXT_CONTENT.kingdomTiles['solstice-altar'].name,
+    timerMinutes: 150,
+    normalGoldRange: [12, 35],
+    luckyGoldAmount: 140,
+    luckyChance: 0.20,
+    clickMessage: TEXT_CONTENT.kingdomTiles['solstice-altar'].clickMessage,
+    possibleItems: [
+      '/images/items/potion/potion-gold.webp',
+      '/images/items/potion/potion-exp.webp'
+    ],
+    itemType: 'potion',
+    rarity: 'epic',
+    image: '/images/kingdom-tiles/SolsticeAltar.webp',
+    cost: 600
+  },
+  {
+    id: 'royal-forge',
+    name: TEXT_CONTENT.kingdomTiles['royal-forge'].name,
+    timerMinutes: 180,
+    normalGoldRange: [15, 40],
+    luckyGoldAmount: 160,
+    luckyChance: 0.22,
+    clickMessage: TEXT_CONTENT.kingdomTiles['royal-forge'].clickMessage,
+    possibleItems: [
+      '/images/items/materials/material-iron-ingot.webp',
+      '/images/items/potion/potion-health.webp'
+    ],
+    itemType: 'material',
+    rarity: 'epic',
+    image: '/images/kingdom-tiles/RoyalForge.webp',
+    cost: 650
+  },
+  {
     id: 'fireworks-stand',
     name: TEXT_CONTENT.kingdomTiles['fireworks-stand'].name,
     timerMinutes: 60,
