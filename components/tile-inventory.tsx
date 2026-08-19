@@ -439,10 +439,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                     <option
                       key={category.id}
                       value={category.id}
-                      disabled={!isUnlocked}
-                      className="bg-zinc-900 text-zinc-100 py-2 disabled:text-zinc-500 disabled:bg-zinc-950"
+                      className="bg-zinc-900 text-zinc-100 py-2"
                     >
-                      {category.name} (Lvl {category.minLevel}-{category.maxLevel}){!isUnlocked ? ' 🔒 Locked' : ''}
+                      {category.name} (Lvl {category.minLevel}-{category.maxLevel}){!isUnlocked ? ' 🔒 Preview' : ''}
                     </option>
                   );
                 })}
@@ -464,11 +463,11 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 return (
                   <div className="text-center py-12 px-6">
                     <div className="text-xl font-bold mb-2">
-                      {userLevelValue < category.minLevel ? '🔒 Locked' : '📦 No tiles available'}
+                      {userLevelValue < category.minLevel ? '🔒 Level Preview' : '📦 No tiles available'}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {userLevelValue < category.minLevel
-                        ? `Unlock at level ${category.minLevel}`
+                        ? `Reach level ${category.minLevel} to unlock placement for these blueprints`
                         : 'No tiles in this category'
                       }
                     </div>
@@ -489,11 +488,12 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                 className={cn(
                                   "relative overflow-hidden transition-all duration-200 h-full flex flex-col",
                                   selectedTile?.type === tile.type && "ring-2 ring-amber-500 shadow-lg",
-                                  (tile.quantity === 0 || userLevelValue < category.minLevel) && "opacity-50",
+                                  userLevelValue < category.minLevel && "opacity-75 border-amber-900/30",
                                   userLevelValue >= category.minLevel && "cursor-pointer hover:ring-2 hover:ring-amber-500/50 hover:scale-105"
                                 )}
                                 onClick={() => {
                                   if (userLevelValue < category.minLevel) {
+                                    toast.info(`Reach Level ${category.minLevel} to unlock the ${tile.name} blueprint!`);
                                     return;
                                   }
                                   if (tile.quantity === 0) {
@@ -510,35 +510,38 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                     src={getTileImage(tile.type)}
                                     alt={tile.name}
                                     fill
-                                    className="object-cover transition-transform duration-200 group-hover:scale-110"
+                                    className={cn(
+                                      "object-cover transition-transform duration-200 group-hover:scale-110",
+                                      userLevelValue < category.minLevel && "opacity-50 grayscale-[0.5]"
+                                    )}
                                     unoptimized={true}
                                   />
                                   <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
                                     {tile.quantity}
                                   </div>
                                   {userLevelValue < category.minLevel && (
-                                    <div className="absolute inset-0 bg-zinc-950 flex items-center justify-center ">
-                                      <span className="text-white text-xs font-bold bg-zinc-600 px-3 py-1 rounded-full">
-                                        🔒 Lvl {category.minLevel}
+                                    <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-[1px] flex flex-col items-center justify-center p-2 z-10 pointer-events-none">
+                                      <span className="text-amber-200 text-xs font-bold bg-zinc-900/90 border border-amber-500/40 px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+                                        🔒 Lvl {category.minLevel} Required
                                       </span>
                                     </div>
                                   )}
                                   {category.id === 'rare' && !tile.unlocked && (
-                                    <div className="absolute inset-0 bg-zinc-950 flex items-center justify-center ">
+                                    <div className="absolute inset-0 bg-zinc-950/60 flex items-center justify-center">
                                       <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
-                                        🔒
+                                        🔒 Seasonal Event
                                       </span>
                                     </div>
                                   )}
                                   {tile.quantity === 0 && userLevelValue >= category.minLevel && category.id !== 'rare' && (
-                                    <div className="absolute inset-0 bg-zinc-950 flex items-center justify-center ">
+                                    <div className="absolute inset-0 bg-zinc-950/40 flex items-center justify-center">
                                       <span className="text-white text-xs font-bold bg-amber-500 px-3 py-1 rounded-full">
                                         Buy More
                                       </span>
                                     </div>
                                   )}
                                 </div>
-                                <div className="p-4 bg-background/95  flex-1 flex flex-col">
+                                <div className="p-4 bg-background/95 flex-1 flex flex-col">
                                   <div className="capitalize font-semibold text-sm mb-1">{tile.name}</div>
                                   <div className="text-xs text-muted-foreground text-center">
                                     <span className="text-amber-500 font-medium">{tile.cost ?? 0} gold</span>
@@ -548,7 +551,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                       </div>
                                     )}
                                   </div>
-                                  {tile.quantity === 0 && (
+                                  {tile.quantity === 0 && userLevelValue >= category.minLevel && (
                                     <Button
                                       variant="outline"
                                       size="sm"
@@ -567,7 +570,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                             </TooltipTrigger>
                             {category.id === 'rare' && !tile.unlocked && (
                               <TooltipContent>
-                                <p>A secret... come back another day... :)</p>
+                                <p>A secret... come back during seasonal events!</p>
                               </TooltipContent>
                             )}
                           </Tooltip>
@@ -599,10 +602,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                     <option
                       key={category.id}
                       value={category.id}
-                      disabled={!isUnlocked}
-                      className="bg-zinc-900 text-zinc-100 py-2 disabled:text-zinc-500 disabled:bg-zinc-950"
+                      className="bg-zinc-900 text-zinc-100 py-2"
                     >
-                      {category.name} (Lvl {category.minLevel}-{category.maxLevel}){!isUnlocked ? ' 🔒 Locked' : ''}
+                      {category.name} (Lvl {category.minLevel}-{category.maxLevel}){!isUnlocked ? ' 🔒 Preview' : ''}
                     </option>
                   );
                 })}
@@ -624,11 +626,11 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 return (
                   <div className="text-center py-12 px-6">
                     <div className="text-xl font-bold mb-2">
-                      {userLevelValue < category.minLevel ? '🔒 Locked' : '📦 No tiles available'}
+                      {userLevelValue < category.minLevel ? '🔒 Level Preview' : '📦 No tiles available'}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {userLevelValue < category.minLevel
-                        ? `Unlock at level ${category.minLevel}`
+                        ? `Reach level ${category.minLevel} to buy these blueprints`
                         : 'No tiles in this category'
                       }
                     </div>
@@ -648,7 +650,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                               <Card
                                 className={cn(
                                   "relative overflow-hidden transition-all duration-200 h-full flex flex-col",
-                                  (tile.quantity === 0 || userLevelValue < category.minLevel) && "opacity-50",
+                                  (tile.quantity === 0 || userLevelValue < category.minLevel) && "opacity-80 border-zinc-800",
                                   userLevelValue >= category.minLevel && "hover:scale-105",
                                   tile.quantity === 0 && userLevelValue >= category.minLevel && "border-2 border-amber-500 shadow-lg"
                                 )}
@@ -658,28 +660,31 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                     src={getTileImage(tile.type)}
                                     alt={tile.name}
                                     fill
-                                    className="object-cover transition-transform duration-200 group-hover:scale-110"
+                                    className={cn(
+                                      "object-cover transition-transform duration-200 group-hover:scale-110",
+                                      userLevelValue < category.minLevel && "opacity-50 grayscale-[0.5]"
+                                    )}
                                     unoptimized={true}
                                   />
                                   <div className="absolute top-2 right-2 bg-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
                                     {tile.quantity}
                                   </div>
                                   {userLevelValue < category.minLevel && (
-                                    <div className="absolute inset-0 bg-zinc-950 flex items-center justify-center  z-10">
-                                      <span className="text-white text-xs font-bold bg-zinc-600 px-3 py-1 rounded-full shadow-lg">
-                                        🔒 Lvl {category.minLevel}
+                                    <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-[1px] flex flex-col items-center justify-center p-2 z-10 pointer-events-none">
+                                      <span className="text-amber-200 text-xs font-bold bg-zinc-900/90 border border-amber-500/40 px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+                                        🔒 Lvl {category.minLevel} Required
                                       </span>
                                     </div>
                                   )}
                                   {tile.quantity === 0 && userLevelValue >= category.minLevel && category.id !== 'rare' && (
-                                    <span className="absolute top-2 left-2 bg-green-500 text-white text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Buyable tile badge">
+                                    <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg" aria-label="Buyable tile badge">
                                       Buyable
                                     </span>
                                   )}
                                   {category.id === 'rare' && !tile.unlocked && (
-                                    <div className="absolute inset-0 bg-zinc-950 flex items-center justify-center ">
+                                    <div className="absolute inset-0 bg-zinc-950/60 flex items-center justify-center">
                                       <span className="text-white text-xs font-bold bg-purple-600 px-3 py-1 rounded-full">
-                                        🔒
+                                        🔒 Seasonal Event
                                       </span>
                                     </div>
                                   )}
@@ -728,6 +733,27 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                       type="button"
                                       size="sm"
                                       disabled={userLevelValue < category.minLevel}
+                                      onClick={(e) => handleBuyTile(tile, e)}
+                                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold h-9 min-h-[36px] px-3 rounded-xl disabled:opacity-40 disabled:bg-zinc-800 disabled:text-zinc-400"
+                                    >
+                                      {userLevelValue < category.minLevel ? (
+                                        <span className="flex items-center gap-1 text-xs font-bold">🔒 Lvl {category.minLevel}</span>
+                                      ) : (
+                                        <Check className="w-4 h-4" />
+                                      )}
+                                    </Button>
+                                  </div>
+                                </div>
+                              </Card>
+                            </TooltipTrigger>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )
+                    })}
+                  </div>
+                </ScrollArea>
+              );
+            })()}
                                       className={cn(
                                         "h-9 px-3 rounded-xl font-extrabold transition-all shrink-0 active:scale-95 shadow-md",
                                         userLevelValue >= category.minLevel

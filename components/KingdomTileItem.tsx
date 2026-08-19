@@ -108,7 +108,9 @@ export const KingdomTileItem = React.memo(({
 
   const seasonalOverrideImg = getSeasonalTileOverride(type);
   const libraryTile = KINGDOM_TILES.find(t => t.id === type);
-  const actualImage = seasonalOverrideImg || libraryTile?.image || tile.image || '';
+  const actualImage = (type === 'fortune_teller' || type === 'fortune-teller')
+    ? '/images/kingdom-tiles/fortune_teller.webp'
+    : (seasonalOverrideImg || libraryTile?.image || tile.image || '');
 
   const isNonProducerTile = useMemo(() => {
     if (tile.type === 'vacant' || tile.type === 'empty') return true;

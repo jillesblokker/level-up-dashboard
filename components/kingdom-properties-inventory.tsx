@@ -276,6 +276,10 @@ export function KingdomPropertiesInventory({
 }
 
 function getTileImageSrc(tile: PropertyTile, catalogTiles?: PropertyTile[]): string {
+  if (tile.id === 'fortune_teller' || tile.id === 'fortune-teller' || tile.name?.toLowerCase().includes('fortune teller')) {
+    return '/images/kingdom-tiles/fortune_teller.webp';
+  }
+
   if (catalogTiles && catalogTiles.length > 0) {
     const catalogMatch = catalogTiles.find(
       ct => ct.id === tile.id || ct.name?.toLowerCase() === tile.name?.toLowerCase()
