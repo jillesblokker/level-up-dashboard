@@ -359,7 +359,7 @@ export default function QuestsPage() {
             const cacheDate = getUserScopedItem('quests-cache-date');
             const isSameDay = cacheDate === todayStr;
             const isCompleted = isSameDay
-              ? Boolean((serverQ && serverQ.completed !== undefined) ? serverQ.completed : prevQ.completed)
+              ? Boolean(serverQ?.completed || prevQ.completed)
               : Boolean(serverQ?.completed);
 
             return {

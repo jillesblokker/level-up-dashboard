@@ -33,20 +33,26 @@ export function useQuestSync(callbacks: QuestSyncCallbacks) {
     }
   }, [callbacks, questToasts]);
 
-  // Subscribe to master Supabase Realtime WebSocket manager
+  // Subscribe to master Supabase Realtime WebSocket manager with debouncing to prevent API floods
   useEffect(() => {
     if (user?.id) {
       realtimeSyncManager.initialize(user.id);
     }
 
+    let debounceTimer: NodeJS.Timeout | null = null;
+
     const unsubscribe = realtimeSyncManager.subscribe((event) => {
       if (['quest_completion', 'user_quests', 'character_stats', 'streaks', 'challenges'].includes(event.table)) {
-        console.log(`[Quest Sync] Realtime event on table '${event.table}' — triggering refetch...`);
-        syncQuests();
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          console.log(`[Quest Sync] Realtime event on table '${event.table}' — triggering debounced refetch...`);
+          syncQuests().catch(() => {});
+        }, 1500); // 1.5s debounce buffer
       }
     });
 
     return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
       unsubscribe();
     };
   }, [user?.id, syncQuests]);

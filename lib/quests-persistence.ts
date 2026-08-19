@@ -117,8 +117,11 @@ export function reconcileQuestList(serverQuests: any[], localQuests: any[] = [],
     const sqName = String(sq.name || sq.title || '').toLowerCase().trim();
 
     const localMatch = localMap.get(sqId) || (sqName ? localMap.get(sqName) : undefined);
-    // Server state is authoritative. Only fallback to localMatch if server data is undefined.
-    const isCompleted = sq.completed !== undefined ? Boolean(sq.completed) : Boolean(isSameDay && localMatch?.completed);
+    // For today, preserve local optimistic completion (so network/502 errors never wipe player tracking)
+    // Server completion (sq.completed = true) or local completion (localMatch.completed = true) both count as completed for today.
+    const isCompleted = isSameDay
+      ? Boolean(sq.completed || localMatch?.completed)
+      : Boolean(sq.completed);
 
     return {
       ...sq,
