@@ -233,11 +233,12 @@ export async function GET(request: Request) {
     // This bypasses all the complex logic and uses the proven method
     logger.debug('[Quests API] Using proven simple approach...');
 
-    // Get user's quest completions from quest_completion table
+    // Get user's quest completions from quest_completion table (ordered by newest first so recent completions are never truncated by 1000 limit)
     const { data: questCompletions, error: completionsError } = await supabase
       .from('quest_completion')
       .select('*')
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .order('completed_at', { ascending: false });
 
     logger.debug('[Quests API] Quest completions fetched:', {
       count: questCompletions?.length || 0,
