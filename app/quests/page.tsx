@@ -442,7 +442,7 @@ export default function QuestsPage() {
     const handleAutoSync = () => {
       if (typeof window !== 'undefined' && document.visibilityState === 'visible') {
         logger.debug('[AUTO-SYNC] Triggering automatic cross-device background sync...');
-        syncNow().catch(() => {});
+        syncNow();
         window.dispatchEvent(new Event('character-stats-update'));
         window.dispatchEvent(new Event('milestone-update'));
       }
