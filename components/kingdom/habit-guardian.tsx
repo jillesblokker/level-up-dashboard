@@ -389,10 +389,7 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
               </div>
             )}
 
-            {/* Botanical Treat Feeding & Affection Meter */}
-            <div className="p-3.5 bg-zinc-950/90 border border-emerald-500/30 rounded-xl flex items-center justify-between gap-3 shadow-inner">
-              <div className="flex items-center gap-3">
-            {/* Treat Feeding & Affection Quick Action */}
+            {/* Botanical Treat Feeding & Affection Quick Action */}
             <div className="flex items-center justify-between gap-3 p-3 bg-zinc-950/60 rounded-xl border border-white/5">
               <div className="flex items-center gap-2">
                 <span className="text-xl">🍎</span>
