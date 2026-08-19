@@ -8,6 +8,7 @@ import { useCitizensStore } from '@/stores/citizensStore'
 import { getUserPreference } from '@/lib/user-preferences-manager'
 import { Heart, Sparkles, MessageSquare, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { cn } from '@/lib/utils'
 
 // Cryptic riddle-style hints keyed by achievement ID.
 // Only shown for achievements the player has NOT unlocked yet.
