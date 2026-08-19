@@ -1,5 +1,5 @@
 import { logger } from './logger';
-import { createSupabaseClient } from './supabase-client';
+import { supabase } from './supabase/client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
 // Centralized Realtime Data Synchronization Manager
@@ -66,7 +66,6 @@ class RealtimeSyncManager {
     this.userId = userId;
     logger.debug('[SYNC] Initializing Realtime channels for user ID:', userId);
 
-    const supabase = createSupabaseClient();
     if (!supabase) {
       logger.warn('[SYNC] Supabase client unavailable — Realtime fallback to polling');
       return;
@@ -195,7 +194,6 @@ class RealtimeSyncManager {
    * Unsubscribes all channels and cleans up memory.
    */
   public unsubscribeAll() {
-    const supabase = createSupabaseClient();
     this.channels.forEach((channel, table) => {
       try {
         if (supabase) supabase.removeChannel(channel);
