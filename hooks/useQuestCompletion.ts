@@ -53,6 +53,10 @@ export function useQuestCompletion() {
       pendingQuests: new Set([...prev.pendingQuests, questId]),
     }));
 
+    // Calculate base rewards
+    let xpReward = questData.xp || 50;
+    let goldReward = questData.gold || 25;
+
     try {
       // Optimistic UI Update
       onSuccess?.(newCompleted);
@@ -67,8 +71,6 @@ export function useQuestCompletion() {
 
       // Calculate bonuses from Tarot
       const activeCard = getTodaysCard();
-      let xpReward = questData.xp || 50;
-      let goldReward = questData.gold || 25;
 
       if (activeCard && newCompleted) {
         const { effect } = activeCard;
