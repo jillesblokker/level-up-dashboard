@@ -112,6 +112,7 @@ export function CompanionOverlay() {
   const pathname = usePathname()
   const activePartnerId = useGameStore(s => s.activePartnerId)
   const citizens = useCitizensStore(s => s.citizens)
+  const activePartner = useMemo(() => citizens.find(c => c.id === activePartnerId), [citizens, activePartnerId])
   
   const [hintIndex, setHintIndex] = useState(0)
   const [showSpeech, setShowSpeech] = useState(false)
@@ -408,7 +409,7 @@ export function CompanionOverlay() {
             {/* Treat Feeding & Affection Quick Action */}
             <div className="pt-1.5 border-t border-zinc-200 flex items-center justify-between gap-2">
               <span className="text-[10px] text-amber-900 font-bold flex items-center gap-1 font-serif [text-shadow:none] !drop-shadow-none [filter:none]">
-                ❤️ {activePartner.affection >= 100 ? "100% Max Affection" : "Affection Active"}
+                ❤️ {activePartner && activePartner.affection >= 100 ? "100% Max Affection" : "Affection Active"}
               </span>
               <button
                 type="button"
@@ -416,15 +417,15 @@ export function CompanionOverlay() {
                   e.stopPropagation()
                   window.location.href = '/kingdom'
                 }}
-                disabled={activePartner.affection >= 100}
+                disabled={activePartner ? activePartner.affection >= 100 : false}
                 className={cn(
                   "text-[9px] font-bold font-mono px-2 py-0.5 rounded-full shadow-sm [text-shadow:none] !drop-shadow-none transition-colors",
-                  activePartner.affection >= 100
+                  activePartner && activePartner.affection >= 100
                     ? "bg-zinc-400 text-zinc-700 cursor-not-allowed"
                     : "bg-amber-600 hover:bg-amber-700 text-white"
                 )}
               >
-                {activePartner.affection >= 100 ? "Fully Fed" : "🥩 Feed Treat (+5%)"}
+                {activePartner && activePartner.affection >= 100 ? "Fully Fed" : "🥩 Feed Treat (+5%)"}
               </button>
             </div>
 
