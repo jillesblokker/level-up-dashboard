@@ -925,7 +925,13 @@ function RealmPageContent() {
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
             if (newGrid[y]?.[x]) {
-                newGrid[y][x] = { ...tileToUse, x, y, owned: 1 };
+                newGrid[y][x] = {
+                    ...tileToUse,
+                    id: tileToUse.id || tileToUse.type || 'tile',
+                    x,
+                    y,
+                    owned: 1
+                } as Tile;
             }
             return newGrid;
         });
