@@ -13,6 +13,7 @@ import { getUserPreference, setUserPreference } from "@/lib/user-preferences-man
 import { TreasureChestVisual } from "@/components/ui/treasure-chest-visual"
 import Image from "next/image"
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
+import { cn } from "@/lib/utils";
 
 interface Quest {
   id: string
