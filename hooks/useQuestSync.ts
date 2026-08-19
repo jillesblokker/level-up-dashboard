@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useRealtimeSync } from './useRealtimeSync';
 import { useQuestToasts } from '@/components/enhanced-toast-system';
 import { realtimeSyncManager } from '@/lib/realtime-sync-manager';
@@ -13,17 +13,22 @@ interface QuestSyncCallbacks {
 export function useQuestSync(callbacks: QuestSyncCallbacks) {
   const questToasts = useQuestToasts();
   const { user } = useUser();
+
+  const callbacksRef = useRef(callbacks);
+  useEffect(() => {
+    callbacksRef.current = callbacks;
+  }, [callbacks]);
   
   const syncQuests = useCallback(async () => {
     try {
       // Sync quests first
-      if (callbacks.onQuestsUpdate) {
-        await callbacks.onQuestsUpdate();
+      if (callbacksRef.current.onQuestsUpdate) {
+        await callbacksRef.current.onQuestsUpdate();
       }
       
       // Then sync character stats
-      if (callbacks.onCharacterStatsUpdate) {
-        await callbacks.onCharacterStatsUpdate();
+      if (callbacksRef.current.onCharacterStatsUpdate) {
+        await callbacksRef.current.onCharacterStatsUpdate();
       }
     } catch (error) {
       console.error('[Quest Sync] Sync failed:', error);
@@ -31,7 +36,7 @@ export function useQuestSync(callbacks: QuestSyncCallbacks) {
       questToasts.showSyncError(errorMessage);
       throw error;
     }
-  }, [callbacks, questToasts]);
+  }, [questToasts]);
 
   // Subscribe to master Supabase Realtime WebSocket manager with debouncing to prevent API floods
   useEffect(() => {
@@ -60,7 +65,7 @@ export function useQuestSync(callbacks: QuestSyncCallbacks) {
   const { syncNow, isSyncing, lastSync } = useRealtimeSync(
     {
       onSync: syncQuests,
-      onError: callbacks.onError || (() => {}),
+      onError: (err) => callbacksRef.current.onError?.(err),
     },
     {
       enabled: true,
