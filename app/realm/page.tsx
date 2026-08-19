@@ -972,7 +972,13 @@ function RealmPageContent() {
                 // Determine the new grid state for saving and spawning checks
                 const updatedGrid = currentGrid.map(row => row.map(t => ({ ...t })));
                 if (updatedGrid[y]?.[x]) {
-                    updatedGrid[y][x] = { ...tileToUse, x, y, owned: 1 };
+                    updatedGrid[y][x] = {
+                        ...tileToUse,
+                        id: tileToUse.id || tileToUse.type || 'tile',
+                        x,
+                        y,
+                        owned: 1
+                    } as Tile;
                 }
 
                 // Immediately save the full grid state
