@@ -124,7 +124,9 @@ export function reconcileQuestList(serverQuests: any[], localQuests: any[] = [],
       : Boolean(sq.completed);
 
     return {
+      ...(localMatch || {}),
       ...sq,
+      id: localMatch?.id || sq.id,
       completed: isCompleted,
       date: isCompleted ? (sq.date || localMatch?.date || new Date().toISOString()) : null
     };

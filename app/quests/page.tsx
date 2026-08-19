@@ -377,26 +377,47 @@ export default function QuestsPage() {
   const [isRetrievingData, setIsRetrievingData] = useState(false);
 
   const handleRetrieveLatestData = async () => {
-    if (isRetrievingData || isSyncing) return;
+    if (isRetrievingData) return;
     setIsRetrievingData(true);
     try {
       logger.info('[Quest Page] Manual Retrieve Latest Data triggered by user');
-      await syncNow();
+      const res = await fetchWithAuth(`/api/quests?t=${Date.now()}&force=1`);
+      if (!res.ok) {
+        throw new Error(`Server status ${res.status}`);
+      }
+
+      const data: Quest[] = await res.json();
+      const serverList = Array.isArray(data) ? data : ((data as any)?.quests || []);
+      const completedCount = serverList.filter((q: any) => q.completed).length;
+
+      const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+      const cacheDate = getUserScopedItem('quests-cache-date');
+      const isSameDay = cacheDate === todayStr;
+
+      const nextQuests = reconcileQuestList(serverList, quests, isSameDay);
+      setQuests(nextQuests);
+
+      try {
+        setUserScopedItem('quests-cache', JSON.stringify(nextQuests));
+        setUserScopedItem('quests-cache-date', todayStr);
+      } catch {}
+
       window.dispatchEvent(new Event('character-stats-update'));
       window.dispatchEvent(new Event('milestone-update'));
       window.dispatchEvent(new Event('global-sync-tick'));
+
       toast({
-        title: "Latest Data Retrieved 🔄",
-        description: "Successfully fetched latest quest, tarot, challenge, and character progress from server.",
-        duration: 3500,
+        title: "Latest Data Retrieved! 🔄",
+        description: `Retrieved ${serverList.length} total quests (${completedCount} conquered today) from Supabase server.`,
+        duration: 5000,
       });
-    } catch (err) {
+    } catch (err: any) {
       logger.error('[Quest Page] Failed to retrieve latest data:', err);
       toast({
-        title: "Sync Status",
-        description: "Unable to reach server. Showing latest cached data.",
+        title: "Sync Error",
+        description: `Could not fetch latest data: ${err.message || 'Network error'}. Showing cached local data.`,
         variant: "destructive",
-        duration: 3500,
+        duration: 4500,
       });
     } finally {
       setIsRetrievingData(false);
