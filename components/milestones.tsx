@@ -157,6 +157,13 @@ export function Milestones({ token, onUpdateProgress, category }: MilestonesProp
       }
     };
     fetchMilestones();
+
+    window.addEventListener('milestone-update', fetchMilestones);
+    window.addEventListener('global-sync-tick', fetchMilestones);
+    return () => {
+      window.removeEventListener('milestone-update', fetchMilestones);
+      window.removeEventListener('global-sync-tick', fetchMilestones);
+    };
   }, [userId, supabase, isSupabaseLoading, token, newQuestCategory, toast]);
 
   // When milestones are loaded, sync ALL UI state with database state

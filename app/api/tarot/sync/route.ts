@@ -4,7 +4,33 @@ import { auth } from '@clerk/nextjs/server';
 import { supabaseServer } from '@/lib/supabase/server-client';
 
 export async function GET() {
-    return NextResponse.json({ status: 'ok', endpoint: 'tarot/sync' });
+    try {
+        const { userId } = await auth();
+        if (!userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const { data, error } = await supabaseServer
+            .from('user_preferences')
+            .select('preference_value')
+            .eq('user_id', userId)
+            .eq('preference_key', 'daily_fate')
+            .maybeSingle();
+
+        if (error) {
+            logger.error('[Tarot Sync GET] Error fetching daily fate:', error);
+            return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+
+        return NextResponse.json({
+            status: 'ok',
+            endpoint: 'tarot/sync',
+            dailyFate: data?.preference_value || null
+        });
+    } catch (error) {
+        logger.error('[Tarot Sync GET] Unexpected error:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
 }
 
 export async function POST(request: NextRequest) {

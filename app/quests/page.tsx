@@ -342,35 +342,13 @@ export default function QuestsPage() {
           const serverList = Array.isArray(data) ? data : ((data as any)?.quests || []);
           if (!serverList || serverList.length === 0) return prevQuests;
 
-          const serverMap = new Map<string, any>();
-          serverList.forEach((sq: any) => {
-            if (sq.id) serverMap.set(String(sq.id).toLowerCase(), sq);
-            if (sq.name) serverMap.set(String(sq.name).toLowerCase(), sq);
-            if (sq.title) serverMap.set(String(sq.title).toLowerCase(), sq);
-          });
+          const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+          const cacheDate = getUserScopedItem('quests-cache-date');
+          const isSameDay = cacheDate === todayStr;
 
-          const nextQuests = (prevQuests || []).map((prevQ: any) => {
-            const qId = String(prevQ.id || '').toLowerCase();
-            const qName = String(prevQ.name || '').toLowerCase();
-            const qTitle = String((prevQ as any).title || '').toLowerCase();
-
-            const serverQ = serverMap.get(qId) || serverMap.get(qName) || serverMap.get(qTitle);
-            const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
-            const cacheDate = getUserScopedItem('quests-cache-date');
-            const isSameDay = cacheDate === todayStr;
-            const isCompleted = isSameDay
-              ? Boolean(serverQ?.completed || prevQ.completed)
-              : Boolean(serverQ?.completed);
-
-            return {
-              ...(serverQ || prevQ),
-              id: prevQ.id,
-              completed: isCompleted
-            };
-          });
+          const nextQuests = reconcileQuestList(serverList, prevQuests, isSameDay);
 
           try {
-            const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
             setUserScopedItem('quests-cache', JSON.stringify(nextQuests));
             setUserScopedItem('quests-cache-date', todayStr);
           } catch {}
@@ -405,9 +383,11 @@ export default function QuestsPage() {
       logger.info('[Quest Page] Manual Retrieve Latest Data triggered by user');
       await syncNow();
       window.dispatchEvent(new Event('character-stats-update'));
+      window.dispatchEvent(new Event('milestone-update'));
+      window.dispatchEvent(new Event('global-sync-tick'));
       toast({
         title: "Latest Data Retrieved 🔄",
-        description: "Successfully fetched latest quest progress and character stats from server.",
+        description: "Successfully fetched latest quest, tarot, challenge, and character progress from server.",
         duration: 3500,
       });
     } catch (err) {

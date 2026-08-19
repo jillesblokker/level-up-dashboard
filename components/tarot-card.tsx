@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Sparkles, RefreshCw } from "lucide-react"
@@ -16,6 +16,31 @@ export function TarotCardDisplay() {
     const [showCard, setShowCard] = useState(!!getTodaysCard())
     const { playSFX } = useAudioContext()
     const { trigger } = useHaptics()
+
+    useEffect(() => {
+        const fetchServerTarot = async () => {
+            try {
+                const res = await fetch('/api/tarot/sync');
+                if (!res.ok) return;
+                const json = await res.json();
+                const dailyFate = json?.dailyFate;
+                const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
+
+                if (dailyFate?.card && (dailyFate.date === todayStr || String(dailyFate.date || '').startsWith(todayStr))) {
+                    saveTodaysCard(dailyFate.card);
+                    setActiveCard(dailyFate.card);
+                    setShowCard(true);
+                }
+            } catch (_) {}
+        };
+
+        if (!activeCard) {
+            fetchServerTarot();
+        }
+
+        window.addEventListener('character-stats-update', fetchServerTarot);
+        return () => window.removeEventListener('character-stats-update', fetchServerTarot);
+    }, [activeCard]);
 
     const handleDrawCard = () => {
         if (hasDrawnCardToday()) return;
