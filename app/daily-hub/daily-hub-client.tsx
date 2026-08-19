@@ -112,23 +112,23 @@ export function DailyHubClient() {
     const citizensReadyCount = useMemo(() => citizens.filter(isHarvestReady).length, [citizens, timeState]);
 
     useEffect(() => {
-        if (user) {
-            loadCharacterStats()
-            loadFavoritedQuests()
-            loadWeeklyGoldStats()
-            loadActivePerks()
-            loadCitizens(user.id)
+        if (!user) return;
 
-            const handleStatsUpdate = () => {
-                loadCharacterStats();
-                loadWeeklyGoldStats();
-            };
+        loadCharacterStats()
+        loadFavoritedQuests()
+        loadWeeklyGoldStats()
+        loadActivePerks()
+        loadCitizens(user.id)
 
-            window.addEventListener('character-stats-update', handleStatsUpdate);
-            return () => {
-                window.removeEventListener('character-stats-update', handleStatsUpdate);
-            };
-        }
+        const handleStatsUpdate = () => {
+            loadCharacterStats();
+            loadWeeklyGoldStats();
+        };
+
+        window.addEventListener('character-stats-update', handleStatsUpdate);
+        return () => {
+            window.removeEventListener('character-stats-update', handleStatsUpdate);
+        };
     }, [user])
 
     // Trigger confetti explosion on 5/10 habit target sweet spot
