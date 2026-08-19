@@ -9,7 +9,7 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
     const { toast } = useToast();
     const { loadTileInventory, saveTileInventory } = useDataLoaders();
 
-    const [inventory, setInventory] = useState<Record<TileType, Tile>>(initialInventory);
+    const [inventory, setInventory] = useState<Record<string, Tile>>(initialInventory);
     const [inventoryAsItems, setInventoryAsItems] = useState<TileInventoryItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 

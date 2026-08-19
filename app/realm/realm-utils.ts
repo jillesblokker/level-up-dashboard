@@ -87,7 +87,7 @@ export const defaultTile = (type: TileType): Tile => {
     };
 };
 
-export const initialInventory: Record<TileType, Tile> = {
+export const initialInventory: Record<string, Tile> = {
     grass: { ...defaultTile('grass'), cost: 25, owned: 10 },
     water: { ...defaultTile('water'), cost: 50, owned: 10 },
     forest: { ...defaultTile('forest'), cost: 75, owned: 10 },
