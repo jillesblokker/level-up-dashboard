@@ -88,7 +88,7 @@ export const KingdomTileItem = React.memo(({
     }
     if (isAutumn) {
       if (baseType === 'farmland' || baseType === 'vegetables') return '/images/kingdom-tiles/PumpkinPatch.webp';
-      if (baseType === 'sawmill') return '/images/kingdom-tiles/Harvest_barn.webp';
+      if (baseType === 'sawmill') return '/images/kingdom-tiles/HarvestBarn.webp';
     }
     if (isNewYear) {
       if (baseType === 'market-stalls' || baseType === 'grocery') return '/images/kingdom-tiles/FireworksStand.webp';

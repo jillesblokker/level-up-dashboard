@@ -1357,9 +1357,9 @@ export default function CharacterPage() {
                 <div className="max-w-7xl mx-auto w-full space-y-6">
                   <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
                     {[
-                      { id: 'ember-drake', name: 'Ember Drake', type: 'Fire', icon: '🔥', yield: '+10% Gold Yield', skill: 'Ember Strike (45 AOE Fire DMG)', image: '/images/pets/ember_drake.png' },
-                      { id: 'sage-owl', name: 'Sage Owl', type: 'Water', icon: '🦉', yield: '+10% Essence Yield', skill: 'Arcane Gust (+35 Team Heal)', image: '/images/pets/sage_owl.png' },
-                      { id: 'spirit-sprite', name: 'Spirit Sprite', type: 'Verdant', icon: '✨', yield: '+10% XP Yield', skill: 'Floral Blessing (+40 Def Shield)', image: '/images/pets/spirit_sprite.png' }
+                      { id: 'ember-drake', name: 'Ember Drake', type: 'Fire', icon: '🔥', yield: '+10% Gold Yield', skill: 'Ember Strike (45 AOE Fire DMG)', image: '/images/creatures/000.webp' },
+                      { id: 'sage-owl', name: 'Sage Owl', type: 'Water', icon: '🦉', yield: '+10% Essence Yield', skill: 'Arcane Gust (+35 Team Heal)', image: '/images/creatures/001.webp' },
+                      { id: 'spirit-sprite', name: 'Spirit Sprite', type: 'Verdant', icon: '✨', yield: '+10% XP Yield', skill: 'Floral Blessing (+40 Def Shield)', image: '/images/creatures/002.webp' }
                     ].map((pet) => (
                       <Card key={pet.id} className="medieval-card border-amber-500/40 bg-zinc-950 flex flex-col justify-between p-5 space-y-4">
                         <div className="space-y-3">

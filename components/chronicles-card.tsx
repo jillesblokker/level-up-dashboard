@@ -407,7 +407,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {[
-                            { month: 'July 2026', winner: 'Jilles', virtue: 'Knowledge & Might', points: '14,250 pts', title: 'Virtue Champion', avatar: '/images/creatures/Necrion.png', border: 'border-amber-400 ring-2 ring-amber-400/80 shadow-[0_0_20px_rgba(245,158,11,0.6)]' },
+                            { month: 'July 2026', winner: 'Jilles', virtue: 'Knowledge & Might', points: '14,250 pts', title: 'Virtue Champion', avatar: '/images/creatures/Necrion.webp', border: 'border-amber-400 ring-2 ring-amber-400/80 shadow-[0_0_20px_rgba(245,158,11,0.6)]' },
                             { month: 'June 2026', winner: 'Grand Architect', virtue: 'Castle & Craft', points: '12,800 pts', title: 'High Builder', avatar: '/images/creatures/EmberDrake.webp', border: 'border-purple-400 ring-2 ring-purple-400/80 shadow-[0_0_20px_rgba(168,85,247,0.6)]' }
                         ].map((champion, idx) => (
                             <div key={idx} className="p-3.5 rounded-xl bg-gradient-to-r from-zinc-950 via-amber-950/20 to-zinc-950 border border-amber-500/30 flex items-center gap-3 shadow-md hover:border-amber-500/50 transition-all">

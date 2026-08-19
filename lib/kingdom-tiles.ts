@@ -595,7 +595,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyChance: 0.22,
     clickMessage: TEXT_CONTENT.kingdomTiles['royal-forge'].clickMessage,
     possibleItems: [
-      '/images/items/materials/material-iron-ingot.webp',
+      '/images/items/materials/material-steel.webp',
       '/images/items/potion/potion-health.webp'
     ],
     itemType: 'material',
@@ -831,7 +831,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/Dailyhub.png',
+    image: '/images/kingdom-tiles/Dailyhub.webp',
     cost: 350
   },
   {
@@ -901,7 +901,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'rare',
-    image: '/images/kingdom-tiles/fortune_teller.png',
+    image: '/images/kingdom-tiles/fortune_teller.webp',
     cost: 200,
     gemCost: 10
   },
@@ -958,7 +958,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'rare',
-    image: '/images/tiles/prison-tile.png',
+    image: '/images/tiles/prison-tile.webp',
     cost: 500,
     gemCost: 15
   },
@@ -973,7 +973,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: [],
     itemType: 'none',
     rarity: 'rare',
-    image: '/images/tiles/apotheca-tile.png',
+    image: '/images/tiles/apotheca-tile.webp',
     cost: 500,
     gemCost: 15
   },

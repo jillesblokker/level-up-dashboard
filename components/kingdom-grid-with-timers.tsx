@@ -2018,9 +2018,9 @@ export function KingdomGridWithTimers({
     let itemFound: string | null = null
     if (kingdomTile.itemChance && kingdomTile.itemType && Math.random() < kingdomTile.itemChance) {
       if (kingdomTile.itemType === 'metal') {
-        itemFound = '/images/items/materials/material-iron.webp'
+        itemFound = '/images/items/materials/material-stone.webp'
       } else if (kingdomTile.itemType === 'wood') {
-        itemFound = '/images/items/materials/material-wood.webp'
+        itemFound = '/images/items/materials/material-logs.webp'
       } else if (kingdomTile.itemType === 'fish') {
         itemFound = '/images/items/materials/fish-bass.webp'
       } else if (kingdomTile.itemType === 'food') {
@@ -2059,7 +2059,7 @@ export function KingdomGridWithTimers({
               name: 'Iron Ore',
               type: 'resource',
               quantity: 1,
-              image: '/images/items/materials/material-iron.webp',
+              image: '/images/items/materials/material-stone.webp',
               description: 'Refined iron ore used for crafting equipment.',
               emoji: '🪙',
               stats: {},
@@ -2072,7 +2072,7 @@ export function KingdomGridWithTimers({
               name: 'Hardwood Board',
               type: 'resource',
               quantity: 1,
-              image: '/images/items/materials/material-wood.webp',
+              image: '/images/items/materials/material-logs.webp',
               description: 'Sturdy wooden plank used for building and upgrades.',
               emoji: '🪵',
               stats: {},

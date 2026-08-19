@@ -324,7 +324,7 @@ export function AirshipHarborTab() {
       {/* Airship Harbor Header */}
       <div className="relative h-60 md:h-72 rounded-2xl overflow-hidden border border-amber-950/20 shadow-2xl flex items-end">
         <Image
-          src="/images/headers/airship-harbor.png"
+          src="/images/headers/airship-harbor.webp"
           alt="Airship Harbor"
           fill
           unoptimized

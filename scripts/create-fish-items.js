@@ -151,11 +151,11 @@ function updateKingdomTiles() {
   const fishermanUpdate = content.replace(
     /possibleItems: \[\s*'\/images\/items\/food\/goldenfish\.png',\s*'\/images\/items\/food\/goldenfish\.png',\s*\/\/ More common\s*'\/images\/items\/food\/goldenfish\.png',\s*\/\/ More common\s*'\/images\/items\/food\/goldenfish\.png',\s*\/\/ More common\s*'\/images\/items\/food\/goldenfish\.png'\s*\/\/ More common\s*\],/,
     `possibleItems: [
-      '/images/items/food/fish-golden.png',
-      '/images/items/food/fish-silver.png',
-      '/images/items/food/fish-bronze.png',
-      '/images/items/food/fish-rainbow.png',
-      '/images/items/food/fish-crystal.png'
+      '/images/items/food/fish-golden.webp',
+      '/images/items/food/fish-silver.webp',
+      '/images/items/food/fish-red.webp',
+      '/images/items/food/fish-rainbow.webp',
+      '/images/items/food/fish-silver.webp'
     ],`
   );
   
@@ -163,9 +163,9 @@ function updateKingdomTiles() {
   const updatedContent = fishermanUpdate.replace(
     /possibleItems: \['\/images\/items\/food\/goldenfish\.png'\],/g,
     `possibleItems: [
-      '/images/items/food/fish-golden.png',
-      '/images/items/food/fish-silver.png',
-      '/images/items/food/fish-bronze.png'
+      '/images/items/food/fish-golden.webp',
+      '/images/items/food/fish-silver.webp',
+      '/images/items/food/fish-red.webp'
     ],`
   );
   
@@ -177,7 +177,7 @@ function updateKingdomTiles() {
 function createFishImages() {
   console.log('\n🖼️ Creating fish image placeholders...');
   
-  const sourceImage = 'public/images/items/food/fish-golden.png';
+  const sourceImage = 'public/images/items/food/fish-golden.webp';
   const targetDir = 'public/images/items/food/';
   
   // Create copies for each fish type

@@ -174,8 +174,8 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Squire',
       newTitle: 'Knight',
-      oldTitleImage: '/images/character/squire.png',
-      newTitleImage: '/images/character/knight.png',
+      oldTitleImage: '/images/character/squire.webp',
+      newTitleImage: '/images/character/knight.webp',
       level: 10
     };
     setEvolution(testEvolution);
@@ -186,8 +186,8 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Knight',
       newTitle: 'Baron',
-      oldTitleImage: '/images/character/knight.png',
-      newTitleImage: '/images/character/baron.png',
+      oldTitleImage: '/images/character/knight.webp',
+      newTitleImage: '/images/character/baron.webp',
       level: 20
     };
     setEvolution(testEvolution);
@@ -198,8 +198,8 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Baron',
       newTitle: 'Viscount',
-      oldTitleImage: '/images/character/baron.png',
-      newTitleImage: '/images/character/viscount.png',
+      oldTitleImage: '/images/character/baron.webp',
+      newTitleImage: '/images/character/viscount.webp',
       level: 30
     };
     setEvolution(testEvolution);
@@ -210,8 +210,8 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Viscount',
       newTitle: 'Count',
-      oldTitleImage: '/images/character/viscount.png',
-      newTitleImage: '/images/character/count.png',
+      oldTitleImage: '/images/character/viscount.webp',
+      newTitleImage: '/images/character/count.webp',
       level: 40
     };
     setEvolution(testEvolution);
@@ -222,8 +222,8 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Count',
       newTitle: 'Marquis',
-      oldTitleImage: '/images/character/count.png',
-      newTitleImage: '/images/character/marquis.png',
+      oldTitleImage: '/images/character/count.webp',
+      newTitleImage: '/images/character/marquis.webp',
       level: 50
     };
     setEvolution(testEvolution);
@@ -234,8 +234,8 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Marquis',
       newTitle: 'Duke',
-      oldTitleImage: '/images/character/marquis.png',
-      newTitleImage: '/images/character/duke.png',
+      oldTitleImage: '/images/character/marquis.webp',
+      newTitleImage: '/images/character/duke.webp',
       level: 60
     };
     setEvolution(testEvolution);
@@ -246,8 +246,8 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Duke',
       newTitle: 'Prince',
-      oldTitleImage: '/images/character/duke.png',
-      newTitleImage: '/images/character/prince.png',
+      oldTitleImage: '/images/character/duke.webp',
+      newTitleImage: '/images/character/prince.webp',
       level: 70
     };
     setEvolution(testEvolution);
@@ -258,8 +258,8 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Prince',
       newTitle: 'King',
-      oldTitleImage: '/images/character/prince.png',
-      newTitleImage: '/images/character/king.png',
+      oldTitleImage: '/images/character/prince.webp',
+      newTitleImage: '/images/character/king.webp',
       level: 80
     };
     setEvolution(testEvolution);
@@ -270,8 +270,8 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     const testEvolution: TitleEvolution = {
       oldTitle: 'King',
       newTitle: 'Emperor',
-      oldTitleImage: '/images/character/king.png',
-      newTitleImage: '/images/character/emperor.png',
+      oldTitleImage: '/images/character/king.webp',
+      newTitleImage: '/images/character/emperor.webp',
       level: 90
     };
     setEvolution(testEvolution);
@@ -282,8 +282,8 @@ export function TitleEvolutionProvider({ children }: { children: ReactNode }) {
     const testEvolution: TitleEvolution = {
       oldTitle: 'Emperor',
       newTitle: 'God',
-      oldTitleImage: '/images/character/emperor.png',
-      newTitleImage: '/images/character/god.png',
+      oldTitleImage: '/images/character/emperor.webp',
+      newTitleImage: '/images/character/god.webp',
       level: 100
     };
     setEvolution(testEvolution);

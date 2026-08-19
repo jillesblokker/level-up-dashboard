@@ -769,7 +769,7 @@ export function TavernDiceGame() {
             {/* ATMOSPHERIC WOODEN TAVERN BOARD */}
             <div 
               className="rounded-2xl p-5 shadow-2xl relative overflow-hidden space-y-6 bg-cover bg-center border-2 border-amber-900/50"
-              style={{ backgroundImage: "url('/images/backgrounds/tavern-wood-bg.png')" }}
+              style={{ backgroundImage: "url('/images/backgrounds/tavern-wood-bg.webp')" }}
             >
               <div className="absolute inset-0 bg-black/55 pointer-events-none" />
 

@@ -455,7 +455,7 @@ export function CompanionOverlay() {
           >
             <div className="relative w-12 h-16 sm:w-16 sm:h-22 drop-shadow-[0_6px_10px_rgba(0,0,0,0.8)]">
               <Image
-                src="/images/creatures/Necrion.png"
+                src="/images/creatures/Necrion.webp"
                 alt="Necrion Companion"
                 fill
                 className="object-contain animate-float"

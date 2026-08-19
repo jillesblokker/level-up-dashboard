@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 const KINGDOM_GRID_ROWS = 12;
 const KINGDOM_GRID_COLS = 6;
-const VACANT_TILE_IMAGE = '/images/kingdom-tiles/Vacant.png';
+const VACANT_TILE_IMAGE = '/images/kingdom-tiles/Vacant.webp';
 
 // Helper to create an empty kingdom grid
 export function createEmptyKingdomGrid(): Tile[][] {

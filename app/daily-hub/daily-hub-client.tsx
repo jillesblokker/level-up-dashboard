@@ -1119,7 +1119,7 @@ export function DailyHubClient() {
                             <div className="relative w-36 h-36 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900 border-amber-700/30 group-hover:scale-105 transition-transform duration-500">
                                 <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10 flex items-center justify-center bg-zinc-950">
                                     <NextImage
-                                        src="/images/placeholders/report_scroll.png"
+                                        src="/images/placeholders/report_scroll.webp"
                                         alt="Yesterday's Report Card"
                                         fill
                                         className="object-cover p-1 drop-shadow-[0_0_20px_rgba(251,191,36,0.4)]"

@@ -10,12 +10,12 @@ interface AnimatedCharacterSpriteProps {
 
 // Map level ranges to exact evolution sprite sheet PNGs
 const getSpriteSheetForLevel = (level: number) => {
-  if (level >= 100) return "/images/character/sprites/god.png";
+  if (level >= 100) return "/images/character/sprites/god.webp";
   if (level >= 90) return "/images/character/sprites/emperor.png";
   if (level >= 80) return "/images/character/sprites/king.png";
   if (level >= 70) return "/images/character/sprites/prince.png";
   if (level >= 60) return "/images/character/sprites/duke.png";
-  if (level >= 50) return "/images/character/sprites/marquis.png";
+  if (level >= 50) return "/images/character/sprites/marquis.webp";
   if (level >= 40) return "/images/character/sprites/count.png";
   if (level >= 30) return "/images/character/sprites/viscount.png";
   if (level >= 20) return "/images/character/sprites/baron.png";

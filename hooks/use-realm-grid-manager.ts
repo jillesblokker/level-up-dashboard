@@ -86,17 +86,17 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                         } else if (reconstructedTile.type === 'cornerroad') {
                             reconstructedTile.image = '/images/kingdom-tiles/Cornerroad.webp';
                         } else if (reconstructedTile.type === 'pyramid') {
-                            reconstructedTile.image = '/images/tiles/pyramid-tile.png';
+                            reconstructedTile.image = '/images/tiles/pyramid-tile.webp';
                         } else if (reconstructedTile.type === 'whispering-well') {
-                            reconstructedTile.image = '/images/tiles/whispering-well-tile.png';
+                            reconstructedTile.image = '/images/tiles/whispering-well-tile.webp';
                         } else if (reconstructedTile.type === 'sphinx-gates') {
-                            reconstructedTile.image = '/images/tiles/sphinx-gates-tile.png';
+                            reconstructedTile.image = '/images/tiles/sphinx-gates-tile.webp';
                         } else if (reconstructedTile.type === 'whispering-canopy') {
-                            reconstructedTile.image = '/images/tiles/whispering-canopy-tile.png';
+                            reconstructedTile.image = '/images/tiles/whispering-canopy-tile.webp';
                         } else if (reconstructedTile.type === 'frostfire-obelisk') {
-                            reconstructedTile.image = '/images/tiles/frostfire-obelisk-tile.png';
+                            reconstructedTile.image = '/images/tiles/frostfire-obelisk-tile.webp';
                         } else if (reconstructedTile.type === 'fairy-ring') {
-                            reconstructedTile.image = '/images/tiles/fairy-ring-tile.png';
+                            reconstructedTile.image = '/images/tiles/fairy-ring-tile.webp';
                         }
 
                         newGrid[t.y]![t.x] = reconstructedTile;

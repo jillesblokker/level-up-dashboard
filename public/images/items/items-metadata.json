@@ -139,7 +139,7 @@
       },
       "cost": 25,
       "isDefault": true,
-      "image": "/images/items/sword/sword-twig.png",
+      "image": "/images/items/sword/sword-twig.webp",
       "description": "A simple wooden sword - every adventurer starts somewhere"
     },
     "sword-irony": {
@@ -152,7 +152,7 @@
       },
       "cost": 120,
       "isDefault": false,
-      "image": "/images/items/sword/sword-irony.png",
+      "image": "/images/items/sword/sword-irony.webp",
       "description": "A sturdy iron sword with good balance and durability"
     },
     "sword-morningstar": {
@@ -165,7 +165,7 @@
       },
       "cost": 250,
       "isDefault": false,
-      "image": "/images/items/sword/sword-morningstar.png",
+      "image": "/images/items/sword/sword-morningstar.webp",
       "description": "A spiked mace that delivers devastating crushing blows"
     },
     "sword-sunblade": {
@@ -179,7 +179,7 @@
       },
       "cost": 500,
       "isDefault": false,
-      "image": "/images/items/sword/sword-sunblade.png",
+      "image": "/images/items/sword/sword-sunblade.webp",
       "description": "A radiant sword that glows with the power of the sun"
     },
     "sword-solaraxe": {
@@ -193,7 +193,7 @@
       },
       "cost": 1000,
       "isDefault": false,
-      "image": "/images/items/sword/sword-solaraxe.png",
+      "image": "/images/items/sword/sword-solaraxe.webp",
       "description": "A mighty axe that channels the fury of the sun"
     },
     "shield-reflecto": {
@@ -206,7 +206,7 @@
       },
       "cost": 30,
       "isDefault": true,
-      "image": "/images/items/shield/shield-reflecto.png",
+      "image": "/images/items/shield/shield-reflecto.webp",
       "description": "A basic wooden shield - it may not look like much, but it gets the job done"
     },
     "shield-defecto": {
@@ -219,7 +219,7 @@
       },
       "cost": 80,
       "isDefault": false,
-      "image": "/images/items/shield/shield-defecto.png",
+      "image": "/images/items/shield/shield-defecto.webp",
       "description": "A reinforced wooden shield with iron bands"
     },
     "shield-blockado": {
@@ -232,7 +232,7 @@
       },
       "cost": 200,
       "isDefault": false,
-      "image": "/images/items/shield/shield-blockado.png",
+      "image": "/images/items/shield/shield-blockado.webp",
       "description": "A solid iron shield that blocks most attacks"
     },
     "shield-shellow": {
@@ -246,7 +246,7 @@
       },
       "cost": 400,
       "isDefault": false,
-      "image": "/images/items/shield/shield-shellow.png",
+      "image": "/images/items/shield/shield-shellow.webp",
       "description": "A magical shield that absorbs and reflects damage"
     },
     "shield-shielow": {
@@ -261,7 +261,7 @@
       },
       "cost": 800,
       "isDefault": false,
-      "image": "/images/items/shield/shield-shielow.png",
+      "image": "/images/items/shield/shield-shielow.webp",
       "description": "A legendary shield that grants divine protection"
     },
     "armor-normalo": {
@@ -274,7 +274,7 @@
       },
       "cost": 50,
       "isDefault": true,
-      "image": "/images/items/armor/armor-normalo.png",
+      "image": "/images/items/armor/armor-normalo.webp",
       "description": "Standard issue armor for new adventurers"
     },
     "armor-darko": {
@@ -288,7 +288,7 @@
       },
       "cost": 150,
       "isDefault": false,
-      "image": "/images/items/armor/armor-darko.png",
+      "image": "/images/items/armor/armor-darko.webp",
       "description": "Dark leather armor that provides stealth and protection"
     },
     "armor-blanko": {
@@ -301,7 +301,7 @@
       },
       "cost": 300,
       "isDefault": false,
-      "image": "/images/items/armor/armor-blanko.png",
+      "image": "/images/items/armor/armor-blanko.webp",
       "description": "A blank canvas armor that can be enchanted"
     },
     "armor-silvo": {
@@ -315,7 +315,7 @@
       },
       "cost": 600,
       "isDefault": false,
-      "image": "/images/items/armor/armor-silvo.png",
+      "image": "/images/items/armor/armor-silvo.webp",
       "description": "Silvery armor that gleams with magical properties"
     },
     "armor-goldo": {
@@ -330,7 +330,7 @@
       },
       "cost": 1200,
       "isDefault": false,
-      "image": "/images/items/armor/armor-goldo.png",
+      "image": "/images/items/armor/armor-goldo.webp",
       "description": "Golden armor that radiates with divine power"
     },
     "horse-stelony": {
@@ -343,7 +343,7 @@
       },
       "cost": 100,
       "isDefault": true,
-      "image": "/images/items/horse/horse-stelony.png",
+      "image": "/images/items/horse/horse-stelony.webp",
       "description": "A sturdy pony with basic armor - your trusty starter mount"
     },
     "horse-perony": {
@@ -356,7 +356,7 @@
       },
       "cost": 250,
       "isDefault": false,
-      "image": "/images/items/horse/horse-perony.png",
+      "image": "/images/items/horse/horse-perony.webp",
       "description": "A swift horse bred for speed and endurance"
     },
     "horse-felony": {
@@ -370,7 +370,7 @@
       },
       "cost": 500,
       "isDefault": false,
-      "image": "/images/items/horse/horse-felony.png",
+      "image": "/images/items/horse/horse-felony.webp",
       "description": "A fierce war horse trained for battle"
     },
     "horse-goldy": {
@@ -384,7 +384,7 @@
       },
       "cost": 800,
       "isDefault": false,
-      "image": "/images/items/horse/horse-goldy.png",
+      "image": "/images/items/horse/horse-goldy.webp",
       "description": "A golden horse with magical properties"
     },
     "horse-silvy": {
@@ -399,7 +399,7 @@
       },
       "cost": 1500,
       "isDefault": false,
-      "image": "/images/items/horse/horse-silvy.png",
+      "image": "/images/items/horse/horse-silvy.webp",
       "description": "A legendary silver horse that can fly"
     },
     "potion-health": {
@@ -412,7 +412,7 @@
       },
       "cost": 25,
       "isDefault": false,
-      "image": "/images/items/potion/potion-health.png",
+      "image": "/images/items/potion/potion-health.webp",
       "description": "Restores health and vitality"
     },
     "potion-mana": {
@@ -425,7 +425,7 @@
       },
       "cost": 30,
       "isDefault": false,
-      "image": "/images/items/potion/potion-mana.png",
+      "image": "/images/items/potion/potion-mana.webp",
       "description": "Restores magical energy"
     },
     "potion-stamina": {
@@ -438,7 +438,7 @@
       },
       "cost": 40,
       "isDefault": false,
-      "image": "/images/items/potion/potion-stamina.png",
+      "image": "/images/items/potion/potion-stamina.webp",
       "description": "Boosts endurance and movement"
     },
     "potion-exp": {
@@ -451,7 +451,7 @@
       },
       "cost": 100,
       "isDefault": false,
-      "image": "/images/items/potion/potion-exp.png",
+      "image": "/images/items/potion/potion-exp.webp",
       "description": "Grants bonus experience points"
     },
     "potion-gold": {
@@ -464,7 +464,7 @@
       },
       "cost": 150,
       "isDefault": false,
-      "image": "/images/items/potion/potion-gold.png",
+      "image": "/images/items/potion/potion-gold.webp",
       "description": "Increases gold drops temporarily"
     },
     "scroll-scrolly": {
@@ -477,7 +477,7 @@
       },
       "cost": 50,
       "isDefault": false,
-      "image": "/images/items/scroll/scroll-scrolly.png",
+      "image": "/images/items/scroll/scroll-scrolly.webp",
       "description": "A basic magical scroll with simple spells"
     },
     "scroll-memento": {
@@ -491,7 +491,7 @@
       },
       "cost": 100,
       "isDefault": false,
-      "image": "/images/items/scroll/scroll-memento.png",
+      "image": "/images/items/scroll/scroll-memento.webp",
       "description": "Enhances memory and learning abilities"
     },
     "scroll-perkamento": {
@@ -506,7 +506,7 @@
       },
       "cost": 200,
       "isDefault": false,
-      "image": "/images/items/scroll/scroll-perkamento.png",
+      "image": "/images/items/scroll/scroll-perkamento.webp",
       "description": "Grants temporary skill bonuses"
     },
     "scroll-diamono": {
@@ -522,7 +522,7 @@
       },
       "cost": 400,
       "isDefault": false,
-      "image": "/images/items/scroll/scroll-diamono.png",
+      "image": "/images/items/scroll/scroll-diamono.webp",
       "description": "A precious scroll that enhances all attributes"
     },
     "scroll-observio": {
@@ -536,7 +536,7 @@
       },
       "cost": 800,
       "isDefault": false,
-      "image": "/images/items/scroll/scroll-observio.png",
+      "image": "/images/items/scroll/scroll-observio.webp",
       "description": "Reveals hidden secrets and treasures"
     },
     "artifact-ringo": {
@@ -550,7 +550,7 @@
       },
       "cost": 500,
       "isDefault": false,
-      "image": "/images/items/artifact/ring/artifact-ringo.png",
+      "image": "/images/items/artifact/ring/artifact-ringo.webp",
       "description": "A magical ring that enhances magical abilities"
     },
     "artifact-crowny": {
@@ -565,7 +565,7 @@
       },
       "cost": 1000,
       "isDefault": false,
-      "image": "/images/items/artifact/crown/artifact-crowny.png",
+      "image": "/images/items/artifact/crown/artifact-crowny.webp",
       "description": "A crown that grants leadership and charisma"
     },
     "artifact-staffy": {
@@ -579,7 +579,7 @@
       },
       "cost": 800,
       "isDefault": false,
-      "image": "/images/items/artifact/scepter/artifact-staffy.png",
+      "image": "/images/items/artifact/scepter/artifact-staffy.webp",
       "description": "A staff that channels ancient knowledge"
     },
     "artifact-throny": {
@@ -595,7 +595,7 @@
       },
       "cost": 2000,
       "isDefault": false,
-      "image": "/images/items/artifact/throne/artifact-throny.png",
+      "image": "/images/items/artifact/throne/artifact-throny.webp",
       "description": "A throne that grants dominion over realms"
     },
     "artifact-ropy": {
@@ -610,7 +610,7 @@
       },
       "cost": 1200,
       "isDefault": false,
-      "image": "/images/items/artifact/robe/artifact-ropy.png",
+      "image": "/images/items/artifact/robe/artifact-ropy.webp",
       "description": "A robe that enhances magical prowess"
     },
     "material-logs": {
@@ -621,7 +621,7 @@
       "stats": {},
       "cost": 10,
       "isDefault": false,
-      "image": "/images/items/materials/material-logs.png",
+      "image": "/images/items/materials/material-logs.webp",
       "description": "Basic building material for construction"
     },
     "material-planks": {
@@ -632,7 +632,7 @@
       "stats": {},
       "cost": 25,
       "isDefault": false,
-      "image": "/images/items/materials/material-planks.png",
+      "image": "/images/items/materials/material-planks.webp",
       "description": "Refined wood planks for advanced construction"
     },
     "material-steel": {
@@ -643,7 +643,7 @@
       "stats": {},
       "cost": 100,
       "isDefault": false,
-      "image": "/images/items/materials/material-steel.png",
+      "image": "/images/items/materials/material-steel.webp",
       "description": "Strong metal for weapons and armor crafting"
     },
     "material-silver": {
@@ -654,7 +654,7 @@
       "stats": {},
       "cost": 250,
       "isDefault": false,
-      "image": "/images/items/materials/material-silver.png",
+      "image": "/images/items/materials/material-silver.webp",
       "description": "Precious metal for magical items and advanced crafting"
     },
     "material-gold": {
@@ -665,7 +665,7 @@
       "stats": {},
       "cost": 500,
       "isDefault": false,
-      "image": "/images/items/materials/material-gold.png",
+      "image": "/images/items/materials/material-gold.webp",
       "description": "Legendary material for the most powerful items"
     },
     "food-red": {
@@ -676,7 +676,7 @@
       "stats": { "health": 15, "stamina": 10 },
       "cost": 25,
       "isDefault": false,
-      "image": "/images/items/food/fish-red.png",
+      "image": "/images/items/food/fish-red.webp",
       "description": "A vibrant red fish that provides basic nourishment"
     },
     "food-blue": {
@@ -687,7 +687,7 @@
       "stats": { "health": 20, "stamina": 15, "mana": 5 },
       "cost": 40,
       "isDefault": false,
-      "image": "/images/items/food/fish-blue.png",
+      "image": "/images/items/food/fish-blue.webp",
       "description": "A cool blue fish that refreshes and energizes"
     },
     "food-silver": {
@@ -698,7 +698,7 @@
       "stats": { "health": 25, "stamina": 20, "defense": 2 },
       "cost": 60,
       "isDefault": false,
-      "image": "/images/items/food/fish-silver.png",
+      "image": "/images/items/food/fish-silver.webp",
       "description": "A shimmering silver fish that enhances vitality"
     },
     "food-golden": {
@@ -709,7 +709,7 @@
       "stats": { "health": 35, "stamina": 25, "mana": 10 },
       "cost": 100,
       "isDefault": false,
-      "image": "/images/items/food/fish-golden.png",
+      "image": "/images/items/food/fish-golden.webp",
       "description": "A rare golden fish that provides nourishment and luck"
     },
     "food-rainbow": {
@@ -720,7 +720,7 @@
       "stats": { "health": 50, "stamina": 35, "mana": 20, "attack": 5 },
       "cost": 200,
       "isDefault": false,
-      "image": "/images/items/food/fish-rainbow.png",
+      "image": "/images/items/food/fish-rainbow.webp",
       "description": "A magical rainbow fish that grants multiple benefits"
     }
   }

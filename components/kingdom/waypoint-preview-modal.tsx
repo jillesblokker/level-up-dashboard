@@ -23,7 +23,7 @@ const WAYPOINT_REGISTRY: Record<string, WaypointInfo> = {
   'daily-hub': {
     title: 'Daily Habit Hub',
     subtitle: 'Morning Routine & Streak Headquarters',
-    image: '/images/kingdom-tiles/Dailyhub.png',
+    image: '/images/kingdom-tiles/Dailyhub.webp',
     description: 'Enter your main habit dashboard to view streak progress, check off daily routines, and earn House Cup virtue energy.',
     destination: '/daily-hub',
     buttonText: '📅 Enter Daily Hub',
@@ -210,7 +210,7 @@ const WAYPOINT_REGISTRY: Record<string, WaypointInfo> = {
   'dailyhub': {
     title: 'Daily Habit Hub',
     subtitle: 'Morning Routine & Streak Headquarters',
-    image: '/images/kingdom-tiles/Dailyhub.png',
+    image: '/images/kingdom-tiles/Dailyhub.webp',
     description: 'Enter your main habit dashboard to view streak progress, check off daily routines, and earn House Cup virtue energy.',
     destination: '/daily-hub',
     buttonText: '📅 Enter Daily Hub',
@@ -221,7 +221,7 @@ const WAYPOINT_REGISTRY: Record<string, WaypointInfo> = {
   'daily_hub': {
     title: 'Daily Habit Hub',
     subtitle: 'Morning Routine & Streak Headquarters',
-    image: '/images/kingdom-tiles/Dailyhub.png',
+    image: '/images/kingdom-tiles/Dailyhub.webp',
     description: 'Enter your main habit dashboard to view streak progress, check off daily routines, and earn House Cup virtue energy.',
     destination: '/daily-hub',
     buttonText: '📅 Enter Daily Hub',

@@ -628,7 +628,7 @@ export function CitizensTab() {
                           sizes="(max-width: 768px) 100px, 150px"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            target.src = '/images/creatures/001.png';
+                            target.src = '/images/creatures/001.webp';
                           }}
                         />
                       </div>

@@ -111,11 +111,11 @@ export default function ShopPage() {
       'the-dragons-rest': '/images/locations/the-dragons-rest-tavern.webp',
       'blacksmith': '/images/locations/embers-anvil.webp',
       'marketplace': '/images/locations/kingdom-marketplace.webp',
-      'library': '/images/locations/library.webp',
-      'inn': '/images/locations/inn.webp'
+      'library': '/images/locations/city.webp',
+      'inn': '/images/locations/the-dragons-rest-tavern.webp'
     }
     
-    return locationImageMap[cityName] || '/images/locations/market.webp'
+    return locationImageMap[cityName] || '/images/locations/kingdom-marketplace.webp'
   }
 
   const locationImage = getLocationImage(cityName)

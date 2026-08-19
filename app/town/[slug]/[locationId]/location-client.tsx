@@ -457,9 +457,9 @@ export default function LocationClient({ slug, locationId }: Props) {
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {location.items?.map((item) => {
                       let imagePath = "/images/items/placeholder.webp";
-                      if (item.name === "Iron Sword") imagePath = "/images/items/sword/sword-iron.webp";
-                      if (item.name === "Iron Armor") imagePath = "/images/items/armor/armor-iron.webp";
-                      if (item.name === "Steel Shield") imagePath = "/images/items/shield/shield-steel.webp";
+                      if (item.name === "Iron Sword") imagePath = "/images/items/sword/sword-irony.webp";
+                      if (item.name === "Iron Armor") imagePath = "/images/items/armor/armor-normalo.webp";
+                      if (item.name === "Steel Shield") imagePath = "/images/items/shield/shield-blockado.webp";
                       
                       return (
                         <Card key={item.id} className="flex flex-col">
