@@ -216,8 +216,15 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
 
   const handleFeedTreat = async () => {
     if (!guardianState) return;
+    const currentAffection = (guardianState as any).affection || 50;
+    if (currentAffection >= 100) {
+      toast({
+        title: "❤️ Max Affection Reached!",
+        description: `${activeGuardian?.name || 'Your companion'} is already at 100% affection and completely full!`,
+      });
+      return;
+    }
     try {
-      const currentAffection = (guardianState as any).affection || 50;
       const updatedAffection = Math.min(100, currentAffection + 10);
       const updatedState = {
         ...guardianState,
@@ -385,13 +392,14 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
             {/* Botanical Treat Feeding & Affection Meter */}
             <div className="p-3.5 bg-zinc-950/90 border border-emerald-500/30 rounded-xl flex items-center justify-between gap-3 shadow-inner">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-emerald-300 font-bold text-base shadow-sm">
-                  🍎
-                </div>
+            {/* Treat Feeding & Affection Quick Action */}
+            <div className="flex items-center justify-between gap-3 p-3 bg-zinc-950/60 rounded-xl border border-white/5">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🍎</span>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-xs text-emerald-300">Companion Affection</span>
-                    <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/50 px-1.5 py-0.5 rounded border border-amber-500/30">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-amber-200">Botanical Treat</span>
+                    <span className="text-[10px] font-mono font-bold text-amber-400">
                       ❤️ {((guardianState as any).affection || 50)}%
                     </span>
                   </div>
@@ -400,10 +408,16 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
               </div>
               <Button
                 onClick={handleFeedTreat}
+                disabled={((guardianState as any)?.affection || 50) >= 100}
                 size="sm"
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-zinc-950 font-bold text-xs px-3.5 h-8 rounded-lg shadow-md shrink-0 gap-1"
+                className={cn(
+                  "font-bold text-xs px-3.5 h-8 rounded-lg shadow-md shrink-0 gap-1",
+                  ((guardianState as any)?.affection || 50) >= 100
+                    ? "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700"
+                    : "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-zinc-950"
+                )}
               >
-                🍎 Feed Treat
+                {((guardianState as any)?.affection || 50) >= 100 ? "❤️ Max Affection" : "🍎 Feed Treat"}
               </Button>
             </div>
 
@@ -411,10 +425,20 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
             <div className="flex gap-2">
               <Button
                 onClick={handleFeedTreat}
-                className="w-full bg-gradient-to-r from-amber-600/30 via-orange-600/30 to-amber-600/30 hover:from-amber-600/50 hover:to-orange-600/50 border border-amber-500/40 text-amber-300 font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all"
+                disabled={((guardianState as any)?.affection || 50) >= 100}
+                className={cn(
+                  "w-full font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all",
+                  ((guardianState as any)?.affection || 50) >= 100
+                    ? "bg-zinc-900 text-zinc-500 cursor-not-allowed border border-zinc-800"
+                    : "bg-gradient-to-r from-amber-600/30 via-orange-600/30 to-amber-600/30 hover:from-amber-600/50 hover:to-orange-600/50 border border-amber-500/40 text-amber-300"
+                )}
               >
                 <span>🍎</span>
-                <span>Feed Botanical Treat (+10% Affection & +25 EXP)</span>
+                <span>
+                  {((guardianState as any)?.affection || 50) >= 100
+                    ? "❤️ Companion Fully Fed (100% Affection)"
+                    : "Feed Botanical Treat (+10% Affection & +25 EXP)"}
+                </span>
               </Button>
             </div>
 

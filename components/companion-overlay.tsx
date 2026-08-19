@@ -408,7 +408,7 @@ export function CompanionOverlay() {
             {/* Treat Feeding & Affection Quick Action */}
             <div className="pt-1.5 border-t border-zinc-200 flex items-center justify-between gap-2">
               <span className="text-[10px] text-amber-900 font-bold flex items-center gap-1 font-serif [text-shadow:none] !drop-shadow-none [filter:none]">
-                ❤️ Affection Active
+                ❤️ {activePartner.affection >= 100 ? "100% Max Affection" : "Affection Active"}
               </span>
               <button
                 type="button"
@@ -416,9 +416,15 @@ export function CompanionOverlay() {
                   e.stopPropagation()
                   window.location.href = '/kingdom'
                 }}
-                className="text-[9px] font-bold font-mono bg-amber-600 hover:bg-amber-700 text-white px-2 py-0.5 rounded-full shadow-sm [text-shadow:none] !drop-shadow-none"
+                disabled={activePartner.affection >= 100}
+                className={cn(
+                  "text-[9px] font-bold font-mono px-2 py-0.5 rounded-full shadow-sm [text-shadow:none] !drop-shadow-none transition-colors",
+                  activePartner.affection >= 100
+                    ? "bg-zinc-400 text-zinc-700 cursor-not-allowed"
+                    : "bg-amber-600 hover:bg-amber-700 text-white"
+                )}
               >
-                🥩 Feed Treat (+5%)
+                {activePartner.affection >= 100 ? "Fully Fed" : "🥩 Feed Treat (+5%)"}
               </button>
             </div>
 

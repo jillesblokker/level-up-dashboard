@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { useUser } from "@clerk/nextjs"
 import { fetchWithAuth } from "@/lib/fetchWithAuth"
+import { unwrapApiResponse } from "@/lib/api-response-unwrapper"
 import QuestCard from "@/components/quest-card"
 import { toast } from "sonner"
 import { HeaderSection } from "@/components/HeaderSection"
@@ -117,6 +118,16 @@ export function DailyHubClient() {
             loadWeeklyGoldStats()
             loadActivePerks()
             loadCitizens(user.id)
+
+            const handleStatsUpdate = () => {
+                loadCharacterStats();
+                loadWeeklyGoldStats();
+            };
+
+            window.addEventListener('character-stats-update', handleStatsUpdate);
+            return () => {
+                window.removeEventListener('character-stats-update', handleStatsUpdate);
+            };
         }
     }, [user])
 
@@ -229,14 +240,17 @@ export function DailyHubClient() {
         try {
             const response = await fetchWithAuth('/api/character-stats')
             if (response.ok) {
-                const data = await response.json()
-                setStats({
-                    level: data.level || 1,
-                    experience: data.experience || 0,
-                    experienceToNextLevel: data.experienceToNextLevel || 100,
-                    gold: data.gold || 0,
-                    streakDays: data.streakDays || 0
-                })
+                const rawJson = await response.json()
+                const data: any = unwrapApiResponse(rawJson)
+                if (data) {
+                    setStats({
+                        level: data.level || data.stats?.level || 1,
+                        experience: data.experience || data.stats?.experience || 0,
+                        experienceToNextLevel: data.experienceToNextLevel || 100,
+                        gold: data.gold || data.stats?.gold || 0,
+                        streakDays: data.streakDays || 0
+                    })
+                }
 
                 // Trigger random encounter check for daily login
                 try {
@@ -256,7 +270,8 @@ export function DailyHubClient() {
             const response = await fetch('/api/gold-transactions?limit=100')
             if (response.ok) {
                 const result = await response.json()
-                const transactions: GoldTransaction[] = result.data || []
+                const data: any = unwrapApiResponse(result)
+                const transactions: GoldTransaction[] = Array.isArray(data) ? data : (data?.data || data?.transactions || [])
 
                 const sevenDaysAgo = new Date()
                 sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
@@ -284,7 +299,8 @@ export function DailyHubClient() {
                 const favoritesResponse = await fetchWithAuth('/api/quests/favorites')
                 if (favoritesResponse.ok) {
                     const favoritesData = await favoritesResponse.json()
-                    favoriteIds = favoritesData.favorites || []
+                    const favUnwrapped: any = unwrapApiResponse(favoritesData)
+                    favoriteIds = favUnwrapped?.favorites || (Array.isArray(favUnwrapped) ? favUnwrapped : [])
                 }
             } catch (err) {
                 logger.warn('Failed to fetch favorite ids:', err)
@@ -293,7 +309,8 @@ export function DailyHubClient() {
             const questsResponse = await fetchWithAuth(`/api/quests?t=${Date.now()}`)
             if (questsResponse.ok) {
                 const questsData = await questsResponse.json()
-                const allQuests = Array.isArray(questsData) ? questsData : (questsData.quests || [])
+                const questsUnwrapped: any = unwrapApiResponse(questsData)
+                const allQuests = Array.isArray(questsUnwrapped) ? questsUnwrapped : (questsUnwrapped?.quests || [])
 
                 const favoritedQuestSet = new Set(
                     favoriteIds.map((id: any) => String(id).toLowerCase())
@@ -674,8 +691,8 @@ export function DailyHubClient() {
                                     })()}
                                 </div>
                                 <div className="flex items-baseline gap-2 mt-1">
-                                    <span className="text-4xl font-bold text-white">{favoritedQuests.filter(q => q.completed).length + 24}</span>
-                                    <span className="text-sm text-purple-400">Lifetime</span>
+                                    <span className="text-4xl font-bold text-white">{completedQuestIds.size}</span>
+                                    <span className="text-sm text-purple-400">Completed Today</span>
                                 </div>
                             </div>
                             <div className="h-16 w-16 flex items-center justify-center bg-purple-950/30 rounded-full border border-purple-900/50 text-2xl">
