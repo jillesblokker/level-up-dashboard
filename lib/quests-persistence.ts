@@ -117,7 +117,8 @@ export function reconcileQuestList(serverQuests: any[], localQuests: any[] = [],
     const sqName = String(sq.name || sq.title || '').toLowerCase().trim();
 
     const localMatch = localMap.get(sqId) || (sqName ? localMap.get(sqName) : undefined);
-    const isCompleted = Boolean(sq.completed || (isSameDay && localMatch?.completed));
+    // Server state is authoritative. Only fallback to localMatch if server data is undefined.
+    const isCompleted = sq.completed !== undefined ? Boolean(sq.completed) : Boolean(isSameDay && localMatch?.completed);
 
     return {
       ...sq,

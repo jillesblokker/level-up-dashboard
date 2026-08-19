@@ -22,6 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Crown, Shield, Sword, User, Palette, Camera, Save, Settings, Volume2, VolumeX, BookOpen, ClipboardCheck, Database, X, Trash2, AlertTriangle, Coins, Compass } from "lucide-react";
 import { useAudioContext } from "@/components/audio-provider";
 import { setUserPreference, getUserPreference } from "@/lib/user-preferences-manager";
+import { getRulerTitleSync, getRulerTitle, setRulerTitle, RulerTitle } from "@/lib/ruler-title-service";
 import Link from "next/link";
 import { logout } from "@/app/actions/auth";
 import { NotificationCenter } from "@/components/notification-center";
@@ -68,6 +69,17 @@ export default function ProfilePage() {
   const [dayNightEnabled, setDayNightEnabled] = useState(true);
   const [zenMode, setZenMode] = useState(false);
   const [animationQuality, setAnimationQuality] = useState<'high' | 'low'>('high');
+  const [rulerTitle, setRulerTitleState] = useState<RulerTitle>(getRulerTitleSync());
+
+  useEffect(() => {
+    getRulerTitle().then(setRulerTitleState);
+  }, []);
+
+  const handleRulerTitleChange = async (newTitle: RulerTitle) => {
+    setRulerTitleState(newTitle);
+    await setRulerTitle(newTitle);
+    toast.success(`Ruler title updated to ${newTitle}!`);
+  };
 
   useEffect(() => {
     // Load notifications count
@@ -597,6 +609,45 @@ export default function ProfilePage() {
                   {user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || ''}
                 </div>
                 <p className="text-sm text-zinc-400">Email address is managed by your authentication provider.</p>
+              </div>
+
+              {/* Ruler Title Preference (King vs Queen) */}
+              <div className="space-y-3 pt-2 max-w-md">
+                <Label className="text-sm font-medium text-amber-300 flex items-center gap-2">
+                  <Crown className="w-4 h-4 text-amber-400" />
+                  Ruler Title Preference
+                </Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleRulerTitleChange('King')}
+                    className={cn(
+                      "flex items-center justify-center gap-2 h-12 rounded-xl font-bold transition-all border",
+                      rulerTitle === 'King'
+                        ? "bg-amber-600/30 border-amber-500 text-amber-200 ring-2 ring-amber-500/40"
+                        : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                    )}
+                  >
+                    👑 King
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleRulerTitleChange('Queen')}
+                    className={cn(
+                      "flex items-center justify-center gap-2 h-12 rounded-xl font-bold transition-all border",
+                      rulerTitle === 'Queen'
+                        ? "bg-amber-600/30 border-amber-500 text-amber-200 ring-2 ring-amber-500/40"
+                        : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                    )}
+                  >
+                    👑 Queen
+                  </Button>
+                </div>
+                <p className="text-xs text-zinc-400">
+                  Sets whether you are addressed as King or Queen across messages and titles.
+                </p>
               </div>
             </CardContent>
           </Card>

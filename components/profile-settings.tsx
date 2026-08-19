@@ -8,11 +8,13 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { Settings, User, Save } from "lucide-react"
 import { updateCharacterStats, useCharacterStats } from "@/hooks/use-character-stats"
+import { getRulerTitleSync, setRulerTitle, RulerTitle } from "@/lib/ruler-title-service"
 
 export function ProfileSettings() {
     const { stats } = useCharacterStats();
     const [name, setName] = useState(stats.display_name || "Adventurer");
     const [title, setTitle] = useState(stats.title || "Novice");
+    const [rulerTitle, setRulerTitleState] = useState<RulerTitle>(getRulerTitleSync());
     const [isOpen, setIsOpen] = useState(false);
     const { toast } = useToast();
 
@@ -78,6 +80,35 @@ export function ProfileSettings() {
                             placeholder="e.g. The Bold"
                         />
                         <p className="text-xs text-zinc-500">An earned or chosen title.</p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>Ruler Title</Label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <Button
+                                type="button"
+                                variant={rulerTitle === 'King' ? 'default' : 'outline'}
+                                onClick={() => {
+                                    setRulerTitleState('King');
+                                    setRulerTitle('King');
+                                }}
+                                className={rulerTitle === 'King' ? 'bg-amber-600 text-white font-bold' : 'border-amber-900/30 text-zinc-400'}
+                            >
+                                👑 King
+                            </Button>
+                            <Button
+                                type="button"
+                                variant={rulerTitle === 'Queen' ? 'default' : 'outline'}
+                                onClick={() => {
+                                    setRulerTitleState('Queen');
+                                    setRulerTitle('Queen');
+                                }}
+                                className={rulerTitle === 'Queen' ? 'bg-amber-600 text-white font-bold' : 'border-amber-900/30 text-zinc-400'}
+                            >
+                                👑 Queen
+                            </Button>
+                        </div>
+                        <p className="text-xs text-zinc-500">Sets your royal form of address across the realm.</p>
                     </div>
 
                     {/* Future: Avatar Selection */}

@@ -65,6 +65,15 @@ class CharacterStatsService {
             window.addEventListener('beforeunload', () => {
                 this.flushSync();
             });
+
+            // Subscribe to real-time WebSocket and cross-tab sync changes
+            import('./realtime-sync-manager').then(({ realtimeSyncManager }) => {
+                realtimeSyncManager.subscribe((event) => {
+                    if (event.table === 'character_stats') {
+                        this.fetchAndMerge().catch(() => {});
+                    }
+                });
+            }).catch(() => {});
         }
     }
 
