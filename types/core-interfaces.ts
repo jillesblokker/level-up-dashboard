@@ -97,7 +97,13 @@ export type TileType =
   | 'siege_catapult'
   | 'siege_scorpion'
   | 'siege_battering_ram'
-  | 'siege_trebuchet';
+  | 'siege_trebuchet'
+  | 'siege_tower'
+  | 'siege_flame_ballista'
+  | 'siege_spring_cannon'
+  | 'siege_ether_mortar'
+  | 'siege_dragon_mortar'
+  | 'siege_astral_projector';
 
 export type MysteryEventType = 'treasure' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle';
 
