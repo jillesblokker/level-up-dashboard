@@ -243,16 +243,16 @@ export class MapGenerator {
       hall_of_champions: 'Hall of Champions',
       titan_watchtower: 'Titan Watchtower',
       siege_workshop: 'Siege Engine Workshop',
-      siege_catapult: 'Woodland Catapult',
-      siege_scorpion: 'Iron Scorpion Ballista',
-      siege_battering_ram: 'Heavy Battering Ram',
-      siege_trebuchet: 'War Trebuchet',
-      siege_tower: 'Fortress Siege Tower',
-      siege_flame_ballista: 'Repeating Flame Ballista',
-      siege_spring_cannon: 'Serene Spring Cannon',
-      siege_ether_mortar: 'Ether Long-Range Mortar',
-      siege_dragon_mortar: 'Mythic Dragon Mortar',
-      siege_astral_projector: 'Astral Ray Projector'
+      siege_catapult: 'Catapult',
+      siege_scorpion: 'Scorpion',
+      siege_battering_ram: 'Battering ram',
+      siege_trebuchet: 'Trebuchet',
+      siege_tower: 'Siegetower',
+      siege_flame_ballista: 'Balista',
+      siege_spring_cannon: 'Canon',
+      siege_ether_mortar: 'Flaming catapult',
+      siege_dragon_mortar: 'Flaming scorpion',
+      siege_astral_projector: 'Flaming trebuchet'
     };
 
     const tileDescriptions: Record<string, string> = {
@@ -350,16 +350,16 @@ export class MapGenerator {
       hall_of_champions: 'A golden shrine honoring past season champions and Paragon legacy',
       titan_watchtower: 'A dragon-slayer watchtower for co-op Titan Wyrm raids',
       siege_workshop: 'Alliance Siege Workshop: Track co-op habit milestones to unlock Catapults, Scorpions, and Trebuchets!',
-      siege_catapult: 'Woodland Catapult: Unlocked at 100 Might Quests!',
-      siege_scorpion: 'Iron Scorpion: Unlocked at 100 Knowledge Quests!',
-      siege_battering_ram: 'Heavy Battering Ram: Unlocked at 100 Honor Quests!',
-      siege_trebuchet: 'War Trebuchet: Unlocked at 100 Vitality Quests!',
-      siege_tower: 'Fortress Siege Tower: Unlocked at 100 Castle Quests!',
-      siege_flame_ballista: 'Repeating Flame Ballista: Unlocked at 100 Craft Quests!',
-      siege_spring_cannon: 'Serene Spring Cannon: Unlocked at 100 Wellness Quests!',
-      siege_ether_mortar: 'Ether Long-Range Mortar: Unlocked at 100 Exploration Quests!',
-      siege_dragon_mortar: 'Mythic Dragon Mortar: Unlocked at 100 Conquest Quests!',
-      siege_astral_projector: 'Astral Ray Projector: Unlocked at 100 Spirit Quests!'
+      siege_catapult: 'Catapult: Unlocked at 100 Might Quests!',
+      siege_scorpion: 'Scorpion: Unlocked at 100 Knowledge Quests!',
+      siege_battering_ram: 'Battering ram: Unlocked at 100 Honor Quests!',
+      siege_trebuchet: 'Trebuchet: Unlocked at 100 Vitality Quests!',
+      siege_tower: 'Siegetower: Unlocked at 100 Castle Quests!',
+      siege_flame_ballista: 'Balista: Unlocked at 100 Craft Quests!',
+      siege_spring_cannon: 'Canon: Unlocked at 100 Wellness Quests!',
+      siege_ether_mortar: 'Flaming catapult: Unlocked at 100 Exploration Quests!',
+      siege_dragon_mortar: 'Flaming scorpion: Unlocked at 100 Conquest Quests!',
+      siege_astral_projector: 'Flaming trebuchet: Unlocked at 100 Spirit Quests!'
     };
 
     const tileImages: Record<string, string> = {

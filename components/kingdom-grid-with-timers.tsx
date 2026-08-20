@@ -284,6 +284,16 @@ export function KingdomGridWithTimers({
       observatory: { category: 'advanced', levelRequired: 1 },
       hall_of_champions: { category: 'prestige', levelRequired: 1 },
       titan_watchtower: { category: 'advanced', levelRequired: 1 },
+      siege_catapult: { category: 'siege', levelRequired: 1 },
+      siege_scorpion: { category: 'siege', levelRequired: 1 },
+      siege_battering_ram: { category: 'siege', levelRequired: 1 },
+      siege_trebuchet: { category: 'siege', levelRequired: 1 },
+      siege_tower: { category: 'siege', levelRequired: 1 },
+      siege_flame_ballista: { category: 'siege', levelRequired: 1 },
+      siege_spring_cannon: { category: 'siege', levelRequired: 1 },
+      siege_ether_mortar: { category: 'siege', levelRequired: 1 },
+      siege_dragon_mortar: { category: 'siege', levelRequired: 1 },
+      siege_astral_projector: { category: 'siege', levelRequired: 1 },
     };
 
     return KINGDOM_TILES.map(tile => {
@@ -305,27 +315,33 @@ export function KingdomGridWithTimers({
     });
   });
 
-  // Sync property inventory with user inventory (props)
-  useEffect(() => {
-    if (!inventory) return;
+  // Sync property inventory with user inventory and sandbox inventory
+  const syncPropertyInventory = useCallback(() => {
+    const localSandbox = (() => {
+      try { return JSON.parse(localStorage.getItem('sandbox-inventory') || '{}'); }
+      catch { return {}; }
+    })();
+
     setPropertyInventory(prev => {
       const inventoryMap = new Map<string, number>();
-      inventory.forEach(i => {
-        if (!i) return;
-        const q = i.quantity || 0;
-        if (i.id) {
-          inventoryMap.set(i.id, q);
-          inventoryMap.set(i.id.toLowerCase(), q);
-          inventoryMap.set(i.id.replace(/-/g, '_'), q);
-          inventoryMap.set(i.id.replace(/_/g, '-'), q);
-          if (i.id.endsWith('-item')) {
-            inventoryMap.set(i.id.replace('-item', ''), q);
+      if (inventory) {
+        inventory.forEach(i => {
+          if (!i) return;
+          const q = i.quantity || 0;
+          if (i.id) {
+            inventoryMap.set(i.id, q);
+            inventoryMap.set(i.id.toLowerCase(), q);
+            inventoryMap.set(i.id.replace(/-/g, '_'), q);
+            inventoryMap.set(i.id.replace(/_/g, '-'), q);
+            if (i.id.endsWith('-item')) {
+              inventoryMap.set(i.id.replace('-item', ''), q);
+            }
           }
-        }
-        if (i.name) {
-          inventoryMap.set(i.name.toLowerCase(), q);
-        }
-      });
+          if (i.name) {
+            inventoryMap.set(i.name.toLowerCase(), q);
+          }
+        });
+      }
 
       return prev.map(prop => {
         const hasKey = inventoryMap.has(prop.id) || 
@@ -340,8 +356,13 @@ export function KingdomGridWithTimers({
           inventoryMap.get(prop.id.replace(/_/g, '-')) ??
           (prop.name ? inventoryMap.get(prop.name.toLowerCase()) : undefined);
 
-        // If key is present in inventory, update quantity. If missing entirely, retain current optimistic quantity.
-        const qty = hasKey && mappedQty !== undefined ? mappedQty : (prop.quantity || 0);
+        const sandboxQty = prop.id.startsWith('siege_') && prop.id !== 'siege_workshop'
+          ? (localSandbox[prop.id] || 0)
+          : 0;
+
+        const qty = sandboxQty > 0 
+          ? sandboxQty 
+          : (hasKey && mappedQty !== undefined ? mappedQty : (prop.quantity || 0));
 
         if (prop.quantity !== qty) {
           return { ...prop, quantity: qty };
@@ -350,6 +371,23 @@ export function KingdomGridWithTimers({
       });
     });
   }, [inventory]);
+
+  useEffect(() => {
+    syncPropertyInventory();
+  }, [inventory, syncPropertyInventory]);
+
+  useEffect(() => {
+    window.addEventListener('inventory-updated', syncPropertyInventory);
+    window.addEventListener('tile-inventory-update', syncPropertyInventory);
+    window.addEventListener('add-realm-tile-inventory', syncPropertyInventory);
+    window.addEventListener('storage', syncPropertyInventory);
+    return () => {
+      window.removeEventListener('inventory-updated', syncPropertyInventory);
+      window.removeEventListener('tile-inventory-update', syncPropertyInventory);
+      window.removeEventListener('add-realm-tile-inventory', syncPropertyInventory);
+      window.removeEventListener('storage', syncPropertyInventory);
+    };
+  }, [syncPropertyInventory]);
 
   const availableProperties = useMemo(() => {
     return propertyInventory.filter(property => {

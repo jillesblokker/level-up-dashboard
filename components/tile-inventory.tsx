@@ -200,6 +200,8 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     };
   }, [user?.id, supabase]);
 
+  const [sandboxVersion, setSandboxVersion] = useState(0);
+
   // Filter tiles by category - show all tiles but mark locked ones
   const getTilesByCategory = useMemo(() => (categoryId: string) => {
     const category = tileCategories.find(cat => cat.id === categoryId);
@@ -273,20 +275,27 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         unlocked: isUnlocked
       };
     });
-  }, [tiles, rareTilesData, userLevelValue]);
+  }, [tiles, rareTilesData, userLevelValue, sandboxVersion]);
 
   // Listen for tile inventory updates
   useEffect(() => {
     const handleTileInventoryUpdate = () => {
+      setSandboxVersion(v => v + 1);
       if (user?.id) {
         onUpdateTiles(tiles);
       }
     };
 
     window.addEventListener('tile-inventory-update', handleTileInventoryUpdate);
+    window.addEventListener('inventory-updated', handleTileInventoryUpdate);
+    window.addEventListener('add-realm-tile-inventory', handleTileInventoryUpdate);
+    window.addEventListener('storage', handleTileInventoryUpdate);
 
     return () => {
       window.removeEventListener('tile-inventory-update', handleTileInventoryUpdate);
+      window.removeEventListener('inventory-updated', handleTileInventoryUpdate);
+      window.removeEventListener('add-realm-tile-inventory', handleTileInventoryUpdate);
+      window.removeEventListener('storage', handleTileInventoryUpdate);
     };
   }, [tiles, onUpdateTiles, user?.id]);
 

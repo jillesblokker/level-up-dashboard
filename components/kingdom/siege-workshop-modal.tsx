@@ -29,7 +29,7 @@ export interface SiegeWeaponDef {
 export const SIEGE_WEAPONS: SiegeWeaponDef[] = [
   {
     id: 'siege_catapult',
-    name: 'Woodland Catapult',
+    name: 'Catapult',
     category: 'Might',
     icon: Sword,
     emoji: '🗡️',
@@ -40,7 +40,7 @@ export const SIEGE_WEAPONS: SiegeWeaponDef[] = [
   },
   {
     id: 'siege_scorpion',
-    name: 'Iron Scorpion Ballista',
+    name: 'Scorpion',
     category: 'Knowledge',
     icon: Zap,
     emoji: '🧠',
@@ -51,7 +51,7 @@ export const SIEGE_WEAPONS: SiegeWeaponDef[] = [
   },
   {
     id: 'siege_battering_ram',
-    name: 'Heavy Battering Ram',
+    name: 'Battering ram',
     category: 'Honor',
     icon: ShieldAlert,
     emoji: '🛡️',
@@ -62,7 +62,7 @@ export const SIEGE_WEAPONS: SiegeWeaponDef[] = [
   },
   {
     id: 'siege_tower',
-    name: 'Fortress Siege Tower',
+    name: 'Siegetower',
     category: 'Castle',
     icon: Hammer,
     emoji: '🏰',
@@ -73,7 +73,7 @@ export const SIEGE_WEAPONS: SiegeWeaponDef[] = [
   },
   {
     id: 'siege_flame_ballista',
-    name: 'Repeating Flame Ballista',
+    name: 'Balista',
     category: 'Craft',
     icon: Flame,
     emoji: '🔧',
@@ -84,7 +84,7 @@ export const SIEGE_WEAPONS: SiegeWeaponDef[] = [
   },
   {
     id: 'siege_trebuchet',
-    name: 'War Trebuchet',
+    name: 'Trebuchet',
     category: 'Vitality',
     icon: Trophy,
     emoji: '❤️',
@@ -95,7 +95,7 @@ export const SIEGE_WEAPONS: SiegeWeaponDef[] = [
   },
   {
     id: 'siege_spring_cannon',
-    name: 'Serene Spring Cannon',
+    name: 'Canon',
     category: 'Wellness',
     icon: Sparkles,
     emoji: '🌿',
@@ -106,7 +106,7 @@ export const SIEGE_WEAPONS: SiegeWeaponDef[] = [
   },
   {
     id: 'siege_ether_mortar',
-    name: 'Ether Long-Range Mortar',
+    name: 'Flaming catapult',
     category: 'Exploration',
     icon: Scroll,
     emoji: '🧭',
@@ -117,7 +117,7 @@ export const SIEGE_WEAPONS: SiegeWeaponDef[] = [
   },
   {
     id: 'siege_dragon_mortar',
-    name: 'Mythic Dragon Mortar',
+    name: 'Flaming scorpion',
     category: 'Conquest',
     icon: Flame,
     emoji: '⚔️',
@@ -128,7 +128,7 @@ export const SIEGE_WEAPONS: SiegeWeaponDef[] = [
   },
   {
     id: 'siege_astral_projector',
-    name: 'Astral Ray Projector',
+    name: 'Flaming trebuchet',
     category: 'Spirit',
     icon: Sparkles,
     emoji: '✨',
@@ -157,14 +157,23 @@ export function SiegeWorkshopModal({ open, onOpenChange, onComplete }: SiegeWork
 
   const fetchWorkshopData = async () => {
     setLoading(true)
+    const localClaimed = (() => {
+      try { return JSON.parse(localStorage.getItem('claimed-siege-weapons') || '[]'); }
+      catch { return []; }
+    })();
+
     try {
       const res = await fetch('/api/kingdom/siege-workshop')
       if (res.ok) {
         const data = await res.json()
         setProgress(data.progress || { Might: 0, Knowledge: 0, Honor: 0, Vitality: 0 })
-        setClaimedWeapons(data.claimedWeapons || [])
+        const mergedClaimed = Array.from(new Set([...(data.claimedWeapons || []), ...localClaimed]))
+        setClaimedWeapons(mergedClaimed)
+      } else {
+        setClaimedWeapons(localClaimed)
       }
     } catch {
+      setClaimedWeapons(localClaimed)
       // Local fallback calculation from stored quests
       try {
         const cached = localStorage.getItem('quests-cache')
@@ -210,7 +219,13 @@ export function SiegeWorkshopModal({ open, onOpenChange, onComplete }: SiegeWork
         throw new Error(err.message || 'Failed to claim weapon')
       }
 
-      setClaimedWeapons(prev => [...prev, weapon.id])
+      const updatedClaimed = Array.from(new Set([...claimedWeapons, weapon.id]))
+      setClaimedWeapons(updatedClaimed)
+      try {
+        localStorage.setItem('claimed-siege-weapons', JSON.stringify(updatedClaimed))
+      } catch {
+        // Ignore localStorage quota errors
+      }
 
       // Store in local sandbox tile inventory
       const existingInventory = JSON.parse(localStorage.getItem('sandbox-inventory') || '{}')
@@ -219,6 +234,7 @@ export function SiegeWorkshopModal({ open, onOpenChange, onComplete }: SiegeWork
       
       // Dispatch inventory sync events for Realm Sandbox
       window.dispatchEvent(new Event('inventory-updated'))
+      window.dispatchEvent(new Event('tile-inventory-update'))
       window.dispatchEvent(new CustomEvent('add-realm-tile-inventory', { detail: { tileType: weapon.tileId, quantity: 1 } }))
 
       toast({
@@ -328,7 +344,7 @@ export function SiegeWorkshopModal({ open, onOpenChange, onComplete }: SiegeWork
                       className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-zinc-950 font-bold px-4 py-2 text-xs rounded-xl shadow-lg border border-amber-400/40"
                     >
                       <Sparkles className="w-4 h-4 mr-1.5" />
-                      Claim & Deploy to Realm Map
+                      Claim
                     </Button>
                   ) : (
                     <div className="inline-flex items-center gap-1 text-xs text-zinc-500 font-bold bg-zinc-900 px-3 py-1.5 rounded-xl border border-zinc-800">

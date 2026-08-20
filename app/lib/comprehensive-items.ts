@@ -976,7 +976,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'siege_catapult',
-    name: 'Woodland Catapult',
+    name: 'Catapult',
     description: 'Unlocked at 100 Might Quests! Deployable on walkable Realm tiles for +20% Might & Fire Siege damage.',
     type: 'siege_engine',
     category: 'siege_engine',
@@ -991,7 +991,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'siege_scorpion',
-    name: 'Iron Scorpion Ballista',
+    name: 'Scorpion',
     description: 'Unlocked at 100 Knowledge Quests! Deployable on walkable Realm tiles for +20% Precision Siege damage.',
     type: 'siege_engine',
     category: 'siege_engine',
@@ -1006,7 +1006,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'siege_battering_ram',
-    name: 'Heavy Battering Ram',
+    name: 'Battering ram',
     description: 'Unlocked at 100 Honor Quests! Deployable on walkable Realm tiles for +20% Armor Break.',
     type: 'siege_engine',
     category: 'siege_engine',
@@ -1021,7 +1021,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'siege_trebuchet',
-    name: 'War Trebuchet',
+    name: 'Trebuchet',
     description: 'Unlocked at 100 Vitality Quests! Deployable on walkable Realm tiles for +25% Heavy Siege Splash damage.',
     type: 'siege_engine',
     category: 'siege_engine',
@@ -1036,7 +1036,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'siege_tower',
-    name: 'Fortress Siege Tower',
+    name: 'Siegetower',
     description: 'Unlocked at 100 Castle Quests! Deployable on walkable Realm tiles for +20% Fortification Breach.',
     type: 'siege_engine',
     category: 'siege_engine',
@@ -1051,7 +1051,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'siege_flame_ballista',
-    name: 'Repeating Flame Ballista',
+    name: 'Balista',
     description: 'Unlocked at 100 Craft Quests! Deployable on walkable Realm tiles for +20% Burning Bolt damage.',
     type: 'siege_engine',
     category: 'siege_engine',
@@ -1066,7 +1066,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'siege_spring_cannon',
-    name: 'Serene Spring Cannon',
+    name: 'Canon',
     description: 'Unlocked at 100 Wellness Quests! Deployable on walkable Realm tiles for +20% Squad Healing.',
     type: 'siege_engine',
     category: 'siege_engine',
@@ -1081,7 +1081,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'siege_ether_mortar',
-    name: 'Ether Long-Range Mortar',
+    name: 'Flaming catapult',
     description: 'Unlocked at 100 Exploration Quests! Deployable on walkable Realm tiles for +20% Ether Bombardment.',
     type: 'siege_engine',
     category: 'siege_engine',
@@ -1096,7 +1096,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'siege_dragon_mortar',
-    name: 'Mythic Dragon Mortar',
+    name: 'Flaming scorpion',
     description: 'Unlocked at 100 Conquest Quests! Deployable on walkable Realm tiles for +25% Fire Blast damage.',
     type: 'siege_engine',
     category: 'siege_engine',
@@ -1111,7 +1111,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'siege_astral_projector',
-    name: 'Astral Ray Projector',
+    name: 'Flaming trebuchet',
     description: 'Unlocked at 100 Spirit Quests! Deployable on walkable Realm tiles for +25% Holy Energy Surge.',
     type: 'siege_engine',
     category: 'siege_engine',
