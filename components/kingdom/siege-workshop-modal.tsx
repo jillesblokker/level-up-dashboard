@@ -174,8 +174,7 @@ export function SiegeWorkshopModal({ open, onOpenChange, onComplete }: SiegeWork
           const counts: Record<string, number> = { Might: 0, Knowledge: 0, Honor: 0, Vitality: 0 }
           completed.forEach((q: any) => {
             const cat = q.category || 'Might'
-            if (counts[cat] !== undefined) counts[cat] += 1
-            else counts.Might += 1
+            counts[cat] = (counts[cat] || 0) + 1
           })
           setProgress(counts)
         }
