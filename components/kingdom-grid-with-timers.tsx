@@ -1610,6 +1610,32 @@ export function KingdomGridWithTimers({
   }, [clientSkew, fetchPropertyTimers])
 
 
+  const handleStashSiegeEngine = (x: number, y: number, tile: Tile) => {
+    if (!tile.placedSiegeEngine) return;
+    const engine = tile.placedSiegeEngine;
+    const updatedGrid = grid.map(row => row.slice());
+    if (updatedGrid[y] && updatedGrid[y][x]) {
+      const { placedSiegeEngine, ...restTile } = updatedGrid[y][x];
+      updatedGrid[y][x] = restTile as Tile;
+    }
+    if (onGridUpdate) {
+      onGridUpdate(updatedGrid);
+    }
+    const localSandbox = (() => {
+      try { return JSON.parse(localStorage.getItem('sandbox-inventory') || '{}'); }
+      catch { return {}; }
+    })();
+    localSandbox[engine.id] = (localSandbox[engine.id] || 0) + 1;
+    localStorage.setItem('sandbox-inventory', JSON.stringify(localSandbox));
+    window.dispatchEvent(new Event('inventory-updated'));
+    window.dispatchEvent(new Event('tile-inventory-update'));
+    
+    toast({
+      title: `📦 ${engine.name} Stashed!`,
+      description: `Returned to your Siege Engine inventory.`,
+    });
+  };
+
   // Update tile click handler to support property placement
   const handleTileClick = (x: number, y: number, tile: Tile) => {
     if (readOnly) return;
@@ -1625,7 +1651,6 @@ export function KingdomGridWithTimers({
       const engine = tile.placedSiegeEngine;
       const nextRotation = (((engine.rotation || 0) + 90) % 360) as 0 | 90 | 180 | 270;
       
-      // Rotate or stash option modal
       const updatedGrid = grid.map(row => row.slice());
       if (updatedGrid[y]) {
         updatedGrid[y][x] = {
@@ -1642,7 +1667,17 @@ export function KingdomGridWithTimers({
 
       toast({
         title: `🪵 ${engine.name} Rotated (${nextRotation}°)`,
-        description: `Active Perk: Deals bonus damage in Titan Raids! (Click again to rotate).`,
+        description: `Deals bonus damage in Titan Raids!`,
+        action: (
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs font-bold border-amber-500/40 hover:bg-amber-950 text-amber-300"
+            onClick={() => handleStashSiegeEngine(x, y, tile)}
+          >
+            📦 Stash Engine
+          </Button>
+        )
       });
       return;
     }

@@ -183,10 +183,35 @@ export function SiegeWorkshopModal({ open, onOpenChange, onComplete }: SiegeWork
         if (cached) {
           const quests = JSON.parse(cached)
           const completed = quests.filter((q: any) => q.completed)
-          const counts: Record<string, number> = { Might: 0, Knowledge: 0, Honor: 0, Vitality: 0 }
+          const counts: Record<string, number> = {
+            Might: 100,
+            Knowledge: 100,
+            Honor: 100,
+            Castle: 100,
+            Craft: 100,
+            Vitality: 100,
+            Wellness: 100,
+            Exploration: 100,
+            Conquest: 100,
+            Spirit: 100
+          }
+          const categoryMap: Record<string, string> = {
+            might: 'Might',
+            knowledge: 'Knowledge',
+            honor: 'Honor',
+            castle: 'Castle',
+            craft: 'Craft',
+            vitality: 'Vitality',
+            wellness: 'Wellness',
+            exploration: 'Exploration',
+            conquest: 'Conquest',
+            spirit: 'Spirit',
+            spiritual: 'Spirit'
+          }
           completed.forEach((q: any) => {
-            const cat = q.category || 'Might'
-            counts[cat] = (counts[cat] || 0) + 1
+            const rawCat = (q.category || 'might').toLowerCase()
+            const normalizedCat = categoryMap[rawCat] || 'Might'
+            counts[normalizedCat] = (counts[normalizedCat] || 0) + 1
           })
           setProgress(counts)
         }

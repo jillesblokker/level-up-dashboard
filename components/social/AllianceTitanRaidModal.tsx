@@ -33,6 +33,58 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
 
   const hpPercent = Math.max(0, Math.min(100, Math.round((titanHp / maxHp) * 100)))
 
+  const [deployedEngines, setDeployedEngines] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    try {
+      const sandbox = JSON.parse(localStorage.getItem('sandbox-inventory') || '{}');
+      const claimed = JSON.parse(localStorage.getItem('claimed-siege-weapons') || '[]');
+      const grid = JSON.parse(localStorage.getItem('kingdom-grid') || '[]');
+      
+      const found = new Set<string>();
+      
+      if (Array.isArray(grid)) {
+        grid.forEach((row: any) => {
+          if (Array.isArray(row)) {
+            row.forEach((tile: any) => {
+              if (tile?.placedSiegeEngine?.id) {
+                found.add(tile.placedSiegeEngine.id);
+              }
+            });
+          }
+        });
+      }
+      
+      claimed.forEach((id: string) => found.add(id));
+      Object.keys(sandbox).forEach((id: string) => {
+        if (sandbox[id] > 0) found.add(id);
+      });
+
+      const siegeNameMap: Record<string, string> = {
+        siege_catapult: 'Catapult',
+        siege_scorpion: 'Scorpion',
+        siege_battering_ram: 'Battering ram',
+        siege_trebuchet: 'Trebuchet',
+        siege_tower: 'Siegetower',
+        siege_flame_ballista: 'Balista',
+        siege_spring_cannon: 'Canon',
+        siege_ether_mortar: 'Flaming catapult',
+        siege_dragon_mortar: 'Flaming scorpion',
+        siege_astral_projector: 'Flaming trebuchet',
+      };
+
+      const enginesList = Array.from(found).map(id => ({
+        id,
+        name: siegeNameMap[id] || id.replace('siege_', '')
+      }));
+
+      setDeployedEngines(enginesList);
+    } catch {
+      setDeployedEngines([]);
+    }
+  }, [isOpen]);
+
   const CHESTS = [
     { tier: 1, reqHpDamage: 2500, label: 'Bronze alliance chest', reward: '+100 Gold & 2 Essences', claimed: claimedTiers.includes(1) },
     { tier: 2, reqHpDamage: 5000, label: 'Silver alliance chest', reward: '+250 Gold & 5 Essences', claimed: claimedTiers.includes(2) },
@@ -117,9 +169,17 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
                 </div>
               </div>
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[10px] font-mono font-bold bg-amber-950 border border-amber-500/40 text-amber-300 px-2 py-0.5 rounded-full">
-                  🎯 Catapult +20%
-                </span>
+                {deployedEngines.length > 0 ? (
+                  deployedEngines.map(e => (
+                    <span key={e.id} className="text-[10px] font-mono font-bold bg-amber-950 border border-amber-500/40 text-amber-300 px-2 py-0.5 rounded-full">
+                      🎯 {e.name} +20%
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-[10px] font-mono text-zinc-400 italic">
+                    Claim engines in Siege Workshop to activate raid perks!
+                  </span>
+                )}
                 <span className="text-[10px] font-mono font-bold bg-amber-950 border border-amber-500/40 text-amber-300 px-2 py-0.5 rounded-full">
                   🔥 Greek Fire Oil +25%
                 </span>

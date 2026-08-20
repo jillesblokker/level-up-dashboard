@@ -7,10 +7,16 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       progress: {
-        Might: 100, // Pre-load 100 so user can test-claim Catapult right away!
-        Knowledge: 65,
-        Honor: 40,
-        Vitality: 80
+        Might: 100,
+        Knowledge: 100,
+        Honor: 100,
+        Castle: 100,
+        Craft: 100,
+        Vitality: 100,
+        Wellness: 100,
+        Exploration: 100,
+        Conquest: 100,
+        Spirit: 100
       },
       claimedWeapons: []
     })
