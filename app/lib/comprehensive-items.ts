@@ -461,6 +461,8 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     cost: 100,
     isDefault: false,
     isEquippable: false,
+    isConsumable: true,
+  },
   {
     id: 'potion-greek-fire',
     name: 'Greek Fire Oil',
