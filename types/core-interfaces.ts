@@ -92,7 +92,12 @@ export type TileType =
   | 'housecup'
   | 'observatory'
   | 'hall_of_champions'
-  | 'titan_watchtower';
+  | 'titan_watchtower'
+  | 'siege_workshop'
+  | 'siege_catapult'
+  | 'siege_scorpion'
+  | 'siege_battering_ram'
+  | 'siege_trebuchet';
 
 export type MysteryEventType = 'treasure' | 'quest' | 'trade' | 'blessing' | 'curse' | 'riddle';
 

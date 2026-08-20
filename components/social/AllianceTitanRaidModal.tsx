@@ -98,12 +98,33 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
             </div>
           </div>
 
-          {/* Fellowship Combo Multiplier Banner */}
-          <div className="p-2.5 bg-gradient-to-r from-red-950 via-zinc-950 to-red-950 rounded-xl border border-red-500/40 flex items-center justify-between text-xs font-serif">
-            <span className="text-red-300 font-bold flex items-center gap-1.5">
-              🔥 5-Hit Fellowship Raid Combo Active!
-            </span>
-            <span className="text-[10px] font-mono font-bold text-amber-300">1.5x Boss Damage Multiplier</span>
+          {/* Fellowship Combo & Siege Arsenal Multiplier Banner */}
+          <div className="space-y-2">
+            <div className="p-2.5 bg-gradient-to-r from-red-950 via-zinc-950 to-red-950 rounded-xl border border-red-500/40 flex items-center justify-between text-xs font-serif shadow-md">
+              <span className="text-red-300 font-bold flex items-center gap-1.5">
+                🔥 5-Hit Fellowship Raid Combo Active!
+              </span>
+              <span className="text-[10px] font-mono font-bold text-amber-300">1.5x Boss Damage Multiplier</span>
+            </div>
+
+            {/* Active Siege Engines & Potion Oils Banner */}
+            <div className="p-3 bg-gradient-to-r from-amber-950/60 via-zinc-900 to-amber-950/60 rounded-xl border border-amber-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🪵</span>
+                <div>
+                  <div className="font-bold text-amber-300 font-serif">Deployed Siege Weapons & Oils</div>
+                  <div className="text-[10px] text-zinc-400">Catapults, Scorpions & Greek Fire Oils boost all raid strikes</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-mono font-bold bg-amber-950 border border-amber-500/40 text-amber-300 px-2 py-0.5 rounded-full">
+                  🎯 Catapult +20%
+                </span>
+                <span className="text-[10px] font-mono font-bold bg-amber-950 border border-amber-500/40 text-amber-300 px-2 py-0.5 rounded-full">
+                  🔥 Greek Fire Oil +25%
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Collapsible Damage Rules & Loot Rates Drawer (3-Tier Hierarchy) */}

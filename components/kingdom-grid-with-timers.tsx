@@ -30,6 +30,7 @@ import { KingdomSummaryModal } from './kingdom-summary-modal'
 import { FortuneTellerModal } from './fortune-teller-modal'
 import { PrisonModal } from '@/components/kingdom/prison-modal'
 import { ApothecaModal } from '@/components/kingdom/apotheca-modal'
+import { SiegeWorkshopModal } from '@/components/kingdom/siege-workshop-modal'
 import { getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service'
 import { AbbeyModal } from '@/components/kingdom/abbey-modal'
 import { useGameStore } from '@/stores/game-store'
@@ -541,6 +542,7 @@ export function KingdomGridWithTimers({
   const [fortuneTileData, setFortuneTileData] = useState<{x: number, y: number, tileId: string} | null>(null);
   const [prisonModalOpen, setPrisonModalOpen] = useState(false);
   const [apothecaModalOpen, setApothecaModalOpen] = useState(false);
+  const [siegeWorkshopModalOpen, setSiegeWorkshopModalOpen] = useState(false);
   const [abbeyModalOpen, setAbbeyModalOpen] = useState(false);
   const [plankModalOpen, setPlankModalOpen] = useState(false);
   const [plankTileData, setPlankTileData] = useState<{ x: number, y: number } | null>(null);
@@ -1549,6 +1551,10 @@ export function KingdomGridWithTimers({
     }
     if (tile.type === 'apotheca') {
       setApothecaModalOpen(true);
+      return;
+    }
+    if (tile.type === 'siege_workshop') {
+      setSiegeWorkshopModalOpen(true);
       return;
     }
     if (tile.type.includes('astral')) {
@@ -2976,6 +2982,12 @@ export function KingdomGridWithTimers({
         <ApothecaModal
           open={apothecaModalOpen}
           onOpenChange={setApothecaModalOpen}
+        />
+      )}
+      {siegeWorkshopModalOpen && (
+        <SiegeWorkshopModal
+          open={siegeWorkshopModalOpen}
+          onOpenChange={setSiegeWorkshopModalOpen}
         />
       )}
       {abbeyModalOpen && (

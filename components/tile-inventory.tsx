@@ -391,6 +391,16 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         return '/images/kingdom-tiles/Hall_of_champions.webp'
       case 'titan_watchtower':
         return '/images/kingdom-tiles/Titan_watchtower.webp'
+      case 'siege_workshop':
+        return '/images/kingdom-tiles/siege_workshop.webp'
+      case 'siege_catapult':
+        return '/images/kingdom-tiles/siege_catapult.webp'
+      case 'siege_scorpion':
+        return '/images/kingdom-tiles/siege_scorpion.webp'
+      case 'siege_battering_ram':
+        return '/images/kingdom-tiles/siege_battering_ram.webp'
+      case 'siege_trebuchet':
+        return '/images/kingdom-tiles/siege_trebuchet.webp'
       default:
         return `/images/tiles/${type}-tile.webp`
     }
