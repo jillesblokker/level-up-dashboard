@@ -1233,18 +1233,21 @@ export function KingdomGridWithTimers({
 
       // Attach placedSiegeEngine to existing base tile without replacing terrain
       const updatedGrid = grid.map(row => row.slice());
-      updatedGrid[y][x] = {
-        ...targetTile,
-        placedSiegeEngine: {
-          id: selectedProperty.id,
-          type: selectedProperty.id as TileType,
-          name: selectedProperty.name,
-          rotation: 0,
-        }
-      };
+      if (updatedGrid[y]) {
+        updatedGrid[y][x] = {
+          ...targetTile,
+          placedSiegeEngine: {
+            id: selectedProperty.id,
+            type: selectedProperty.id as TileType,
+            name: selectedProperty.name,
+            rotation: 0,
+          }
+        };
+      }
 
-      setGrid(updatedGrid);
-      onUpdateGrid(updatedGrid);
+      if (onGridUpdate) {
+        onGridUpdate(updatedGrid);
+      }
 
       // Decrement quantity in sandbox-inventory
       const localSandbox = (() => {
@@ -1586,15 +1589,18 @@ export function KingdomGridWithTimers({
       
       // Rotate or stash option modal
       const updatedGrid = grid.map(row => row.slice());
-      updatedGrid[y][x] = {
-        ...tile,
-        placedSiegeEngine: {
-          ...engine,
-          rotation: nextRotation
-        }
-      };
-      setGrid(updatedGrid);
-      onUpdateGrid(updatedGrid);
+      if (updatedGrid[y]) {
+        updatedGrid[y][x] = {
+          ...tile,
+          placedSiegeEngine: {
+            ...engine,
+            rotation: nextRotation
+          }
+        };
+      }
+      if (onGridUpdate) {
+        onGridUpdate(updatedGrid);
+      }
 
       toast({
         title: `🪵 ${engine.name} Rotated (${nextRotation}°)`,
