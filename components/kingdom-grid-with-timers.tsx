@@ -28,6 +28,7 @@ import { checkAndUnlockTileQuests } from '@/lib/tile-quest-service'
 import { TileActionSheet } from '@/components/tile-action-sheet'
 import { KingdomSummaryModal } from './kingdom-summary-modal'
 import { FortuneTellerModal } from './fortune-teller-modal'
+import { checkMonthlySiegeReset } from '@/lib/siege-engine-utils'
 import { PrisonModal } from '@/components/kingdom/prison-modal'
 import { ApothecaModal } from '@/components/kingdom/apotheca-modal'
 import { SiegeWorkshopModal } from '@/components/kingdom/siege-workshop-modal'
@@ -356,25 +357,49 @@ export function KingdomGridWithTimers({
           inventoryMap.get(prop.id.replace(/_/g, '-')) ??
           (prop.name ? inventoryMap.get(prop.name.toLowerCase()) : undefined);
 
+        const claimedWeapons = (() => {
+          try { return JSON.parse(localStorage.getItem('claimed-siege-weapons') || '[]'); }
+          catch { return []; }
+        })();
+
+        let isPlacedOnGrid = false;
+        if (Array.isArray(grid)) {
+          grid.forEach(row => {
+            if (Array.isArray(row)) {
+              row.forEach(t => {
+                if (t?.placedSiegeEngine?.id === prop.id || t?.placedSiegeEngine?.type === prop.id) {
+                  isPlacedOnGrid = true;
+                }
+              });
+            }
+          });
+        }
+
+        const isClaimed = claimedWeapons.includes(prop.id) || (localSandbox[prop.id] || 0) > 0;
+
         const sandboxQty = prop.id.startsWith('siege_') && prop.id !== 'siege_workshop'
-          ? (localSandbox[prop.id] || 0)
+          ? (localSandbox[prop.id] !== undefined ? localSandbox[prop.id] : (isClaimed ? (isPlacedOnGrid ? 0 : 1) : 0))
           : 0;
 
-        const qty = sandboxQty > 0 
-          ? sandboxQty 
+        const qty = (prop.id.startsWith('siege_') && prop.id !== 'siege_workshop')
+          ? sandboxQty
           : (hasKey && mappedQty !== undefined ? mappedQty : (prop.quantity || 0));
 
-        if (prop.quantity !== qty) {
-          return { ...prop, quantity: qty };
-        }
-        return prop;
+        return {
+          ...prop,
+          quantity: qty
+        };
       });
     });
-  }, [inventory]);
+  }, [inventory, grid]);
 
   useEffect(() => {
+    const { gridUpdated, newGrid } = checkMonthlySiegeReset(grid);
+    if (gridUpdated && newGrid && onGridUpdate) {
+      onGridUpdate(newGrid);
+    }
     syncPropertyInventory();
-  }, [inventory, syncPropertyInventory]);
+  }, [inventory, syncPropertyInventory, grid, onGridUpdate]);
 
   useEffect(() => {
     window.addEventListener('inventory-updated', syncPropertyInventory);

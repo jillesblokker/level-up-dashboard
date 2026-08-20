@@ -18,6 +18,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { addTileToInventory } from "@/lib/tile-inventory-manager"
+import { checkMonthlySiegeReset } from "@/lib/siege-engine-utils"
 import { useUser } from "@clerk/nextjs"
 import { useSupabase } from "@/lib/hooks/useSupabase"
 import { RARE_TILES, RareTile, isRareTileUnlocked, getRareTileUnlockDate, loadRareTiles } from "@/lib/rare-tiles-manager"
@@ -61,7 +62,19 @@ const allPossibleTiles: Tile[] = [
   // Mythic Sandbox Wonders (Level 75-100+)
   { id: 'portal-entrance', name: 'Portal Entrance', type: 'portal-entrance', quantity: 0, cost: 1000, connections: [], description: 'Portal entry point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal entrance tile', image: '/images/tiles/portal-entrance-tile.webp' },
   { id: 'portal-exit', name: 'Portal Exit', type: 'portal-exit', quantity: 0, cost: 1000, connections: [], description: 'Portal exit point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal exit tile', image: '/images/tiles/portal-exit-tile.webp' },
-  { id: 'floating_island', name: 'Floating Island', type: 'floating_island', quantity: 0, cost: 500, connections: [], description: 'A mysterious floating island landscape', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Island tile', image: '/images/tiles/floating_island-tile.webp' }
+  { id: 'floating_island', name: 'Floating Island', type: 'floating_island', quantity: 0, cost: 500, connections: [], description: 'A mysterious floating island landscape', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Island tile', image: '/images/tiles/floating_island-tile.webp' },
+
+  // Siege Engines (Habit Unlocked - 1 per month)
+  { id: 'siege_catapult', name: 'Catapult', type: 'siege_catapult', quantity: 0, cost: 500, connections: [], description: 'Deals bonus damage in Titan Raids (1/month placement)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Catapult tile', image: '/images/kingdom-tiles/siege_catapult.webp' },
+  { id: 'siege_scorpion', name: 'Scorpion', type: 'siege_scorpion', quantity: 0, cost: 500, connections: [], description: 'Deals bonus damage in Titan Raids (1/month placement)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Scorpion tile', image: '/images/kingdom-tiles/siege_scorpion.webp' },
+  { id: 'siege_battering_ram', name: 'Battering ram', type: 'siege_battering_ram', quantity: 0, cost: 500, connections: [], description: 'Deals bonus damage in Titan Raids (1/month placement)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Battering ram tile', image: '/images/kingdom-tiles/siege_battering_ram.webp' },
+  { id: 'siege_trebuchet', name: 'Trebuchet', type: 'siege_trebuchet', quantity: 0, cost: 500, connections: [], description: 'Deals bonus damage in Titan Raids (1/month placement)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Trebuchet tile', image: '/images/kingdom-tiles/siege_trebuchet.webp' },
+  { id: 'siege_tower', name: 'Siegetower', type: 'siege_tower', quantity: 0, cost: 500, connections: [], description: 'Deals bonus damage in Titan Raids (1/month placement)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Siegetower tile', image: '/images/kingdom-tiles/siege_tower.webp' },
+  { id: 'siege_flame_ballista', name: 'Balista', type: 'siege_flame_ballista', quantity: 0, cost: 500, connections: [], description: 'Deals bonus damage in Titan Raids (1/month placement)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Balista tile', image: '/images/kingdom-tiles/siege_flame_ballista.webp' },
+  { id: 'siege_spring_cannon', name: 'Canon', type: 'siege_spring_cannon', quantity: 0, cost: 500, connections: [], description: 'Deals bonus damage in Titan Raids (1/month placement)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Canon tile', image: '/images/kingdom-tiles/siege_spring_cannon.webp' },
+  { id: 'siege_ether_mortar', name: 'Flaming catapult', type: 'siege_ether_mortar', quantity: 0, cost: 500, connections: [], description: 'Deals bonus damage in Titan Raids (1/month placement)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Flaming catapult tile', image: '/images/kingdom-tiles/siege_ether_mortar.webp' },
+  { id: 'siege_dragon_mortar', name: 'Flaming scorpion', type: 'siege_dragon_mortar', quantity: 0, cost: 500, connections: [], description: 'Deals bonus damage in Titan Raids (1/month placement)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Flaming scorpion tile', image: '/images/kingdom-tiles/siege_dragon_mortar.webp' },
+  { id: 'siege_astral_projector', name: 'Flaming trebuchet', type: 'siege_astral_projector', quantity: 0, cost: 500, connections: [], description: 'Deals bonus damage in Titan Raids (1/month placement)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Flaming trebuchet tile', image: '/images/kingdom-tiles/siege_astral_projector.webp' }
 ];
 
 // Tile categories with logical organization
@@ -263,7 +276,43 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
           try { return JSON.parse(localStorage.getItem('sandbox-inventory') || '{}'); }
           catch { return {}; }
         })();
-        quantity = userTile?.quantity || localSandbox[possibleTile.type] || 0;
+        const claimedWeapons = (() => {
+          try { return JSON.parse(localStorage.getItem('claimed-siege-weapons') || '[]'); }
+          catch { return []; }
+        })();
+        const gridTiles = (() => {
+          try { return JSON.parse(localStorage.getItem('kingdom-grid') || '[]'); }
+          catch { return []; }
+        })();
+
+        // Check if claimed in workshop or owned in inventory
+        const isClaimed = claimedWeapons.includes(possibleTile.type) || (localSandbox[possibleTile.type] || 0) > 0 || (userTile && (userTile.quantity || 0) > 0);
+
+        // Check if currently placed on kingdom grid
+        let isPlacedOnGrid = false;
+        if (Array.isArray(gridTiles)) {
+          gridTiles.forEach((row: any) => {
+            if (Array.isArray(row)) {
+              row.forEach((t: any) => {
+                if (t?.placedSiegeEngine?.id === possibleTile.type || t?.placedSiegeEngine?.type === possibleTile.type) {
+                  isPlacedOnGrid = true;
+                }
+              });
+            }
+          });
+        }
+
+        // Claimed siege engines grant 1 placement per month
+        const storedQty = localSandbox[possibleTile.type];
+        quantity = isClaimed ? (storedQty !== undefined ? storedQty : (isPlacedOnGrid ? 0 : 1)) : 0;
+        return {
+          ...possibleTile,
+          description: isClaimed 
+            ? (isPlacedOnGrid ? 'Deployed on map for this month' : 'Available for placement (1/month)') 
+            : 'Claim in Siege Workshop to place 1 per month',
+          quantity: quantity,
+          unlocked: isClaimed
+        };
       } else {
         // For other categories, use user's quantity or 0
         quantity = userTile?.quantity || 0;
@@ -277,8 +326,9 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
     });
   }, [tiles, rareTilesData, userLevelValue, sandboxVersion]);
 
-  // Listen for tile inventory updates
+  // Listen for tile inventory updates & check monthly siege reset
   useEffect(() => {
+    checkMonthlySiegeReset();
     const handleTileInventoryUpdate = () => {
       setSandboxVersion(v => v + 1);
       if (user?.id) {
@@ -527,13 +577,21 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                   userLevelValue >= category.minLevel && "cursor-pointer hover:ring-2 hover:ring-amber-500/50 hover:scale-105"
                                 )}
                                 onClick={() => {
-                                  if (userLevelValue < category.minLevel) {
-                                    toast.info(`Reach Level ${category.minLevel} to unlock the ${tile.name} blueprint!`);
+                                  if (!tile.unlocked) {
+                                    if (tile.type.startsWith('siege_')) {
+                                      toast.info(`Claim the ${tile.name} in the Siege Workshop to unlock 1 placement per month!`);
+                                    } else {
+                                      toast.info(`Reach Level ${category.minLevel} to unlock the ${tile.name} blueprint!`);
+                                    }
                                     return;
                                   }
                                   if (tile.quantity === 0) {
-                                    setActiveTab('buy');
-                                    if (onOutOfTiles) onOutOfTiles(tile);
+                                    if (tile.type.startsWith('siege_')) {
+                                      toast.info(`You have already deployed your ${tile.name} on the map for this month! Placed engines reset next month.`);
+                                    } else {
+                                      setActiveTab('buy');
+                                      if (onOutOfTiles) onOutOfTiles(tile);
+                                    }
                                     return;
                                   }
                                   onSelectTile(selectedTile?.type === tile.type ? null : tile);

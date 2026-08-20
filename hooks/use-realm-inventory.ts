@@ -79,10 +79,18 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
                     }
                 });
 
-                // MERGE LOCAL SANDBOX TILES (e.g. claimed siege engines)
+                // MERGE CLAIMED SIEGE WEAPONS & SANDBOX TILES (1/month per claimed engine)
                 const localSandbox = (() => {
                     try { return JSON.parse(localStorage.getItem('sandbox-inventory') || '{}'); }
                     catch { return {}; }
+                })();
+                const claimedWeapons = (() => {
+                    try { return JSON.parse(localStorage.getItem('claimed-siege-weapons') || '[]'); }
+                    catch { return []; }
+                })();
+                const gridTiles = (() => {
+                    try { return JSON.parse(localStorage.getItem('kingdom-grid') || '[]'); }
+                    catch { return []; }
                 })();
 
                 const siegeNames: Record<string, string> = {
@@ -98,9 +106,27 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
                     siege_astral_projector: 'Flaming trebuchet',
                 };
 
-                Object.entries(localSandbox).forEach(([tileType, qty]) => {
-                    const quantity = Number(qty) || 0;
-                    if (quantity > 0) {
+                const allSiegeKeys = Array.from(new Set([...claimedWeapons, ...Object.keys(localSandbox)]));
+
+                allSiegeKeys.forEach((tileType) => {
+                    let isPlacedOnGrid = false;
+                    if (Array.isArray(gridTiles)) {
+                        gridTiles.forEach((row: any) => {
+                            if (Array.isArray(row)) {
+                                row.forEach((t: any) => {
+                                    if (t?.placedSiegeEngine?.id === tileType || t?.placedSiegeEngine?.type === tileType) {
+                                        isPlacedOnGrid = true;
+                                    }
+                                });
+                            }
+                        });
+                    }
+
+                    const isClaimed = claimedWeapons.includes(tileType) || (localSandbox[tileType] || 0) > 0;
+                    const storedQty = localSandbox[tileType];
+                    const quantity = isClaimed ? (storedQty !== undefined ? storedQty : (isPlacedOnGrid ? 0 : 1)) : 0;
+
+                    if (quantity > 0 || isClaimed) {
                         const existingIdx = items.findIndex(i => i.type === tileType || i.id === tileType);
                         const img = tileType.startsWith('siege_') ? `/images/kingdom-tiles/${tileType}.webp` : `/images/tiles/${tileType}-tile.png`;
                         if (existingIdx >= 0) {
@@ -108,7 +134,7 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
                             if (curItem) {
                                 items[existingIdx] = {
                                     ...curItem,
-                                    quantity: Math.max(curItem.quantity || 0, quantity),
+                                    quantity: quantity,
                                     image: curItem.image || img
                                 };
                             }
@@ -120,7 +146,7 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
                                 quantity: quantity,
                                 cost: 500,
                                 connections: [],
-                                description: 'Deployable siege engine',
+                                description: 'Deployable siege engine (1/month)',
                                 rotation: 0,
                                 revealed: true,
                                 isVisited: false,

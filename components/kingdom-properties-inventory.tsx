@@ -276,6 +276,9 @@ export function KingdomPropertiesInventory({
 }
 
 function getTileImageSrc(tile: PropertyTile, catalogTiles?: PropertyTile[]): string {
+  if (tile.id?.startsWith('siege_')) {
+    return `/images/kingdom-tiles/${tile.id}.webp`;
+  }
   if (tile.id === 'fortune_teller' || tile.id === 'fortune-teller' || tile.name?.toLowerCase().includes('fortune teller')) {
     return '/images/kingdom-tiles/fortune_teller.webp';
   }
