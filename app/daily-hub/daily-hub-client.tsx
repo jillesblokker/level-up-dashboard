@@ -1103,43 +1103,6 @@ export function DailyHubClient() {
                 </motion.div>
             </div>
 
-            {/* YESTERDAY'S REPORT CARD MODAL */}
-            <Dialog open={showReportCard} onOpenChange={setShowReportCard}>
-                <DialogContent
-                    className="w-[min(90vw,400px)] max-h-[90vh] overflow-y-auto p-0 shadow-2xl rounded-2xl bg-gradient-to-b from-amber-950/90 via-zinc-950 to-zinc-950 border border-amber-700/30 shadow-amber-500/10 text-white animate-in zoom-in-95 duration-200"
-                    role="dialog"
-                    aria-label="yesterday-report-card-modal"
-                >
-                    {/* Hidden a11y header */}
-                    <DialogHeader className="sr-only">
-                        <DialogTitle>Yesterday&apos;s Report Card</DialogTitle>
-                        <DialogDescription>Summary of your realm progress yesterday</DialogDescription>
-                    </DialogHeader>
-
-                    {/* Background glow */}
-                    <div className="absolute inset-0 pointer-events-none">
-                        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl opacity-20 bg-amber-900/30" />
-                    </div>
-
-                    {/* Portrait & Title Section */}
-                    <div className="relative z-10 flex flex-col items-center pt-10 pb-4 px-6">
-                        <div className="relative group">
-                            {/* Pulsing glow */}
-                            <div className="absolute inset-0 rounded-full blur-3xl animate-pulse scale-150 opacity-20 bg-amber-900/30" />
-                            {/* Rotating ring */}
-                            <div
-                                className="absolute -inset-4 border border-dashed rounded-full opacity-30 text-amber-400 border-amber-500"
-                                style={{ animation: 'spin 15s linear infinite' }}
-                            />
-                            {/* Portrait circle */}
-                            <div className="relative w-36 h-36 rounded-full border-4 shadow-2xl overflow-hidden p-1 bg-zinc-900 border-amber-700/30 group-hover:scale-105 transition-transform duration-500">
-                                <div className="relative w-full h-full rounded-full overflow-hidden border border-white/10 flex items-center justify-center bg-zinc-950">
-                                    <NextImage
-                                        src="/images/placeholders/report_scroll.webp"
-                                        alt="Yesterday's Report Card"
-                                        fill
-                                        className="object-cover p-1 drop-shadow-[0_0_20px_rgba(251,191,36,0.4)]"
-                                    />
             {/* Daily Opening Routine Sequence & Overnight Chronicle Modal (Unified) */}
             <DailyRoutineModal
                 isOpen={showReportCard}
