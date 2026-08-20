@@ -243,7 +243,13 @@ export const numericToTileType: { [key: number]: TileType } = {
   92: 'siege_catapult',
   93: 'siege_scorpion',
   94: 'siege_battering_ram',
-  95: 'siege_trebuchet'
+  95: 'siege_trebuchet',
+  96: 'siege_tower',
+  97: 'siege_flame_ballista',
+  98: 'siege_spring_cannon',
+  99: 'siege_ether_mortar',
+  100: 'siege_dragon_mortar',
+  101: 'siege_astral_projector'
 }
 
 // Create the reverse mapping from TileType to numeric

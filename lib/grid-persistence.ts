@@ -97,6 +97,17 @@ const tileTypeToNumeric: Record<TileType, number> = {
   observatory: 88,
   hall_of_champions: 89,
   titan_watchtower: 90,
+  siege_workshop: 91,
+  siege_catapult: 92,
+  siege_scorpion: 93,
+  siege_battering_ram: 94,
+  siege_trebuchet: 95,
+  siege_tower: 96,
+  siege_flame_ballista: 97,
+  siege_spring_cannon: 98,
+  siege_ether_mortar: 99,
+  siege_dragon_mortar: 100,
+  siege_astral_projector: 101,
 };
 
 // Convert numeric value back to tile type
