@@ -136,6 +136,8 @@ export function TileEditor({ tiles, onUpdateTiles, onSelectTile }: TileEditorPro
 
   // Get tile image based on type
   const getTileImage = (type: TileType) => {
+    const t = String(type || '');
+    if (t.startsWith('siege_')) return `/images/kingdom-tiles/${t}.webp`;
     switch (type) {
       case 'city':
         return '/images/tiles/city-tile.webp'

@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useUser } from "@clerk/nextjs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { ShieldAlert, Sword, Zap, Trophy, CheckCircle2, Hammer, Flame, Lock, Sparkles, Scroll } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import Image from "next/image"
+import { addTileToInventory } from "@/lib/tile-inventory-manager"
 
 interface SiegeWorkshopModalProps {
   open: boolean
@@ -140,6 +142,7 @@ export const SIEGE_WEAPONS: SiegeWeaponDef[] = [
 ]
 
 export function SiegeWorkshopModal({ open, onOpenChange, onComplete }: SiegeWorkshopModalProps) {
+  const { user } = useUser()
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState<Record<string, number>>({
     Might: 0,
@@ -231,6 +234,18 @@ export function SiegeWorkshopModal({ open, onOpenChange, onComplete }: SiegeWork
       const existingInventory = JSON.parse(localStorage.getItem('sandbox-inventory') || '{}')
       existingInventory[weapon.tileId] = (existingInventory[weapon.tileId] || 0) + 1
       localStorage.setItem('sandbox-inventory', JSON.stringify(existingInventory))
+
+      // Persist to user tile inventory if logged in
+      if (user?.id) {
+        addTileToInventory(user.id, {
+          id: weapon.tileId,
+          type: weapon.tileId as any,
+          name: weapon.name,
+          quantity: 1,
+          image: weapon.image,
+          cost: 500
+        });
+      }
       
       // Dispatch inventory sync events for Realm Sandbox
       window.dispatchEvent(new Event('inventory-updated'))

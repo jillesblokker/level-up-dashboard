@@ -348,6 +348,8 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
   }
 
   const getTileImage = (type: TileType) => {
+    const t = String(type || '');
+    if (t.startsWith('siege_')) return `/images/kingdom-tiles/${t}.webp`;
     const rareTile = (Array.isArray(RARE_TILES) ? RARE_TILES : []).find(rt => rt && rt.type === type);
     if (rareTile) {
       return rareTile.image;

@@ -78,6 +78,61 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
                         } as TileInventoryItem);
                     }
                 });
+
+                // MERGE LOCAL SANDBOX TILES (e.g. claimed siege engines)
+                const localSandbox = (() => {
+                    try { return JSON.parse(localStorage.getItem('sandbox-inventory') || '{}'); }
+                    catch { return {}; }
+                })();
+
+                const siegeNames: Record<string, string> = {
+                    siege_catapult: 'Catapult',
+                    siege_scorpion: 'Scorpion',
+                    siege_battering_ram: 'Battering ram',
+                    siege_trebuchet: 'Trebuchet',
+                    siege_tower: 'Siegetower',
+                    siege_flame_ballista: 'Balista',
+                    siege_spring_cannon: 'Canon',
+                    siege_ether_mortar: 'Flaming catapult',
+                    siege_dragon_mortar: 'Flaming scorpion',
+                    siege_astral_projector: 'Flaming trebuchet',
+                };
+
+                Object.entries(localSandbox).forEach(([tileType, qty]) => {
+                    const quantity = Number(qty) || 0;
+                    if (quantity > 0) {
+                        const existingIdx = items.findIndex(i => i.type === tileType || i.id === tileType);
+                        const img = tileType.startsWith('siege_') ? `/images/kingdom-tiles/${tileType}.webp` : `/images/tiles/${tileType}-tile.png`;
+                        if (existingIdx >= 0) {
+                            const curItem = items[existingIdx];
+                            if (curItem) {
+                                items[existingIdx] = {
+                                    ...curItem,
+                                    quantity: Math.max(curItem.quantity || 0, quantity),
+                                    image: curItem.image || img
+                                };
+                            }
+                        } else {
+                            items.push({
+                                id: tileType,
+                                name: siegeNames[tileType] || tileType,
+                                type: tileType as TileType,
+                                quantity: quantity,
+                                cost: 500,
+                                connections: [],
+                                description: 'Deployable siege engine',
+                                rotation: 0,
+                                revealed: true,
+                                isVisited: false,
+                                x: 0,
+                                y: 0,
+                                ariaLabel: `${tileType} tile`,
+                                image: img,
+                            });
+                        }
+                    }
+                });
+
                 setInventoryAsItems(items);
 
                 // Update the legacy inventory mapping if still needed
@@ -88,6 +143,13 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
                         mergedInventory[item.type] = {
                             ...existing,
                             id: existing.id || item.type,
+                            quantity: item.quantity ?? 0,
+                            owned: item.quantity ?? 0
+                        } as Tile;
+                    } else {
+                        mergedInventory[item.type] = {
+                            ...item,
+                            id: item.id || item.type,
                             quantity: item.quantity ?? 0,
                             owned: item.quantity ?? 0
                         } as Tile;
@@ -104,6 +166,18 @@ export function useRealmInventory(userId: string | undefined, isMounted: boolean
 
     useEffect(() => {
         loadInventory();
+
+        window.addEventListener('tile-inventory-update', loadInventory);
+        window.addEventListener('inventory-updated', loadInventory);
+        window.addEventListener('add-realm-tile-inventory', loadInventory);
+        window.addEventListener('storage', loadInventory);
+
+        return () => {
+            window.removeEventListener('tile-inventory-update', loadInventory);
+            window.removeEventListener('inventory-updated', loadInventory);
+            window.removeEventListener('add-realm-tile-inventory', loadInventory);
+            window.removeEventListener('storage', loadInventory);
+        };
     }, [loadInventory]);
 
     const updateTileQuantity = useCallback(async (tileType: TileType, delta: number) => {

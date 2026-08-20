@@ -162,6 +162,7 @@ function safeCheck(obj: any, key: any) {
 
 export const getTileImage = (type: TileType | string): string => {
     const t = String(type || '');
+    if (t.startsWith('siege_')) return `/images/kingdom-tiles/${t}.webp`;
     if (t === 'crossroad') return '/images/kingdom-tiles/Crossroad.webp';
     if (t === 'straightroad') return '/images/kingdom-tiles/Straightroad.webp';
     if (t === 'cornerroad') return '/images/kingdom-tiles/Cornerroad.webp';

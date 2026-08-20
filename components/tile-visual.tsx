@@ -27,6 +27,8 @@ export function TileVisual({
   className
 }: TileVisualProps) {
   const getTileImage = () => {
+    const t = String(tile.type || '');
+    if (t.startsWith('siege_')) return `/images/kingdom-tiles/${t}.webp`;
     switch (tile.type) {
       case 'grass':
         return '/images/tiles/grass-tile.webp'
