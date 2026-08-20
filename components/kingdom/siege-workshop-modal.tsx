@@ -17,7 +17,7 @@ interface SiegeWorkshopModalProps {
 export interface SiegeWeaponDef {
   id: string
   name: string
-  category: 'Might' | 'Knowledge' | 'Honor' | 'Vitality'
+  category: string
   icon: any
   emoji: string
   threshold: number
@@ -61,15 +61,81 @@ export const SIEGE_WEAPONS: SiegeWeaponDef[] = [
     tileId: 'siege_battering_ram'
   },
   {
+    id: 'siege_tower',
+    name: 'Fortress Siege Tower',
+    category: 'Castle',
+    icon: Hammer,
+    emoji: '🏰',
+    threshold: 100,
+    perk: '+20% Fortification Breach & Shield penetration in Titan Raids',
+    image: '/images/kingdom-tiles/siege_tower.webp',
+    tileId: 'siege_tower'
+  },
+  {
+    id: 'siege_flame_ballista',
+    name: 'Repeating Flame Ballista',
+    category: 'Craft',
+    icon: Flame,
+    emoji: '🔧',
+    threshold: 100,
+    perk: '+20% Craft & Burning Siege Bolt damage in Titan Raids',
+    image: '/images/kingdom-tiles/siege_flame_ballista.webp',
+    tileId: 'siege_flame_ballista'
+  },
+  {
     id: 'siege_trebuchet',
     name: 'War Trebuchet',
     category: 'Vitality',
     icon: Trophy,
-    emoji: '🌿',
+    emoji: '❤️',
     threshold: 100,
     perk: '+25% Heavy Siege Splash damage in Titan Raids',
     image: '/images/kingdom-tiles/siege_trebuchet.webp',
     tileId: 'siege_trebuchet'
+  },
+  {
+    id: 'siege_spring_cannon',
+    name: 'Serene Spring Cannon',
+    category: 'Wellness',
+    icon: Sparkles,
+    emoji: '🌿',
+    threshold: 100,
+    perk: '+20% Wellness Healing & Squad Regeneration in Titan Raids',
+    image: '/images/kingdom-tiles/siege_spring_cannon.webp',
+    tileId: 'siege_spring_cannon'
+  },
+  {
+    id: 'siege_ether_mortar',
+    name: 'Ether Long-Range Mortar',
+    category: 'Exploration',
+    icon: Scroll,
+    emoji: '🧭',
+    threshold: 100,
+    perk: '+20% Long-Range Ether Bombardment damage in Titan Raids',
+    image: '/images/kingdom-tiles/siege_ether_mortar.webp',
+    tileId: 'siege_ether_mortar'
+  },
+  {
+    id: 'siege_dragon_mortar',
+    name: 'Mythic Dragon Mortar',
+    category: 'Conquest',
+    icon: Flame,
+    emoji: '⚔️',
+    threshold: 100,
+    perk: '+25% Conquest Mythic Fire Blast damage in Titan Raids',
+    image: '/images/kingdom-tiles/siege_dragon_mortar.webp',
+    tileId: 'siege_dragon_mortar'
+  },
+  {
+    id: 'siege_astral_projector',
+    name: 'Astral Ray Projector',
+    category: 'Spirit',
+    icon: Sparkles,
+    emoji: '✨',
+    threshold: 100,
+    perk: '+25% Holy Energy Surge & Critical Multiplier in Titan Raids',
+    image: '/images/kingdom-tiles/siege_astral_projector.webp',
+    tileId: 'siege_astral_projector'
   }
 ]
 
