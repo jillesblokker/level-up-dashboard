@@ -15,14 +15,14 @@ interface DailyRoutineModalProps {
     questsCompleted: number;
     streak: number;
     goldEarned: number;
-    xpEarned?: number;
-    milestonesUnlocked?: number;
-    archetype?: string;
-  };
-  loreSummary?: string;
-  activePartnerName?: string;
-  activePartnerBond?: number;
-  citizensReadyCount?: number;
+    xpEarned?: number | undefined;
+    milestonesUnlocked?: number | undefined;
+    archetype?: string | undefined;
+  } | undefined;
+  loreSummary?: string | undefined;
+  activePartnerName?: string | undefined;
+  activePartnerBond?: number | undefined;
+  citizensReadyCount?: number | undefined;
 }
 
 export function DailyRoutineModal({
