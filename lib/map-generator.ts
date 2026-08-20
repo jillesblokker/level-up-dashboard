@@ -241,10 +241,21 @@ export class MapGenerator {
       housecup: 'Hourglass Spire',
       observatory: 'Cartography Observatory',
       hall_of_champions: 'Hall of Champions',
-      titan_watchtower: 'Titan Watchtower'
+      titan_watchtower: 'Titan Watchtower',
+      siege_workshop: 'Siege Engine Workshop',
+      siege_catapult: 'Woodland Catapult',
+      siege_scorpion: 'Iron Scorpion Ballista',
+      siege_battering_ram: 'Heavy Battering Ram',
+      siege_trebuchet: 'War Trebuchet',
+      siege_tower: 'Fortress Siege Tower',
+      siege_flame_ballista: 'Repeating Flame Ballista',
+      siege_spring_cannon: 'Serene Spring Cannon',
+      siege_ether_mortar: 'Ether Long-Range Mortar',
+      siege_dragon_mortar: 'Mythic Dragon Mortar',
+      siege_astral_projector: 'Astral Ray Projector'
     };
 
-    const tileDescriptions = {
+    const tileDescriptions: Record<TileType, string> = {
       empty: 'An empty space where a new tile can be placed',
       mountain: 'A towering mountain peak',
       grass: 'A lush grass tile',
@@ -337,10 +348,21 @@ export class MapGenerator {
       housecup: 'A gothic tower housing the 7 Virtue Hourglasses',
       observatory: 'A cartography dome for province expeditions and fast travel',
       hall_of_champions: 'A golden shrine honoring past season champions and Paragon legacy',
-      titan_watchtower: 'A dragon-slayer watchtower for co-op Titan Wyrm raids'
+      titan_watchtower: 'A dragon-slayer watchtower for co-op Titan Wyrm raids',
+      siege_workshop: 'Alliance Siege Workshop: Track co-op habit milestones to unlock Catapults, Scorpions, and Trebuchets!',
+      siege_catapult: 'Woodland Catapult: Unlocked at 100 Might Quests!',
+      siege_scorpion: 'Iron Scorpion: Unlocked at 100 Knowledge Quests!',
+      siege_battering_ram: 'Heavy Battering Ram: Unlocked at 100 Honor Quests!',
+      siege_trebuchet: 'War Trebuchet: Unlocked at 100 Vitality Quests!',
+      siege_tower: 'Fortress Siege Tower: Unlocked at 100 Castle Quests!',
+      siege_flame_ballista: 'Repeating Flame Ballista: Unlocked at 100 Craft Quests!',
+      siege_spring_cannon: 'Serene Spring Cannon: Unlocked at 100 Wellness Quests!',
+      siege_ether_mortar: 'Ether Long-Range Mortar: Unlocked at 100 Exploration Quests!',
+      siege_dragon_mortar: 'Mythic Dragon Mortar: Unlocked at 100 Conquest Quests!',
+      siege_astral_projector: 'Astral Ray Projector: Unlocked at 100 Spirit Quests!'
     };
 
-    const tileImages = {
+    const tileImages: Record<TileType, string> = {
       empty: '/images/tiles/empty-tile.webp',
       mountain: '/images/tiles/mountain-tile.webp',
       grass: '/images/tiles/grass-tile.webp',
@@ -433,7 +455,18 @@ export class MapGenerator {
       housecup: '/images/kingdom-tiles/Housecup.webp',
       observatory: '/images/kingdom-tiles/Observatory.webp',
       hall_of_champions: '/images/kingdom-tiles/Hall_of_champions.webp',
-      titan_watchtower: '/images/kingdom-tiles/Titan_watchtower.webp'
+      titan_watchtower: '/images/kingdom-tiles/Titan_watchtower.webp',
+      siege_workshop: '/images/kingdom-tiles/siege_workshop.webp',
+      siege_catapult: '/images/kingdom-tiles/siege_catapult.webp',
+      siege_scorpion: '/images/kingdom-tiles/siege_scorpion.webp',
+      siege_battering_ram: '/images/kingdom-tiles/siege_battering_ram.webp',
+      siege_trebuchet: '/images/kingdom-tiles/siege_trebuchet.webp',
+      siege_tower: '/images/kingdom-tiles/siege_tower.webp',
+      siege_flame_ballista: '/images/kingdom-tiles/siege_flame_ballista.webp',
+      siege_spring_cannon: '/images/kingdom-tiles/siege_spring_cannon.webp',
+      siege_ether_mortar: '/images/kingdom-tiles/siege_ether_mortar.webp',
+      siege_dragon_mortar: '/images/kingdom-tiles/siege_dragon_mortar.webp',
+      siege_astral_projector: '/images/kingdom-tiles/siege_astral_projector.webp'
     };
 
     return {
