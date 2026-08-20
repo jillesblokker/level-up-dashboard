@@ -256,6 +256,12 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       if (category.id === 'foundation' && userLevelValue >= 1) {
         // If user has tiles, use their quantity. If not, start with 5
         quantity = (userTile && userTile.quantity !== undefined) ? userTile.quantity : 5;
+      } else if (category.id === 'siege_engines') {
+        const localSandbox = (() => {
+          try { return JSON.parse(localStorage.getItem('sandbox-inventory') || '{}'); }
+          catch { return {}; }
+        })();
+        quantity = userTile?.quantity || localSandbox[possibleTile.type] || 0;
       } else {
         // For other categories, use user's quantity or 0
         quantity = userTile?.quantity || 0;

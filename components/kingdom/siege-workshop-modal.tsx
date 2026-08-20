@@ -212,15 +212,18 @@ export function SiegeWorkshopModal({ open, onOpenChange, onComplete }: SiegeWork
 
       setClaimedWeapons(prev => [...prev, weapon.id])
 
-      // Store in local sandbox inventory
+      // Store in local sandbox tile inventory
       const existingInventory = JSON.parse(localStorage.getItem('sandbox-inventory') || '{}')
       existingInventory[weapon.tileId] = (existingInventory[weapon.tileId] || 0) + 1
       localStorage.setItem('sandbox-inventory', JSON.stringify(existingInventory))
+      
+      // Dispatch inventory sync events for Realm Sandbox
       window.dispatchEvent(new Event('inventory-updated'))
+      window.dispatchEvent(new CustomEvent('add-realm-tile-inventory', { detail: { tileType: weapon.tileId, quantity: 1 } }))
 
       toast({
         title: `🏆 ${weapon.name} Unlocked!`,
-        description: `${weapon.name} added to your Sandbox Inventory! You can now place it anywhere on your Realm Map!`,
+        description: `Added to your Realm Inventory under "Siege engines". Open Realm map to place it on top of a tile!`,
       })
 
       if (onComplete) onComplete()

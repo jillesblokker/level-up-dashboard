@@ -112,16 +112,15 @@ const FORGE_RECIPES: Recipe[] = [
 ];
 
 const ITEM_CATEGORIES = [
-  { value: 'all',          label: 'All',           emoji: '📦' },
-  { value: 'weapon',       label: 'Weapons',       emoji: '🗡️' },
-  { value: 'shield',       label: 'Shields',       emoji: '🛡️' },
-  { value: 'armor',        label: 'Armor',         emoji: '🦺' },
-  { value: 'artifact',     label: 'Artifacts',     emoji: '🏺' },
-  { value: 'mount',        label: 'Mounts',        emoji: '🐎' },
-  { value: 'consumable',   label: 'Consumables',   emoji: '🧪' },
-  { value: 'material',     label: 'Materials',     emoji: '🌿' },
-  { value: 'scroll',       label: 'Scrolls',       emoji: '📜' },
-  { value: 'siege_engine', label: 'Siege engines', emoji: '🪵' },
+  { value: 'all',        label: 'All',         emoji: '📦' },
+  { value: 'weapon',     label: 'Weapons',     emoji: '🗡️' },
+  { value: 'shield',     label: 'Shields',     emoji: '🛡️' },
+  { value: 'armor',      label: 'Armor',       emoji: '🦺' },
+  { value: 'artifact',   label: 'Artifacts',   emoji: '🏺' },
+  { value: 'mount',      label: 'Mounts',      emoji: '🐎' },
+  { value: 'consumable', label: 'Consumables', emoji: '🧪' },
+  { value: 'material',   label: 'Materials',   emoji: '🌿' },
+  { value: 'scroll',     label: 'Scrolls',     emoji: '📜' },
 ];
 
 interface InventoryBagOverlayProps {

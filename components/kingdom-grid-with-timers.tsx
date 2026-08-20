@@ -1218,6 +1218,55 @@ export function KingdomGridWithTimers({
       return;
     }
 
+    const isSiegeEngine = selectedProperty.id.startsWith('siege_') && selectedProperty.id !== 'siege_workshop';
+    
+    if (isSiegeEngine) {
+      const isWalkableTile = ['grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'farmland', 'vacant', 'empty'].includes(targetTile?.type || '');
+      if (!targetTile || !isWalkableTile) {
+        toast({
+          title: 'Invalid Placement',
+          description: 'Siege engines must be placed on top of walkable tiles (grass, paths, or roads).',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Attach placedSiegeEngine to existing base tile without replacing terrain
+      const updatedGrid = grid.map(row => row.slice());
+      updatedGrid[y][x] = {
+        ...targetTile,
+        placedSiegeEngine: {
+          id: selectedProperty.id,
+          type: selectedProperty.id as TileType,
+          name: selectedProperty.name,
+          rotation: 0,
+        }
+      };
+
+      setGrid(updatedGrid);
+      onUpdateGrid(updatedGrid);
+
+      // Decrement quantity in sandbox-inventory
+      const localSandbox = (() => {
+        try { return JSON.parse(localStorage.getItem('sandbox-inventory') || '{}'); }
+        catch { return {}; }
+      })();
+      if (localSandbox[selectedProperty.id]) {
+        localSandbox[selectedProperty.id] = Math.max(0, localSandbox[selectedProperty.id] - 1);
+        localStorage.setItem('sandbox-inventory', JSON.stringify(localSandbox));
+        window.dispatchEvent(new Event('inventory-updated'));
+      }
+
+      toast({
+        title: `🎯 ${selectedProperty.name} Deployed!`,
+        description: `Placed on top of tile at (${x}, ${y}). Deals bonus damage in Titan Raids!`,
+      });
+
+      setSelectedProperty(null);
+      setPlacementMode(false);
+      return;
+    }
+
     if (!targetTile || (targetTile.type !== 'vacant' && targetTile.type !== 'empty')) {
       toast({
         title: 'Invalid Placement',
@@ -1523,12 +1572,35 @@ export function KingdomGridWithTimers({
   // Update tile click handler to support property placement
   const handleTileClick = (x: number, y: number, tile: Tile) => {
     if (readOnly) return;
-    // Removed debugging log
 
     // If in placement mode, handle property placement
     if (placementMode && selectedProperty) {
       handlePropertyPlacement(x, y)
       return
+    }
+
+    // Handle placed Siege Engine interaction (Rotate / Stash)
+    if (tile.placedSiegeEngine) {
+      const engine = tile.placedSiegeEngine;
+      const nextRotation = (((engine.rotation || 0) + 90) % 360) as 0 | 90 | 180 | 270;
+      
+      // Rotate or stash option modal
+      const updatedGrid = grid.map(row => row.slice());
+      updatedGrid[y][x] = {
+        ...tile,
+        placedSiegeEngine: {
+          ...engine,
+          rotation: nextRotation
+        }
+      };
+      setGrid(updatedGrid);
+      onUpdateGrid(updatedGrid);
+
+      toast({
+        title: `🪵 ${engine.name} Rotated (${nextRotation}°)`,
+        description: `Active Perk: Deals bonus damage in Titan Raids! (Click again to rotate).`,
+      });
+      return;
     }
 
     // Handle Zen Garden interaction

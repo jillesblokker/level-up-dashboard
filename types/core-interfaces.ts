@@ -171,6 +171,12 @@ export interface Tile {
   isBurning?: boolean | undefined;
   canBurn?: boolean | undefined;
   isStashed?: boolean | undefined;
+  placedSiegeEngine?: {
+    id: string;
+    type: TileType;
+    name: string;
+    rotation: 0 | 90 | 180 | 270;
+  } | null | undefined;
   tokenCost?: number | undefined;
   materialCost?: { itemId: string; quantity: number }[] | undefined;
   levelRequired?: number | undefined;

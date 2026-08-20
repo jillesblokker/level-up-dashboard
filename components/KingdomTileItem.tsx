@@ -168,6 +168,23 @@ export const KingdomTileItem = React.memo(({
         )}
       </div>
 
+      {/* Placed Siege Engine Overlay */}
+      {tile.placedSiegeEngine && (
+        <div 
+          className="absolute inset-0 flex items-center justify-center p-1 z-20 transition-transform duration-500 pointer-events-none"
+          style={{ transform: `rotate(${tile.placedSiegeEngine.rotation || 0}deg)` }}
+        >
+          <Image
+            src={`/images/kingdom-tiles/${tile.placedSiegeEngine.type}.webp`}
+            alt={tile.placedSiegeEngine.name}
+            fill
+            sizes="(max-width: 768px) 10vw, 5vw"
+            className="object-contain filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)] animate-in zoom-in-90 duration-300"
+            unoptimized={true}
+          />
+        </div>
+      )}
+
       {/* Castle Story Overlay (Desktop Only) */}
       {type === 'castle' && (
         <div className="absolute inset-0 bg-zinc-950 hidden md:flex flex-col items-center justify-center p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50 pointer-events-none">
