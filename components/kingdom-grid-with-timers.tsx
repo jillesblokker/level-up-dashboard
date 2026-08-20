@@ -2648,24 +2648,43 @@ export function KingdomGridWithTimers({
   };
 
   const handleMoveTile = (x: number, y: number, tile: Tile) => {
+    if (tile.placedSiegeEngine) {
+      const engine = tile.placedSiegeEngine;
+      const propertyDef = getAvailableProperties().find(p => p.id === engine.id || p.id === engine.type) || {
+        id: engine.id,
+        name: engine.name,
+        image: `/images/kingdom-tiles/${engine.id}.webp`,
+        category: 'siege'
+      };
+
+      // Remove placedSiegeEngine from current spot during move
+      const updatedGrid = grid.map(row => row.slice());
+      if (updatedGrid[y] && updatedGrid[y][x]) {
+        const { placedSiegeEngine, ...restTile } = updatedGrid[y][x];
+        updatedGrid[y][x] = restTile as Tile;
+      }
+      if (onGridUpdate) {
+        onGridUpdate(updatedGrid);
+      }
+
+      setMovingTileSource({ x, y });
+      setSelectedProperty(propertyDef as any);
+      setPlacementMode(true);
+      setPropertiesOpen(false);
+
+      toast({
+        title: "Moving Siege Engine",
+        description: `Select a new location for ${engine.name}.`,
+      });
+      return;
+    }
+
     // Find the full property definition to select it for placement
-    // Find the full property definition to select it for placement
-    // Try by ID first (more reliable), then by name
     const propertyDef = getAvailableProperties().find(p => p.id === tile.type || p.name === tile.name) ||
       KINGDOM_TILES.find(kt => kt.id === tile.type || kt.name === tile.name);
 
     if (propertyDef) {
-      // "Pick up" the tile:
-      // 1. Select it as if we're placing it (entering placement mode)
-      // 2. Remove it from the current spot (set to vacant)
-      // 3. Update inventory temporarily or just relying on "swap" logic? 
-      // Simpler: Just delete it first (add to inv), then select it.
-
-
-      // Store the source position and start placement mode WITHOUT removing old tile yet
       setMovingTileSource({ x, y });
-
-      // Select it for placement directly, bypassing quantity checks
       setSelectedProperty(propertyDef as any);
       setPlacementMode(true);
       setPropertiesOpen(false);
@@ -2678,6 +2697,11 @@ export function KingdomGridWithTimers({
   };
 
   const handleDeleteTile = async (x: number, y: number, tile: Tile) => {
+    if (tile.placedSiegeEngine) {
+      handleStashSiegeEngine(x, y, tile);
+      return;
+    }
+
     if (!window.confirm(`Are you sure you want to remove ${tile.name}? It will return to your inventory.`)) return;
 
     // Remove from grid
@@ -2728,6 +2752,28 @@ export function KingdomGridWithTimers({
   };
 
   const handleRotateTile = (x: number, y: number, tile: Tile) => {
+    if (tile.placedSiegeEngine) {
+      const engine = tile.placedSiegeEngine;
+      const nextRotation = (((engine.rotation || 0) + 90) % 360) as 0 | 90 | 180 | 270;
+      const newGrid = grid.map(row => row.slice());
+      if (newGrid[y] && newGrid[y][x]) {
+        newGrid[y][x] = {
+          ...newGrid[y][x],
+          placedSiegeEngine: {
+            ...engine,
+            rotation: nextRotation
+          }
+        };
+      }
+      if (onGridUpdate) onGridUpdate(newGrid);
+
+      toast({
+        title: "Rotated Siege Engine",
+        description: `Rotated ${engine.name} to ${nextRotation}°.`,
+      });
+      return;
+    }
+
     const newGrid = [...grid];
     if (newGrid[y]) {
       newGrid[y] = [...newGrid[y]];
