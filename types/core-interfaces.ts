@@ -176,6 +176,7 @@ export interface Tile {
     type: TileType;
     name: string;
     rotation: 0 | 90 | 180 | 270;
+    image?: string;
   } | null | undefined;
   tokenCost?: number | undefined;
   materialCost?: { itemId: string; quantity: number }[] | undefined;

@@ -2,7 +2,7 @@ import { logger } from "@/lib/logger";
 import { useEffect, useRef, useState, memo } from "react";
 import Image from "next/image";
 import { Tile } from "@/types/tiles";
-import { RotateCw, Trash2 } from "lucide-react";
+import { RotateCw, Trash2, ArrowRightLeft } from "lucide-react";
 import { CreatureLayer } from '@/components/creature-layer';
 import { MonsterSpawn } from "@/types/monsters";
 import { AnimatedCharacterSprite } from "./AnimatedCharacterSprite";
@@ -14,6 +14,7 @@ interface MapGridProps {
   className?: string;
   playerLevel?: number;
   onTileSizeChange?: (tileSize: number) => void;
+  onTileMove?: (x: number, y: number) => void;
   onTileRotate?: (x: number, y: number) => void;
   onTileDelete?: (x: number, y: number) => void;
   // Animal props
@@ -105,6 +106,7 @@ const MapTile = memo(({
   isPlayerHere,
   playerLevel,
   onTileClick,
+  onTileMove,
   onTileRotate,
   onTileDelete
 }: {
@@ -115,6 +117,7 @@ const MapTile = memo(({
   isPlayerHere: boolean,
   playerLevel: number,
   onTileClick: (x: number, y: number) => void,
+  onTileMove?: ((x: number, y: number) => void) | undefined,
   onTileRotate?: ((x: number, y: number) => void) | undefined,
   onTileDelete?: ((x: number, y: number) => void) | undefined
 }) => {
@@ -164,12 +167,41 @@ const MapTile = memo(({
           transition: 'transform 0.3s ease'
         }}
       />
+      {/* Placed Siege Engine Overlay (Rendered ON TOP of base terrain tile) */}
+      {tile.placedSiegeEngine && (
+        <div
+          className="absolute inset-0 flex items-center justify-center p-1 z-10 pointer-events-none"
+          style={{ transform: `rotate(${tile.placedSiegeEngine.rotation || 0}deg)` }}
+        >
+          <Image
+            src={tile.placedSiegeEngine.image || `/images/kingdom-tiles/${tile.placedSiegeEngine.type || tile.placedSiegeEngine.id}.webp`}
+            alt={tile.placedSiegeEngine.name || 'Siege Engine'}
+            width={tileSize}
+            height={tileSize}
+            className="object-contain filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
+            unoptimized={true}
+          />
+        </div>
+      )}
       {isHovered && !isPlayerHere && !tile.hasMonster && tile.type !== 'empty' && (
         <div className="absolute top-1 right-1 z-20 flex gap-1">
+          {onTileMove && (
+            <div
+              role="button"
+              title={tile.placedSiegeEngine ? `Move ${tile.placedSiegeEngine.name}` : "Move Tile"}
+              className="bg-blue-600/90 text-white p-1 rounded-full hover:bg-blue-700 shadow-md transform hover:scale-110 transition-transform cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                onTileMove(x, y);
+              }}
+            >
+              <ArrowRightLeft className="w-3 h-3" />
+            </div>
+          )}
           {onTileDelete && (
             <div
               role="button"
-              title="Delete Tile"
+              title={tile.placedSiegeEngine ? `Store ${tile.placedSiegeEngine.name}` : "Delete Tile"}
               className="bg-red-600/90 text-white p-1 rounded-full hover:bg-red-700 shadow-md transform hover:scale-110 transition-transform cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
@@ -182,7 +214,7 @@ const MapTile = memo(({
           {onTileRotate && (
             <div
               role="button"
-              title="Rotate 90°"
+              title={tile.placedSiegeEngine ? `Rotate ${tile.placedSiegeEngine.name}` : "Rotate 90°"}
               className="bg-amber-600/90 text-white p-1 rounded-full hover:bg-amber-700 shadow-md transform hover:scale-110 transition-transform cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
@@ -252,6 +284,7 @@ export function MapGrid({
   penguinCaught = false,
   monsters = [],
   onMonsterClick,
+  onTileMove,
   onTileRotate,
   onTileDelete
 }: MapGridProps) {
@@ -405,6 +438,7 @@ export function MapGrid({
                       isPlayerHere={playerPosition.x === x && playerPosition.y === y}
                       playerLevel={playerLevel}
                       onTileClick={onTileClick}
+                      onTileMove={onTileMove}
                       onTileRotate={onTileRotate}
                       onTileDelete={onTileDelete}
                     />

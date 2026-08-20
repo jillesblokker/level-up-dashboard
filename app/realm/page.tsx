@@ -926,13 +926,29 @@ function RealmPageContent() {
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
             if (newGrid[y]?.[x]) {
-                newGrid[y][x] = {
-                    ...tileToUse,
-                    id: tileToUse.id || tileToUse.type || 'tile',
-                    x,
-                    y,
-                    owned: 1
-                } as Tile;
+                const targetTile = newGrid[y][x];
+                const isSiegeEngine = tileToUse.type?.startsWith('siege_') || (tileToUse.id && String(tileToUse.id).startsWith('siege_'));
+                
+                if (isSiegeEngine) {
+                    newGrid[y][x] = {
+                        ...targetTile,
+                        placedSiegeEngine: {
+                            id: tileToUse.id || tileToUse.type,
+                            type: (tileToUse.type || tileToUse.id) as any,
+                            name: tileToUse.name || tileToUse.type || 'Siege Engine',
+                            rotation: 0,
+                            image: tileToUse.image || `/images/kingdom-tiles/${tileToUse.type || tileToUse.id}.webp`
+                        }
+                    };
+                } else {
+                    newGrid[y][x] = {
+                        ...tileToUse,
+                        id: tileToUse.id || tileToUse.type || 'tile',
+                        x,
+                        y,
+                        owned: 1
+                    } as Tile;
+                }
             }
             return newGrid;
         });
@@ -1174,11 +1190,73 @@ function RealmPageContent() {
         }
     };
 
+    const handleMoveTile = (x: number, y: number) => {
+        const currentGrid = gridRef.current;
+        const tile = currentGrid[y]?.[x];
+        if (!tile || tile.type === 'empty') return;
+
+        if (tile.placedSiegeEngine) {
+            const engine = tile.placedSiegeEngine;
+            // Remove siege engine overlay from current spot
+            setGrid(prev => {
+                const next = prev.map(row => [...row]);
+                if (next[y]?.[x]) {
+                    const { placedSiegeEngine, ...restTile } = next[y][x]!;
+                    next[y][x] = restTile as Tile;
+                }
+                return next;
+            });
+
+            setSelectedTile({
+                id: engine.id,
+                type: (engine.type || engine.id) as any,
+                name: engine.name || engine.id,
+                quantity: 1,
+                image: engine.image || `/images/kingdom-tiles/${engine.id}.webp`
+            } as any);
+            setGameMode('build');
+
+            toast({
+                title: "Moving Siege Engine",
+                description: `Select a new location for ${engine.name || engine.id}.`
+            });
+            return;
+        }
+
+        // Standard building/tile move
+        setSelectedTile(tile as any);
+        setGameMode('build');
+    };
+
     const handleDestroyTile = async (x: number, y: number) => {
         const targetTile = grid[y]?.[x];
         if (!targetTile || targetTile.type === 'empty') return;
 
+        if (targetTile.placedSiegeEngine) {
+            const engine = targetTile.placedSiegeEngine;
+            setGrid(prev => {
+                const next = prev.map(row => [...row]);
+                if (next[y]?.[x]) {
+                    const { placedSiegeEngine, ...restTile } = next[y][x]!;
+                    next[y][x] = restTile as Tile;
+                }
+                return next;
+            });
 
+            const localSandbox = (() => {
+                try { return JSON.parse(localStorage.getItem('sandbox-inventory') || '{}'); }
+                catch { return {}; }
+            })();
+            localSandbox[engine.id] = (localSandbox[engine.id] || 0) + 1;
+            localStorage.setItem('sandbox-inventory', JSON.stringify(localSandbox));
+            window.dispatchEvent(new Event('inventory-updated'));
+
+            toast({
+                title: `📦 ${engine.name || engine.id} Stashed!`,
+                description: "Returned to your Siege Engine inventory."
+            });
+            return;
+        }
 
         if (!window.confirm(`Are you sure you want to destroy this ${targetTile.type} tile?`)) return;
 
@@ -1784,6 +1862,29 @@ function RealmPageContent() {
 
         if (!tile || tile.type === 'empty') return;
 
+        if (tile.placedSiegeEngine) {
+            const engine = tile.placedSiegeEngine;
+            const nextRotation = (((engine.rotation || 0) + 90) % 360) as 0 | 90 | 180 | 270;
+            setGrid(prev => {
+                const next = prev.map(row => [...row]);
+                if (next[y]?.[x]) {
+                    next[y][x] = {
+                        ...next[y][x]!,
+                        placedSiegeEngine: {
+                            ...engine,
+                            rotation: nextRotation
+                        }
+                    };
+                }
+                return next;
+            });
+            toast({
+                title: `Rotated ${engine.name || engine.id}`,
+                description: `Rotated to ${nextRotation}°.`
+            });
+            return;
+        }
+
         // Optimistic update
         const currentRotation = tile.rotation || 0;
         const newRotation = (currentRotation + 90) % 360 as 0 | 90 | 180 | 270;
@@ -2136,6 +2237,7 @@ function RealmPageContent() {
                         penguinCaught={penguinCaught}
                         monsters={monsters}
                         onMonsterClick={handleMonsterClick}
+                        onTileMove={handleMoveTile}
                         onTileRotate={handleRotateTile}
                         onTileDelete={handleDestroyTile}
                     />
