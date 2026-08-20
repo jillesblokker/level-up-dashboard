@@ -4,7 +4,7 @@ import { Tile, TileType } from '@/types/core-interfaces';
 // All database logic now uses authenticated API routes
 
 // Convert tile type to numeric value for database storage
-const tileTypeToNumeric: Record<TileType, number> = {
+const tileTypeToNumeric: Record<string, number> = {
   empty: 0,
   grass: 1,
   water: 2,

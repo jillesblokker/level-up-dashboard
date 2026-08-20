@@ -255,7 +255,7 @@ export class MapGenerator {
       siege_astral_projector: 'Astral Ray Projector'
     };
 
-    const tileDescriptions: Record<TileType, string> = {
+    const tileDescriptions: Record<string, string> = {
       empty: 'An empty space where a new tile can be placed',
       mountain: 'A towering mountain peak',
       grass: 'A lush grass tile',
@@ -362,7 +362,7 @@ export class MapGenerator {
       siege_astral_projector: 'Astral Ray Projector: Unlocked at 100 Spirit Quests!'
     };
 
-    const tileImages: Record<TileType, string> = {
+    const tileImages: Record<string, string> = {
       empty: '/images/tiles/empty-tile.webp',
       mountain: '/images/tiles/mountain-tile.webp',
       grass: '/images/tiles/grass-tile.webp',

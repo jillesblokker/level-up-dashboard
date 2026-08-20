@@ -1,7 +1,7 @@
 import { TileType } from '@/types/core-interfaces';
 
 export function getTileName(type: TileType): string {
-  const tileNames: Record<TileType, string> = {
+  const tileNames: Record<string, string> = {
     empty: 'Empty',
     grass: 'Grass',
     water: 'Water',
@@ -110,7 +110,7 @@ export function getTileName(type: TileType): string {
 }
 
 export function getDefaultConnections(type: TileType): string[] {
-  const defaultConnections: Record<TileType, string[]> = {
+  const defaultConnections: Record<string, string[]> = {
     empty: [],
     grass: ['grass', 'town', 'city', 'castle', 'dungeon'],
     water: ['water'],
