@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { ShieldAlert, Sword, Zap, Trophy, CheckCircle2, Hammer, Flame, Lock, Sparkles } from "lucide-react"
+import { ShieldAlert, Sword, Zap, Trophy, CheckCircle2, Hammer, Flame, Lock, Sparkles, Scroll } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import Image from "next/image"
 
