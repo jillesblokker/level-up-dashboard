@@ -1140,161 +1140,25 @@ export function DailyHubClient() {
                                         fill
                                         className="object-cover p-1 drop-shadow-[0_0_20px_rgba(251,191,36,0.4)]"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40 pointer-events-none" />
-                                </div>
-                            </div>
-                            {/* Sparkle decorations */}
-                            <Sparkles className="absolute -top-3 -right-3 w-5 h-5 animate-pulse opacity-60 text-amber-400" />
-                            <Wind className="absolute -bottom-2 -left-3 w-5 h-5 animate-pulse opacity-40 text-amber-400" style={{ animationDelay: '0.5s' }} />
-                        </div>
-
-                        {/* Name & description */}
-                        <h2 className="mt-6 text-2xl font-serif font-semibold text-center text-amber-400">
-                            Yesterday&apos;s Report Card
-                        </h2>
-                        <p className="mt-2 text-zinc-300/80 text-sm leading-relaxed text-center">
-                            Summary of your yesterday&apos;s achievements in the realm.
-                        </p>
-                    </div>
-
-                    {/* Report Data Grid */}
-                    <div className="relative z-10 px-6 pb-6">
-                        {yesterdayReport && (yesterdayReport.completedQuestsCount > 0 || yesterdayReport.goldEarned > 0 || yesterdayReport.milestonesUnlocked > 0) ? (
-                            <div className="space-y-4">
-                                <p className="text-center text-xs text-amber-200/80 font-mono tracking-wide uppercase">
-                                    ⚔️ excellent progress on your path to glory ⚔️
-                                </p>
-                                <div className="bg-amber-900/10 border border-amber-500/30 rounded-xl p-3 text-center mb-1">
-                                    <span className="text-[10px] text-amber-300 font-mono uppercase tracking-wider block mb-0.5">Yesterday&apos;s Archetype</span>
-                                    <h4 className="text-xl font-bold text-white font-medieval tracking-wide flex items-center justify-center gap-1.5">
-                                        ✨ {yesterdayReport.archetype || 'Adventurer'} ✨
-                                    </h4>
-                                    <p className="text-[10px] text-zinc-400 mt-1 font-serif">
-                                        {yesterdayReport.archetype === 'Gladiator' && 'You focused heavily on Might and physical challenges.'}
-                                        {yesterdayReport.archetype === 'Grand Mage' && 'You focused heavily on Knowledge and mental growth.'}
-                                        {yesterdayReport.archetype === 'Paladin' && 'You focused heavily on Honor and community habits.'}
-                                        {yesterdayReport.archetype === 'Merchant Lord' && 'You focused heavily on Wealth and discipline.'}
-                                        {yesterdayReport.archetype === 'Cleric' && 'You focused heavily on Heart, wellness, and recovery.'}
-                                        {yesterdayReport.archetype === 'Adventurer' && 'You took balance steps along your path today.'}
-                                    </p>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="bg-zinc-900 p-3 rounded-xl border border-amber-900/20 text-center ">
-                                        <div className="text-2xl font-bold text-amber-400">⚔️ {yesterdayReport.completedQuestsCount}</div>
-                                        <div className="text-[10px] text-zinc-400 font-bold uppercase mt-1">Quests Done</div>
-                                    </div>
-                                    <div className="bg-zinc-900 p-3 rounded-xl border border-amber-900/20 text-center ">
-                                        <div className="text-2xl font-bold text-yellow-500">🪙 {yesterdayReport.goldEarned}</div>
-                                        <div className="text-[10px] text-zinc-400 font-bold uppercase mt-1">Gold Gained</div>
-                                    </div>
-                                    <div className="bg-zinc-900 p-3 rounded-xl border border-amber-900/20 text-center ">
-                                        <div className="text-2xl font-bold text-blue-400">⭐ {yesterdayReport.xpEarned}</div>
-                                        <div className="text-[10px] text-zinc-400 font-bold uppercase mt-1">XP Gained</div>
-                                    </div>
-                                    <div className="bg-zinc-900 p-3 rounded-xl border border-amber-900/20 text-center ">
-                                        <div className="text-2xl font-bold text-purple-400">🏆 {yesterdayReport.milestonesUnlocked}</div>
-                                        <div className="text-[10px] text-zinc-400 font-bold uppercase mt-1">Milestones</div>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="space-y-4 py-5 text-center bg-zinc-900/40 border border-amber-900/10 rounded-2xl p-5 backdrop-blur-sm relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-transparent to-transparent pointer-events-none" />
-                                <div className="text-4xl mb-1 animate-pulse">💤</div>
-                                <p className="text-sm font-serif text-zinc-300 italic max-w-xs mx-auto leading-relaxed">
-                                    &quot;Yesterday was a peaceful rest day, with no active quests completed.&quot;
-                                </p>
-                                <div className="w-20 h-px bg-gradient-to-r from-transparent via-amber-700/30 to-transparent mx-auto my-1" />
-                                <p className="text-[10px] text-amber-400 font-bold tracking-widest uppercase animate-pulse">
-                                    Today is a new day! Conquest awaits!
-                                </p>
-                            </div>
-                        )}
-
-                        {/* Daily Chronicle (Passive Generation & Weather) */}
-                        <div className="mt-6 pt-5 border-t border-amber-900/30">
-                            <h3 className="text-[11px] uppercase tracking-widest text-amber-500/70 text-center mb-3 font-semibold">Overnight Chronicle</h3>
-                            <div className="bg-zinc-950 rounded-lg p-4 border border-zinc-800/50 flex flex-col gap-3">
-                                {yesterdayReport && (
-                                    <div className="flex items-start gap-3 pb-3 border-b border-zinc-800/80">
-                                        <div className="w-8 h-8 rounded-full bg-amber-900/30 flex items-center justify-center shrink-0 border border-amber-700/50">
-                                            <span className="text-lg">📜</span>
-                                        </div>
-                                        <p className="text-xs text-amber-200/90 italic font-serif leading-relaxed">
-                                            &quot;{getLoreSummary()}&quot;
-                                        </p>
-                                    </div>
-                                )}
-                                {(() => {
-                                    const activePartner = citizens.find(c => c.id === activePartnerId);
-                                    if (activePartner) {
-                                        const bondLevel = Math.floor(activePartner.affection / 100) + 1;
-                                        return (
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-purple-900/30 flex items-center justify-center shrink-0 border border-purple-700/50">
-                                                    <span className="text-lg">💖</span>
-                                                </div>
-                                                <p className="text-sm text-zinc-300">
-                                                    Your partner <strong className="text-purple-400">{activePartner.name}</strong> is currently at <strong className="text-purple-400">Bond Level {bondLevel}</strong>. Keep completing quests to grow your bond!
-                                                </p>
-                                            </div>
-                                        );
-                                    }
-                                    return null;
-                                })()}
-                                
-                                {citizensReadyCount > 0 ? (
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-amber-900/30 flex items-center justify-center shrink-0 border border-amber-700/50">
-                                            <span className="text-lg">🪙</span>
-                                        </div>
-                                        <p className="text-sm text-zinc-300">
-                                            Your Citizens are awake! You have <strong className="text-amber-400">{citizensReadyCount} {citizensReadyCount === 1 ? 'Citizen' : 'Citizens'}</strong> ready to be harvested in the Kingdom.
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-zinc-900 flex items-center justify-center shrink-0 border border-zinc-800">
-                                            <span className="text-lg opacity-50">💤</span>
-                                        </div>
-                                        <p className="text-sm text-zinc-500">
-                                            Your Citizens are resting or still gathering resources. Check back later!
-                                        </p>
-                                    </div>
-                                )}
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-blue-900/30 flex items-center justify-center shrink-0 border border-blue-700/50">
-                                        <span className="text-lg">☀️</span>
-                                    </div>
-                                    <p className="text-sm text-zinc-300">
-                                        Current Kingdom Weather is based on your recent momentum. Visit the Realm to see the sky!
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Action button */}
-                    <div className="relative z-10 flex flex-col gap-2 px-6 pb-6">
-                        <Button
-                            className="w-full h-11 text-white rounded-xl bg-amber-600 hover:bg-amber-500 shadow-lg font-bold transition-all"
-                            onClick={() => setShowReportCard(false)}
-                        >
-                            Conquer Today!
-                        </Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
-
-            {/* Daily Opening Routine Sequence Modal */}
+            {/* Daily Opening Routine Sequence & Overnight Chronicle Modal (Unified) */}
             <DailyRoutineModal
                 isOpen={showReportCard}
                 onClose={() => setShowReportCard(false)}
                 yesterdayStats={{
-                    questsCompleted: completedQuestIds.size || 5,
+                    questsCompleted: yesterdayReport?.completedQuestsCount || completedQuestIds.size || 5,
                     streak: stats.streakDays || 7,
-                    goldEarned: (completedQuestIds.size || 5) * 15
+                    goldEarned: yesterdayReport?.goldEarned || (completedQuestIds.size || 5) * 15,
+                    xpEarned: yesterdayReport?.xpEarned || 1205,
+                    milestonesUnlocked: yesterdayReport?.milestonesUnlocked || 0,
+                    archetype: yesterdayReport?.archetype || 'Adventurer',
                 }}
+                loreSummary={getLoreSummary()}
+                activePartnerName={citizens.find(c => c.id === activePartnerId)?.name}
+                activePartnerBond={(() => {
+                    const partner = citizens.find(c => c.id === activePartnerId);
+                    return partner ? Math.floor(partner.affection / 100) + 1 : 1;
+                })()}
+                citizensReadyCount={citizensReadyCount}
             />
         </div>
     )

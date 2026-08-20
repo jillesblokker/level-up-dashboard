@@ -99,6 +99,14 @@ const tileCategories = [
     tiles: ['portal-entrance', 'portal-exit', 'floating_island', 'astral_citadel_monument']
   },
   {
+    id: 'siege_engines',
+    name: 'Siege engines',
+    minLevel: 0,
+    maxLevel: 100,
+    description: 'Habit-unlocked siege engines to place on walkable realm tiles',
+    tiles: ['siege_catapult', 'siege_scorpion', 'siege_battering_ram', 'siege_trebuchet', 'siege_tower', 'siege_flame_ballista', 'siege_spring_cannon', 'siege_ether_mortar', 'siege_dragon_mortar', 'siege_astral_projector']
+  },
+  {
     id: 'rare',
     name: 'Rare Event Tiles',
     minLevel: 0,
