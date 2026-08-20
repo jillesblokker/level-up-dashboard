@@ -2866,10 +2866,10 @@ export default function QuestsPage() {
 
   return (
     <EnhancedErrorBoundary>
-    <div className="min-h-screen quests-page-container pb-20">
+    <div className="min-h-screen quests-page-container pb-8 pb-safe">
 
 
-        <MobileLayoutWrapper className="quests-page-container" enableScroll={false}>
+        <MobileLayoutWrapper className="quests-page-container" enableScroll={true}>
           <HeaderSection
             title={TEXT_CONTENT.questBoard.header.title}
             subtitle={TEXT_CONTENT.questBoard.header.subtitle}
@@ -2925,24 +2925,36 @@ export default function QuestsPage() {
               </div>
             </div>
 
-            {/* SINGLE LAYER TAB BAR (Above content, full width) */}
-            <Tabs value={forgeTab} onValueChange={(val: any) => setForgeTab(val)} className="w-full mb-8">
-              <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-transparent border-none p-0">
-                <TabsTrigger value="quests" className="rounded-lg text-xs sm:text-sm font-bold font-serif py-2.5">
-                  <Sword className="w-4 h-4 mr-1.5 text-amber-400" />
-                  Daily Quests
+            {/* UNIFIED SEGMENTED TAB BAR */}
+            <Tabs value={forgeTab} onValueChange={(val: any) => setForgeTab(val)} className="w-full mb-6">
+              <TabsList className="w-full grid grid-cols-4 gap-1 bg-black/90 border border-amber-800/30 rounded-xl p-1 shadow-inner">
+                <TabsTrigger
+                  value="quests"
+                  className="rounded-lg text-[10px] sm:text-sm font-bold font-serif py-2 px-1 flex items-center justify-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/40 data-[state=active]:to-amber-800/50 data-[state=active]:text-amber-300 data-[state=active]:border data-[state=active]:border-amber-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
+                >
+                  <Sword className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
+                  <span className="truncate">Quests</span>
                 </TabsTrigger>
-                <TabsTrigger value="challenges" className="rounded-lg text-xs sm:text-sm font-bold font-serif py-2.5">
-                  <Zap className="w-4 h-4 mr-1.5 text-amber-400" />
-                  Challenges
+                <TabsTrigger
+                  value="challenges"
+                  className="rounded-lg text-[10px] sm:text-sm font-bold font-serif py-2 px-1 flex items-center justify-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/40 data-[state=active]:to-amber-800/50 data-[state=active]:text-amber-300 data-[state=active]:border data-[state=active]:border-amber-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
+                >
+                  <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
+                  <span className="truncate">Challenges</span>
                 </TabsTrigger>
-                <TabsTrigger value="milestones" className="rounded-lg text-xs sm:text-sm font-bold font-serif py-2.5">
-                  <Trophy className="w-4 h-4 mr-1.5 text-green-400" />
-                  Milestones
+                <TabsTrigger
+                  value="milestones"
+                  className="rounded-lg text-[10px] sm:text-sm font-bold font-serif py-2 px-1 flex items-center justify-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/40 data-[state=active]:to-amber-800/50 data-[state=active]:text-amber-300 data-[state=active]:border data-[state=active]:border-amber-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
+                >
+                  <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400 shrink-0" />
+                  <span className="truncate">Milestones</span>
                 </TabsTrigger>
-                <TabsTrigger value="petitions" className="rounded-lg text-xs sm:text-sm font-bold font-serif py-2.5">
-                  <Scroll className="w-4 h-4 mr-1.5 text-blue-400" />
-                  Petitions
+                <TabsTrigger
+                  value="petitions"
+                  className="rounded-lg text-[10px] sm:text-sm font-bold font-serif py-2 px-1 flex items-center justify-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/40 data-[state=active]:to-amber-800/50 data-[state=active]:text-amber-300 data-[state=active]:border data-[state=active]:border-amber-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
+                >
+                  <Scroll className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 shrink-0" />
+                  <span className="truncate">Petitions</span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>

@@ -332,7 +332,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
       </SheetTrigger>
       <SheetContent side="right" aria-label="notification-center-sidepanel" className="w-[95vw] md:w-96 !bg-black border-l border-amber-800/20 !p-0 !gap-0 flex flex-col h-full overflow-hidden" aria-modal="true">
         {/* Enhanced Header */}
-        <div className="relative p-6 border-b border-amber-800/20 bg-gradient-to-r from-zinc-900 to-zinc-800 shrink-0">
+        <div className="relative p-6 pt-[max(1.75rem,env(safe-area-inset-top))] pt-safe border-b border-amber-800/20 bg-gradient-to-r from-zinc-900 to-zinc-800 shrink-0">
           <div className="flex flex-col gap-4">
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-4">

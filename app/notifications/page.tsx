@@ -292,7 +292,7 @@ export default function NotificationsPage() {
     <div className="flex min-h-screen flex-col bg-black text-white">
       <NavBar session={undefined} />
 
-      <main className="flex-1 p-4 md:p-6 space-y-6">
+      <main className="flex-1 p-4 md:p-6 space-y-6 pt-[max(1.25rem,env(safe-area-inset-top))] pt-safe">
         {/* Enhanced Header */}
         <div className="relative mb-8">
           <div className="absolute inset-0 bg-gradient-to-r from-amber-900/10 via-transparent to-amber-900/10 rounded-lg"></div>
