@@ -42,10 +42,20 @@
 /* Light Parchment Text Overrides - Soft Black Ink (#2b201a) */
 [data-theme="oldskool"] .parchment-container,
 .theme-oldskool .parchment-container,
-[data-theme="oldskool"] .parchment-container *,
-.theme-oldskool .parchment-container * {
+[data-theme="oldskool"] .parchment-container *:not(.chronicle-dropcap),
+.theme-oldskool .parchment-container *:not(.chronicle-dropcap) {
   color: #2b201a !important;
   text-shadow: none !important;
+}
+
+.chronicle-dropcap,
+[data-theme="oldskool"] .chronicle-dropcap,
+.theme-oldskool .chronicle-dropcap,
+[data-theme="oldskool"] .parchment-container .chronicle-dropcap,
+.theme-oldskool .parchment-container .chronicle-dropcap {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9) !important;
 }
 
 [data-theme="oldskool"] .parchment-container h1,

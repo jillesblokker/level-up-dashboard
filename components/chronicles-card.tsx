@@ -199,17 +199,17 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
 
             <CardContent className="relative z-10 flex flex-col pt-2 pb-4">
                 <div className="flex flex-col gap-8 pb-4">
-                    {/* Top Section: Full Uncropped Story Image Banner */}
-                    <div className="w-full max-w-4xl mx-auto flex-shrink-0 flex flex-col items-center justify-center rounded-2xl overflow-hidden border border-amber-800/40 bg-zinc-950/90 relative group shadow-2xl p-2 md:p-3">
+                    {/* Top Section: Full Width Natural Height Story Image Banner (No Crop, No Letterboxing) */}
+                    <div className="w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border border-amber-800/40 shadow-2xl relative">
                         {!imageErrorMap[viewedChapter.id] && (
                             <img 
                                 src={viewedChapter.image || `/images/chronicles/chronicle_image_${viewedChapter.id}.png`} 
                                 alt={viewedChapter.title}
-                                className="object-contain w-full max-h-[450px] md:max-h-[520px] h-auto rounded-xl z-10 transition-opacity duration-300"
+                                className="w-full h-auto block rounded-2xl z-10 relative transition-opacity duration-300"
                                 onError={() => setImageErrorMap(prev => ({ ...prev, [viewedChapter.id]: true }))}
                             />
                         )}
-                        <div className="absolute inset-0 z-0 flex flex-col items-center justify-center p-4 text-center">
+                        <div className="absolute inset-0 z-0 flex flex-col items-center justify-center p-4 text-center bg-zinc-950">
                             <BookOpen className="w-8 h-8 text-amber-800/20 mb-2" />
                             <div className="text-amber-500/40 text-xs font-mono uppercase tracking-widest">
                                 chronicle_image_{viewedChapter.id}.png
@@ -264,7 +264,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                                                 style={{ color: '#050302', textShadow: 'none' }}
                                                 key={i}
                                             >
-                                                <span className="float-left text-4xl md:text-5xl font-extrabold font-serif text-[#fffef0] mr-3.5 mt-0.5 select-none border-2 border-amber-500/70 rounded-xl px-3 py-1 bg-gradient-to-br from-amber-950 via-amber-900 to-zinc-950 shadow-[0_4px_12px_rgba(0,0,0,0.4)] leading-none uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                                                <span className="chronicle-dropcap float-left text-4xl md:text-5xl font-extrabold font-serif text-white mr-3.5 mt-0.5 select-none border-2 border-amber-500/80 rounded-xl px-3 py-1 bg-gradient-to-br from-amber-950 via-amber-900 to-zinc-950 shadow-[0_4px_12px_rgba(0,0,0,0.6)] leading-none uppercase">
                                                     {firstChar}
                                                 </span>
                                                 {restOfText}

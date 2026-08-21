@@ -348,10 +348,18 @@ button:focus-visible,
   text-shadow: none !important;
 }
 
-.parchment-container *,
-[data-theme="medieval"] .parchment-container *,
-.theme-medieval .parchment-container * {
+.parchment-container *:not(.chronicle-dropcap),
+[data-theme="medieval"] .parchment-container *:not(.chronicle-dropcap),
+.theme-medieval .parchment-container *:not(.chronicle-dropcap) {
   text-shadow: none !important;
+}
+
+.chronicle-dropcap,
+.parchment-container .chronicle-dropcap,
+[data-theme="medieval"] .parchment-container .chronicle-dropcap {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9) !important;
 }
 
 .parchment-container p,
