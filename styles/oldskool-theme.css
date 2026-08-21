@@ -74,10 +74,8 @@
 }
 
 /* 3. Carved Dark Oak & Heavy Iron Card Frames */
-[data-theme="oldskool"] .grid > div,
-.theme-oldskool .grid > div {
-  display: flex !important;
-  flex-direction: column !important;
+[data-theme="oldskool"] [aria-label*="Quest card"],
+.theme-oldskool [aria-label*="Quest card"] {
   height: 100% !important;
 }
 
@@ -97,7 +95,6 @@
     0 0 0 1px #451a03, 
     0 10px 30px rgba(0, 0, 0, 0.95) !important;
   position: relative !important;
-  height: 100% !important;
 }
 
 /* Metallic Brass Corner Ornaments for Cards */
