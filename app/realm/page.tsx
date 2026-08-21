@@ -975,13 +975,23 @@ function RealmPageContent() {
             setSelectedTile(prev => prev ? { ...prev, quantity: Math.max(0, (prev.quantity || 0) - 1) } : null);
         }
 
-        // Save tile to backend
+        // Save tile to backend with meta properties (for cross-browser sync)
         try {
-            const tileTypeNum = tileTypeToNumeric[tileType];
+            const tileTypeNum = isSiegeEngine ? 2 : (tileTypeToNumeric[tileType] || 2);
+            const metaObj: Record<string, any> = {};
+            if (isSiegeEngine) {
+                metaObj.placedSiegeEngine = {
+                    id: tileToUse.id || tileToUse.type,
+                    type: (tileToUse.type || tileToUse.id) as any,
+                    name: tileToUse.name || tileToUse.type || 'Siege Engine',
+                    rotation: 0,
+                    image: tileToUse.image || `/images/kingdom-tiles/${tileToUse.type || tileToUse.id}.webp`
+                };
+            }
             const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
             const res = await fetchWithAuth('/api/realm-tiles', {
                 method: 'POST',
-                body: JSON.stringify({ x, y, tile_type: tileTypeNum })
+                body: JSON.stringify({ x, y, tile_type: tileTypeNum, meta: metaObj })
             });
 
             if (!res.ok) {
@@ -1285,6 +1295,17 @@ function RealmPageContent() {
             localStorage.setItem('sandbox-inventory', JSON.stringify(localSandbox));
             window.dispatchEvent(new Event('inventory-updated'));
             window.dispatchEvent(new Event('tile-inventory-update'));
+
+            // Persist siege engine removal to backend for cross-browser sync
+            try {
+                const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+                await fetchWithAuth('/api/realm-tiles', {
+                    method: 'POST',
+                    body: JSON.stringify({ x, y, tile_type: 2, meta: { placedSiegeEngine: null } })
+                });
+            } catch (err) {
+                logger.error('Failed to sync siege engine removal to server:', err);
+            }
 
             toast({
                 title: `📦 ${siegeEngine.name || siegeEngine.id} Stashed!`,
@@ -1879,6 +1900,17 @@ function RealmPageContent() {
             }
             window.dispatchEvent(new Event('inventory-updated'));
             window.dispatchEvent(new Event('tile-inventory-update'));
+
+            // Persist siege engine removal to backend for cross-browser sync
+            try {
+                const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+                await fetchWithAuth('/api/realm-tiles', {
+                    method: 'POST',
+                    body: JSON.stringify({ x, y, tile_type: 2, meta: { placedSiegeEngine: null } })
+                });
+            } catch (err) {
+                logger.error('Failed to sync siege engine deletion to server:', err);
+            }
 
             toast({
                 title: `📦 ${engineName} Stashed!`,
