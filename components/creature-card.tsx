@@ -61,7 +61,7 @@ export function CreatureCard({ creature, discovered, showCard, previewMode, prio
       <div className="relative w-full h-full">
         {!imageError ? (
           <Image
-            src={isEffectivelyDiscovered ? `/images/creatures/${creature.filename ? creature.filename.replace(/\.png$/i, '.webp') : `${creature.id}.webp`}` : "/images/placeholders/undiscovered.webp"}
+            src={isEffectivelyDiscovered ? `/images/creatures/${(citizen as any)?.filename ? (citizen as any).filename.replace(/\.png$/i, '.webp') : `${creature.id}.webp`}` : "/images/placeholders/undiscovered.webp"}
             alt={isEffectivelyDiscovered ? creature.name : "Undiscovered Creature"}
             fill
             className="object-contain p-2"
