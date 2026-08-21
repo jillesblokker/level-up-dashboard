@@ -340,11 +340,7 @@ export function TitanSiegeArsenal({ onOpenWorkshop, className = "" }: TitanSiege
         })}
       </div>
 
-      {/* Mobile Swipe Guidance Indicator */}
-      <div className="sm:hidden flex items-center justify-between text-[10px] text-zinc-400 px-1">
-        <span>👈 Swipe to view all 10 engines</span>
-        <span>Tap any slot for details</span>
-      </div>
+
 
       {/* Mobile Slot Detail Modal */}
       <Dialog open={!!selectedMobileEngine} onOpenChange={(open) => !open && setSelectedMobileEngine(null)}>

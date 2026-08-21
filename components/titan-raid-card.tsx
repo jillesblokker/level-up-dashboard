@@ -100,9 +100,9 @@ export function TitanRaidCard() {
       </CardHeader>
 
       <CardContent className="p-5 pt-0">
-        <div className="flex flex-col md:grid md:grid-cols-12 md:gap-6 md:items-center space-y-4 md:space-y-0">
-          {/* Left Column (Desktop): Boss Image Banner */}
-          <div className="md:col-span-5">
+        <div className="flex flex-col md:grid md:grid-cols-12 md:gap-6 md:items-start space-y-4 md:space-y-0">
+          {/* Left Column (Desktop): Boss Image Banner, Health Section & Vertical Stats */}
+          <div className="md:col-span-5 space-y-4">
             <motion.div 
               initial={{ scale: 0.98, opacity: 0.9 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -114,7 +114,7 @@ export function TitanRaidCard() {
                 alt={titan.name}
                 width={500}
                 height={500}
-                className={`w-full max-h-[240px] md:max-h-[300px] object-contain rounded-xl transition-all duration-700 ${isDefeated ? 'opacity-70 filter drop-shadow-[0_0_25px_rgba(245,158,11,0.6)]' : 'group-hover:scale-102'}`}
+                className={`w-full max-h-[220px] md:max-h-[260px] object-contain rounded-xl transition-all duration-700 ${isDefeated ? 'opacity-70 filter drop-shadow-[0_0_25px_rgba(245,158,11,0.6)]' : 'group-hover:scale-102'}`}
                 unoptimized
               />
 
@@ -131,23 +131,9 @@ export function TitanRaidCard() {
                 </div>
               )}
             </motion.div>
-          </div>
 
-          {/* Right Column (Desktop): Boss Stats, Damage Guidance & Loot */}
-          <div className="md:col-span-7 space-y-4">
-            {/* Habit Building Guidance Banner */}
-            <div className="bg-purple-950/40 p-3 rounded-xl border border-purple-500/30 text-xs text-purple-200 flex items-start gap-2.5">
-              <Zap className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold text-amber-300">Habit Raid Damage:</span> Completing real-life habits damages the boss! Quests (+1 HP), Tasks (+5 HP), and Goals (+10 HP).
-              </div>
-            </div>
-
-            {/* 10 Siege Engine Slots Arsenal */}
-            <TitanSiegeArsenal />
-
-            {/* Boss HP Progress & Stats */}
-            <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800/80 space-y-4">
+            {/* Boss HP Progress & Vertically Stacked Stats Section (Below Boss Image) */}
+            <div className="bg-zinc-900/60 p-4 rounded-xl border border-purple-900/40 space-y-3.5 shadow-md">
               <div className="flex justify-between items-center text-xs font-bold">
                 <span className="text-zinc-300 uppercase tracking-widest flex items-center gap-1.5">
                   <Shield className="w-4 h-4 text-purple-400" /> Boss health
@@ -159,21 +145,36 @@ export function TitanRaidCard() {
 
               <Progress value={hpPercentage} className="h-3.5 bg-zinc-950 border border-purple-500/30 [&>div]:bg-gradient-to-r [&>div]:from-purple-600 [&>div]:to-amber-500" />
 
-              <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1">
-                <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
-                  <div className="text-zinc-400 text-[10px]">Quests (+1 HP)</div>
-                  <div className="text-amber-400 font-bold font-mono">{stats.quests}</div>
+              {/* Vertically Stacked Quest, Task & Goal Stats */}
+              <div className="flex flex-col gap-2 pt-1 text-xs">
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-950/80 border border-zinc-800">
+                  <span className="text-zinc-300 font-medium">Daily quests (+1 HP)</span>
+                  <span className="text-amber-400 font-bold font-mono text-sm">{stats.quests}</span>
                 </div>
-                <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
-                  <div className="text-zinc-400 text-[10px]">Tasks (+5 HP)</div>
-                  <div className="text-purple-400 font-bold font-mono">{stats.challenges}</div>
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-950/80 border border-zinc-800">
+                  <span className="text-zinc-300 font-medium">Weekly challenges (+5 HP)</span>
+                  <span className="text-purple-400 font-bold font-mono text-sm">{stats.challenges}</span>
                 </div>
-                <div className="p-2 rounded-lg bg-zinc-950/60 border border-zinc-800">
-                  <div className="text-zinc-400 text-[10px]">Goals (+10 HP)</div>
-                  <div className="text-emerald-400 font-bold font-mono">{stats.milestones}</div>
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-950/80 border border-zinc-800">
+                  <span className="text-zinc-300 font-medium">Milestones (+10 HP)</span>
+                  <span className="text-emerald-400 font-bold font-mono text-sm">{stats.milestones}</span>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Right Column (Desktop): Guidance, Arsenal & Loot Claiming */}
+          <div className="md:col-span-7 space-y-4">
+            {/* Habit Building Guidance Banner */}
+            <div className="bg-purple-950/40 p-3 rounded-xl border border-purple-500/30 text-xs text-purple-200 flex items-start gap-2.5">
+              <Zap className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold text-amber-300">Habit Raid Damage:</span> Completing real-life habits damages the boss! Quests (+1 HP), Tasks (+5 HP), and Goals (+10 HP).
+              </div>
+            </div>
+
+            {/* 10 Siege Engine Slots Arsenal */}
+            <TitanSiegeArsenal />
 
             {/* Claim Rewards Footer */}
             <div className="flex flex-col gap-3 p-3.5 rounded-xl bg-purple-950/30 border border-purple-800/40">
