@@ -15,15 +15,15 @@ export interface TileQuestDef {
 
 export const TILE_QUEST_DEFINITIONS: TileQuestDef[] = [
   {
-    tileIds: ['zen-garden'],
-    questName: 'Zen Garden Meditation',
+    tileIds: ['zen-garden', 'zen_garden', 'whispering-canopy', 'whispering-canopy-tile', 'meditation', 'abbey', 'fairy-ring', 'fairy-ring-tile'],
+    questName: '5-minute Meditation',
     category: 'wellness',
     xp: 50,
     gold: 25,
     mandateCount: 1,
   },
   {
-    tileIds: ['jousting', 'archery', 'watchtower', 'barracks'],
+    tileIds: ['dungeon', 'dungeon-tile', 'castle', 'jousting', 'archery', 'watchtower', 'barracks', 'prison', 'prison-tile'],
     questName: 'Complete 3 Dungeon Battles',
     category: 'might',
     xp: 75,
@@ -90,16 +90,7 @@ export function checkAndUnlockTileQuests(gridTiles: any[]): void {
       newlyUnlockedCount++;
 
       const notifyKey = `tile_quest_notified_${def.questName.toLowerCase().replace(/\s+/g, '-')}`;
-      const alreadyNotified = getUserScopedItem(notifyKey);
-
-      if (!alreadyNotified) {
-        setUserScopedItem(notifyKey, 'true');
-        toast({
-          title: "Daily Quest Unlocked! 🗺️✨",
-          description: `New daily habit added: "${def.questName}". Complete it today for extra rewards!`,
-          duration: 2000,
-        });
-      }
+      setUserScopedItem(notifyKey, 'true');
     }
   });
 

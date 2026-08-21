@@ -112,13 +112,11 @@ export function reconcileQuestList(serverQuests: any[], localQuests: any[] = [],
     if (lq.title) localMap.set(String(lq.title).toLowerCase().trim(), lq);
   });
 
-  return serverList.map((sq: any) => {
+  const mergedList = serverList.map((sq: any) => {
     const sqId = String(sq.id || '').toLowerCase();
     const sqName = String(sq.name || sq.title || '').toLowerCase().trim();
 
     const localMatch = localMap.get(sqId) || (sqName ? localMap.get(sqName) : undefined);
-    // For today, preserve local optimistic completion (so network/502 errors never wipe player tracking)
-    // Server completion (sq.completed = true) or local completion (localMatch.completed = true) both count as completed for today.
     const isCompleted = isSameDay
       ? Boolean(sq.completed || localMatch?.completed)
       : Boolean(sq.completed);
@@ -131,4 +129,21 @@ export function reconcileQuestList(serverQuests: any[], localQuests: any[] = [],
       date: isCompleted ? (sq.date || localMatch?.date || new Date().toISOString()) : null
     };
   });
+
+  // Preserve local tile-unlocked or custom quests not yet in server list
+  localList.forEach((lq: any) => {
+    const lqId = String(lq.id || '').toLowerCase();
+    const lqName = String(lq.name || lq.title || '').toLowerCase().trim();
+    const existsInMerged = mergedList.some((mq: any) => {
+      const mqId = String(mq.id || '').toLowerCase();
+      const mqName = String(mq.name || mq.title || '').toLowerCase().trim();
+      return mqId === lqId || (lqName && mqName === lqName);
+    });
+
+    if (!existsInMerged && (lq.isTileUnlocked || lqId.startsWith('tile-quest-') || lqId.startsWith('custom-'))) {
+      mergedList.push(lq);
+    }
+  });
+
+  return mergedList;
 } 
