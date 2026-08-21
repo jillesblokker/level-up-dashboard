@@ -1369,9 +1369,9 @@ export default function DungeonPage() {
                             "absolute inset-0 z-0 opacity-40 pointer-events-none",
                             enemyDef.type === 'Fire' ? "bg-gradient-to-t from-red-950 via-red-900/30 to-amber-950" :
                             enemyDef.type === 'Water' ? "bg-gradient-to-t from-blue-950 via-blue-900/30 to-cyan-950" :
-                            enemyDef.type === 'Nature' || enemyDef.type === 'Verdant' ? "bg-gradient-to-t from-emerald-950 via-emerald-900/30 to-teal-950" :
-                            enemyDef.type === 'Electric' ? "bg-gradient-to-t from-amber-950 via-yellow-900/30 to-amber-950" :
-                            "bg-gradient-to-t from-purple-950 via-purple-900/30 to-zinc-950"
+                            enemyDef.type === 'Grass' ? "bg-gradient-to-t from-emerald-950 via-emerald-900/30 to-teal-950" :
+                            enemyDef.type === 'Rock' ? "bg-gradient-to-t from-amber-950 via-yellow-900/30 to-amber-950" :
+                            "bg-gradient-to-t from-sky-950 via-indigo-900/30 to-purple-950"
                           )} />
                           <div className="absolute top-2.5 left-2.5 z-20 flex flex-col gap-1">
                             <span className="text-xs text-red-300 font-extrabold bg-red-950/90 px-2.5 py-1 rounded-lg border border-red-500/40 shadow-md">
@@ -1510,9 +1510,9 @@ export default function DungeonPage() {
                                     "absolute inset-0 z-0 opacity-40 pointer-events-none",
                                     creature.type === 'Fire' ? "bg-gradient-to-t from-red-950 via-red-900/30 to-amber-950" :
                                     creature.type === 'Water' ? "bg-gradient-to-t from-blue-950 via-blue-900/30 to-cyan-950" :
-                                    creature.type === 'Nature' || creature.type === 'Verdant' ? "bg-gradient-to-t from-emerald-950 via-emerald-900/30 to-teal-950" :
-                                    creature.type === 'Electric' ? "bg-gradient-to-t from-amber-950 via-yellow-900/30 to-amber-950" :
-                                    "bg-gradient-to-t from-purple-950 via-purple-900/30 to-zinc-950"
+                                    creature.type === 'Grass' ? "bg-gradient-to-t from-emerald-950 via-emerald-900/30 to-teal-950" :
+                                    creature.type === 'Rock' ? "bg-gradient-to-t from-amber-950 via-yellow-900/30 to-amber-950" :
+                                    "bg-gradient-to-t from-sky-950 via-indigo-900/30 to-purple-950"
                                   )} />
                                   {/* Top Level Badge, Evolution Stage & Element Emoji */}
                                    <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
