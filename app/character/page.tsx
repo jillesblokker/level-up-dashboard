@@ -1,6 +1,7 @@
 "use client"
 
 import { logger } from "@/lib/logger";
+import { cn } from "@/lib/utils";
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hammer, Heart, AlertCircle, Loader2, Sparkles, AlertTriangle, Star, Coins, Clock, Check, ChevronDown, Utensils, Compass, Shield } from "lucide-react"
