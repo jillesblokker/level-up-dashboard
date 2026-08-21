@@ -1646,6 +1646,19 @@ export function KingdomGridWithTimers({
     if (onGridUpdate) {
       onGridUpdate(updatedGrid);
     }
+
+    // Persist siege engine stashing/removal to backend for cross-browser sync
+    (async () => {
+      try {
+        const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+        await fetchWithAuth('/api/realm-tiles', {
+          method: 'POST',
+          body: JSON.stringify({ x, y, tile_type: 2, meta: { placedSiegeEngine: null } })
+        });
+      } catch (err) {
+        logger.error('Failed to sync siege engine stashing to server:', err);
+      }
+    })();
     const localSandbox = (() => {
       try { return JSON.parse(localStorage.getItem('sandbox-inventory') || '{}'); }
       catch { return {}; }

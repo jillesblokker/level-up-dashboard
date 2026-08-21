@@ -1216,6 +1216,19 @@ function RealmPageContent() {
                 return next;
             });
 
+            // Immediately clear source tile in Supabase database so cross-browser state stays in sync
+            (async () => {
+                try {
+                    const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+                    await fetchWithAuth('/api/realm-tiles', {
+                        method: 'POST',
+                        body: JSON.stringify({ x, y, tile_type: 2, meta: { placedSiegeEngine: null } })
+                    });
+                } catch (e) {
+                    logger.error('[Realm] Failed to clear source siege tile on server:', e);
+                }
+            })();
+
             setSelectedTile({
                 id: siegeEngine.id,
                 type: (siegeEngine.type || siegeEngine.id) as any,
