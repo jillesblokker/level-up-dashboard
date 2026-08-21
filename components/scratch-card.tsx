@@ -236,7 +236,7 @@ export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: Scratc
   const colors = ['red', 'green', 'blue', 'white', 'black'];
   const colorName = colors[cardData.variantIndex] || 'red';
   const hasImage = cardData.number >= 1 && cardData.number <= 10;
-  const imagePath = hasImage ? `/images/Mythics/Mythic${cardData.number}${colorName}.png?v=2` : null;
+  const imagePath = hasImage ? `/images/Mythics/Mythic${cardData.number}${colorName}.webp?v=2` : null;
 
   const getRarityGlowClass = () => {
     if (!revealed) return "ring-1 ring-white/10";

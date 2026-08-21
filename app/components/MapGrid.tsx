@@ -33,6 +33,9 @@ interface MapGridProps {
 }
 
 const getTileImage = (tileType: string) => {
+  if (tileType?.startsWith('siege_')) {
+    return `/images/kingdom-tiles/${tileType}.webp`;
+  }
   switch (tileType) {
     case 'grass': return '/images/tiles/grass-tile.webp';
     case 'forest': return '/images/tiles/forest-tile.webp';
@@ -66,7 +69,7 @@ const getTileImage = (tileType: string) => {
     case 'waterway_canal': return '/images/kingdom-tiles/WaterwayCanal.webp';
     case 'astral_citadel_monument': return '/images/kingdom-tiles/AstralCitadelMonument.webp';
     case 'serene_lake': return '/images/kingdom-tiles/SereneLake.webp';
-    default: return '/images/tiles/empty-tile.webp';
+    default: return '/images/tiles/grass-tile.webp';
   }
 };
 
@@ -149,40 +152,50 @@ const MapTile = memo(({
       tabIndex={0}
       aria-label={`${tile.type} tile at position ${x},${y}${isPlayerHere ? ' - Character is here' : ''}${tile.hasMonster ? ` - Contains ${tile.hasMonster} monster` : ''}`}
     >
-      <Image
-        src={tile.image || getTileImage(tile.type)}
-        alt={tile.name || tile.type}
-        width={tileSize}
-        height={tileSize}
-        className="tile-image"
-        onError={(e) => {
-          logger.warn(`Failed to load tile image for ${tile.type}, using fallback`);
-          e.currentTarget.src = '/images/tiles/empty-tile.webp';
-        }}
-        style={{
-          objectFit: 'cover',
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-          transform: `rotate(${tile.rotation || 0}deg)`,
-          transition: 'transform 0.3s ease'
-        }}
-      />
-      {/* Placed Siege Engine Overlay (Rendered ON TOP of base terrain tile) */}
-      {tile.placedSiegeEngine && (
-        <div
-          className="absolute inset-0 flex items-center justify-center p-1 z-10 pointer-events-none"
-          style={{ transform: `rotate(${tile.placedSiegeEngine.rotation || 0}deg)` }}
-        >
-          <Image
-            src={tile.placedSiegeEngine.image || `/images/kingdom-tiles/${tile.placedSiegeEngine.type || tile.placedSiegeEngine.id}.webp`}
-            alt={tile.placedSiegeEngine.name || 'Siege Engine'}
-            width={tileSize}
-            height={tileSize}
-            className="object-contain filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
-            unoptimized={true}
-          />
-        </div>
-      )}
+      {(() => {
+        const isLegacySiege = tile.type?.startsWith('siege_');
+        const baseSrc = isLegacySiege ? '/images/tiles/grass-tile.webp' : (tile.image || getTileImage(tile.type));
+        const siegeEngine = tile.placedSiegeEngine || (isLegacySiege ? { id: tile.type, type: tile.type as any, name: tile.name || 'Siege Engine', rotation: tile.rotation || 0 } : null);
+
+        return (
+          <>
+            <Image
+              src={baseSrc}
+              alt={tile.name || tile.type}
+              width={tileSize}
+              height={tileSize}
+              className="tile-image"
+              onError={(e) => {
+                logger.warn(`Failed to load tile image for ${tile.type}, using fallback`);
+                e.currentTarget.src = '/images/tiles/grass-tile.webp';
+              }}
+              style={{
+                objectFit: 'cover',
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                transform: `rotate(${tile.rotation || 0}deg)`,
+                transition: 'transform 0.3s ease'
+              }}
+            />
+            {/* Placed Siege Engine Overlay (Rendered ON TOP of base terrain tile) */}
+            {siegeEngine && (
+              <div
+                className="absolute inset-0 flex items-center justify-center p-1 z-10 pointer-events-none"
+                style={{ transform: `rotate(${siegeEngine.rotation || 0}deg)` }}
+              >
+                <Image
+                  src={`/images/kingdom-tiles/${siegeEngine.type || siegeEngine.id}.webp`}
+                  alt={siegeEngine.name || 'Siege Engine'}
+                  width={tileSize}
+                  height={tileSize}
+                  className="object-contain filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
+                  unoptimized={true}
+                />
+              </div>
+            )}
+          </>
+        );
+      })()}
       {isHovered && !isPlayerHere && !tile.hasMonster && tile.type !== 'empty' && (
         <div className="absolute top-1 right-1 z-20 flex gap-1">
           {onTileMove && (

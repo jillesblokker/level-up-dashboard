@@ -30,7 +30,7 @@ export const WAGER_TIERS: WagerTier[] = [
   { id: 'easy', name: 'Easy', opponentName: 'Leaf', opponentId: '001', wager: 1000, multiplier: 2, requiredLevel: 1, emoji: '🌱' },
   { id: 'normal', name: 'Normal', opponentName: 'Dolphio', opponentId: '002', wager: 10000, multiplier: 2.5, requiredLevel: 10, emoji: '🐬' },
   { id: 'hard', name: 'Hard', opponentName: 'Blizzey', opponentId: '004', wager: 50000, multiplier: 3, requiredLevel: 20, emoji: '❄️' },
-  { id: 'master', name: 'Master', opponentName: 'Ember Drake', opponentId: 'mythic-1', opponentFilename: 'Mythic1red.png', isMythic: true, wager: 100000, multiplier: 4, requiredLevel: 30, emoji: '🔥' },
+  { id: 'master', name: 'Master', opponentName: 'Ember Drake', opponentId: 'mythic-1', opponentFilename: 'Mythic1red.webp', isMythic: true, wager: 100000, multiplier: 4, requiredLevel: 30, emoji: '🔥' },
 ];
 
 export interface Bid {
@@ -51,10 +51,11 @@ export type GamePhase =
 // Helper function to resolve creature images
 function getCreatureImage(id?: string, filename?: string, isMythic?: boolean): string {
   if (isMythic || id?.startsWith('mythic-') || filename?.startsWith('Mythic')) {
-    const fn = filename || (id ? `${id}.png` : 'Mythic1red.png');
+    const fn = (filename || (id ? `${id}.webp` : 'Mythic1red.webp')).replace(/\.png$/i, '.webp');
     return `/images/Mythics/${fn}?v=2`;
   }
-  return `/images/creatures/${id || '001'}.png`;
+  const fn = (filename || (id ? `${id}.webp` : '001.webp')).replace(/\.png$/i, '.webp');
+  return `/images/creatures/${fn}`;
 }
 
 // --- WEB AUDIO SYNTHESIZER ---

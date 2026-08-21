@@ -73,11 +73,11 @@ const HABIT_JOURNEYS: JourneyRegion[] = [
 ];
 
 const DEFAULT_CREW_FIGHTERS: any[] = [
-  { id: '001', name: 'Flamio', filename: '001.png', type: 'fire', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
-  { id: '004', name: 'Dolphio', filename: '004.png', type: 'water', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
-  { id: '007', name: 'Leaf', filename: '007.png', type: 'nature', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
-  { id: '010', name: 'Rockie', filename: '010.png', type: 'earth', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
-  { id: '013', name: 'IceCube', filename: '013.png', type: 'ice', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
+  { id: '001', name: 'Flamio', filename: '001.webp', type: 'fire', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
+  { id: '004', name: 'Dolphio', filename: '004.webp', type: 'water', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
+  { id: '007', name: 'Leaf', filename: '007.webp', type: 'nature', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
+  { id: '010', name: 'Rockie', filename: '010.webp', type: 'earth', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
+  { id: '013', name: 'IceCube', filename: '013.webp', type: 'ice', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
 ];
 
 export function AirshipHarborTab() {
@@ -585,7 +585,7 @@ export function AirshipHarborTab() {
                             <div className="flex items-center gap-2 min-w-0">
                               <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden relative">
                                 <Image
-                                  src={`/images/creatures/${c.id}.png`}
+                                  src={c.filename ? `/images/creatures/${c.filename.replace(/\.png$/i, '.webp')}` : `/images/creatures/${c.id}.webp`}
                                   alt={c.name}
                                   width={32}
                                   height={32}
