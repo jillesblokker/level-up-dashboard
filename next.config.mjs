@@ -33,7 +33,7 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:3005'],
+      allowedOrigins: ['localhost:3005', 'lvlup.jillesblokker.com', 'https://lvlup.jillesblokker.com', 'clerk.jillesblokker.com'],
     },
   },
   env: {

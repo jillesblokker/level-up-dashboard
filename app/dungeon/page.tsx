@@ -1355,18 +1355,24 @@ export default function DungeonPage() {
                       const isMythic = isMythicCreature(enemyDef.id, enemyDef.filename, enemyDef.isMythic);
                       return (
                         <div className="relative w-full aspect-[768/1106] flex items-center justify-center overflow-hidden bg-zinc-950">
-                          {/* Undiscovered Mystic Card Background Texture (Mythics ONLY) */}
-                          {isMythic && (
-                            <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-luminosity">
-                              <Image
-                                src="/images/headers/undiscovered.webp"
-                                alt="Mystic Card Frame"
-                                fill
-                                className="object-cover"
-                                unoptimized
-                              />
-                            </div>
-                          )}
+                          {/* Card Background Texture & Elemental Gradient for ALL Enemy Creatures */}
+                          <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-luminosity">
+                            <Image
+                              src="/images/headers/undiscovered.webp"
+                              alt="Card Frame Texture"
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                          </div>
+                          <div className={cn(
+                            "absolute inset-0 z-0 opacity-40 pointer-events-none",
+                            enemyDef.type === 'Fire' ? "bg-gradient-to-t from-red-950 via-red-900/30 to-amber-950" :
+                            enemyDef.type === 'Water' ? "bg-gradient-to-t from-blue-950 via-blue-900/30 to-cyan-950" :
+                            enemyDef.type === 'Nature' || enemyDef.type === 'Verdant' ? "bg-gradient-to-t from-emerald-950 via-emerald-900/30 to-teal-950" :
+                            enemyDef.type === 'Electric' ? "bg-gradient-to-t from-amber-950 via-yellow-900/30 to-amber-950" :
+                            "bg-gradient-to-t from-purple-950 via-purple-900/30 to-zinc-950"
+                          )} />
                           <div className="absolute top-2.5 left-2.5 z-20 flex flex-col gap-1">
                             <span className="text-xs text-red-300 font-extrabold bg-red-950/90 px-2.5 py-1 rounded-lg border border-red-500/40 shadow-md">
                               Lv.{enemyLevel}
@@ -1490,18 +1496,24 @@ export default function DungeonPage() {
                               const isMythic = isMythicCreature(creature.id, creature.filename, creature.isMythic);
                               return (
                                 <div className="relative w-full aspect-[768/1106] flex items-center justify-center overflow-hidden bg-zinc-950">
-                                  {/* Undiscovered Mystic Card Background Texture (Mythics ONLY) */}
-                                  {isMythic && (
-                                    <div className="absolute inset-0 z-0 pointer-events-none opacity-50 mix-blend-luminosity">
-                                      <Image
-                                        src="/images/headers/undiscovered.webp"
-                                        alt="Mystic Card Frame"
-                                        fill
-                                        className="object-cover"
-                                        unoptimized
-                                      />
-                                    </div>
-                                  )}
+                                  {/* Card Background Texture & Elemental Gradient for ALL Creatures */}
+                                  <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-luminosity">
+                                    <Image
+                                      src="/images/headers/undiscovered.webp"
+                                      alt="Card Frame Texture"
+                                      fill
+                                      className="object-cover"
+                                      unoptimized
+                                    />
+                                  </div>
+                                  <div className={cn(
+                                    "absolute inset-0 z-0 opacity-40 pointer-events-none",
+                                    creature.type === 'Fire' ? "bg-gradient-to-t from-red-950 via-red-900/30 to-amber-950" :
+                                    creature.type === 'Water' ? "bg-gradient-to-t from-blue-950 via-blue-900/30 to-cyan-950" :
+                                    creature.type === 'Nature' || creature.type === 'Verdant' ? "bg-gradient-to-t from-emerald-950 via-emerald-900/30 to-teal-950" :
+                                    creature.type === 'Electric' ? "bg-gradient-to-t from-amber-950 via-yellow-900/30 to-amber-950" :
+                                    "bg-gradient-to-t from-purple-950 via-purple-900/30 to-zinc-950"
+                                  )} />
                                   {/* Top Level Badge, Evolution Stage & Element Emoji */}
                                    <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
                                      <span className="text-[10px] text-amber-300 font-extrabold bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/30 shadow">
