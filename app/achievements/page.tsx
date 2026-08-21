@@ -61,7 +61,11 @@ export default function Page() {
       try {
         const response = await fetch('/api/achievement-definitions');
         if (response.ok) {
-          let data: AchievementDefinition[] = await response.json();
+          let rawData: AchievementDefinition[] = await response.json();
+          let data: AchievementDefinition[] = rawData.map(item => ({
+            ...item,
+            image_url: item.image_url ? item.image_url.replace(/\.png$/i, '.webp') : `/images/achievements/${item.id}.webp`
+          }));
 
           // Ensure alliance achievements (107-112) are present
           const allianceIds = ['107', '108', '109', '110', '111', '112'];
@@ -1089,7 +1093,7 @@ export default function Page() {
                           <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-zinc-950 border-blue-500/30 shadow-2xl shadow-black/40 group-hover:border-blue-500/60 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
                             <div className="relative w-full h-full">
                               <Image
-                                src={unlocked && achievement.image_url ? achievement.image_url : '/images/placeholders/undiscovered.webp'}
+                                src={unlocked && achievement.image_url ? achievement.image_url.replace(/\.png$/i, '.webp') : '/images/placeholders/undiscovered.webp'}
                                 alt={achievement.name}
                                 fill
                                 className={`object-cover transition-transform duration-500 group-hover:scale-105 ${unlocked ? 'opacity-100' : 'opacity-30 blur-xs scale-95'}`}
@@ -1218,7 +1222,7 @@ export default function Page() {
                           <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-zinc-950 border-red-500/30 shadow-2xl shadow-black/40 group-hover:border-red-500/60 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
                             <div className="relative w-full h-full">
                               <Image
-                                src={unlocked && achievement.image_url ? achievement.image_url : '/images/placeholders/undiscovered.webp'}
+                                src={unlocked && achievement.image_url ? achievement.image_url.replace(/\.png$/i, '.webp') : '/images/placeholders/undiscovered.webp'}
                                 alt={monsterName}
                                 fill
                                 className={`object-cover transition-transform duration-500 group-hover:scale-105 ${unlocked ? 'opacity-100' : 'opacity-30 blur-xs scale-95'}`}
@@ -1328,16 +1332,16 @@ export default function Page() {
                       <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
                         {/* FRONT FACE */}
                         <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-zinc-950 border-emerald-500/30 shadow-2xl shadow-black/40 group-hover:border-emerald-500/60 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
-                          <div className="relative w-full h-full">
-                            <Image
-                              src={unlocked && achievement.image_url ? achievement.image_url : '/images/placeholders/undiscovered.webp'}
-                              alt={achievement.name}
-                              fill
-                              className={`object-cover transition-transform duration-500 group-hover:scale-105 ${unlocked ? 'opacity-100' : 'opacity-30 blur-xs scale-95'}`}
-                              priority={idx < 3}
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                              unoptimized
-                            />
+                            <div className="relative w-full h-full">
+                              <Image
+                                src={unlocked && achievement.image_url ? achievement.image_url.replace(/\.png$/i, '.webp') : '/images/placeholders/undiscovered.webp'}
+                                alt={achievement.name}
+                                fill
+                                className={`object-cover transition-transform duration-500 group-hover:scale-105 ${unlocked ? 'opacity-100' : 'opacity-30 blur-xs scale-95'}`}
+                                priority={idx < 3}
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                unoptimized
+                              />
                             <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
                               {unlocked ? (
                                 <>
