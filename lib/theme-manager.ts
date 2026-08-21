@@ -40,10 +40,10 @@ export async function setAppTheme(theme: AppTheme): Promise<void> {
 }
 
 /**
- * Retrieves the current app theme ('classic', 'medieval', or 'oldskool').
+ * Retrieves the current app theme ('classic', 'medieval', or 'oldskool'). Defaults to 'oldskool'.
  */
 export function getAppThemeSync(): AppTheme {
-  if (typeof window === 'undefined') return 'medieval';
+  if (typeof window === 'undefined') return 'oldskool';
   try {
     const saved = localStorage.getItem('app-theme') || localStorage.getItem('pref:app-theme');
     if (saved) {
@@ -53,28 +53,29 @@ export function getAppThemeSync(): AppTheme {
   } catch {
     // Ignore
   }
-  return 'medieval';
+  return 'oldskool';
 }
 
 /**
- * Initializes the app theme on client mount.
+ * Initializes the app theme on client mount (defaulting to oldskool).
  */
 export function initAppTheme(): void {
   if (typeof document === 'undefined') return;
   const current = getAppThemeSync();
-  if (current === 'oldskool') {
-    document.documentElement.setAttribute('data-theme', 'oldskool');
-    document.body.setAttribute('data-theme', 'oldskool');
-    document.body.classList.add('theme-oldskool');
-    document.body.classList.remove('theme-medieval');
-  } else if (current === 'medieval') {
+  if (current === 'medieval') {
     document.documentElement.setAttribute('data-theme', 'medieval');
     document.body.setAttribute('data-theme', 'medieval');
     document.body.classList.add('theme-medieval');
     document.body.classList.remove('theme-oldskool');
-  } else {
+  } else if (current === 'classic') {
     document.documentElement.removeAttribute('data-theme');
     document.body.removeAttribute('data-theme');
     document.body.classList.remove('theme-medieval', 'theme-oldskool');
+  } else {
+    // Default theme: 'oldskool'
+    document.documentElement.setAttribute('data-theme', 'oldskool');
+    document.body.setAttribute('data-theme', 'oldskool');
+    document.body.classList.add('theme-oldskool');
+    document.body.classList.remove('theme-medieval');
   }
 }

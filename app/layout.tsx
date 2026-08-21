@@ -155,13 +155,32 @@ export default function RootLayout({
         },
       }}
     >
-      <html lang="en" suppressHydrationWarning className="min-h-screen">
+      <html lang="en" suppressHydrationWarning className="min-h-screen" data-theme="oldskool">
         <head>
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
           <meta name="theme-color" content="#f59e0b" />
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  try {
+                    var saved = localStorage.getItem('app-theme') || localStorage.getItem('pref:app-theme');
+                    var theme = saved ? saved.replace(/"/g, '') : 'oldskool';
+                    if (theme === 'oldskool') {
+                      document.documentElement.setAttribute('data-theme', 'oldskool');
+                    } else if (theme === 'medieval') {
+                      document.documentElement.setAttribute('data-theme', 'medieval');
+                    } else {
+                      document.documentElement.removeAttribute('data-theme');
+                    }
+                  } catch (e) {}
+                })();
+              `
+            }}
+          />
           <script
             dangerouslySetInnerHTML={{
               __html: `
@@ -236,13 +255,16 @@ export default function RootLayout({
             }}
           />
         </head>
-        <body className={cn(
-          "min-h-screen font-sans antialiased bg-black text-white",
-          fontSans.variable,
-          fontGloock.variable,
-          fontLibreBaskerville.variable,
-          fontCinzel.variable
-        )}>
+        <body 
+          data-theme="oldskool"
+          className={cn(
+            "min-h-screen font-sans antialiased bg-black text-white theme-oldskool",
+            fontSans.variable,
+            fontGloock.variable,
+            fontLibreBaskerville.variable,
+            fontCinzel.variable
+          )}
+        >
           <GlobalErrorBoundary>
             <Providers>
               <GradientProvider>

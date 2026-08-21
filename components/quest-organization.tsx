@@ -687,6 +687,7 @@ export function QuestOrganization({
                     <motion.div 
                       key={quest.id} 
                       layout
+                      className="h-full flex flex-col"
                       variants={{
                         hidden: { opacity: 0, y: 20 },
                         show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
@@ -694,7 +695,7 @@ export function QuestOrganization({
                       exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
                     >
                       <Card
-                        className={`relative overflow-hidden border transition-all duration-500 ease-in-out hover:shadow-lg ${quest.completed
+                        className={`relative overflow-hidden border transition-all duration-500 ease-in-out hover:shadow-lg h-full flex flex-col justify-between min-h-[220px] ${quest.completed
                           ? 'border-emerald-500/60 bg-gradient-to-br from-emerald-950/90 via-green-950/90 to-emerald-950/90 text-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.25)]'
                           : 'border-amber-800/20 bg-zinc-900 hover:border-amber-500/40'
                           }`}
@@ -704,7 +705,7 @@ export function QuestOrganization({
                         {!quest.completed && (
                           <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-amber-600/10 via-amber-500/40 to-amber-600/10 rounded-r-xl pointer-events-none md:hidden" />
                         )}
-                    <CardContent className="p-4">
+                    <CardContent className="p-4 h-full flex flex-col justify-between">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2 flex-wrap">
                           <Badge
@@ -890,17 +891,18 @@ export function QuestOrganization({
                 {/* Add Quest Card */}
                 <motion.div 
                   layout
+                  className="h-full flex flex-col"
                   variants={{
                     hidden: { opacity: 0, y: 20 },
                     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
                   }}
                 >
                   <Card
-                    className="border-2 border-dashed border-amber-800/40 bg-gradient-to-br from-amber-900/5 to-zinc-900/50 hover:border-amber-600/60 hover:bg-amber-900/10 transition-all duration-300 cursor-pointer group"
+                    className="border-2 border-dashed border-amber-800/40 bg-gradient-to-br from-amber-900/5 to-zinc-900/50 hover:border-amber-600/60 hover:bg-amber-900/10 transition-all duration-300 cursor-pointer group h-full min-h-[220px] flex flex-col justify-center"
                     onClick={onAddQuest}
                     aria-label="Add new quest"
                   >
-                    <CardContent className="p-4 h-full flex flex-col items-center justify-center text-center min-h-[200px]">
+                    <CardContent className="p-4 h-full flex flex-col items-center justify-center text-center min-h-[220px]">
                       <div className="w-16 h-16 rounded-full bg-amber-500/10 border-2 border-amber-800/30 flex items-center justify-center mb-4 group-hover:bg-amber-500/20 group-hover:border-amber-600/50 group-hover:scale-110 transition-all">
                         <Plus className="h-8 w-8 text-amber-500 group-hover:text-amber-400" />
                       </div>
