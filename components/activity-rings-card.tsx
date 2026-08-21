@@ -6,12 +6,12 @@ import { Trophy, Activity } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // ── Ring math helpers ─────────────────────────────────────────────────────────
-const R_OUTER = 52   // Quests ring
-const R_MID   = 38   // XP ring
-const R_INNER = 24   // Categories ring
-const STROKE  = 9
-const CX = 68
-const CY = 68
+const R_OUTER = 60   // Quests ring
+const R_MID   = 44   // XP ring
+const R_INNER = 28   // Categories ring
+const STROKE  = 11
+const CX = 75
+const CY = 75
 
 function circumference(r: number) { return 2 * Math.PI * r }
 
@@ -206,12 +206,12 @@ export function ActivityRingsCard({
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col justify-center p-5 md:p-6">
-        <div className="flex flex-col sm:flex-row items-center gap-6">
+        <div className="flex flex-col items-center gap-5 w-full">
 
-          {/* ── SVG rings ── */}
-          <div className="relative flex-shrink-0 w-full max-w-[240px] sm:max-w-none sm:w-[180px] lg:w-[200px] aspect-square mx-auto mb-4 sm:mb-0">
+          {/* ── SVG rings (Placed ABOVE the bars for both desktop & mobile, bigger scale for readability) ── */}
+          <div className="relative flex-shrink-0 w-full max-w-[260px] sm:max-w-[280px] md:max-w-[300px] aspect-square mx-auto">
             <svg
-              className="w-full h-full"
+              className="w-full h-full drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]"
               viewBox={`0 0 ${CX * 2} ${CY * 2}`}
               aria-label="Activity rings"
             >
@@ -230,26 +230,25 @@ export function ActivityRingsCard({
                 />
               ))}
 
-              {/* Centre: overall tier */}
-              <text x={CX} y={CY - 5} textAnchor="middle" className="fill-white font-serif" fontSize={12} fontWeight={800}>
+              {/* Centre: overall tier text (larger & clearer font) */}
+              <text x={CX} y={CY - 4} textAnchor="middle" className="fill-amber-200 font-serif" fontSize={15} fontWeight={900}>
                 {completedCount > 0 ? tierLabel(questPct).text : '—'}
               </text>
-              <text x={CX} y={CY + 10} textAnchor="middle" fill="#78716c" fontSize={9}>
+              <text x={CX} y={CY + 12} textAnchor="middle" fill="#a8a29e" fontSize={10} fontWeight={700}>
                 Today
               </text>
             </svg>
-
           </div>
 
-          {/* ── Right: ring stats ── */}
-          <div className="flex-1 w-full space-y-3">
+          {/* ── Progress Bars & Ring Stats (Placed BELOW the graph) ── */}
+          <div className="flex-1 w-full space-y-3.5 pt-1">
             {rings.map(ring => {
               const tier = tierLabel(ring.pct)
               return (
                 <div key={ring.name} className="flex items-center gap-3">
                   {/* Ring colour dot */}
                   <div className={cn(
-                    "w-2.5 h-2.5 rounded-full flex-shrink-0",
+                    "w-3 h-3 rounded-full flex-shrink-0 shadow-sm",
                     ring.name === 'quests'     ? 'bg-orange-400' :
                     ring.name === 'xp'         ? 'bg-indigo-400' :
                                                  'bg-emerald-400'
@@ -257,18 +256,18 @@ export function ActivityRingsCard({
 
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-baseline mb-1">
-                      <span className="text-xs font-semibold text-zinc-300">{ring.label}</span>
-                      <span className="text-xs font-mono text-zinc-400">{ring.value}</span>
+                      <span className="text-xs font-bold text-zinc-200">{ring.label}</span>
+                      <span className="text-xs font-mono font-bold text-amber-300">{ring.value}</span>
                     </div>
                     {/* Segmented bar: 3 zones */}
-                    <div className="h-2 rounded-full bg-zinc-800 overflow-hidden flex">
+                    <div className="h-2.5 rounded-full bg-zinc-950 border border-zinc-800/80 overflow-hidden flex">
                       {/* Good zone: 0–33% → fills first third */}
                       <div
                         className={cn(
                           "h-full transition-all duration-700 rounded-full",
-                          ring.name === 'quests' ? 'bg-orange-200' :
-                          ring.name === 'xp'     ? 'bg-indigo-200' :
-                                                   'bg-emerald-200'
+                          ring.name === 'quests' ? 'bg-orange-300' :
+                          ring.name === 'xp'     ? 'bg-indigo-300' :
+                                                   'bg-emerald-300'
                         )}
                         style={{ width: `${Math.min(ring.pct / 0.33, 1) * 33}%` }}
                       />
@@ -277,8 +276,8 @@ export function ActivityRingsCard({
                         className={cn(
                           "h-full transition-all duration-700",
                           ring.name === 'quests' ? 'bg-orange-400' :
-                          ring.name === 'xp'     ? 'bg-indigo-300' :
-                                                   'bg-emerald-300'
+                          ring.name === 'xp'     ? 'bg-indigo-400' :
+                                                   'bg-emerald-400'
                         )}
                         style={{ width: ring.pct >= 0.33 ? `${Math.min((ring.pct - 0.33) / 0.33, 1) * 33}%` : '0%' }}
                       />
@@ -287,8 +286,8 @@ export function ActivityRingsCard({
                         className={cn(
                           "h-full transition-all duration-700",
                           ring.name === 'quests' ? 'bg-orange-500' :
-                          ring.name === 'xp'     ? 'bg-indigo-400' :
-                                                   'bg-emerald-400'
+                          ring.name === 'xp'     ? 'bg-indigo-500' :
+                                                   'bg-emerald-500'
                         )}
                         style={{ width: ring.pct >= 0.66 ? `${Math.min((ring.pct - 0.66) / 0.34, 1) * 34}%` : '0%' }}
                       />
@@ -296,7 +295,7 @@ export function ActivityRingsCard({
                   </div>
 
                   {/* Tier badge */}
-                  <span className={cn("text-[10px] font-bold uppercase tracking-wide w-16 text-right", tier.color)}>
+                  <span className={cn("text-xs font-extrabold uppercase tracking-wide w-20 text-right shrink-0", tier.color)}>
                     {tier.text}
                   </span>
                 </div>
@@ -304,10 +303,10 @@ export function ActivityRingsCard({
             })}
 
             {/* Zone legend */}
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 border-t border-zinc-800/50 text-[10px] font-mono text-zinc-400">
-              <span className="flex items-center gap-1"><span className="w-2 h-1.5 rounded-sm bg-emerald-400/80 inline-block" />Good &gt;1</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-1.5 rounded-sm bg-indigo-300/80 inline-block" />Great &gt;33%</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-1.5 rounded-sm bg-orange-400/80 inline-block" />Amazing &gt;66%</span>
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 pt-2 border-t border-zinc-800/60 text-xs font-mono text-zinc-400">
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2 rounded-sm bg-emerald-400 inline-block" />Good &gt;1</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2 rounded-sm bg-indigo-400 inline-block" />Great &gt;33%</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2 rounded-sm bg-orange-400 inline-block" />Amazing &gt;66%</span>
             </div>
           </div>
         </div>
