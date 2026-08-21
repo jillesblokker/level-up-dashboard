@@ -1,52 +1,132 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/jilles/Thrivehaven/__tests__/lib/tile-quest-service.test.ts">
-    <testCase name="tile-quest-service should define tile quest definitions correctly" duration="1"/>
-    <testCase name="tile-quest-service should do nothing if grid is empty or invalid" duration="0"/>
+  <file path="/Users/jilles/Thrivehaven/__tests__/lib/inventory-logic.test.ts">
+    <testCase name="Quantity Utils safeDecrement should decrement normally when result is positive" duration="4"/>
+    <testCase name="Quantity Utils safeDecrement should return 0 when decrement exceeds current" duration="1"/>
+    <testCase name="Quantity Utils safeDecrement should handle undefined/null current values" duration="1"/>
+    <testCase name="Quantity Utils safeDecrement should default to decrement of 1" duration="0"/>
+    <testCase name="Quantity Utils safeIncrement should increment normally" duration="3"/>
+    <testCase name="Quantity Utils safeIncrement should default to increment of 1" duration="0"/>
+    <testCase name="Quantity Utils canDecrement should return true when sufficient quantity exists" duration="1"/>
+    <testCase name="Quantity Utils canDecrement should return false when insufficient quantity" duration="0"/>
+    <testCase name="Quantity Utils formatQuantity should format positive numbers correctly" duration="0"/>
+    <testCase name="Quantity Utils formatQuantity should handle zero and negative" duration="0"/>
+    <testCase name="Quantity Utils formatQuantity should handle undefined/null" duration="1"/>
+    <testCase name="Quantity Utils isValidQuantity should validate positive numbers" duration="1"/>
+    <testCase name="Quantity Utils isValidQuantity should reject negative numbers" duration="0"/>
+    <testCase name="Quantity Utils isValidQuantity should reject non-numbers" duration="0"/>
+    <testCase name="Inventory Count Merge Logic should merge by exact ID match" duration="1"/>
+    <testCase name="Inventory Count Merge Logic should merge by case-insensitive ID match" duration="0"/>
+    <testCase name="Inventory Count Merge Logic should merge by name match when IDs differ" duration="0"/>
+    <testCase name="Inventory Count Merge Logic should NOT create separate entries for the same item" duration="0"/>
+    <testCase name="Inventory Count Merge Logic should handle multiple placements correctly" duration="0"/>
   </file>
-  <file path="/Users/jilles/Thrivehaven/__tests__/lib/store/app-store.test.ts">
-    <testCase name="App Store Initial State has correct initial state" duration="4"/>
-    <testCase name="App Store User Actions sets user data correctly" duration="0"/>
-    <testCase name="App Store User Actions updates user preferences" duration="0"/>
-    <testCase name="App Store User Actions merges user data without overwriting existing fields" duration="0"/>
-    <testCase name="App Store Quest Actions sets quests correctly" duration="0"/>
-    <testCase name="App Store Quest Actions toggles quest completion correctly" duration="0"/>
-    <testCase name="App Store Quest Actions handles quest completion for non-existent quest" duration="0"/>
-    <testCase name="App Store Inventory Actions sets inventory correctly" duration="0"/>
-    <testCase name="App Store Inventory Actions overwrites existing inventory" duration="1"/>
-    <testCase name="App Store UI Actions sets UI state correctly" duration="1"/>
-    <testCase name="App Store UI Actions merges UI state without overwriting existing fields" duration="1"/>
-    <testCase name="App Store Reset App Action resets app state to initial values" duration="0"/>
-    <testCase name="App Store Selector Hooks useUser returns user state" duration="1"/>
-    <testCase name="App Store Selector Hooks useQuests returns quests state" duration="0"/>
-    <testCase name="App Store Selector Hooks useInventory returns inventory state" duration="1"/>
-    <testCase name="App Store Selector Hooks useUI returns UI state" duration="1"/>
-    <testCase name="App Store Selector Hooks useAppActions returns all actions" duration="0"/>
-    <testCase name="App Store State Updates triggers re-renders when state changes" duration="1"/>
-    <testCase name="App Store State Updates maintains referential equality for unchanged objects" duration="0"/>
-    <testCase name="App Store Edge Cases handles empty arrays and objects" duration="0"/>
-    <testCase name="App Store Edge Cases handles null and undefined values gracefully" duration="0"/>
+  <file path="/Users/jilles/Thrivehaven/__tests__/lib/quests-persistence.test.ts">
+    <testCase name="reconcileQuestList should return server list if no local quests exist" duration="4"/>
+    <testCase name="reconcileQuestList should retain completed status if same day and local state is completed" duration="0"/>
+    <testCase name="reconcileQuestList should NOT retain local completed status if not same day (new day)" duration="1"/>
+    <testCase name="reconcileQuestList should match local quests by case-insensitive name or title" duration="0"/>
+  </file>
+  <file path="/Users/jilles/Thrivehaven/__tests__/lib/fetch-cache.test.ts">
+    <testCase name="Fetch Cache cachedFetch should call fetcher on first request" duration="4"/>
+    <testCase name="Fetch Cache cachedFetch should return cached data on subsequent requests" duration="1"/>
+    <testCase name="Fetch Cache cachedFetch should force refresh when option is set" duration="1"/>
+    <testCase name="Fetch Cache cachedFetch should deduplicate concurrent requests" duration="1"/>
+    <testCase name="Fetch Cache invalidateCache should remove specific cache entry" duration="1"/>
+    <testCase name="Fetch Cache getCacheStats should report correct cache size" duration="1"/>
+  </file>
+  <file path="/Users/jilles/Thrivehaven/__tests__/lib/character-stats.test.ts">
+    <testCase name="Character Stats Service getExperienceForLevel should return 0 for level 1" duration="3"/>
+    <testCase name="Character Stats Service getExperienceForLevel should return 100 for level 2" duration="0"/>
+    <testCase name="Character Stats Service getExperienceForLevel should return progressively more XP for higher levels" duration="3"/>
+    <testCase name="Character Stats Service shouldLevelUp should return false when experience is below threshold" duration="1"/>
+    <testCase name="Character Stats Service shouldLevelUp should return true when experience meets threshold" duration="0"/>
+    <testCase name="Character Stats Service shouldLevelUp should return true when experience exceeds threshold" duration="0"/>
+    <testCase name="Character Stats Service calculateLevel should return level 1 for 0 experience" duration="1"/>
+    <testCase name="Character Stats Service calculateLevel should return level 2 for 100 experience" duration="0"/>
+    <testCase name="Character Stats Service calculateLevel should return level 3 for 300 experience" duration="0"/>
+    <testCase name="Character Stats Service calculateLevel should handle experience in between levels" duration="1"/>
+    <testCase name="Character Stats Service applyExperience should add experience without level up" duration="0"/>
+    <testCase name="Character Stats Service applyExperience should trigger level up when threshold reached" duration="1"/>
+    <testCase name="Character Stats Service applyExperience should handle multiple level ups at once" duration="1"/>
+    <testCase name="Character Stats Service applyExperience should increase max health on level up" duration="0"/>
+    <testCase name="Character Stats Service applyExperience should heal to full on level up" duration="1"/>
+    <testCase name="Character Stats Service applyExperience should not heal if no level up" duration="0"/>
+    <testCase name="Character Stats Service applyGold should add gold correctly" duration="1"/>
+    <testCase name="Character Stats Service applyGold should subtract gold correctly" duration="0"/>
+    <testCase name="Character Stats Service applyGold should prevent negative gold" duration="1"/>
+    <testCase name="Character Stats Service applyGold should allow spending all gold" duration="1"/>
+    <testCase name="Quest Reward Calculations should apply easy difficulty multiplier" duration="0"/>
+    <testCase name="Quest Reward Calculations should apply hard difficulty multiplier" duration="0"/>
+    <testCase name="Quest Reward Calculations should apply streak bonus" duration="1"/>
+    <testCase name="Quest Reward Calculations should combine difficulty and streak multipliers" duration="0"/>
+  </file>
+  <file path="/Users/jilles/Thrivehaven/__tests__/lib/validation/schemas.test.ts">
+    <testCase name="Validation Schemas Quest Schema validates a valid quest" duration="6"/>
+    <testCase name="Validation Schemas Quest Schema requires title" duration="1"/>
+    <testCase name="Validation Schemas Quest Schema enforces title length limit" duration="1"/>
+    <testCase name="Validation Schemas Quest Schema enforces description length limit" duration="0"/>
+    <testCase name="Validation Schemas Quest Schema validates category enum values" duration="1"/>
+    <testCase name="Validation Schemas Quest Schema validates difficulty enum values" duration="1"/>
+    <testCase name="Validation Schemas Quest Schema enforces XP range" duration="1"/>
+    <testCase name="Validation Schemas Quest Schema enforces gold range" duration="1"/>
+    <testCase name="Validation Schemas Quest Schema allows optional fields to be undefined" duration="0"/>
+    <testCase name="Validation Schemas Quest Schema accepts valid tags array" duration="1"/>
+    <testCase name="Validation Schemas Challenge Schema validates a valid challenge" duration="0"/>
+    <testCase name="Validation Schemas Challenge Schema requires name" duration="1"/>
+    <testCase name="Validation Schemas Challenge Schema enforces name length limit" duration="1"/>
+    <testCase name="Validation Schemas Challenge Schema validates category enum values" duration="0"/>
+    <testCase name="Validation Schemas Challenge Schema enforces target minimum value" duration="1"/>
+    <testCase name="Validation Schemas Challenge Schema validates frequency enum values" duration="0"/>
+    <testCase name="Validation Schemas User Schema validates a valid user" duration="1"/>
+    <testCase name="Validation Schemas User Schema requires id" duration="1"/>
+    <testCase name="Validation Schemas User Schema validates email format" duration="0"/>
+    <testCase name="Validation Schemas User Schema allows email to be optional" duration="1"/>
+    <testCase name="Validation Schemas Quest Completion Schema validates a valid quest completion" duration="0"/>
+    <testCase name="Validation Schemas Quest Completion Schema requires questId" duration="0"/>
+    <testCase name="Validation Schemas Quest Completion Schema validates UUID format for questId" duration="1"/>
+    <testCase name="Validation Schemas Quest Completion Schema enforces non-negative XP and gold" duration="1"/>
+    <testCase name="Validation Schemas Quest Completion Schema enforces notes length limit" duration="1"/>
+    <testCase name="Validation Schemas Quest Form Schema validates quest form data" duration="0"/>
+    <testCase name="Validation Schemas Quest Form Schema excludes id field" duration="1"/>
+    <testCase name="Validation Schemas Quest Filters Schema validates quest filters" duration="0"/>
+    <testCase name="Validation Schemas Quest Filters Schema allows partial filters" duration="0"/>
+    <testCase name="Validation Schemas Quest Filters Schema allows empty filters" duration="0"/>
+    <testCase name="Validation Schemas Date Range Schema validates valid date range" duration="1"/>
+    <testCase name="Validation Schemas Date Range Schema validates same start and end date" duration="0"/>
+    <testCase name="Validation Schemas Date Range Schema rejects invalid date format" duration="0"/>
+    <testCase name="Validation Schemas Date Range Schema rejects end date before start date" duration="1"/>
+    <testCase name="Validation Schemas Validation Helper Functions validateSchema returns success result for valid data" duration="2"/>
+    <testCase name="Validation Schemas Validation Helper Functions validateSchema returns error result for invalid data" duration="0"/>
+    <testCase name="Validation Schemas Validation Helper Functions safeParse returns parsed data for valid input" duration="1"/>
+    <testCase name="Validation Schemas Validation Helper Functions safeParse returns null for invalid input" duration="0"/>
+    <testCase name="Validation Schemas Edge Cases handles empty strings appropriately" duration="0"/>
+    <testCase name="Validation Schemas Edge Cases handles null values appropriately" duration="1"/>
+    <testCase name="Validation Schemas Edge Cases handles undefined values appropriately" duration="1"/>
+    <testCase name="Validation Schemas Edge Cases handles very large numbers" duration="1"/>
+    <testCase name="Validation Schemas Schema Composition allows extending base schemas" duration="0"/>
+    <testCase name="Validation Schemas Schema Composition maintains validation rules when extending" duration="1"/>
   </file>
   <file path="/Users/jilles/Thrivehaven/__tests__/lib/date-utils.test.ts">
-    <testCase name="Date Utilities formatDate should return null for null or undefined input" duration="4"/>
+    <testCase name="Date Utilities formatDate should return null for null or undefined input" duration="6"/>
     <testCase name="Date Utilities formatDate should format a Date object" duration="2"/>
-    <testCase name="Date Utilities formatDate should pass through YYYY-MM-DD strings" duration="0"/>
+    <testCase name="Date Utilities formatDate should pass through YYYY-MM-DD strings" duration="1"/>
     <testCase name="Date Utilities formatDate should extract date from ISO datetime strings" duration="0"/>
     <testCase name="Date Utilities getToday should return today in YYYY-MM-DD format" duration="1"/>
-    <testCase name="Date Utilities getYesterday should return yesterday in YYYY-MM-DD format" duration="0"/>
-    <testCase name="Date Utilities getDaysAgo should return a date N days ago" duration="0"/>
-    <testCase name="Date Utilities isSameDay should return true for same dates" duration="1"/>
-    <testCase name="Date Utilities isSameDay should return true for same date with different formats" duration="0"/>
+    <testCase name="Date Utilities getYesterday should return yesterday in YYYY-MM-DD format" duration="1"/>
+    <testCase name="Date Utilities getDaysAgo should return a date N days ago" duration="1"/>
+    <testCase name="Date Utilities isSameDay should return true for same dates" duration="0"/>
+    <testCase name="Date Utilities isSameDay should return true for same date with different formats" duration="1"/>
     <testCase name="Date Utilities isSameDay should return false for different dates" duration="0"/>
-    <testCase name="Date Utilities isToday should return true for today" duration="1"/>
+    <testCase name="Date Utilities isToday should return true for today" duration="4"/>
     <testCase name="Date Utilities isToday should return false for other dates" duration="0"/>
-    <testCase name="Date Utilities isPastDate should return true for past dates" duration="0"/>
+    <testCase name="Date Utilities isPastDate should return true for past dates" duration="1"/>
     <testCase name="Date Utilities isPastDate should return false for today" duration="0"/>
-    <testCase name="Date Utilities isPastDate should return false for future dates" duration="1"/>
-    <testCase name="Date Utilities isFutureDate should return true for future dates" duration="0"/>
+    <testCase name="Date Utilities isPastDate should return false for future dates" duration="0"/>
+    <testCase name="Date Utilities isFutureDate should return true for future dates" duration="1"/>
     <testCase name="Date Utilities isFutureDate should return false for today" duration="0"/>
     <testCase name="Date Utilities isFutureDate should return false for past dates" duration="1"/>
-    <testCase name="Date Utilities daysDifference should return 0 for same date" duration="0"/>
+    <testCase name="Date Utilities daysDifference should return 0 for same date" duration="1"/>
     <testCase name="Date Utilities daysDifference should return positive difference" duration="0"/>
     <testCase name="Date Utilities daysDifference should return absolute difference" duration="0"/>
     <testCase name="Date Utilities isStreakValid should return false for null date" duration="0"/>
@@ -58,113 +138,53 @@
     <testCase name="Date Utilities getPeriodKey should return year for year period" duration="0"/>
     <testCase name="Date Utilities getPeriodKey should return week key for week period" duration="0"/>
     <testCase name="Date Utilities getDateRange should return array of dates between start and end" duration="1"/>
-    <testCase name="Date Utilities getDateRange should return single date for same start and end" duration="0"/>
+    <testCase name="Date Utilities getDateRange should return single date for same start and end" duration="1"/>
   </file>
-  <file path="/Users/jilles/Thrivehaven/__tests__/lib/validation/schemas.test.ts">
-    <testCase name="Validation Schemas Quest Schema validates a valid quest" duration="0"/>
-    <testCase name="Validation Schemas Quest Schema requires title" duration="1"/>
-    <testCase name="Validation Schemas Quest Schema enforces title length limit" duration="0"/>
-    <testCase name="Validation Schemas Quest Schema enforces description length limit" duration="1"/>
-    <testCase name="Validation Schemas Quest Schema validates category enum values" duration="0"/>
-    <testCase name="Validation Schemas Quest Schema validates difficulty enum values" duration="0"/>
-    <testCase name="Validation Schemas Quest Schema enforces XP range" duration="0"/>
-    <testCase name="Validation Schemas Quest Schema enforces gold range" duration="1"/>
-    <testCase name="Validation Schemas Quest Schema allows optional fields to be undefined" duration="0"/>
-    <testCase name="Validation Schemas Quest Schema accepts valid tags array" duration="0"/>
-    <testCase name="Validation Schemas Challenge Schema validates a valid challenge" duration="0"/>
-    <testCase name="Validation Schemas Challenge Schema requires name" duration="0"/>
-    <testCase name="Validation Schemas Challenge Schema enforces name length limit" duration="1"/>
-    <testCase name="Validation Schemas Challenge Schema validates category enum values" duration="0"/>
-    <testCase name="Validation Schemas Challenge Schema enforces target minimum value" duration="0"/>
-    <testCase name="Validation Schemas Challenge Schema validates frequency enum values" duration="0"/>
-    <testCase name="Validation Schemas User Schema validates a valid user" duration="1"/>
-    <testCase name="Validation Schemas User Schema requires id" duration="0"/>
-    <testCase name="Validation Schemas User Schema validates email format" duration="0"/>
-    <testCase name="Validation Schemas User Schema allows email to be optional" duration="0"/>
-    <testCase name="Validation Schemas Quest Completion Schema validates a valid quest completion" duration="1"/>
-    <testCase name="Validation Schemas Quest Completion Schema requires questId" duration="1"/>
-    <testCase name="Validation Schemas Quest Completion Schema validates UUID format for questId" duration="1"/>
-    <testCase name="Validation Schemas Quest Completion Schema enforces non-negative XP and gold" duration="0"/>
-    <testCase name="Validation Schemas Quest Completion Schema enforces notes length limit" duration="0"/>
-    <testCase name="Validation Schemas Quest Form Schema validates quest form data" duration="0"/>
-    <testCase name="Validation Schemas Quest Form Schema excludes id field" duration="0"/>
-    <testCase name="Validation Schemas Quest Filters Schema validates quest filters" duration="0"/>
-    <testCase name="Validation Schemas Quest Filters Schema allows partial filters" duration="1"/>
-    <testCase name="Validation Schemas Quest Filters Schema allows empty filters" duration="0"/>
-    <testCase name="Validation Schemas Date Range Schema validates valid date range" duration="0"/>
-    <testCase name="Validation Schemas Date Range Schema validates same start and end date" duration="0"/>
-    <testCase name="Validation Schemas Date Range Schema rejects invalid date format" duration="0"/>
-    <testCase name="Validation Schemas Date Range Schema rejects end date before start date" duration="0"/>
-    <testCase name="Validation Schemas Validation Helper Functions validateSchema returns success result for valid data" duration="0"/>
-    <testCase name="Validation Schemas Validation Helper Functions validateSchema returns error result for invalid data" duration="0"/>
-    <testCase name="Validation Schemas Validation Helper Functions safeParse returns parsed data for valid input" duration="0"/>
-    <testCase name="Validation Schemas Validation Helper Functions safeParse returns null for invalid input" duration="0"/>
-    <testCase name="Validation Schemas Edge Cases handles empty strings appropriately" duration="0"/>
-    <testCase name="Validation Schemas Edge Cases handles null values appropriately" duration="0"/>
-    <testCase name="Validation Schemas Edge Cases handles undefined values appropriately" duration="0"/>
-    <testCase name="Validation Schemas Edge Cases handles very large numbers" duration="0"/>
-    <testCase name="Validation Schemas Schema Composition allows extending base schemas" duration="0"/>
-    <testCase name="Validation Schemas Schema Composition maintains validation rules when extending" duration="0"/>
+  <file path="/Users/jilles/Thrivehaven/__tests__/lib/tile-quest-service.test.ts">
+    <testCase name="tile-quest-service should define tile quest definitions correctly" duration="5">
+      <failure message="Error: expect(received).toBe(expected) // Object.is equality"><![CDATA[Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: "Zen Garden Meditation"
+Received: "5-minute Meditation"
+    at Object.toBe (/Users/jilles/Thrivehaven/__tests__/lib/tile-quest-service.test.ts:10:49)
+    at Promise.finally.completed (/Users/jilles/Thrivehaven/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1556:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/jilles/Thrivehaven/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1496:10)
+    at _callCircusTest (/Users/jilles/Thrivehaven/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1006:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (/Users/jilles/Thrivehaven/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:946:3)
+    at _runTestsForDescribeBlock (/Users/jilles/Thrivehaven/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (/Users/jilles/Thrivehaven/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:829:11)
+    at run (/Users/jilles/Thrivehaven/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (/Users/jilles/Thrivehaven/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/jestAdapterInit.js:1917:21)
+    at jestAdapter (/Users/jilles/Thrivehaven/node_modules/.pnpm/jest-circus@30.1.1/node_modules/jest-circus/build/runner.js:101:19)
+    at runTestInternal (/Users/jilles/Thrivehaven/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:275:16)
+    at runTest (/Users/jilles/Thrivehaven/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:343:7)
+    at Object.worker (/Users/jilles/Thrivehaven/node_modules/.pnpm/jest-runner@30.1.1/node_modules/jest-runner/build/testWorker.js:497:12)]]></failure>
+    </testCase>
+    <testCase name="tile-quest-service should do nothing if grid is empty or invalid" duration="1"/>
   </file>
-  <file path="/Users/jilles/Thrivehaven/__tests__/lib/inventory-logic.test.ts">
-    <testCase name="Quantity Utils safeDecrement should decrement normally when result is positive" duration="0"/>
-    <testCase name="Quantity Utils safeDecrement should return 0 when decrement exceeds current" duration="0"/>
-    <testCase name="Quantity Utils safeDecrement should handle undefined/null current values" duration="1"/>
-    <testCase name="Quantity Utils safeDecrement should default to decrement of 1" duration="0"/>
-    <testCase name="Quantity Utils safeIncrement should increment normally" duration="0"/>
-    <testCase name="Quantity Utils safeIncrement should default to increment of 1" duration="0"/>
-    <testCase name="Quantity Utils canDecrement should return true when sufficient quantity exists" duration="0"/>
-    <testCase name="Quantity Utils canDecrement should return false when insufficient quantity" duration="0"/>
-    <testCase name="Quantity Utils formatQuantity should format positive numbers correctly" duration="1"/>
-    <testCase name="Quantity Utils formatQuantity should handle zero and negative" duration="0"/>
-    <testCase name="Quantity Utils formatQuantity should handle undefined/null" duration="0"/>
-    <testCase name="Quantity Utils isValidQuantity should validate positive numbers" duration="0"/>
-    <testCase name="Quantity Utils isValidQuantity should reject negative numbers" duration="0"/>
-    <testCase name="Quantity Utils isValidQuantity should reject non-numbers" duration="1"/>
-    <testCase name="Inventory Count Merge Logic should merge by exact ID match" duration="0"/>
-    <testCase name="Inventory Count Merge Logic should merge by case-insensitive ID match" duration="0"/>
-    <testCase name="Inventory Count Merge Logic should merge by name match when IDs differ" duration="0"/>
-    <testCase name="Inventory Count Merge Logic should NOT create separate entries for the same item" duration="0"/>
-    <testCase name="Inventory Count Merge Logic should handle multiple placements correctly" duration="0"/>
-  </file>
-  <file path="/Users/jilles/Thrivehaven/__tests__/lib/character-stats.test.ts">
-    <testCase name="Character Stats Service getExperienceForLevel should return 0 for level 1" duration="0"/>
-    <testCase name="Character Stats Service getExperienceForLevel should return 100 for level 2" duration="0"/>
-    <testCase name="Character Stats Service getExperienceForLevel should return progressively more XP for higher levels" duration="0"/>
-    <testCase name="Character Stats Service shouldLevelUp should return false when experience is below threshold" duration="0"/>
-    <testCase name="Character Stats Service shouldLevelUp should return true when experience meets threshold" duration="0"/>
-    <testCase name="Character Stats Service shouldLevelUp should return true when experience exceeds threshold" duration="1"/>
-    <testCase name="Character Stats Service calculateLevel should return level 1 for 0 experience" duration="0"/>
-    <testCase name="Character Stats Service calculateLevel should return level 2 for 100 experience" duration="0"/>
-    <testCase name="Character Stats Service calculateLevel should return level 3 for 300 experience" duration="0"/>
-    <testCase name="Character Stats Service calculateLevel should handle experience in between levels" duration="0"/>
-    <testCase name="Character Stats Service applyExperience should add experience without level up" duration="0"/>
-    <testCase name="Character Stats Service applyExperience should trigger level up when threshold reached" duration="1"/>
-    <testCase name="Character Stats Service applyExperience should handle multiple level ups at once" duration="1"/>
-    <testCase name="Character Stats Service applyExperience should increase max health on level up" duration="0"/>
-    <testCase name="Character Stats Service applyExperience should heal to full on level up" duration="0"/>
-    <testCase name="Character Stats Service applyExperience should not heal if no level up" duration="0"/>
-    <testCase name="Character Stats Service applyGold should add gold correctly" duration="0"/>
-    <testCase name="Character Stats Service applyGold should subtract gold correctly" duration="0"/>
-    <testCase name="Character Stats Service applyGold should prevent negative gold" duration="1"/>
-    <testCase name="Character Stats Service applyGold should allow spending all gold" duration="0"/>
-    <testCase name="Quest Reward Calculations should apply easy difficulty multiplier" duration="0"/>
-    <testCase name="Quest Reward Calculations should apply hard difficulty multiplier" duration="0"/>
-    <testCase name="Quest Reward Calculations should apply streak bonus" duration="0"/>
-    <testCase name="Quest Reward Calculations should combine difficulty and streak multipliers" duration="0"/>
-  </file>
-  <file path="/Users/jilles/Thrivehaven/__tests__/lib/fetch-cache.test.ts">
-    <testCase name="Fetch Cache cachedFetch should call fetcher on first request" duration="1"/>
-    <testCase name="Fetch Cache cachedFetch should return cached data on subsequent requests" duration="0"/>
-    <testCase name="Fetch Cache cachedFetch should force refresh when option is set" duration="0"/>
-    <testCase name="Fetch Cache cachedFetch should deduplicate concurrent requests" duration="1"/>
-    <testCase name="Fetch Cache invalidateCache should remove specific cache entry" duration="0"/>
-    <testCase name="Fetch Cache getCacheStats should report correct cache size" duration="0"/>
-  </file>
-  <file path="/Users/jilles/Thrivehaven/__tests__/lib/quests-persistence.test.ts">
-    <testCase name="reconcileQuestList should return server list if no local quests exist" duration="1"/>
-    <testCase name="reconcileQuestList should retain completed status if same day and local state is completed" duration="0"/>
-    <testCase name="reconcileQuestList should NOT retain local completed status if not same day (new day)" duration="0"/>
-    <testCase name="reconcileQuestList should match local quests by case-insensitive name or title" duration="0"/>
+  <file path="/Users/jilles/Thrivehaven/__tests__/lib/store/app-store.test.ts">
+    <testCase name="App Store Initial State has correct initial state" duration="7"/>
+    <testCase name="App Store User Actions sets user data correctly" duration="1"/>
+    <testCase name="App Store User Actions updates user preferences" duration="0"/>
+    <testCase name="App Store User Actions merges user data without overwriting existing fields" duration="0"/>
+    <testCase name="App Store Quest Actions sets quests correctly" duration="1"/>
+    <testCase name="App Store Quest Actions toggles quest completion correctly" duration="1"/>
+    <testCase name="App Store Quest Actions handles quest completion for non-existent quest" duration="1"/>
+    <testCase name="App Store Inventory Actions sets inventory correctly" duration="0"/>
+    <testCase name="App Store Inventory Actions overwrites existing inventory" duration="0"/>
+    <testCase name="App Store UI Actions sets UI state correctly" duration="1"/>
+    <testCase name="App Store UI Actions merges UI state without overwriting existing fields" duration="0"/>
+    <testCase name="App Store Reset App Action resets app state to initial values" duration="0"/>
+    <testCase name="App Store Selector Hooks useUser returns user state" duration="1"/>
+    <testCase name="App Store Selector Hooks useQuests returns quests state" duration="1"/>
+    <testCase name="App Store Selector Hooks useInventory returns inventory state" duration="0"/>
+    <testCase name="App Store Selector Hooks useUI returns UI state" duration="1"/>
+    <testCase name="App Store Selector Hooks useAppActions returns all actions" duration="0"/>
+    <testCase name="App Store State Updates triggers re-renders when state changes" duration="1"/>
+    <testCase name="App Store State Updates maintains referential equality for unchanged objects" duration="1"/>
+    <testCase name="App Store Edge Cases handles empty arrays and objects" duration="0"/>
+    <testCase name="App Store Edge Cases handles null and undefined values gracefully" duration="0"/>
   </file>
 </testExecutions>

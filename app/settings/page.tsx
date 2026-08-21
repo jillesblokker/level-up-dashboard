@@ -518,11 +518,11 @@ export default function SettingsPage() {
                       Visual Aesthetic Theme Selection
                     </Label>
                     <p className="text-xs text-zinc-400 max-w-md">
-                      Switch between Classic Dark mode and the rich Medieval RPG theme with ornate gold filigree and classical typography.
+                      Switch between Classic Dark mode, Medieval RPG, and the 90s/00s Oldskool RPG style with carved oak frames, wax seals, and Cinzel typography.
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                     <button
                       type="button"
                       onClick={() => {
@@ -566,6 +566,29 @@ export default function SettingsPage() {
                       <div>
                         <div className="font-bold text-sm text-amber-300">Medieval RPG Theme (Default)</div>
                         <div className="text-[11px] text-amber-400/80">Sword & Staff gold filigree style</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedTheme('oldskool');
+                        setAppTheme('oldskool');
+                        toast({
+                          title: "Theme Set to Oldskool RPG 📜",
+                          description: "Classic 90s/00s RPG style with Cinzel typography & 3D bevelled plates active."
+                        });
+                      }}
+                      className={`p-3.5 rounded-xl border text-left flex items-center gap-3.5 transition-all cursor-pointer ${
+                        selectedTheme === 'oldskool'
+                          ? 'border-amber-400 bg-amber-950/40 text-amber-200 shadow-md ring-1 ring-amber-400'
+                          : 'border-zinc-800 bg-zinc-950/60 text-zinc-400 hover:border-zinc-700'
+                      }`}
+                    >
+                      <div className="text-2xl shrink-0">📜</div>
+                      <div>
+                        <div className="font-bold text-sm text-amber-300">Oldskool RPG Theme</div>
+                        <div className="text-[11px] text-amber-400/80">3D plates, wax seals & Cinzel font</div>
                       </div>
                     </button>
                   </div>

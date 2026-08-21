@@ -1,21 +1,27 @@
 import { getUserPreference, setUserPreference } from './user-preferences-manager';
 
-export type AppTheme = 'classic' | 'medieval';
+export type AppTheme = 'classic' | 'medieval' | 'oldskool';
 
 /**
- * Applies the selected theme ('classic' | 'medieval') to the DOM root element
+ * Applies the selected theme ('classic' | 'medieval' | 'oldskool') to the DOM root element
  * and persists the preference.
  */
 export async function setAppTheme(theme: AppTheme): Promise<void> {
   if (typeof document !== 'undefined') {
-    if (theme === 'medieval') {
+    if (theme === 'oldskool') {
+      document.documentElement.setAttribute('data-theme', 'oldskool');
+      document.body.setAttribute('data-theme', 'oldskool');
+      document.body.classList.add('theme-oldskool');
+      document.body.classList.remove('theme-medieval');
+    } else if (theme === 'medieval') {
       document.documentElement.setAttribute('data-theme', 'medieval');
       document.body.setAttribute('data-theme', 'medieval');
       document.body.classList.add('theme-medieval');
+      document.body.classList.remove('theme-oldskool');
     } else {
       document.documentElement.removeAttribute('data-theme');
       document.body.removeAttribute('data-theme');
-      document.body.classList.remove('theme-medieval');
+      document.body.classList.remove('theme-medieval', 'theme-oldskool');
     }
     
     try {
@@ -34,7 +40,7 @@ export async function setAppTheme(theme: AppTheme): Promise<void> {
 }
 
 /**
- * Retrieves the current app theme ('classic' or 'medieval').
+ * Retrieves the current app theme ('classic', 'medieval', or 'oldskool').
  */
 export function getAppThemeSync(): AppTheme {
   if (typeof window === 'undefined') return 'medieval';
@@ -42,7 +48,7 @@ export function getAppThemeSync(): AppTheme {
     const saved = localStorage.getItem('app-theme') || localStorage.getItem('pref:app-theme');
     if (saved) {
       const clean = saved.replace(/"/g, '');
-      if (clean === 'classic' || clean === 'medieval') return clean as AppTheme;
+      if (clean === 'classic' || clean === 'medieval' || clean === 'oldskool') return clean as AppTheme;
     }
   } catch {
     // Ignore
@@ -56,13 +62,19 @@ export function getAppThemeSync(): AppTheme {
 export function initAppTheme(): void {
   if (typeof document === 'undefined') return;
   const current = getAppThemeSync();
-  if (current === 'medieval') {
+  if (current === 'oldskool') {
+    document.documentElement.setAttribute('data-theme', 'oldskool');
+    document.body.setAttribute('data-theme', 'oldskool');
+    document.body.classList.add('theme-oldskool');
+    document.body.classList.remove('theme-medieval');
+  } else if (current === 'medieval') {
     document.documentElement.setAttribute('data-theme', 'medieval');
     document.body.setAttribute('data-theme', 'medieval');
     document.body.classList.add('theme-medieval');
+    document.body.classList.remove('theme-oldskool');
   } else {
     document.documentElement.removeAttribute('data-theme');
     document.body.removeAttribute('data-theme');
-    document.body.classList.remove('theme-medieval');
+    document.body.classList.remove('theme-medieval', 'theme-oldskool');
   }
 }

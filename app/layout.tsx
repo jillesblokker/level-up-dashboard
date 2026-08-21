@@ -1,11 +1,13 @@
 import { logger } from "@/lib/logger";
 import "./globals.css"
 import "@/styles/medieval-theme.css"
+import "@/styles/oldskool-theme.css"
 import "@/app/styles/globals.css"
 import "./scrollbar-styles.css"
 import { Inter as FontSans } from "next/font/google"
 import { Gloock } from "next/font/google"
 import { Libre_Baskerville } from "next/font/google"
+import { Cinzel } from "next/font/google"
 import { Providers } from "../components/providers"
 import { Toaster } from "@/components/ui/toaster"
 import { cn } from "@/lib/utils"
@@ -52,6 +54,14 @@ const fontLibreBaskerville = Libre_Baskerville({
   display: "swap",
   preload: true,
   weight: ["400", "700"],
+})
+
+const fontCinzel = Cinzel({
+  subsets: ["latin"],
+  variable: "--font-cinzel",
+  display: "swap",
+  preload: true,
+  weight: ["400", "600", "700", "900"],
 })
 
 export const viewport: Viewport = {
@@ -230,7 +240,8 @@ export default function RootLayout({
           "min-h-screen font-sans antialiased bg-black text-white",
           fontSans.variable,
           fontGloock.variable,
-          fontLibreBaskerville.variable
+          fontLibreBaskerville.variable,
+          fontCinzel.variable
         )}>
           <GlobalErrorBoundary>
             <Providers>

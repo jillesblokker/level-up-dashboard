@@ -1,0 +1,244 @@
+/* ==========================================================================
+   📜 OLDSKOOL FANTASY RPG MASTER THEME ENGINE (data-theme="oldskool")
+   Inspired by 90s/00s PC Tabletop RPGs (Diablo, Baldur's Gate, Icewind Dale)
+   ========================================================================== */
+
+/* 1. Global Oldskool Body & Canvas Atmosphere */
+[data-theme="oldskool"],
+.theme-oldskool,
+[data-theme="oldskool"] body,
+.theme-oldskool body {
+  background-color: #0c0907 !important;
+  background-image: 
+    radial-gradient(circle at 50% 12%, #2c1c0e 0%, #120d09 60%, #050403 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.15) 2px, rgba(0, 0, 0, 0.15) 4px) !important;
+  background-attachment: fixed !important;
+  color: #e5e5e5 !important;
+  font-family: var(--font-cinzel), var(--font-libre-baskerville), Georgia, serif !important;
+}
+
+/* 2. Global Oldskool Typography Hierarchy */
+[data-theme="oldskool"] h1,
+[data-theme="oldskool"] h2,
+[data-theme="oldskool"] h3,
+[data-theme="oldskool"] h4,
+[data-theme="oldskool"] h5,
+[data-theme="oldskool"] h6,
+.theme-oldskool h1,
+.theme-oldskool h2,
+.theme-oldskool h3,
+.theme-oldskool h4,
+.theme-oldskool h5,
+.theme-oldskool h6,
+[data-theme="oldskool"] .card-title,
+.theme-oldskool .card-title,
+[data-theme="oldskool"] .font-serif,
+.theme-oldskool .font-serif {
+  font-family: var(--font-cinzel), serif !important;
+  font-weight: 700 !important;
+  color: #fef08a !important;
+  letter-spacing: 0.04em !important;
+  text-shadow: 0 2px 4px #000000, 0 0 10px rgba(245, 158, 11, 0.35) !important;
+}
+
+/* Subheadings & Labels */
+[data-theme="oldskool"] label,
+.theme-oldskool label,
+[data-theme="oldskool"] .text-muted-foreground,
+.theme-oldskool .text-muted-foreground {
+  color: #d4d4d8 !important;
+  font-family: var(--font-cinzel), var(--font-libre-baskerville), serif !important;
+}
+
+/* 3. Carved Dark Oak & Heavy Iron Card Frames */
+[data-theme="oldskool"] .card,
+.theme-oldskool .card,
+[data-theme="oldskool"] [role="region"],
+.theme-oldskool [role="region"],
+[data-theme="oldskool"] .medieval-card,
+.theme-oldskool .medieval-card {
+  background-color: #14100c !important;
+  background-image: linear-gradient(180deg, rgba(35, 26, 18, 0.95) 0%, rgba(18, 14, 10, 0.98) 100%) !important;
+  border: 2px solid #92400e !important;
+  border-radius: 4px !important;
+  box-shadow: 
+    inset 0 0 20px rgba(0, 0, 0, 0.9), 
+    inset 0 1px 1px rgba(254, 240, 138, 0.25),
+    0 0 0 1px #451a03, 
+    0 10px 30px rgba(0, 0, 0, 0.95) !important;
+  position: relative !important;
+}
+
+/* Metallic Brass Corner Ornaments for Cards */
+[data-theme="oldskool"] .card::before,
+.theme-oldskool .card::before,
+[data-theme="oldskool"] .medieval-card::before,
+.theme-oldskool .medieval-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #451a03 0%, #f59e0b 50%, #451a03 100%);
+  pointer-events: none;
+}
+
+[data-theme="oldskool"] .card::after,
+.theme-oldskool .card::after,
+[data-theme="oldskool"] .medieval-card::after,
+.theme-oldskool .medieval-card::after {
+  content: '✦';
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  font-size: 9px;
+  color: #f59e0b;
+  font-family: serif;
+  pointer-events: none;
+  text-shadow: 0 0 4px #000;
+}
+
+/* 4. 3D Bevelled Metallic Plate Buttons & CTAs */
+[data-theme="oldskool"] button,
+.theme-oldskool button,
+[data-theme="oldskool"] .btn-primary-cta,
+.theme-oldskool .btn-primary-cta {
+  font-family: var(--font-cinzel), serif !important;
+  font-weight: 700 !important;
+  border-radius: 4px !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+[data-theme="oldskool"] button.bg-amber-500,
+.theme-oldskool button.bg-amber-500,
+[data-theme="oldskool"] button.bg-amber-600,
+.theme-oldskool button.bg-amber-600,
+[data-theme="oldskool"] .btn-primary-cta,
+.theme-oldskool .btn-primary-cta {
+  background: linear-gradient(180deg, #92400e 0%, #78350f 45%, #451a03 100%) !important;
+  border: 1.5px solid #fbbf24 !important;
+  color: #fffbeb !important;
+  text-shadow: 0 1px 3px #000000 !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(254, 243, 199, 0.45), 
+    inset 0 -2px 0 rgba(0, 0, 0, 0.7), 
+    0 4px 10px rgba(0, 0, 0, 0.85) !important;
+}
+
+[data-theme="oldskool"] button.bg-amber-500:hover,
+.theme-oldskool button.bg-amber-500:hover,
+[data-theme="oldskool"] .btn-primary-cta:hover,
+.theme-oldskool .btn-primary-cta:hover {
+  background: linear-gradient(180deg, #b45309 0%, #92400e 50%, #581c87 100%) !important;
+  border-color: #fef08a !important;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.6), 
+    0 0 15px rgba(245, 158, 11, 0.5), 
+    0 5px 12px rgba(0, 0, 0, 0.9) !important;
+  transform: translateY(-1px) !important;
+}
+
+[data-theme="oldskool"] button:active,
+.theme-oldskool button:active {
+  transform: translateY(2px) !important;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* 5. Stamped Wax Seal & Heraldic Banner Badges */
+[data-theme="oldskool"] .badge,
+.theme-oldskool .badge {
+  border-radius: 4px !important;
+  font-family: var(--font-cinzel), serif !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%) !important;
+  border: 1.5px solid #f59e0b !important;
+  color: #fef08a !important;
+  text-shadow: 0 1px 2px #000000 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8), inset 0 0 6px rgba(254, 240, 138, 0.25) !important;
+}
+
+/* 6. Carved Wooden Ledger Tabs */
+[data-theme="oldskool"] [role="tablist"],
+.theme-oldskool [role="tablist"] {
+  background-color: #0f0c09 !important;
+  border: 1.5px solid #78350f !important;
+  border-radius: 4px !important;
+  padding: 3px !important;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.9) !important;
+}
+
+[data-theme="oldskool"] [role="tab"],
+.theme-oldskool [role="tab"] {
+  border-radius: 3px !important;
+  font-family: var(--font-cinzel), serif !important;
+  font-weight: 700 !important;
+  color: #a1a1aa !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  transition: all 0.15s ease !important;
+}
+
+[data-theme="oldskool"] [role="tab"][data-state="active"],
+.theme-oldskool [role="tab"][data-state="active"],
+[data-theme="oldskool"] [role="tab"][aria-selected="true"],
+.theme-oldskool [role="tab"][aria-selected="true"] {
+  border: 1.5px solid #f59e0b !important;
+  background: linear-gradient(180deg, #78350f 0%, #451a03 100%) !important;
+  color: #fef08a !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 12px rgba(245, 158, 11, 0.4) !important;
+}
+
+/* 7. Alchemical Liquid Progress Bars & Meters */
+[data-theme="oldskool"] [role="progressbar"],
+.theme-oldskool [role="progressbar"],
+[data-theme="oldskool"] .progress-bar,
+.theme-oldskool .progress-bar {
+  background-color: #090705 !important;
+  border: 1.5px solid #b45309 !important;
+  border-radius: 4px !important;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.95) !important;
+  overflow: hidden !important;
+}
+
+[data-theme="oldskool"] [role="progressbar"] > div,
+.theme-oldskool [role="progressbar"] > div {
+  background: linear-gradient(180deg, #fbbf24 0%, #d97706 50%, #78350f 100%) !important;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+
+/* 8. Modals, Sheets, and Dialog Backdrops */
+[data-theme="oldskool"] [role="dialog"],
+.theme-oldskool [role="dialog"],
+[data-theme="oldskool"] [data-radix-portal] [class*="DialogContent"],
+.theme-oldskool [data-radix-portal] [class*="DialogContent"] {
+  background-color: #14100c !important;
+  background-image: linear-gradient(180deg, rgba(35, 26, 18, 0.98) 0%, rgba(18, 14, 10, 0.99) 100%) !important;
+  border: 2px solid #b45309 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.98), 0 0 35px rgba(245, 158, 11, 0.3) !important;
+}
+
+/* 9. Input & Select Controls */
+[data-theme="oldskool"] input,
+.theme-oldskool input,
+[data-theme="oldskool"] select,
+.theme-oldskool select,
+[data-theme="oldskool"] textarea,
+.theme-oldskool textarea {
+  background-color: #0a0806 !important;
+  border: 1.5px solid #78350f !important;
+  border-radius: 4px !important;
+  color: #fef08a !important;
+  font-family: var(--font-cinzel), var(--font-libre-baskerville), serif !important;
+}
+
+[data-theme="oldskool"] input:focus,
+.theme-oldskool input:focus,
+[data-theme="oldskool"] select:focus,
+.theme-oldskool select:focus,
+[data-theme="oldskool"] textarea:focus,
+.theme-oldskool textarea:focus {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.5) !important;
+}
