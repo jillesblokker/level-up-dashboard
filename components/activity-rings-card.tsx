@@ -230,19 +230,19 @@ export function ActivityRingsCard({
                 />
               ))}
 
-              {/* Centre: overall tier text (fitted for inner circle) */}
+              {/* Centre: overall tier text (perfectly scaled for inner circle space) */}
               {(() => {
                 const tierText = completedCount > 0 ? tierLabel(questPct).text : '—';
-                const fontSize = tierText.length > 7 ? 10 : tierText.length > 4 ? 11 : 12;
+                const fontSize = tierText.length > 7 ? 8.5 : tierText.length > 4 ? 9.5 : 10.5;
                 return (
-                  <>
-                    <text x={CX} y={CY - 3} textAnchor="middle" className="fill-amber-200 font-serif" fontSize={fontSize} fontWeight={900}>
+                  <g className="select-none pointer-events-none">
+                    <text x={CX} y={CY - 2} textAnchor="middle" className="fill-amber-200 font-serif" fontSize={fontSize} fontWeight={800} letterSpacing="0.02em">
                       {tierText}
                     </text>
-                    <text x={CX} y={CY + 10} textAnchor="middle" fill="#a8a29e" fontSize={9} fontWeight={700}>
+                    <text x={CX} y={CY + 8} textAnchor="middle" fill="#a8a29e" fontSize={7.5} fontWeight={700} letterSpacing="0.04em">
                       Today
                     </text>
-                  </>
+                  </g>
                 );
               })()}
             </svg>

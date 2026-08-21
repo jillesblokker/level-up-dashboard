@@ -198,8 +198,8 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
 
             <CardContent className="relative z-10 flex flex-col pt-2 pb-4">
                 <div className="flex flex-col gap-8 pb-4">
-                    {/* Top Section: Image */}
-                    <div className="w-full max-w-4xl mx-auto aspect-[4/3] flex-shrink-0 flex flex-col items-center justify-center rounded-xl overflow-hidden border border-amber-800/30 bg-zinc-950/50 relative group shadow-lg">
+                    {/* Top Section: Cinematic Edge-to-Edge Image Banner */}
+                    <div className="w-full max-w-4xl mx-auto aspect-[16/9] md:aspect-[21/9] flex-shrink-0 flex flex-col items-center justify-center rounded-2xl overflow-hidden border border-amber-800/40 bg-zinc-950/80 relative group shadow-2xl">
                         {!imageErrorMap[viewedChapter.id] && (
                             <img 
                                 src={viewedChapter.image || `/images/chronicles/chronicle_image_${viewedChapter.id}.png`} 

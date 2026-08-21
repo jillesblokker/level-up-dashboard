@@ -108,14 +108,14 @@ export function TitanRaidCard() {
               initial={{ scale: 0.98, opacity: 0.9 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5 }}
-              className="relative w-full rounded-2xl overflow-hidden border border-purple-500/40 shadow-2xl bg-zinc-950 p-2 flex items-center justify-center group"
+              className="relative w-full rounded-2xl overflow-hidden border border-purple-500/40 shadow-2xl bg-zinc-950 p-0 flex items-center justify-center group"
             >
               <Image
                 src={titan.image}
                 alt={titan.name}
                 width={500}
                 height={500}
-                className={`w-full max-h-[220px] md:max-h-[260px] object-contain rounded-xl transition-all duration-700 ${isDefeated ? 'opacity-70 filter drop-shadow-[0_0_25px_rgba(245,158,11,0.6)]' : 'group-hover:scale-102'}`}
+                className={`w-full h-[220px] md:h-[260px] object-cover rounded-2xl transition-all duration-700 ${isDefeated ? 'opacity-70 filter drop-shadow-[0_0_25px_rgba(245,158,11,0.6)]' : 'group-hover:scale-105'}`}
                 unoptimized
               />
 
