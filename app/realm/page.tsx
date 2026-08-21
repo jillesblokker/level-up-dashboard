@@ -1203,30 +1203,43 @@ function RealmPageContent() {
         const tile = currentGrid[y]?.[x];
         if (!tile || tile.type === 'empty') return;
 
-        if (tile.placedSiegeEngine) {
-            const engine = tile.placedSiegeEngine;
-            // Remove siege engine overlay from current spot
+        const isLegacySiege = tile.type?.startsWith('siege_');
+        const siegeEngine = tile.placedSiegeEngine || (isLegacySiege ? {
+            id: tile.type,
+            type: tile.type as any,
+            name: tile.name || tile.type,
+            rotation: tile.rotation || 0,
+            image: `/images/kingdom-tiles/${tile.type}.webp`
+        } : null);
+
+        if (siegeEngine) {
+            // Remove siege engine from current spot, restoring base grass terrain
             setGrid(prev => {
                 const next = prev.map(row => [...row]);
                 if (next[y]?.[x]) {
-                    const { placedSiegeEngine, ...restTile } = next[y][x]!;
-                    next[y][x] = restTile as Tile;
+                    if (next[y][x]!.placedSiegeEngine) {
+                        const { placedSiegeEngine, ...restTile } = next[y][x]!;
+                        next[y][x] = restTile as Tile;
+                    } else {
+                        // Replace legacy tile spot with clean grass tile
+                        next[y][x] = { ...defaultTile('grass'), x, y, id: `grass-${x}-${y}` };
+                    }
                 }
                 return next;
             });
 
             setSelectedTile({
-                id: engine.id,
-                type: (engine.type || engine.id) as any,
-                name: engine.name || engine.id,
+                id: siegeEngine.id,
+                type: (siegeEngine.type || siegeEngine.id) as any,
+                name: siegeEngine.name || siegeEngine.id,
                 quantity: 1,
-                image: engine.image || `/images/kingdom-tiles/${engine.id}.webp`
+                image: siegeEngine.image || `/images/kingdom-tiles/${siegeEngine.id}.webp`
             } as any);
             setGameMode('build');
 
             toast({
                 title: "Moving Siege Engine",
-                description: `Select a new location for ${engine.name || engine.id}.`
+                description: `Select a new location for ${siegeEngine.name || siegeEngine.id}.`
             });
             return;
         }
@@ -1240,13 +1253,26 @@ function RealmPageContent() {
         const targetTile = grid[y]?.[x];
         if (!targetTile || targetTile.type === 'empty') return;
 
-        if (targetTile.placedSiegeEngine) {
-            const engine = targetTile.placedSiegeEngine;
+        const isLegacySiege = targetTile.type?.startsWith('siege_');
+        const siegeEngine = targetTile.placedSiegeEngine || (isLegacySiege ? {
+            id: targetTile.type,
+            type: targetTile.type as any,
+            name: targetTile.name || targetTile.type,
+            rotation: targetTile.rotation || 0,
+            image: `/images/kingdom-tiles/${targetTile.type}.webp`
+        } : null);
+
+        if (siegeEngine) {
             setGrid(prev => {
                 const next = prev.map(row => [...row]);
                 if (next[y]?.[x]) {
-                    const { placedSiegeEngine, ...restTile } = next[y][x]!;
-                    next[y][x] = restTile as Tile;
+                    if (next[y][x]!.placedSiegeEngine) {
+                        const { placedSiegeEngine, ...restTile } = next[y][x]!;
+                        next[y][x] = restTile as Tile;
+                    } else {
+                        // Replace legacy tile spot with clean grass tile
+                        next[y][x] = { ...defaultTile('grass'), x, y, id: `grass-${x}-${y}` };
+                    }
                 }
                 return next;
             });
@@ -1255,12 +1281,13 @@ function RealmPageContent() {
                 try { return JSON.parse(localStorage.getItem('sandbox-inventory') || '{}'); }
                 catch { return {}; }
             })();
-            localSandbox[engine.id] = (localSandbox[engine.id] || 0) + 1;
+            localSandbox[siegeEngine.id] = (localSandbox[siegeEngine.id] || 0) + 1;
             localStorage.setItem('sandbox-inventory', JSON.stringify(localSandbox));
             window.dispatchEvent(new Event('inventory-updated'));
+            window.dispatchEvent(new Event('tile-inventory-update'));
 
             toast({
-                title: `📦 ${engine.name || engine.id} Stashed!`,
+                title: `📦 ${siegeEngine.name || siegeEngine.id} Stashed!`,
                 description: "Returned to your Siege Engine inventory."
             });
             return;

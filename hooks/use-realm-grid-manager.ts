@@ -97,6 +97,18 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                             reconstructedTile.image = '/images/tiles/frostfire-obelisk-tile.webp';
                         } else if (reconstructedTile.type === 'fairy-ring') {
                             reconstructedTile.image = '/images/tiles/fairy-ring-tile.webp';
+                        } else if (reconstructedTile.type?.startsWith('siege_')) {
+                            const engineId = reconstructedTile.type;
+                            reconstructedTile.placedSiegeEngine = reconstructedTile.placedSiegeEngine || {
+                                id: engineId,
+                                type: engineId as any,
+                                name: reconstructedTile.name || engineId,
+                                rotation: reconstructedTile.rotation || 0,
+                                image: `/images/kingdom-tiles/${engineId}.webp`
+                            };
+                            reconstructedTile.type = 'grass';
+                            reconstructedTile.name = 'Grass Meadow';
+                            reconstructedTile.image = '/images/tiles/grass-tile.webp';
                         }
 
                         newGrid[t.y]![t.x] = reconstructedTile;
