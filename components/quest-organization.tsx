@@ -15,6 +15,7 @@ import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Check, P
 import { QuestToggleButton } from '@/components/quest-toggle-button'
 import { QuestCardSkeleton } from '@/components/skeletons/quest-card-skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
+import { HeraldicShield } from '@/components/ui/heraldic-shield'
 import { cn } from '@/lib/utils'
 
 interface Quest {
@@ -568,13 +569,13 @@ export function QuestOrganization({
                           key={key}
                           onClick={() => setSelectedCategory(key)}
                           className={cn(
-                            "px-3 py-1.5 rounded-full text-xs font-bold font-mono transition-all shrink-0 flex items-center gap-1 border",
+                            "px-3 py-1.5 rounded-full text-xs font-bold font-mono transition-all shrink-0 flex items-center gap-1.5 border",
                             isSel
                               ? "bg-amber-500 text-zinc-950 border-amber-400 shadow-md"
                               : "bg-zinc-900 text-zinc-300 border-zinc-700/60 hover:bg-zinc-800"
                           )}
                         >
-                          <span>{cfg?.icon || '📜'}</span>
+                          <HeraldicShield category={key} size="sm" />
                           <span>{cfg?.name || key}</span>
                         </button>
                       );
@@ -708,13 +709,10 @@ export function QuestOrganization({
                     <CardContent className="p-4 h-full flex flex-col justify-between">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <Badge
-                            variant="outline"
-                            className={`text-xs flex items-center gap-1.5 px-2 py-0.5 border ${categoryConfig[quest.category as keyof typeof categoryConfig]?.borderColor || 'border-zinc-800'} ${categoryConfig[quest.category as keyof typeof categoryConfig]?.color || 'text-zinc-400'}`}
-                          >
-                            <span className="text-sm select-none">{categoryConfig[quest.category as keyof typeof categoryConfig]?.icon || '📋'}</span>
-                            <span>{categoryConfig[quest.category as keyof typeof categoryConfig]?.name || quest.category}</span>
-                          </Badge>
+                          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-amber-900/40 bg-zinc-950/80 shadow-inner">
+                            <HeraldicShield category={quest.category} size="sm" />
+                            <span className="text-xs font-serif font-bold text-amber-200">{categoryConfig[quest.category as keyof typeof categoryConfig]?.name || quest.category}</span>
+                          </div>
                           {quest.isFriendQuest && (
                             <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 flex items-center gap-1 text-xs">
                               <Star className="w-3 h-3" />

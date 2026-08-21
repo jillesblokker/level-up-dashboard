@@ -7,6 +7,7 @@ import Image from "next/image"
 import { Scroll, BookOpen, Map, Lock, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
 import { CHRONICLES_DATA, getCurrentChapter, getNextChapter } from "@/lib/chronicles-data"
 import { cn, formatCount } from "@/lib/utils"
+import { GoldenEmbersBackground } from "@/components/ui/golden-embers-background"
 import {
     Select,
     SelectContent,
@@ -263,7 +264,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                                                 style={{ color: '#050302', textShadow: 'none' }}
                                                 key={i}
                                             >
-                                                <span className="float-left text-4xl md:text-5xl font-extrabold font-serif text-[#4a1002] mr-2.5 mt-0.5 select-none border-2 border-[#4a1002]/40 rounded-lg px-2 py-0.5 bg-[#fffdfb] shadow-[2px_3px_5px_rgba(0,0,0,0.15)] leading-none uppercase">
+                                                <span className="float-left text-4xl md:text-5xl font-extrabold font-serif text-amber-200 mr-3 mt-0.5 select-none border-2 border-amber-600/80 rounded-lg px-2.5 py-1 bg-gradient-to-br from-amber-950 via-amber-900 to-zinc-950 shadow-[0_4px_12px_rgba(180,83,9,0.5)] leading-none uppercase drop-shadow-md">
                                                     {firstChar}
                                                 </span>
                                                 {restOfText}

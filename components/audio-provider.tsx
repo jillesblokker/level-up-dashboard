@@ -10,6 +10,8 @@ interface AudioContextType {
   playXPEarned: () => void
   playButtonClick: () => void
   playPageTurn: () => void
+  playIronAnvil: () => void
+  playBrassChime: () => void
   playSFX: (id: string) => void
   playMusic: (id: string) => void
   stopMusic: () => void

@@ -133,6 +133,36 @@ class AudioManager {
       }, idx * 90);
     });
   }
+
+  public playParchment() {
+    // Soft paper rustle noise
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.audioContext) return;
+    this.playTone(420, 'sine', 0.08, 0.04);
+  }
+
+  public playIronAnvil() {
+    // Heavy metallic strike sound
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.audioContext) return;
+    this.playTone(220, 'sawtooth', 0.12, 0.1);
+    setTimeout(() => {
+      this.playTone(440, 'triangle', 0.2, 0.08);
+    }, 40);
+  }
+
+  public playBrassChime() {
+    // Resonant brass chime sound for rewards
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.audioContext) return;
+    this.playTone(880, 'sine', 0.3, 0.12);
+    setTimeout(() => {
+      this.playTone(1320, 'sine', 0.4, 0.1);
+    }, 80);
+  }
 }
 
 export const audioManager = new AudioManager();

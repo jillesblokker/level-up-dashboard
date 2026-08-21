@@ -381,8 +381,18 @@ export function useAudio() {
 
   // Page navigation sound
   const playPageTurn = useCallback(() => {
-    audioManager.playClick()
+    audioManager.playParchment()
     playSFX('page-turn')
+  }, [playSFX])
+
+  const playIronAnvil = useCallback(() => {
+    audioManager.playIronAnvil()
+    playSFX('sword-clash')
+  }, [playSFX])
+
+  const playBrassChime = useCallback(() => {
+    audioManager.playBrassChime()
+    playSFX('achievement-unlock')
   }, [playSFX])
 
   /**
@@ -463,6 +473,8 @@ export function useAudio() {
     playXPEarned,
     playButtonClick,
     playPageTurn,
+    playIronAnvil,
+    playBrassChime,
     playContextualMusic,
   }
 }
