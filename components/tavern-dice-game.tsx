@@ -711,7 +711,7 @@ export function TavernDiceGame() {
                     )}
                   >
                     {/* Creature Inhabitant Portrait Champion Card Frame */}
-                    <div className="relative w-20 h-20 rounded-xl border-2 border-amber-500/50 bg-zinc-950 overflow-hidden shadow-inner flex items-center justify-center group-hover:border-amber-400 transition-colors">
+                    <div className="relative w-20 h-24 rounded-xl border-2 border-amber-500/50 bg-zinc-950 overflow-hidden shadow-inner flex items-center justify-center group-hover:border-amber-400 transition-colors">
                       {/* Undiscovered Frame Background Texture for Mythic Creatures */}
                       {tier.isMythic && (
                         <div className="absolute inset-0 z-0 opacity-60 mix-blend-luminosity pointer-events-none">
@@ -727,9 +727,8 @@ export function TavernDiceGame() {
                       <Image
                         src={creatureImg}
                         alt={tier.opponentName}
-                        width={90}
-                        height={90}
-                        className={tier.isMythic ? "max-h-[90%] w-auto object-contain relative z-10 my-auto mx-auto drop-shadow-md group-hover:scale-110 transition-transform" : "w-full h-full object-cover relative z-10 group-hover:scale-110 transition-transform"}
+                        fill
+                        className="object-contain p-1.5 relative z-10 group-hover:scale-105 transition-transform drop-shadow-md"
                         unoptimized
                       />
                       <div className="absolute top-1 right-1 z-20 text-xs">
@@ -786,7 +785,7 @@ export function TavernDiceGame() {
                   <div className="relative">
                     
                     {/* Opponent Inhabitant Creature Portrait Card Frame */}
-                    <div className="relative w-14 h-14 rounded-xl border-2 border-amber-500/50 bg-zinc-950 overflow-hidden shadow-lg flex items-center justify-center shrink-0">
+                    <div className="relative w-16 h-20 rounded-xl border-2 border-amber-500/50 bg-zinc-950 overflow-hidden shadow-inner flex items-center justify-center shrink-0">
                       {selectedTier.isMythic && (
                         <div className="absolute inset-0 z-0 opacity-60 mix-blend-luminosity pointer-events-none">
                           <Image
@@ -801,9 +800,8 @@ export function TavernDiceGame() {
                       <Image
                         src={getCreatureImage(selectedTier.opponentId, selectedTier.opponentFilename, selectedTier.isMythic)}
                         alt={selectedTier.opponentName}
-                        width={80}
-                        height={80}
-                        className={selectedTier.isMythic ? "max-h-[85%] w-auto object-contain relative z-10 my-auto mx-auto drop-shadow-md" : "w-full h-full object-cover relative z-10"}
+                        fill
+                        className="object-contain p-1 relative z-10 drop-shadow-md"
                         unoptimized
                       />
                     </div>
