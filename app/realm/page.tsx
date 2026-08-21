@@ -980,7 +980,7 @@ function RealmPageContent() {
             const tileTypeNum = isSiegeEngine ? 2 : (tileTypeToNumeric[tileType] || 2);
             const metaObj: Record<string, any> = {};
             if (isSiegeEngine) {
-                metaObj.placedSiegeEngine = {
+                metaObj['placedSiegeEngine'] = {
                     id: tileToUse.id || tileToUse.type,
                     type: (tileToUse.type || tileToUse.id) as any,
                     name: tileToUse.name || tileToUse.type || 'Siege Engine',
