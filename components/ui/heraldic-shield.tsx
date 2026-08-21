@@ -145,7 +145,7 @@ const HERALDIC_CONFIG: Record<string, {
 
 export function HeraldicShield({ category, size = 'md', className, showLabel = false }: HeraldicShieldProps) {
   const catKey = String(category || 'might').toLowerCase()
-  const config = HERALDIC_CONFIG[catKey] || HERALDIC_CONFIG.might
+  const config = HERALDIC_CONFIG[catKey] || HERALDIC_CONFIG['might']
 
   const sizeClasses = {
     sm: 'w-6 h-7 text-[10px]',
