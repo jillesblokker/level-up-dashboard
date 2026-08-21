@@ -22,7 +22,7 @@ interface HeraldicShieldProps {
   showLabel?: boolean
 }
 
-const HERALDIC_CONFIG: Record<string, {
+interface HeraldicConfigItem {
   label: string
   primaryColor: string
   secondaryColor: string
@@ -30,7 +30,19 @@ const HERALDIC_CONFIG: Record<string, {
   glowColor: string
   icon: string
   svgSymbol: React.ReactNode
-}> = {
+}
+
+const DEFAULT_CONFIG: HeraldicConfigItem = {
+  label: 'Might',
+  primaryColor: '#991b1b',
+  secondaryColor: '#f59e0b',
+  borderColor: '#7f1d1d',
+  glowColor: 'rgba(239,68,68,0.5)',
+  icon: '⚔️',
+  svgSymbol: null
+}
+
+const HERALDIC_CONFIG: Record<string, HeraldicConfigItem> = {
   might: {
     label: 'Might',
     primaryColor: '#991b1b', // red-800
@@ -145,7 +157,7 @@ const HERALDIC_CONFIG: Record<string, {
 
 export function HeraldicShield({ category, size = 'md', className, showLabel = false }: HeraldicShieldProps) {
   const catKey = String(category || 'might').toLowerCase()
-  const config = HERALDIC_CONFIG[catKey] || HERALDIC_CONFIG['might']
+  const config: HeraldicConfigItem = HERALDIC_CONFIG[catKey] ?? DEFAULT_CONFIG
 
   const sizeClasses = {
     sm: 'w-6 h-7 text-[10px]',
