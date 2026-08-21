@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
-import { Shield, Sword, Target, Flame, Crown, CheckCircle2, Zap, Trophy, Gift } from "lucide-react";
+import { Shield, Sword, Target, Flame, Crown, CheckCircle2, Zap, Trophy, Gift, Lock } from "lucide-react";
 import { getCurrentMonthlyTitan, MonthlyTitan } from "@/lib/titan-bosses";
 import { motion } from "framer-motion";
 import { TitanSiegeArsenal } from "@/components/titan-siege-arsenal";
