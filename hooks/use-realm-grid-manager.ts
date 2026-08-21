@@ -99,13 +99,23 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                             reconstructedTile.image = '/images/tiles/fairy-ring-tile.webp';
                         } else if ((reconstructedTile as any).type?.startsWith('siege_')) {
                             const engineId = (reconstructedTile as any).type;
-                            (reconstructedTile as any).placedSiegeEngine = (reconstructedTile as any).placedSiegeEngine || {
-                                id: engineId,
-                                type: engineId as any,
-                                name: (reconstructedTile as any).name || engineId,
-                                rotation: (reconstructedTile as any).rotation || 0,
-                                image: `/images/kingdom-tiles/${engineId}.webp`
-                            };
+                            const metaEngine = t.meta && 'placedSiegeEngine' in t.meta ? t.meta.placedSiegeEngine : undefined;
+
+                            if (metaEngine === null) {
+                                // Explicitly cleared/moved siege engine -> keep cleared
+                                (reconstructedTile as any).placedSiegeEngine = null;
+                            } else if (metaEngine) {
+                                (reconstructedTile as any).placedSiegeEngine = metaEngine;
+                            } else {
+                                // Legacy tile missing metadata -> populate engine overlay
+                                (reconstructedTile as any).placedSiegeEngine = {
+                                    id: engineId,
+                                    type: engineId as any,
+                                    name: (reconstructedTile as any).name || engineId,
+                                    rotation: (reconstructedTile as any).rotation || 0,
+                                    image: `/images/kingdom-tiles/${engineId}.webp`
+                                };
+                            }
                             (reconstructedTile as any).type = 'grass';
                             (reconstructedTile as any).name = 'Grass Meadow';
                             (reconstructedTile as any).image = '/images/tiles/grass-tile.webp';
