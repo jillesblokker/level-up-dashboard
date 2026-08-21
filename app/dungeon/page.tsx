@@ -1,6 +1,7 @@
 'use client'
 
 import { logger } from "@/lib/logger";
+import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { notificationService } from "@/lib/notification-service";
