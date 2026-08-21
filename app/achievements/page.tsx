@@ -873,13 +873,23 @@ export default function Page() {
                     >
                       <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
                         {/* FRONT FACE */}
-                        <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-zinc-950 border-amber-500/30 shadow-2xl shadow-black/40 group-hover:border-amber-500/60 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
+                        <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-gradient-to-b from-amber-950/40 via-zinc-950 to-zinc-950 border-amber-500/50 shadow-2xl shadow-black/40 group-hover:border-amber-400 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
                           <div className="relative w-full h-full">
+                            {/* Textured Card Background */}
+                            <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-luminosity">
+                              <Image
+                                src="/images/headers/undiscovered.webp"
+                                alt="Card Frame Texture"
+                                fill
+                                className="object-cover"
+                                unoptimized
+                              />
+                            </div>
                             <Image
-                              src={unlocked ? `/images/creatures/${creature.id}.png?v=3` : '/images/placeholders/undiscovered.webp'}
+                              src={unlocked ? `/images/creatures/${creature.id}.webp` : '/images/placeholders/undiscovered.webp'}
                               alt={creature.name}
                               fill
-                              className={`object-cover ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
+                              className={`object-contain p-4 relative z-10 transition-transform duration-500 group-hover:scale-105 ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
                               key={unlocked ? 'unlocked' : 'locked'}
                               priority={idx < 3}
                               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -988,7 +998,7 @@ export default function Page() {
                     m => m.card_id === String(cardDef.number) && m.variant_id === String(variantIndex)
                   );
                   const isUnlocked = !!unlockedCard;
-                  const imagePath = `/images/Mythics/Mythic${cardDef.number}${colorName}.png?v=2`;
+                  const imagePath = `/images/Mythics/Mythic${cardDef.number}${colorName}.webp?v=2`;
                   const variantLabel = `${colorName.charAt(0).toUpperCase() + colorName.slice(1)} Edition`;
                   const overallIdx = (cardIdx * 5) + variantIndex;
 
