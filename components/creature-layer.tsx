@@ -1058,23 +1058,28 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                     <div className="relative z-10 flex flex-col items-center pt-8 pb-4 px-6">
                         {/* Portrait */}
                         <div className="relative w-32 h-32 flex items-center justify-center bg-zinc-900 rounded-full border-2 border-zinc-800 shadow-xl overflow-hidden p-4">
-                            {selectedCitizen && (
-                                <div className="w-24 h-24 relative">
-                                    <Image
-                                        src={selectedCitizen.isMythic 
-                                            ? `/images/Mythics/${selectedCitizen.filename}?v=2` 
-                                            : `/images/creatures/${selectedCitizen.filename}`
-                                        }
-                                        alt={selectedCitizen.name}
-                                        fill
-                                        sizes="96px"
-                                        className="object-contain drop-shadow-md"
-                                        onError={(e) => {
-                                            logger.warn('Failed to load modal citizen image:', selectedCitizen.name);
-                                        }}
-                                    />
-                                </div>
-                            )}
+                            {selectedCitizen && (() => {
+                                let fn = selectedCitizen.filename || (selectedCitizen.id ? `${selectedCitizen.id}.webp` : `${selectedCitizen.name}.webp`);
+                                if (fn.endsWith('.png')) fn = fn.replace(/\.png$/i, '.webp');
+                                else if (!fn.endsWith('.webp')) fn = `${fn}.webp`;
+                                const imgSrc = selectedCitizen.isMythic ? `/images/Mythics/${fn}?v=2` : `/images/creatures/${fn}`;
+
+                                return (
+                                    <div className="w-24 h-24 relative">
+                                        <Image
+                                            src={imgSrc}
+                                            alt={selectedCitizen.name}
+                                            fill
+                                            sizes="96px"
+                                            className="object-contain drop-shadow-md"
+                                            onError={(e) => {
+                                                logger.warn('Failed to load modal citizen image:', selectedCitizen.name);
+                                                (e.target as any).src = '/images/placeholders/creature.webp';
+                                            }}
+                                        />
+                                    </div>
+                                );
+                            })()}
                             {selectedCitizen?.favorite && (
                                 <div className="absolute top-1 right-1 bg-amber-500 text-black rounded-full p-1 border border-yellow-300 shadow z-20">
                                     <Star className="w-3 h-3 fill-current" />

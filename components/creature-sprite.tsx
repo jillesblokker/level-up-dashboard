@@ -43,10 +43,37 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className, 
     }, [isPlayerOnTile, creature.greetings]);
 
     const isMythic = creature.isMythic || creature.id?.startsWith('mythic-') || creature.filename?.startsWith('Mythic');
-    const safeFilename = (creature.filename || `${creature.name}.webp`).replace(/\.png$/i, '.webp');
-    const imagePath = isMythic 
-        ? `/images/Mythics/${safeFilename}?v=2` 
-        : `/images/creatures/${safeFilename}`;
+    const resolveFilename = (rawName?: string) => {
+      let fn = rawName || `${creature.name || 'creature'}.webp`;
+      if (fn.endsWith('.png')) {
+        fn = fn.replace(/\.png$/i, '.webp');
+      } else if (!fn.endsWith('.webp')) {
+        fn = `${fn}.webp`;
+      }
+      return fn;
+    };
+
+    const primaryImagePath = isMythic 
+        ? `/images/Mythics/${resolveFilename(creature.filename)}?v=2` 
+        : `/images/creatures/${resolveFilename(creature.filename)}`;
+
+    const [currentImageSrc, setCurrentImageSrc] = useState(primaryImagePath);
+
+    useEffect(() => {
+        setCurrentImageSrc(primaryImagePath);
+    }, [primaryImagePath]);
+
+    const handleImageError = () => {
+        const fallbackSrc = isMythic
+            ? `/images/Mythics/Mythic1red.webp`
+            : `/images/creatures/${creature.id ? `${creature.id}.webp` : '001.webp'}`;
+
+        if (currentImageSrc !== fallbackSrc && currentImageSrc !== '/images/placeholders/creature.webp') {
+            setCurrentImageSrc(fallbackSrc);
+        } else if (currentImageSrc !== '/images/placeholders/creature.webp') {
+            setCurrentImageSrc('/images/placeholders/creature.webp');
+        }
+    };
 
     return (
         <div
@@ -116,14 +143,12 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className, 
                 }}
             >
                 <Image
-                    src={imagePath}
+                    src={currentImageSrc}
                     alt={creature.name}
                     fill
                     sizes="100px"
                     className="object-contain"
-                    onError={() => {
-                        logger.error('[CreatureSprite] Failed to load image:', creature.name, creature.filename, 'path tried:', imagePath);
-                    }}
+                    onError={handleImageError}
                 />
             </div>
             <style jsx>{`
