@@ -97,18 +97,18 @@ export function useRealmGridManager(userId: string | undefined, isMounted: boole
                             reconstructedTile.image = '/images/tiles/frostfire-obelisk-tile.webp';
                         } else if (reconstructedTile.type === 'fairy-ring') {
                             reconstructedTile.image = '/images/tiles/fairy-ring-tile.webp';
-                        } else if (reconstructedTile.type?.startsWith('siege_')) {
-                            const engineId = reconstructedTile.type;
-                            reconstructedTile.placedSiegeEngine = reconstructedTile.placedSiegeEngine || {
+                        } else if ((reconstructedTile as any).type?.startsWith('siege_')) {
+                            const engineId = (reconstructedTile as any).type;
+                            (reconstructedTile as any).placedSiegeEngine = (reconstructedTile as any).placedSiegeEngine || {
                                 id: engineId,
                                 type: engineId as any,
-                                name: reconstructedTile.name || engineId,
-                                rotation: reconstructedTile.rotation || 0,
+                                name: (reconstructedTile as any).name || engineId,
+                                rotation: (reconstructedTile as any).rotation || 0,
                                 image: `/images/kingdom-tiles/${engineId}.webp`
                             };
-                            reconstructedTile.type = 'grass';
-                            reconstructedTile.name = 'Grass Meadow';
-                            reconstructedTile.image = '/images/tiles/grass-tile.webp';
+                            (reconstructedTile as any).type = 'grass';
+                            (reconstructedTile as any).name = 'Grass Meadow';
+                            (reconstructedTile as any).image = '/images/tiles/grass-tile.webp';
                         }
 
                         newGrid[t.y]![t.x] = reconstructedTile;
