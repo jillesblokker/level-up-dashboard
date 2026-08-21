@@ -199,13 +199,13 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
 
             <CardContent className="relative z-10 flex flex-col pt-2 pb-4">
                 <div className="flex flex-col gap-8 pb-4">
-                    {/* Top Section: Cinematic Edge-to-Edge Image Banner */}
-                    <div className="w-full max-w-4xl mx-auto aspect-[16/9] md:aspect-[21/9] flex-shrink-0 flex flex-col items-center justify-center rounded-2xl overflow-hidden border border-amber-800/40 bg-zinc-950/80 relative group shadow-2xl">
+                    {/* Top Section: Full Uncropped Story Image Banner */}
+                    <div className="w-full max-w-4xl mx-auto flex-shrink-0 flex flex-col items-center justify-center rounded-2xl overflow-hidden border border-amber-800/40 bg-zinc-950/90 relative group shadow-2xl p-2 md:p-3">
                         {!imageErrorMap[viewedChapter.id] && (
                             <img 
                                 src={viewedChapter.image || `/images/chronicles/chronicle_image_${viewedChapter.id}.png`} 
                                 alt={viewedChapter.title}
-                                className="object-cover w-full h-full absolute inset-0 z-10 transition-opacity duration-300"
+                                className="object-contain w-full max-h-[450px] md:max-h-[520px] h-auto rounded-xl z-10 transition-opacity duration-300"
                                 onError={() => setImageErrorMap(prev => ({ ...prev, [viewedChapter.id]: true }))}
                             />
                         )}
@@ -264,7 +264,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                                                 style={{ color: '#050302', textShadow: 'none' }}
                                                 key={i}
                                             >
-                                                <span className="float-left text-4xl md:text-5xl font-extrabold font-serif text-amber-200 mr-3 mt-0.5 select-none border-2 border-amber-600/80 rounded-lg px-2.5 py-1 bg-gradient-to-br from-amber-950 via-amber-900 to-zinc-950 shadow-[0_4px_12px_rgba(180,83,9,0.5)] leading-none uppercase drop-shadow-md">
+                                                <span className="float-left text-4xl md:text-5xl font-extrabold font-serif text-[#fffef0] mr-3.5 mt-0.5 select-none border-2 border-amber-500/70 rounded-xl px-3 py-1 bg-gradient-to-br from-amber-950 via-amber-900 to-zinc-950 shadow-[0_4px_12px_rgba(0,0,0,0.4)] leading-none uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                                                     {firstChar}
                                                 </span>
                                                 {restOfText}
