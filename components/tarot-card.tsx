@@ -1,6 +1,5 @@
-"use client"
-
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Sparkles, RefreshCw } from "lucide-react"
@@ -69,9 +68,9 @@ export function TarotCardDisplay() {
     const hasDrawn = hasDrawnCardToday();
 
     const rarityColors = {
-        common: 'from-zinc-700 to-zinc-900 border-zinc-600',
-        rare: 'from-blue-700 to-blue-900 border-blue-500',
-        epic: 'from-purple-700 to-purple-900 border-purple-500'
+        common: 'from-amber-950/60 via-zinc-900 to-zinc-950 border-amber-800/40',
+        rare: 'from-blue-950/70 via-zinc-900 to-zinc-950 border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.3)]',
+        epic: 'from-purple-950/70 via-zinc-900 to-zinc-950 border-purple-500/60 shadow-[0_0_25px_rgba(168,85,247,0.4)]'
     };
 
     return (
@@ -93,13 +92,18 @@ export function TarotCardDisplay() {
             <CardContent className="flex-1 flex flex-col justify-between space-y-4 pt-4">
                 {!hasDrawn ? (
                     <div className="text-center space-y-4">
-                        <div className="relative w-32 h-48 mx-auto">
+                        <div className="relative w-40 h-56 mx-auto group cursor-pointer" onClick={handleDrawCard}>
                             <div className={cn(
-                                "absolute inset-0 rounded-lg border-2 bg-gradient-to-br from-amber-900/20 to-amber-950/40 border-amber-700/50",
-                                "flex items-center justify-center transition-transform duration-500",
-                                isDrawing && "animate-pulse scale-105"
+                                "absolute inset-0 rounded-2xl border-2 border-amber-500/40 shadow-2xl overflow-hidden transition-all duration-500 group-hover:scale-105 group-hover:border-amber-400",
+                                isDrawing && "animate-pulse scale-105 shadow-[0_0_30px_rgba(245,158,11,0.6)]"
                             )}>
-                                <div className="text-6xl">🃏</div>
+                                <Image
+                                  src="/images/fortune-cards/Back_card_stats.webp"
+                                  alt="Fate Card Back"
+                                  fill
+                                  className="object-cover"
+                                  unoptimized
+                                />
                             </div>
                         </div>
 
@@ -110,17 +114,17 @@ export function TarotCardDisplay() {
                             <Button
                                 onClick={handleDrawCard}
                                 disabled={isDrawing}
-                                className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold"
+                                className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold py-2.5 rounded-xl shadow-lg"
                             >
                                 {isDrawing ? (
                                     <>
-                                        <RefreshCw className="w-4 h-4 animate-spin" />
-                                        Drawing...
+                                        <RefreshCw className="w-4 h-4 animate-spin mr-1.5" />
+                                        Drawing fate...
                                     </>
                                 ) : (
                                     <>
-                                        <Sparkles className="w-4 h-4" />
-                                        Draw Your Daily Card
+                                        <Sparkles className="w-4 h-4 mr-1.5" />
+                                        Draw daily fate card
                                     </>
                                 )}
                             </Button>
@@ -128,43 +132,54 @@ export function TarotCardDisplay() {
                     </div>
                 ) : activeCard ? (
                     <div className={cn(
-                        "transition-all duration-500",
+                        "transition-all duration-500 flex flex-col items-center",
                         showCard ? "opacity-100 scale-100" : "opacity-0 scale-95"
                     )}>
-                        {/* The Drawn Card */}
+                        {/* The Drawn Card Container */}
                         <div className={cn(
-                            "relative w-full rounded-lg border-2 p-6 bg-gradient-to-br",
+                            "relative w-full rounded-2xl border-2 p-4 md:p-5 bg-gradient-to-br shadow-2xl space-y-3",
                             rarityColors[activeCard.rarity]
                         )}>
                             {/* Rarity Badge */}
-                            <div className="absolute top-2 right-2">
+                            <div className="absolute top-3 right-3 z-20">
                                 <span className={cn(
-                                    "text-xs font-bold px-2 py-1 rounded-full capitalize",
-                                    activeCard.rarity === 'common' && "bg-zinc-600 text-zinc-100",
-                                    activeCard.rarity === 'rare' && "bg-blue-600 text-blue-100",
-                                    activeCard.rarity === 'epic' && "bg-purple-600 text-purple-100"
+                                    "text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border shadow-md tracking-wider",
+                                    activeCard.rarity === 'common' && "bg-zinc-800 text-zinc-200 border-zinc-700",
+                                    activeCard.rarity === 'rare' && "bg-blue-950 text-blue-300 border-blue-500/50",
+                                    activeCard.rarity === 'epic' && "bg-purple-950 text-purple-300 border-purple-500/50"
                                 )}>
                                     {activeCard.rarity}
                                 </span>
                             </div>
 
-                            {/* Card Content */}
-                            <div className="text-center space-y-4">
-                                <div className="text-7xl mb-2">{activeCard.symbol}</div>
-                                <h3 className="text-2xl font-bold text-white font-serif">{activeCard.name}</h3>
-                                <p className="text-sm text-white/70 italic">&ldquo;{activeCard.description}&rdquo;</p>
+                            {/* Illuminated Tarot Card Artwork */}
+                            <div className="relative w-full max-w-[220px] aspect-[3/4] mx-auto rounded-xl overflow-hidden border-2 border-amber-500/40 shadow-xl group">
+                                <Image
+                                  src={activeCard.image || `/images/tarot/${activeCard.id.replace('the-', '')}.jpg`}
+                                  alt={activeCard.name}
+                                  fill
+                                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                  unoptimized
+                                />
+                            </div>
+
+                            {/* Card Content & Lore */}
+                            <div className="text-center space-y-2 pt-1">
+                                <h3 className="text-xl font-extrabold text-amber-200 font-serif tracking-wide">{activeCard.name}</h3>
+                                <p className="text-xs text-zinc-300 italic font-serif leading-relaxed px-2">&ldquo;{activeCard.description}&rdquo;</p>
 
                                 {/* Effect Display */}
-                                <div className="mt-4 p-3 bg-zinc-950 rounded-lg border border-white/10">
-                                    <p className="text-amber-300 font-bold text-sm">
-                                        ✨ {activeCard.effect.message}
+                                <div className="mt-3 p-2.5 bg-zinc-950/90 rounded-xl border border-amber-500/30 shadow-inner">
+                                    <p className="text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5">
+                                        <span>✨</span>
+                                        <span>{activeCard.effect.message}</span>
                                     </p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Reminder */}
-                        <p className="text-center text-xs text-amber-400/60 mt-4">
+                        <p className="text-center text-[11px] text-amber-400/60 mt-3 font-mono">
                             This card&apos;s power will last until midnight. Return tomorrow for a new fate.
                         </p>
                     </div>

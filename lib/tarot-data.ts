@@ -4,7 +4,8 @@ import { getUserScopedItem, setUserScopedItem } from './user-scoped-storage';
 export interface TarotCard {
     id: string;
     name: string;
-    symbol: string; // Emoji or unicode symbol
+    symbol: string; // Emoji fallback
+    image: string; // High-res illuminated medieval tarot artwork
     description: string;
     effect: {
         type: 'xp_boost' | 'gold_boost' | 'category_boost' | 'mixed';
@@ -21,6 +22,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-warrior',
         name: 'The Warrior',
         symbol: '⚔️',
+        image: '/images/tarot/warrior.jpg',
         description: 'The steel sings to you. Your arm strikes with the weight of legends.',
         effect: {
             type: 'category_boost',
@@ -35,6 +37,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-scholar',
         name: 'The Scholar',
         symbol: '📚',
+        image: '/images/tarot/scholar.jpg',
         description: 'The ink of history is not yet dry. Your mind is the quill that writes the future.',
         effect: {
             type: 'category_boost',
@@ -49,6 +52,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-merchant',
         name: 'The Merchant',
         symbol: '💰',
+        image: '/images/tarot/merchant.jpg',
         description: 'Fortune favors the bold, but wealth favors the shrewd. Your pockets shall not be empty today.',
         effect: {
             type: 'gold_boost',
@@ -62,6 +66,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-sage',
         name: 'The Sage',
         symbol: '🔮',
+        image: '/images/tarot/sage.jpg',
         description: 'Time is a river, but for you, it flows faster. Wisdom seeks you out.',
         effect: {
             type: 'xp_boost',
@@ -75,6 +80,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-gambler',
         name: 'The Gambler',
         symbol: '🎲',
+        image: '/images/tarot/gambler.jpg',
         description: 'The dice are cast. Fate smiles—or perhaps she smirks. Will you take the bet?',
         effect: {
             type: 'mixed',
@@ -88,6 +94,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-noble',
         name: 'The Noble',
         symbol: '👑',
+        image: '/images/tarot/noble.jpg',
         description: 'Walk with your head high. The realm recognizes true nobility, and rewards it in kind.',
         effect: {
             type: 'category_boost',
@@ -102,6 +109,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-builder',
         name: 'The Builder',
         symbol: '🏰',
+        image: '/images/tarot/builder.jpg',
         description: 'Stone by stone, a legacy is forged. The foundations of your empire have never been stronger.',
         effect: {
             type: 'category_boost',
@@ -116,6 +124,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-artisan',
         name: 'The Artisan',
         symbol: '🔨',
+        image: '/images/tarot/artisan.jpg',
         description: 'Your hands are guided by the masters of old. Every creation is a masterpiece waiting to be born.',
         effect: {
             type: 'category_boost',
@@ -130,6 +139,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-healer',
         name: 'The Healer',
         symbol: '💚',
+        image: '/images/tarot/healer.jpg',
         description: 'A gentle wind mends what is broken. Your spirit is renewed, ready to face the dawn.',
         effect: {
             type: 'category_boost',
@@ -144,6 +154,7 @@ export const TAROT_DECK: TarotCard[] = [
         id: 'the-wanderer',
         name: 'The Wanderer',
         symbol: '🗺️',
+        image: '/images/tarot/wanderer.jpg',
         description: 'The horizon is not a limit, but an invitation. The unknown whispers your name.',
         effect: {
             type: 'category_boost',
