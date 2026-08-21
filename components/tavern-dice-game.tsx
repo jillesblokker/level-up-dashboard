@@ -711,19 +711,17 @@ export function TavernDiceGame() {
                     )}
                   >
                     {/* Creature Inhabitant Portrait Champion Card Frame */}
-                    <div className="relative w-20 h-24 rounded-xl border-2 border-amber-500/50 bg-zinc-950 overflow-hidden shadow-inner flex items-center justify-center group-hover:border-amber-400 transition-colors">
-                      {/* Undiscovered Frame Background Texture for Mythic Creatures */}
-                      {tier.isMythic && (
-                        <div className="absolute inset-0 z-0 opacity-60 mix-blend-luminosity pointer-events-none">
-                          <Image
-                            src="/images/headers/undiscovered.webp"
-                            alt="Mythic Card Frame"
-                            fill
-                            className="object-cover"
-                            unoptimized
-                          />
-                        </div>
-                      )}
+                    <div className="relative w-20 h-24 rounded-xl border-2 border-amber-500/50 bg-gradient-to-b from-amber-950/60 via-zinc-900 to-zinc-950 overflow-hidden shadow-inner flex items-center justify-center group-hover:border-amber-400 transition-colors">
+                      {/* Card Background Texture for ALL Opponent Cards */}
+                      <div className="absolute inset-0 z-0 opacity-40 mix-blend-luminosity pointer-events-none">
+                        <Image
+                          src="/images/headers/undiscovered.webp"
+                          alt="Card Frame Texture"
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
                       <Image
                         src={creatureImg}
                         alt={tier.opponentName}
@@ -731,7 +729,7 @@ export function TavernDiceGame() {
                         className="object-contain p-1.5 relative z-10 group-hover:scale-105 transition-transform drop-shadow-md"
                         unoptimized
                       />
-                      <div className="absolute top-1 right-1 z-20 text-xs">
+                      <div className="absolute top-1 right-1 z-20 text-xs bg-zinc-950/80 p-0.5 rounded border border-amber-500/30">
                         {tier.emoji}
                       </div>
                     </div>
@@ -785,18 +783,17 @@ export function TavernDiceGame() {
                   <div className="relative">
                     
                     {/* Opponent Inhabitant Creature Portrait Card Frame */}
-                    <div className="relative w-16 h-20 rounded-xl border-2 border-amber-500/50 bg-zinc-950 overflow-hidden shadow-inner flex items-center justify-center shrink-0">
-                      {selectedTier.isMythic && (
-                        <div className="absolute inset-0 z-0 opacity-60 mix-blend-luminosity pointer-events-none">
-                          <Image
-                            src="/images/headers/undiscovered.webp"
-                            alt="Mythic Card Frame"
-                            fill
-                            className="object-cover"
-                            unoptimized
-                          />
-                        </div>
-                      )}
+                    <div className="relative w-16 h-20 rounded-xl border-2 border-amber-500/50 bg-gradient-to-b from-amber-950/60 via-zinc-900 to-zinc-950 overflow-hidden shadow-inner flex items-center justify-center shrink-0">
+                      {/* Card Background Texture for ALL Opponent Cards */}
+                      <div className="absolute inset-0 z-0 opacity-40 mix-blend-luminosity pointer-events-none">
+                        <Image
+                          src="/images/headers/undiscovered.webp"
+                          alt="Card Frame Texture"
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
                       <Image
                         src={getCreatureImage(selectedTier.opponentId, selectedTier.opponentFilename, selectedTier.isMythic)}
                         alt={selectedTier.opponentName}
