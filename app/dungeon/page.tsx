@@ -111,11 +111,14 @@ function isMythicCreature(id?: string, filename?: string, isMythic?: boolean): b
 }
 
 function getCreatureImage(id?: string, filename?: string, isMythic?: boolean): string {
-  if (isMythicCreature(id, filename, isMythic)) {
-    const fn = filename || (id ? `${id}.png` : 'Mythic1red.png');
-    return `/images/Mythics/${fn}?v=2`;
+  const isMyth = isMythicCreature(id, filename, isMythic);
+  const rawFn = filename || (id ? (id.startsWith('mythic-') ? id.replace(/^mythic-/, '') : id) : (isMyth ? 'Mythic1red' : '001'));
+  const cleanFn = rawFn.replace(/\.(png|jpg|jpeg|webp)$/i, '');
+
+  if (isMyth) {
+    return `/images/Mythics/${cleanFn}.webp?v=2`;
   }
-  return `/images/creatures/${id || '001'}.png`;
+  return `/images/creatures/${cleanFn}.webp`;
 }
 
 function generateEncounter(roomLevel: number, playerLevel: number = 1): Encounter {

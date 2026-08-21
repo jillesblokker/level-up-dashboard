@@ -585,7 +585,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                     {/* Glowing Cooldown Ring вокруг pet icon */}
                     <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-zinc-950 border-2 border-cyan-400 p-0.5 flex items-center justify-center shrink-0 relative overflow-hidden shadow-[0_0_12px_rgba(6,182,212,0.6)] animate-pulse">
                       <Image
-                        src={c.filename ? `/images/creatures/${c.filename}` : '/images/placeholders/creature.webp'}
+                        src={c.filename ? `/images/creatures/${c.filename.replace(/\.png$/i, '.webp')}` : '/images/placeholders/creature.webp'}
                         alt={c.name}
                         width={32}
                         height={32}

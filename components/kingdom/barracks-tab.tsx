@@ -115,7 +115,7 @@ export function BarracksTab() {
     if (c.isMythic || c.id?.startsWith('mythic-') || c.filename?.startsWith('Mythic')) {
       return `/images/Mythics/${c.filename}?v=2`;
     }
-    return c.filename ? `/images/creatures/${c.filename}` : '/images/placeholders/creature.webp';
+    return c.filename ? `/images/creatures/${c.filename.replace(/\.png$/i, '.webp')}` : '/images/placeholders/creature.webp';
   };
 
   const handleImageError = (citizenId: string) => {

@@ -296,7 +296,7 @@ export function CompanionOverlay() {
       if (citizen) {
         const img = citizen.isMythic 
           ? `/images/Mythics/${citizen.filename}?v=2`
-          : `/images/creatures/${citizen.filename}`
+          : `/images/creatures/${(citizen.filename || `${citizen.id}.webp`).replace(/\.png$/i, '.webp')}`
         return { name: citizen.name, image: img }
       }
     }
