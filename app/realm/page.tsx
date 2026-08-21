@@ -906,8 +906,19 @@ function RealmPageContent() {
         if (!tileToUse) return;
 
         const isSiegeEngine = tileToUse.type?.startsWith('siege_') || (tileToUse.id && String(tileToUse.id).startsWith('siege_'));
-        
 
+        if (isSiegeEngine) {
+            const ALLOWED_SIEGE_TILES = ['grass', 'ice', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad'];
+            const targetType = clickedTile?.type || grid[y]?.[x]?.type || '';
+            if (!ALLOWED_SIEGE_TILES.includes(targetType)) {
+                toast({
+                    title: "Invalid placement",
+                    description: "Siege engines can only be placed on open terrain or roads (grass, ice, or road tiles) so wheels and tracks can move!",
+                    variant: "destructive"
+                });
+                return;
+            }
+        }
 
         // Optimistically update the UI first
         setGrid(prevGrid => {

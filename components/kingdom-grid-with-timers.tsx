@@ -1284,11 +1284,12 @@ export function KingdomGridWithTimers({
     const isSiegeEngine = selectedProperty.id.startsWith('siege_') && selectedProperty.id !== 'siege_workshop';
     
     if (isSiegeEngine) {
-      const isWalkableTile = ['grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'farmland', 'vacant', 'empty'].includes(targetTile?.type || '');
-      if (!targetTile || !isWalkableTile) {
+      const ALLOWED_SIEGE_TILES = ['grass', 'ice', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad'];
+      const isAllowedTile = ALLOWED_SIEGE_TILES.includes(targetTile?.type || '');
+      if (!targetTile || !isAllowedTile) {
         toast({
           title: 'Invalid placement',
-          description: 'Siege engines must be placed on top of walkable tiles (grass, paths, or roads).',
+          description: 'Siege engines can only be placed on open terrain or roads (grass, ice, or road tiles) so wheels and tracks can move!',
           variant: 'destructive',
         });
         return;
