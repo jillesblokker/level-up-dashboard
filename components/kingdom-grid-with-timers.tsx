@@ -1284,10 +1284,35 @@ export function KingdomGridWithTimers({
     const isSiegeEngine = selectedProperty.id.startsWith('siege_') && selectedProperty.id !== 'siege_workshop';
     
     if (isSiegeEngine) {
+      // Check if 1 of this siege engine type is already deployed on the map this month
+      let isAlreadyPlacedThisMonth = false;
+      for (const r of grid) {
+        if (Array.isArray(r)) {
+          for (const t of r) {
+            if (t?.placedSiegeEngine?.id === selectedProperty.id || t?.placedSiegeEngine?.type === selectedProperty.id) {
+              isAlreadyPlacedThisMonth = true;
+              break;
+            }
+          }
+        }
+        if (isAlreadyPlacedThisMonth) break;
+      }
+
+      if (isAlreadyPlacedThisMonth) {
+        toast({
+          title: 'Monthly limit reached',
+          description: `You can only place 1 ${selectedProperty.name} per month. Active siege engines reset at the end of the month!`,
+          variant: 'destructive',
+        });
+        setSelectedProperty(null);
+        setPlacementMode(false);
+        return;
+      }
+
       const isWalkableTile = ['grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'farmland', 'vacant', 'empty'].includes(targetTile?.type || '');
       if (!targetTile || !isWalkableTile) {
         toast({
-          title: 'Invalid Placement',
+          title: 'Invalid placement',
           description: 'Siege engines must be placed on top of walkable tiles (grass, paths, or roads).',
           variant: 'destructive',
         });

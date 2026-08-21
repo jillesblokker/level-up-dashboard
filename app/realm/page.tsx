@@ -922,12 +922,37 @@ function RealmPageContent() {
         const tileToUse = hasTileInSelected ? currentSelectedTile : tileToPlace;
         if (!tileToUse) return;
 
+        const isSiegeEngine = tileToUse.type?.startsWith('siege_') || (tileToUse.id && String(tileToUse.id).startsWith('siege_'));
+        
+        if (isSiegeEngine) {
+            let isAlreadyPlacedThisMonth = false;
+            for (const r of grid) {
+                if (Array.isArray(r)) {
+                    for (const t of r) {
+                        if (t?.placedSiegeEngine?.id === tileToUse.type || t?.placedSiegeEngine?.type === tileToUse.type || t?.placedSiegeEngine?.id === tileToUse.id) {
+                            isAlreadyPlacedThisMonth = true;
+                            break;
+                        }
+                    }
+                }
+                if (isAlreadyPlacedThisMonth) break;
+            }
+
+            if (isAlreadyPlacedThisMonth) {
+                toast({
+                    title: 'Monthly limit reached',
+                    description: `You can only place 1 ${tileToUse.name || 'siege engine'} per month. Active siege engines reset at the end of the month!`,
+                    variant: 'destructive',
+                });
+                return;
+            }
+        }
+
         // Optimistically update the UI first
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
             if (newGrid[y]?.[x]) {
                 const targetTile = newGrid[y][x];
-                const isSiegeEngine = tileToUse.type?.startsWith('siege_') || (tileToUse.id && String(tileToUse.id).startsWith('siege_'));
                 
                 if (isSiegeEngine) {
                     newGrid[y][x] = {
