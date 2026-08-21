@@ -162,18 +162,18 @@ export function TitanRaidCard() {
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Right Column (Desktop): Guidance, Arsenal & Loot Claiming */}
-          <div className="md:col-span-7 space-y-4">
-            {/* Habit Building Guidance Banner */}
+            {/* Habit Building Guidance Banner (Placed below Boss Health section for visual balance) */}
             <div className="bg-purple-950/40 p-3 rounded-xl border border-purple-500/30 text-xs text-purple-200 flex items-start gap-2.5">
               <Zap className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold text-amber-300">Habit Raid Damage:</span> Completing real-life habits damages the boss! Quests (+1 HP), Tasks (+5 HP), and Goals (+10 HP).
               </div>
             </div>
+          </div>
 
+          {/* Right Column (Desktop): Arsenal & Loot Claiming */}
+          <div className="md:col-span-7 space-y-4">
             {/* 10 Siege Engine Slots Arsenal */}
             <TitanSiegeArsenal />
 
