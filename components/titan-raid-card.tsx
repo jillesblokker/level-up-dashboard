@@ -10,6 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Shield, Sword, Target, Flame, Crown, CheckCircle2, Zap, Trophy, Gift } from "lucide-react";
 import { getCurrentMonthlyTitan, MonthlyTitan } from "@/lib/titan-bosses";
 import { motion } from "framer-motion";
+import { TitanSiegeArsenal } from "@/components/titan-siege-arsenal";
 
 export function TitanRaidCard() {
   const { toast } = useToast();
@@ -141,6 +142,9 @@ export function TitanRaidCard() {
                 <span className="font-bold text-amber-300">Habit Raid Damage:</span> Completing real-life habits damages the boss! Quests (+1 HP), Tasks (+5 HP), and Goals (+10 HP).
               </div>
             </div>
+
+            {/* 10 Siege Engine Slots Arsenal */}
+            <TitanSiegeArsenal />
 
             {/* Boss HP Progress & Stats */}
             <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800/80 space-y-4">

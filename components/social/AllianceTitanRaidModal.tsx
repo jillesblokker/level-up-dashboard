@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { ShieldAlert, Swords, Trophy, Gift, Zap } from 'lucide-react'
 import { toast } from '@/components/ui/use-toast'
+import { TitanSiegeArsenal } from '@/components/titan-siege-arsenal'
 
 interface AllianceTitanRaidModalProps {
   isOpen: boolean
@@ -33,58 +34,6 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
 
   const hpPercent = Math.max(0, Math.min(100, Math.round((titanHp / maxHp) * 100)))
 
-  const [deployedEngines, setDeployedEngines] = useState<{ id: string; name: string }[]>([]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    try {
-      const sandbox = JSON.parse(localStorage.getItem('sandbox-inventory') || '{}');
-      const claimed = JSON.parse(localStorage.getItem('claimed-siege-weapons') || '[]');
-      const grid = JSON.parse(localStorage.getItem('kingdom-grid') || '[]');
-      
-      const found = new Set<string>();
-      
-      if (Array.isArray(grid)) {
-        grid.forEach((row: any) => {
-          if (Array.isArray(row)) {
-            row.forEach((tile: any) => {
-              if (tile?.placedSiegeEngine?.id) {
-                found.add(tile.placedSiegeEngine.id);
-              }
-            });
-          }
-        });
-      }
-      
-      claimed.forEach((id: string) => found.add(id));
-      Object.keys(sandbox).forEach((id: string) => {
-        if (sandbox[id] > 0) found.add(id);
-      });
-
-      const siegeNameMap: Record<string, string> = {
-        siege_catapult: 'Catapult',
-        siege_scorpion: 'Scorpion',
-        siege_battering_ram: 'Battering ram',
-        siege_trebuchet: 'Trebuchet',
-        siege_tower: 'Siegetower',
-        siege_flame_ballista: 'Balista',
-        siege_spring_cannon: 'Canon',
-        siege_ether_mortar: 'Flaming catapult',
-        siege_dragon_mortar: 'Flaming scorpion',
-        siege_astral_projector: 'Flaming trebuchet',
-      };
-
-      const enginesList = Array.from(found).map(id => ({
-        id,
-        name: siegeNameMap[id] || id.replace('siege_', '')
-      }));
-
-      setDeployedEngines(enginesList);
-    } catch {
-      setDeployedEngines([]);
-    }
-  }, [isOpen]);
-
   const CHESTS = [
     { tier: 1, reqHpDamage: 2500, label: 'Bronze alliance chest', reward: '+100 Gold & 2 Essences', claimed: claimedTiers.includes(1) },
     { tier: 2, reqHpDamage: 5000, label: 'Silver alliance chest', reward: '+250 Gold & 5 Essences', claimed: claimedTiers.includes(2) },
@@ -104,7 +53,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-xl bg-zinc-950 border border-amber-900/50 text-white rounded-2xl p-6 shadow-2xl overflow-hidden">
+      <DialogContent className="max-w-full sm:max-w-2xl md:max-w-3xl bg-zinc-950 border border-amber-900/50 text-white rounded-2xl p-4 sm:p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-red-400">
@@ -159,32 +108,8 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
               <span className="text-[10px] font-mono font-bold text-amber-300">1.5x Boss Damage Multiplier</span>
             </div>
 
-            {/* Active Siege Engines & Potion Oils Banner */}
-            <div className="p-3 bg-gradient-to-r from-amber-950/60 via-zinc-900 to-amber-950/60 rounded-xl border border-amber-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🪵</span>
-                <div>
-                  <div className="font-bold text-amber-300 font-serif">Deployed Siege Weapons & Oils</div>
-                  <div className="text-[10px] text-zinc-400">Catapults, Scorpions & Greek Fire Oils boost all raid strikes</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {deployedEngines.length > 0 ? (
-                  deployedEngines.map(e => (
-                    <span key={e.id} className="text-[10px] font-mono font-bold bg-amber-950 border border-amber-500/40 text-amber-300 px-2 py-0.5 rounded-full">
-                      🎯 {e.name} +20%
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-[10px] font-mono text-zinc-400 italic">
-                    Claim engines in Siege Workshop to activate raid perks!
-                  </span>
-                )}
-                <span className="text-[10px] font-mono font-bold bg-amber-950 border border-amber-500/40 text-amber-300 px-2 py-0.5 rounded-full">
-                  🔥 Greek Fire Oil +25%
-                </span>
-              </div>
-            </div>
+            {/* 10 Siege Engine Slots Arsenal */}
+            <TitanSiegeArsenal />
           </div>
 
           {/* Collapsible Damage Rules & Loot Rates Drawer (3-Tier Hierarchy) */}
