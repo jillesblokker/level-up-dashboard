@@ -373,9 +373,14 @@ export function SiegeWorkshopModal({ open, onOpenChange, onComplete }: SiegeWork
                 {/* Action Footer */}
                 <div className="mt-3 pt-3 border-t border-amber-900/20 flex justify-end">
                   {isClaimed ? (
-                    <div className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-500/30 px-3 py-1.5 rounded-xl">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span>Deployed to Sandbox Inventory!</span>
+                    <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 w-full justify-between">
+                      <span className="text-[11px] text-zinc-400 italic">
+                        ⚡ Limited to 1 per monthly Titan Raid season to keep boss battles balanced!
+                      </span>
+                      <div className="inline-flex items-center gap-1.5 text-xs text-amber-300 font-bold bg-amber-950/60 border border-amber-500/40 px-3 py-1.5 rounded-xl shrink-0">
+                        <CheckCircle2 className="w-4 h-4 text-amber-400" />
+                        <span>1/1 Claimed this month</span>
+                      </div>
                     </div>
                   ) : isUnlocked ? (
                     <Button
