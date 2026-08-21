@@ -1498,53 +1498,64 @@ export default function DungeonPage() {
                                       />
                                     </div>
                                   )}
-                                  {/* Top Level Badge & Element Emoji */}
-                                  <div className="absolute top-2 left-2 z-10">
-                                    <span className="text-[10px] text-amber-300 font-extrabold bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/30 shadow">
-                                      Lv.{fighterLevel}
-                                    </span>
-                                  </div>
-                                  <div className="absolute top-2 right-2 z-10">
-                                    <span className="text-xs filter drop-shadow-md">{getTypeEmoji(creature.type)}</span>
-                                  </div>
+                                  {/* Top Level Badge, Evolution Stage & Element Emoji */}
+                                   <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+                                     <span className="text-[10px] text-amber-300 font-extrabold bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/30 shadow">
+                                       Lv.{fighterLevel}
+                                     </span>
+                                     <span className={cn(
+                                       "text-[8px] font-extrabold px-1.5 py-0.5 rounded border shadow-md uppercase tracking-wider",
+                                       isMythic || fighterLevel >= 30 ? "bg-purple-950 text-purple-200 border-purple-500/50" :
+                                       fighterLevel >= 15 ? "bg-blue-950 text-blue-200 border-blue-500/50" :
+                                       "bg-amber-950/80 text-amber-300 border-amber-800/50"
+                                     )}>
+                                       {isMythic || fighterLevel >= 30 ? 'Mythic' : fighterLevel >= 15 ? 'Adult' : 'Baby'}
+                                     </span>
+                                   </div>
+                                   <div className="absolute top-2 right-2 z-10">
+                                     <span className="text-xs filter drop-shadow-md">{getTypeEmoji(creature.type)}</span>
+                                   </div>
 
-                                  {/* Centered Matchup text overlay inside cards */}
-                                  {matchupText && !isFainted && (
-                                    <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border px-2 py-0.5 rounded-full text-[8px] uppercase tracking-widest shadow-2xl z-20 transition-transform duration-300 group-hover:scale-110 ${matchupColor}`}>
-                                      {matchupText}
-                                    </div>
-                                  )}
+                                   {/* Centered Matchup text overlay inside cards */}
+                                   {matchupText && !isFainted && (
+                                     <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border px-2 py-0.5 rounded-full text-[8px] uppercase tracking-widest shadow-2xl z-20 transition-transform duration-300 group-hover:scale-110 ${matchupColor}`}>
+                                       {matchupText}
+                                     </div>
+                                   )}
 
-                                  {/* Creature Image */}
-                                  <Image
-                                    src={getCreatureImage(creature.id, creature.filename, creature.isMythic)}
-                                    alt={creature.name}
-                                    fill
-                                    className={isMythic ? "object-contain p-2 block drop-shadow-lg relative z-10 my-auto mx-auto" : "object-contain block drop-shadow-lg"}
-                                    unoptimized
-                                  />
-                                </div>
-                              );
-                            })()}
+                                   {/* Creature Image */}
+                                   <Image
+                                     src={getCreatureImage(creature.id, creature.filename, creature.isMythic)}
+                                     alt={creature.name}
+                                     fill
+                                     className={isMythic ? "object-contain p-2 block drop-shadow-lg relative z-10 my-auto mx-auto" : "object-contain block drop-shadow-lg"}
+                                     unoptimized
+                                   />
+                                 </div>
+                               );
+                             })()}
 
-                            {/* Bottom Health Stats & Info Banner */}
-                            <div className="space-y-1 z-10 w-full bg-zinc-950 p-2 border-t border-white/10">
-                              <div className="flex justify-between text-[9px] text-zinc-400 font-bold">
-                                <span>HP</span>
-                                <span className="font-mono">{memberHp}/{memberMaxHp}</span>
-                              </div>
-                              <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full ${isFainted ? 'bg-red-950' : 'bg-emerald-500'} transition-all duration-300`}
-                                  style={{ width: `${(memberHp / memberMaxHp) * 100}%` }}
-                                />
-                              </div>
-                              <div className="grid grid-cols-3 gap-0.5 text-[8px] font-mono text-center pt-0.5">
-                                <span>⚔️{creature.stats.atk}</span>
-                                <span>🛡️{creature.stats.def}</span>
-                                <span>💨{creature.stats.spd}</span>
-                              </div>
-                            </div>
+                             {/* Bottom Health Stats & Info Banner */}
+                             <div className="space-y-1 z-10 w-full bg-zinc-950 p-2 border-t border-white/10">
+                               <div className="truncate text-[10px] font-serif font-bold text-amber-200 border-b border-white/5 pb-0.5">
+                                 {creature.name}
+                               </div>
+                               <div className="flex justify-between text-[9px] text-zinc-400 font-bold pt-0.5">
+                                 <span>HP</span>
+                                 <span className="font-mono">{memberHp}/{memberMaxHp}</span>
+                               </div>
+                               <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
+                                 <div
+                                   className={`h-full ${isFainted ? 'bg-red-950' : 'bg-emerald-500'} transition-all duration-300`}
+                                   style={{ width: `${(memberHp / memberMaxHp) * 100}%` }}
+                                 />
+                               </div>
+                               <div className="grid grid-cols-3 gap-0.5 text-[8px] font-mono text-center pt-0.5">
+                                 <span>⚔️{creature.stats.atk}</span>
+                                 <span>🛡️{creature.stats.def}</span>
+                                 <span>💨{creature.stats.spd}</span>
+                               </div>
+                             </div>
                           </button>
                         );
                       })}

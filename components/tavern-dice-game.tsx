@@ -692,7 +692,7 @@ export function TavernDiceGame() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-3xl mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
               {WAGER_TIERS.map((tier) => {
                 const isLocked = playerLevel < tier.requiredLevel;
                 const canAfford = goldBalance >= tier.wager;
@@ -704,14 +704,14 @@ export function TavernDiceGame() {
                     disabled={isLocked || !canAfford}
                     onClick={() => startNewGame(tier)}
                     className={cn(
-                      "group relative p-4 rounded-2xl border-2 transition-all text-center flex flex-col justify-between items-center space-y-3 shadow-lg min-h-[190px]",
+                      "group relative p-3.5 rounded-2xl border-2 transition-all duration-300 text-center flex flex-col justify-between items-center space-y-3 shadow-xl min-h-[220px] overflow-hidden",
                       isLocked || !canAfford
-                        ? "border-zinc-900 bg-zinc-950/40 text-zinc-600 cursor-not-allowed opacity-50"
-                        : "border-zinc-800 bg-gradient-to-b from-zinc-900 to-zinc-950 hover:border-amber-500/50 hover:from-amber-950/40 hover:scale-105 cursor-pointer"
+                        ? "border-zinc-900 bg-zinc-950/60 text-zinc-600 cursor-not-allowed opacity-50"
+                        : "border-amber-900/40 bg-gradient-to-b from-zinc-950 via-zinc-900 to-amber-950/40 hover:border-amber-500/70 hover:scale-105 cursor-pointer shadow-[0_4px_15px_rgba(0,0,0,0.5)]"
                     )}
                   >
-                    {/* Creature Inhabitant Portrait Card Frame */}
-                    <div className="relative w-16 h-16 rounded-xl border-2 border-amber-500/40 bg-zinc-950 overflow-hidden shadow-inner flex items-center justify-center">
+                    {/* Creature Inhabitant Portrait Champion Card Frame */}
+                    <div className="relative w-20 h-20 rounded-xl border-2 border-amber-500/50 bg-zinc-950 overflow-hidden shadow-inner flex items-center justify-center group-hover:border-amber-400 transition-colors">
                       {/* Undiscovered Frame Background Texture for Mythic Creatures */}
                       {tier.isMythic && (
                         <div className="absolute inset-0 z-0 opacity-60 mix-blend-luminosity pointer-events-none">
@@ -727,32 +727,35 @@ export function TavernDiceGame() {
                       <Image
                         src={creatureImg}
                         alt={tier.opponentName}
-                        width={80}
-                        height={80}
-                        className={tier.isMythic ? "max-h-[85%] w-auto object-contain relative z-10 my-auto mx-auto drop-shadow-md" : "w-full h-full object-cover relative z-10"}
+                        width={90}
+                        height={90}
+                        className={tier.isMythic ? "max-h-[90%] w-auto object-contain relative z-10 my-auto mx-auto drop-shadow-md group-hover:scale-110 transition-transform" : "w-full h-full object-cover relative z-10 group-hover:scale-110 transition-transform"}
                         unoptimized
                       />
+                      <div className="absolute top-1 right-1 z-20 text-xs">
+                        {tier.emoji}
+                      </div>
                     </div>
 
                     <div>
-                      <h4 className="font-serif font-bold text-sm text-amber-300 group-hover:text-amber-200">
+                      <h4 className="font-serif font-bold text-sm text-amber-200 group-hover:text-amber-300">
                         {tier.opponentName}
                       </h4>
                       <p className="text-[10px] text-zinc-400 font-mono mt-0.5">{tier.name} Table</p>
                     </div>
 
                     <div className="space-y-1 w-full">
-                      <div className="text-xs font-mono font-bold text-amber-400 bg-black/40 py-1 rounded-lg border border-amber-500/20">
+                      <div className="text-xs font-mono font-bold text-amber-300 bg-black/60 py-1 rounded-lg border border-amber-500/30 shadow-inner">
                         🪙 {formatGold(tier.wager)}
                       </div>
                       
                       {isLocked ? (
-                        <span className="text-[9px] uppercase tracking-wider text-red-400 font-extrabold block">
-                          Lvl {tier.requiredLevel} 🔒
+                        <span className="text-[9px] uppercase tracking-wider text-red-400 font-extrabold block pt-0.5">
+                          Req Lvl {tier.requiredLevel} 🔒
                         </span>
                       ) : (
-                        <span className="text-[9px] uppercase tracking-wider text-emerald-400 font-extrabold block">
-                          {tier.multiplier}x Payout
+                        <span className="text-[9px] uppercase tracking-wider text-emerald-400 font-extrabold block pt-0.5">
+                          {tier.multiplier}x Payout Multiplier
                         </span>
                       )}
                     </div>

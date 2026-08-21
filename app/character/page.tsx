@@ -1355,41 +1355,68 @@ export default function CharacterPage() {
               </TabsContent>
               <TabsContent value="pets" className="mt-6">
                 <div className="max-w-7xl mx-auto w-full space-y-6">
-                  <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
+                  <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
                     {[
-                      { id: 'ember-drake', name: 'Ember Drake', type: 'Fire', icon: '🔥', yield: '+10% Gold Yield', skill: 'Ember Strike (45 AOE Fire DMG)', image: '/images/creatures/000.webp' },
-                      { id: 'sage-owl', name: 'Sage Owl', type: 'Water', icon: '🦉', yield: '+10% Essence Yield', skill: 'Arcane Gust (+35 Team Heal)', image: '/images/creatures/001.webp' },
-                      { id: 'spirit-sprite', name: 'Spirit Sprite', type: 'Verdant', icon: '✨', yield: '+10% XP Yield', skill: 'Floral Blessing (+40 Def Shield)', image: '/images/creatures/002.webp' }
+                      { id: 'ember-drake', name: 'Ember Drake', type: 'Fire', focus: 'Might & Craft', yield: '+10% Gold Yield', skill: 'Ember Strike (45 AOE Fire DMG)', image: '/images/creatures/EmberDrake.webp', borderColor: 'border-orange-500/50', glowColor: 'shadow-[0_0_20px_rgba(249,115,22,0.3)]', badgeBg: 'bg-orange-950/80 text-orange-300 border-orange-500/40' },
+                      { id: 'sage-owl', name: 'Sage Owl', type: 'Water', focus: 'Knowledge & Wisdom', yield: '+10% Essence Yield', skill: 'Arcane Gust (+35 Team Heal)', image: '/images/creatures/SageOwl.webp', borderColor: 'border-blue-500/50', glowColor: 'shadow-[0_0_20px_rgba(59,130,246,0.3)]', badgeBg: 'bg-blue-950/80 text-blue-300 border-blue-500/40' },
+                      { id: 'spirit-sprite', name: 'Spirit Sprite', type: 'Verdant', focus: 'Vitality & Wellness', yield: '+10% XP Yield', skill: 'Floral Blessing (+40 Def Shield)', image: '/images/creatures/SpiritSprite.webp', borderColor: 'border-emerald-500/50', glowColor: 'shadow-[0_0_20px_rgba(16,185,129,0.3)]', badgeBg: 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40' },
+                      { id: 'grove-fox', name: 'Grove Fox', type: 'Nature', focus: 'Exploration & Castle', yield: '+10% Speed & Luck', skill: 'Swift Pounce (+30 Crit Strike)', image: '/images/creatures/GroveFox.webp', borderColor: 'border-amber-500/50', glowColor: 'shadow-[0_0_20px_rgba(245,158,11,0.3)]', badgeBg: 'bg-amber-950/80 text-amber-300 border-amber-500/40' }
                     ].map((pet) => (
-                      <Card key={pet.id} className="medieval-card border-amber-500/40 bg-zinc-950 flex flex-col justify-between p-5 space-y-4">
+                      <Card key={pet.id} className={cn("medieval-card bg-zinc-950 flex flex-col justify-between p-4 space-y-3 transition-all duration-300 hover:scale-[1.02]", pet.borderColor, pet.glowColor)}>
                         <div className="space-y-3">
+                          {/* Top Header */}
                           <div className="flex justify-between items-center">
-                            <h4 className="font-serif font-bold text-lg text-amber-300 flex items-center gap-2">
-                              <span>{pet.icon}</span> {pet.name}
+                            <h4 className="font-serif font-bold text-base text-amber-200 truncate">
+                              {pet.name}
                             </h4>
-                            <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-400 font-mono">
-                              Active Companion
+                            <Badge variant="outline" className={cn("text-[9px] font-mono px-2 py-0.5 uppercase tracking-wider", pet.badgeBg)}>
+                              {pet.type}
                             </Badge>
                           </div>
-                          <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 space-y-1 text-xs">
-                            <p className="text-zinc-300 font-bold">✨ Passive: <span className="text-amber-400">{pet.yield}</span></p>
-                            <p className="text-zinc-400 font-mono text-[11px]">⚔️ Striker: {pet.skill}</p>
+
+                          {/* Pet Portrait Artwork Frame */}
+                          <div className="relative w-full aspect-square rounded-xl overflow-hidden border border-amber-900/40 bg-gradient-to-b from-zinc-900 via-zinc-950 to-amber-950/30 group">
+                            <Image
+                              src={pet.image}
+                              alt={pet.name}
+                              fill
+                              className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
+                              unoptimized
+                            />
+                            <div className="absolute bottom-2 left-2 right-2 bg-zinc-950/90 backdrop-blur-md rounded-lg p-1.5 border border-amber-500/30 text-center">
+                              <span className="text-[10px] text-amber-300 font-mono font-bold">Focus: {pet.focus}</span>
+                            </div>
+                          </div>
+
+                          {/* Stats & Skills */}
+                          <div className="p-2.5 rounded-xl bg-zinc-900/90 border border-zinc-800 space-y-1.5 text-xs">
+                            <p className="text-zinc-200 font-bold text-[11px]">✨ Passive: <span className="text-amber-400">{pet.yield}</span></p>
+                            <p className="text-zinc-400 font-mono text-[10px] leading-tight">⚔️ Striker: {pet.skill}</p>
                           </div>
                         </div>
 
-                        <div className="space-y-2 pt-2 border-t border-zinc-800">
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                gainGold(10, 'pet-treat');
-                                toast({ title: `🍎 Fed ${pet.name}!`, description: "Increased pet affection by +5%! Passive yield boosted." });
-                              }}
-                              className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold text-xs h-8"
-                            >
-                              🍎 Feed Treat (+5% Affection)
-                            </Button>
+                        {/* Treat Feeding & Affection Progress */}
+                        <div className="space-y-2 pt-2 border-t border-zinc-800/80">
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-[10px] font-mono text-zinc-400">
+                              <span>Affection Level</span>
+                              <span className="text-amber-300 font-bold">85%</span>
+                            </div>
+                            <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-amber-900/30">
+                              <div className="h-full bg-gradient-to-r from-amber-600 to-amber-400 w-[85%]" />
+                            </div>
                           </div>
+
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              gainGold(10, 'pet-treat');
+                              toast({ title: `🍎 Fed ${pet.name}!`, description: "Increased pet affection by +5%! Passive yield boosted." });
+                            }}
+                            className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold text-xs h-8 rounded-lg shadow-md"
+                          >
+                            🍎 Feed Treat (+5% Affection)
+                          </Button>
                         </div>
                       </Card>
                     ))}
