@@ -738,23 +738,6 @@ function RealmPageContent() {
         }
     }, [characterStats.level, userId, toast, playSound]);
 
-    // Level 25 Ship Unlock Celebration
-    useEffect(() => {
-        if (characterStats.level >= 25 && userId) {
-            const key = `ship_unlock_shown_${userId}`;
-            const shown = localStorage.getItem(key);
-            if (!shown) {
-                toast({
-                    title: "🏴‍☠️ High Seas Unlocked!",
-                    description: "Level 25 Reached! You can now traverse Water tiles with your Pirate Ship!",
-                    duration: 5000,
-                    className: "bg-blue-900 border-2 border-amber-500 text-yellow-100 font-bold"
-                });
-                playSound('level_up'); // Assuming 'level_up' or generic sound exists
-                localStorage.setItem(key, 'true');
-            }
-        }
-    }, [characterStats.level, userId, toast, playSound]);
 
     // Load monsters
     useEffect(() => {
@@ -1839,6 +1822,44 @@ function RealmPageContent() {
         const targetTile = grid[y]?.[x];
         if (!targetTile || targetTile.type === 'empty') return;
 
+        // If tile contains a placed siege engine (e.g. cannon, catapult), stash the engine and restore the underlying base terrain tile (grass/path)
+        if (targetTile.placedSiegeEngine || targetTile.type?.startsWith('siege_')) {
+            const engineName = targetTile.placedSiegeEngine?.name || targetTile.name || 'Siege Engine';
+            const engineId = targetTile.placedSiegeEngine?.id || targetTile.placedSiegeEngine?.type || targetTile.type;
+
+            setGrid(prev => {
+                const next = [...prev];
+                if (next[y]?.[x]) {
+                    if (next[y][x].placedSiegeEngine) {
+                        const { placedSiegeEngine, ...restTile } = next[y][x];
+                        next[y][x] = restTile as Tile;
+                    } else {
+                        // Legacy siege tile -> convert base terrain to grass
+                        next[y][x] = { ...defaultTile('grass'), x, y, id: `grass-${x}-${y}` };
+                    }
+                }
+                return next;
+            });
+
+            // Add siege engine back into sandbox inventory
+            const localSandbox = (() => {
+                try { return JSON.parse(localStorage.getItem('sandbox-inventory') || '{}'); }
+                catch { return {}; }
+            })();
+            if (engineId) {
+                localSandbox[engineId] = (localSandbox[engineId] || 0) + 1;
+                localStorage.setItem('sandbox-inventory', JSON.stringify(localSandbox));
+            }
+            window.dispatchEvent(new Event('inventory-updated'));
+            window.dispatchEvent(new Event('tile-inventory-update'));
+
+            toast({
+                title: `📦 ${engineName} Stashed!`,
+                description: `Returned to your Siege Engine inventory.`,
+            });
+            return;
+        }
+
         if (targetTile.type === 'pyramid' || targetTile.type === 'sphinx-gates' || targetTile.type === 'whispering-canopy' || targetTile.type === 'frostfire-obelisk' || targetTile.type === 'fairy-ring') {
             toast({
                 title: "Ancient Landmark",
@@ -1852,7 +1873,7 @@ function RealmPageContent() {
 
         const originalTile = { ...targetTile };
 
-        // Optimistic update
+        // Optimistic update for non-siege terrain tiles
         setGrid(prev => {
             const next = [...prev];
             if (next[y]) next[y][x] = { ...defaultTile('empty'), x, y, id: `empty-${x}-${y}` };
