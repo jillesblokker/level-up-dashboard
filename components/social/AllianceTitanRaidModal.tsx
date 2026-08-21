@@ -5,9 +5,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { ShieldAlert, Swords, Trophy, Gift, Zap } from 'lucide-react'
+import { ShieldAlert, Swords, Trophy, Gift, Zap, CheckCircle2 } from 'lucide-react'
 import { toast } from '@/components/ui/use-toast'
 import { TitanSiegeArsenal } from '@/components/titan-siege-arsenal'
+import { TreasureChestVisual } from '@/components/ui/treasure-chest-visual'
 
 interface AllianceTitanRaidModalProps {
   isOpen: boolean
@@ -164,39 +165,51 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
               <Progress value={Math.min(100, Math.round(((maxHp - titanHp) / 2000) * 100))} className="h-2 bg-zinc-900" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {CHESTS.map(chest => {
                 const totalDmgDealt = maxHp - titanHp
                 const unlocked = totalDmgDealt >= chest.reqHpDamage
+                const chestState = chest.claimed ? 'claimed' : (unlocked ? 'ready' : 'locked')
+
                 return (
                   <div
                     key={chest.tier}
-                    className={`rounded-xl border p-3 flex flex-col justify-between transition-all ${
-                      unlocked ? 'border-amber-500/40 bg-amber-950/20' : 'border-zinc-800 bg-zinc-900/30 opacity-70'
-                    }`}
+                    className="flex flex-col items-center p-3 rounded-2xl bg-zinc-950/80 border border-amber-900/40 shadow-lg text-center"
                   >
-                    <div>
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <Gift className={`w-4 h-4 ${unlocked ? 'text-amber-400' : 'text-zinc-500'}`} />
-                        <span className="font-bold text-xs text-zinc-200">{chest.label}</span>
-                      </div>
-                      <p className="text-[10px] text-zinc-400">{chest.reward}</p>
-                    </div>
+                    {/* Animated Fellowship Chest Visual */}
+                    <TreasureChestVisual
+                      state={chestState}
+                      tierLabel={chest.label}
+                      tierColor={chest.tier === 3 ? "from-yellow-700 via-amber-900 to-zinc-950" : chest.tier === 2 ? "from-zinc-500 via-zinc-800 to-zinc-950" : "from-amber-800 via-amber-950 to-zinc-950"}
+                      className="w-full h-32 mb-1"
+                      onClick={() => unlocked && !chest.claimed && handleClaimChest(chest.tier)}
+                    />
 
-                    <div className="mt-3">
-                      {chest.claimed ? (
-                        <Badge variant="outline" className="w-full justify-center bg-zinc-800 text-zinc-400 text-[10px]">
-                          Claimed
-                        </Badge>
-                      ) : (
-                        <Button
-                          disabled={!unlocked}
-                          onClick={() => handleClaimChest(chest.tier)}
-                          className="w-full h-7 text-[11px] font-bold bg-amber-600 hover:bg-amber-500 text-white"
-                        >
-                          {unlocked ? 'Claim reward' : `${chest.reqHpDamage} DMG req.`}
-                        </Button>
-                      )}
+                    {/* Rewards & Details Directly Underneath */}
+                    <div className="w-full space-y-1.5 mt-1">
+                      <div className="font-bold text-xs text-amber-300 font-serif">{chest.label}</div>
+                      <p className="text-[11px] font-mono text-emerald-400 font-semibold bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.5 rounded-full inline-block">
+                        🎁 {chest.reward}
+                      </p>
+
+                      <div className="pt-1">
+                        {chest.claimed ? (
+                          <Badge variant="outline" className="w-full justify-center bg-zinc-900 text-zinc-400 text-[10px] py-1 border-zinc-800">
+                            <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-400" /> Claimed
+                          </Badge>
+                        ) : (
+                          <Button
+                            disabled={!unlocked}
+                            onClick={() => handleClaimChest(chest.tier)}
+                            className={unlocked 
+                              ? "w-full h-8 text-xs font-extrabold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 shadow-md" 
+                              : "w-full h-8 text-[11px] font-mono bg-zinc-900 text-zinc-500 border border-zinc-800"
+                            }
+                          >
+                            {unlocked ? 'Claim reward' : `${chest.reqHpDamage} DMG req.`}
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )

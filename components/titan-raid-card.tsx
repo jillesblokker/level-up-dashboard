@@ -11,6 +11,7 @@ import { Shield, Sword, Target, Flame, Crown, CheckCircle2, Zap, Trophy, Gift } 
 import { getCurrentMonthlyTitan, MonthlyTitan } from "@/lib/titan-bosses";
 import { motion } from "framer-motion";
 import { TitanSiegeArsenal } from "@/components/titan-siege-arsenal";
+import { TreasureChestVisual } from "@/components/ui/treasure-chest-visual";
 
 export function TitanRaidCard() {
   const { toast } = useToast();
@@ -176,33 +177,49 @@ export function TitanRaidCard() {
             {/* 10 Siege Engine Slots Arsenal */}
             <TitanSiegeArsenal />
 
-            {/* Claim Rewards Footer */}
-            <div className="flex flex-col gap-3 p-3.5 rounded-xl bg-purple-950/30 border border-purple-800/40">
-              <div className="flex items-center justify-between text-xs border-b border-purple-900/30 pb-2">
-                <div className="flex items-center gap-1.5 font-semibold text-zinc-300">
-                  <Gift className="w-4 h-4 text-amber-400" />
-                  <span>Loot:</span>
+            {/* Claim Rewards Footer with Animated Treasure Chest */}
+            <div className="flex flex-col items-center p-4 rounded-2xl bg-gradient-to-b from-purple-950/40 via-zinc-950 to-zinc-950 border border-purple-800/40 shadow-lg text-center">
+              <TreasureChestVisual
+                state={claimed ? 'claimed' : (isDefeated ? 'ready' : 'locked')}
+                tierLabel="Titan Victory Chest"
+                tierColor="from-purple-800 via-amber-900 to-zinc-950"
+                className="w-full max-w-xs h-32 mb-2"
+                onClick={() => isDefeated && !claimed && handleClaim()}
+              />
+
+              <div className="w-full space-y-2">
+                <div className="font-serif font-bold text-sm text-amber-300">Titan Raid Victory Loot</div>
+                <div className="flex items-center justify-center gap-3 text-xs font-mono font-bold">
+                  <span className="text-amber-400 bg-amber-950/60 border border-amber-500/40 px-2.5 py-1 rounded-full">
+                    🪙 +{titan.rewardGold} Gold
+                  </span>
+                  <span className="text-purple-300 bg-purple-950/60 border border-purple-500/40 px-2.5 py-1 rounded-full">
+                    💎 +{titan.rewardGems} Gems
+                  </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-amber-400 font-bold">🪙 +{titan.rewardGold} Gold</span>
-                  <span className="text-purple-300 font-bold">💎 +{titan.rewardGems} Gems</span>
+
+                <div className="pt-2">
+                  <Button
+                    disabled={!isDefeated || claimed || claiming}
+                    onClick={handleClaim}
+                    className={claimed 
+                      ? "w-full bg-zinc-900 text-zinc-400 border border-zinc-800 py-3 rounded-xl min-h-[44px]" 
+                      : isDefeated 
+                        ? "w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-black shadow-[0_0_25px_rgba(245,158,11,0.4)] py-3 rounded-xl min-h-[44px] animate-bounce" 
+                        : "w-full bg-zinc-900 text-zinc-500 border border-zinc-800 py-3 rounded-xl min-h-[44px]"
+                    }
+                  >
+                    {claimed ? (
+                      <span className="flex items-center justify-center gap-1.5 font-bold"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Monthly Reward Claimed</span>
+                    ) : isDefeated ? (
+                      <span className="flex items-center justify-center gap-1.5 font-extrabold text-base"><Trophy className="w-5 h-5" /> Claim Victory Loot</span>
+                    ) : (
+                      <span className="flex items-center justify-center gap-1.5 font-bold font-mono text-xs"><Lock className="w-4 h-4" /> Defeat Titan Wyrm to Unlock</span>
+                    )}
+                  </Button>
                 </div>
               </div>
-
-            {(isDefeated || claimed) && (
-              <Button
-                disabled={claimed || claiming}
-                onClick={handleClaim}
-                className={claimed ? "w-full bg-zinc-800 text-zinc-400 border border-zinc-700 py-3 rounded-xl min-h-[48px]" : "w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-black shadow-[0_0_25px_rgba(245,158,11,0.4)] py-3 rounded-xl min-h-[48px] animate-bounce"}
-              >
-                {claimed ? (
-                  <span className="flex items-center justify-center gap-1.5 font-bold"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Monthly Reward Claimed</span>
-                ) : (
-                  <span className="flex items-center justify-center gap-1.5 font-extrabold text-base"><Trophy className="w-5 h-5" /> Claim Victory Loot</span>
-                )}
-              </Button>
-            )}
-          </div>
+            </div>
         </div>
       </div>
     </CardContent>
