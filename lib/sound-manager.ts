@@ -36,16 +36,26 @@ class SoundManager {
 
     // Map sound names to file paths
     const soundFiles: Record<string, string> = {
-      'questComplete': '/audio/quest-complete.wav',
-      'levelUp': '/audio/level-up.wav',
-      'buttonClick': '/audio/button-click.wav',
-      'achievement': '/audio/achievement-unlock.wav',
-      'success': '/audio/gold-earned.wav',
-      'streak': '/audio/magic-spell.wav',
-      'monsterSpawn': '/audio/door-open.wav',
-      'battleWin': '/audio/sword-clash.wav',
-      'allianceOath': '/audio/magic-spell.wav',
-      'dungeonChallenge': '/audio/chest-open.wav'
+      'questComplete': '/quest-complete.wav',
+      'levelUp': '/level-up.wav',
+      'buttonClick': '/button-click.wav',
+      'achievement': '/achievement-unlock.wav',
+      'success': '/gold-earned.wav',
+      'xpEarned': '/xp-earned.wav',
+      'streak': '/magic-spell.wav',
+      'monsterSpawn': '/door-open.wav',
+      'battleWin': '/sword-clash.wav',
+      'allianceOath': '/magic-spell.wav',
+      'dungeonChallenge': '/chest-open.wav',
+      'ambientTavern': '/medieval-tavern.wav',
+      'ambientBattle': '/medieval-battle.wav',
+      'ambientCastle': '/medieval-castle.wav',
+      'ambientForest': '/medieval-forest.wav',
+      'ambientAdventure': '/medieval-adventure.wav',
+      'ambientEpic': '/medieval-epic.wav',
+      'ambientVillage': '/medieval-village.wav',
+      'ambientMystical': '/medieval-mystical.wav',
+      'ambientCalm': '/medieval-calm.wav'
     };
 
     // Try to load real files first
