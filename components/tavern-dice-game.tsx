@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
 import { getCharacterStats, addToCharacterStat } from "@/lib/character-stats-service";
 import { formatGold, cn } from "@/lib/utils";
+import { playSFX } from "@/lib/sound-manager";
 
 // --- TYPES ---
 export type AIDifficulty = 'easy' | 'normal' | 'hard' | 'master';
@@ -476,6 +477,7 @@ export function TavernDiceGame() {
   const startNewRound = (starter: 'player' | 'computer', pCount: number, cCount: number, currentDiff: AIDifficulty) => {
     setPhase('rolling');
     setIsSpinning(true);
+    playSFX('diceRoll');
     setCurrentBid(null);
     setBidHistory([]);
     setChallengeInfo(null);

@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress"
 
 import { useCitizensStore } from "@/stores/citizensStore"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
+import { playSFX } from "@/lib/sound-manager";
 
 interface JourneyRegion {
   id: string;
@@ -121,6 +122,7 @@ export function AirshipHarborTab() {
   const idleCitizens = citizens.filter(c => !c.lockedReason);
 
   const playLaunchSound = () => {
+    playSFX('etherLaunch');
     if (typeof window === 'undefined') return;
     try {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;

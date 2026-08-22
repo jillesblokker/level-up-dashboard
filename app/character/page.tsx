@@ -16,6 +16,7 @@ import { toast } from "@/components/ui/use-toast"
 import { ChroniclesCard } from '@/components/chronicles-card'
 import { ElementalAura } from '@/components/character/elemental-aura'
 import { LegacyRoadmap } from "@/components/character/legacy-roadmap"
+import { playSFX } from "@/lib/sound-manager";
 import dynamic from 'next/dynamic';
 import { Progress } from "@/components/ui/progress"
 import {
@@ -1411,6 +1412,7 @@ export default function CharacterPage() {
                           <Button
                             size="sm"
                             onClick={() => {
+                              playSFX('petFeed');
                               gainGold(10, 'pet-treat');
                               toast({ title: `🍎 Fed ${pet.name}!`, description: "Increased pet affection by +5%! Passive yield boosted." });
                             }}

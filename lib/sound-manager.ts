@@ -111,6 +111,12 @@ class SoundManager {
     // Streak sound (fire crackle)
     setIfNotExists('streak', () => this.generateFireSound());
 
+    // Medieval RPG Game Action Sounds
+    setIfNotExists('diceRoll', () => this.generateDiceRollSound());
+    setIfNotExists('petFeed', () => this.generatePetFeedSound());
+    setIfNotExists('etherLaunch', () => this.generateEtherLaunchSound());
+    setIfNotExists('virtueToast', () => this.generateVirtueToastSound());
+
     // New procedural fallbacks
     setIfNotExists('monsterSpawn', () => this.generateErrorSound()); // Ominous thud
     setIfNotExists('battleWin', () => this.generateSwordSound());
@@ -280,6 +286,94 @@ class SoundManager {
     return buffer;
   }
 
+  private generateDiceRollSound(): AudioBuffer {
+    if (!this.audioContext) return null as any;
+
+    const sampleRate = this.audioContext.sampleRate;
+    const duration = 0.6;
+    const buffer = this.audioContext.createBuffer(1, sampleRate * duration, sampleRate);
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < data.length; i++) {
+      const t = i / sampleRate;
+      // Simulate multiple wooden dice tumbles on oak table
+      let sample = 0;
+      [0.0, 0.12, 0.25, 0.38, 0.45].forEach(impactTime => {
+        if (t >= impactTime) {
+          const dt = t - impactTime;
+          const freq = 450 * Math.exp(-dt * 20);
+          const env = Math.exp(-dt * 30);
+          sample += (Math.sin(2 * Math.PI * freq * dt) + (Math.random() * 0.3)) * env * 0.25;
+        }
+      });
+      data[i] = sample;
+    }
+
+    return buffer;
+  }
+
+  private generatePetFeedSound(): AudioBuffer {
+    if (!this.audioContext) return null as any;
+
+    const sampleRate = this.audioContext.sampleRate;
+    const duration = 0.5;
+    const buffer = this.audioContext.createBuffer(1, sampleRate * duration, sampleRate);
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < data.length; i++) {
+      const t = i / sampleRate;
+      // Cute dual-harmonic chime + sparkle crunch
+      const f1 = 880 * Math.exp(-t * 2);
+      const f2 = 1320 * Math.exp(-t * 2.5);
+      const env = Math.exp(-t * 4) * (1 - Math.exp(-t * 30));
+      const crunch = (Math.random() - 0.5) * Math.exp(-t * 15) * 0.1;
+      data[i] = ((Math.sin(2 * Math.PI * f1 * t) + Math.sin(2 * Math.PI * f2 * t)) * 0.2 + crunch) * env;
+    }
+
+    return buffer;
+  }
+
+  private generateEtherLaunchSound(): AudioBuffer {
+    if (!this.audioContext) return null as any;
+
+    const sampleRate = this.audioContext.sampleRate;
+    const duration = 1.2;
+    const buffer = this.audioContext.createBuffer(1, sampleRate * duration, sampleRate);
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < data.length; i++) {
+      const t = i / sampleRate;
+      // Deep soaring wind sweep with rising pitch resonances
+      const freq = 150 + (t * 400);
+      const noise = (Math.random() - 0.5) * 0.2;
+      const env = Math.sin(Math.PI * (t / duration));
+      data[i] = (Math.sin(2 * Math.PI * freq * t) * 0.3 + noise) * env * 0.3;
+    }
+
+    return buffer;
+  }
+
+  private generateVirtueToastSound(): AudioBuffer {
+    if (!this.audioContext) return null as any;
+
+    const sampleRate = this.audioContext.sampleRate;
+    const duration = 1.4;
+    const buffer = this.audioContext.createBuffer(1, sampleRate * duration, sampleRate);
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < data.length; i++) {
+      const t = i / sampleRate;
+      // Cathedral brass chime triad (F5, A5, C6)
+      const f1 = 698.46;
+      const f2 = 880.00;
+      const f3 = 1046.50;
+      const env = Math.exp(-t * 1.8) * (1 - Math.exp(-t * 40));
+      data[i] = (Math.sin(2 * Math.PI * f1 * t) + Math.sin(2 * Math.PI * f2 * t) + Math.sin(2 * Math.PI * f3 * t)) * env * 0.15;
+    }
+
+    return buffer;
+  }
+
   // Play a sound
   async play(soundName: string): Promise<void> {
     if (!this.isEnabled || !this.audioContext || !this.sounds.has(soundName)) {
@@ -419,4 +513,8 @@ export const SOUNDS = {
   BATTLE_LOSS: 'battleLoss',
   ALLIANCE_OATH: 'allianceOath',
   DUNGEON_CHALLENGE: 'dungeonChallenge',
+  DICE_ROLL: 'diceRoll',
+  PET_FEED: 'petFeed',
+  ETHER_LAUNCH: 'etherLaunch',
+  VIRTUE_TOAST: 'virtueToast',
 } as const;
