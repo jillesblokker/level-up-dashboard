@@ -7,7 +7,7 @@ export type VirtueCategory = 'might' | 'knowledge' | 'honor' | 'castle' | 'craft
 
 export interface StoryChoice {
   id: string;
-  verb: string;                 // Highlighted action verb (e.g. "Run with Sheldon")
+  verb: string;                 // Highlighted action verb (e.g. "Run with Turtoisy")
   label: string;                // Descriptive choice label
   virtueType: VirtueCategory;
   virtuePoints: number;
@@ -17,14 +17,19 @@ export interface StoryChoice {
   lessonMoral: string;          // Real-life habit metaphor
 }
 
+export interface StoryCharacter {
+  name: string;
+  image: string;
+}
+
 export interface StoryAdventure {
   id: string;
   storyNumber: string;          // e.g. "Scene 0042" (Galzyr style)
   title: string;
-  characters: string[];         // Creature names involved
-  avatarImage: string;          // Character portrait / creature asset
+  characters: StoryCharacter[]; // Existing creatures with images
+  avatarImage: string;          // Main character portrait
   locationName: string;         // Kingdom location
-  narrativeText: string;        // Opening atmospheric narrative
+  narrativeText: string;        // Opening simple story
   choices: StoryChoice[];
   unlockedRequirement?: {
     habitCategory?: string;

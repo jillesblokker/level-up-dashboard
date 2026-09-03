@@ -43,7 +43,7 @@ export function TalesShelfCard() {
           </Badge>
         </div>
         <CardDescription className="text-xs text-zinc-400 font-sans mt-0.5">
-          Interactive creature fables inspired by legendary board games. Shape stories and strengthen real-life virtues.
+          Short creature stories where you choose what happens. Help your friends and learn good habits.
         </CardDescription>
       </CardHeader>
 
@@ -81,11 +81,22 @@ export function TalesShelfCard() {
                         unoptimized
                       />
                     </div>
-                    <div className="space-y-0.5">
+                    <div className="space-y-1">
                       <h4 className="text-sm font-bold text-zinc-100 font-serif group-hover:text-amber-300 transition-colors line-clamp-1">
                         {story.title}
                       </h4>
-                      <p className="text-[11px] text-zinc-400 font-sans line-clamp-2 leading-relaxed">
+                      {/* Mini creature badges */}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {story.characters.map((c, i) => (
+                          <div key={i} className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded-full text-[10px] text-zinc-300">
+                            <div className="relative w-3.5 h-3.5 rounded-full overflow-hidden shrink-0">
+                              <Image src={c.image} alt={c.name} fill className="object-contain" unoptimized />
+                            </div>
+                            <span>{c.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-[11px] text-zinc-400 font-sans line-clamp-2 leading-relaxed pt-0.5">
                         {story.narrativeText.slice(0, 90)}…
                       </p>
                     </div>

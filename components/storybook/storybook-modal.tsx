@@ -119,12 +119,23 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
                   />
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-mono text-zinc-400 block">Creatures present:</span>
-                  <div className="flex flex-wrap gap-1.5 mt-0.5">
+                  <span className="text-[10px] uppercase font-mono text-zinc-400 block mb-1">Creatures in this story:</span>
+                  <div className="flex flex-wrap gap-2">
                     {story.characters.map((char, idx) => (
-                      <span key={idx} className="text-xs font-bold text-amber-300 bg-amber-950/60 border border-amber-600/30 px-2 py-0.5 rounded-full font-serif">
-                        {char}
-                      </span>
+                      <div key={idx} className="flex items-center gap-1.5 bg-zinc-900/90 border border-amber-500/40 px-2.5 py-1 rounded-full shadow-sm">
+                        <div className="relative w-5 h-5 rounded-full overflow-hidden bg-black/40 border border-amber-400/40 shrink-0">
+                          <Image
+                            src={char.image}
+                            alt={char.name}
+                            fill
+                            className="object-contain"
+                            unoptimized
+                          />
+                        </div>
+                        <span className="text-xs font-bold text-amber-200 font-serif">
+                          {char.name}
+                        </span>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -142,7 +153,7 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
               {/* Action Choices Section */}
               <div className="space-y-2.5 pt-1">
                 <span className="text-[11px] uppercase font-mono tracking-wider font-bold text-amber-400 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5" /> Choose your approach:
+                  <Sparkles className="w-3.5 h-3.5" /> What would you like to do?
                 </span>
 
                 <div className="flex flex-col gap-2.5">
@@ -172,7 +183,7 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
                       </div>
 
                       <div className="flex items-center gap-1 text-[11px] font-mono text-amber-400 shrink-0 self-end sm:self-center">
-                        <span>Select</span>
+                        <span>Choose</span>
                         <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </button>
@@ -205,7 +216,7 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
               {/* Real-Life Habit Lesson Moral Callout */}
               <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-950/60 via-teal-950/40 to-zinc-950 border border-emerald-500/40 space-y-1 shadow-md">
                 <span className="text-[10px] font-mono uppercase font-bold text-emerald-400 flex items-center gap-1.5">
-                  🌱 Habit growth takeaway:
+                  🌱 What we learned:
                 </span>
                 <p className="text-xs text-emerald-100 font-sans font-medium italic leading-relaxed">
                   "{selectedChoice.lessonMoral}"
@@ -234,7 +245,7 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
                 onClick={handleClose}
                 className="w-full h-11 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 text-black font-serif font-bold text-sm rounded-xl shadow-lg hover:from-amber-400 hover:to-amber-500 transition-all"
               >
-                Record in chronicle & continue ✨
+                Save to chronicle & continue ✨
               </Button>
             </div>
           )}

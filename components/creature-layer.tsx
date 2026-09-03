@@ -1246,11 +1246,15 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                             const citizenName = String(selectedCitizen.name || '').toLowerCase();
                             
                             const matchingStory = STORY_ADVENTURES.find(s => 
-                                s.characters.some(c => c.toLowerCase().includes(citizenName)) ||
-                                (citizenId === '007' && s.id === 'story-sprint-greenbriar') ||
-                                (citizenId === '010' && s.id === 'story-leafio-tidyup') ||
-                                (citizenId === '001' && s.id === 'story-flamio-midnight') ||
-                                (citizenId === '008' && s.id === 'story-oaky-posture')
+                                s.characters.some(c => c.name.toLowerCase().includes(citizenName)) ||
+                                (citizenId === '016' && s.id === 'story-sparky-pace') ||
+                                (citizenId === '106' && s.id === 'story-sparky-pace') ||
+                                (citizenId === '007' && s.id === 'story-leaf-tidy') ||
+                                (citizenId === '010' && s.id === 'story-leaf-tidy') ||
+                                (citizenId === '001' && s.id === 'story-flamio-sleep') ||
+                                (citizenId === '008' && s.id === 'story-oaky-stretch') ||
+                                (citizenId === '004' && s.id === 'story-oaky-stretch') ||
+                                (citizenId === '903' && s.id === 'story-penguin-walk')
                             );
 
                             if (!matchingStory) return null;
