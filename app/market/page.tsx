@@ -29,6 +29,7 @@ const ApothecaModal = dynamic(
 import { formatGold, cn } from "@/lib/utils"
 import { getOwnedPacks, saveOwnedPack, OwnedPack } from "@/lib/owned-packs-service"
 import { hapticSuccess } from "@/lib/haptics"
+import { playSFX } from "@/lib/sound-manager"
 
 // Define available materials for trade
 const MATERIALS = [
@@ -413,6 +414,20 @@ export default function MarketPage() {
     setOwnedPacksList(getOwnedPacks())
     hapticSuccess()
 
+    if (packType.price === 0) {
+      if (typeof window !== 'undefined') {
+        import('canvas-confetti').then(confetti => {
+          confetti.default({
+            particleCount: 120,
+            spread: 80,
+            origin: { y: 0.5 },
+            colors: ['#f59e0b', '#fbbf24', '#fcd34d', '#10b981', '#ffffff']
+          });
+        }).catch(() => {});
+      }
+      playSFX('sparkle');
+    }
+
     toast({
       title: "🎴 Pack Added to Inventory!",
       description: `Bought ${packType.title || 'Pack'}! Click your Owned Packs in the Mystic Bazaar to unpack anytime.`
@@ -624,9 +639,47 @@ export default function MarketPage() {
                         <CardDescription className="text-[10px] text-amber-200/60 font-mono font-bold mt-0.5">{pack.shortLabel}</CardDescription>
                       </CardHeader>
                       <CardContent className="flex-1 text-center relative z-10 space-y-2.5 px-3">
-                        <div className={`w-28 h-36 mx-auto bg-gradient-to-br from-amber-800/80 to-yellow-950 rounded-xl shadow-2xl flex items-center justify-center border-2 border-amber-500/30 transform transition-transform duration-500 ${onCooldown ? 'grayscale' : 'group-hover:scale-105 group-hover:rotate-3'}`}>
-                          <span className="text-4xl drop-shadow-lg">{onCooldown ? '🔒' : '🎁'}</span>
+                        {/* 3D Tactile Chrono Chest Stage */}
+                        <div className="relative w-32 h-36 mx-auto flex items-center justify-center">
+                          {/* Radiating Golden God-Rays when ready */}
+                          {!onCooldown && !isUnlocking && (
+                            <div className="absolute inset-0 bg-radial from-amber-400/30 via-amber-600/10 to-transparent blur-md rounded-2xl animate-pulse pointer-events-none" />
+                          )}
+
+                          <div className={cn(
+                            "relative w-28 h-32 rounded-2xl shadow-2xl flex flex-col items-center justify-center border-2 transition-all duration-500 overflow-hidden",
+                            onCooldown
+                              ? "bg-gradient-to-b from-zinc-800 to-zinc-950 border-zinc-700/50 grayscale opacity-80"
+                              : isUnlocking
+                              ? "bg-gradient-to-b from-amber-950/70 via-zinc-900 to-zinc-950 border-amber-600/50"
+                              : "bg-gradient-to-b from-amber-800 via-amber-950 to-zinc-950 border-amber-400/80 shadow-[0_0_25px_rgba(245,158,11,0.6)] group-hover:scale-105 group-hover:rotate-2 group-hover:shadow-[0_0_35px_rgba(245,158,11,0.9)] cursor-pointer"
+                          )}>
+                            {/* Iron Bands & Gold Trims */}
+                            <div className="absolute inset-x-0 top-3 h-1.5 bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-600 opacity-70 pointer-events-none" />
+                            <div className="absolute inset-x-0 bottom-3 h-1.5 bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-600 opacity-70 pointer-events-none" />
+
+                            {/* Center Lock Clasp & Chest Icon */}
+                            <div className={cn(
+                              "relative z-10 w-12 h-12 rounded-full flex items-center justify-center border transition-all duration-300 shadow-md",
+                              onCooldown
+                                ? "bg-zinc-900 border-zinc-700 text-zinc-400"
+                                : isUnlocking
+                                ? "bg-amber-950/90 border-amber-500 text-amber-300 animate-pulse"
+                                : "bg-gradient-to-br from-amber-400 to-yellow-600 border-amber-200 text-zinc-950 shadow-[0_0_15px_rgba(245,158,11,0.8)] group-hover:scale-110"
+                            )}>
+                              <span className="text-2xl drop-shadow">
+                                {onCooldown ? '🔒' : isUnlocking ? '⏳' : '🎁'}
+                              </span>
+                            </div>
+
+                            {/* Corner Studs */}
+                            <div className="absolute top-1.5 left-1.5 w-1.5 h-1.5 rounded-full bg-amber-400/60" />
+                            <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-amber-400/60" />
+                            <div className="absolute bottom-1.5 left-1.5 w-1.5 h-1.5 rounded-full bg-amber-400/60" />
+                            <div className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-amber-400/60" />
+                          </div>
                         </div>
+
                         <p className="text-xs text-zinc-300 px-2 line-clamp-2 min-h-[32px] leading-snug">{pack.description}</p>
                         {(onCooldown && remaining) ? (
                           <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/40 py-1 px-2.5 rounded-full inline-block border border-amber-900/30">

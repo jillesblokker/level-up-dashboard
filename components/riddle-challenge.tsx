@@ -9,6 +9,7 @@ import { Sparkles, Award, Coins, Brain, Heart, Star, CheckCircle2, XCircle } fro
 import { TEXT_CONTENT } from "@/lib/text-content"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { playSFX, SOUNDS } from "@/lib/sound-manager"
 
 // Medieval-themed riddles with answers
 const riddles = [
@@ -277,6 +278,7 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
     setIsCorrect(correct)
 
     if (correct) {
+      playSFX(SOUNDS.SUCCESS);
       const xpAmount = 50
       setStats((prev) => ({
         ...prev,
@@ -294,6 +296,7 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
         description: TEXT_CONTENT.riddleChallenge.success.description.replace('{xpAmount}', xpAmount.toString()),
       })
     } else {
+      playSFX(SOUNDS.ERROR);
       const goldAmount = 50
 
       if (gold >= goldAmount) {
@@ -325,6 +328,7 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
   }
 
   const handleNextRiddle = () => {
+    playSFX('page-turn');
     const randomIndex = Math.floor(Math.random() * riddles.length)
     setCurrentRiddle(randomIndex)
     setSelectedOption(null)
@@ -391,11 +395,12 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
         </div>
 
         <div className="flex-1 w-full flex flex-col items-center">
-          <div className="bg-zinc-900 border border-white/5 rounded-2xl p-4 sm:p-5 mb-5 relative w-full text-center">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-0.5 bg-purple-600 rounded-full text-[10px] font-bold text-white font-serif tracking-wider uppercase shadow-md">
-              The Question
+          <div className="relative bg-gradient-to-br from-[#fdfbf7] via-[#f7f0e3] to-[#ebdcb9] text-[#2b201a] rounded-2xl p-5 sm:p-6 mb-5 shadow-[inset_0_0_20px_rgba(92,59,20,0.2),0_4px_16px_rgba(0,0,0,0.35)] border-2 border-[#b58b4c]/50 relative w-full text-center parchment-container">
+            {/* Burned Edge / Wax Seal Header */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-3.5 py-0.5 bg-gradient-to-r from-red-800 to-amber-900 border border-amber-400/50 rounded-full text-[10px] font-bold text-amber-200 font-serif tracking-wider uppercase shadow-md flex items-center gap-1.5">
+              <span>📜</span> The Sphinx&apos;s riddle
             </div>
-            <p className="text-base sm:text-lg font-serif text-white leading-relaxed italic mt-1">
+            <p className="text-base sm:text-lg font-serif leading-relaxed italic mt-1 font-semibold text-[#2b201a]">
               &quot;{currentRiddleData ? currentRiddleData.question : ""}&quot;
             </p>
           </div>

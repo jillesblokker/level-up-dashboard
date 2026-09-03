@@ -9,6 +9,7 @@ import { toast } from "@/components/ui/use-toast"
 import { fetchFreshCharacterStats, addToCharacterStat } from "@/lib/character-stats-service"
 
 import { motion } from "framer-motion"
+import { playSFX } from "@/lib/sound-manager"
 
 interface FortuneTellerModalProps {
   open: boolean
@@ -63,6 +64,7 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
 
   const handleCardClick = (card: typeof CARDS[0]) => {
     if (selectedCard) return
+    playSFX('magic-spell')
     setSelectedCard(card.id)
   }
 
@@ -138,7 +140,7 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
       <DialogContent className="max-w-full sm:max-w-[560px] border-2 border-emerald-800/60 bg-slate-950/95 backdrop-blur-md p-4 sm:p-6 rounded-2xl overflow-x-hidden shadow-2xl">
         <DialogHeader className="p-0 mb-2">
           <DialogTitle className="text-2xl font-medieval text-emerald-400 text-center">
-            🔮 The Fortune Teller
+            🔮 The fortune teller
           </DialogTitle>
           <DialogDescription className="text-center text-emerald-200/80 text-xs sm:text-sm">
             {!selectedCard ? "Pick a card to reveal your destiny..." : "Your fate is sealed."}
@@ -151,29 +153,27 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
               <div 
                 key={idx}
                 onClick={() => handleCardClick(card)}
-                className="relative w-full aspect-[2/3] rounded-2xl cursor-pointer transition-all duration-300 border-2 border-emerald-400/60 bg-gradient-to-b from-slate-900 via-emerald-950/70 to-slate-950 overflow-hidden group shadow-[0_0_25px_rgba(16,185,129,0.3)] hover:shadow-[0_0_35px_rgba(16,185,129,0.7)] hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
+                className="relative w-full aspect-[2/3] rounded-2xl cursor-pointer transition-all duration-300 border-2 border-emerald-400/60 overflow-hidden group shadow-[0_0_25px_rgba(16,185,129,0.3)] hover:shadow-[0_0_35px_rgba(16,185,129,0.7)] hover:scale-105 active:scale-95"
               >
-                {/* Mystical Pattern Background */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.2),transparent_70%)] pointer-events-none" />
+                {/* Celestial Tarot Card Back Image */}
+                <Image
+                  src="/images/tarot/card_back.webp"
+                  alt={`Fate Card #${idx + 1}`}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  unoptimized
+                />
                 
-                {/* Decorative Gold Filigree Card Back Border */}
-                <div className="absolute inset-2 border border-emerald-500/30 rounded-xl pointer-events-none flex flex-col justify-between p-2">
-                  <div className="flex justify-between text-[10px] text-emerald-400/50">✨ <span>✨</span></div>
-                  <div className="flex justify-between text-[10px] text-emerald-400/50">✨ <span>✨</span></div>
-                </div>
+                {/* Emerald Glow & Mystical Border Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-transparent to-emerald-500/20 pointer-events-none" />
+                <div className="absolute inset-1.5 border border-emerald-400/40 rounded-xl pointer-events-none" />
 
-                {/* Central Orb & Closed Card Mystery Icon */}
-                <div className="relative z-10 flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 rounded-full bg-emerald-950/90 border-2 border-emerald-400/60 flex items-center justify-center text-emerald-300 font-medieval text-2xl shadow-[0_0_15px_rgba(16,185,129,0.5)] group-hover:scale-110 transition-transform">
-                    🔮
-                  </div>
-                  <span className="text-[11px] font-serif font-bold text-emerald-200 bg-slate-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                {/* Badge Overlay */}
+                <div className="absolute bottom-2 inset-x-2 flex justify-center z-10">
+                  <span className="text-[10px] sm:text-xs font-serif font-bold text-emerald-200 bg-slate-950/85 px-2.5 py-0.5 rounded-full border border-emerald-400/50 shadow-md">
                     Card #{idx + 1}
                   </span>
                 </div>
-
-                {/* Mystical Shimmer Overlay on Hover */}
-                <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/20 via-transparent to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               </div>
             ))}
           </div>

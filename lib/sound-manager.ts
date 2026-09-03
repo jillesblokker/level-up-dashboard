@@ -117,6 +117,7 @@ class SoundManager {
     setIfNotExists('etherLaunch', () => this.generateEtherLaunchSound());
     setIfNotExists('virtueToast', () => this.generateVirtueToastSound());
     setIfNotExists('zenBowl', () => this.generateZenBowlSound());
+    setIfNotExists('bardLute', () => this.generateBardLuteSound());
 
     // New procedural fallbacks
     setIfNotExists('monsterSpawn', () => this.generateErrorSound()); // Ominous thud
@@ -399,6 +400,42 @@ class SoundManager {
     return buffer;
   }
 
+  private generateBardLuteSound(): AudioBuffer {
+    if (!this.audioContext) return null as any;
+
+    const sampleRate = this.audioContext.sampleRate;
+    const duration = 2.2;
+    const buffer = this.audioContext.createBuffer(1, sampleRate * duration, sampleRate);
+    const data = buffer.getChannelData(0);
+
+    // Arpeggio notes (D4, A4, D5, F#5) plucked sequentially
+    const notes = [
+      { freq: 293.66, time: 0.00 },
+      { freq: 440.00, time: 0.22 },
+      { freq: 587.33, time: 0.44 },
+      { freq: 739.99, time: 0.66 },
+    ];
+
+    for (let i = 0; i < data.length; i++) {
+      const t = i / sampleRate;
+      let sample = 0;
+
+      for (const note of notes) {
+        if (t >= note.time) {
+          const noteTime = t - note.time;
+          const env = Math.exp(-noteTime * 3.5) * (1 - Math.exp(-noteTime * 80));
+          const pluck = Math.sin(2 * Math.PI * note.freq * noteTime) * 0.25 +
+                        Math.sin(2 * Math.PI * (note.freq * 2) * noteTime) * 0.12 +
+                        Math.sin(2 * Math.PI * (note.freq * 3) * noteTime) * 0.05;
+          sample += pluck * env;
+        }
+      }
+      data[i] = sample * 0.4;
+    }
+
+    return buffer;
+  }
+
   // Play a sound
   async play(soundName: string): Promise<void> {
     if (!this.isEnabled || !this.audioContext || !this.sounds.has(soundName)) {
@@ -543,4 +580,5 @@ export const SOUNDS = {
   ETHER_LAUNCH: 'etherLaunch',
   VIRTUE_TOAST: 'virtueToast',
   ZEN_BOWL: 'zenBowl',
+  BARD_LUTE: 'bardLute',
 } as const;

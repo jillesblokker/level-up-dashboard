@@ -33,14 +33,14 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
     setIsAvailable(false);
     setIsOpen(false);
     hapticSuccess();
-    playSFX(SOUNDS.ALLIANCE_OATH);
+    playSFX(SOUNDS.BARD_LUTE);
 
     addToCharacterStat('experience', 100);
     addToCharacterStat('focus_points', 5);
 
     toast({
-      title: "🪕 Royal Bard's Blessing!",
-      description: "The Traveling Bard's song inspired your realm! Earned +100 XP & 🧠 +5 Focus Points!",
+      title: "🪕 Royal bard's blessing!",
+      description: "The traveling bard's song inspired your realm! Earned +100 XP & 🧠 +5 Focus Points!",
     });
   };
 
@@ -54,7 +54,7 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
         className="fixed top-20 left-1/2 -translate-x-1/2 z-40 bg-gradient-to-r from-purple-950 via-zinc-950 to-purple-950 border border-purple-500/60 text-purple-200 px-5 py-2.5 rounded-full shadow-[0_0_25px_rgba(168,85,247,0.4)] hover:scale-105 hover:border-purple-300 transition-all flex items-center gap-3 cursor-pointer font-medieval group"
       >
         <span className="text-xl group-hover:rotate-12 transition-transform">🪕</span>
-        <span className="text-xs tracking-wider font-semibold">Traveling Bard Encounter</span>
+        <span className="text-xs tracking-wider font-semibold">Traveling bard encounter</span>
         <Badge className="bg-purple-600 text-white font-bold text-[9px] px-2 py-0.5 uppercase tracking-widest animate-pulse">
           Event
         </Badge>
@@ -64,7 +64,7 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-md w-full bg-gradient-to-b from-purple-950/95 via-zinc-950 to-zinc-950 border border-purple-500/40 text-white p-0 rounded-2xl shadow-2xl overflow-hidden font-serif max-h-[85vh] flex flex-col">
           
-          {/* Header Image with Overlay Badge */}
+          {/* Header Image with Overlay Badge & Floating Music Notes */}
           <div className="relative h-40 w-full shrink-0 overflow-hidden border-b border-purple-500/30">
             <Image
               src="/images/headers/realm-header.webp"
@@ -77,8 +77,16 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
             />
             <div className="absolute inset-0 bg-gradient-to-t from-purple-950 via-purple-950/30 to-transparent" />
 
+            {/* Floating Music Notes Animation */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              <span className="absolute top-4 left-10 text-amber-300/60 text-lg animate-bounce" style={{ animationDuration: '3s' }}>♪</span>
+              <span className="absolute top-8 right-12 text-purple-300/70 text-xl animate-bounce" style={{ animationDuration: '2.4s' }}>♫</span>
+              <span className="absolute top-16 left-24 text-amber-200/50 text-base animate-bounce" style={{ animationDuration: '2.8s' }}>♩</span>
+              <span className="absolute top-6 right-28 text-purple-200/60 text-lg animate-bounce" style={{ animationDuration: '3.2s' }}>♬</span>
+            </div>
+
             <Badge className="absolute top-3 left-3 bg-purple-950/90 border border-purple-400/50 text-purple-300 font-medieval text-[10px] uppercase tracking-widest px-2.5 py-1 shadow-md">
-              Troubadour Visit
+              Troubadour visit
             </Badge>
 
             {/* Avatar Circle centered over Header */}
@@ -99,8 +107,8 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
           <div className="p-5 sm:p-6 space-y-4 text-center overflow-y-auto flex-1">
             <div className="space-y-1">
               <DialogTitle className="font-medieval text-xl sm:text-2xl text-amber-300 tracking-wide leading-tight">
-                The Traveling Bard<br />
-                <span className="text-purple-300 text-lg font-serif">Applaud the Troubadour</span>
+                The traveling bard<br />
+                <span className="text-purple-300 text-lg font-serif">Applaud the troubadour</span>
               </DialogTitle>
               <DialogDescription className="text-xs text-purple-300/80 font-medium">
                 Alistair • Royal Realm Troubadour

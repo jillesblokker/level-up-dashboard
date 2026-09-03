@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -42,6 +43,7 @@ export function JoustingTournamentModal() {
   const handleStartJoust = () => {
     if (selectedCategories.length !== 3) return;
     setBattleState('jousting');
+    playSFX(SOUNDS.BUTTON_CLICK); // Sword clang
 
     setTimeout(() => {
       let wins = 0;
@@ -82,7 +84,7 @@ export function JoustingTournamentModal() {
         title: "Jousting Tournament Complete!",
         description: toastMsg
       });
-    }, 2000);
+    }, 2200);
   };
 
   return (
@@ -98,7 +100,7 @@ export function JoustingTournamentModal() {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-serif text-amber-300 text-xl">
             <Trophy className="w-5 h-5 text-amber-400" />
-            Ally Jousting Tournament Bet
+            Ally jousting tournament bet
           </DialogTitle>
         </DialogHeader>
 
@@ -145,7 +147,7 @@ export function JoustingTournamentModal() {
             <Button
               onClick={handleStartJoust}
               disabled={selectedCategories.length !== 3}
-              className="w-full h-12 bg-amber-600 hover:bg-amber-500 disabled:bg-zinc-800 text-black font-black uppercase text-xs tracking-wider rounded-xl"
+              className="w-full h-12 bg-amber-600 hover:bg-amber-500 disabled:bg-zinc-800 text-black font-black uppercase text-xs tracking-wider rounded-xl cursor-pointer"
             >
               🏇 Charge Lance & Begin Jousting Match
             </Button>
@@ -153,10 +155,51 @@ export function JoustingTournamentModal() {
         )}
 
         {battleState === 'jousting' && (
-          <div className="flex flex-col items-center justify-center py-10 space-y-4">
-            <Swords className="w-12 h-12 text-amber-400 animate-spin" />
-            <h3 className="font-serif text-amber-300 font-bold text-base">Knights Charging Down the Tilt Yard...</h3>
-            <p className="text-xs text-zinc-400">Comparing Habit Pass 1, 2, and 3!</p>
+          <div className="flex flex-col items-center justify-center py-6 space-y-4">
+            {/* Tilt Yard Showdown Arena */}
+            <div className="relative w-full h-44 rounded-2xl bg-gradient-to-r from-amber-950/60 via-zinc-950 to-blue-950/60 border-2 border-amber-500/40 overflow-hidden flex items-center justify-between px-4 sm:px-8 shadow-2xl">
+              {/* Tilt Railing Barrier */}
+              <div className="absolute inset-x-0 bottom-4 h-2 bg-amber-900/60 border-y border-amber-700/50" />
+              
+              {/* Player Hero Knight */}
+              <div className="relative z-10 flex flex-col items-center animate-in slide-in-from-left duration-700">
+                <div className="relative w-16 h-20 sm:w-20 sm:h-24 rounded-xl border-2 border-emerald-400/80 overflow-hidden bg-zinc-900 shadow-[0_0_20px_rgba(16,185,129,0.5)]">
+                  <Image
+                    src="/images/character/knight.webp"
+                    alt="Player Knight"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+                <span className="mt-1 text-[10px] font-bold text-emerald-300 font-mono">Your Knight</span>
+              </div>
+
+              {/* Clash Impact Sparks & Swords */}
+              <div className="relative z-20 flex flex-col items-center">
+                <div className="relative w-12 h-12 rounded-full bg-amber-950/90 border border-amber-400 flex items-center justify-center shadow-[0_0_25px_rgba(245,158,11,0.8)] animate-pulse">
+                  <Swords className="w-6 h-6 text-amber-300 animate-spin" />
+                </div>
+                <span className="mt-1 text-[9px] font-bold text-amber-400 uppercase tracking-widest animate-bounce">Pass 3/3</span>
+              </div>
+
+              {/* Opponent Friend Knight */}
+              <div className="relative z-10 flex flex-col items-center animate-in slide-in-from-right duration-700">
+                <div className="relative w-16 h-20 sm:w-20 sm:h-24 rounded-xl border-2 border-blue-400/80 overflow-hidden bg-zinc-900 shadow-[0_0_20px_rgba(59,130,246,0.5)]">
+                  <Image
+                    src="/images/character/duke.webp"
+                    alt="Rival Knight"
+                    fill
+                    className="object-cover -scale-x-100"
+                    unoptimized
+                  />
+                </div>
+                <span className="mt-1 text-[10px] font-bold text-blue-300 font-mono">Rival Knight</span>
+              </div>
+            </div>
+
+            <h3 className="font-serif text-amber-300 font-bold text-base animate-pulse">Knights Charging Down the Tilt Yard...</h3>
+            <p className="text-xs text-zinc-400">Comparing your habit passes against ally stats!</p>
           </div>
         )}
 
