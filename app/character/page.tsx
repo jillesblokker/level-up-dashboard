@@ -45,6 +45,7 @@ import { FocusPointsModal } from '@/components/focus-points-modal'
 import { SigilCrestEditor } from '@/components/character/sigil-crest'
 import { PaperdollEquipmentGrid } from '@/components/character/PaperdollEquipmentGrid'
 import { SwordStaffOrbCard, SwordStaffSectionHeader } from '@/components/ui/sword-staff-orb-card'
+import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager'
 
 
 // Character progression types
@@ -139,6 +140,81 @@ export default function CharacterPage() {
   const [showFocusModal, setShowFocusModal] = useState(false)
   const [activePotionPerks, setActivePotionPerks] = useState<{ name: string, effect: string, expiresAt: string }[]>([])
   const [activeTab, setActiveTab] = useState("titles")
+
+  // Guardian Pet Affections State & Persistence
+  const [petAffections, setPetAffections] = useState<Record<string, number>>({
+    'ember-drake': 85,
+    'sage-owl': 70,
+    'spirit-sprite': 60,
+    'grove-fox': 50,
+  });
+
+  useEffect(() => {
+    const loadPetAffections = async () => {
+      try {
+        const stored = (await getUserPreference('thrivehaven_pet_affections')) as Record<string, number> | null;
+        const gPref = (await getUserPreference('habit_guardian_state')) as any;
+        setPetAffections((prev) => {
+          const merged = { ...prev, ...(stored || {}) };
+          if (gPref && gPref.selectedId && typeof gPref.affection === 'number') {
+            merged[gPref.selectedId] = gPref.affection;
+          }
+          return merged;
+        });
+      } catch (err) {
+        logger.error('[Character] Failed to load pet affections:', err);
+      }
+    };
+    loadPetAffections();
+    window.addEventListener('pet-affection-update', loadPetAffections);
+    return () => window.removeEventListener('pet-affection-update', loadPetAffections);
+  }, []);
+
+  const handleFeedPet = async (pet: { id: string; name: string }) => {
+    const currentAffection = petAffections[pet.id] ?? 50;
+    if (currentAffection >= 100) {
+      toast({
+        title: "❤️ Max Affection Reached!",
+        description: `${pet.name} is already at 100% affection and completely full!`,
+      });
+      return;
+    }
+
+    const updatedAffection = Math.min(100, currentAffection + 5);
+    const updatedAffections = {
+      ...petAffections,
+      [pet.id]: updatedAffection,
+    };
+
+    setPetAffections(updatedAffections);
+    playSFX('petFeed');
+    gainGold(10, 'pet-treat');
+
+    try {
+      await setUserPreference('thrivehaven_pet_affections', updatedAffections);
+
+      // If this pet is the active habit guardian, sync with habit_guardian_state too!
+      const gPref = (await getUserPreference('habit_guardian_state')) as any;
+      if (gPref && gPref.selectedId === pet.id) {
+        const updatedGuardian = {
+          ...gPref,
+          affection: updatedAffection,
+          experience: (gPref.experience || 0) + 25,
+        };
+        await setUserPreference('habit_guardian_state', updatedGuardian);
+      }
+
+      window.dispatchEvent(new CustomEvent('pet-affection-update', { detail: { petId: pet.id, affection: updatedAffection } }));
+      window.dispatchEvent(new Event('character-stats-update'));
+    } catch (err) {
+      logger.error('[Character] Failed to save pet affection:', err);
+    }
+
+    toast({
+      title: `🍎 Fed ${pet.name}!`,
+      description: `Increased pet affection to ${updatedAffection}%! (+5% boost, passive yield strengthened)`,
+    });
+  };
 
   // Check and unlock perks based on character level
   const checkAndUnlockPerks = useCallback((level: number) => {
@@ -1398,29 +1474,47 @@ export default function CharacterPage() {
                         </div>
 
                         {/* Treat Feeding & Affection Progress */}
-                        <div className="space-y-2 pt-2 border-t border-zinc-800/80">
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-[10px] font-mono text-zinc-400">
-                              <span>Affection Level</span>
-                              <span className="text-amber-300 font-bold">85%</span>
-                            </div>
-                            <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-amber-900/30">
-                              <div className="h-full bg-gradient-to-r from-amber-600 to-amber-400 w-[85%]" />
-                            </div>
-                          </div>
+                        {(() => {
+                          const affection = petAffections[pet.id] ?? 50;
+                          const isMax = affection >= 100;
+                          return (
+                            <div className="space-y-2 pt-2 border-t border-zinc-800/80">
+                              <div className="space-y-1">
+                                <div className="flex justify-between text-[10px] font-mono text-zinc-400">
+                                  <span>Affection Level</span>
+                                  <span className={cn("font-bold", isMax ? "text-emerald-400" : "text-amber-300")}>
+                                    {affection}% {isMax ? "(Max ❤️)" : ""}
+                                  </span>
+                                </div>
+                                <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-amber-900/30">
+                                  <div
+                                    className={cn(
+                                      "h-full transition-all duration-500",
+                                      isMax
+                                        ? "bg-gradient-to-r from-emerald-500 to-emerald-400"
+                                        : "bg-gradient-to-r from-amber-600 to-amber-400"
+                                    )}
+                                    style={{ width: `${affection}%` }}
+                                  />
+                                </div>
+                              </div>
 
-                          <Button
-                            size="sm"
-                            onClick={() => {
-                              playSFX('petFeed');
-                              gainGold(10, 'pet-treat');
-                              toast({ title: `🍎 Fed ${pet.name}!`, description: "Increased pet affection by +5%! Passive yield boosted." });
-                            }}
-                            className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold text-xs h-8 rounded-lg shadow-md"
-                          >
-                            🍎 Feed Treat (+5% Affection)
-                          </Button>
-                        </div>
+                              <Button
+                                size="sm"
+                                disabled={isMax}
+                                onClick={() => handleFeedPet(pet)}
+                                className={cn(
+                                  "w-full font-bold text-xs h-8 rounded-lg shadow-md transition-all",
+                                  isMax
+                                    ? "bg-zinc-800 text-zinc-400 cursor-not-allowed border border-zinc-700 hover:bg-zinc-800"
+                                    : "bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white"
+                                )}
+                              >
+                                {isMax ? "❤️ Fully Fed (100%)" : "🍎 Feed Treat (+5% Affection)"}
+                              </Button>
+                            </div>
+                          );
+                        })()}
                       </Card>
                     ))}
                   </div>

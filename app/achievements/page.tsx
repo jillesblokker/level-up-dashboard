@@ -877,23 +877,13 @@ export default function Page() {
                     >
                       <div className={`relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
                         {/* FRONT FACE */}
-                        <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-gradient-to-b from-amber-950/40 via-zinc-950 to-zinc-950 border-amber-500/50 shadow-2xl shadow-black/40 group-hover:border-amber-400 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
+                        <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-zinc-950 border-amber-500/50 shadow-2xl shadow-black/40 group-hover:border-amber-400 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
                           <div className="relative w-full h-full">
-                            {/* Textured Card Background */}
-                            <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-luminosity">
-                              <Image
-                                src="/images/headers/undiscovered.webp"
-                                alt="Card Frame Texture"
-                                fill
-                                className="object-cover"
-                                unoptimized
-                              />
-                            </div>
                             <Image
                               src={unlocked ? `/images/creatures/${creature.id}.webp` : '/images/placeholders/undiscovered.webp'}
                               alt={creature.name}
                               fill
-                              className={`object-contain p-4 relative z-10 transition-transform duration-500 group-hover:scale-105 ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
+                              className={`object-contain p-2 relative z-10 transition-transform duration-500 group-hover:scale-105 ${!unlocked && 'opacity-20 blur-sm scale-90'}`}
                               key={unlocked ? 'unlocked' : 'locked'}
                               priority={idx < 3}
                               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -1010,11 +1000,21 @@ export default function Page() {
                     <div key={`${cardDef.number}-${variantIndex}`} className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg group">
                       {isUnlocked ? (
                         <div className="absolute inset-0 border-2 border-purple-500/50 rounded-xl overflow-hidden bg-zinc-950">
+                          {/* Mystic Card Frame Texture behind Mythic cutout artwork */}
+                          <div className="absolute inset-0 z-0 opacity-50 mix-blend-luminosity pointer-events-none">
+                            <Image
+                              src="/images/headers/undiscovered.webp"
+                              alt="Mystic Card Frame"
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                          </div>
                           <Image
                             src={imagePath}
                             alt={`${cardDef.rarity} Card #${cardDef.number} (${colorName})`}
                             fill
-                            className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+                            className="object-contain p-4 group-hover:scale-105 transition-transform duration-500 relative z-10"
                             priority={overallIdx < 8}
                             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
                           />

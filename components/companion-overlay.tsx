@@ -5,7 +5,9 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useGameStore } from '@/stores/game-store'
 import { useCitizensStore } from '@/stores/citizensStore'
-import { getUserPreference } from '@/lib/user-preferences-manager'
+import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager'
+import { toast } from '@/components/ui/use-toast'
+import { playSFX } from '@/lib/sound-manager'
 import { Heart, Sparkles, MessageSquare, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -305,7 +307,7 @@ export function CompanionOverlay() {
     if (guardianId === 'ember-drake') return { name: 'Ember Drake', image: '/images/creatures/EmberDrake.webp' }
     if (guardianId === 'sage-owl') return { name: 'Sage Owl', image: '/images/creatures/SageOwl.webp' }
     if (guardianId === 'spirit-sprite') return { name: 'Spirit Sprite', image: '/images/creatures/SpiritSprite.webp' }
-    if (guardianId === 'grove-fox') return { name: 'Grove Fox', image: '/images/creatures/SpiritSprite.webp' }
+    if (guardianId === 'grove-fox') return { name: 'Grove Fox', image: '/images/creatures/GroveFox.webp' }
 
     // Fallback active Guardian (Ember Drake)
     return { name: 'Ember Drake', image: '/images/creatures/EmberDrake.webp' }
@@ -371,6 +373,52 @@ export function CompanionOverlay() {
     }, 450)
   }
 
+  const [partnerAffection, setPartnerAffection] = useState<number>(50);
+
+  useEffect(() => {
+    const loadAffection = async () => {
+      try {
+        const gPref = (await getUserPreference('habit_guardian_state')) as any;
+        if (gPref && typeof gPref.affection === 'number') {
+          setPartnerAffection(gPref.affection);
+        }
+      } catch {}
+    };
+    loadAffection();
+    window.addEventListener('pet-affection-update', loadAffection);
+    return () => window.removeEventListener('pet-affection-update', loadAffection);
+  }, []);
+
+  const handleOverlayFeedTreat = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const gPref = (await getUserPreference('habit_guardian_state')) as any;
+      const current = typeof gPref?.affection === 'number' ? gPref.affection : partnerAffection;
+      if (current >= 100) {
+        toast({ title: "❤️ Max Affection Reached!", description: "Companion is already at 100% affection and completely full!" });
+        return;
+      }
+      const updatedAffection = Math.min(100, current + 5);
+      const updated = {
+        ...(gPref || {}),
+        selectedId: guardianId,
+        affection: updatedAffection,
+        experience: (gPref?.experience || 0) + 25,
+      };
+      await setUserPreference('habit_guardian_state', updated);
+      setPartnerAffection(updatedAffection);
+      playSFX('petFeed');
+      toast({
+        title: "🍎 Fed Companion!",
+        description: `Increased affection to ${updatedAffection}% (+5% boost)! Passive yields boosted.`,
+      });
+      window.dispatchEvent(new CustomEvent('pet-affection-update', { detail: { petId: guardianId, affection: updatedAffection } }));
+      window.dispatchEvent(new Event('character-stats-update'));
+    } catch {
+      window.location.href = '/kingdom';
+    }
+  };
+
   if (isUnpackOpen) return null
 
   // Hide completely if both toggled off or on auth pages
@@ -410,23 +458,20 @@ export function CompanionOverlay() {
             {/* Treat Feeding & Affection Quick Action */}
             <div className="pt-1.5 border-t border-zinc-200 flex items-center justify-between gap-2">
               <span className="text-[10px] text-amber-900 font-bold flex items-center gap-1 font-serif [text-shadow:none] !drop-shadow-none [filter:none]">
-                ❤️ {activePartner && activePartner.affection >= 100 ? "100% Max Affection" : "Affection Active"}
+                ❤️ {partnerAffection >= 100 ? "100% Max Affection" : `Affection (${partnerAffection}%)`}
               </span>
               <button
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  window.location.href = '/kingdom'
-                }}
-                disabled={activePartner ? activePartner.affection >= 100 : false}
+                onClick={handleOverlayFeedTreat}
+                disabled={partnerAffection >= 100}
                 className={cn(
                   "text-[9px] font-bold font-mono px-2 py-0.5 rounded-full shadow-sm [text-shadow:none] !drop-shadow-none transition-colors",
-                  activePartner && activePartner.affection >= 100
+                  partnerAffection >= 100
                     ? "bg-zinc-400 text-zinc-700 cursor-not-allowed"
                     : "bg-amber-600 hover:bg-amber-700 text-white"
                 )}
               >
-                {activePartner && activePartner.affection >= 100 ? "Fully Fed" : "🥩 Feed Treat (+5%)"}
+                {partnerAffection >= 100 ? "Fully Fed" : "🍎 Feed Treat (+5%)"}
               </button>
             </div>
 

@@ -24,6 +24,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 
+export function getCitizenImageSrc(citizen: Citizen): string {
+  const isMythic = citizen.isMythic || citizen.id?.startsWith('mythic-') || citizen.filename?.startsWith('Mythic');
+  if (isMythic && citizen.filename) {
+    const fn = citizen.filename.replace(/\.png$/i, '.webp');
+    return `/images/Mythics/${fn}?v=2`;
+  }
+
+  // Animal companion citizens
+  if (citizen.id?.startsWith('9') || ['sheep.webp', 'horse.webp', 'penguin.webp'].includes(citizen.filename?.toLowerCase() || '')) {
+    const fn = citizen.filename 
+      ? citizen.filename.replace(/\.png$/i, '.webp') 
+      : (citizen.id === '901' ? 'sheep.webp' : citizen.id === '902' ? 'horse.webp' : 'penguin.webp');
+    return `/images/Animals/${fn}`;
+  }
+
+  // Standard creature citizens
+  if (citizen.filename) {
+    const fn = citizen.filename.replace(/\.png$/i, '.webp');
+    return `/images/creatures/${fn}`;
+  }
+
+  // Fallback to creature ID
+  if (citizen.id) {
+    return `/images/creatures/${citizen.id}.webp`;
+  }
+
+  return '/images/creatures/001.webp';
+}
+
 export function CitizensTab() {
   const { user } = useUser()
   const activePartnerId = useGameStore(state => state.activePartnerId);
@@ -367,10 +396,7 @@ export function CitizensTab() {
                 {filteredCitizens.map((citizen) => {
                   const isHungry = isCitizenHungry(citizen);
                   const isReadyToHarvest = isHarvestReady(citizen);
-                  const isMythicCard = citizen.isMythic || citizen.id?.startsWith('mythic-') || citizen.filename?.startsWith('Mythic');
-                  const imageSrc = isMythicCard 
-                    ? `/images/Mythics/${citizen.filename}?v=2`
-                    : `/images/creatures/${citizen.filename}`;
+                  const imageSrc = getCitizenImageSrc(citizen);
                   const fedRemaining = getFedTimeRemaining(citizen);
                   const harvestRemaining = getHarvestTimeRemaining(citizen);
                   
@@ -438,6 +464,12 @@ export function CitizensTab() {
                               className="object-contain animate-float"
                               sizes="120px"
                               unoptimized
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (citizen.id && !target.src.endsWith(`${citizen.id}.webp`)) {
+                                  target.src = `/images/creatures/${citizen.id}.webp`;
+                                }
+                              }}
                             />
                           </div>
 
@@ -503,10 +535,7 @@ export function CitizensTab() {
             {filteredCitizens.map((citizen) => {
               const isHungry = isCitizenHungry(citizen);
               const isReadyToHarvest = isHarvestReady(citizen);
-              const isMythicCard = citizen.isMythic || citizen.id?.startsWith('mythic-') || citizen.filename?.startsWith('Mythic');
-              const imageSrc = isMythicCard 
-                ? `/images/Mythics/${citizen.filename}?v=2`
-                : `/images/creatures/${citizen.filename}`;
+              const imageSrc = getCitizenImageSrc(citizen);
               const fedRemaining = getFedTimeRemaining(citizen);
               const harvestRemaining = getHarvestTimeRemaining(citizen);
               
@@ -628,7 +657,9 @@ export function CitizensTab() {
                           sizes="(max-width: 768px) 100px, 150px"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            target.src = '/images/creatures/001.webp';
+                            if (citizen.id && !target.src.endsWith(`${citizen.id}.webp`)) {
+                              target.src = `/images/creatures/${citizen.id}.webp`;
+                            }
                           }}
                         />
                       </div>

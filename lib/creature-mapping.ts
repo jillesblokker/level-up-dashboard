@@ -138,11 +138,89 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         scale: 1.1
     },
 
+    // Electric Creatures
+    '016': {
+        id: '016',
+        name: 'Sparky',
+        filename: 'Sparky.webp',
+        type: 'special',
+        greetings: ["Zzzt! Energize your day!", "One habit at a time, electric speed!"],
+        scale: 0.8
+    },
+    '017': {
+        id: '017',
+        name: 'Boulty',
+        filename: 'Boulty.webp',
+        type: 'special',
+        greetings: ["Charging up for today's habits!", "Thunderous power comes from consistency."],
+        scale: 1.0
+    },
+    '018': {
+        id: '018',
+        name: 'Voulty',
+        filename: 'Voulty.webp',
+        type: 'special',
+        greetings: ["The power grid hums with discipline.", "Lightning-fast progress!"],
+        scale: 1.2
+    },
+
+    // Dragon Achievements (101-103)
+    '101': {
+        id: '101',
+        name: 'Drakon',
+        filename: 'Drakon.webp',
+        type: 'fire',
+        greetings: ["The dragon stirs with your achievements!", "Mighty deeds forge mighty realms."],
+        scale: 1.2
+    },
+    '102': {
+        id: '102',
+        name: 'Fireon',
+        filename: 'Fireon.webp',
+        type: 'fire',
+        greetings: ["Eternal flames burn within our citadel!", "Great quest milestones unlock ancient power."],
+        scale: 1.2
+    },
+    '103': {
+        id: '103',
+        name: 'Valerion',
+        filename: 'Valerion.webp',
+        type: 'fire',
+        greetings: ["I am Valerion, guardian of champions!", "Your persistence shakes the mountains."],
+        scale: 1.3
+    },
+
+    // Turtle Milestones (104-106)
+    '104': {
+        id: '104',
+        name: 'Shello',
+        filename: 'Shello.webp',
+        type: 'water',
+        greetings: ["Slow and steady wins the race!", "A milestone reached is a shell hardened."],
+        scale: 0.9
+    },
+    '105': {
+        id: '105',
+        name: 'Turtlo',
+        filename: 'Turtlo.webp',
+        type: 'water',
+        greetings: ["Patience, young traveler. Good habits take time.", "Protected by the tides of persistency."],
+        scale: 1.0
+    },
+    '106': {
+        id: '106',
+        name: 'Turtoisy',
+        filename: 'Turtoisy.webp',
+        type: 'water',
+        greetings: ["Century-old wisdom: keep showing up every single day.", "Ancient waters flow through our town."],
+        scale: 1.2
+    },
+
     // Special/Monster Creatures (Optional, if we have images)
     '201': {
         id: '201',
         name: 'Drakon',
-        filename: 'Drakon.webp', // Assuming this exists or will exist
+        filename: 'Drakon.webp',
         type: 'monster',
         greetings: ["I sleep... for now.", "You are worthy.", "The fire burns within."],
         scale: 1.3

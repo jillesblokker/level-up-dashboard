@@ -98,7 +98,7 @@ export function TarotCardDisplay() {
                                 isDrawing && "animate-pulse scale-105 shadow-[0_0_30px_rgba(245,158,11,0.6)]"
                             )}>
                                 <Image
-                                  src="/images/fortune-cards/Back_card_stats.webp"
+                                  src="/images/tarot/card_back.webp"
                                   alt="Fate Card Back"
                                   fill
                                   className="object-cover"

@@ -314,7 +314,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         rawCitizens.push({
           id: citizenId,
           name: getMythicName(cardId, variantId),
-          filename: `Mythic${cardId}${colorName}.png`,
+          filename: `Mythic${cardId}${colorName}.webp`,
           type: getMythicType(cardId),
           greetings: [
             "Shimmering with magic!",
