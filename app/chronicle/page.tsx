@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { SeasonArchivalModal } from '@/components/chronicle/SeasonArchivalModal'
 import { Badge } from '@/components/ui/badge'
 import { WeeklyGrowthInsightsCard } from '@/components/chronicle/WeeklyGrowthInsightsCard'
+import { TalesShelfCard } from '@/components/storybook/tales-shelf-card'
 
 export default function ChroniclePage() {
     const [entries, setEntries] = useState<any[]>([])
@@ -126,6 +127,9 @@ export default function ChroniclePage() {
                 </div>
 
                 <SeasonArchivalModal isOpen={isArchivalOpen} onClose={() => setIsArchivalOpen(false)} />
+
+                {/* 🪶 Book of Adventures / Tales of the Realm Shelf */}
+                <TalesShelfCard />
 
                 {/* TERTIARY TIER: Collapsible Insights & Mood Radar (Progressive Disclosure) */}
                 <div className="border border-amber-900/30 rounded-2xl bg-zinc-950/60 overflow-hidden">

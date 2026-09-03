@@ -14,8 +14,11 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { gainGold } from '@/lib/gold-manager';
 import { getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service';
-import { Heart, Sparkles, Star, Clock, Coins } from 'lucide-react';
+import { Heart, Sparkles, Star, Clock, Coins, BookOpen } from 'lucide-react';
 import Image from 'next/image';
+import { STORY_ADVENTURES } from '@/components/storybook/stories-data';
+import { StoryAdventure } from '@/lib/storybook-manager';
+import { StorybookModal } from '@/components/storybook/storybook-modal';
 
 interface CreatureLayerProps {
     grid: Tile[][];
@@ -360,6 +363,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
     }
     const [dailyEncounter, setDailyEncounter] = useState<DailyEncounter | null>(null);
     const [materialsCount, setMaterialsCount] = useState<Record<string, number>>({});
+    const [selectedStory, setSelectedStory] = useState<StoryAdventure | null>(null);
 
     const refreshInventory = useCallback(async () => {
         if (!user?.id) return;
@@ -1235,6 +1239,45 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                             </div>
                         )}
 
+                        {/* 🪶 Lands of Galzyr Storybook Encounter Entry */}
+                        {(() => {
+                            if (!selectedCitizen) return null;
+                            const citizenId = String(selectedCitizen.id || '');
+                            const citizenName = String(selectedCitizen.name || '').toLowerCase();
+                            
+                            const matchingStory = STORY_ADVENTURES.find(s => 
+                                s.characters.some(c => c.toLowerCase().includes(citizenName)) ||
+                                (citizenId === '007' && s.id === 'story-sprint-greenbriar') ||
+                                (citizenId === '010' && s.id === 'story-leafio-tidyup') ||
+                                (citizenId === '001' && s.id === 'story-flamio-midnight') ||
+                                (citizenId === '008' && s.id === 'story-oaky-posture')
+                            );
+
+                            if (!matchingStory) return null;
+
+                            return (
+                                <div className="bg-gradient-to-r from-amber-950/60 via-zinc-900 to-zinc-950 border border-amber-500/40 rounded-xl p-3 flex items-center justify-between gap-3 text-xs mb-1 font-serif shadow-md">
+                                    <div className="flex items-center gap-2.5">
+                                        <span className="text-xl">🪶</span>
+                                        <div>
+                                            <span className="font-bold text-amber-300 text-xs block">Book of adventures</span>
+                                            <span className="text-[10px] text-zinc-400 font-sans line-clamp-1">{matchingStory.title}</span>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        size="sm"
+                                        onClick={() => {
+                                            setIsModalOpen(false);
+                                            setSelectedStory(matchingStory);
+                                        }}
+                                        className="bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs h-8 px-3 rounded-lg shadow shrink-0"
+                                    >
+                                        Read fable ✨
+                                    </Button>
+                                </div>
+                            );
+                        })()}
+
                         {/* Cooldown or Harvest Button */}
                         {selectedCitizen && isHarvestReady(selectedCitizen) ? (
                             <Button
@@ -1309,6 +1352,13 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                     </div>
                 </DialogContent>
             </Dialog>
+
+            {/* 🪶 Lands of Galzyr / Sleeping Gods Storybook Encounter Modal */}
+            <StorybookModal
+                isOpen={!!selectedStory}
+                onClose={() => setSelectedStory(null)}
+                story={selectedStory}
+            />
         </div>
     );
 }
