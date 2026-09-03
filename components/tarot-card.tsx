@@ -91,11 +91,11 @@ export function TarotCardDisplay() {
 
             <CardContent className="flex-1 flex flex-col justify-between space-y-4 pt-4">
                 {!hasDrawn ? (
-                    <div className="text-center space-y-4">
-                        <div className="relative w-40 h-56 mx-auto group cursor-pointer" onClick={handleDrawCard}>
+                    <div className="flex-1 flex flex-col items-center justify-between py-2 space-y-4">
+                        <div className="relative w-full max-w-[260px] sm:max-w-[300px] aspect-[3/4] mx-auto group cursor-pointer" onClick={handleDrawCard}>
                             <div className={cn(
-                                "absolute inset-0 rounded-2xl border-2 border-amber-500/40 shadow-2xl overflow-hidden transition-all duration-500 group-hover:scale-105 group-hover:border-amber-400",
-                                isDrawing && "animate-pulse scale-105 shadow-[0_0_30px_rgba(245,158,11,0.6)]"
+                                "absolute inset-0 rounded-2xl border-2 border-amber-500/40 shadow-2xl overflow-hidden transition-all duration-500 group-hover:scale-[1.03] group-hover:border-amber-400 group-hover:shadow-[0_0_30px_rgba(245,158,11,0.5)]",
+                                isDrawing && "animate-pulse scale-105 shadow-[0_0_35px_rgba(245,158,11,0.7)]"
                             )}>
                                 <Image
                                   src="/images/tarot/card_back.webp"
@@ -107,8 +107,8 @@ export function TarotCardDisplay() {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <p className="text-amber-200/80 text-sm italic">
+                        <div className="w-full space-y-2 max-w-[300px] mx-auto text-center">
+                            <p className="text-amber-200/80 text-sm italic font-serif">
                                 The cards await your touch...
                             </p>
                             <Button
@@ -153,7 +153,7 @@ export function TarotCardDisplay() {
                             </div>
 
                             {/* Illuminated Tarot Card Artwork */}
-                            <div className="relative w-full max-w-[220px] aspect-[3/4] mx-auto rounded-xl overflow-hidden border-2 border-amber-500/40 shadow-xl group">
+                            <div className="relative w-full max-w-[240px] sm:max-w-[260px] aspect-[3/4] mx-auto rounded-xl overflow-hidden border-2 border-amber-500/40 shadow-xl group">
                                 <Image
                                   src={activeCard.image || `/images/tarot/${activeCard.id.replace('the-', '')}.jpg`}
                                   alt={activeCard.name}
