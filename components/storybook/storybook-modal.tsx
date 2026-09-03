@@ -216,7 +216,7 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
                   🌱 What we learned:
                 </span>
                 <p className="text-xs text-emerald-100 font-sans font-medium italic leading-relaxed">
-                  "{selectedChoice.lessonMoral}"
+                  &ldquo;{selectedChoice.lessonMoral}&rdquo;
                 </p>
               </div>
 

@@ -110,7 +110,7 @@ export function DailyProgressCard({
                             <span className="text-2xl">🎉</span>
                             <div>
                                 <h4 className="text-sm font-bold text-amber-300">5/10 Daily sweet spot reached!</h4>
-                                <p className="text-xs text-amber-200/80 font-sans">"Great" habit momentum unlocked for your kingdom.</p>
+                                <p className="text-xs text-amber-200/80 font-sans">&ldquo;Great&rdquo; habit momentum unlocked for your kingdom.</p>
                             </div>
                         </div>
                         <span className="px-2.5 py-1 rounded-full bg-amber-500/30 border border-amber-400/50 text-[10px] font-bold text-amber-200 font-mono shrink-0">
