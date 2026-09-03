@@ -41,28 +41,31 @@ export function TarotCardDisplay() {
         return () => window.removeEventListener('character-stats-update', fetchServerTarot);
     }, [activeCard]);
 
+    const [isFlipped, setIsFlipped] = useState(false);
+
+    useEffect(() => {
+        if (hasDrawnCardToday() || activeCard) {
+            setIsFlipped(true);
+        }
+    }, [activeCard]);
+
     const handleDrawCard = () => {
-        if (hasDrawnCardToday()) return;
+        if (hasDrawnCardToday() || isDrawing) return;
 
         setIsDrawing(true);
-        setShowCard(false);
         playSFX('page-turn');
         trigger(HapticPatterns.soft);
 
-        // Animate the draw
         setTimeout(() => {
             const newCard = drawRandomCard();
             saveTodaysCard(newCard);
             setActiveCard(newCard);
             setIsDrawing(false);
-
-            // Flip animation
-            setTimeout(() => {
-                setShowCard(true);
-                playSFX('magic-spell');
-                trigger(HapticPatterns.cardFlip);
-            }, 100);
-        }, 1000);
+            setIsFlipped(true);
+            setShowCard(true);
+            playSFX('magic-spell');
+            trigger(HapticPatterns.cardFlip);
+        }, 850);
     };
 
     const hasDrawn = hasDrawnCardToday();
@@ -90,12 +93,21 @@ export function TarotCardDisplay() {
             </CardHeader>
 
             <CardContent className="flex-1 flex flex-col justify-between space-y-4 pt-4">
-                {!hasDrawn ? (
-                    <div className="flex-1 flex flex-col items-center justify-between py-2 space-y-4">
-                        <div className="relative w-full max-w-[260px] sm:max-w-[300px] aspect-[3/4] mx-auto group cursor-pointer" onClick={handleDrawCard}>
+                <div className="flex-1 flex flex-col items-center justify-between py-2 space-y-4">
+                    {/* 3D Flippable Tarot Card */}
+                    <div 
+                        className="relative w-full max-w-[260px] sm:max-w-[300px] aspect-[3/4] mx-auto [perspective:1200px] group cursor-pointer"
+                        onClick={!isFlipped ? handleDrawCard : undefined}
+                    >
+                        <div className={cn(
+                            "relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d]",
+                            isFlipped && "[transform:rotateY(180deg)]",
+                            isDrawing && "animate-pulse scale-105"
+                        )}>
+                            {/* Front Face: Celestial Fate Card Back */}
                             <div className={cn(
-                                "absolute inset-0 rounded-2xl border-2 border-amber-500/40 shadow-2xl overflow-hidden transition-all duration-500 group-hover:scale-[1.03] group-hover:border-amber-400 group-hover:shadow-[0_0_30px_rgba(245,158,11,0.5)]",
-                                isDrawing && "animate-pulse scale-105 shadow-[0_0_35px_rgba(245,158,11,0.7)]"
+                                "absolute inset-0 rounded-2xl border-2 border-amber-500/40 shadow-2xl overflow-hidden [backface-visibility:hidden] transition-all duration-500 group-hover:scale-[1.02] group-hover:border-amber-400 group-hover:shadow-[0_0_30px_rgba(245,158,11,0.5)]",
+                                isDrawing && "shadow-[0_0_35px_rgba(245,158,11,0.7)]"
                             )}>
                                 <Image
                                   src="/images/tarot/card_back.webp"
@@ -105,8 +117,39 @@ export function TarotCardDisplay() {
                                   unoptimized
                                 />
                             </div>
-                        </div>
 
+                            {/* Back Face: Revealed Tarot Card Art & Rarity Badge */}
+                            <div className={cn(
+                                "absolute inset-0 rounded-2xl border-2 border-amber-500/50 shadow-2xl overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)] bg-gradient-to-br",
+                                activeCard ? rarityColors[activeCard.rarity] : 'from-amber-950/60 to-zinc-950'
+                            )}>
+                                {activeCard && (
+                                    <>
+                                        <Image
+                                          src={activeCard.image || `/images/tarot/${activeCard.id.replace('the-', '')}.jpg`}
+                                          alt={activeCard.name}
+                                          fill
+                                          className="object-cover"
+                                          unoptimized
+                                        />
+                                        <div className="absolute top-3 right-3 z-20">
+                                            <span className={cn(
+                                                "text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border shadow-md tracking-wider font-mono",
+                                                activeCard.rarity === 'common' && "bg-zinc-800 text-zinc-200 border-zinc-700",
+                                                activeCard.rarity === 'rare' && "bg-blue-950 text-blue-300 border-blue-500/50",
+                                                activeCard.rarity === 'epic' && "bg-purple-950 text-purple-300 border-purple-500/50"
+                                            )}>
+                                                {activeCard.rarity}
+                                            </span>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Bottom Info / Button / Lore Area */}
+                    {!isFlipped ? (
                         <div className="w-full space-y-2 max-w-[300px] mx-auto text-center">
                             <p className="text-amber-200/80 text-sm italic font-serif">
                                 The cards await your touch...
@@ -129,61 +172,24 @@ export function TarotCardDisplay() {
                                 )}
                             </Button>
                         </div>
-                    </div>
-                ) : activeCard ? (
-                    <div className={cn(
-                        "transition-all duration-500 flex flex-col items-center",
-                        showCard ? "opacity-100 scale-100" : "opacity-0 scale-95"
-                    )}>
-                        {/* The Drawn Card Container */}
-                        <div className={cn(
-                            "relative w-full rounded-2xl border-2 p-4 md:p-5 bg-gradient-to-br shadow-2xl space-y-3",
-                            rarityColors[activeCard.rarity]
-                        )}>
-                            {/* Rarity Badge */}
-                            <div className="absolute top-3 right-3 z-20">
-                                <span className={cn(
-                                    "text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border shadow-md tracking-wider",
-                                    activeCard.rarity === 'common' && "bg-zinc-800 text-zinc-200 border-zinc-700",
-                                    activeCard.rarity === 'rare' && "bg-blue-950 text-blue-300 border-blue-500/50",
-                                    activeCard.rarity === 'epic' && "bg-purple-950 text-purple-300 border-purple-500/50"
-                                )}>
-                                    {activeCard.rarity}
-                                </span>
+                    ) : activeCard ? (
+                        <div className="w-full max-w-[300px] mx-auto text-center space-y-2 pt-1 animate-in fade-in duration-700">
+                            <h3 className="text-xl font-extrabold text-amber-200 font-serif tracking-wide">{activeCard.name}</h3>
+                            <p className="text-xs text-zinc-300 italic font-serif leading-relaxed px-2">&ldquo;{activeCard.description}&rdquo;</p>
+
+                            <div className="mt-2.5 p-2.5 bg-zinc-950/90 rounded-xl border border-amber-500/30 shadow-inner">
+                                <p className="text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5">
+                                    <span>✨</span>
+                                    <span>{activeCard.effect.message}</span>
+                                </p>
                             </div>
 
-                            {/* Illuminated Tarot Card Artwork */}
-                            <div className="relative w-full max-w-[240px] sm:max-w-[260px] aspect-[3/4] mx-auto rounded-xl overflow-hidden border-2 border-amber-500/40 shadow-xl group">
-                                <Image
-                                  src={activeCard.image || `/images/tarot/${activeCard.id.replace('the-', '')}.jpg`}
-                                  alt={activeCard.name}
-                                  fill
-                                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                                  unoptimized
-                                />
-                            </div>
-
-                            {/* Card Content & Lore */}
-                            <div className="text-center space-y-2 pt-1">
-                                <h3 className="text-xl font-extrabold text-amber-200 font-serif tracking-wide">{activeCard.name}</h3>
-                                <p className="text-xs text-zinc-300 italic font-serif leading-relaxed px-2">&ldquo;{activeCard.description}&rdquo;</p>
-
-                                {/* Effect Display */}
-                                <div className="mt-3 p-2.5 bg-zinc-950/90 rounded-xl border border-amber-500/30 shadow-inner">
-                                    <p className="text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5">
-                                        <span>✨</span>
-                                        <span>{activeCard.effect.message}</span>
-                                    </p>
-                                </div>
-                            </div>
+                            <p className="text-center text-[10px] text-amber-400/60 mt-2 font-mono">
+                                This card&apos;s power will last until midnight. Return tomorrow for a new fate.
+                            </p>
                         </div>
-
-                        {/* Reminder */}
-                        <p className="text-center text-[11px] text-amber-400/60 mt-3 font-mono">
-                            This card&apos;s power will last until midnight. Return tomorrow for a new fate.
-                        </p>
-                    </div>
-                ) : null}
+                    ) : null}
+                </div>
             </CardContent>
         </Card>
     );

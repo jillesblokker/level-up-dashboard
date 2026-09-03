@@ -618,7 +618,7 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
       <DialogContent className="max-w-lg w-full bg-zinc-950/95 border border-amber-900/40 text-white rounded-2xl p-4 sm:p-6 shadow-2xl overflow-y-auto max-h-[85vh] font-serif pb-safe">
         <DialogHeader className="text-center border-b border-amber-900/20 pb-3">
           <DialogTitle className="text-2xl sm:text-3xl font-medieval tracking-wide text-amber-400">
-            Plank Labyrinth
+            Plank labyrinth
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400 italic">
             Slide the heavy oak barriers to unlock the path. Escort the Ancient Keystone to the portal arch.
@@ -650,7 +650,7 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
           {/* Full-Size Responsive 6x6 Grid Container */}
           <div
             ref={gridRef}
-            className="relative w-full max-w-[380px] sm:max-w-[440px] aspect-square mx-auto bg-zinc-900/70 border-4 border-amber-900/60 rounded-2xl overflow-hidden shadow-2xl flex flex-wrap"
+            className="relative w-full max-w-[min(90vw,440px)] aspect-square mx-auto bg-zinc-900/70 border-4 border-amber-900/60 rounded-2xl overflow-hidden shadow-2xl flex flex-wrap"
           >
             {/* Grid cell lines (cobblestone texture) */}
             {Array.from({ length: 36 }).map((_, i) => (

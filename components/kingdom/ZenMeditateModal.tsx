@@ -317,6 +317,7 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
     }, [exerciseIndex, activeExercise]);
 
     // Dynamic phase and timer ticker
+    // Dynamic phase and timer ticker with sacred bowl audio cues
     useEffect(() => {
         if (!isOpen) return;
 
@@ -325,11 +326,12 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
 
             setPhaseSecondsLeft((prevLeft) => {
                 if (prevLeft <= 1) {
-                    setPhaseIndex((prevPIndex) => {
-                        const nextPIndex = (prevPIndex + 1) % activeExercise.phases.length;
-                        return nextPIndex;
-                    });
-                    const nextPhase = activeExercise.phases[(phaseIndex + 1) % activeExercise.phases.length];
+                    const nextPIndex = (phaseIndex + 1) % activeExercise.phases.length;
+                    setPhaseIndex(nextPIndex);
+                    const nextPhase = activeExercise.phases[nextPIndex];
+                    if (nextPhase?.name === 'hold' || nextPIndex === 0) {
+                        playSFX('zenBowl');
+                    }
                     return nextPhase?.duration || 4;
                 }
                 return prevLeft - 1;

@@ -116,6 +116,7 @@ class SoundManager {
     setIfNotExists('petFeed', () => this.generatePetFeedSound());
     setIfNotExists('etherLaunch', () => this.generateEtherLaunchSound());
     setIfNotExists('virtueToast', () => this.generateVirtueToastSound());
+    setIfNotExists('zenBowl', () => this.generateZenBowlSound());
 
     // New procedural fallbacks
     setIfNotExists('monsterSpawn', () => this.generateErrorSound()); // Ominous thud
@@ -374,6 +375,30 @@ class SoundManager {
     return buffer;
   }
 
+  private generateZenBowlSound(): AudioBuffer {
+    if (!this.audioContext) return null as any;
+
+    const sampleRate = this.audioContext.sampleRate;
+    const duration = 2.4;
+    const buffer = this.audioContext.createBuffer(1, sampleRate * duration, sampleRate);
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < data.length; i++) {
+      const t = i / sampleRate;
+      // 432Hz sacred harmonic tuning with warm resonant overtones and serene decay
+      const f1 = 432.0;
+      const f2 = 864.0;
+      const f3 = 1296.0;
+      const beat = 1 + 0.03 * Math.sin(2 * Math.PI * 3.5 * t);
+      const env = Math.exp(-t * 1.1) * (1 - Math.exp(-t * 60));
+      data[i] = (Math.sin(2 * Math.PI * f1 * t * beat) * 0.35 +
+                 Math.sin(2 * Math.PI * f2 * t) * 0.12 +
+                 Math.sin(2 * Math.PI * f3 * t) * 0.04) * env * 0.25;
+    }
+
+    return buffer;
+  }
+
   // Play a sound
   async play(soundName: string): Promise<void> {
     if (!this.isEnabled || !this.audioContext || !this.sounds.has(soundName)) {
@@ -517,4 +542,5 @@ export const SOUNDS = {
   PET_FEED: 'petFeed',
   ETHER_LAUNCH: 'etherLaunch',
   VIRTUE_TOAST: 'virtueToast',
+  ZEN_BOWL: 'zenBowl',
 } as const;
