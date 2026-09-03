@@ -27,7 +27,9 @@ export interface BreathingExercise {
     id: string;
     name: string;
     badge: string;
-    subtitle: string;
+    characterName: string;
+    characterAvatar: string;
+    characterTip: string;
     iconEmoji: string;
     phases: BreathPhase[];
     cyclesRequired: number;
@@ -42,8 +44,6 @@ export interface BreathingExercise {
         dividerGlow: string;
         progressBar: string;
         claimButton: string;
-        pillActive: string;
-        pillInactive: string;
     };
 }
 
@@ -51,8 +51,10 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
     {
         id: 'box',
         name: 'Box breathing',
-        badge: 'Focus & clarity (4-4-4-4)',
-        subtitle: 'Navy SEAL cadence for extreme calm, mental focus, and stress mitigation.',
+        badge: '4-4-4-4',
+        characterName: 'Sage Owl',
+        characterAvatar: '🦉',
+        characterTip: 'A calm breath sharpens the mind for every quest.',
         iconEmoji: '⏹️',
         cyclesRequired: 2,
         totalSeconds: 32, // (4+4+4+4) * 2 = 32s
@@ -66,8 +68,6 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
             dividerGlow: 'via-indigo-500/50',
             progressBar: 'bg-indigo-500/60',
             claimButton: 'bg-indigo-800 hover:bg-indigo-700 text-indigo-50 shadow-indigo-900/40 border-indigo-600',
-            pillActive: 'bg-indigo-950/80 text-indigo-200 border-indigo-500/50 shadow-md',
-            pillInactive: 'bg-zinc-900/60 text-zinc-400 border-zinc-800 hover:text-zinc-200'
         },
         phases: [
             {
@@ -115,8 +115,10 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
     {
         id: 'calm_478',
         name: '4-7-8 Deep calm',
-        badge: 'Deep relaxation (4-7-8)',
-        subtitle: 'Natural tranquilizer that resets the autonomic nervous system into pure stillness.',
+        badge: '4-7-8',
+        characterName: 'Seqoio',
+        characterAvatar: '🌲',
+        characterTip: 'Even ancient roots pause to drink the quiet rain.',
         iconEmoji: '🌙',
         cyclesRequired: 2,
         totalSeconds: 38, // (4+7+8) * 2 = 38s
@@ -130,8 +132,6 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
             dividerGlow: 'via-purple-500/50',
             progressBar: 'bg-purple-500/60',
             claimButton: 'bg-purple-800 hover:bg-purple-700 text-purple-50 shadow-purple-900/40 border-purple-600',
-            pillActive: 'bg-purple-950/80 text-purple-200 border-purple-500/50 shadow-md',
-            pillInactive: 'bg-zinc-900/60 text-zinc-400 border-zinc-800 hover:text-zinc-200'
         },
         phases: [
             {
@@ -169,8 +169,10 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
     {
         id: 'coherent',
         name: 'Coherent rhythm',
-        badge: 'Heart coherence (6-6)',
-        subtitle: 'Continuous wave of air synchronizing heart rate variability and mental harmony.',
+        badge: '6-6',
+        characterName: 'Spirit Sprite',
+        characterAvatar: '✨',
+        characterTip: 'Flow like the river; gentle consistency moves mountains.',
         iconEmoji: '🌊',
         cyclesRequired: 3,
         totalSeconds: 36, // (6+6) * 3 = 36s
@@ -184,8 +186,6 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
             dividerGlow: 'via-emerald-500/50',
             progressBar: 'bg-emerald-500/60',
             claimButton: 'bg-emerald-800 hover:bg-emerald-700 text-emerald-50 shadow-emerald-900/40 border-emerald-600',
-            pillActive: 'bg-emerald-950/80 text-emerald-200 border-emerald-500/50 shadow-md',
-            pillInactive: 'bg-zinc-900/60 text-zinc-400 border-zinc-800 hover:text-zinc-200'
         },
         phases: [
             {
@@ -213,8 +213,10 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
     {
         id: 'equanimity',
         name: 'Equanimity breath',
-        badge: 'Centered presence (4-4-4)',
-        subtitle: 'Classic triangle breath returning the wandering mind to peace and balance.',
+        badge: '4-4-4',
+        characterName: 'Ember Drake',
+        characterAvatar: '🐉',
+        characterTip: 'Kindle stillness within; rest fuels tomorrow’s victories.',
         iconEmoji: '🍃',
         cyclesRequired: 3,
         totalSeconds: 36, // (4+4+4) * 3 = 36s
@@ -228,8 +230,6 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
             dividerGlow: 'via-teal-500/50',
             progressBar: 'bg-teal-500/60',
             claimButton: 'bg-teal-800 hover:bg-teal-700 text-teal-50 shadow-teal-900/40 border-teal-600',
-            pillActive: 'bg-teal-950/80 text-teal-200 border-teal-500/50 shadow-md',
-            pillInactive: 'bg-zinc-900/60 text-zinc-400 border-zinc-800 hover:text-zinc-200'
         },
         phases: [
             {
@@ -346,14 +346,6 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
         }
     }, [seconds, activeExercise.totalSeconds]);
 
-    const handleSelectExercise = (idx: number) => {
-        if (idx === exerciseIndex) return;
-        setExerciseIndex(idx);
-        try {
-            localStorage.setItem('thrivehaven_zen_exercise_index', String(idx));
-        } catch {}
-    };
-
     const handleMeditate = async () => {
         if (isSubmitting) return;
         setIsSubmitting(true);
@@ -436,45 +428,26 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
             <DialogContent className={cn("max-w-md bg-zinc-950 text-zinc-100 overflow-hidden shadow-2xl transition-colors duration-700", activeExercise.theme.dialogBorder, activeExercise.theme.dialogShadow)}>
                 <div className={cn("absolute inset-0 bg-gradient-to-b to-transparent pointer-events-none transition-colors duration-700", activeExercise.theme.topGradient)} />
 
-                <DialogHeader className="relative z-10 space-y-1">
+                <DialogHeader className="relative z-10 space-y-1.5">
                     <DialogTitle className={cn("text-center font-serif text-3xl transition-colors duration-500", activeExercise.theme.titleColor)}>
                         The sacred garden
                     </DialogTitle>
-                    <DialogDescription className="text-center text-zinc-400 text-xs italic font-light">
-                        Leave the chaos of the realm behind.
+                    <DialogDescription className="text-center text-zinc-400 text-xs italic font-light max-w-sm mx-auto leading-relaxed">
+                        Relaxation is important to keep up with your habits. Take a small break from rebuilding Thrivehaven.
                     </DialogDescription>
                 </DialogHeader>
 
-                {/* 4 Exercise Selector Tabs */}
-                <div className="relative z-10 flex items-center justify-center gap-1.5 pt-1 overflow-x-auto no-scrollbar">
-                    {BREATHING_EXERCISES.map((ex, idx) => {
-                        const isActive = idx === exerciseIndex;
-                        return (
-                            <button
-                                key={ex.id}
-                                type="button"
-                                onClick={() => handleSelectExercise(idx)}
-                                className={cn(
-                                    "px-2.5 py-1 rounded-lg text-[11px] font-serif border transition-all duration-300 flex items-center gap-1 shrink-0",
-                                    isActive ? ex.theme.pillActive : ex.theme.pillInactive
-                                )}
-                            >
-                                <span>{ex.iconEmoji}</span>
-                                <span className="font-semibold truncate">{ex.name}</span>
-                            </button>
-                        );
-                    })}
-                </div>
-
-                <div className="relative z-10 flex flex-col items-center justify-center py-6 space-y-8">
-                    {/* Exercise Description / Benefit Banner */}
-                    <div className="text-center space-y-1 max-w-xs px-2">
-                        <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-400 font-bold block">
-                            {activeExercise.badge}
+                <div className="relative z-10 flex flex-col items-center justify-center py-6 space-y-7">
+                    {/* Character Whisper & Technique Banner */}
+                    <div className="text-center space-y-1.5 max-w-xs px-2">
+                        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-zinc-900/90 border border-zinc-800 shadow-sm text-xs font-serif text-amber-200/90">
+                            <span>{activeExercise.characterAvatar}</span>
+                            <span className="font-semibold">{activeExercise.characterName}:</span>
+                            <span className="text-zinc-300 font-light italic">“{activeExercise.characterTip}”</span>
+                        </div>
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-bold block pt-0.5">
+                            {activeExercise.name} · {activeExercise.badge}
                         </span>
-                        <p className="text-xs text-zinc-400 font-light italic leading-relaxed">
-                            {activeExercise.subtitle}
-                        </p>
                     </div>
 
                     {/* Breathing Visual */}
