@@ -97,7 +97,7 @@ export async function resolveStoryAdventure(
     }
 
     // 2. Award House Cup Virtue Energy
-    const currentVirtues: Record<string, number> = (await getUserPreference('house_cup_virtues')) || {};
+    const currentVirtues: Record<string, number> = ((await getUserPreference('house_cup_virtues')) as Record<string, number> | null) || {};
     currentVirtues[choice.virtueType] = (currentVirtues[choice.virtueType] || 0) + choice.virtuePoints;
     await setUserPreference('house_cup_virtues', currentVirtues);
 
