@@ -4,8 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { BookOpen, Sparkles, Compass, CheckCircle2, Trophy } from 'lucide-react';
+import { BookOpen, Compass, CheckCircle2 } from 'lucide-react';
 import { STORY_ADVENTURES } from './stories-data';
 import { StoryAdventure, getCompletedStories, CompletedStoryRecord } from '@/lib/storybook-manager';
 import { StorybookModal } from './storybook-modal';
@@ -51,7 +50,6 @@ export function TalesShelfCard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
           {STORY_ADVENTURES.map(story => {
             const isCompleted = completedIds.includes(story.id);
-            const record = completedRecords.find(r => r.storyId === story.id);
 
             return (
               <div

@@ -1,7 +1,6 @@
 "use client"
 
 import { logger } from "@/lib/logger";
-;
 
 import Image from "next/image"
 import { BookOpen, MapPin, ArrowUpRight, Droplets, Trees, Home, Mountain, Info, Check, ChevronDown } from 'lucide-react'

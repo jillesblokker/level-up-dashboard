@@ -12,6 +12,7 @@ import { getCurrentMonthlyTitan, MonthlyTitan } from "@/lib/titan-bosses";
 import { motion } from "framer-motion";
 import { TitanSiegeArsenal } from "@/components/titan-siege-arsenal";
 import { TreasureChestVisual } from "@/components/ui/treasure-chest-visual";
+import { cn } from "@/lib/utils";
 
 export function TitanRaidCard() {
   const { toast } = useToast();

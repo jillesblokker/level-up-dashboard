@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { gainGold } from '@/lib/gold-manager';
 import { getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service';
-import { Heart, Sparkles, Star, Clock, Coins, BookOpen } from 'lucide-react';
+import { Heart, Sparkles, Star, Clock, Coins } from 'lucide-react';
 import Image from 'next/image';
 import { STORY_ADVENTURES } from '@/components/storybook/stories-data';
 import { StoryAdventure } from '@/lib/storybook-manager';

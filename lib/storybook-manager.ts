@@ -1,5 +1,4 @@
 import { getUserPreference, setUserPreference } from './user-preferences-manager';
-import { addToCharacterStat } from './character-stats-service';
 import { gainGold } from './gold-manager';
 import { logger } from './logger';
 

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, BookOpen, Compass, Trophy, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Sparkles, BookOpen, Compass, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StoryAdventure, StoryChoice, resolveStoryAdventure, CompletedStoryRecord } from '@/lib/storybook-manager';
 import { playSFX, SOUNDS } from '@/lib/sound-manager';
@@ -21,7 +21,6 @@ interface StorybookModalProps {
 export function StorybookModal({ isOpen, onClose, story, onCompleted }: StorybookModalProps) {
   const [selectedChoice, setSelectedChoice] = useState<StoryChoice | null>(null);
   const [isResolving, setIsResolving] = useState(false);
-  const [outcomeRecord, setOutcomeRecord] = useState<CompletedStoryRecord | null>(null);
 
   if (!story) return null;
 
@@ -34,7 +33,6 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
     // Short page-turn pause for immersion
     setTimeout(async () => {
       const record = await resolveStoryAdventure(story, choice);
-      setOutcomeRecord(record);
       setIsResolving(false);
       playSFX(SOUNDS.BATTLE_WIN);
 
@@ -57,7 +55,6 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
 
   const handleClose = () => {
     setSelectedChoice(null);
-    setOutcomeRecord(null);
     setIsResolving(false);
     onClose();
   };
