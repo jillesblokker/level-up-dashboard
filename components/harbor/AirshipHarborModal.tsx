@@ -1,13 +1,16 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { Navigation, Zap, Package, Compass, Anchor, Users, Sparkles, ShieldCheck } from 'lucide-react'
+import { Navigation, Zap, Package, Compass, Anchor, Users, Sparkles, ShieldCheck, Wind } from 'lucide-react'
 import { useCitizensStore } from '@/stores/citizensStore'
 import { useToast } from '@/components/ui/use-toast'
+import { playSFX, SOUNDS } from '@/lib/sound-manager'
+import { hapticSuccess } from '@/lib/haptics'
 
 interface AirshipHarborModalProps {
   isOpen: boolean
@@ -45,6 +48,8 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
   }
 
   const handleLaunchCourse = async (portName: string) => {
+    playSFX(SOUNDS.ETHER_LAUNCH);
+    hapticSuccess();
     setActiveDestination(portName)
     setVoyageProgress(100)
 
@@ -77,17 +82,17 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg bg-zinc-950 border border-cyan-900/50 text-white rounded-2xl p-6 shadow-2xl overflow-hidden">
+      <DialogContent className="max-w-lg bg-zinc-950 border border-cyan-900/50 text-white rounded-2xl p-6 shadow-2xl overflow-hidden font-serif">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-cyan-400">
               <Navigation className="w-6 h-6 animate-pulse" />
-              <DialogTitle className="text-xl font-bold tracking-wide text-cyan-100">
-                Airship Harbor & Ether Voyages
+              <DialogTitle className="text-xl font-bold tracking-wide text-cyan-100 font-serif">
+                Airship harbor & ether voyages
               </DialogTitle>
             </div>
             <Badge variant="outline" className="border-cyan-500/40 text-cyan-400 bg-cyan-950/30 text-xs">
-              Habit-Powered Voyage
+              Habit-powered voyage
             </Badge>
           </div>
           <DialogDescription className="text-zinc-400 text-xs mt-1">
@@ -95,16 +100,43 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
           </DialogDescription>
         </DialogHeader>
 
-        <div className="my-4 space-y-4">
+        {/* Soaring Airship Sky Voyage Banner */}
+        <div className="relative h-28 w-full rounded-xl overflow-hidden border border-cyan-500/40 my-3 shadow-lg bg-gradient-to-r from-sky-950 via-cyan-950 to-indigo-950 flex items-center justify-between px-6">
+          {/* Drifting Clouds & Ether Glow */}
+          <div className="absolute inset-0 bg-radial from-cyan-400/15 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute top-2 left-6 text-white/20 text-xs font-mono animate-pulse">☁️ High Ether Winds</div>
+          <div className="absolute bottom-2 right-6 text-cyan-400/40 text-[10px] font-mono">💨 Altitude: 8,400 ft</div>
+
+          <div className="relative z-10 flex items-center gap-3">
+            <div className="w-14 h-14 rounded-2xl bg-cyan-950/80 border-2 border-cyan-400/80 flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(6,182,212,0.6)] animate-bounce" style={{ animationDuration: '3s' }}>
+              🛸
+            </div>
+            <div>
+              <h4 className="font-bold text-cyan-200 text-sm font-serif">Aetheria Sovereign</h4>
+              <p className="text-[10px] text-cyan-300/80 font-mono">Status: En route to {activeDestination}</p>
+            </div>
+          </div>
+
+          <div className="relative z-10 flex flex-col items-end">
+            <Badge className="bg-cyan-500 text-slate-950 font-extrabold text-[10px] uppercase tracking-wider shadow-md">
+              Ether Thrusters Active
+            </Badge>
+            <span className="text-[10px] text-emerald-400 font-mono font-bold mt-1">
+              {voyageProgress}% Progress
+            </span>
+          </div>
+        </div>
+
+        <div className="my-2 space-y-3">
           {/* Ether Fuel Reserves Card */}
-          <div className="rounded-xl border border-cyan-500/40 p-4 bg-gradient-to-r from-cyan-950/60 via-zinc-900 to-zinc-950 flex items-center justify-between">
+          <div className="rounded-xl border border-cyan-500/40 p-3.5 bg-gradient-to-r from-cyan-950/60 via-zinc-900 to-zinc-950 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
-                <Zap className="w-6 h-6" />
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+                <Zap className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-xs text-zinc-300">Habit Ether Fuel Reserve</h4>
-                <p className="text-lg font-mono font-bold text-cyan-400">{etherFuel} Ether Fuel</p>
+                <h4 className="font-bold text-xs text-zinc-300 font-serif">Habit ether fuel reserve</h4>
+                <p className="text-base font-mono font-bold text-cyan-400">{etherFuel} Ether Fuel</p>
               </div>
             </div>
             <Badge className="bg-cyan-600 text-white font-bold text-[10px] gap-1">
@@ -113,15 +145,15 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
           </div>
 
           {/* Sky Compass Flight Gauge & Streak Speed */}
-          <div className="rounded-xl border border-cyan-500/40 bg-gradient-to-r from-cyan-950/80 via-slate-900 to-zinc-950 p-4 space-y-3 shadow-lg">
+          <div className="rounded-xl border border-cyan-500/40 bg-gradient-to-r from-cyan-950/80 via-slate-900 to-zinc-950 p-3.5 space-y-2.5 shadow-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="relative w-9 h-9 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.4)] animate-pulse">
-                  <Compass className="w-5 h-5 animate-spin-slow" style={{ animationDuration: '12s' }} />
+                <div className="relative w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.4)] animate-pulse">
+                  <Compass className="w-4 h-4 animate-spin-slow" style={{ animationDuration: '12s' }} />
                 </div>
                 <div>
                   <h4 className="font-bold text-xs text-white uppercase tracking-wider flex items-center gap-1.5 font-serif">
-                    Sky Compass Flight Gauge
+                    Sky compass flight gauge
                   </h4>
                   <span className="text-[10px] text-cyan-300 font-mono flex items-center gap-1">
                     ⚡ Current Speed: <strong className="text-emerald-400">2.0x Boost (7-Day Streak)</strong> • 🌬️ <strong className="text-cyan-300">+20% Sky Tailwind</strong>

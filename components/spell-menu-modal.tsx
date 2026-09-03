@@ -8,6 +8,7 @@ import { gainGold } from '@/lib/gold-manager';
 import { toast } from '@/components/ui/use-toast';
 import { hapticSuccess, hapticError } from '@/lib/haptics';
 import { Hourglass, ShieldCheck, Sparkles, Crown } from 'lucide-react';
+import { playSFX, SOUNDS } from '@/lib/sound-manager';
 
 interface SpellMenuModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface SpellMenuModalProps {
 
 export function SpellMenuModal({ isOpen, onClose }: SpellMenuModalProps) {
   const [mana, setManaState] = React.useState(100);
+  const [isCasting, setIsCasting] = React.useState(false);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -25,14 +27,20 @@ export function SpellMenuModal({ isOpen, onClose }: SpellMenuModalProps) {
 
   const handleCastSpell = (spellName: string, cost: number, action: () => void) => {
     if (spendMana(cost)) {
+      setIsCasting(true);
       hapticSuccess();
+      playSFX('magic-spell');
       action();
       setManaState(getManaSync());
-      onClose();
+      setTimeout(() => {
+        setIsCasting(false);
+        onClose();
+      }, 500);
     } else {
       hapticError();
+      playSFX(SOUNDS.ERROR);
       toast({
-        title: "Insufficient Mana! 🔮",
+        title: "Insufficient mana! 🔮",
         description: `You need ${cost} Mana to cast ${spellName}. Complete daily focus habits to restore Mana!`,
         variant: "destructive"
       });
@@ -41,13 +49,13 @@ export function SpellMenuModal({ isOpen, onClose }: SpellMenuModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="border-2 border-cyan-500/50 bg-[#0b1329]/95 text-white max-w-md backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.3)] rounded-2xl">
+      <DialogContent className="border-2 border-cyan-500/50 bg-[#0b1329]/95 text-white max-w-md backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.3)] rounded-2xl font-serif">
         <DialogHeader className="text-center items-center pb-2">
           <div className="w-12 h-12 rounded-full border-2 border-cyan-400 bg-radial from-cyan-500 via-cyan-900 to-[#041a24] flex items-center justify-center text-xl shadow-[0_0_20px_rgba(6,182,212,0.8)] mb-2">
             🔮
           </div>
           <DialogTitle className="font-serif text-2xl text-cyan-200">
-            Arcane Realm Spells
+            Arcane realm spells
           </DialogTitle>
           <DialogDescription className="text-xs text-cyan-300/80">
             Channel real-life focus habits to cast powerful instant realm magic.

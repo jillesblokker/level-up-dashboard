@@ -17,6 +17,8 @@ import { FortuneTellerModal } from "@/components/fortune-teller-modal"
 import { TownRiddleModal } from "@/components/minigames/TownRiddleModal"
 import { PlankPuzzleModal } from "@/components/plank-puzzle-modal"
 import { PerimeterFuseBorder } from "@/components/ui/perimeter-fuse-border"
+import { playSFX, SOUNDS } from "@/lib/sound-manager"
+import { hapticSuccess } from "@/lib/haptics"
 
 interface HabitFocusData {
   locationName: string;
@@ -240,9 +242,22 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
       }
       await setUserPreference('habit_focus_districts', allDistricts);
 
+      hapticSuccess();
+      playSFX(SOUNDS.QUEST_COMPLETE);
+      if (typeof window !== 'undefined') {
+        import('canvas-confetti').then(confetti => {
+          confetti.default({
+            particleCount: 80,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#f59e0b', '#fbbf24', '#fcd34d', '#10b981', '#ffffff']
+          });
+        }).catch(() => {});
+      }
+
       toast({
-        title: "Taxes Collected! 🪙📦",
-        description: `Collected ${goldReward} Gold ${reagentReward ? 'and 1 crafting material' : ''} from the Settlement Shrine.`
+        title: "Taxes collected! 🪙📦",
+        description: `Collected ${goldReward} gold ${reagentReward ? 'and 1 crafting material' : ''} from the settlement shrine.`
       });
       
       window.dispatchEvent(new Event('character-inventory-update'));

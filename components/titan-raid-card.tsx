@@ -71,6 +71,55 @@ export function TitanRaidCard() {
 
   const hpPercentage = Math.round(((titan.totalHp - remainingHp) / titan.totalHp) * 100);
 
+  const getElementalBiomeStyle = (element: string) => {
+    const el = element.toLowerCase();
+    if (el.includes('fire')) {
+      return {
+        gradient: 'from-amber-950/90 via-red-950/70 to-zinc-950',
+        border: 'border-orange-500/50',
+        glow: 'shadow-[0_0_30px_rgba(249,115,22,0.35)]',
+        accentText: 'text-orange-400',
+        auraDot: 'bg-orange-500/20'
+      };
+    }
+    if (el.includes('ice') || el.includes('water')) {
+      return {
+        gradient: 'from-cyan-950/90 via-blue-950/70 to-zinc-950',
+        border: 'border-cyan-500/50',
+        glow: 'shadow-[0_0_30px_rgba(6,182,212,0.35)]',
+        accentText: 'text-cyan-400',
+        auraDot: 'bg-cyan-500/20'
+      };
+    }
+    if (el.includes('cosmic') || el.includes('undead')) {
+      return {
+        gradient: 'from-purple-950/90 via-indigo-950/70 to-zinc-950',
+        border: 'border-purple-500/50',
+        glow: 'shadow-[0_0_30px_rgba(168,85,247,0.35)]',
+        accentText: 'text-purple-400',
+        auraDot: 'bg-purple-500/20'
+      };
+    }
+    if (el.includes('nature') || el.includes('earth')) {
+      return {
+        gradient: 'from-emerald-950/90 via-amber-950/70 to-zinc-950',
+        border: 'border-emerald-500/50',
+        glow: 'shadow-[0_0_30px_rgba(16,185,129,0.35)]',
+        accentText: 'text-emerald-400',
+        auraDot: 'bg-emerald-500/20'
+      };
+    }
+    return {
+      gradient: 'from-amber-950/90 via-yellow-950/70 to-zinc-950',
+      border: 'border-amber-500/50',
+      glow: 'shadow-[0_0_30px_rgba(245,158,11,0.35)]',
+      accentText: 'text-amber-400',
+      auraDot: 'bg-amber-500/20'
+    };
+  };
+
+  const biome = getElementalBiomeStyle(titan.element);
+
   return (
     <Card className="bg-gradient-to-br from-zinc-950 via-purple-950/20 to-zinc-950 border-purple-900/40 shadow-xl overflow-hidden relative">
       <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 blur-[90px] pointer-events-none" />
@@ -104,24 +153,40 @@ export function TitanRaidCard() {
         <div className="flex flex-col md:grid md:grid-cols-12 md:gap-6 md:items-start space-y-4 md:space-y-0">
           {/* Left Column (Desktop): Boss Image Banner, Health Section & Vertical Stats */}
           <div className="md:col-span-5 space-y-4">
+            {/* Dynamic Elemental Biome Arena Backdrop */}
             <motion.div 
               initial={{ scale: 0.98, opacity: 0.9 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5 }}
-              className="relative w-full rounded-2xl overflow-hidden border border-purple-500/40 shadow-2xl bg-zinc-950 p-2 flex items-center justify-center group"
+              className={cn(
+                "relative w-full rounded-2xl overflow-hidden border-2 shadow-2xl p-3 flex items-center justify-center group bg-gradient-to-b",
+                biome.gradient,
+                biome.border,
+                biome.glow
+              )}
             >
+              {/* Radial Aura Glow */}
+              <div className={cn("absolute inset-0 rounded-2xl blur-2xl opacity-40 pointer-events-none animate-pulse", biome.auraDot)} />
+              
+              {/* Elemental Realm Badge */}
+              <div className="absolute top-2 right-3 z-20">
+                <Badge variant="outline" className={cn("text-[9px] font-mono uppercase font-bold border", biome.border, biome.accentText, "bg-zinc-950/80")}>
+                  {titan.element} realm
+                </Badge>
+              </div>
+
               <Image
                 src={titan.image}
                 alt={titan.name}
                 width={500}
                 height={500}
-                className={`w-full max-h-[220px] md:max-h-[260px] object-contain rounded-xl transition-all duration-700 ${isDefeated ? 'opacity-70 filter drop-shadow-[0_0_25px_rgba(245,158,11,0.6)]' : 'group-hover:scale-102'}`}
+                className={`relative z-10 w-full max-h-[220px] md:max-h-[260px] object-contain rounded-xl transition-all duration-700 drop-shadow-[0_10px_25px_rgba(0,0,0,0.85)] ${isDefeated ? 'opacity-70 filter drop-shadow-[0_0_25px_rgba(245,158,11,0.6)]' : 'group-hover:scale-105'}`}
                 unoptimized
               />
 
               {/* Victory Overlay when Defeated */}
               {isDefeated && (
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-amber-950/40 flex flex-col items-center justify-center text-center p-4 rounded-xl space-y-2 border-2 border-amber-500/50">
+                <div className="absolute inset-0 z-30 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-amber-950/40 flex flex-col items-center justify-center text-center p-4 rounded-xl space-y-2 border-2 border-amber-500/50">
                   <Trophy className="w-10 h-10 text-amber-400 animate-bounce drop-shadow-[0_0_15px_rgba(245,158,11,0.8)]" />
                   <h3 className="text-lg font-serif font-extrabold text-amber-300 drop-shadow-md">
                     🏆 Titan Defeated!
