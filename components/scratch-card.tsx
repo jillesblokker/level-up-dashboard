@@ -283,11 +283,21 @@ export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: Scratc
       {/* Background Reward Face */}
       {hasImage && imagePath ? (
         <div className="absolute inset-0 w-full h-full overflow-hidden bg-gradient-to-b from-zinc-900 via-zinc-950 to-amber-950/40">
+          {/* Ornate Card Frame Texture behind Mythic cutout */}
+          <div className="absolute inset-0 z-0 opacity-40 mix-blend-luminosity pointer-events-none">
+            <Image
+              src="/images/headers/undiscovered.webp"
+              alt="Card Frame Texture"
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          </div>
           <Image
             src={imagePath}
             alt={`Mythic Card #${cardData.number}`}
             fill
-            className="object-contain p-1.5 sm:p-2"
+            className="object-contain p-1.5 sm:p-2 relative z-10 drop-shadow-md"
           />
           {/* Overlay info */}
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950 via-zinc-950/90 to-transparent p-2 sm:p-3 flex flex-col justify-end h-2/3">
