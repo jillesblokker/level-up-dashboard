@@ -59,7 +59,6 @@ export type TileType =
   | 'oasis'
   | 'coral_reef'
   | 'crystal_cavern'
-  | 'crystal_cascades'
   | 'floating_island'
   | 'zen-garden'
   | 'quest-board'

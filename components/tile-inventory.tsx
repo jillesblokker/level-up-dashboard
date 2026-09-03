@@ -62,7 +62,7 @@ const allPossibleTiles: Tile[] = [
   { id: 'portal-entrance', name: 'Portal Entrance', type: 'portal-entrance', quantity: 0, cost: 1000, connections: [], description: 'Portal entry point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal entrance tile', image: '/images/tiles/portal-entrance-tile.webp' },
   { id: 'portal-exit', name: 'Portal Exit', type: 'portal-exit', quantity: 0, cost: 1000, connections: [], description: 'Portal exit point', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Portal exit tile', image: '/images/tiles/portal-exit-tile.webp' },
   { id: 'floating_island', name: 'Floating Island', type: 'floating_island', quantity: 0, cost: 500, connections: [], description: 'A mysterious floating island landscape (Prestige I wonder)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Island tile', image: '/images/tiles/floating_island-tile.webp' },
-  { id: 'crystal_cascades', name: 'Crystal Cascades', type: 'crystal_cascades', quantity: 0, cost: 5000, connections: [], description: 'Legendary crystalline waterfalls and radiant pools (Prestige I wonder)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Crystal Cascades tile', image: '/images/tiles/crystal_cavern-tile.webp' },
+  { id: 'crystal_cascades', name: 'Crystal Cascades', type: 'crystal_cavern', quantity: 0, cost: 5000, connections: [], description: 'Legendary crystalline waterfalls and radiant pools (Prestige I wonder)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Crystal Cascades tile', image: '/images/tiles/crystal_cavern-tile.webp' },
 
   // Siege Engines (Habit Unlocked - 1 per month)
   { id: 'siege_catapult', name: 'Catapult', type: 'siege_catapult', quantity: 0, cost: 500, connections: [], description: 'Deals bonus damage in Titan Raids (1/month placement)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Catapult tile', image: '/images/kingdom-tiles/siege_catapult.webp' },
@@ -422,8 +422,6 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
         return '/images/kingdom-tiles/fortune_teller.webp'
       case 'pyramid':
         return '/images/tiles/pyramid-tile.webp'
-      case 'crystal_cascades':
-        return '/images/tiles/crystal_cavern-tile.webp'
       case 'whispering-well':
         return '/images/tiles/whispering-well-tile.webp'
       case 'sphinx-gates':
@@ -612,7 +610,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                     unoptimized={true}
                                   />
                                   {/* Prestige I Wonder Ribbon */}
-                                  {(tile.type === 'floating_island' || tile.type === 'crystal_cascades') && (
+                                  {(tile.type === 'floating_island' || tile.id === 'crystal_cascades') && (
                                     <div className="absolute top-2 left-2 z-10">
                                       <span className="text-[9px] font-mono font-extrabold uppercase px-2 py-0.5 rounded-full bg-purple-950/90 text-purple-300 border border-purple-400/60 shadow-[0_0_10px_rgba(168,85,247,0.4)] flex items-center gap-1">
                                         👑 Prestige I
@@ -626,7 +624,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                                   {userLevelValue < category.minLevel && (
                                     <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-[1px] flex flex-col items-center justify-center p-2 z-10 pointer-events-none">
                                       <span className="text-amber-200 text-xs font-bold bg-zinc-900/90 border border-amber-500/40 px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 font-sans">
-                                        {tile.type === 'floating_island' || tile.type === 'crystal_cascades' ? '👑 Prestige I required' : `🔒 Lvl ${category.minLevel} required`}
+                                        {tile.type === 'floating_island' || tile.id === 'crystal_cascades' ? '👑 Prestige I required' : `🔒 Lvl ${category.minLevel} required`}
                                       </span>
                                     </div>
                                   )}
