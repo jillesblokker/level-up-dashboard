@@ -53,6 +53,31 @@ export function getCitizenImageSrc(citizen: Citizen): string {
   return '/images/creatures/001.webp';
 }
 
+function getCitizenMiniGear(citizen: any) {
+  if (citizen.type === 'special' || citizen.type === 'ice') {
+    return [
+      { name: 'Enchanted blade', img: '/images/items/sword/sword-irony.webp', border: 'border-blue-500/50' },
+      { name: 'Crystal ward', img: '/images/items/shield/shield-blockado.webp', border: 'border-blue-500/50' },
+      { name: 'Arcane robes', img: '/images/items/armor/armor-normalo.webp', border: 'border-purple-500/50' },
+      { name: 'Astral crystal', img: '/images/items/materials/material-crystal.webp', border: 'border-amber-400/50' },
+    ];
+  }
+  if (citizen.type === 'fire') {
+    return [
+      { name: 'Flame claymore', img: '/images/items/sword/sword-irony.webp', border: 'border-orange-500/50' },
+      { name: 'Spiked aegis', img: '/images/items/shield/shield-blockado.webp', border: 'border-amber-500/50' },
+      { name: 'Ignited cuirass', img: '/images/items/armor/armor-normalo.webp', border: 'border-orange-500/50' },
+      { name: 'Ember shard', img: '/images/items/materials/material-crystal.webp', border: 'border-red-400/50' },
+    ];
+  }
+  return [
+    { name: 'Iron sword', img: '/images/items/sword/sword-irony.webp', border: 'border-zinc-700/60' },
+    { name: 'Oak shield', img: '/images/items/shield/shield-blockado.webp', border: 'border-zinc-700/60' },
+    { name: 'Reinforced mail', img: '/images/items/armor/armor-normalo.webp', border: 'border-zinc-700/60' },
+    { name: 'Forest amber', img: '/images/items/materials/material-crystal.webp', border: 'border-emerald-500/50' },
+  ];
+}
+
 export function CitizensTab() {
   const { user } = useUser()
   const activePartnerId = useGameStore(state => state.activePartnerId);
@@ -500,6 +525,31 @@ export function CitizensTab() {
                                 <span className="text-zinc-500 font-mono">{harvestRemaining}</span>
                               )}
                             </div>
+
+                            {/* Subtle Mini Paperdoll Loadout Tray */}
+                            <div className="flex items-center justify-between bg-zinc-950/70 px-2 py-1 rounded border border-zinc-800/30">
+                              <span className="text-[10px] text-zinc-500 font-mono">Loadout:</span>
+                              <div className="flex items-center gap-1">
+                                {getCitizenMiniGear(citizen).map((gear, gIdx) => (
+                                  <div
+                                    key={gIdx}
+                                    title={gear.name}
+                                    className={cn(
+                                      "relative w-4 h-4 rounded border bg-zinc-900 overflow-hidden flex items-center justify-center transition-transform hover:scale-110",
+                                      gear.border
+                                    )}
+                                  >
+                                    <Image
+                                      src={gear.img}
+                                      alt={gear.name}
+                                      fill
+                                      className="object-cover p-0.5"
+                                      unoptimized
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           </div>
                         </CardContent>
 
@@ -721,6 +771,31 @@ export function CitizensTab() {
                             <Clock className="w-3 h-3 text-zinc-600" /> {harvestRemaining}
                           </span>
                         )}
+                      </div>
+
+                      {/* Subtle Mini Paperdoll Loadout Tray */}
+                      <div className="flex items-center justify-between bg-zinc-950/70 px-2 py-1 rounded border border-zinc-800/30">
+                        <span className="text-[10px] text-zinc-500 font-mono">Loadout:</span>
+                        <div className="flex items-center gap-1">
+                          {getCitizenMiniGear(citizen).map((gear, gIdx) => (
+                            <div
+                              key={gIdx}
+                              title={gear.name}
+                              className={cn(
+                                "relative w-4 h-4 rounded border bg-zinc-900 overflow-hidden flex items-center justify-center transition-transform hover:scale-110",
+                                gear.border
+                              )}
+                            >
+                              <Image
+                                src={gear.img}
+                                alt={gear.name}
+                                fill
+                                className="object-cover p-0.5"
+                                unoptimized
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </CardContent>

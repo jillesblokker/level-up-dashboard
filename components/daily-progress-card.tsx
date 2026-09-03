@@ -1,9 +1,10 @@
 "use client"
 
+import { useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Trophy, Target, Zap } from "lucide-react"
-import { formatCount } from "@/lib/utils"
+import { formatCount, cn } from "@/lib/utils"
 
 interface DailyProgressCardProps {
     completedCount: number
@@ -25,8 +26,27 @@ export function DailyProgressCard({
     const completionPercentage = (completedCount / totalCount) * 100
     const xpPercentage = (currentXP / xpToNextLevel) * 100
 
+    useEffect(() => {
+        if (completedCount >= 5) {
+            const todayKey = `thrivehaven_sweetspot_${new Date().toISOString().slice(0, 10)}`;
+            if (!sessionStorage.getItem(todayKey)) {
+                sessionStorage.setItem(todayKey, 'celebrated');
+                if (typeof window !== 'undefined') {
+                    import('canvas-confetti').then(confetti => {
+                        confetti.default({
+                            particleCount: 100,
+                            spread: 80,
+                            origin: { y: 0.5 },
+                            colors: ['#f59e0b', '#fbbf24', '#10b981', '#6366f1', '#ec4899']
+                        });
+                    }).catch(() => {});
+                }
+            }
+        }
+    }, [completedCount]);
+
     return (
-        <Card className="bg-gradient-to-br from-amber-900/20 to-amber-950/20 border-amber-700/30 shadow-lg">
+        <Card className="bg-gradient-to-br from-amber-900/20 to-amber-950/20 border-amber-700/30 shadow-lg font-serif">
             <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Daily Quests Progress */}
@@ -35,11 +55,19 @@ export function DailyProgressCard({
                             <Target className="w-5 h-5" />
                             <span className="font-semibold">Today&apos;s Quests</span>
                         </div>
-                        <div className="text-3xl font-bold text-white">
+                        <div className="text-3xl font-bold text-white flex items-center gap-2 font-mono">
                             {completedCount}/{totalCount}
+                            {completedCount >= 5 && (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 font-sans font-bold animate-pulse">
+                                    Great ✨
+                                </span>
+                            )}
                         </div>
-                        <Progress value={completionPercentage} className="h-2 bg-amber-950/50" />
-                        <p className="text-sm text-amber-200/70">
+                        <Progress
+                            value={completionPercentage}
+                            className={cn("h-2 bg-amber-950/50", completedCount >= 5 && "shadow-[0_0_12px_rgba(245,158,11,0.7)] border border-amber-400/40")}
+                        />
+                        <p className="text-sm text-amber-200/70 font-sans">
                             {formatCount(totalCount - completedCount, 'quest')} remaining
                         </p>
                     </div>
@@ -74,6 +102,22 @@ export function DailyProgressCard({
                         </p>
                     </div>
                 </div>
+
+                {/* 5/10 Sweet Spot Milestone Celebration Banner */}
+                {completedCount >= 5 && (
+                    <div className="mt-4 p-3 bg-gradient-to-r from-amber-500/20 via-emerald-500/20 to-amber-500/20 border-2 border-amber-500/60 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.25)] flex items-center justify-between gap-3 animate-pulse font-serif">
+                        <div className="flex items-center gap-2.5">
+                            <span className="text-2xl">🎉</span>
+                            <div>
+                                <h4 className="text-sm font-bold text-amber-300">5/10 Daily sweet spot reached!</h4>
+                                <p className="text-xs text-amber-200/80 font-sans">"Great" habit momentum unlocked for your kingdom.</p>
+                            </div>
+                        </div>
+                        <span className="px-2.5 py-1 rounded-full bg-amber-500/30 border border-amber-400/50 text-[10px] font-bold text-amber-200 font-mono shrink-0">
+                            Sweet spot active ✨
+                        </span>
+                    </div>
+                )}
 
                 {/* Motivational Message */}
                 {completedCount === 0 && (

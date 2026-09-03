@@ -223,6 +223,11 @@ export default function DungeonPage() {
   const [petStrikerUsed, setPetStrikerUsed] = useState(false);
   const [monsterStatus, setMonsterStatus] = useState<MonsterStatusState>({ burnTurns: 0, sleepTurns: 0, confusionTurns: 0 });
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
+  const [bossDualDrop, setBossDualDrop] = useState<{
+    blueprint: { name: string; img: string; desc: string };
+    isDuplicate: boolean;
+    reagent: { name: string; id: string };
+  } | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
 
   const { getToken } = useAuth();
@@ -798,26 +803,7 @@ export default function DungeonPage() {
 
       // BOSS DUAL DROPS: Guaranteed Kingdom Blueprint AND Apotheca Potion Brewing Reagent on Boss Floors (every 5 rooms)
       if (run.currentRoom % 5 === 0) {
-        const crystal = comprehensiveItems.find(i => i.id === 'material-crystal');
-        if (crystal) {
-          const blueprintDrop = {
-            type: 'item',
-            name: 'Blueprint: Serene Lake',
-            itemId: 'serene_lake',
-            itemStats: { def: 10 },
-            starRating: 3
-          };
-          const reagentDrop = {
-            type: 'item',
-            name: crystal.name,
-            itemId: crystal.id,
-            itemStats: {},
-            starRating: 2
-          };
-          newLoot = [...newLoot, blueprintDrop, reagentDrop];
-          logEntries.push(`🏰 BOSS DUAL DROPS: Blueprint Serene Lake AND ${crystal.name}!`);
-        }
-
+        const crystal = comprehensiveItems.find(i => i.id === 'material-crystal') || { name: 'Botanical Crystal Essence', id: 'material-crystal' };
         const blueprints = [
           { name: 'Blueprint: Serene Lake', img: '/images/Kingdom.webp', desc: 'Unlocks serene water canal tiles for your realm sandbox (+10 DEF).' },
           { name: 'Blueprint: Zen Garden', img: '/images/Kingdom.webp', desc: 'Unlocks peaceful zen stone gardens (+15 Spell Power).' },
@@ -825,10 +811,56 @@ export default function DungeonPage() {
           { name: 'Blueprint: Waterway Canal', img: '/images/Kingdom.webp', desc: 'Unlocks capital water trade canals (+30% Tax Gold).' }
         ];
         const bp = blueprints[(Math.floor(run.currentRoom / 5) - 1) % blueprints.length] || blueprints[0]!;
-        
+
+        let isDuplicate = false;
+        try {
+          const unlockedBps = JSON.parse(localStorage.getItem('thrivehaven_unlocked_blueprints') || '[]');
+          if (unlockedBps.includes(bp.name)) {
+            isDuplicate = true;
+          } else {
+            unlockedBps.push(bp.name);
+            localStorage.setItem('thrivehaven_unlocked_blueprints', JSON.stringify(unlockedBps));
+          }
+        } catch {}
+
+        const blueprintDrop = isDuplicate ? {
+          type: 'gold',
+          name: "Royal Architect's Bounty (+150 Gold)",
+          amount: 150,
+          starRating: 3
+        } : {
+          type: 'item',
+          name: bp.name,
+          itemId: bp.name.toLowerCase().replace(/[^a-z0-9]/g, '_'),
+          itemStats: { def: 10 },
+          starRating: 3
+        };
+
+        const reagentDrop = {
+          type: 'item',
+          name: crystal.name,
+          itemId: crystal.id,
+          itemStats: {},
+          starRating: 2
+        };
+
+        newLoot = [...newLoot, blueprintDrop, reagentDrop];
+        setBossDualDrop({
+          blueprint: bp,
+          isDuplicate,
+          reagent: crystal
+        });
+
+        logEntries.push(isDuplicate
+          ? `🏰 BOSS DUAL DROPS: Royal Architect's Bounty (+150 gold) AND ${crystal.name}!`
+          : `🏰 BOSS DUAL DROPS: ${bp.name} AND ${crystal.name}!`
+        );
+
         toast({
-          title: "🏆 Boss Keep Cleared!",
-          description: `Defeated Room ${run.currentRoom} Boss! Unlocked ${bp.name} & Apotheca Reagents!`,
+          title: "🏆 Boss keep cleared!",
+          description: isDuplicate
+            ? `Duplicate blueprint converted to Royal Architect's Bounty (+150 gold) & Apotheca reagents!`
+            : `Defeated room ${run.currentRoom} boss! Unlocked ${bp.name} & Apotheca reagents!`,
         });
       }
 
@@ -1928,6 +1960,72 @@ export default function DungeonPage() {
             </ScrollArea>
           </div>
         </div>
+
+        {/* 🏆 Boss Keep Dual-Loot Victory Showcase Dialog */}
+        <Dialog open={!!bossDualDrop} onOpenChange={() => setBossDualDrop(null)}>
+          {bossDualDrop && (
+            <DialogContent className="max-w-md bg-zinc-950 border-2 border-amber-500/50 text-white rounded-2xl p-6 shadow-2xl font-serif">
+              <DialogHeader className="text-center items-center pb-2">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(245,158,11,0.5)] mb-2 animate-bounce">
+                  🏆
+                </div>
+                <DialogTitle className="font-serif text-2xl text-amber-300">
+                  Boss keep cleared!
+                </DialogTitle>
+                <DialogDescription className="text-xs text-zinc-300 font-sans">
+                  Defeated room boss! Dual treasures harvested from the keep vault.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="grid grid-cols-2 gap-3 my-4">
+                {/* Left Drop: Blueprint or Converted Bounty */}
+                <div className="rounded-xl border border-amber-500/40 bg-zinc-900/90 p-3.5 flex flex-col items-center text-center space-y-2">
+                  <div className="w-12 h-12 rounded-xl bg-amber-950/60 border border-amber-500/50 flex items-center justify-center text-2xl shadow-inner">
+                    {bossDualDrop.isDuplicate ? '👑' : '📜'}
+                  </div>
+                  <div>
+                    <Badge variant="outline" className={`text-[9px] uppercase font-mono font-bold mb-1 ${bossDualDrop.isDuplicate ? 'border-yellow-500 text-yellow-300' : 'border-amber-400 text-amber-300'}`}>
+                      {bossDualDrop.isDuplicate ? 'Duplicate converted' : 'Kingdom blueprint'}
+                    </Badge>
+                    <h4 className="text-xs font-bold text-zinc-100 font-serif line-clamp-1">
+                      {bossDualDrop.isDuplicate ? "Royal Architect's bounty" : bossDualDrop.blueprint.name}
+                    </h4>
+                    <p className="text-[10px] text-zinc-400 font-sans mt-1 leading-snug">
+                      {bossDualDrop.isDuplicate
+                        ? '+150 Gold bonus converted to prevent duplicate blueprint tiles.'
+                        : bossDualDrop.blueprint.desc}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right Drop: Apotheca Reagent */}
+                <div className="rounded-xl border border-cyan-500/40 bg-zinc-900/90 p-3.5 flex flex-col items-center text-center space-y-2">
+                  <div className="w-12 h-12 rounded-xl bg-cyan-950/60 border border-cyan-500/50 flex items-center justify-center text-2xl shadow-inner animate-pulse">
+                    🧪
+                  </div>
+                  <div>
+                    <Badge variant="outline" className="text-[9px] uppercase font-mono font-bold mb-1 border-cyan-400 text-cyan-300">
+                      Apotheca reagent
+                    </Badge>
+                    <h4 className="text-xs font-bold text-zinc-100 font-serif line-clamp-1">
+                      {bossDualDrop.reagent.name}
+                    </h4>
+                    <p className="text-[10px] text-zinc-400 font-sans mt-1 leading-snug">
+                      Rare alchemical essence for Grand Apotheca potion brewing.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                onClick={() => setBossDualDrop(null)}
+                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-serif font-bold text-xs h-10 rounded-xl shadow-lg"
+              >
+                Claim boss treasures ✨
+              </Button>
+            </DialogContent>
+          )}
+        </Dialog>
 
       </div>
     </div>

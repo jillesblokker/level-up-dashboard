@@ -321,9 +321,26 @@ export function PaperdollEquipmentGrid({
                       </div>
 
                       {item && (
-                        <Badge variant="outline" className={`text-[9px] ${getRarityBadge(item.rarity)}`}>
-                          {item.rarity.toUpperCase()}
-                        </Badge>
+                        <div className="flex items-center gap-1.5">
+                          {item.stats.atk && (
+                            <span className="text-[9px] font-mono font-bold text-red-400 bg-red-950/60 border border-red-500/30 px-1.5 py-0.5 rounded">
+                              +{item.stats.atk} ATK ▲
+                            </span>
+                          )}
+                          {item.stats.def && (
+                            <span className="text-[9px] font-mono font-bold text-blue-400 bg-blue-950/60 border border-blue-500/30 px-1.5 py-0.5 rounded">
+                              +{item.stats.def} DEF ▲
+                            </span>
+                          )}
+                          {item.stats.spd && !item.stats.atk && (
+                            <span className="text-[9px] font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-1.5 py-0.5 rounded">
+                              +{item.stats.spd} SPD ▲
+                            </span>
+                          )}
+                          <Badge variant="outline" className={`text-[9px] ${getRarityBadge(item.rarity)}`}>
+                            {item.rarity.toUpperCase()}
+                          </Badge>
+                        </div>
                       )}
                     </div>
                   )
@@ -333,10 +350,10 @@ export function PaperdollEquipmentGrid({
           </div>
         </div>
 
-        {/* Visually Enhanced Item Inspect Dialog */}
+        {/* Visually Enhanced Item Inspect Dialog with RPG Stat Deltas */}
         <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
           {selectedItem && (
-            <DialogContent className="max-w-sm bg-zinc-950 border-2 border-amber-500/40 text-white rounded-2xl p-6 shadow-2xl">
+            <DialogContent className="max-w-sm bg-zinc-950 border-2 border-amber-500/40 text-white rounded-2xl p-6 shadow-2xl font-serif">
               <DialogHeader>
                 <div className="flex items-center gap-4">
                   <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-b from-zinc-900 to-zinc-950 border-2 border-amber-500/40 p-2 shrink-0 shadow-lg flex items-center justify-center">
@@ -355,16 +372,50 @@ export function PaperdollEquipmentGrid({
                     </Badge>
                   </div>
                 </div>
-                <DialogDescription className="text-zinc-300 text-xs mt-3 leading-relaxed">
+                <DialogDescription className="text-zinc-300 text-xs mt-3 leading-relaxed font-sans">
                   {selectedItem.description}
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="my-4 p-3.5 bg-zinc-900/90 rounded-xl border border-zinc-800 space-y-1.5 text-xs">
-                <span className="text-[10px] font-bold text-amber-400 block font-serif">Equipped item combat stat bonus</span>
-                {selectedItem.stats.atk && <p className="text-red-300 font-mono font-bold">⚔️ Attack: +{selectedItem.stats.atk}</p>}
-                {selectedItem.stats.def && <p className="text-blue-300 font-mono font-bold">🛡️ Defense: +{selectedItem.stats.def}</p>}
-                {selectedItem.stats.spd && <p className="text-emerald-300 font-mono font-bold">💨 Speed: +{selectedItem.stats.spd}</p>}
+              <div className="my-4 p-3.5 bg-zinc-900/90 rounded-xl border border-zinc-800 space-y-2 text-xs font-sans">
+                <span className="text-[10px] font-bold text-amber-400 block font-serif uppercase tracking-wider">
+                  Equipped combat stat deltas
+                </span>
+                <div className="flex flex-col gap-1.5">
+                  {selectedItem.stats.atk !== undefined && (
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/80 border border-zinc-800">
+                      <span className="text-zinc-300 flex items-center gap-1.5">⚔️ Attack</span>
+                      <div className="flex items-center gap-2 font-mono">
+                        <span className="text-red-300 font-bold">+{selectedItem.stats.atk}</span>
+                        <Badge className="bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 text-[9px] px-1.5 py-0">
+                          +{selectedItem.stats.atk} ▲
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                  {selectedItem.stats.def !== undefined && (
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/80 border border-zinc-800">
+                      <span className="text-zinc-300 flex items-center gap-1.5">🛡️ Defense</span>
+                      <div className="flex items-center gap-2 font-mono">
+                        <span className="text-blue-300 font-bold">+{selectedItem.stats.def}</span>
+                        <Badge className="bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 text-[9px] px-1.5 py-0">
+                          +{selectedItem.stats.def} ▲
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                  {selectedItem.stats.spd !== undefined && (
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/80 border border-zinc-800">
+                      <span className="text-zinc-300 flex items-center gap-1.5">💨 Speed</span>
+                      <div className="flex items-center gap-2 font-mono">
+                        <span className="text-emerald-300 font-bold">+{selectedItem.stats.spd}</span>
+                        <Badge className="bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 text-[9px] px-1.5 py-0">
+                          +{selectedItem.stats.spd} ▲
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <DialogFooter className="pt-2 border-t border-zinc-900 flex flex-col gap-2">
