@@ -26,6 +26,16 @@ interface State {
   retryCount: number;
 }
 
+function isChunkLoadError(error: Error | null): boolean {
+  if (!error) return false;
+  return (
+    error.name === "ChunkLoadError" ||
+    error.message?.includes("Loading chunk") ||
+    error.message?.includes("Failed to fetch dynamically imported module") ||
+    error.message?.includes("Importing a module script failed")
+  );
+}
+
 export class MedievalErrorBoundary extends Component<Props, State> {
   private maxRetries = 3;
 
@@ -51,6 +61,20 @@ export class MedievalErrorBoundary extends Component<Props, State> {
       error,
       errorInfo,
     });
+
+    // Check for chunk mismatch errors from new deployments
+    if (isChunkLoadError(error)) {
+      const reloadKey = "chunk_error_reload";
+      const lastReload = typeof window !== 'undefined' ? sessionStorage.getItem(reloadKey) : null;
+      const now = Date.now();
+      if (!lastReload || now - Number(lastReload) > 10_000) {
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(reloadKey, String(now));
+          window.location.reload();
+          return;
+        }
+      }
+    }
 
     // Log error to console in development
     if (process.env.NODE_ENV === 'development') {
@@ -97,6 +121,28 @@ export class MedievalErrorBoundary extends Component<Props, State> {
 
   override render() {
     if (this.state.hasError) {
+      if (isChunkLoadError(this.state.error)) {
+        return (
+          <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
+            <div className="max-w-md w-full bg-[#18110b] border-2 border-amber-600/40 rounded-2xl p-8 text-center space-y-3 shadow-2xl">
+              <div className="mx-auto w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 animate-spin">
+                <RefreshCw className="w-6 h-6" />
+              </div>
+              <h2 className="text-xl font-serif font-bold text-amber-200">Updating kingdom realm...</h2>
+              <p className="text-xs text-amber-300/80 font-sans leading-relaxed">
+                A new version of Thrivehaven has arrived. Refreshing your chronicles…
+              </p>
+              <Button
+                onClick={() => window.location.reload()}
+                className="btn-primary-cta text-xs px-5 py-2 mt-2"
+              >
+                Reload now
+              </Button>
+            </div>
+          </div>
+        );
+      }
+
       // Use custom fallback if provided
       if (this.props.fallback) {
         return this.props.fallback;

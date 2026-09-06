@@ -112,9 +112,13 @@ export async function addToInventory(userId: string, partialItem: Partial<Invent
     }
 
     if (!response.ok) {
+      if (response.status >= 500) {
+        logger.warn(`[Inventory Manager] Server temporarily unavailable (${response.status}) while syncing ${item.name}. Preserved in local cache.`);
+        return;
+      }
       const errorText = await response.text();
       logger.error(`[Inventory Manager] Failed to save ${item.name} to database: ${response.status}`, errorText);
-      throw new Error(`Failed to add inventory item: ${response.status}`);
+      return;
     }
 
     logger.debug('[Inventory Manager] Successfully saved to database:', item.id);
@@ -122,7 +126,7 @@ export async function addToInventory(userId: string, partialItem: Partial<Invent
       window.dispatchEvent(new Event('character-inventory-update'));
     }
   } catch (error) {
-    logger.error('[Inventory Manager] Error adding to inventory:', error);
+    logger.warn('[Inventory Manager] Error syncing inventory item to database:', error);
   }
 }
 

@@ -42,10 +42,11 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
   const fetchServerNotifications = async () => {
     try {
       const res = await fetch('/api/notifications');
+      if (!res.ok) return;
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) return;
       const data = await res.json();
-      if (res.ok) {
-        setServerNotifications(data.notifications || []);
-      }
+      setServerNotifications(data.notifications || []);
     } catch (error) {
       logger.error("Error fetching notifications:", error);
     } finally {

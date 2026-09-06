@@ -488,8 +488,15 @@ export function KingdomClient() {
   useEffect(() => {
     if (activeTab === 'journey' || kingdomTab === 'journey') {
       fetch('/api/kingdom/journey-stats')
-        .then(res => res.json())
-        .then(data => setJourneyStats(data))
+        .then(res => {
+          if (!res.ok) return null;
+          const ct = res.headers.get('content-type');
+          if (!ct || !ct.includes('application/json')) return null;
+          return res.json();
+        })
+        .then(data => {
+          if (data) setJourneyStats(data);
+        })
         .catch(err => logger.error('Failed to load journey stats', err));
     }
   }, [activeTab, kingdomTab]);
