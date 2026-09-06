@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Clock, Castle, Compass, Flame, Sparkles, CheckCircle2, ChevronRight, Zap } from "lucide-react";
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface ActiveTimerItem {
   id: string;
@@ -97,58 +98,82 @@ export function ActiveTimersLedger() {
   };
 
   return (
-    <Card className="bg-gradient-to-br from-zinc-950 via-amber-950/20 to-zinc-950 border-amber-900/40 shadow-lg">
-      <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
+    <Card className="bg-gradient-to-b from-[#18110b] via-[#0f0b07] to-[#0a0705] border-2 border-amber-600/40 rounded-2xl shadow-2xl overflow-hidden relative">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-600/10 via-transparent to-transparent pointer-events-none" />
+
+      <CardHeader className="p-4 sm:p-5 pb-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
         <div>
-          <CardTitle className="text-lg font-serif font-bold text-amber-300 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-amber-400" /> Active Timers & Production Ledger
+          <CardTitle className="text-base sm:text-lg font-serif font-bold text-amber-300 flex items-center gap-2">
+            <Clock className="w-5 h-5 text-amber-400 shrink-0" />
+            <span>Active timers & production ledger</span>
           </CardTitle>
-          <CardDescription className="text-zinc-400 text-xs">
-            Monitor all active property timers, airship voyages, and production ledgers
+          <CardDescription className="text-amber-200/60 text-xs font-sans mt-0.5">
+            Monitor active property timers, airship voyages, and kingdom yields
           </CardDescription>
         </div>
-        <Link href="/kingdom">
-          <Button size="sm" variant="outline" className="text-xs border-amber-500/30 text-amber-300 hover:bg-amber-500/10 gap-1">
-            <span>Manage Kingdom</span>
+        <Link href="/kingdom" className="w-full sm:w-auto">
+          <Button size="sm" variant="outline" className="w-full sm:w-auto text-xs border-amber-500/40 text-amber-200 bg-amber-950/40 hover:bg-amber-900/60 rounded-xl gap-1 shadow-md">
+            <span>Manage kingdom</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </Button>
         </Link>
       </CardHeader>
 
-      <CardContent className="p-4 pt-2">
+      <CardContent className="p-4 sm:p-5 pt-2 relative z-10">
         {loading ? (
-          <div className="py-4 text-center text-xs text-zinc-500 animate-pulse">Loading active timers...</div>
+          <div className="py-6 text-center text-xs text-amber-500/60 font-serif animate-pulse">Reading kingdom sundials...</div>
         ) : activeTimers.length === 0 ? (
-          <div className="py-5 text-center bg-zinc-900/40 rounded-xl border border-zinc-800/80 space-y-1">
-            <CheckCircle2 className="w-6 h-6 text-emerald-400 mx-auto opacity-80" />
-            <div className="text-sm font-semibold text-zinc-300">All Timers Ready or Inactive</div>
-            <div className="text-xs text-zinc-500">Construct new properties in `/kingdom` to begin passive production.</div>
+          <div className="py-6 px-4 text-center bg-[#130e09]/90 rounded-2xl border border-amber-900/40 shadow-inner space-y-3">
+            <div className="flex items-center justify-center">
+              <div className="relative w-14 h-14 rounded-2xl border-2 border-blue-500/40 bg-zinc-950/90 shadow-xl overflow-hidden shrink-0">
+                <Image
+                  src="/images/creatures/Divero.webp"
+                  alt="Divero"
+                  fill
+                  className="object-contain p-1"
+                  unoptimized
+                />
+              </div>
+            </div>
+            <div className="space-y-1 max-w-sm mx-auto">
+              <div className="text-sm font-serif font-bold text-amber-200">All timers ready or inactive</div>
+              <p className="text-xs text-amber-300/80 leading-relaxed font-sans">
+                Divero inspects the harbor slips: &quot;All airships are moored and workshops quiet. Construct new tiles or dispatch an airship crew to begin production!&quot;
+              </p>
+            </div>
+            <div className="pt-1">
+              <Link href="/kingdom" className="inline-block">
+                <Button className="btn-primary-cta text-xs px-5 py-2 h-auto shadow-md font-serif font-bold flex items-center gap-1.5">
+                  <span>🏰</span> Construct kingdom tiles
+                </Button>
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="space-y-2.5">
             {activeTimers.slice(0, 4).map(timer => {
               const isReady = Date.now() >= timer.endTime;
               return (
-                <div key={timer.id} className="flex items-center justify-between p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80 hover:border-amber-500/30 transition-all text-xs">
+                <div key={timer.id} className="flex items-center justify-between p-3 rounded-xl bg-[#1b140e]/90 border border-amber-800/40 hover:border-amber-500/50 transition-all shadow-md text-xs">
                   <div className="flex items-center gap-3">
                     <span className="text-lg">{timer.icon}</span>
                     <div>
-                      <div className="font-semibold text-zinc-200 flex items-center gap-2">
+                      <div className="font-serif font-bold text-amber-200 flex items-center gap-2">
                         {timer.name}
-                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-zinc-700 text-zinc-400 uppercase">
+                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-amber-700/50 text-amber-300/80 bg-amber-950/40 font-mono">
                           {timer.category}
                         </Badge>
                       </div>
-                      <div className="text-[10px] text-zinc-500">{timer.location}</div>
+                      <div className="text-[10px] text-amber-400/60 font-sans">{timer.location}</div>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <span className={isReady ? "text-emerald-400 font-bold animate-pulse" : "text-amber-400 font-mono"}>
-                      {formatRemaining(timer.endTime)}
+                    <span className={isReady ? "text-emerald-400 font-serif font-bold animate-pulse" : "text-amber-300 font-mono font-bold"}>
+                      {isReady ? '✨ Ready!' : formatRemaining(timer.endTime)}
                     </span>
-                    <Link href={timer.linkHref} className="block text-[10px] text-zinc-400 hover:text-amber-300 underline">
-                      View
+                    <Link href={timer.linkHref} className="block text-[10px] text-amber-400/70 hover:text-amber-200 underline font-serif">
+                      Inspect ↗
                     </Link>
                   </div>
                 </div>

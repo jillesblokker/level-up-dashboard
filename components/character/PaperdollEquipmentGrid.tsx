@@ -150,40 +150,56 @@ export function PaperdollEquipmentGrid({
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-xl sm:text-2xl font-serif font-bold text-amber-300">{heroName}</h2>
-                <Badge variant="outline" className="text-[10px] border-emerald-500/50 text-emerald-300 bg-emerald-950/50 font-mono font-bold">
-                  ⚡ Gear Score: {(gearScore + 1000).toLocaleString()} (Sovereign Knight)
+                <Badge variant="outline" className="text-[10px] border-amber-600/50 text-amber-200 bg-amber-950/60 font-serif font-semibold shadow-inner px-2.5 py-0.5 rounded-lg">
+                  🛡️ Gear score: {(gearScore + 1000).toLocaleString()} (sovereign knight)
                 </Badge>
               </div>
-              <p className="text-xs text-zinc-300 mt-1 leading-snug">{heroDescription}</p>
+              <p className="text-xs text-amber-200/70 mt-1 leading-snug font-sans">{heroDescription}</p>
             </div>
           </div>
 
-          {/* Hero Attribute Radar Chart & Title Progress */}
+          {/* Hero Attribute Astrolabe & Title Ascension Scroll */}
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto shrink-0">
-            <div className="flex items-center gap-3 bg-zinc-950/80 p-2.5 px-3.5 rounded-xl border border-amber-500/30 text-xs shadow-md">
-              <svg className="w-14 h-14 shrink-0" viewBox="0 0 100 100">
-                <polygon points="50,10 90,40 75,90 25,90 10,40" fill="none" stroke="#52525b" strokeWidth="1.5" opacity="0.5" />
-                <polygon points="50,25 78,46 68,80 32,80 22,46" fill="none" stroke="#3f3f46" strokeWidth="1" opacity="0.4" />
-                <polygon points="50,18 82,44 68,83 32,83 18,44" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2" />
-                <circle cx="50" cy="18" r="3" fill="#fbbf24" />
-                <circle cx="82" cy="44" r="3" fill="#60a5fa" />
-                <circle cx="68" cy="83" r="3" fill="#34d399" />
-                <circle cx="32" cy="83" r="3" fill="#a78bfa" />
-                <circle cx="18" cy="44" r="3" fill="#f43f5e" />
+            {/* Alchemical Stone Astrolabe */}
+            <div className="flex items-center gap-3 bg-gradient-to-b from-[#1c1611] to-[#0d0a07] p-2.5 px-3.5 rounded-2xl border border-amber-600/40 text-xs shadow-xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-radial from-amber-500/10 via-transparent to-transparent pointer-events-none" />
+              <svg className="w-14 h-14 shrink-0 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" viewBox="0 0 100 100">
+                {/* Outer Astrolabe Rune Ring */}
+                <circle cx="50" cy="50" r="42" fill="none" stroke="#78350f" strokeWidth="1" strokeDasharray="2 3" opacity="0.6" />
+                <circle cx="50" cy="50" r="34" fill="none" stroke="#92400e" strokeWidth="0.8" opacity="0.4" />
+                {/* Background Concentric Polygon Web */}
+                <polygon points="50,12 88,40 73,88 27,88 12,40" fill="none" stroke="#451a03" strokeWidth="1" opacity="0.6" />
+                <polygon points="50,26 76,46 66,78 34,78 24,46" fill="none" stroke="#78350f" strokeWidth="0.8" opacity="0.5" />
+                {/* Active Attribute Constellation */}
+                <polygon points="50,20 80,44 67,82 33,82 20,44" fill="rgba(245, 158, 11, 0.25)" stroke="#f59e0b" strokeWidth="1.8" />
+                {/* Glowing Astrolabe Gem Nodes */}
+                <circle cx="50" cy="20" r="3.5" fill="#ef4444" stroke="#fca5a5" strokeWidth="1" />
+                <circle cx="80" cy="44" r="3.5" fill="#3b82f6" stroke="#93c5fd" strokeWidth="1" />
+                <circle cx="67" cy="82" r="3.5" fill="#10b981" stroke="#6ee7b7" strokeWidth="1" />
+                <circle cx="33" cy="82" r="3" fill="#a855f7" stroke="#d8b4fe" strokeWidth="0.8" />
+                <circle cx="20" cy="44" r="3" fill="#f59e0b" stroke="#fde68a" strokeWidth="0.8" />
               </svg>
-              <div className="space-y-0.5 text-[10px] font-mono leading-tight">
-                <div className="text-amber-300 font-bold flex justify-between gap-3"><span>⚔️ Might</span><span>{totalAtk + 35}</span></div>
-                <div className="text-blue-300 font-bold flex justify-between gap-3"><span>🛡️ Defense</span><span>{totalDef + 25}</span></div>
-                <div className="text-emerald-300 font-bold flex justify-between gap-3"><span>⚡ Speed</span><span>{totalSpd + 30}</span></div>
+              <div className="space-y-1 text-[10px] font-serif leading-tight">
+                <div className="text-amber-200 font-bold flex justify-between gap-3"><span>⚔️ Might</span><span className="font-mono text-amber-300">{totalAtk + 35}</span></div>
+                <div className="text-blue-200 font-bold flex justify-between gap-3"><span>🛡️ Defense</span><span className="font-mono text-blue-300">{totalDef + 25}</span></div>
+                <div className="text-emerald-200 font-bold flex justify-between gap-3"><span>⚡ Speed</span><span className="font-mono text-emerald-300">{totalSpd + 30}</span></div>
               </div>
             </div>
 
-            <div className="w-full md:w-56 space-y-1.5 shrink-0 bg-zinc-950/70 p-3 rounded-xl border border-zinc-800">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-zinc-400 font-bold">Next: {nextTitle}</span>
-                <span className="text-amber-400 font-mono font-bold">{titleProgress}%</span>
+            {/* Embossed Golden Title Ascension Scroll */}
+            <div className="w-full md:w-56 space-y-1.5 shrink-0 bg-gradient-to-b from-[#1c1611] to-[#0d0a07] p-3 rounded-2xl border border-amber-600/40 shadow-xl relative overflow-hidden">
+              <div className="flex justify-between items-center text-xs font-serif">
+                <span className="text-amber-200/90 font-bold flex items-center gap-1">
+                  <span>📜</span> Ascension: {nextTitle}
+                </span>
+                <span className="text-amber-400 font-mono font-bold text-[11px]">{titleProgress}%</span>
               </div>
-              <Progress value={titleProgress} className="h-2 bg-zinc-800" />
+              <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-black/60 p-0.5 border border-amber-900/50 shadow-inner">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-300 shadow-[0_0_10px_rgba(245,158,11,0.6)] transition-all duration-500"
+                  style={{ width: `${Math.min(100, Math.max(0, titleProgress))}%` }}
+                />
+              </div>
             </div>
           </div>
         </div>

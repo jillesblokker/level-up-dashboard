@@ -1,14 +1,15 @@
 "use client"
 
 import { logger } from "@/lib/logger";
-
 import { useState, useEffect, useMemo } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowUp, ArrowDown, Coins, TrendingUp, ScrollText, Filter, Ban } from 'lucide-react'
-import { KINGDOM_TILES } from '@/lib/kingdom-tiles'
+import { ArrowUp, ArrowDown, Coins, TrendingUp, ScrollText, Filter, Sparkles } from 'lucide-react'
+import { TreasureChestVisual } from '@/components/ui/treasure-chest-visual'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { format } from 'date-fns'
 import { formatGold } from '@/lib/utils'
 
@@ -20,14 +21,14 @@ interface EconomyTransaction {
   description: string
 }
 
-
-
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-zinc-950 border border-amber-900/50 p-3 rounded-lg shadow-xl">
-        <p className="text-amber-200 font-serif mb-1">{label}</p>
-        <p className="text-sm font-mono text-white">
+      <div className="bg-[#18110b] border border-amber-500/50 p-3 rounded-xl shadow-2xl font-serif text-amber-100">
+        <p className="text-amber-300 font-bold mb-1 text-xs flex items-center gap-1.5">
+          <span>📜</span> {label}
+        </p>
+        <p className="text-sm font-mono font-bold text-amber-200">
           {payload[0].value.toLocaleString()} Gold
         </p>
       </div>
@@ -44,7 +45,6 @@ export function EconomyTransparency() {
     netFlow: 0
   })
   const [allTransactions, setAllTransactions] = useState<EconomyTransaction[]>([])
-
   const [isLoading, setIsLoading] = useState(true)
   const [filterType, setFilterType] = useState('all') // 'all', 'earned', 'spent'
   const [mounted, setMounted] = useState(false)
@@ -57,7 +57,6 @@ export function EconomyTransparency() {
     const loadEconomyData = async () => {
       setIsLoading(true)
       try {
-        // Fetch real data
         const [statsRes, transRes] = await Promise.all([
           fetch('/api/character-stats'),
           fetch('/api/gold-transactions?limit=50')
@@ -68,8 +67,6 @@ export function EconomyTransparency() {
           const transData = await transRes.json()
           const transactions = transData.data || []
 
-          // Calculate totals from history (this might be partial if limit=50, 
-          // but serves the visual purpose for "Recent Flow")
           const earned = transactions.filter((t: any) => t.transaction_type === 'gain').reduce((sum: number, t: any) => sum + t.amount, 0)
           const spent = transactions.filter((t: any) => t.transaction_type === 'spend').reduce((sum: number, t: any) => sum + t.amount, 0)
 
@@ -88,9 +85,6 @@ export function EconomyTransparency() {
             description: t.description || (t.transaction_type === 'gain' ? 'Income' : 'Expense')
           })))
         }
-
-
-
       } catch (error) {
         logger.error('[Ledger] Error loading economy data:', error)
       } finally {
@@ -100,7 +94,6 @@ export function EconomyTransparency() {
 
     loadEconomyData()
 
-    // Listen for updates from other components
     const handleStatsUpdate = () => loadEconomyData()
     window.addEventListener('character-stats-update', handleStatsUpdate)
 
@@ -108,8 +101,6 @@ export function EconomyTransparency() {
       window.removeEventListener('character-stats-update', handleStatsUpdate)
     }
   }, [])
-
-
 
   // Filter Transactions
   const filteredData = useMemo(() => {
@@ -121,7 +112,6 @@ export function EconomyTransparency() {
   const chartData = useMemo(() => {
     const groups: Record<string, { date: string, value: number }> = {}
 
-    // Process in chronological order
     const sorted = [...filteredData].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
 
     sorted.forEach(t => {
@@ -137,110 +127,125 @@ export function EconomyTransparency() {
 
   return (
     <div className="space-y-6">
-      {/* Main Economy Overview */}
-      <Card className="border-amber-800/20 bg-gradient-to-br from-zinc-950 to-zinc-900 shadow-xl">
-        <CardHeader className="border-b border-amber-900/10 pb-4">
+      {/* Main Economy Vault Overview */}
+      <Card className="border-2 border-amber-600/40 bg-gradient-to-b from-[#1c130b] via-[#120c07] to-[#0a0704] text-amber-100 rounded-2xl shadow-[0_15px_50px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(251,191,36,0.3)] relative overflow-hidden font-serif">
+        {/* Gold Top Highlight Line & Ambient Vault Glow */}
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-80" />
+        <div className="absolute -top-12 -left-12 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
+
+        <CardHeader className="border-b border-amber-900/30 pb-4 relative z-10">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <CardTitle className="flex items-center gap-3 text-amber-200 font-serif text-2xl">
-                <ScrollText className="h-6 w-6 text-amber-500" />
-                Royal Treasury Ledger
+              <CardTitle className="flex items-center gap-3 text-amber-200 font-serif text-xl sm:text-2xl font-bold tracking-tight">
+                <ScrollText className="h-6 w-6 text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                Royal treasury ledger
               </CardTitle>
-              <CardDescription className="text-zinc-400 mt-1">
-                A record of the realm&apos;s wealth and expenditures
+              <CardDescription className="text-amber-200/60 mt-1 text-xs font-sans">
+                A record of the realm&apos;s wealth, district tithes, and expenditures
               </CardDescription>
             </div>
 
-            <div className="w-full md:w-[180px]">
+            <div className="w-full md:w-[190px]">
               <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="border-amber-900/30 bg-zinc-950 text-amber-100">
-                  <SelectValue placeholder="Filter View" />
+                <SelectTrigger className="border-amber-500/40 bg-black/50 text-amber-200 rounded-xl font-serif text-xs">
+                  <SelectValue placeholder="Filter view" />
                 </SelectTrigger>
-                <SelectContent className="bg-zinc-950 border-amber-900/50 text-amber-100">
-                  <SelectItem value="all">All Transactions</SelectItem>
-                  <SelectItem value="earned">Income Only</SelectItem>
-                  <SelectItem value="spent">Expenses Only</SelectItem>
+                <SelectContent className="bg-[#140e08] border-amber-500/40 text-amber-100 font-serif">
+                  <SelectItem value="all">All records</SelectItem>
+                  <SelectItem value="earned">Tithes &amp; income</SelectItem>
+                  <SelectItem value="spent">Expenditures</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-8 pt-6">
-          {/* Current Balance */}
+
+        <CardContent className="space-y-6 pt-6 relative z-10">
+          {/* Current Balance / Ledger Metric Plaques */}
           <div className="grid gap-4 md:grid-cols-3">
-            <Card className="border-amber-900/30 bg-zinc-950 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-amber-500/5 group-hover:bg-amber-500/10 transition-colors" />
-              <CardContent className="p-5 relative">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-amber-500/10 rounded-lg">
-                    <Coins className="h-5 w-5 text-amber-400" />
-                  </div>
-                  <h3 className="font-medium text-zinc-300">Current Treasury</h3>
+            {/* Vault Reserve */}
+            <div className="border border-amber-500/40 bg-gradient-to-br from-amber-950/70 via-[#140e08] to-zinc-950 p-4 rounded-xl shadow-lg relative overflow-hidden group">
+              <div className="absolute top-0 right-0 px-2.5 py-0.5 bg-amber-500/20 border-b border-l border-amber-500/30 text-amber-300 text-[9px] font-mono font-bold rounded-bl-lg">
+                Vault
+              </div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 shadow-md">
+                  <Coins className="h-5 w-5" />
                 </div>
-                <div className="text-3xl font-bold text-amber-200 font-serif tracking-tight" title={`${stats.gold.toLocaleString()} Gold`}>
-                  {formatGold(stats.gold)} <span className="text-sm font-sans font-normal text-amber-500/70">Gold</span>
-                </div>
-              </CardContent>
-            </Card>
+                <h3 className="text-xs font-bold text-amber-200/80 font-serif">Royal treasury vault</h3>
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold text-amber-200 font-serif tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" title={`${stats.gold.toLocaleString()} Gold`}>
+                {formatGold(stats.gold)} <span className="text-xs font-serif font-normal text-amber-400/70">Gold</span>
+              </div>
+            </div>
 
-            <Card className="border-green-900/30 bg-zinc-950 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-green-500/5 group-hover:bg-green-500/10 transition-colors" />
-              <CardContent className="p-5 relative">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-green-500/10 rounded-lg">
-                    <ArrowUp className="h-5 w-5 text-green-400" />
-                  </div>
-                  <h3 className="font-medium text-zinc-300">Recent Income</h3>
+            {/* Tithe Inflow */}
+            <div className="border border-emerald-500/40 bg-gradient-to-br from-emerald-950/50 via-[#0a150e] to-zinc-950 p-4 rounded-xl shadow-lg relative overflow-hidden group">
+              <div className="absolute top-0 right-0 px-2.5 py-0.5 bg-emerald-500/20 border-b border-l border-emerald-500/30 text-emerald-300 text-[9px] font-mono font-bold rounded-bl-lg">
+                Inflow
+              </div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300 shadow-md">
+                  <ArrowUp className="h-5 w-5" />
                 </div>
-                <div className="text-3xl font-bold text-green-200 font-serif tracking-tight">
-                  +{stats.totalEarned.toLocaleString()} <span className="text-sm font-sans font-normal text-green-500/70">Gold</span>
-                </div>
-              </CardContent>
-            </Card>
+                <h3 className="text-xs font-bold text-emerald-200/80 font-serif">Tithe inflow</h3>
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold text-emerald-300 font-serif tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                +{stats.totalEarned.toLocaleString()} <span className="text-xs font-serif font-normal text-emerald-400/70">Gold</span>
+              </div>
+            </div>
 
-            <Card className="border-red-900/30 bg-zinc-950 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-red-500/5 group-hover:bg-red-500/10 transition-colors" />
-              <CardContent className="p-5 relative">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-red-500/10 rounded-lg">
-                    <ArrowDown className="h-5 w-5 text-red-400" />
-                  </div>
-                  <h3 className="font-medium text-zinc-300">Recent Expenses</h3>
+            {/* Realm Expenditures */}
+            <div className="border border-red-500/40 bg-gradient-to-br from-red-950/50 via-[#180a0a] to-zinc-950 p-4 rounded-xl shadow-lg relative overflow-hidden group">
+              <div className="absolute top-0 right-0 px-2.5 py-0.5 bg-red-500/20 border-b border-l border-red-500/30 text-red-300 text-[9px] font-mono font-bold rounded-bl-lg">
+                Outflow
+              </div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-9 h-9 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-300 shadow-md">
+                  <ArrowDown className="h-5 w-5" />
                 </div>
-                <div className="text-3xl font-bold text-red-200 font-serif tracking-tight">
-                  -{stats.totalSpent.toLocaleString()} <span className="text-sm font-sans font-normal text-red-500/70">Gold</span>
-                </div>
-              </CardContent>
-            </Card>
+                <h3 className="text-xs font-bold text-red-200/80 font-serif">Realm expenditures</h3>
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold text-red-300 font-serif tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                -{stats.totalSpent.toLocaleString()} <span className="text-xs font-serif font-normal text-red-400/70">Gold</span>
+              </div>
+            </div>
           </div>
 
-          {/* Analysis Graph */}
-          <div className="bg-zinc-950 rounded-xl p-4 border border-zinc-800/50">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-500 mb-4 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              {filterType === 'all' ? 'Transaction Volume' : filterType === 'earned' ? 'Income Velocity' : 'Expense Volume'}
-            </h3>
-            <div className="h-[200px] w-full min-h-[200px]">
+          {/* Analysis Graph / Empty State */}
+          <div className="bg-[#0e0a07]/90 rounded-2xl p-4 sm:p-5 border border-amber-900/40 shadow-inner">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-amber-400/90 flex items-center gap-2 font-serif">
+                <TrendingUp className="h-4 w-4 text-amber-500" />
+                {filterType === 'all' ? 'Treasury flow ledger' : filterType === 'earned' ? 'Tithe velocity' : 'Expenditure volume'}
+              </h3>
+              <span className="text-[10px] text-amber-500/60 font-mono font-bold">Archive: recent records</span>
+            </div>
+
+            <div className="min-h-[220px] w-full flex items-center justify-center">
               {chartData.length > 0 && mounted ? (
-                <ResponsiveContainer width="99%" height={200} className="min-h-[200px]" debounce={200}>
+                <ResponsiveContainer width="99%" height={220} className="min-h-[220px]" debounce={200}>
                   <AreaChart data={chartData}>
                     <defs>
                       <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={filterType === 'earned' ? '#4ade80' : filterType === 'spent' ? '#f87171' : '#fbbf24'} stopOpacity={0.3} />
-                        <stop offset="95%" stopColor={filterType === 'earned' ? '#4ade80' : filterType === 'spent' ? '#f87171' : '#fbbf24'} stopOpacity={0} />
+                        <stop offset="5%" stopColor={filterType === 'earned' ? '#10b981' : filterType === 'spent' ? '#f43f5e' : '#f59e0b'} stopOpacity={0.4} />
+                        <stop offset="95%" stopColor={filterType === 'earned' ? '#10b981' : filterType === 'spent' ? '#f43f5e' : '#f59e0b'} stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#78350f" strokeOpacity={0.25} vertical={false} />
                     <XAxis
                       dataKey="date"
-                      stroke="#71717a"
-                      fontSize={12}
+                      stroke="#d97706"
+                      strokeOpacity={0.6}
+                      fontSize={11}
                       tickLine={false}
-                      axisLine={false}
+                      axisLine={{ stroke: '#78350f', strokeOpacity: 0.4 }}
                     />
                     <YAxis
-                      stroke="#71717a"
-                      fontSize={12}
+                      stroke="#d97706"
+                      strokeOpacity={0.6}
+                      fontSize={11}
                       tickLine={false}
                       axisLine={false}
                       tickFormatter={(value) => `${value}`}
@@ -249,23 +254,68 @@ export function EconomyTransparency() {
                     <Area
                       type="monotone"
                       dataKey="value"
-                      stroke={filterType === 'earned' ? '#4ade80' : filterType === 'spent' ? '#f87171' : '#fbbf24'}
+                      stroke={filterType === 'earned' ? '#10b981' : filterType === 'spent' ? '#f43f5e' : '#f59e0b'}
+                      strokeWidth={2}
                       fillOpacity={1}
                       fill="url(#colorValue)"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center text-zinc-600">
-                  <Ban className="h-8 w-8 mb-2 opacity-50" />
-                  <p className="text-sm">No data available for this view</p>
+                /* Rich Medieval Empty State with Rockie & Treasure Chest Visual */
+                <div className="w-full py-6 px-4 flex flex-col items-center justify-center text-center space-y-4 animate-in fade-in duration-300">
+                  <div className="flex items-center justify-center gap-4 relative">
+                    {/* Rockie Avatar Frame */}
+                    <div className="relative w-16 h-16 rounded-2xl border-2 border-amber-500/40 bg-zinc-900/90 shadow-xl overflow-hidden shrink-0 animate-bounce" style={{ animationDuration: '4s' }}>
+                      <Image
+                        src="/images/creatures/Rockie.webp"
+                        alt="Rockie"
+                        fill
+                        className="object-contain p-1"
+                        unoptimized
+                      />
+                    </div>
+
+                    {/* Locked Empty Chest Visual */}
+                    <div className="w-24 shrink-0">
+                      <TreasureChestVisual
+                        state="locked"
+                        tierLabel="Iron Chest"
+                        className="p-3 border-amber-600/30 bg-black/40 scale-90 shadow-lg"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="max-w-md space-y-1.5">
+                    <h4 className="text-base font-serif font-bold text-amber-200">The royal vault sits quiet</h4>
+                    <p className="text-xs text-amber-300/80 leading-relaxed font-sans">
+                      Rockie peeks into the iron chest: &quot;Not a single coin clinking in here yet! Complete your daily habits or collect district taxes to fill the treasury.&quot;
+                    </p>
+                  </div>
+
+                  {/* Actionable CTAs to Fill the Vault */}
+                  <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 w-full sm:w-auto">
+                    <Link href="/quests" className="w-full sm:w-auto">
+                      <Button className="btn-primary-cta w-full sm:w-auto text-xs px-5 py-2.5 h-auto shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
+                        <span>⚔️</span> Embark on quests
+                      </Button>
+                    </Link>
+                    <Button
+                      onClick={() => {
+                        if (typeof window !== 'undefined') {
+                          window.dispatchEvent(new Event('collect-all-kingdom-taxes'));
+                        }
+                      }}
+                      variant="outline"
+                      className="w-full sm:w-auto text-xs px-5 py-2.5 h-auto border-amber-500/50 bg-amber-950/40 hover:bg-amber-900/60 text-amber-200 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md"
+                    >
+                      <span>🏰</span> Collect district taxes
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
           </div>
-
-
-
         </CardContent>
       </Card>
     </div>

@@ -69,34 +69,50 @@ interface EmptyStateProps {
 function EmptyState({ title, description, href, buttonText }: EmptyStateProps) {
   return (
     <section
-      className="relative h-64 w-full flex flex-col items-center justify-center text-center rounded-lg overflow-hidden"
+      className="relative min-h-[260px] w-full flex flex-col items-center justify-center text-center rounded-2xl overflow-hidden border-2 border-amber-600/40 bg-gradient-to-b from-[#18110b] via-[#0f0b07] to-[#0a0705] p-6 shadow-2xl space-y-4 animate-in fade-in duration-300"
       aria-label="kingdom-stats-empty-state-section"
     >
-      <Image
-        src="/images/headers/quests-header.webp"
-        alt="Empty stats placeholder"
-        className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none"
-        width={400}
-        height={300}
-        aria-hidden="true"
-      />
-      <div className="absolute inset-0 bg-zinc-950" aria-hidden="true" />
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full space-y-3 px-6">
-        <div className="text-amber-500 text-xl font-bold drop-shadow-md" aria-label="kingdom-stats-empty-title">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-600/10 via-transparent to-transparent pointer-events-none" />
+
+      {/* Living Creatures: Leaf & Turtoisy studying the maps */}
+      <div className="flex items-center justify-center gap-3 relative z-10">
+        <div className="relative w-14 h-14 rounded-2xl border-2 border-emerald-500/40 bg-zinc-950/90 shadow-xl overflow-hidden shrink-0">
+          <Image
+            src="/images/creatures/Leaf.webp"
+            alt="Leaf"
+            fill
+            className="object-contain p-1"
+            unoptimized
+          />
+        </div>
+        <div className="relative w-14 h-14 rounded-2xl border-2 border-amber-500/40 bg-zinc-950/90 shadow-xl overflow-hidden shrink-0">
+          <Image
+            src="/images/creatures/Turtoisy.webp"
+            alt="Turtoisy"
+            fill
+            className="object-contain p-1"
+            unoptimized
+          />
+        </div>
+      </div>
+
+      <div className="relative z-10 max-w-md space-y-1 px-2">
+        <h3 className="text-base font-serif font-bold text-amber-200" aria-label="kingdom-stats-empty-title">
           {title}
-        </div>
-        <div className="text-zinc-100 text-base" aria-label="kingdom-stats-empty-desc">
-          {description}
-        </div>
-        <Link href={href} passHref legacyBehavior>
-          <a
-            className="mt-2 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-700 to-amber-500 text-white font-bold text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-all"
+        </h3>
+        <p className="text-xs text-amber-300/80 leading-relaxed font-sans" aria-label="kingdom-stats-empty-desc">
+          Leaf and Turtoisy unroll the kingdom ledger: &quot;{description}&quot;
+        </p>
+      </div>
+
+      <div className="relative z-10 pt-1 w-full sm:w-auto">
+        <Link href={href} className="inline-block w-full sm:w-auto">
+          <Button
+            className="btn-primary-cta w-full sm:w-auto text-xs px-6 py-2.5 h-auto shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 font-serif font-bold"
             aria-label={buttonText}
-            tabIndex={0}
-            role="button"
           >
-            {buttonText}
-          </a>
+            <span>⚔️</span> {buttonText}
+          </Button>
         </Link>
       </div>
     </section>
@@ -873,11 +889,11 @@ export function KingdomStatsBlock({ userId }: { userId: string | null }) {
             <div className="h-64 flex items-center justify-center text-zinc-400">Loading...</div>
           ) : !hasData ? (
             activeTab === 'quests' ? (
-              <EmptyState title="No quests yet" description="Start habit building now to see your kingdom flourish!" href="/quests?tab=quests" buttonText="Embark on Your First Quest" />
+              <EmptyState title="No quests completed yet" description="Start daily habit building now to record your kingdom's glorious ascent!" href="/quests?tab=quests" buttonText="Embark on quests" />
             ) : activeTab === 'challenges' ? (
-              <EmptyState title="No challenges yet" description="Start a challenge to see your kingdom grow!" href="/quests?tab=challenges" buttonText="Start Your First Challenge" />
+              <EmptyState title="No challenges completed yet" description="Take on weekly challenges to earn royal honor and rare essences!" href="/quests?tab=challenges" buttonText="Embark on challenges" />
             ) : (
-              <EmptyState title="No milestones yet" description="Start a milestone to see your kingdom flourish!" href="/quests?tab=milestones" buttonText="Start Your First Milestone" />
+              <EmptyState title="No milestones unlocked yet" description="Achieve long-term mastery to immortalize your milestones in stone!" href="/quests?tab=milestones" buttonText="View milestones" />
             )
           ) : (
             <ChartBlock
@@ -1259,11 +1275,11 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
             <div className="h-64 flex items-center justify-center text-zinc-400">Loading...</div>
           ) : !hasData ? (
             activeTab === 'gold-gained' || activeTab === 'gold-spent' ? (
-              <EmptyState title="No gold earned yet" description="Complete quests to earn gold!" href="/quests?tab=quests" buttonText="Embark on Your First Quest" />
+              <EmptyState title="No gold records yet" description="Complete quests or harvest district taxes to fill the treasury ledger!" href="/quests?tab=quests" buttonText="Embark on quests" />
             ) : activeTab === 'experience' ? (
-              <EmptyState title="No experience gained yet" description="Complete quests and challenges to start leveling up!" href="/quests?tab=quests" buttonText="Embark on Your First Quest" />
+              <EmptyState title="No experience recorded yet" description="Complete quests and challenges to start leveling up your hero!" href="/quests?tab=quests" buttonText="Embark on quests" />
             ) : (
-              <EmptyState title="No level progression yet" description="Gain experience to see your character level up over time!" href="/quests?tab=quests" buttonText="Embark on Your First Quest" />
+              <EmptyState title="No level progression yet" description="Gain experience from daily habits to see your character ascend through the ranks!" href="/quests?tab=quests" buttonText="Embark on quests" />
             )
           ) : (
             <ChartBlock

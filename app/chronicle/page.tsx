@@ -13,6 +13,7 @@ import { SeasonArchivalModal } from '@/components/chronicle/SeasonArchivalModal'
 import { Badge } from '@/components/ui/badge'
 import { WeeklyGrowthInsightsCard } from '@/components/chronicle/WeeklyGrowthInsightsCard'
 import { TalesShelfCard } from '@/components/storybook/tales-shelf-card'
+import { EmptyState } from '@/components/ui/empty-state'
 
 export default function ChroniclePage() {
     const [entries, setEntries] = useState<any[]>([])
@@ -101,7 +102,7 @@ export default function ChroniclePage() {
                         </Link>
                         <div>
                             <h1 className="text-2xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500">
-                                Chronicle & Reflection Journal
+                                Chronicle & reflection journal
                             </h1>
                             <p className="text-xs text-zinc-400">Track habit milestones & record private daily reflections</p>
                         </div>
@@ -114,14 +115,14 @@ export default function ChroniclePage() {
                             className="border-amber-500/30 text-amber-300 hover:bg-amber-950/40 text-xs font-bold rounded-xl px-3 h-10 flex items-center gap-1.5"
                         >
                             <Crown className="w-3.5 h-3.5 text-amber-400" />
-                            Past Champions
+                            Past champions
                         </Button>
                         <Button
                             onClick={handleCreate}
-                            className="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl px-4 h-10 flex items-center gap-1.5 shadow-md"
+                            className="btn-primary-cta text-xs px-4 h-10 flex items-center gap-1.5 shadow-md font-serif font-bold"
                         >
                             <PenTool className="w-3.5 h-3.5" />
-                            Scribe Entry
+                            Scribe reflection
                         </Button>
                     </div>
                 </div>
@@ -231,13 +232,15 @@ export default function ChroniclePage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-zinc-800 rounded-2xl bg-zinc-950/40">
-                        <BookOpen className="w-8 h-8 text-zinc-600 mb-2" />
-                        <h4 className="text-sm font-bold text-zinc-300">No Journal Entries Yet</h4>
-                        <p className="text-xs text-zinc-500 max-w-xs mt-1">Scribe your first private daily reflection to begin your Sovereign Chronicle.</p>
-                        <Button onClick={handleCreate} className="mt-4 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl px-4 h-9">
-                            Write First Entry
-                        </Button>
+                    <div className="py-6">
+                        <EmptyState
+                            title="No journal entries yet"
+                            description="Sage Owl dips a quill in golden ink: 'Scribe your first private reflection to begin chronicling your thoughts and nurturing your inner wisdom.'"
+                            creatureImage="/images/creatures/Sage_owl.webp"
+                            creatureName="Sage Owl"
+                            actionLabel="Scribe first reflection"
+                            onAction={handleCreate}
+                        />
                     </div>
                 )}
             </div>

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import { motion } from "framer-motion"
 import Image from "next/image"
+import Link from "next/link"
 import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Target, Star, Crown, Zap, Heart, Book, Hammer, Coins, Gift, HelpCircle, UserCheck, Flame, Dices } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -1083,17 +1084,32 @@ export default function AlliesPage() {
                                     </div>
 
                                     {(myStats.quests?.total || 0) === 0 && (compareStats.quests?.total || 0) === 0 ? (
-                                        <div className="text-center py-12 space-y-4">
-                                            <div className="relative w-32 h-32 mx-auto opacity-50">
-                                                <Image
-                                                    src="/images/empty-states/quests.webp"
-                                                    alt="No quests completed"
-                                                    fill
-                                                    className="object-contain"
-                                                />
-                                            </div>
-                                            <p className="text-muted-foreground">No quests completed yet. Start your journey!</p>
-                                        </div>
+                                         <div className="py-6 px-4 text-center rounded-2xl border border-amber-800/40 bg-[#130e09]/90 shadow-xl space-y-3">
+                                             <div className="flex items-center justify-center">
+                                                 <div className="relative w-16 h-16 rounded-2xl border-2 border-amber-500/40 bg-zinc-950/90 shadow-xl overflow-hidden shrink-0">
+                                                     <Image
+                                                         src="/images/creatures/Turtoisy.webp"
+                                                         alt="Turtoisy"
+                                                         fill
+                                                         className="object-contain p-1"
+                                                         unoptimized
+                                                     />
+                                                 </div>
+                                             </div>
+                                             <div className="space-y-1 max-w-sm mx-auto">
+                                                 <h4 className="text-sm font-serif font-bold text-amber-200">No quests recorded yet</h4>
+                                                 <p className="text-xs text-amber-300/80 leading-relaxed font-sans">
+                                                     Turtoisy reviews the scroll: &quot;Neither ally has logged daily habits today. Embark on a quest to take the lead!&quot;
+                                                 </p>
+                                             </div>
+                                             <div className="pt-1">
+                                                 <Link href="/quests?tab=quests">
+                                                     <Button className="btn-primary-cta text-xs px-5 py-2 h-auto shadow-md font-serif font-bold">
+                                                         ⚔️ Embark on quests
+                                                     </Button>
+                                                 </Link>
+                                             </div>
+                                         </div>
                                     ) : (
                                         <div className="space-y-3">
                                             {Object.keys(CATEGORY_ICONS).map(category => {
@@ -1151,17 +1167,32 @@ export default function AlliesPage() {
                                     </div>
 
                                     {(myStats.challenges?.total || 0) === 0 && (compareStats.challenges?.total || 0) === 0 ? (
-                                        <div className="text-center py-12 space-y-4">
-                                            <div className="relative w-32 h-32 mx-auto opacity-50">
-                                                <Image
-                                                    src="/images/empty-states/challenges.webp"
-                                                    alt="No challenges completed"
-                                                    fill
-                                                    className="object-contain"
-                                                />
-                                            </div>
-                                            <p className="text-muted-foreground">No challenges completed yet. Face the trials!</p>
-                                        </div>
+                                         <div className="py-6 px-4 text-center rounded-2xl border border-orange-800/40 bg-[#140c08]/90 shadow-xl space-y-3">
+                                             <div className="flex items-center justify-center">
+                                                 <div className="relative w-16 h-16 rounded-2xl border-2 border-orange-500/40 bg-zinc-950/90 shadow-xl overflow-hidden shrink-0">
+                                                     <Image
+                                                         src="/images/creatures/Flamio.webp"
+                                                         alt="Flamio"
+                                                         fill
+                                                         className="object-contain p-1"
+                                                         unoptimized
+                                                     />
+                                                 </div>
+                                             </div>
+                                             <div className="space-y-1 max-w-sm mx-auto">
+                                                 <h4 className="text-sm font-serif font-bold text-orange-200">No challenges conquered yet</h4>
+                                                 <p className="text-xs text-orange-300/80 leading-relaxed font-sans">
+                                                     Flamio sparks the challenge beacon: &quot;The arena stands open! Take on a weekly challenge to prove your prowess.&quot;
+                                                 </p>
+                                             </div>
+                                             <div className="pt-1">
+                                                 <Link href="/quests?tab=challenges">
+                                                     <Button className="btn-primary-cta text-xs px-5 py-2 h-auto shadow-md font-serif font-bold">
+                                                         🔥 Embark on challenges
+                                                     </Button>
+                                                 </Link>
+                                             </div>
+                                         </div>
                                     ) : (
                                         <div className="space-y-3">
                                             {Object.keys(CATEGORY_ICONS).map(category => {
@@ -1219,17 +1250,32 @@ export default function AlliesPage() {
                                     </div>
 
                                     {(myStats.milestones?.total || 0) === 0 && (compareStats.milestones?.total || 0) === 0 ? (
-                                        <div className="text-center py-12 space-y-4">
-                                            <div className="relative w-32 h-32 mx-auto opacity-50">
-                                                <Image
-                                                    src="/images/empty-states/milestones.webp"
-                                                    alt="No milestones achieved"
-                                                    fill
-                                                    className="object-contain"
-                                                />
-                                            </div>
-                                            <p className="text-muted-foreground">No milestones achieved yet. Reach for greatness!</p>
-                                        </div>
+                                         <div className="py-6 px-4 text-center rounded-2xl border border-purple-800/40 bg-[#120a16]/90 shadow-xl space-y-3">
+                                             <div className="flex items-center justify-center">
+                                                 <div className="relative w-16 h-16 rounded-2xl border-2 border-purple-500/40 bg-zinc-950/90 shadow-xl overflow-hidden shrink-0">
+                                                     <Image
+                                                         src="/images/creatures/Sage_owl.webp"
+                                                         alt="Sage Owl"
+                                                         fill
+                                                         className="object-contain p-1"
+                                                         unoptimized
+                                                     />
+                                                 </div>
+                                             </div>
+                                             <div className="space-y-1 max-w-sm mx-auto">
+                                                 <h4 className="text-sm font-serif font-bold text-purple-200">No milestones recorded yet</h4>
+                                                 <p className="text-xs text-purple-300/80 leading-relaxed font-sans">
+                                                     Sage Owl checks the realm archive: &quot;Lifetime milestones await! Strive towards cumulative greatness together.&quot;
+                                                 </p>
+                                             </div>
+                                             <div className="pt-1">
+                                                 <Link href="/quests?tab=milestones">
+                                                     <Button className="btn-primary-cta text-xs px-5 py-2 h-auto shadow-md font-serif font-bold">
+                                                         🏆 View milestones
+                                                     </Button>
+                                                 </Link>
+                                             </div>
+                                         </div>
                                     ) : (
                                         <div className="space-y-3">
                                             {Object.keys(CATEGORY_ICONS).map(category => {

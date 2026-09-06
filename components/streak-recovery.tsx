@@ -437,38 +437,43 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Resilience Points */}
-                <div className="text-center p-4 rounded-lg bg-blue-900/20 border border-blue-800/30">
-                  <div className="flex items-center justify-center gap-2 mb-3">
-                    <Zap className="w-5 h-5 text-yellow-400" />
-                    <span className="text-sm font-semibold text-blue-200">Resilience points</span>
+                {/* Sparky's Resilience Points Slab */}
+                <div className="text-center p-4 rounded-2xl bg-gradient-to-b from-[#1b1510] to-[#0d0905] border border-amber-600/40 shadow-xl relative overflow-hidden">
+                  <div className="absolute inset-0 bg-radial from-amber-500/10 via-transparent to-transparent pointer-events-none" />
+                  <div className="flex items-center justify-center gap-2 mb-2 relative z-10">
+                    <span className="text-base">⚡</span>
+                    <span className="text-xs font-serif font-bold text-amber-200">Resilience points</span>
                   </div>
-                  <div className="text-3xl font-bold text-yellow-400 mb-2">{resiliencePoints}</div>
-                  <div className="text-xs text-blue-300/70 leading-relaxed">Earned by completing weeks</div>
+                  <div className="text-3xl font-serif font-bold text-amber-300 mb-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] relative z-10">{resiliencePoints}</div>
+                  <div className="text-[11px] text-amber-200/70 leading-snug relative z-10 font-sans">Sparky gathers sparks from completed weeks</div>
                 </div>
 
-                {/* Safety Net Status */}
-                <div className="text-center p-4 rounded-lg bg-green-900/20 border border-green-800/30">
-                  <div className="flex items-center justify-center gap-2 mb-3">
-                    <Shield className={`w-5 h-5 ${safetyNetUsed ? 'text-zinc-400' : 'text-green-400'}`} />
-                    <span className="text-sm font-semibold text-green-200">Safety net</span>
+                {/* Sage Owl's Safety Net Ward Slab */}
+                <div className="text-center p-4 rounded-2xl bg-gradient-to-b from-[#101912] to-[#070f09] border border-emerald-600/40 shadow-xl relative overflow-hidden">
+                  <div className="absolute inset-0 bg-radial from-emerald-500/10 via-transparent to-transparent pointer-events-none" />
+                  <div className="flex items-center justify-center gap-2 mb-2 relative z-10">
+                    <span className="text-base">🛡️</span>
+                    <span className="text-xs font-serif font-bold text-emerald-200">Sage Owl ward</span>
                   </div>
-                  <Badge variant={safetyNetUsed ? 'outline' : 'default'} className={`mb-2 ${safetyNetUsed ? 'text-zinc-400 border-zinc-600' : 'text-green-400 bg-green-900/50 border-green-600'}`}>
-                    {safetyNetUsed ? 'Used this week' : 'Available'}
-                  </Badge>
-                  <div className="text-xs text-green-300/70 leading-relaxed">
-                    Missed days: {missedDaysThisWeek}/1
+                  <div className="mb-2 relative z-10">
+                    <Badge variant={safetyNetUsed ? 'outline' : 'default'} className={`text-[10px] font-serif font-semibold px-2.5 py-0.5 rounded-lg ${safetyNetUsed ? 'text-zinc-400 border-zinc-700 bg-zinc-900/50' : 'text-emerald-200 bg-emerald-950/80 border-emerald-500/50 shadow-sm'}`}>
+                      {safetyNetUsed ? 'Ward expended' : 'Ward active'}
+                    </Badge>
+                  </div>
+                  <div className="text-[11px] text-emerald-200/70 leading-snug relative z-10 font-sans">
+                    Forgives missed day: {missedDaysThisWeek}/1
                   </div>
                 </div>
 
-                {/* Max Streak */}
-                <div className="text-center p-4 rounded-lg bg-purple-900/20 border border-purple-800/30">
-                  <div className="flex items-center justify-center gap-2 mb-3">
-                    <Award className="w-5 h-5 text-purple-400" />
-                    <span className="text-sm font-semibold text-purple-200">Best streak</span>
+                {/* Flamio's Brazier of Best Streak */}
+                <div className="text-center p-4 rounded-2xl bg-gradient-to-b from-[#1c120c] to-[#0d0704] border border-orange-600/40 shadow-xl relative overflow-hidden">
+                  <div className="absolute inset-0 bg-radial from-orange-500/10 via-transparent to-transparent pointer-events-none" />
+                  <div className="flex items-center justify-center gap-2 mb-2 relative z-10">
+                    <span className="text-base">🔥</span>
+                    <span className="text-xs font-serif font-bold text-orange-200">Best streak</span>
                   </div>
-                  <div className="text-3xl font-bold text-purple-400 mb-2">{maxStreakAchieved}</div>
-                  <div className="text-xs text-purple-300/70 leading-relaxed">days achieved</div>
+                  <div className="text-3xl font-serif font-bold text-orange-300 mb-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] relative z-10">{maxStreakAchieved}</div>
+                  <div className="text-[11px] text-orange-200/70 leading-snug relative z-10 font-sans">Flamio keeps your flame burning</div>
                 </div>
               </div>
             </CardContent>
@@ -478,23 +483,24 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
         {/* Safety Net Action - Takes 1/3 width on desktop */}
         {recoveryFeaturesAvailable && !safetyNetUsed && missedDaysThisWeek === 0 && (
           <div className="lg:col-span-1">
-            <Card className="medieval-card-deep h-full shadow-lg" aria-label="safety-net-card">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-3 text-xl font-bold text-green-200">
-                  <Shield className="w-6 h-6 text-green-400" />
-                  Safety Net Available
+            <Card className="medieval-card-deep h-full shadow-xl border-emerald-600/40" aria-label="safety-net-card">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2.5 text-lg font-serif font-bold text-emerald-200">
+                  <Shield className="w-5 h-5 text-emerald-400" />
+                  Safety net available
                 </CardTitle>
-                <CardDescription className="text-green-300/80 text-base leading-relaxed">
-                  Sage Owl spreads a protective wing over your calendar: forgives your first missed day this week
+                <CardDescription className="text-emerald-300/80 text-xs leading-relaxed font-sans">
+                  Sage Owl spreads a protective wing over your calendar to forgive your first missed day this week
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button
                   onClick={handleUseSafetyNet}
                   disabled={loadingAction === 'safety_net'}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 text-base transition-all duration-200 shadow-lg hover:shadow-xl"
+                  className="w-full btn-primary-cta text-xs py-3 h-auto shadow-lg hover:shadow-xl font-serif font-bold flex items-center justify-center gap-2"
                 >
-                  {loadingAction === 'safety_net' ? 'Activating...' : 'Use Safety Net'}
+                  <Shield className="w-4 h-4" />
+                  {loadingAction === 'safety_net' ? 'Activating ward...' : 'Activate safety net'}
                 </Button>
               </CardContent>
             </Card>
