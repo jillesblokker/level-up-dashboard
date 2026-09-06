@@ -109,16 +109,15 @@ export const MYTHIC_CREATURE_NAMES: Record<number, string> = {
 };
 
 export function getMythicName(cardId: number, variantIndex: number = 0): string {
-  const colors = ['Red', 'Green', 'Blue', 'White', 'Black'];
-  const color = colors[variantIndex] || 'Red';
-  const creatureName = MYTHIC_CREATURE_NAMES[cardId] || 'Beast';
-  const full = `${color} ${creatureName.toLowerCase()}`;
-  return full.charAt(0).toUpperCase() + full.slice(1);
+  const prefixes = ['Reddy', 'Greeny', 'Bluey', 'Ivory', 'Ebonium'];
+  const prefix = prefixes[variantIndex] || 'Reddy';
+  const creatureName = MYTHIC_CREATURE_NAMES[cardId] || 'beast';
+  return `${prefix} ${creatureName.toLowerCase()}`;
 }
 
 export function variantLabel(number: number, variantIndex: number) {
-    const colors = ['Red', 'Green', 'Blue', 'White', 'Black'];
-    return colors[variantIndex] ? `${colors[variantIndex]} Edition` : 'Unknown Variant';
+    const prefixes = ['Reddy', 'Greeny', 'Bluey', 'Ivory', 'Ebonium'];
+    return prefixes[variantIndex] ? `${prefixes[variantIndex]} edition` : 'Unknown variant';
 }
 
 export const PACK_TYPES = [

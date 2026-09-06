@@ -36,8 +36,8 @@ export function CelebrationSystem() {
 
       // Toast notification
       toast({
-        title: "🎉 LEVEL UP! 🎉",
-        description: `You've reached Level ${newLevel}! Keep up the great work!`,
+        title: "🎉 Level up!",
+        description: `Level ${newLevel} achieved! Spirit Sprite and all your unlocked citizens celebrate in the town square!`,
         duration: 5000,
         className: "bg-gradient-to-r from-amber-500 to-yellow-600 text-zinc-900 border-none shadow-xl shadow-amber-900/50",
       });

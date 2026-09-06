@@ -29,7 +29,7 @@ const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'reli
     stats: { atk: 25, spd: 5 },
     rarity: 'rare',
     image: '/images/items/sword/sword-irony.webp',
-    description: 'Forged in blacksmith fire from habit essences.'
+    description: 'Flamio heated the ingot and Vulcana tempered the blade using pure habit sparks.'
   },
   offhand: {
     id: 'shield-oak',
@@ -38,7 +38,7 @@ const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'reli
     stats: { def: 18 },
     rarity: 'uncommon',
     image: '/images/items/shield/shield-blockado.webp',
-    description: 'Reinforced aegis shield built to block dungeon strikes.'
+    description: 'Carved by Shello from ancient riverbed stone to deflect heavy dungeon blows.'
   },
   armor: {
     id: 'armor-normalo',
@@ -47,7 +47,7 @@ const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'reli
     stats: { def: 35, atk: 10 },
     rarity: 'epic',
     image: '/images/items/armor/armor-normalo.webp',
-    description: 'Majestic plate armor worn by realm champions.'
+    description: 'Forged by Buldour and fitted for champions who walk the realm.'
   },
   mount: {
     id: 'mount-goldy',
@@ -56,7 +56,7 @@ const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'reli
     stats: { spd: 30, atk: 10 },
     rarity: 'epic',
     image: '/images/items/horse/horse-goldy.webp',
-    description: 'Noble armored steed propelling realm travel.'
+    description: 'A spirited wild horse reared in the green meadows, eager for long voyages.'
   },
   relic: {
     id: 'relic-astral',
@@ -65,7 +65,7 @@ const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'reli
     stats: { atk: 15, def: 15, spd: 15 },
     rarity: 'legendary',
     image: '/images/items/materials/material-crystal.webp',
-    description: 'Glowing celestial shard yielding virtue energy.'
+    description: 'Turtoisy found this crystal in an astral cavern, humming with virtue power.'
   }
 }
 

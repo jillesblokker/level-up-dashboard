@@ -1209,7 +1209,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
-    clickMessage: 'Propel airship expeditions powered by real-world habits.',
+    clickMessage: "Voulty crackles at the helm: 'Ready to sail above the clouds? Power up our voyages with daily habit sparks!'",
     possibleItems: [],
     itemType: 'none',
     rarity: 'epic',

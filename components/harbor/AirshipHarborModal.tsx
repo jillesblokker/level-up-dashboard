@@ -68,8 +68,8 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
       })
     } else {
       toast({
-        title: "🛸 Course Set!",
-        description: `Propelling airship to ${portName}. Assign citizens as crew to earn Expedition EXP!`,
+        title: "🛸 Course set!",
+        description: `Ivory gryphon spreads its wings from the bow: 'Course locked for ${portName}! Keep your habits burning to feed the thrusters.'`,
       })
     }
   }
@@ -95,7 +95,7 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
             </Badge>
           </div>
           <DialogDescription className="text-zinc-400 text-xs mt-1">
-            Airship voyages are propelled directly by completing daily real-world habits (which generate Ether fuel), NOT passive countdown timers!
+            Boulty points to the humming ether coil: &quot;Passive clocks won&apos;t move this ship! Every real-world habit you finish charges our engines.&quot;
           </DialogDescription>
         </DialogHeader>
 
@@ -112,7 +112,7 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
             </div>
             <div>
               <h4 className="font-bold text-cyan-200 text-sm font-serif">Aetheria Sovereign</h4>
-              <p className="text-[10px] text-cyan-300/80 font-mono">Status: En route to {activeDestination}</p>
+              <p className="text-[10px] text-cyan-300/80 font-mono">Ivory gryphon: en route to {activeDestination}</p>
             </div>
           </div>
 

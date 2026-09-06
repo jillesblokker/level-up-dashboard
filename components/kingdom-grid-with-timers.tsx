@@ -2599,13 +2599,13 @@ export function KingdomGridWithTimers({
     const totalExpGained = collectedRewards.reduce((sum, r) => sum + (r.experienceEarned || 0), 0);
 
     toast({ 
-      title: "💰 Kingdom Taxes Harvested!", 
-      description: `Collected from ${readyTimers.length} buildings (+${totalGoldGained.toLocaleString()} Gold, +${totalExpGained.toLocaleString()} XP).` 
+      title: "💰 Kingdom taxes harvested!", 
+      description: `Leaf and Rockie gather the harvest bags: collected from ${readyTimers.length} buildings (+${totalGoldGained.toLocaleString()} gold, +${totalExpGained.toLocaleString()} xp).` 
     });
 
     notificationService.addNotification(
-      "💰 Kingdom Taxes Harvested!",
-      `Collected from ${readyTimers.length} buildings (+${totalGoldGained.toLocaleString()} Gold, +${totalExpGained.toLocaleString()} XP).`,
+      "💰 Kingdom taxes harvested!",
+      `Leaf and Rockie gather the harvest bags: collected from ${readyTimers.length} buildings (+${totalGoldGained.toLocaleString()} gold, +${totalExpGained.toLocaleString()} xp).`,
       "success",
       "medium"
     );
@@ -2636,7 +2636,7 @@ export function KingdomGridWithTimers({
     const upgradeCost = getUpgradeCost(tile.type, currentTier);
     
     if (!upgradeCost) {
-      toast({ title: "Max tier reached", description: "This building cannot be upgraded any further." });
+      toast({ title: "Max tier reached", description: "Montano pats the stone foundation: 'Solid as a mountain peak. This building is already at its greatest form.'" });
       return;
     }
     
@@ -2654,7 +2654,7 @@ export function KingdomGridWithTimers({
       if (onGridUpdate) {
         onGridUpdate(newGrid);
       }
-      toast({ title: "Building upgraded!", description: `Tier ${currentTier + 1} reached! Reward yields have increased permanently.` });
+      toast({ title: "Building upgraded!", description: `Oaky stretches his branches over the new roof: tier ${currentTier + 1} reached! Reward yields increased.` });
     } catch (e) {
       console.error(e);
       toast({ title: "Upgrade failed", description: "An error occurred.", variant: "destructive" });

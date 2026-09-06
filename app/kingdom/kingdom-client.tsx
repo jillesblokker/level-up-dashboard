@@ -1710,7 +1710,7 @@ export function KingdomClient() {
 
       <HeaderSection
         title={isVisiting ? `${allyProfile?.display_name || 'Friend'}'s Kingdom` : "Kingdom"}
-        subtitle={isVisiting ? `${allyProfile ? getCurrentTitle(allyProfile.level).name : 'Squire'} • Level ${allyProfile?.level || 1}` : `${getCurrentTitle(playerLevel).name} • Level ${playerLevel}. Build out your capital, construct properties, collect taxes, and expand your kingdom!`}
+        subtitle={isVisiting ? `${allyProfile ? getCurrentTitle(allyProfile.level).name : 'Squire'} • Level ${allyProfile?.level || 1}` : `${getCurrentTitle(playerLevel).name} • Level ${playerLevel}. Buldour heaves a granite slab: 'Place your tiles, gather gold taxes, and let's make this fortress unshakeable!'`}
         imageSrc={coverImage || "/images/Kingdom.webp"}
         canEdit={!!user?.id && !isVisiting}
         ctaButton={

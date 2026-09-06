@@ -178,8 +178,8 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
         window.dispatchEvent(new Event('character-stats-update'));
 
         toast({
-          title: 'Streak Reconstructed! ⚡',
-          description: data.message,
+          title: 'Streak reconstructed! ⚡',
+          description: "Sparky sparks the broken chain back together: your habit streak is renewed and safe from Necrion's cold touch!",
         });
         onStreakUpdate();
       } else {
@@ -232,8 +232,8 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
 
       if (res.ok) {
         toast({
-          title: 'Streak Reconstructed! ⚡',
-          description: data.message,
+          title: 'Streak reconstructed! ⚡',
+          description: "Sparky sparks the broken chain back together: your habit streak is renewed and safe from Necrion's cold touch!",
         });
         onStreakUpdate();
       } else {
@@ -485,7 +485,7 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                   Safety Net Available
                 </CardTitle>
                 <CardDescription className="text-green-300/80 text-base leading-relaxed">
-                  Protect your streak from the first missed day this week
+                  Sage Owl spreads a protective wing over your calendar: forgives your first missed day this week
                 </CardDescription>
               </CardHeader>
               <CardContent>

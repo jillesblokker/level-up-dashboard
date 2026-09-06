@@ -51,7 +51,7 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
 
     const handleSave = async () => {
         if (!mood) {
-            toast.error("Please select a mood for the day.")
+            toast.error("Sage Owl tilts its head with a soft hoot: 'How is your spirit feeling today? Pick a mood icon.'")
             return
         }
         setIsSubmitting(true)
@@ -81,9 +81,9 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
 
             if (!initialData) {
                 updateCharacterStats({ experience: 50 }, 'journal_entry')
-                toast.success("Journal saved! +50 XP")
+                toast.success("Sage Owl carefully files your reflection into the archive shelves (+50 xp).")
             } else {
-                toast.success("Journal updated!")
+                toast.success("Sage Owl updates your journal record!")
             }
             onClose()
         } catch (e: any) {

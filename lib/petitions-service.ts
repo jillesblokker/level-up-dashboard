@@ -271,10 +271,10 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
   },
   {
     id: 'pet-5',
-    title: "Green Minotaur's Labyrinth Cafe",
-    requesterRole: 'Minotaur Chef Asterion',
+    title: "Greeny minotaur's labyrinth cafe",
+    requesterRole: 'Greeny minotaur Asterion',
     requesterAvatar: '🐮',
-    description: "A friendly Green Minotaur opened a maze coffee shop near the west wall, but customers keep getting lost in the hedges for 4 days! Three weeping mothers are demanding royal action in court.",
+    description: "A friendly Greeny minotaur opened a maze coffee shop near the west wall, but customers keep getting lost in the hedges for 4 days! Three weeping mothers are demanding royal action in court.",
     optionA: {
       label: "Hire Scout Citizens as Maze Guides",
       description: "Pay experienced scouts to escort coffee drinkers through the hedges.",
@@ -314,10 +314,10 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
   },
   {
     id: 'pet-6',
-    title: "Red Cyclops's Reading Monocle",
-    requesterRole: 'Cyclops Brontes',
+    title: "Reddy cyclops's reading monocle",
+    requesterRole: 'Reddy cyclops Brontes',
     requesterAvatar: '👁️',
-    description: "A giant Red Cyclops wants a massive glass monocle so he can read romance novels in the park. Two glassblowers and a guard captain are arguing in your court room.",
+    description: "A friendly Reddy cyclops wants a massive glass monocle so he can read romance novels in the park. Two glassblowers and a guard captain are arguing in your court room.",
     optionA: {
       label: "Craft Giant Glass Monocle",
       description: "Commission the glassblowers to forge a 4-foot magnifying lens.",

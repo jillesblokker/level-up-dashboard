@@ -144,8 +144,8 @@ export function DailyRoutineModal({
                 </div>
               ) : (
                 <div className="flex items-start gap-2 text-zinc-400 italic">
-                  <span className="text-base shrink-0">💤</span>
-                  <p>&quot;Yesterday was a peaceful day in the realm. All citizens slept soundly.&quot;</p>
+                  <span className="text-base shrink-0">🌿</span>
+                  <p>&quot;Leaf peeks through the morning dew: Yesterday was peaceful across the meadows. All our creatures slept soundly.&quot;</p>
                 </div>
               )}
 
@@ -159,12 +159,12 @@ export function DailyRoutineModal({
               )}
 
               <div className="flex items-center gap-2 pt-1 border-t border-amber-900/20">
-                <span className="text-base shrink-0">🪙</span>
+                <span className="text-base shrink-0">⛰️</span>
                 <p className="text-zinc-300">
                   {citizensReadyCount > 0 ? (
-                    <span>You have <strong className="text-amber-400">{citizensReadyCount} {citizensReadyCount === 1 ? 'citizen' : 'citizens'}</strong> ready to collect taxes today!</span>
+                    <span>Rockie grunts happily: <strong className="text-amber-400">{citizensReadyCount} wandering {citizensReadyCount === 1 ? 'citizen is' : 'citizens are'}</strong> waiting at the town square with your gold!</span>
                   ) : (
-                    <span className="text-zinc-400">Citizens are gathering resources in the settlement.</span>
+                    <span className="text-zinc-400">Rockie reports: citizens are out gathering stones and wood across the settlement.</span>
                   )}
                 </p>
               </div>
@@ -188,7 +188,7 @@ export function DailyRoutineModal({
                 🎯 Today&apos;s target
               </div>
               <p className="text-xs text-zinc-300 leading-normal">
-                Aim for at least <strong className="text-amber-400 font-bold">5 habits</strong> today for a great score, 10 for awesome, 15+ for amazing!
+                Divero surfaces with a cool splash: &quot;Aim for at least <strong className="text-amber-400 font-bold">5 habits</strong> today to find your flow, 10 for awesome speed, and 15+ for peak form!&quot;
               </p>
               <div className="text-[11px] text-zinc-400 italic pt-1 border-t border-amber-900/20">
                 Tip: Mix simple habits (brushing teeth) with aspirational ones (10 push-ups).

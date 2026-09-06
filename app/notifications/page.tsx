@@ -50,25 +50,25 @@ export default function NotificationsPage() {
       },
       {
         id: "n2",
-        title: "Friend Dare Received",
-        message: "Sarah issued a 1v1 Daily Habit Race Dare!",
+        title: "Friend dare received",
+        message: "Sarah issued a 1v1 daily habit race dare! First to 5 habits wins extra virtue.",
         type: "friend",
         read: false,
         timestamp: new Date().toISOString(),
         action: {
-          label: "Accept Dare",
+          label: "Accept dare",
           href: "/social",
         },
       },
       {
         id: "n3",
-        title: "Titan Victory Chest Ready",
-        message: "Alliance defeated Titan Wyrm! Claim your share of victory loot.",
+        title: "Titan victory chest ready",
+        message: "Valerion drove off the Titan Wyrm with your alliance! Claim your share of victory loot.",
         type: "system",
         read: false,
         timestamp: new Date(Date.now() - 3600000).toISOString(),
         action: {
-          label: "Claim Chest",
+          label: "Claim chest",
           href: "/social",
         },
       }

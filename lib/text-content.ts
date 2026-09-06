@@ -26,7 +26,7 @@ export const TEXT_CONTENT = {
         generic: {
             title: "Ether Interruption",
             description: "The Void Drift has temporarily disrupted the spell matrix.",
-            investigate: "Archmage Turtoisy's mages are restoring the Ether Crystal connection. You may try again shortly.",
+            investigate: "Turtoisy gently touches the glowing crystal: 'A void drift rippled through our ether line. Restoring the link now.'",
             tryAgain: "Channel Ether Again",
             return: "Return to Castle Valoreth"
         }
@@ -34,7 +34,7 @@ export const TEXT_CONTENT = {
     social: {
         header: {
             title: "Tavern",
-            subtitle: "Gather, compete, and forge fellowships",
+            subtitle: "Wooly Sheep and Happy Penguin welcome you by the tavern hearth: grab a seat and challenge your allies!",
             guide: {
                 title: "Tavern",
                 subtitle: "The social heart of the realm",
@@ -55,7 +55,7 @@ export const TEXT_CONTENT = {
         emptyStates: {
             allies: {
                 title: "No friends yet",
-                description: "Add friends to compare stats and send quests!",
+                description: "Wooly Sheep looks around the quiet room: 'A bit lonely here! Invite an ally to compare streaks and send quest dares.'",
                 action: "Find friends"
             },
             search: {
@@ -577,9 +577,9 @@ export const TEXT_CONTENT = {
         consumables: {
             artifact: "You used an artifact and gained {gold} gold!",
             scroll: "You used a scroll and gained {gold} gold!",
-            healthPotion: "You used a Health Potion and restored 50 health!",
-            goldPotion: "You used a Gold Potion and gained 50 gold!",
-            xpPotion: "You used an Experience Potion and gained 50 XP!",
+            healthPotion: "Leaf squeezes fresh aloe extract over your scratches: feeling refreshed (+50 health).",
+            goldPotion: "Flamio heats the golden brew until it bubbles into +50 shiny gold coins!",
+            xpPotion: "Turtoisy shares ancient memories through the glowing draught (+50 xp).",
             generic: "You used {item}!",
             perkActive: "You used a {item}! The perk \"{perkName}\" is now active for 24 hours: {perkEffect}"
         },
@@ -675,13 +675,13 @@ export const TEXT_CONTENT = {
                 }
             },
             sellSuccess: {
-                title: "Item Sold Successfully!",
-                description: "You have successfully sold an item and gained gold.",
+                title: "Item sold successfully!",
+                description: "Reddy minotaur inspects the goods and slides {amount} gold into your palm with a wide grin.",
                 continue: "Continue"
             },
             emptyBag: {
                 title: "Your bag is empty, adventurer!",
-                description: "Complete quests and explore your kingdom to find treasures and equipment.",
+                description: "Rockie peers into your pouch and shakes his head: 'Nothing in here but lint! Check off some quests to dig up real treasure.'",
                 noEquipped: "No items equipped",
                 loading: "Loading inventory..."
             }
@@ -1142,7 +1142,7 @@ export const TEXT_CONTENT = {
     questBoard: {
         header: {
             title: "Quest board",
-            subtitle: "Complete your daily tasks to earn gold and level up your character!",
+            subtitle: "Happy Penguin slides up with today's scroll: 'Fresh routines are ready! Complete them to keep our town thriving.'",
             guide: {
                 title: "Quests",
                 subtitle: "The foundation of your progression",
@@ -1406,7 +1406,7 @@ export const TEXT_CONTENT = {
                 titleHeader: "Title",
                 nextTitle: "Next: {name} (Level {level})",
                 activeBonuses: "Active Bonuses",
-                noBonuses: "No enchanted blessings active. Seek the mystic arts to unlock your true potential."
+                noBonuses: "Turtoisy closes his eyes beside the altar: 'No blessings active right now. Activate a perk or brew an elixir to empower your stats.'"
             },
             tabs: {
                 titles: "Titles",
@@ -1487,7 +1487,7 @@ export const TEXT_CONTENT = {
     market: {
         header: {
             title: "Market",
-            subtitle: "Purchase tiles to expand your kingdom",
+            subtitle: "Reddy minotaur gestures to his colorful crates: 'Freshly cut tiles, clean waterways, and rare landmarks for your realm!'",
             back: "Back to Kingdom",
             checkout: "Checkout ({count})"
         },
@@ -1513,7 +1513,7 @@ export const TEXT_CONTENT = {
         cart: {
             title: "Cart",
             items: "{count} items",
-            empty: "Your cart is empty",
+            empty: "Bluey kraken waves empty tentacles: 'Nothing in your cart yet! Pick some kingdom tiles from the bazaar.'",
             total: "Total",
             gold: "{amount} Gold",
             purchase: "Purchase"
@@ -1527,7 +1527,7 @@ export const TEXT_CONTENT = {
             added: { title: "Added to cart", desc: "{name} has been added to your cart." },
             removed: { title: "Removed from cart", desc: "Item has been removed from your cart." },
             empty: { title: "Cart is empty", desc: "Add some tiles to your cart before checking out." },
-            insufficient: { title: "Not enough gold", desc: "You need {amount} gold to purchase these tiles." },
+            insufficient: { title: "Not enough gold", desc: "Greeny cyclops counts your coins with his big eye: 'You're short {amount} gold, friend! Check off a few quests first.'" },
             success: { title: "Purchase successful", desc: "You've purchased {count} tiles for {amount} gold. Tiles have been added to your inventory." }
         },
         data: {
@@ -1703,7 +1703,7 @@ export const TEXT_CONTENT = {
         toasts: {
             markedRead: {
                 title: "All notifications marked as read",
-                desc: "You've caught up on all your kingdom's news!"
+                desc: "Sage Owl tucks the empty scroll satchel under its wing: you're completely caught up on realm news."
             },
             deleted: {
                 title: "Notification deleted",
@@ -1717,7 +1717,7 @@ export const TEXT_CONTENT = {
         empty: {
             all: {
                 title: "No Messages Await",
-                message: "The courier has not yet arrived with news from your kingdom.",
+                message: "Icey sits quietly atop the mailbox: 'Nothing new in the box today. Clear more quests to trigger events!'",
                 description: "Complete quests and explore your realm to receive notifications from your loyal subjects.",
                 button: "Embark on Your Quest"
             },

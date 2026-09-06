@@ -33,7 +33,7 @@ const CLASSES: {
     icon: <Shield className="w-6 h-6 text-amber-400" />,
     color: 'text-amber-400 border-amber-500/40',
     bg: 'from-amber-950/60 to-zinc-900',
-    description: 'Empowered by Might habits. High armor and taunts dungeon foes.',
+    description: 'Trained alongside Buldour and Montano: stands like a stone wall to protect the team.',
     ability: 'Shield Wall: Absorbs 40% incoming damage for 2 turns.'
   },
   {
@@ -43,7 +43,7 @@ const CLASSES: {
     icon: <Wand2 className="w-6 h-6 text-cyan-400" />,
     color: 'text-cyan-400 border-cyan-500/40',
     bg: 'from-cyan-950/60 to-zinc-900',
-    description: 'Empowered by Knowledge habits. Casts powerful spell bursts.',
+    description: 'Studying under Turtoisy and Sparky: casts lightning surges and ether bursts in battle.',
     ability: 'Fireball Nova: Deals 250% elemental spell damage.'
   },
   {
@@ -53,7 +53,7 @@ const CLASSES: {
     icon: <FlaskConical className="w-6 h-6 text-emerald-400" />,
     color: 'text-emerald-400 border-emerald-500/40',
     bg: 'from-emerald-950/60 to-zinc-900',
-    description: 'Empowered by Vitality & Wellness habits. Heals dungeon party.',
+    description: 'Apprenticed to Leaf and Dolphio: mixes pure water and soothing herbs to heal fallen allies.',
     ability: 'Healing Decoction: Restores 35% team HP.'
   },
   {
@@ -63,7 +63,7 @@ const CLASSES: {
     icon: <Target className="w-6 h-6 text-purple-400" />,
     color: 'text-purple-400 border-purple-500/40',
     bg: 'from-purple-950/60 to-zinc-900',
-    description: 'Empowered by Honor & Craft habits. High critical strikes.',
+    description: 'Riding with Hailey and the wild horse: scouts dark mists and strikes dungeon enemies from behind.',
     ability: 'Precise Strike: 50% chance for 3x critical damage.'
   }
 ]

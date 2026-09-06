@@ -483,10 +483,10 @@ export function DailyHubClient() {
                     const targetProgress = Math.min(100, Math.round((count / 5) * 100));
 
                     let tier = null;
-                    if (count >= 20) tier = { title: "Amazing dedication", badge: "👑", desc: "You have completed 20+ habits today! Legendary dedication.", style: "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 font-black border-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.5)]" };
-                    else if (count >= 15) tier = { title: "Supercharged progress", badge: "⚡", desc: "15+ habits completed today! Supercharged progress.", style: "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.5)]" };
-                    else if (count >= 10) tier = { title: "Awesome momentum", badge: "🔥", desc: "10+ habits completed today! On a roll.", style: "bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-500 text-zinc-950 font-bold border-amber-300 shadow-[0_0_20px_rgba(217,119,6,0.5)]" };
-                    else if (count >= 5) tier = { title: "Great start (5/5 Target!)", badge: "🎯", desc: "5+ habits completed today! Golden Sweet Spot achieved.", style: "bg-gradient-to-r from-emerald-700 via-teal-600 to-emerald-800 text-white font-semibold border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]" };
+                    if (count >= 20) tier = { title: "dedication", badge: "👑", desc: "Turtoisy slowly nods with deep respect: 20 habits mastered. Even mountains bow to such patience.", style: "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 font-black border-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.5)]" };
+                    else if (count >= 15) tier = { title: "supercharged progress", badge: "⚡", desc: "Sparky zaps with excitement: 15 habits finished! Electric momentum across the realm.", style: "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.5)]" };
+                    else if (count >= 10) tier = { title: "awesome momentum", badge: "🔥", desc: "Flamio tosses firecrackers in the air: 10 habits glowing hot! You're on a roll.", style: "bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-500 text-zinc-950 font-bold border-amber-300 shadow-[0_0_20px_rgba(217,119,6,0.5)]" };
+                    else if (count >= 5) tier = { title: "great start (5/5 target!)", badge: "🎯", desc: "Spirit Sprite bursts into golden sparkles: 5 habits done! Today's sweet spot achieved.", style: "bg-gradient-to-r from-emerald-700 via-teal-600 to-emerald-800 text-white font-semibold border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]" };
 
                     return (
                         <div className="space-y-3">

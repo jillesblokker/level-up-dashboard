@@ -859,8 +859,8 @@ export default function DungeonPage() {
         toast({
           title: "🏆 Boss keep cleared!",
           description: isDuplicate
-            ? `Duplicate blueprint converted to Royal Architect's Bounty (+150 gold) & Apotheca reagents!`
-            : `Defeated room ${run.currentRoom} boss! Unlocked ${bp.name} & Apotheca reagents!`,
+            ? `Ember Drake roars with triumph: duplicate blueprint converted to gold (+150 gold) & apothecary reagents!`
+            : `Ember Drake roars with triumph: defeated room ${run.currentRoom} boss! Unlocked ${bp.name} & apothecary reagents!`,
         });
       }
 
@@ -902,7 +902,7 @@ export default function DungeonPage() {
         }, 1500);
       }
     } else if (isTeamDefeated) {
-      logEntries.push('💀 All your fighters have fainted... You were defeated...');
+      logEntries.push("💀 Hailey glides in and covers the team in a protective frost: 'Squad down! Retreating to the safety camp.'");
       setBattleLog(prev => [...prev, ...logEntries]);
       completeRun({
         ...run,
@@ -1053,7 +1053,7 @@ export default function DungeonPage() {
               {gameResult.success ? 'VICTORY!' : 'DEFEATED'}
             </h1>
             <p className="text-xs sm:text-sm text-zinc-300 font-medium">
-              {gameResult.success ? 'You cleared the dungeon floor and secured your spoils!' : 'You fell in battle and were forced to retreat.'}
+              {gameResult.success ? 'Valerion dips his winged head in honor: you fought with pure persistency. The deeper rooms are opening.' : "Turtlo tucks you behind his heavy shell: 'Rest now, hero. Build your strength with today\'s habits and try again.'"}
             </p>
           </div>
 
