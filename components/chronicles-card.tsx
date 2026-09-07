@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -151,9 +152,14 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                         <span className="text-sm font-bold text-amber-300">The chronicles</span>
                         <span className="text-[10px] text-amber-400/60 font-serif italic hidden sm:inline">• Rebuilding Thrivehaven Story Arc</span>
                     </div>
-                    <div className="flex items-center gap-1 text-amber-400/60 text-xs font-mono">
-                        <Map className="w-3 h-3" />
-                        <span>Level {currentLevel}</span>
+                    <div className="flex items-center gap-3">
+                        <Link href="/chronicle" className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-amber-400 hover:text-amber-300 hover:underline">
+                            <span>Open journal & reflections →</span>
+                        </Link>
+                        <div className="flex items-center gap-1 text-amber-400/60 text-xs font-mono">
+                            <Map className="w-3 h-3" />
+                            <span>Level {currentLevel}</span>
+                        </div>
                     </div>
                 </div>
 

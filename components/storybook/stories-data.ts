@@ -3,14 +3,14 @@ import { StoryAdventure } from '@/lib/storybook-manager';
 export const STORY_ADVENTURES: StoryAdventure[] = [
   {
     id: 'story-sparky-pace',
-    storyNumber: 'Scene 001',
+    storyNumber: 'Tale 1',
     title: 'Sparky and the slow coach',
     characters: [
-      { name: 'Sparky', image: '/images/creatures/016.webp' },
+      { name: 'Sparky', image: '/images/creatures/Sparky.webp' },
       { name: 'Turtoisy', image: '/images/creatures/Turtoisy.webp' },
-      { name: 'Leaf', image: '/images/creatures/007.webp' }
+      { name: 'Leaf', image: '/images/creatures/Leaf.webp' }
     ],
-    avatarImage: '/images/creatures/016.webp',
+    avatarImage: '/images/creatures/Sparky.webp',
     locationName: 'Green meadow running track',
     narrativeText: `Sparky was zipping around in circles like a little lightning bolt. Zzzt! Zip! Zoom!
 
@@ -70,13 +70,13 @@ Turtoisy slowly catches up, chuckling. He lets Sparky sit on his shell for a res
   },
   {
     id: 'story-leaf-tidy',
-    storyNumber: 'Scene 002',
+    storyNumber: 'Tale 2',
     title: 'Leaf cleans his messy room',
     characters: [
-      { name: 'Leaf', image: '/images/creatures/007.webp' },
-      { name: 'Rockie', image: '/images/creatures/010.webp' }
+      { name: 'Leaf', image: '/images/creatures/Leaf.webp' },
+      { name: 'Rockie', image: '/images/creatures/Rockie.webp' }
     ],
-    avatarImage: '/images/creatures/007.webp',
+    avatarImage: '/images/creatures/Leaf.webp',
     locationName: "Leaf's cozy cottage",
     narrativeText: `Leaf sat on the floor with his sprout drooping down.
 
@@ -134,13 +134,13 @@ Leaf laughs and pulls the toys back out. "Okay, let's actually put them in the t
   },
   {
     id: 'story-flamio-sleep',
-    storyNumber: 'Scene 003',
+    storyNumber: 'Tale 3',
     title: 'Flamio goes to sleep',
     characters: [
-      { name: 'Flamio', image: '/images/creatures/001.webp' },
+      { name: 'Flamio', image: '/images/creatures/Flamio.webp' },
       { name: 'Sage Owl', image: '/images/creatures/SageOwl.webp' }
     ],
-    avatarImage: '/images/creatures/001.webp',
+    avatarImage: '/images/creatures/Flamio.webp',
     locationName: 'The high watchtower hearth',
     narrativeText: `It was dark outside. The stars were shining, and everyone in town was asleep.
 
@@ -186,13 +186,13 @@ Flamio writes down his three tasks for tomorrow morning: 1. Eat breakfast. 2. Pr
   },
   {
     id: 'story-oaky-stretch',
-    storyNumber: 'Scene 004',
+    storyNumber: 'Tale 4',
     title: 'Oaky learns to stretch',
     characters: [
-      { name: 'Oaky', image: '/images/creatures/008.webp' },
-      { name: 'Dolphio', image: '/images/creatures/004.webp' }
+      { name: 'Oaky', image: '/images/creatures/Oaky.webp' },
+      { name: 'Dolphio', image: '/images/creatures/Dolphio.webp' }
     ],
-    avatarImage: '/images/creatures/008.webp',
+    avatarImage: '/images/creatures/Oaky.webp',
     locationName: 'The castle garden fountain',
     narrativeText: `Oaky the tree guardian had been standing in the exact same spot for four hours.
 
@@ -236,11 +236,11 @@ The cool water wakes Oaky right up! His leaves turn bright emerald green, and he
   },
   {
     id: 'story-penguin-walk',
-    storyNumber: 'Scene 005',
+    storyNumber: 'Tale 5',
     title: 'Penguin takes daily steps',
     characters: [
       { name: 'Penguin', image: '/images/Animals/penguin.webp' },
-      { name: 'Leaf', image: '/images/creatures/007.webp' }
+      { name: 'Leaf', image: '/images/creatures/Leaf.webp' }
     ],
     avatarImage: '/images/Animals/penguin.webp',
     locationName: 'The grassy kingdom hill',

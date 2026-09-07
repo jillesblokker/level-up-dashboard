@@ -75,16 +75,16 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
       <DialogContent className="max-w-xl p-0 overflow-hidden border-2 border-amber-700/60 rounded-2xl shadow-2xl bg-[#0e131f] text-zinc-100 font-serif">
         {/* Parchment Storybook Cover Header */}
         <div className="relative bg-gradient-to-b from-[#1b140d] via-[#15100a] to-[#0e131f] p-5 pb-4 border-b border-amber-900/40">
-          <div className="flex items-center justify-between gap-2 mb-2">
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="border-amber-500/60 text-amber-300 bg-amber-950/70 font-mono text-[10px] tracking-wider uppercase font-bold">
+          <div className="flex flex-wrap items-center justify-between gap-2.5 mb-2.5 pr-8">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className="border-amber-500/60 text-amber-300 bg-amber-950/70 font-mono text-xs px-2.5 py-0.5 font-bold shrink-0">
                 📜 {story.storyNumber}
               </Badge>
-              <span className="text-[11px] text-amber-200/70 font-mono flex items-center gap-1">
-                <Compass className="w-3 h-3 text-amber-400" /> {story.locationName}
+              <span className="text-xs text-amber-200/80 font-mono flex items-center gap-1">
+                <Compass className="w-3.5 h-3.5 text-amber-400 shrink-0" /> {story.locationName}
               </span>
             </div>
-            <div className="flex items-center gap-1 text-[10px] font-mono text-zinc-400">
+            <div className="flex items-center gap-1.5 text-xs font-mono text-zinc-400 shrink-0">
               <BookOpen className="w-3.5 h-3.5 text-amber-400" /> Book of adventures
             </div>
           </div>
@@ -105,27 +105,29 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
             /* ── STAGE 1: The Narrative Scene ── */
             <div className="space-y-5">
               {/* Character Illustration & Cast Ribbon */}
-              <div className="flex items-center gap-3.5 p-3 rounded-xl bg-gradient-to-r from-amber-950/40 via-zinc-900/60 to-zinc-950 border border-amber-900/30">
-                <div className="relative w-14 h-14 rounded-xl border-2 border-amber-500/50 bg-zinc-950 overflow-hidden shrink-0 shadow-md">
-                  <Image
-                    src={story.avatarImage}
-                    alt={story.title}
-                    fill
-                    className="object-contain p-1"
-                    unoptimized
-                  />
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 p-3.5 rounded-xl bg-gradient-to-r from-amber-950/40 via-zinc-900/60 to-zinc-950 border border-amber-900/40 shadow-sm">
+                <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-amber-900 via-amber-950 to-black border-2 border-amber-400 shadow-[0_4px_16px_rgba(0,0,0,0.8),0_0_12px_rgba(245,158,11,0.3)] flex items-center justify-center overflow-hidden shrink-0 p-0.5">
+                  <div className="relative w-full h-full rounded-lg overflow-hidden bg-zinc-950/80">
+                    <Image
+                      src={story.avatarImage}
+                      alt={story.title}
+                      fill
+                      className="object-contain p-0.5"
+                      unoptimized
+                    />
+                  </div>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-mono text-zinc-400 block mb-1">Creatures in this story:</span>
+                  <span className="text-[11px] font-mono text-zinc-400 block mb-1.5">Creatures in this story:</span>
                   <div className="flex flex-wrap gap-2">
                     {story.characters.map((char, idx) => (
-                      <div key={idx} className="flex items-center gap-1.5 bg-zinc-900/90 border border-amber-500/40 px-2.5 py-1 rounded-full shadow-sm">
-                        <div className="relative w-5 h-5 rounded-full overflow-hidden bg-black/40 border border-amber-400/40 shrink-0">
+                      <div key={idx} className="flex items-center gap-2 bg-zinc-900/95 border border-amber-500/50 px-2.5 py-1.5 rounded-xl shadow-sm">
+                        <div className="relative w-7 h-7 rounded-lg overflow-hidden bg-amber-950/90 border border-amber-400/60 shrink-0">
                           <Image
                             src={char.image}
                             alt={char.name}
                             fill
-                            className="object-contain"
+                            className="object-contain p-0.5"
                             unoptimized
                           />
                         </div>
@@ -138,10 +140,14 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
                 </div>
               </div>
 
-              {/* Atmospheric Narrative Text (Parchment styled) */}
-              <div className="p-4 sm:p-5 rounded-xl bg-[#fdfaf3] text-[#2c221a] shadow-inner border border-amber-300/40 space-y-3 font-serif text-sm sm:text-base leading-relaxed">
+              {/* Atmospheric Narrative Text (Parchment styled with soft black ink) */}
+              <div className="parchment-container storybook-parchment p-5 sm:p-6 rounded-xl bg-[#fdfaf3] shadow-inner border border-amber-300/40 space-y-3 font-serif text-sm sm:text-base leading-relaxed">
                 {story.narrativeText.split('\n\n').map((paragraph, pIdx) => (
-                  <p key={pIdx} className="first-letter:text-2xl first-letter:font-bold first-letter:text-amber-900 first-letter:mr-0.5">
+                  <p
+                    key={pIdx}
+                    className="text-[#1c140d] font-serif leading-relaxed"
+                    style={{ color: '#1c140d', textShadow: 'none' }}
+                  >
                     {paragraph}
                   </p>
                 ))}
@@ -149,7 +155,7 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
 
               {/* Action Choices Section */}
               <div className="space-y-2.5 pt-1">
-                <span className="text-[11px] uppercase font-mono tracking-wider font-bold text-amber-400 flex items-center gap-1.5">
+                <span className="text-xs font-mono tracking-wide font-bold text-amber-400 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" /> What would you like to do?
                 </span>
 
@@ -167,10 +173,10 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
                     >
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-sm text-amber-300 font-serif group-hover:text-amber-200">
-                            [{choice.verb}]
+                          <span className="font-bold text-sm text-amber-300 font-serif group-hover:text-amber-200">
+                            {choice.verb}
                           </span>
-                          <Badge variant="outline" className={cn("text-[9px] uppercase font-mono px-1.5 py-0 font-bold", getVirtueBadgeStyle(choice.virtueType))}>
+                          <Badge variant="outline" className={cn("text-[9px] font-mono px-1.5 py-0 font-bold", getVirtueBadgeStyle(choice.virtueType))}>
                             +{choice.virtuePoints} {choice.virtueType}
                           </Badge>
                         </div>
@@ -194,17 +200,21 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
               {/* Selected Choice Pill */}
               <div className="flex items-center justify-between p-2.5 px-4 rounded-xl bg-amber-950/40 border border-amber-500/40">
                 <span className="text-xs text-zinc-300 font-sans">
-                  You chose: <strong className="text-amber-300 font-serif">[{selectedChoice.verb}]</strong>
+                  You chose: <strong className="text-amber-300 font-serif">{selectedChoice.verb}</strong>
                 </span>
-                <Badge variant="outline" className={cn("text-[9px] uppercase font-mono font-bold", getVirtueBadgeStyle(selectedChoice.virtueType))}>
+                <Badge variant="outline" className={cn("text-[9px] font-mono font-bold", getVirtueBadgeStyle(selectedChoice.virtueType))}>
                   +{selectedChoice.virtuePoints} {selectedChoice.virtueType}
                 </Badge>
               </div>
 
               {/* Resolution Text (Parchment) */}
-              <div className="p-4 sm:p-5 rounded-xl bg-[#fdfaf3] text-[#2c221a] shadow-inner border border-amber-300/40 space-y-3 font-serif text-sm sm:text-base leading-relaxed">
+              <div className="parchment-container storybook-parchment p-5 sm:p-6 rounded-xl bg-[#fdfaf3] shadow-inner border border-amber-300/40 space-y-3 font-serif text-sm sm:text-base leading-relaxed">
                 {selectedChoice.resolutionText.split('\n\n').map((paragraph, pIdx) => (
-                  <p key={pIdx}>
+                  <p
+                    key={pIdx}
+                    className="text-[#1c140d] font-serif leading-relaxed"
+                    style={{ color: '#1c140d', textShadow: 'none' }}
+                  >
                     {paragraph}
                   </p>
                 ))}
@@ -212,7 +222,7 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
 
               {/* Real-Life Habit Lesson Moral Callout */}
               <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-950/60 via-teal-950/40 to-zinc-950 border border-emerald-500/40 space-y-1 shadow-md">
-                <span className="text-[10px] font-mono uppercase font-bold text-emerald-400 flex items-center gap-1.5">
+                <span className="text-[10px] font-mono font-bold text-emerald-400 flex items-center gap-1.5">
                   🌱 What we learned:
                 </span>
                 <p className="text-xs text-emerald-100 font-sans font-medium italic leading-relaxed">

@@ -70,27 +70,29 @@ export function TalesShelfCard() {
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="relative w-12 h-12 rounded-xl bg-zinc-900 border border-amber-500/40 overflow-hidden shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                      <Image
-                        src={story.avatarImage}
-                        alt={story.title}
-                        fill
-                        className="object-contain p-1"
-                        unoptimized
-                      />
+                    <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-amber-900 via-amber-950 to-black border-2 border-amber-400 shadow-[0_4px_16px_rgba(0,0,0,0.8),0_0_12px_rgba(245,158,11,0.3)] overflow-hidden shrink-0 group-hover:scale-105 transition-transform p-0.5">
+                      <div className="relative w-full h-full rounded-lg overflow-hidden bg-zinc-950/80">
+                        <Image
+                          src={story.avatarImage}
+                          alt={story.title}
+                          fill
+                          className="object-contain p-0.5"
+                          unoptimized
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-1 flex-1 min-w-0">
                       <h4 className="text-sm font-bold text-zinc-100 font-serif group-hover:text-amber-300 transition-colors line-clamp-1">
                         {story.title}
                       </h4>
                       {/* Mini creature badges */}
                       <div className="flex items-center gap-1.5 flex-wrap">
                         {story.characters.map((c, i) => (
-                          <div key={i} className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded-full text-[10px] text-zinc-300">
-                            <div className="relative w-3.5 h-3.5 rounded-full overflow-hidden shrink-0">
-                              <Image src={c.image} alt={c.name} fill className="object-contain" unoptimized />
+                          <div key={i} className="flex items-center gap-1.5 bg-zinc-900/90 border border-amber-500/40 px-2 py-0.5 rounded-full text-[10px] text-amber-200 shadow-sm">
+                            <div className="relative w-4 h-4 rounded-full overflow-hidden bg-amber-950/80 border border-amber-400/50 shrink-0">
+                              <Image src={c.image} alt={c.name} fill className="object-contain p-0.5" unoptimized />
                             </div>
-                            <span>{c.name}</span>
+                            <span className="font-serif font-medium">{c.name}</span>
                           </div>
                         ))}
                       </div>

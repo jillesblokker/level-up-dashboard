@@ -43,8 +43,14 @@
 [data-theme="oldskool"] .parchment-container,
 .theme-oldskool .parchment-container,
 [data-theme="oldskool"] .parchment-container *:not(.chronicle-dropcap),
-.theme-oldskool .parchment-container *:not(.chronicle-dropcap) {
-  color: #2b201a !important;
+.theme-oldskool .parchment-container *:not(.chronicle-dropcap),
+.storybook-parchment,
+.storybook-parchment *,
+[data-theme="oldskool"] .storybook-parchment,
+[data-theme="oldskool"] .storybook-parchment *,
+.theme-oldskool .storybook-parchment,
+.theme-oldskool .storybook-parchment * {
+  color: #1c140d !important;
   text-shadow: none !important;
 }
 

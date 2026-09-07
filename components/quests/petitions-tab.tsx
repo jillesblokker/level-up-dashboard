@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -116,12 +117,12 @@ export function PetitionsTab() {
       {/* Active Petitions Section (4 Active Petitions) */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-serif font-bold text-amber-300 uppercase tracking-wider flex items-center gap-2">
-            <Scale className="w-4 h-4 text-amber-400" /> Pending Realm Petitions (4 Active)
+          <h3 className="text-sm font-serif font-bold text-amber-300 tracking-wide flex items-center gap-2">
+            <Scale className="w-4 h-4 text-amber-400" /> Pending realm petitions (4 active)
           </h3>
           <div className="flex items-center gap-2">
             <span className="text-xs text-zinc-400 font-mono hidden sm:inline">
-              {petitions.filter(p => !p.completed).length} Pending Decrees
+              {petitions.filter(p => !p.completed).length} pending decrees
             </span>
             <Button
               size="sm"
@@ -129,7 +130,7 @@ export function PetitionsTab() {
               onClick={handleRefreshPetitions}
               className="h-8 text-xs border-amber-900/40 text-amber-300 hover:bg-amber-950/40 font-mono font-bold"
             >
-              <RefreshCw className="w-3.5 h-3.5 mr-1" /> New 4 Petitions
+              <RefreshCw className="w-3.5 h-3.5 mr-1" /> New 4 petitions
             </Button>
           </div>
         </div>
@@ -149,7 +150,22 @@ export function PetitionsTab() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-3 border-b border-amber-900/30 pb-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-3xl filter drop-shadow">{p.requesterAvatar}</span>
+                      {/* Golden RPG HUD Styled Avatar Frame */}
+                      <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-amber-900 via-amber-950 to-black border-2 border-amber-400 shadow-[0_4px_16px_rgba(0,0,0,0.8),0_0_12px_rgba(245,158,11,0.3)] flex items-center justify-center overflow-hidden shrink-0 p-0.5">
+                        {p.requesterImage ? (
+                          <div className="relative w-full h-full rounded-lg overflow-hidden bg-zinc-950/80">
+                            <Image
+                              src={p.requesterImage}
+                              alt={p.requesterRole}
+                              fill
+                              className="object-contain p-0.5"
+                              unoptimized
+                            />
+                          </div>
+                        ) : (
+                          <span className="text-2xl filter drop-shadow">{p.requesterAvatar}</span>
+                        )}
+                      </div>
                       <div>
                         <h4 className="font-serif font-bold text-amber-200 text-base leading-snug">
                           {p.title}
@@ -201,8 +217,8 @@ export function PetitionsTab() {
                   </div>
                 ) : (
                   <div className="bg-zinc-950/80 p-3 rounded-xl border border-emerald-500/30 text-xs space-y-1.5">
-                    <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block font-mono">
-                      Chosen Decree Outcome:
+                    <span className="text-[10px] text-amber-400 font-bold tracking-wide block font-mono">
+                      Chosen decree outcome:
                     </span>
                     <p className="text-zinc-300 italic font-serif text-[11px] leading-relaxed">
                       {p.chosenOutcome?.storyText || "Decree executed cleanly."}
@@ -226,7 +242,7 @@ export function PetitionsTab() {
                 </span>
               </div>
               <DialogTitle className="text-xl sm:text-2xl font-medieval text-amber-300">
-                Royal Decree Outcome
+                Royal decree outcome
               </DialogTitle>
               <DialogDescription className="text-xs text-amber-200/80 italic">
                 Decree: &quot;{activeOutcomeModal.chosenOptionLabel}&quot;
@@ -240,19 +256,19 @@ export function PetitionsTab() {
 
               <div className="flex items-center justify-between text-xs font-mono font-bold flex-wrap gap-2">
                 <span className={activeOutcomeModal.outcome.goldChange >= 0 ? "text-amber-400" : "text-red-400"}>
-                  🪙 Treasury Gold: {activeOutcomeModal.outcome.goldChange >= 0 ? '+' : ''}{activeOutcomeModal.outcome.goldChange} Gold
+                  🪙 Treasury gold: {activeOutcomeModal.outcome.goldChange >= 0 ? '+' : ''}{activeOutcomeModal.outcome.goldChange} Gold
                 </span>
                 <span className={activeOutcomeModal.outcome.loyaltyChange >= 0 ? "text-emerald-400" : "text-orange-400"}>
-                  👑 Town Loyalty: {activeOutcomeModal.outcome.loyaltyChange >= 0 ? '+' : ''}{activeOutcomeModal.outcome.loyaltyChange}%
+                  👑 Town loyalty: {activeOutcomeModal.outcome.loyaltyChange >= 0 ? '+' : ''}{activeOutcomeModal.outcome.loyaltyChange}%
                 </span>
               </div>
             </div>
 
             <Button
               onClick={() => setActiveOutcomeModal(null)}
-              className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-extrabold uppercase tracking-wider text-xs shadow-lg rounded-xl"
+              className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-extrabold tracking-wide text-xs shadow-lg rounded-xl"
             >
-              Enact & Continue ✓
+              Enact & continue ✓
             </Button>
           </DialogContent>
         </Dialog>

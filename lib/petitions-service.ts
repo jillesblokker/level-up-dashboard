@@ -26,6 +26,7 @@ export interface Petition {
   title: string;
   requesterRole: string;
   requesterAvatar: string;
+  requesterImage?: string;
   description: string;
   optionA: PetitionOption;
   optionB: PetitionOption;
@@ -95,22 +96,23 @@ export function updateCitizenHappiness(delta: number): CitizenHappinessState {
 export const STORY_PETITIONS_TEMPLATES: Petition[] = [
   {
     id: 'pet-1',
-    title: "Ember Drake's Hiccup Calamity",
-    requesterRole: 'Dragon Handler Ignis',
+    title: "Ember Drake's hiccup calamity",
+    requesterRole: 'Ember Drake',
     requesterAvatar: '🐉',
-    description: "Four angry washerwomen and a dragon handler are screaming in your court room! Ignis's pet Ember Drake got hiccups after eating wild chilies and is accidentally flame-roasting the laundry hanging across the courtyard.",
+    requesterImage: '/images/creatures/EmberDrake.webp',
+    description: "Town weavers and alchemists are in court! An Ember Drake got hiccups after eating wild chili peppers and is accidentally flame-roasting the laundry drying across the castle courtyard.",
     optionA: {
-      label: "Feed Ember Drake Frost Ice Cream",
-      description: "Buy a tub of magical mint ice cream to cool the dragon's throat.",
+      label: "Feed Ember Drake frost ice cream",
+      description: "Buy a tub of magical mint ice cream to soothe the dragon's throat.",
       outcomes: [
         {
-          storyText: "🤪 Brain-Freeze Burp! The Ember Drake loved the ice cream so much it got brain-freeze, tumbled into a hay cart, and burped a giant rainbow sparkler that singed Lord Sterling's velvet cape! Clean-up bill: 50 Gold.",
+          storyText: "Brain freeze burp! The Ember Drake loved the ice cream so much it got brain freeze, tumbled into a hay cart, and burped a giant rainbow sparkler that singed a royal tapestry! Clean-up bill: 50 Gold.",
           goldChange: -50,
           loyaltyChange: -4,
           isFunnyTwist: true
         },
         {
-          storyText: "🌟 Steam Ironing Miracle! The ice cream cured the hiccups instantly! The happy Ember Drake blew warm gentle steam that dried 200 wet shirts in 10 seconds, earning tips from the washerwomen!",
+          storyText: "Steam ironing miracle! The ice cream cured the hiccups instantly! The happy Ember Drake blew warm gentle steam that dried 200 wet shirts in seconds, earning tips from grateful weavers!",
           goldChange: 220,
           loyaltyChange: 12,
           itemReward: 'material-wood',
@@ -119,17 +121,17 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
       ]
     },
     optionB: {
-      label: "Douse the Drake with Water Barrels",
-      description: "Order guards to dump cold moat water on the dragon.",
+      label: "Douse the Drake with cool water",
+      description: "Order guards to splash clean well water on the dragon.",
       outcomes: [
         {
-          storyText: "🤮 Courtroom Sauna Catastrophe! The wet Ember Drake sneezed a giant cloud of smelly sulfur steam, turning the throne room into a muggy sauna! The council members had to strip to their silk underwear!",
+          storyText: "Sauna surprise! The wet Ember Drake sneezed a giant cloud of warm sulfur steam, turning the courtroom into a steamy bathhouse! The town council had to fan themselves with parchment.",
           goldChange: -40,
           loyaltyChange: -6,
           isFunnyTwist: true
         },
         {
-          storyText: "🤝 Unexpected Spa Launch! The warm steam cloud drifted to the apothecary garden, reviving rare orchids that alchemists bought for top gold!",
+          storyText: "Aromatic mist! The warm steam drifted into the apothecary garden, reviving rare orchids that herbalists bought for top gold!",
           goldChange: 180,
           loyaltyChange: 10,
           itemReward: 'material-plank',
@@ -140,22 +142,23 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
   },
   {
     id: 'pet-2',
-    title: "Sage Owl's Stolen Diary",
-    requesterRole: 'Arch-Librarian Ezra',
+    title: "Sage Owl's stolen diary",
+    requesterRole: 'Sage Owl',
     requesterAvatar: '🦉',
-    description: "Three frantic scholars and a guard captain are arguing before your throne! A wild Sage Owl swooped into the library archives, grabbed the King's secret diary, and roosted atop the castle flagpole.",
+    requesterImage: '/images/creatures/SageOwl.webp',
+    description: "Town scholars and guards are arguing in your courtroom! A wild Sage Owl swooped into the library archives, snatched the King's secret diary, and roosted high atop the castle flagpole.",
     optionA: {
-      label: "Offer Sage Owl Premium Cave Mice",
-      description: "Send a quiet handler to entice the owl with delicious treats.",
+      label: "Offer Sage Owl golden seeds",
+      description: "Send a quiet handler to entice the wise bird down with roasted pumpkin seeds.",
       outcomes: [
         {
-          storyText: "💥 Moat Splash Drop! The Sage Owl traded the diary for mice, but accidentally dropped the book into the moat where a giant carp ate page 42! Repairing the binding cost 45 Gold.",
+          storyText: "Moat splash! The Sage Owl traded the diary for seeds, but accidentally dropped the book into the moat where a giant carp nibbled the cover! Restoration bill: 45 Gold.",
           goldChange: -45,
           loyaltyChange: -3,
           isFunnyTwist: true
         },
         {
-          storyText: "📜 Lost Scroll Bonus! The Sage Owl returned the diary along with an ancient lost blueprint scroll it found tucked inside the flagpole rafters!",
+          storyText: "Ancient blueprint bonus! The Sage Owl returned the diary along with an ancient blueprint scroll it found tucked beneath the tower rafters!",
           goldChange: 260,
           loyaltyChange: 14,
           itemReward: 'material-crystal',
@@ -164,17 +167,17 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
       ]
     },
     optionB: {
-      label: "Order Guard to Climb Flagpole",
-      description: "Command Captain Ironclad to shimmy up the flagpole in full armor.",
+      label: "Climb the flagpole with a net",
+      description: "Send an agile scout to retrieve the diary quietly.",
       outcomes: [
         {
-          storyText: "👖 Flagpole Pants Snag! The captain's iron trousers caught on the flagpole finial, dangling him upside down while the Sage Owl hooted sarcastically at the crowd!",
+          storyText: "Flagpole snag! The scout's trousers caught on the banner finial, leaving him dangling upside down while the Sage Owl hooted softly at the crowd!",
           goldChange: -35,
           loyaltyChange: -5,
           isFunnyTwist: true
         },
         {
-          storyText: "🏅 Heroic Retrieval! Captain Ironclad retrieved the diary cleanly and found a nest of shiny golden thimbles at the top!",
+          storyText: "Graceful retrieval! The scout retrieved the diary safely and found a clutch of shiny copper badges in the owl's nest!",
           goldChange: 150,
           loyaltyChange: 9,
           isFunnyTwist: false
@@ -184,22 +187,23 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
   },
   {
     id: 'pet-3',
-    title: "Spirit Sprite's Neon Dye Prank",
-    requesterRole: 'Mayor Barnaby',
+    title: "Spirit Sprite's neon dye prank",
+    requesterRole: 'Spirit Sprite',
     requesterAvatar: '🧚',
-    description: "Mayor Barnaby and 4 tanners brought a blue duck to court! A mischievous Spirit Sprite dumped glowing dye into the river, turning all the sheep, ducks, and Mayor Barnaby's beard neon blue.",
+    requesterImage: '/images/creatures/SpiritSprite.webp',
+    description: "Town tanners and shepherds brought a bright blue duck to court! A mischievous Spirit Sprite dumped glowing dye into the river, turning the sheep, ducks, and town bridges neon blue.",
     optionA: {
-      label: "Embrace Neon Blue Wool Fashion",
-      description: "Declare neon blue as the realm's official trend.",
+      label: "Embrace neon blue wool fashion",
+      description: "Declare bright neon blue as the realm's new official festival color.",
       outcomes: [
         {
-          storyText: "🥛 Pink Milk Surprise! The Spirit Sprite thought you loved the joke and turned the castle milk supply bright pink the next morning! Cleaning fees: 60 Gold.",
+          storyText: "Pink milk surprise! The Spirit Sprite thought you loved the color joke and turned the town milk supply rosy pink the next morning! Refreshment fees: 60 Gold.",
           goldChange: -60,
           loyaltyChange: -5,
           isFunnyTwist: true
         },
         {
-          storyText: "✨ Foreign Export Craze! Neon blue wool became a luxury fashion craze in neighboring kingdoms, netting massive export gold!",
+          storyText: "Trade trend boom! Neon blue wool became a luxury fashion craze across neighboring ports, bringing great wealth to local spinners!",
           goldChange: 310,
           loyaltyChange: 16,
           isFunnyTwist: false
@@ -207,17 +211,17 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
       ]
     },
     optionB: {
-      label: "Set Arcane Spirit Traps",
-      description: "Order alchemists to lay glowing net traps around the riverbank.",
+      label: "Set arcane spirit traps",
+      description: "Ask alchemists to lay glowing net traps along the riverbank.",
       outcomes: [
         {
-          storyText: "🦶 Chancellor Trapped! The trap caught High Chancellor Sterling's ankle instead, catapulting him into a manure pile!",
+          storyText: "Net tangle! The trap caught a wandering merchant's boots instead, tipping a cart of cabbages into the cobblestone ditch!",
           goldChange: -50,
           loyaltyChange: -8,
           isFunnyTwist: true
         },
         {
-          storyText: "💡 Free Street Lighting! The Spirit Sprite surrendered, apologized, and offered to illuminate the dark alleyways for free every night!",
+          storyText: "Evening streetlights! The Spirit Sprite made peace and offered to illuminate the dark alleyways with friendly fairy fire every evening!",
           goldChange: 190,
           loyaltyChange: 12,
           isFunnyTwist: false
@@ -227,22 +231,23 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
   },
   {
     id: 'pet-4',
-    title: "Titan Wyrm's Midnight Toothache",
-    requesterRole: 'High Captain Vance',
+    title: "Titan Wyrm's midnight toothache",
+    requesterRole: 'Titan Wyrm',
     requesterAvatar: '🐲',
-    description: "Two panicking smiths and Captain Vance reported that a juvenile Titan Wyrm landed outside the city gates with a giant toothache, groaning so loudly that castle chandeliers are rattling!",
+    requesterImage: '/images/titans/astral_wyrm.webp',
+    description: "Blacksmiths and gate sentries report that a juvenile Titan Wyrm curled outside the city gates with a giant toothache, groaning so deeply that castle chandeliers are rattling!",
     optionA: {
-      label: "Send Master Smith with Giant Pliers",
-      description: "Dispatch Ironbeard to pull the aching tooth with armory tools.",
+      label: "Extract tooth with forge tongs",
+      description: "Dispatch royal smiths with giant iron pliers to pull the aching fang.",
       outcomes: [
         {
-          storyText: "🐕 Tail Wag Destruction! Ironbeard pulled the tooth, but the relieved Titan Wyrm wagged its tail like a excited puppy, knocking over the tollbooth sign! Repair bill: 75 Gold.",
+          storyText: "Tail wag tumble! The tooth popped out cleanly, but the relieved Wyrm wagged its tail like a happy puppy, knocking over the stone toll sign! Repair bill: 75 Gold.",
           goldChange: -75,
           loyaltyChange: -4,
           isFunnyTwist: true
         },
         {
-          storyText: "💰 Swallowed Treasure Reward! The grateful Titan Wyrm coughed up a chest of swallowed pirate gold and pledged to guard the harbor!",
+          storyText: "Wyrm gift reward! Grateful for the relief, the Titan Wyrm coughed up a chest of sunken pirate silver and pledged to watch over the gates!",
           goldChange: 380,
           loyaltyChange: 20,
           itemReward: 'material-steel',
@@ -251,17 +256,17 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
       ]
     },
     optionB: {
-      label: "Feed Wyrm Sticky Marshmallows",
-      description: "Send bakers with crates of soft gooey marshmallows to soothe the gum.",
+      label: "Feed Wyrm soft sweet buns",
+      description: "Send town bakers with crates of honey-glazed buns to soothe the gum.",
       outcomes: [
         {
-          storyText: "🎃 Pumpkin Patch Trample! The marshmallows stuck the Titan Wyrm's jaws shut. It panicked, ran in circles, and squished the royal pumpkin patch!",
+          storyText: "Sticky snout! The sweet buns stuck the Wyrm's jaws shut temporarily. It sneezed in surprise, scattering flour over the guardhouse!",
           goldChange: -65,
           loyaltyChange: -6,
           isFunnyTwist: true
         },
         {
-          storyText: "😴 Peaceful Slumber! The tooth popped out painlessly into the marshmallow goo, and the Wyrm fell asleep peacefully outside the gate!",
+          storyText: "Peaceful slumber! The tooth worked loose painlessly in the soft dough, and the gentle beast curled up to sleep soundly outside the walls.",
           goldChange: 210,
           loyaltyChange: 11,
           isFunnyTwist: false
@@ -272,21 +277,22 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
   {
     id: 'pet-5',
     title: "Greeny minotaur's labyrinth cafe",
-    requesterRole: 'Greeny minotaur Asterion',
+    requesterRole: 'Greeny minotaur',
     requesterAvatar: '🐮',
-    description: "A friendly Greeny minotaur opened a maze coffee shop near the west wall, but customers keep getting lost in the hedges for 4 days! Three weeping mothers are demanding royal action in court.",
+    requesterImage: '/images/Mythics/Mythic1green.webp',
+    description: "A friendly Greeny minotaur opened an outdoor maze coffee terrace near the city wall, but patrons keep wandering in circles for hours! Three concerned citizens are petitioning your court.",
     optionA: {
-      label: "Hire Scout Citizens as Maze Guides",
-      description: "Pay experienced scouts to escort coffee drinkers through the hedges.",
+      label: "Hire scout citizens as guides",
+      description: "Pay experienced scouts to escort beverage drinkers safely through the hedges.",
       outcomes: [
         {
-          storyText: "🧵 Yarn Rescue Disaster! The scouts got lost in the maze too! A rescue party had to be guided out by Asterion using a giant spool of wool yarn! Cost: 55 Gold.",
+          storyText: "Yarn rescue party! The scouts got turned around too! A search party had to be led out with a giant spool of colorful yarn! Cost: 55 Gold.",
           goldChange: -55,
           loyaltyChange: -4,
           isFunnyTwist: true
         },
         {
-          storyText: "☕ Tourist Attraction Boom! The scouts turned the cafe into a famous guided maze adventure, drawing wealthy weekend tourists!",
+          storyText: "Terrace tourism boom! The scouts turned the cafe into a beloved guided garden adventure, drawing visitors from across the realm!",
           goldChange: 290,
           loyaltyChange: 15,
           isFunnyTwist: false
@@ -294,17 +300,17 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
       ]
     },
     optionB: {
-      label: "Order Asterion to Trim Hedges",
-      description: "Require the Minotaur to cut clear straight pathways.",
+      label: "Trim hedges into straight paths",
+      description: "Help the Minotaur prune clear walking corridors.",
       outcomes: [
         {
-          storyText: "👑 Royal Face Topiary! Asterion trimmed the hedges into giant funny topiary shapes of your Majesty's face, making the town burst into laughter!",
+          storyText: "Royal topiary! The Minotaur sculpted the hedges into funny topiary portraits of your Majesty, delighting town visitors with laughter!",
           goldChange: 170,
           loyaltyChange: 14,
           isFunnyTwist: false
         },
         {
-          storyText: "🚿 Pipe Burst Flood! Asterion accidentally clipped through the aqueduct pipe, turning the maze cafe into a muddy swamp!",
+          storyText: "Water pipe snip! An accidental hedge clipper clipped a fountain conduit, turning the seating area into a shallow duck pond!",
           goldChange: -70,
           loyaltyChange: -7,
           isFunnyTwist: true
@@ -315,21 +321,22 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
   {
     id: 'pet-6',
     title: "Reddy cyclops's reading monocle",
-    requesterRole: 'Reddy cyclops Brontes',
+    requesterRole: 'Reddy cyclops',
     requesterAvatar: '👁️',
-    description: "A friendly Reddy cyclops wants a massive glass monocle so he can read romance novels in the park. Two glassblowers and a guard captain are arguing in your court room.",
+    requesterImage: '/images/Mythics/Mythic1red.webp',
+    description: "A friendly Reddy cyclops wishes for a massive magnifying monocle so he can read adventure scrolls in the public park. Town glassblowers and scholars are seeking your guidance.",
     optionA: {
-      label: "Craft Giant Glass Monocle",
-      description: "Commission the glassblowers to forge a 4-foot magnifying lens.",
+      label: "Craft giant glass monocle",
+      description: "Commission the glassworks to forge a polished four-foot lens.",
       outcomes: [
         {
-          storyText: "🔥 Singed Guardhouse! The monocle acted as a giant magnifying glass in the afternoon sun, accidentally igniting the guardhouse curtains! Repair bill: 80 Gold.",
+          storyText: "Sunbeam scare! The big lens caught the bright afternoon sun and singed the lawn gazebo curtains! Repair cost: 80 Gold.",
           goldChange: -80,
           loyaltyChange: -5,
           isFunnyTwist: true
         },
         {
-          storyText: "📚 Tears of Joy! The Cyclops put on the monocle, wept tears of joy over a love poem, and donated a sack of iron ore to the forge!",
+          storyText: "Tears of joy! The Cyclops put on the monocle, read his favorite poetry with tears of happiness, and gifted a pouch of iron ingots to the forge!",
           goldChange: 260,
           loyaltyChange: 14,
           itemReward: 'material-steel',
@@ -338,17 +345,17 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
       ]
     },
     optionB: {
-      label: "Give Cyclops a Pirate Eye Patch",
-      description: "Offer a stylish leather pirate eye patch instead.",
+      label: "Offer stylish pirate patch",
+      description: "Present a dashing leather eye patch as a fun disguise.",
       outcomes: [
         {
-          storyText: "🌊 Moat Splashdown! With an eye patch over his ONLY eye, Brontes walked blindly into the moat and drenched the High Council in duckweed!",
+          storyText: "Pond tumble! With an eye patch over his single eye, the Cyclops stepped blindly into the duck pond, splashing water all over the terrace!",
           goldChange: -45,
           loyaltyChange: -6,
           isFunnyTwist: true
         },
         {
-          storyText: "🏴‍☠️ Harbor Watch Officer! Brontes loved his pirate look, became the official harbor gatekeeper, and scared off river pirates!",
+          storyText: "Harbor sentinel! The Cyclops loved his brave pirate look, took up a post as harbor gatekeeper, and kept stray river monsters away!",
           goldChange: 210,
           loyaltyChange: 12,
           isFunnyTwist: false
@@ -358,22 +365,23 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
   },
   {
     id: 'pet-7',
-    title: "Sky Gryphon's Dock Crane Nest",
-    requesterRole: 'Captain Horizon',
-    requesterAvatar: '🦅',
-    description: "A Sky Gryphon built a giant twig nest directly atop the main airship dock crane, halting all Ether voyages! Captain Horizon and a gryphon breeder are shouting before your throne.",
+    title: "Dolphio's harbor fountain splash",
+    requesterRole: 'Dolphio',
+    requesterAvatar: '🐬',
+    requesterImage: '/images/creatures/Dolphio.webp',
+    description: "Dolphio has been performing acrobatic triple flips in the royal fountain canal, splashing trade wagons and gathering a crowd of clapping apprentices.",
     optionA: {
-      label: "Relocate Nest with Silk Pillows",
-      description: "Pay handlers to carefully move the nest to the high watchtower.",
+      label: "Host aquatic festival show",
+      description: "Turn the fountain display into an official public spectacle with grandstands.",
       outcomes: [
         {
-          storyText: "🛏️ Pillow Theft! The Sky Gryphon loved the silk pillows so much it swooped down and stole 4 more from your royal bedchamber! Pillow cost: 60 Gold.",
-          goldChange: -60,
-          loyaltyChange: -4,
+          storyText: "Massive splash wave! Dolphio did an extra-high twist and drenched the front row of dignitaries head to toe! Drying bills: 50 Gold.",
+          goldChange: -50,
+          loyaltyChange: -3,
           isFunnyTwist: true
         },
         {
-          storyText: "⛵ Flight Speed Boost! The Gryphon settled happily on the watchtower, giving all realm airships a +20% flight speed boost!",
+          storyText: "Festival cheer! Thousands cheered as Dolphio performed synchronized fountain jumps, bringing record merchant trade to the avenue!",
           goldChange: 270,
           loyaltyChange: 15,
           isFunnyTwist: false
@@ -381,19 +389,19 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
       ]
     },
     optionB: {
-      label: "Scare Gryphon with War Drums",
-      description: "Order guards to beat loud bass drums to shoo the bird away.",
+      label: "Guide Dolphio to the deep lagoon",
+      description: "Direct Dolphio to the calm coastal waters where ships arrive.",
       outcomes: [
         {
-          storyText: "🥚 Rolling Giant Egg! The drum noise scared the Gryphon into laying a giant egg that rolled down the hill and knocked over 3 beer kegs!",
-          goldChange: -50,
-          loyaltyChange: -5,
+          storyText: "Anchor rope tangle! Dolphio played tag with the dock ropes, entangling an incoming fishing skiff until divers untangled it!",
+          goldChange: -40,
+          loyaltyChange: -4,
           isFunnyTwist: true
         },
         {
-          storyText: "🏹 Swift Arrow Feathers! The Gryphon flew off gracefully, leaving behind shiny feathers that smiths forged into high-tier arrows!",
-          goldChange: 180,
-          loyaltyChange: 10,
+          storyText: "Safe harbor pilot! Dolphio guided trade caravels smoothly through the fog, earning praise from grateful sea captains!",
+          goldChange: 230,
+          loyaltyChange: 13,
           isFunnyTwist: false
         }
       ]
@@ -401,42 +409,44 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
   },
   {
     id: 'pet-8',
-    title: "Frost Wolf's Summer Heatwave",
-    requesterRole: 'Pack Leader Hrothgar',
-    requesterAvatar: '🐺',
-    description: "A Frost Wolf from the northern peaks came to town in July, panting heavily and melting the town ice house! Two ice merchants and Hrothgar are petitioning for relief in court.",
+    title: "Leaf's overgrown flower vines",
+    requesterRole: 'Leaf',
+    requesterAvatar: '🌱',
+    requesterImage: '/images/creatures/Leaf.webp',
+    description: "Leaf planted magical honeysuckle seeds along the southern gate. Overnight, lush blooming vines grew so fast they wrapped around the gate hinges and locked the wooden latch!",
     optionA: {
-      label: "Build Magic Ice Cellar",
-      description: "Commission alchemists to freeze the castle cellar for the wolf.",
+      label: "Harvest flowers for apothecary",
+      description: "Have herbalists carefully snip the blossoms to brew soothing health teas.",
       outcomes: [
         {
-          storyText: "🍷 Wine Pop Freeze! The cellar froze so solid that the castle wine bottles turned into ice pops! Uncorking bill: 40 Gold.",
+          storyText: "Bee parade! The sweet aroma attracted friendly bumblebees that hovered over the bakery, sending patrons running indoors with their honey cakes!",
           goldChange: -40,
           loyaltyChange: -3,
           isFunnyTwist: true
         },
         {
-          storyText: "🥩 Meat Preservation Triumph! The Frost Wolf chilled the cellar perfectly, preserving summer meat and cutting kingdom food costs in half!",
-          goldChange: 240,
-          loyaltyChange: 13,
+          storyText: "Healing tea reserve! The fragrant honeysuckle produced barrels of restorative flower tonic that filled the kingdom dispensary!",
+          goldChange: 250,
+          loyaltyChange: 15,
+          itemReward: 'material-wood',
           isFunnyTwist: false
         }
       ]
     },
     optionB: {
-      label: "Shave the Frost Wolf's Fur",
-      description: "Order barbers to give the wolf a summer haircut.",
+      label: "Weave vines into living arch",
+      description: "Train the leafy vines into an ornamental greeting arch over the gate.",
       outcomes: [
         {
-          storyText: "🐩 Poodle Humiliation! The shaved Frost Wolf looked like a skinny poodle and felt so embarrassed it hid under the mayor's velvet skirt!",
+          storyText: "Gate creak! The vines were so thick the wooden gate groaned every time it opened, sounding like an old trombone at sunrise!",
           goldChange: -30,
-          loyaltyChange: -5,
+          loyaltyChange: -4,
           isFunnyTwist: true
         },
         {
-          storyText: "🧶 Lux Coat Profit! The soft frost fur was spun into premium winter cloaks that sold for high prices at the market bazaar!",
-          goldChange: 300,
-          loyaltyChange: 16,
+          storyText: "Living floral landmark! Travelers marveled at the green blossoming entryway, praising the kingdom's natural beauty far and wide!",
+          goldChange: 220,
+          loyaltyChange: 13,
           isFunnyTwist: false
         }
       ]
@@ -444,22 +454,23 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
   },
   {
     id: 'pet-9',
-    title: "Chrono Turtle's 0.01 MPH Jam",
-    requesterRole: 'High Trader Valerius',
+    title: "Turtoisy's 0.01 mph jam",
+    requesterRole: 'Turtoisy',
     requesterAvatar: '🐢',
-    description: "An ancient Chrono Turtle is crossing the main cobblestone avenue at 0.01 mph. A lineup of 40 merchant carts and 2 stubborn nobles are stuck behind it, complaining loudly to your throne!",
+    requesterImage: '/images/creatures/Turtoisy.webp',
+    description: "An ancient Turtoisy is crossing the main cobblestone avenue at 0.01 mph. A lineup of 40 merchant carts and 2 stubborn citizens are stuck behind him, complaining loudly to your throne!",
     optionA: {
-      label: "Feed Turtle Speed-up Potion",
-      description: "Administer an alchemy haste elixir to accelerate the turtle.",
+      label: "Feed Turtoisy haste potion",
+      description: "Administer a mild alchemy speed elixir to help Turtoisy walk a little faster.",
       outcomes: [
         {
-          storyText: "🥧 50 MPH Rocket Turtle! The potion made the turtle zoom at 50 mph! It rocketed down the street, crashed through the bakery window, and landed in a rhubarb pie!",
+          storyText: "Rocket Turtoisy! The elixir made Turtoisy zoom at 50 mph! He rocketed down the cobblestones, skidded through the bakery door, and landed softly inside a rhubarb pie!",
           goldChange: -75,
           loyaltyChange: -5,
           isFunnyTwist: true
         },
         {
-          storyText: "✨ Temporal Crop Dust! The turtle walked at a brisk pace, leaving behind glowing temporal dust that doubled nearby crop growth!",
+          storyText: "Temporal crop dust! Turtoisy walked at a brisk gentle pace, leaving behind glowing temporal sparkles that doubled nearby garden growth!",
           goldChange: 220,
           loyaltyChange: 12,
           isFunnyTwist: false
@@ -467,17 +478,17 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
       ]
     },
     optionB: {
-      label: "Build Wooden Ramp Over Turtle",
-      description: "Construct a temporary arch ramp for carts to pass over the turtle.",
+      label: "Build wooden ramp over Turtoisy",
+      description: "Construct a gentle wooden bridge over Turtoisy so carts can pass freely.",
       outcomes: [
         {
-          storyText: "🛒 Carriage Rollback! The ramp was too steep; Lord Sterling's carriage rolled backward into a fruit cart! Repair cost: 55 Gold.",
+          storyText: "Carriage rollback! The ramp was a bit steep; a merchant wagon rolled backward into a melon stand! Clean-up cost: 55 Gold.",
           goldChange: -55,
           loyaltyChange: -6,
           isFunnyTwist: true
         },
         {
-          storyText: "🌉 Turtle Bridge Landmark! The ramp worked great, and citizens turned the turtle bridge into a famous town tourist attraction!",
+          storyText: "Turtoisy bridge landmark! The wooden arch worked wonderfully, and citizens praised the thoughtful solution as a town monument!",
           goldChange: 170,
           loyaltyChange: 10,
           isFunnyTwist: false
@@ -487,22 +498,23 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
   },
   {
     id: 'pet-10',
-    title: "Iron Golem's Flower Garden",
-    requesterRole: 'Guard Captain Ironclad',
-    requesterAvatar: '🤖',
-    description: "A retired Iron Golem abandoned his post at the dungeon gate to plant pink daisies in the main square. Captain Ironclad and the head florist are locked in a heated shouting match in your court.",
+    title: "Rockie's flower garden",
+    requesterRole: 'Rockie',
+    requesterAvatar: '🪨',
+    requesterImage: '/images/creatures/Rockie.webp',
+    description: "Rockie the gentle stone golem left his guard post at the dungeon gate to plant pink daisies across the town square. Town florists and sentries are discussing his new hobby in court.",
     optionA: {
-      label: "Appoint Golem Head Castle Gardener",
-      description: "Assign the gentle Golem to official botanical duty.",
+      label: "Appoint Rockie head castle gardener",
+      description: "Assign the gentle stone giant to official kingdom botanical duty.",
       outcomes: [
         {
-          storyText: "🐝 Hornet Swarm Attack! The Golem stepped on a hidden hornet nest while planting roses. Hornets chased the Golem and stung 3 council members!",
+          storyText: "Hornet scuffle! Rockie accidentally stepped on a hidden wild hornet nest while planting shrubs. Hornets chased him into the fountain!",
           goldChange: -45,
           loyaltyChange: -4,
           isFunnyTwist: true
         },
         {
-          storyText: "🌸 Botanical Paradise! The Golem built the most stunning floral garden in the kingdom, raising citizen wellness by 20%!",
+          storyText: "Botanical paradise! Rockie built the most charming stone-lined daisy garden in the realm, delighting all walking citizens!",
           goldChange: 280,
           loyaltyChange: 17,
           isFunnyTwist: false
@@ -510,17 +522,17 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
       ]
     },
     optionB: {
-      label: "Order Golem Back to Dungeon Patrol",
-      description: "Command the Golem to resume heavy dungeon guard duty.",
+      label: "Order Rockie to wear daisy on patrol",
+      description: "Invite Rockie to guard the dungeon while proudly wearing his flowers.",
       outcomes: [
         {
-          storyText: "😭 Squeaky Rusty Tears! The sad Golem cried rusty tears that squeaked loudly every time he walked during night watch, keeping guards awake!",
+          storyText: "Squeaky pebbles! Rockie tucked daisies into his stone joints, causing tiny pebble clicks every time he took a step during night watch!",
           goldChange: -30,
           loyaltyChange: -4,
           isFunnyTwist: true
         },
         {
-          storyText: "🌼 Daisy Helmet Patrol! The Golem agreed to guard the dungeon while proudly wearing a tiny daisy tucked into his iron visor!",
+          storyText: "Daisy armor patrol! Rockie returned to watch duty with bright pink daisies tucked in his rocky helm, spreading smiles across the ramparts!",
           goldChange: 160,
           loyaltyChange: 9,
           isFunnyTwist: false
@@ -534,9 +546,20 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
 function generateProceduralPool(): Petition[] {
   const list: Petition[] = [];
 
-  const districts = ['Southern Port', 'High Citadel', 'East Meadow', 'West Watchtower', 'Old Market', 'River Bend', 'North Wall', 'Sunken Harbor', 'Shadow Alley', 'Royal Gardens'];
+  const districts = [
+    'Southern Port',
+    'High Citadel',
+    'East Meadow',
+    'West Watchtower',
+    'Old Market',
+    'River Bend',
+    'North Wall',
+    'Sunken Harbor',
+    'Shadow Alley',
+    'Royal Gardens'
+  ];
 
-  // Fill list by cycling through hand-crafted templates with unique district names and IDs up to 100
+  // Fill list by cycling through hand-crafted templates with clean district names and IDs up to 100 (no brackets)
   for (let i = 1; i <= 100; i++) {
     const baseTemplate = STORY_PETITIONS_TEMPLATES[(i - 1) % STORY_PETITIONS_TEMPLATES.length]!;
     const districtName = districts[(i - 1) % districts.length]!;
@@ -544,7 +567,7 @@ function generateProceduralPool(): Petition[] {
     list.push({
       ...baseTemplate,
       id: `pet-${i}`,
-      title: `${baseTemplate.title} (${districtName})`,
+      title: `${baseTemplate.title} in ${districtName}`,
     });
   }
 
@@ -558,11 +581,11 @@ export function getActivePetitions(): Petition[] {
     const local = localStorage.getItem('pref:active-petitions-list');
     if (local) {
       const parsed = JSON.parse(local);
-      // Validate that parsed items have the new outcomes array and total 4 items
+      // Validate that parsed items have the new outcomes array, requesterImage, and no legacy brackets
       if (
         Array.isArray(parsed) &&
         parsed.length === 4 &&
-        parsed.every(p => p && p.optionA && Array.isArray(p.optionA.outcomes))
+        parsed.every(p => p && p.optionA && Array.isArray(p.optionA.outcomes) && p.requesterImage && !p.title.includes('('))
       ) {
         return parsed;
       }

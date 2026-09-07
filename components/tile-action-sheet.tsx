@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { createPortal } from 'react-dom'
-import { ArrowRightLeft, RotateCw, Trash2, X, Sparkles, Clock, Info, Trophy } from 'lucide-react'
+import { ArrowRightLeft, RotateCw, Trash2, X, Sparkles, Clock, Info, Trophy, BookOpen, Scroll } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Tile } from '@/types/tiles'
 
@@ -48,6 +49,7 @@ export function TileActionSheet({
     currentTier,
     onEnter
 }: TileActionSheetProps) {
+    const router = useRouter()
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
@@ -77,13 +79,13 @@ export function TileActionSheet({
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
-                                    {tile.image ? (
+                                    {tile?.image ? (
                                         <Image
                                             src={tile.image}
                                             alt={tileName}
-                                            width={40}
-                                            height={40}
-                                            className="w-10 h-10 object-contain"
+                                            width={36}
+                                            height={36}
+                                            className="object-contain"
                                         />
                                     ) : (
                                         <Info className="w-6 h-6 text-amber-400" />
@@ -118,7 +120,7 @@ export function TileActionSheet({
 
                     {/* Actions */}
                     <div className="p-4 pb-28 md:pb-4 space-y-2 overflow-y-auto">
-                        {/* Enter Hub Action - for Dungeons, Markets, etc. */}
+                        {/* Enter Hub Action - for Dungeons, Markets, Library, etc. */}
                         {onEnter && (
                             <button
                                 onClick={() => {
@@ -128,11 +130,38 @@ export function TileActionSheet({
                                 className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 transition-all active:scale-[0.98] shadow-lg shadow-blue-500/20 mb-2 border border-white/10"
                             >
                                 <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
-                                    <Sparkles className="w-6 h-6 text-white" />
+                                    {tileName.toLowerCase().includes('library') ? (
+                                        <BookOpen className="w-6 h-6 text-white" />
+                                    ) : (
+                                        <Sparkles className="w-6 h-6 text-white" />
+                                    )}
                                 </div>
                                 <div className="text-left flex-1">
-                                    <div className="font-bold text-white text-base">Enter {tileName.replace(/_/g, ' ')}</div>
-                                    <div className="text-blue-100 text-sm">Travel to this location</div>
+                                    <div className="font-bold text-white text-base">
+                                        {tileName.toLowerCase().includes('library') ? 'Read chronicle & archives' : `Enter ${tileName.replace(/_/g, ' ')}`}
+                                    </div>
+                                    <div className="text-blue-100 text-sm">
+                                        {tileName.toLowerCase().includes('library') ? 'View daily journals and reflections' : 'Travel to this location'}
+                                    </div>
+                                </div>
+                            </button>
+                        )}
+
+                        {/* Castle / Archives Action - Open Realm Chronicle */}
+                        {(tile?.type === 'castle' || tileName.toLowerCase().includes('castle')) && (
+                            <button
+                                onClick={() => {
+                                    router.push('/chronicle')
+                                    onClose()
+                                }}
+                                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 transition-all active:scale-[0.98] shadow-lg shadow-amber-900/30 mb-2 border border-amber-500/30"
+                            >
+                                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
+                                    <BookOpen className="w-6 h-6 text-amber-200" />
+                                </div>
+                                <div className="text-left flex-1">
+                                    <div className="font-bold text-white text-base">Read realm chronicle</div>
+                                    <div className="text-amber-200/90 text-sm">View milestone lore, past champions & reflection diary</div>
                                 </div>
                             </button>
                         )}
