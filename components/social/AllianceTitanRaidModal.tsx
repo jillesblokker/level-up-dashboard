@@ -36,18 +36,74 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
   const hpPercent = Math.max(0, Math.min(100, Math.round((titanHp / maxHp) * 100)))
 
   const CHESTS = [
-    { tier: 1, reqHpDamage: 2500, label: 'Bronze alliance chest', reward: '+100 Gold & 2 Essences', claimed: claimedTiers.includes(1) },
-    { tier: 2, reqHpDamage: 5000, label: 'Silver alliance chest', reward: '+250 Gold & 5 Essences', claimed: claimedTiers.includes(2) },
-    { tier: 3, reqHpDamage: 7500, label: 'Gold alliance chest', reward: '+500 Gold & Mythic Blueprint', claimed: claimedTiers.includes(3) }
+    { 
+      tier: 1, 
+      rarity: 'common' as const,
+      reqHpDamage: 2000, 
+      label: 'Common alliance chest', 
+      reward: '+150 Gold & 2 Essences', 
+      claimed: claimedTiers.includes(1) 
+    },
+    { 
+      tier: 2, 
+      rarity: 'uncommon' as const,
+      reqHpDamage: 4000, 
+      label: 'Verdant alliance chest', 
+      reward: '+350 Gold, 4 Essences & 1 Gold potion', 
+      claimed: claimedTiers.includes(2) 
+    },
+    { 
+      tier: 3, 
+      rarity: 'rare' as const,
+      reqHpDamage: 6000, 
+      label: 'Sapphire alliance chest', 
+      reward: '+600 Gold, 6 Essences & 1 Exp potion', 
+      claimed: claimedTiers.includes(3) 
+    },
+    { 
+      tier: 4, 
+      rarity: 'epic' as const,
+      reqHpDamage: 8000, 
+      label: 'Amethyst alliance chest', 
+      reward: '+1,000 Gold, 10 Essences & Mythic Blueprint', 
+      claimed: claimedTiers.includes(4) 
+    },
+    { 
+      tier: 5, 
+      rarity: 'legendary' as const,
+      reqHpDamage: 10000, 
+      label: 'Celestial titan chest', 
+      reward: '+2,000 Gold, 20 Essences, 10 Gems & Astral Blueprint', 
+      claimed: claimedTiers.includes(5) 
+    }
   ]
 
-  const handleClaimChest = (tier: number) => {
+  const handleClaimChest = async (tier: number) => {
     if (!claimedTiers.includes(tier)) {
-      setClaimedTiers([...claimedTiers, tier])
+      const updated = [...claimedTiers, tier]
+      setClaimedTiers(updated)
+      try {
+        localStorage.setItem('claimed_alliance_raid_tiers', JSON.stringify(updated))
+      } catch {}
+
       const chestObj = CHESTS.find(c => c.tier === tier)
+
+      // Grant character stats & gold based on rarity tier
+      try {
+        const { addToCharacterStat } = await import('@/lib/character-stats-service')
+        const goldAmounts = [150, 350, 600, 1000, 2000]
+        const goldToGrant = goldAmounts[tier - 1] || 150
+        await addToCharacterStat('gold', goldToGrant, 'alliance-raid-chest')
+        if (tier >= 4) {
+          await addToCharacterStat('gems', tier === 5 ? 10 : 3, 'alliance-raid-chest')
+        }
+      } catch (err) {
+        console.error('Failed to grant chest rewards:', err)
+      }
+
       toast({
-        title: "🏆 Victory Chest Claimed!",
-        description: `Unlocked ${chestObj?.label || 'Fellowship Chest'}: ${chestObj?.reward || 'Rewards'}!`,
+        title: "Victory chest claimed! 🏆",
+        description: `Unlocked ${chestObj?.label || 'victory chest'}: ${chestObj?.reward || 'rewards'}!`,
       })
     }
   }
@@ -159,13 +215,13 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
             {/* Fellowship Raid Victory Co-op Damage Progress Bar */}
             <div className="bg-zinc-950/80 border border-amber-500/30 rounded-xl p-3 space-y-1.5 shadow-md">
               <div className="flex justify-between items-center text-[10px] font-mono font-bold">
-                <span className="text-amber-300">⚔️ Total Raid Damage: {maxHp - titanHp} / 2,000 DMG</span>
-                <span className="text-emerald-400 font-bold">{Math.round(((maxHp - titanHp) / 2000) * 100)}% to Mythic Victory Chest</span>
+                <span className="text-amber-300">⚔️ Total Raid Damage: {maxHp - titanHp} / 10,000 DMG</span>
+                <span className="text-amber-400 font-bold">{Math.round(((maxHp - titanHp) / 10000) * 100)}% to Celestial Titan Chest</span>
               </div>
-              <Progress value={Math.min(100, Math.round(((maxHp - titanHp) / 2000) * 100))} className="h-2 bg-zinc-900" />
+              <Progress value={Math.min(100, Math.round(((maxHp - titanHp) / 10000) * 100))} className="h-2 bg-zinc-900" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               {CHESTS.map(chest => {
                 const totalDmgDealt = maxHp - titanHp
                 const unlocked = totalDmgDealt >= chest.reqHpDamage
@@ -174,21 +230,21 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
                 return (
                   <div
                     key={chest.tier}
-                    className="flex flex-col items-center p-3 rounded-2xl bg-zinc-950/80 border border-amber-900/40 shadow-lg text-center"
+                    className="flex flex-col items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-zinc-950/80 border border-amber-900/40 shadow-lg text-center"
                   >
                     {/* Animated Fellowship Chest Visual */}
                     <TreasureChestVisual
                       state={chestState}
+                      rarity={chest.rarity}
                       tierLabel={chest.label}
-                      tierColor={chest.tier === 3 ? "from-yellow-700 via-amber-900 to-zinc-950" : chest.tier === 2 ? "from-zinc-500 via-zinc-800 to-zinc-950" : "from-amber-800 via-amber-950 to-zinc-950"}
                       className="w-full h-32 mb-1"
                       onClick={() => unlocked && !chest.claimed && handleClaimChest(chest.tier)}
                     />
 
                     {/* Rewards & Details Directly Underneath */}
                     <div className="w-full space-y-1.5 mt-1">
-                      <div className="font-bold text-xs text-amber-300 font-serif">{chest.label}</div>
-                      <p className="text-[11px] font-mono text-emerald-400 font-semibold bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.5 rounded-full inline-block">
+                      <div className="font-bold text-xs text-amber-300 font-serif leading-tight">{chest.label}</div>
+                      <p className="text-[10px] font-mono text-emerald-400 font-semibold bg-emerald-950/50 border border-emerald-500/30 px-1.5 py-0.5 rounded-full inline-block leading-tight">
                         🎁 {chest.reward}
                       </p>
 

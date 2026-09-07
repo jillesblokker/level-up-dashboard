@@ -210,12 +210,12 @@ export function AllianceDashboard() {
     const MATERIALS = ['material-water', 'material-logs', 'material-stone', 'material-steel'];
     const ESSENCES = ['ember_essence', 'frost_essence', 'tide_essence', 'verdant_essence'];
 
-    const getChestTier = (totalLevel: number) => {
-        if (totalLevel >= 500) return { label: "Legendary Chest", level: 5, color: "text-purple-400 border-purple-500/50 bg-purple-950/30", glow: "shadow-[0_0_20px_rgba(168,85,247,0.4)]" };
-        if (totalLevel >= 250) return { label: "Gold Chest", level: 4, color: "text-yellow-400 border-yellow-500/50 bg-yellow-950/30", glow: "shadow-[0_0_20px_rgba(234,179,8,0.4)]" };
-        if (totalLevel >= 100) return { label: "Silver Chest", level: 3, color: "text-zinc-300 border-zinc-400/50 bg-zinc-900/30", glow: "shadow-[0_0_20px_rgba(161,161,170,0.4)]" };
-        if (totalLevel >= 50) return { label: "Bronze Chest", level: 2, color: "text-amber-600 border-amber-700/50 bg-amber-950/30", glow: "shadow-[0_0_20px_rgba(217,119,6,0.3)]" };
-        return { label: "Iron Chest", level: 1, color: "text-zinc-500 border-zinc-600/50 bg-zinc-900/30", glow: "" };
+    const getChestTier = (totalLevel: number): { label: string; level: number; rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'; color: string; glow: string } => {
+        if (totalLevel >= 500) return { label: "Celestial fellowship chest", level: 5, rarity: "legendary", color: "text-amber-300 border-amber-500/50 bg-amber-950/30", glow: "shadow-[0_0_20px_rgba(245,158,11,0.5)]" };
+        if (totalLevel >= 250) return { label: "Amethyst fellowship chest", level: 4, rarity: "epic", color: "text-purple-400 border-purple-500/50 bg-purple-950/30", glow: "shadow-[0_0_20px_rgba(168,85,247,0.4)]" };
+        if (totalLevel >= 100) return { label: "Sapphire fellowship chest", level: 3, rarity: "rare", color: "text-blue-300 border-blue-400/50 bg-blue-950/30", glow: "shadow-[0_0_20px_rgba(59,130,246,0.4)]" };
+        if (totalLevel >= 50) return { label: "Verdant fellowship chest", level: 2, rarity: "uncommon", color: "text-emerald-400 border-emerald-500/50 bg-emerald-950/30", glow: "shadow-[0_0_20px_rgba(16,185,129,0.3)]" };
+        return { label: "Common fellowship chest", level: 1, rarity: "common", color: "text-zinc-400 border-zinc-600/50 bg-zinc-900/30", glow: "" };
     };
 
     const DailyAllianceChest = ({ allianceId, totalLevel, checkedInToday }: { allianceId: string, totalLevel: number, checkedInToday: boolean }) => {
@@ -236,36 +236,37 @@ export function AllianceDashboard() {
             if (isClaimed || !checkedInToday || isOpening) return;
             setIsOpening(true);
 
-            // Calculate drops based on tier level (1-5)
+            // Calculate drops based on tier level (1-5) and chest rarity
             const rand = Math.random() * 100;
             let rewardType = 'material';
             let amount = 1;
             let itemId: string = MATERIALS[Math.floor(Math.random() * MATERIALS.length)] || 'material-water';
 
-            // Drop probabilities
-            const essenceChance = tier.level > 3 ? tier.level * 1.5 : 0; // 0, 0, 0, 6, 7.5
-            const gemChance = tier.level > 2 ? tier.level * 2 : 0; // 0, 0, 6, 8, 10
-            const packChance = tier.level > 1 ? tier.level * 5 : 0; // 0, 10, 15, 20, 25
-            const goldChance = Math.max(10, 15 + (tier.level * 5)); // 20, 25, 30, 35, 40
+            // Progressive drop probabilities tailored to rarity
+            const essenceChance = tier.level >= 5 ? 25 : tier.level >= 4 ? 15 : tier.level >= 3 ? 5 : 0;
+            const gemChance = tier.level >= 5 ? 30 : tier.level >= 4 ? 25 : tier.level >= 3 ? 15 : tier.level >= 2 ? 8 : 0;
+            const packChance = tier.level >= 5 ? 25 : tier.level >= 4 ? 20 : tier.level >= 3 ? 15 : tier.level >= 2 ? 10 : 0;
+            const goldChance = Math.max(15, 20 + (tier.level * 8));
 
             if (rand < essenceChance) {
                 rewardType = 'essence';
                 itemId = ESSENCES[Math.floor(Math.random() * ESSENCES.length)] || 'ember_essence';
-                amount = 1;
+                amount = tier.level >= 5 ? 2 : 1;
             } else if (rand < essenceChance + gemChance) {
                 rewardType = 'gems';
-                amount = Math.floor(Math.random() * 3) + 1; // 1-3 gems
+                amount = tier.level >= 5 ? Math.floor(Math.random() * 4) + 3 : tier.level >= 4 ? Math.floor(Math.random() * 3) + 2 : Math.floor(Math.random() * 2) + 1;
             } else if (rand < essenceChance + gemChance + packChance) {
                 rewardType = 'pack';
-                if (tier.level >= 5 && Math.random() > 0.5) itemId = 'pack-legend';
-                else if (tier.level >= 3 && Math.random() > 0.5) itemId = 'pack-hero';
+                if (tier.level >= 5) itemId = Math.random() > 0.3 ? 'pack-legend' : 'pack-hero';
+                else if (tier.level >= 4) itemId = Math.random() > 0.5 ? 'pack-hero' : 'pack-basic';
+                else if (tier.level >= 3) itemId = Math.random() > 0.7 ? 'pack-hero' : 'pack-basic';
                 else itemId = 'pack-basic';
             } else if (rand < essenceChance + gemChance + packChance + goldChance) {
                 rewardType = 'gold';
-                amount = 50 * tier.level + Math.floor(Math.random() * 50);
+                amount = 75 * tier.level + Math.floor(Math.random() * (40 * tier.level));
             } else {
                 rewardType = 'material';
-                amount = Math.floor(Math.random() * tier.level) + 1;
+                amount = Math.floor(Math.random() * (tier.level * 2)) + 1;
             }
 
             // Simulate animation wait
@@ -292,12 +293,12 @@ export function AllianceDashboard() {
             setIsClaimed(true);
             setIsOpening(false);
             
-            // Show toast
+            // Show toast in sentence case
             const itemName = rewardType === 'pack' ? itemId.replace('pack-', '') + ' pack' : 
                              rewardType === 'material' ? itemId.replace('material-', '') : 
                              rewardType === 'essence' ? itemId.replace('_', ' ') : rewardType;
             toast({
-                title: "Chest Opened!",
+                title: "Chest opened",
                 description: `You received ${amount} ${itemName}!`,
                 className: "bg-amber-950 border-amber-500 text-amber-100"
             });
@@ -316,6 +317,7 @@ export function AllianceDashboard() {
                 <div className="w-full flex flex-col items-center">
                     <TreasureChestVisual
                         state={isOpening ? 'opening' : isClaimed ? 'claimed' : checkedInToday ? 'ready' : 'locked'}
+                        rarity={tier.rarity}
                         tierLabel={tier.label}
                         className="w-full"
                         onClick={handleOpenChest}

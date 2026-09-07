@@ -289,14 +289,14 @@ export function TitanRaidCard() {
             <div className="flex flex-col items-center p-4 rounded-2xl bg-gradient-to-b from-purple-950/40 via-zinc-950 to-zinc-950 border border-purple-800/40 shadow-lg text-center">
               <TreasureChestVisual
                 state={claimed ? 'claimed' : (isDefeated ? 'ready' : 'locked')}
-                tierLabel="Titan Victory Chest"
-                tierColor="from-purple-800 via-amber-900 to-zinc-950"
+                rarity="legendary"
+                tierLabel="Titan victory chest"
                 className="w-full max-w-xs h-32 mb-2"
                 onClick={() => isDefeated && !claimed && handleClaim()}
               />
 
               <div className="w-full space-y-2">
-                <div className="font-serif font-bold text-sm text-amber-300">Titan Raid Victory Loot</div>
+                <div className="font-serif font-bold text-sm text-amber-300">Titan raid victory loot</div>
                 <div className="flex items-center justify-center gap-3 text-xs font-mono font-bold">
                   <span className="text-amber-400 bg-amber-950/60 border border-amber-500/40 px-2.5 py-1 rounded-full">
                     🪙 +{titan.rewardGold} Gold
@@ -318,11 +318,11 @@ export function TitanRaidCard() {
                     }
                   >
                     {claimed ? (
-                      <span className="flex items-center justify-center gap-1.5 font-bold"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Monthly Reward Claimed</span>
+                      <span className="flex items-center justify-center gap-1.5 font-bold"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Monthly reward claimed</span>
                     ) : isDefeated ? (
-                      <span className="flex items-center justify-center gap-1.5 font-extrabold text-base"><Trophy className="w-5 h-5" /> Claim Victory Loot</span>
+                      <span className="flex items-center justify-center gap-1.5 font-extrabold text-base"><Trophy className="w-5 h-5" /> Claim victory loot</span>
                     ) : (
-                      <span className="flex items-center justify-center gap-1.5 font-bold font-mono text-xs"><Lock className="w-4 h-4" /> Defeat Titan Wyrm to Unlock</span>
+                      <span className="flex items-center justify-center gap-1.5 font-bold font-mono text-xs"><Lock className="w-4 h-4" /> Defeat Titan Wyrm to unlock</span>
                     )}
                   </Button>
               </div>

@@ -152,14 +152,22 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
     }
   };
 
+  const getGuardianRarity = (level: number): 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' => {
+    if (level >= 15) return 'legendary';
+    if (level >= 10) return 'epic';
+    if (level >= 6) return 'rare';
+    if (level >= 3) return 'uncommon';
+    return 'common';
+  };
+
   const claimBounty = async () => {
     if (!guardianState || isCollecting) return;
 
     const todayStr = new Date().toDateString();
     if (guardianState.lastBountyClaimedAt === todayStr) {
       toast({
-        title: "Bounty Claimed",
-        description: "Your Guardian already gave you their bounty today. Return tomorrow!",
+        title: "Bounty claimed",
+        description: "Your guardian already gave you their bounty today. Return tomorrow!",
         variant: "destructive"
       });
       return;
@@ -168,17 +176,19 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
     try {
       setIsCollecting(true);
       const petLevel = guardianState.level || 1;
+      const rarity = getGuardianRarity(petLevel);
       
-      // Scale bounty gold with pet level: 50 base + 10 per level
-      const bountyGold = 50 + (petLevel * 10);
+      // Scale bounty gold with rarity tier
+      const rarityGoldMultiplier = rarity === 'legendary' ? 10 : rarity === 'epic' ? 6 : rarity === 'rare' ? 3.5 : rarity === 'uncommon' ? 2 : 1;
+      const bountyGold = Math.round(50 + (petLevel * 10 * rarityGoldMultiplier));
       await fetchWithAuth('/api/character-stats', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ gold: bountyGold })
       });
 
-      // Scale reagent count: 1 base, +1 at level 5, +1 at level 10
-      const reagentCount = 1 + (petLevel >= 5 ? 1 : 0) + (petLevel >= 10 ? 1 : 0);
+      // Scale reagent count: common: 1, uncommon: 2, rare: 3, epic: 4, legendary: 5
+      const reagentCount = rarity === 'legendary' ? 5 : rarity === 'epic' ? 4 : rarity === 'rare' ? 3 : rarity === 'uncommon' ? 2 : 1;
       const reagents = ['material-steel', 'material-crystal', 'material-planks', 'material-water', 'material-stone', 'material-gold', 'material-silver'];
       for (let i = 0; i < reagentCount; i++) {
         const reward = reagents[Math.floor(Math.random() * reagents.length)]!;
@@ -186,6 +196,16 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ item: { id: reward, quantity: 1 } })
+        });
+      }
+
+      // Bonus gems for rare+ chests
+      const bonusGems = rarity === 'legendary' ? 3 : rarity === 'epic' ? 2 : rarity === 'rare' ? 1 : 0;
+      if (bonusGems > 0) {
+        await fetchWithAuth('/api/character-stats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ gems: bonusGems })
         });
       }
 
@@ -198,8 +218,8 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
       setGuardianState(updatedState);
 
       toast({
-        title: "Guardian Bounty Claimed! 🪙🎁",
-        description: `Your Lvl ${petLevel} Guardian rewarded ${bountyGold} Gold and ${reagentCount} crafting reagent${reagentCount > 1 ? 's' : ''}!`
+        title: "Guardian bounty claimed! 🪙🎁",
+        description: `Your level ${petLevel} guardian rewarded ${bountyGold} gold, ${reagentCount} crafting reagent${reagentCount > 1 ? 's' : ''}${bonusGems > 0 ? `, and ${bonusGems} gem${bonusGems > 1 ? 's' : ''}` : ''}!`
       });
 
       window.dispatchEvent(new Event('character-stats-update'));
@@ -207,7 +227,7 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
     } catch (err) {
       toast({
         title: "Claim failed",
-        description: "Failed to claim Guardian Bounty.",
+        description: "Failed to claim guardian bounty.",
         variant: "destructive"
       });
     } finally {
@@ -434,8 +454,8 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
                 <span>🍎</span>
                 <span>
                   {((guardianState as any)?.affection || 50) >= 100
-                    ? "❤️ Companion Fully Fed (100% Affection)"
-                    : "Feed Botanical Treat (+10% Affection & +25 EXP)"}
+                    ? "❤️ Companion fully fed (100% affection)"
+                    : "Feed botanical treat (+10% affection & +25 EXP)"}
                 </span>
               </Button>
             </div>
@@ -444,7 +464,7 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
             <div className="bg-zinc-950/80 p-4 rounded-2xl border border-amber-900/30 flex flex-col items-center space-y-3">
               <div className="w-full text-center space-y-0.5">
                 <span className="text-[9px] tracking-wider font-extrabold text-amber-500 uppercase">Daily guardian reward</span>
-                <h4 className="font-medieval text-sm text-amber-200">Guardian&apos;s Bounty</h4>
+                <h4 className="font-medieval text-sm text-amber-200">Guardian bounty</h4>
                 <p className="text-[10px] text-zinc-400 leading-normal">
                   {bountyClaimedToday 
                     ? "Bounty claimed for today! Return tomorrow."
@@ -456,7 +476,8 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
 
               <TreasureChestVisual
                 state={bountyClaimedToday ? 'claimed' : allHabitsCompleted ? 'ready' : 'locked'}
-                tierLabel={`Level ${guardianState.level} Bounty`}
+                rarity={getGuardianRarity(guardianState.level || 1)}
+                tierLabel={`Level ${guardianState.level} ${getGuardianRarity(guardianState.level || 1)} bounty`}
                 className="w-full"
                 onClick={claimBounty}
               />
@@ -471,7 +492,7 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
                       : "bg-zinc-900 text-zinc-600 border border-zinc-800 cursor-not-allowed"
                   }`}
                 >
-                  {isCollecting ? "Claiming..." : allHabitsCompleted ? "Claim Bounty Loot" : "Locked"}
+                  {isCollecting ? "Claiming..." : allHabitsCompleted ? "Claim bounty loot" : "Locked"}
                 </Button>
               )}
             </div>
