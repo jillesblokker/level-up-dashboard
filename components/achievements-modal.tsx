@@ -150,12 +150,12 @@ export function AchievementsModal({ open, onOpenChange, userId }: AchievementsMo
                                                         </div>
                                                         {isUnlocked && (
                                                             <div className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                                                                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-tighter">Mastered</span>
+                                                                <span className="text-[10px] font-bold text-emerald-400 font-serif">Mastered</span>
                                                             </div>
                                                         )}
                                                     </div>
 
-                                                    <p className="text-sm text-zinc-500 leading-relaxed mb-4">
+                                                    <p className="text-sm text-zinc-400 leading-relaxed mb-4">
                                                         {achievement.description}
                                                     </p>
 
@@ -163,7 +163,7 @@ export function AchievementsModal({ open, onOpenChange, userId }: AchievementsMo
                                                         {/* Progress Tracking */}
                                                         <div className="space-y-1.5">
                                                             <div className="flex justify-between items-end">
-                                                                <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Progress</span>
+                                                                <span className="text-[10px] font-bold text-zinc-500 font-serif">Progress</span>
                                                                 <span className="text-xs font-mono text-zinc-400">{progress} <span className="text-zinc-600">/</span> {achievement.requirement}</span>
                                                             </div>
                                                             <div className="relative h-2 w-full bg-zinc-950 rounded-full overflow-hidden border border-white/5">
@@ -182,11 +182,11 @@ export function AchievementsModal({ open, onOpenChange, userId }: AchievementsMo
                                                         <div className="flex flex-wrap gap-4 pt-1">
                                                             <div className="flex items-center gap-1.5 bg-yellow-500/5 px-2 py-1 rounded-md border border-yellow-500/10">
                                                                 <Star className="w-3.5 h-3.5 text-yellow-500" />
-                                                                <span className="text-xs font-bold text-yellow-100/80">{achievement.reward.xp} <span className="text-zinc-600">XP</span></span>
+                                                                <span className="text-xs font-bold text-yellow-100/80">{achievement.reward.xp} <span className="text-zinc-500">xp</span></span>
                                                             </div>
                                                             <div className="flex items-center gap-1.5 bg-amber-500/5 px-2 py-1 rounded-md border border-amber-500/10">
                                                                 <div className="w-3 h-3 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-                                                                <span className="text-xs font-bold text-amber-100/80">{achievement.reward.gold} <span className="text-zinc-600">Gold</span></span>
+                                                                <span className="text-xs font-bold text-amber-100/80">{achievement.reward.gold} <span className="text-zinc-500">gold</span></span>
                                                             </div>
                                                             {achievement.reward.title && (
                                                                 <div className="flex items-center gap-1.5 bg-purple-500/5 px-2 py-1 rounded-md border border-purple-500/10">
@@ -208,9 +208,9 @@ export function AchievementsModal({ open, onOpenChange, userId }: AchievementsMo
                     <div className="p-4 border-t border-zinc-900 bg-zinc-950">
                         <Button
                             onClick={() => onOpenChange(false)}
-                            className="w-full h-11 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-xl border border-zinc-800 transition-all duration-300"
+                            className="w-full h-11 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-xl border border-zinc-800 transition-all duration-300 font-serif"
                         >
-                            Return to Kingdom
+                            Return to kingdom
                         </Button>
                     </div>
                 </div>

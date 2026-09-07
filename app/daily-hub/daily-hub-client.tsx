@@ -495,8 +495,8 @@ export function DailyHubClient() {
                                 {count >= 5 && (
                                     <>
                                         <div className="absolute -left-6 -top-6 w-32 h-32 bg-amber-500/30 rounded-full blur-2xl pointer-events-none animate-pulse" />
-                                        <div className="absolute top-0 right-0 px-3 py-0.5 bg-gradient-to-r from-amber-400 to-yellow-300 text-zinc-950 text-[9px] font-black font-mono uppercase tracking-wider rounded-bl-xl shadow-md z-20">
-                                            🎉 5/5 Sweet Spot Achieved! (+50 Gold & Virtue)
+                                        <div className="absolute top-0 right-0 px-3 py-0.5 bg-gradient-to-r from-amber-400 to-yellow-300 text-zinc-950 text-[9px] font-bold font-mono rounded-bl-xl shadow-md z-20">
+                                            🎉 5/5 sweet spot achieved! (+50 gold & virtue)
                                         </div>
                                     </>
                                 )}
@@ -506,9 +506,9 @@ export function DailyHubClient() {
                                     </MedievalOrbIcon>
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <h4 className="font-bold text-sm text-white font-serif">Morning Focus Target</h4>
+                                            <h4 className="font-bold text-sm text-white font-serif">Morning focus target</h4>
                                             <span className="text-[10px] bg-amber-500/20 border border-amber-400/50 text-amber-300 px-2 py-0.5 rounded-full font-mono font-bold">
-                                                {count >= 5 ? '🎯 Target Achieved!' : `${count}/5 Habits`}
+                                                {count >= 5 ? '🎯 Target achieved!' : `${count}/5 habits`}
                                             </span>
                                         </div>
                                     </div>
@@ -530,7 +530,7 @@ export function DailyHubClient() {
                                     <div className="flex items-center gap-3">
                                         <span className="text-3xl">{tier.badge}</span>
                                         <div>
-                                            <h4 className="text-lg uppercase tracking-wider">{tier.title}!</h4>
+                                            <h4 className="text-lg capitalize font-serif tracking-wide">{tier.title}!</h4>
                                             <p className="text-xs opacity-90">{tier.desc}</p>
                                         </div>
                                     </div>
@@ -596,12 +596,12 @@ export function DailyHubClient() {
                                             ))}
                                         </span>
                                     </h3>
-                                    <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold mt-0.5">Active Partner</p>
+                                    <p className="text-[10px] text-zinc-400 font-serif font-semibold mt-0.5">Active partner</p>
                                 </div>
                             </div>
                             <div className="w-full bg-zinc-950 rounded-xl p-2 border border-white/5">
                                 <div className="flex justify-between text-[10px] mb-1 font-bold">
-                                    <span className="text-amber-500/90 tracking-wide uppercase">Bond Progress</span>
+                                    <span className="text-amber-500/90 font-serif text-xs font-semibold">Bond progress</span>
                                     <span className="text-amber-400">{bondProgress} <span className="text-amber-600/70">/ 100</span></span>
                                 </div>
                                 <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden shadow-inner relative">
@@ -630,7 +630,7 @@ export function DailyHubClient() {
                             <div className="flex items-center gap-3">
                                 <span className="text-3xl animate-bounce">⚠️</span>
                                 <div>
-                                    <h4 className="font-bold text-red-400 font-medieval tracking-wide text-lg">Streak Shield Cracking!</h4>
+                                    <h4 className="font-bold text-red-400 font-medieval tracking-wide text-lg">Streak shield cracking!</h4>
                                     <p className="text-xs text-zinc-300 max-w-xl font-serif mt-0.5 leading-relaxed">
                                         Your Day {stats.streakDays} expedition streak is at risk. Complete at least one quest before midnight to keep the fire burning, or it will cost 5 Build Tokens or 20 Resilience Points to restore!
                                     </p>
@@ -643,9 +643,9 @@ export function DailyHubClient() {
                                         element.scrollIntoView({ behavior: 'smooth' });
                                     }
                                 }}
-                                className="bg-red-700 hover:bg-red-600 text-white font-bold text-xs uppercase tracking-wider shrink-0"
+                                className="bg-red-700 hover:bg-red-600 text-white font-bold text-xs font-serif px-4 py-2 shrink-0 rounded-xl shadow-lg"
                             >
-                                Do a Quest Now
+                                Do a quest now
                             </Button>
                         </div>
                     </motion.div>

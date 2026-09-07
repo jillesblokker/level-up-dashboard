@@ -117,11 +117,11 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
           </div>
 
           <div className="relative z-10 flex flex-col items-end">
-            <Badge className="bg-cyan-500 text-slate-950 font-extrabold text-[10px] uppercase tracking-wider shadow-md">
-              Ether Thrusters Active
+            <Badge className="bg-cyan-500 text-slate-950 font-bold text-[10px] shadow-md">
+              Ether thrusters active
             </Badge>
             <span className="text-[10px] text-emerald-400 font-mono font-bold mt-1">
-              {voyageProgress}% Progress
+              {voyageProgress}% progress
             </span>
           </div>
         </div>
@@ -135,7 +135,7 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
               </div>
               <div>
                 <h4 className="font-bold text-xs text-zinc-300 font-serif">Habit ether fuel reserve</h4>
-                <p className="text-base font-mono font-bold text-cyan-400">{etherFuel} Ether Fuel</p>
+                <p className="text-base font-mono font-bold text-cyan-400">{etherFuel} Ether fuel</p>
               </div>
             </div>
             <Badge className="bg-cyan-600 text-white font-bold text-[10px] gap-1">
@@ -151,28 +151,28 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
                   <Compass className="w-4 h-4 animate-spin-slow" style={{ animationDuration: '12s' }} />
                 </div>
                 <div>
-                  <h4 className="font-bold text-xs text-white uppercase tracking-wider flex items-center gap-1.5 font-serif">
+                  <h4 className="font-bold text-xs text-white flex items-center gap-1.5 font-serif">
                     Sky compass flight gauge
                   </h4>
                   <span className="text-[10px] text-cyan-300 font-mono flex items-center gap-1">
-                    ⚡ Current Speed: <strong className="text-emerald-400">2.0x Boost (7-Day Streak)</strong> • 🌬️ <strong className="text-cyan-300">+20% Sky Tailwind</strong>
+                    ⚡ Current speed: <strong className="text-emerald-400">2.0x boost (7-day streak)</strong> • 🌬️ <strong className="text-cyan-300">+20% sky tailwind</strong>
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5">
-                <Badge className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow-md animate-pulse">
-                  🔥 2x Streak Speed
+                <Badge className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-bold text-[10px] px-2.5 py-0.5 rounded-full shadow-md animate-pulse">
+                  🔥 2x streak speed
                 </Badge>
                 <Badge className="bg-cyan-950 text-cyan-300 border border-cyan-500/40 text-[9px] font-bold">
-                  🌬️ Tailwind Active
+                  🌬️ Tailwind active
                 </Badge>
               </div>
             </div>
 
             {/* Cargo Crates Real-time Slots */}
             <div className="space-y-1.5 pt-1 border-t border-cyan-900/40">
-              <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest block font-serif">
-                📦 Voyage Cargo Crates Loaded:
+              <span className="text-[10px] font-bold text-zinc-300 block font-serif">
+                📦 Voyage cargo crates loaded:
               </span>
               <div className="grid grid-cols-3 gap-2">
                 <div
@@ -180,24 +180,24 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
                   className="cursor-pointer bg-zinc-900/90 border border-amber-500/50 p-2 rounded-xl text-center space-y-0.5 shadow-md hover:border-amber-400 hover:scale-105 transition-all"
                 >
                   <div className="text-amber-400 text-sm animate-bounce">📜</div>
-                  <span className="text-[9px] font-bold text-amber-200 block truncate">Blueprint Crate</span>
-                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Tap to Unbox ✨</span>
+                  <span className="text-[9px] font-bold text-amber-200 block truncate">Blueprint crate</span>
+                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Tap to unbox ✨</span>
                 </div>
                 <div
                   onClick={() => toast({ title: "🧪 Reagents Crate Unboxed!", description: "Retrieved +5x Botanical Crystal Essences!" })}
                   className="cursor-pointer bg-zinc-900/90 border border-cyan-500/50 p-2 rounded-xl text-center space-y-0.5 shadow-md hover:border-cyan-400 hover:scale-105 transition-all"
                 >
                   <div className="text-cyan-400 text-sm animate-bounce">🧪</div>
-                  <span className="text-[9px] font-bold text-cyan-200 block truncate">Reagents Crate</span>
-                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Tap to Unbox ✨</span>
+                  <span className="text-[9px] font-bold text-cyan-200 block truncate">Reagents crate</span>
+                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Tap to unbox ✨</span>
                 </div>
                 <div
                   onClick={() => toast({ title: "⚔️ Citizen Gear Crate Unboxed!", description: "Retrieved Mythic Vanguard Shield & Arcane Tome!" })}
                   className="cursor-pointer bg-zinc-900/90 border border-purple-500/50 p-2 rounded-xl text-center space-y-0.5 shadow-md hover:border-purple-400 hover:scale-105 transition-all"
                 >
                   <div className="text-purple-400 text-sm animate-bounce">⚔️</div>
-                  <span className="text-[9px] font-bold text-purple-200 block truncate">Citizen Gear</span>
-                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Tap to Unbox ✨</span>
+                  <span className="text-[9px] font-bold text-purple-200 block truncate">Citizen gear</span>
+                  <span className="text-[8px] text-emerald-400 font-mono font-bold block">Tap to unbox ✨</span>
                 </div>
               </div>
             </div>
@@ -207,14 +207,14 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 space-y-2">
             <div className="flex items-center justify-between">
               <span className="font-bold text-xs text-zinc-200 flex items-center gap-1.5 font-serif">
-                <Users className="w-4 h-4 text-cyan-400" /> Expedition Crew ({selectedCrew.length}/3)
+                <Users className="w-4 h-4 text-cyan-400" /> Expedition crew ({selectedCrew.length}/3)
               </span>
               <div className="flex items-center gap-1">
                 <Badge variant="outline" className="text-[9px] border-cyan-500/40 text-cyan-300 bg-cyan-950/40 font-mono font-bold">
-                  ⚡ 2x Speed Active
+                  ⚡ 2x speed active
                 </Badge>
                 <Badge variant="outline" className="text-[9px] border-amber-500/40 text-amber-300 bg-amber-950/40 font-mono font-bold">
-                  Scout Synergy +25%
+                  Scout synergy +25%
                 </Badge>
               </div>
             </div>

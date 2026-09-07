@@ -257,7 +257,7 @@ function AllyDashboardCard({
 
           <div className="p-2.5 bg-zinc-950/90 rounded-lg border border-amber-900/30 text-center">
             <div className="text-[11px] text-amber-400/80 font-medium">
-              Ally Level: <span className="text-amber-300 font-bold">{level}</span> • Total XP: <span className="text-amber-300 font-bold">{(friend.stats?.xp || 0).toLocaleString()}</span>
+              Ally level: <span className="text-amber-300 font-bold">{level}</span> • Total xp: <span className="text-amber-300 font-bold">{(friend.stats?.xp || 0).toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -501,13 +501,15 @@ export function AlliesDashboard() {
         {/* MY ALLIES TAB */}
         <TabsContent value="allies" className="space-y-4 mt-0">
           {friends.length === 0 ? (
-            <Card className="medieval-card p-12 text-center border-dashed">
+            <Card className="p-10 text-center border border-amber-900/40 bg-gradient-to-b from-zinc-950 via-[#140f0a] to-zinc-950 rounded-2xl shadow-xl">
               <div className="flex flex-col items-center">
-                <Users className="w-16 h-16 text-amber-900/40 mb-4" />
-                <h3 className="text-xl font-medieval text-amber-500 mb-2">No friends found</h3>
-                <p className="text-amber-900/60 font-serif mb-6 italic">Your chronicle is yet to feature other heroes.</p>
-                <Button onClick={() => setActiveTab("add")} variant="outline" className="border-amber-800 text-amber-500 hover:bg-amber-950/40">
-                  Search the Realms
+                <div className="w-16 h-16 rounded-full border border-amber-500/30 bg-amber-950/40 flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
+                  <Users className="w-8 h-8 text-amber-400" />
+                </div>
+                <h3 className="text-xl font-medieval text-amber-300 mb-2">No allies enlisted yet</h3>
+                <p className="text-zinc-400 font-serif mb-6 text-sm italic max-w-md">Your chronicle is ready for other heroes. Recruit champions to compare virtue standings and send daily friend dares.</p>
+                <Button onClick={() => setActiveTab("add")} variant="outline" className="border-amber-700/60 text-amber-300 hover:bg-amber-950/40 h-10 px-6 rounded-xl font-serif text-sm">
+                  Search the realms
                 </Button>
               </div>
             </Card>
@@ -533,7 +535,7 @@ export function AlliesDashboard() {
         <TabsContent value="add" className="space-y-6 mt-0">
           <Card className="medieval-card border-amber-500/20">
             <CardHeader className="border-b border-amber-900/30 bg-amber-950/5">
-              <CardTitle className="text-amber-500 font-medieval text-2xl tracking-tight">Gather Your Cohort</CardTitle>
+              <CardTitle className="text-amber-500 font-medieval text-2xl tracking-tight">Gather your cohort</CardTitle>
               <CardDescription className="text-amber-900/60 font-serif italic text-sm">Search the kingdom&apos;s registry for notable champions to join your cause.</CardDescription>
             </CardHeader>
             <CardContent className="pt-8">

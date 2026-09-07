@@ -127,27 +127,27 @@ export function TreasureChestVisual({
 
       {/* Tier Label Badge */}
       <div className="mt-2 text-center space-y-1 z-10">
-        <span className="px-3 py-1 rounded-full bg-amber-950/80 border border-amber-500/40 text-amber-300 font-medieval text-xs tracking-wider uppercase shadow-md">
+        <span className="px-3 py-1 rounded-full bg-amber-950/80 border border-amber-500/40 text-amber-300 font-medieval text-xs tracking-wider capitalize shadow-md">
           {tierLabel}
         </span>
 
         {isClaimed && (
-          <div className="flex items-center justify-center gap-1 text-[11px] text-zinc-400 font-bold mt-1">
+          <div className="flex items-center justify-center gap-1 text-[11px] text-zinc-400 font-medium mt-1 font-serif">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-            Claimed Today
+            Claimed today
           </div>
         )}
 
         {isLocked && (
-          <div className="flex items-center justify-center gap-1 text-[11px] text-zinc-400 font-bold mt-1">
+          <div className="flex items-center justify-center gap-1 text-[10px] sm:text-[11px] text-zinc-400 font-medium mt-1 font-serif">
             <Lock className="w-3.5 h-3.5 text-amber-500" />
-            Locked • Check In Required
+            Locked • check-in required
           </div>
         )}
 
         {isReady && (
-          <div className="text-[11px] text-amber-400 font-bold animate-pulse mt-1">
-            Tap to Open Treasure Chest!
+          <div className="text-[11px] text-amber-400 font-bold animate-pulse mt-1 font-serif">
+            Tap to open treasure chest!
           </div>
         )}
       </div>

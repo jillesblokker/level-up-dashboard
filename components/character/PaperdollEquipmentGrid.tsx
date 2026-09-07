@@ -213,8 +213,8 @@ export function PaperdollEquipmentGrid({
 
             {/* Stage Title Header */}
             <div className="w-full flex items-center justify-between z-10 mb-2">
-              <span className="text-[11px] font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1">
-                <Award className="w-3.5 h-3.5" /> Equipment
+              <span className="text-xs font-bold text-amber-400 font-serif flex items-center gap-1.5">
+                <Award className="w-3.5 h-3.5" /> Equipped gear
               </span>
             </div>
 
@@ -285,29 +285,29 @@ export function PaperdollEquipmentGrid({
           <div className="lg:col-span-5 space-y-4">
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 space-y-2.5">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold text-zinc-200 uppercase tracking-wider flex items-center gap-1.5">
+                <h4 className="text-xs font-bold text-zinc-200 font-serif flex items-center gap-1.5">
                   <Flame className="w-4 h-4 text-amber-400" /> Attributes
                 </h4>
                 <Badge variant="outline" className="border-amber-500/40 text-amber-400 bg-amber-950/30 text-[10px] font-mono font-bold">
-                  ⚡ Gear Score: {Math.round(gearScore)}
+                  ⚡ Gear score: {Math.round(gearScore)}
                 </Badge>
               </div>
 
               {/* SECONDARY TIER: Compact Horizontal Ribbon */}
               <div className="flex items-center justify-between gap-2 p-2 bg-zinc-950 rounded-lg border border-zinc-800 text-xs font-mono font-bold">
-                <span className="text-red-400 flex items-center gap-1">⚔️ +{totalAtk} <span className="text-[9px] text-zinc-500 font-normal">ATK</span></span>
+                <span className="text-red-400 flex items-center gap-1">⚔️ +{totalAtk} <span className="text-[9px] text-zinc-500 font-normal">atk</span></span>
                 <span className="text-zinc-700">|</span>
-                <span className="text-blue-400 flex items-center gap-1">🛡️ +{totalDef} <span className="text-[9px] text-zinc-500 font-normal">DEF</span></span>
+                <span className="text-blue-400 flex items-center gap-1">🛡️ +{totalDef} <span className="text-[9px] text-zinc-500 font-normal">def</span></span>
                 <span className="text-zinc-700">|</span>
-                <span className="text-emerald-400 flex items-center gap-1">💨 +{totalSpd} <span className="text-[9px] text-zinc-500 font-normal">SPD</span></span>
+                <span className="text-emerald-400 flex items-center gap-1">💨 +{totalSpd} <span className="text-[9px] text-zinc-500 font-normal">spd</span></span>
               </div>
             </div>
 
             {/* Equipped Gear List */}
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 space-y-2">
-              <h4 className="text-xs font-bold text-zinc-300">Equipped Gear List</h4>
+              <h4 className="text-xs font-bold text-zinc-300 font-serif">Equipped gear list</h4>
               <div className="space-y-1.5">
-                {SLOT_CONFIGS.map(({ slot, label }) => {
+                {SLOT_CONFIGS.map(({ slot, label, icon }) => {
                   const item = equipment[slot]
                   return (
                     <div
@@ -316,7 +316,7 @@ export function PaperdollEquipmentGrid({
                       className={`p-2.5 rounded-xl border flex items-center justify-between text-xs cursor-pointer transition-all relative overflow-hidden group ${
                         item
                           ? 'border-zinc-800 bg-zinc-950/80 hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]'
-                          : 'border-zinc-900 bg-zinc-950/40 opacity-50'
+                          : 'border-zinc-900 bg-zinc-950/40 opacity-60 hover:opacity-80'
                       }`}
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
@@ -326,13 +326,13 @@ export function PaperdollEquipmentGrid({
                             <Image src={item.image} alt={item.name} fill className="object-contain" unoptimized />
                           </div>
                         ) : (
-                          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-600 text-xs">
-                            Empty
+                          <div className="w-8 h-8 rounded-lg bg-zinc-900/80 border border-zinc-800 flex items-center justify-center text-zinc-500 text-xs">
+                            {icon}
                           </div>
                         )}
                         <div>
-                          <span className="font-bold text-zinc-200 block text-xs">{item ? item.name : `Empty ${label}`}</span>
-                          <span className="text-[9px] text-zinc-500 uppercase font-mono">{slot}</span>
+                          <span className="font-bold text-zinc-200 block text-xs">{item ? item.name : `Empty ${label.toLowerCase()}`}</span>
+                          <span className="text-[9px] text-zinc-500 font-mono capitalize">{slot}</span>
                         </div>
                       </div>
 
@@ -340,21 +340,21 @@ export function PaperdollEquipmentGrid({
                         <div className="flex items-center gap-1.5">
                           {item.stats.atk && (
                             <span className="text-[9px] font-mono font-bold text-red-400 bg-red-950/60 border border-red-500/30 px-1.5 py-0.5 rounded">
-                              +{item.stats.atk} ATK ▲
+                              +{item.stats.atk} atk ▲
                             </span>
                           )}
                           {item.stats.def && (
                             <span className="text-[9px] font-mono font-bold text-blue-400 bg-blue-950/60 border border-blue-500/30 px-1.5 py-0.5 rounded">
-                              +{item.stats.def} DEF ▲
+                              +{item.stats.def} def ▲
                             </span>
                           )}
                           {item.stats.spd && !item.stats.atk && (
                             <span className="text-[9px] font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-1.5 py-0.5 rounded">
-                              +{item.stats.spd} SPD ▲
+                              +{item.stats.spd} spd ▲
                             </span>
                           )}
-                          <Badge variant="outline" className={`text-[9px] ${getRarityBadge(item.rarity)}`}>
-                            {item.rarity.toUpperCase()}
+                          <Badge variant="outline" className={`text-[9px] capitalize ${getRarityBadge(item.rarity)}`}>
+                            {item.rarity}
                           </Badge>
                         </div>
                       )}
@@ -383,8 +383,8 @@ export function PaperdollEquipmentGrid({
                   </div>
                   <div>
                     <DialogTitle className="text-base font-bold text-zinc-100">{selectedItem.name}</DialogTitle>
-                    <Badge variant="outline" className={`text-[10px] mt-1 font-semibold ${getRarityBadge(selectedItem.rarity)}`}>
-                      {selectedItem.rarity.toUpperCase()} • {selectedItem.slot.toUpperCase()}
+                    <Badge variant="outline" className={`text-[10px] mt-1 font-semibold capitalize ${getRarityBadge(selectedItem.rarity)}`}>
+                      {selectedItem.rarity} • {selectedItem.slot}
                     </Badge>
                   </div>
                 </div>
@@ -394,7 +394,7 @@ export function PaperdollEquipmentGrid({
               </DialogHeader>
 
               <div className="my-4 p-3.5 bg-zinc-900/90 rounded-xl border border-zinc-800 space-y-2 text-xs font-sans">
-                <span className="text-[10px] font-bold text-amber-400 block font-serif uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-amber-400 block font-serif tracking-wide">
                   Equipped combat stat deltas
                 </span>
                 <div className="flex flex-col gap-1.5">
@@ -403,8 +403,8 @@ export function PaperdollEquipmentGrid({
                       <span className="text-zinc-300 flex items-center gap-1.5">⚔️ Attack</span>
                       <div className="flex items-center gap-2 font-mono">
                         <span className="text-red-300 font-bold">+{selectedItem.stats.atk}</span>
-                        <Badge className="bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 text-[9px] px-1.5 py-0">
-                          +{selectedItem.stats.atk} ▲
+                        <Badge className="bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 text-[9px] px-1.5 py-0 font-normal">
+                          +{selectedItem.stats.atk} atk ▲
                         </Badge>
                       </div>
                     </div>
@@ -414,8 +414,8 @@ export function PaperdollEquipmentGrid({
                       <span className="text-zinc-300 flex items-center gap-1.5">🛡️ Defense</span>
                       <div className="flex items-center gap-2 font-mono">
                         <span className="text-blue-300 font-bold">+{selectedItem.stats.def}</span>
-                        <Badge className="bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 text-[9px] px-1.5 py-0">
-                          +{selectedItem.stats.def} ▲
+                        <Badge className="bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 text-[9px] px-1.5 py-0 font-normal">
+                          +{selectedItem.stats.def} def ▲
                         </Badge>
                       </div>
                     </div>
@@ -425,8 +425,8 @@ export function PaperdollEquipmentGrid({
                       <span className="text-zinc-300 flex items-center gap-1.5">💨 Speed</span>
                       <div className="flex items-center gap-2 font-mono">
                         <span className="text-emerald-300 font-bold">+{selectedItem.stats.spd}</span>
-                        <Badge className="bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 text-[9px] px-1.5 py-0">
-                          +{selectedItem.stats.spd} ▲
+                        <Badge className="bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 text-[9px] px-1.5 py-0 font-normal">
+                          +{selectedItem.stats.spd} spd ▲
                         </Badge>
                       </div>
                     </div>
@@ -504,14 +504,14 @@ function EquipmentSlotButton({
         ) : (
           <div className="flex flex-col items-center gap-1">
             {icon}
-            <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wide">{label}</span>
+            <span className="text-[9px] font-bold text-zinc-500 tracking-wide capitalize">{label}</span>
           </div>
         )}
 
         {/* Actionable Empty-State Hover Tooltip */}
         {isHovered && !item && (
           <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-30 whitespace-nowrap bg-zinc-900 border border-amber-500/40 text-[10px] text-amber-300 font-mono px-2 py-0.5 rounded-md shadow-lg pointer-events-none animate-in fade-in duration-200">
-            ⚔️ Empty {label} — Tap to open inventory
+            ⚔️ Empty {label.toLowerCase()} — tap to open bag
           </div>
         )}
 
@@ -535,15 +535,15 @@ function EquipmentSlotButton({
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 rounded-xl bg-zinc-950/95 border border-amber-500/50 shadow-2xl z-50 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
           <div className="flex items-center justify-between gap-1 mb-1">
             <span className="text-xs font-bold text-amber-300 truncate">{item.name}</span>
-            <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-500/40 font-mono">
+            <span className="text-[9px] font-bold capitalize px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-500/40 font-mono">
               {item.rarity}
             </span>
           </div>
           <p className="text-[10px] text-zinc-400 leading-tight mb-2">{item.description}</p>
           <div className="flex items-center gap-2 text-[10px] font-mono font-bold text-emerald-400 pt-1 border-t border-zinc-800">
-            {item.stats.atk && <span>⚔️ +{item.stats.atk} ATK</span>}
-            {item.stats.def && <span>🛡️ +{item.stats.def} DEF</span>}
-            {item.stats.spd && <span>💨 +{item.stats.spd} SPD</span>}
+            {item.stats.atk && <span>⚔️ +{item.stats.atk} atk</span>}
+            {item.stats.def && <span>🛡️ +{item.stats.def} def</span>}
+            {item.stats.spd && <span>💨 +{item.stats.spd} spd</span>}
           </div>
         </div>
       )}

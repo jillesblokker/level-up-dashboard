@@ -200,7 +200,7 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
             <CardContent className="relative z-10 flex flex-col pt-2 pb-4">
                 <div className="flex flex-col gap-8 pb-4">
                     {/* Top Section: Full Width Natural Height Story Image Banner (No Crop, No Letterboxing) */}
-                    <div className="w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border border-amber-800/40 shadow-2xl relative">
+                    <div className="w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border border-amber-800/40 shadow-2xl relative min-h-[220px] sm:min-h-[280px] bg-gradient-to-b from-[#18130e] via-[#0d0a07] to-black">
                         {!imageErrorMap[viewedChapter.id] && (
                             <img 
                                 src={viewedChapter.image || `/images/chronicles/chronicle_image_${viewedChapter.id}.png`} 
@@ -209,11 +209,12 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                                 onError={() => setImageErrorMap(prev => ({ ...prev, [viewedChapter.id]: true }))}
                             />
                         )}
-                        <div className="absolute inset-0 z-0 flex flex-col items-center justify-center p-4 text-center bg-zinc-950">
-                            <BookOpen className="w-8 h-8 text-amber-800/20 mb-2" />
-                            <div className="text-amber-500/40 text-xs font-mono uppercase tracking-widest">
-                                chronicle_image_{viewedChapter.id}.png
+                        <div className="absolute inset-0 z-0 flex flex-col items-center justify-center p-6 text-center">
+                            <div className="w-12 h-12 rounded-full border border-amber-500/30 bg-amber-950/40 flex items-center justify-center mb-3 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+                                <BookOpen className="w-6 h-6 text-amber-400" />
                             </div>
+                            <span className="text-amber-200/90 font-medieval text-base tracking-wide">Illuminated chapter chronicle</span>
+                            <span className="text-[11px] text-amber-500/60 font-serif italic mt-0.5">Chapter {viewedChapter.id}: {viewedChapter.title}</span>
                         </div>
                     </div>
 
@@ -327,8 +328,8 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                                                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs md:text-sm font-serif border-b border-[#b58b4c]/30 pb-2"
                                                 style={{ textShadow: 'none', opacity: 1 }}
                                             >
-                                                <span className="uppercase tracking-wide font-black" style={{ color: '#000000', textShadow: 'none', opacity: 1 }}>
-                                                    FEAT {((currentFeatIndex % displayFeats.length) + 1)}: <span className="font-extrabold" style={{ color: '#3b0d02', textShadow: 'none', opacity: 1 }}>{activeFeat.category}</span>
+                                                <span className="tracking-wide font-black" style={{ color: '#000000', textShadow: 'none', opacity: 1 }}>
+                                                    Feat {((currentFeatIndex % displayFeats.length) + 1)}: <span className="font-extrabold capitalize" style={{ color: '#3b0d02', textShadow: 'none', opacity: 1 }}>{activeFeat.category}</span>
                                                 </span>
                                                 <span className="text-xs font-serif italic font-bold" style={{ color: '#050302', textShadow: 'none', opacity: 1 }}>
                                                     {(() => {
@@ -400,10 +401,10 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                 {/* Hall of Champions Permanent Legacy Gallery */}
                 <div className="mt-8 pt-6 border-t border-amber-900/40 space-y-3">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-amber-300 uppercase tracking-widest flex items-center gap-1.5 font-serif">
-                            👑 Hall of Champions (Legacy Champions)
+                        <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5 font-serif">
+                            👑 Hall of champions (legacy champions)
                         </span>
-                        <span className="text-[10px] text-zinc-500 font-mono">Season Winners</span>
+                        <span className="text-[10px] text-zinc-500 font-mono">Season winners</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

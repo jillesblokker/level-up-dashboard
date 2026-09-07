@@ -373,9 +373,9 @@ export function MasteryLedger() {
 
     // Get display label for current filter
     const getFilterLabel = (filter: string) => {
-        if (filter === 'all') return 'All Activities';
-        if (filter === 'type:quest') return 'All Quests';
-        if (filter === 'type:challenge') return 'All Challenges';
+        if (filter === 'all') return 'All activities';
+        if (filter === 'type:quest') return 'All quests';
+        if (filter === 'type:challenge') return 'All challenges';
         if (filter.startsWith('quest:')) return `Quest: ${filter.replace('quest:', '')}`;
         if (filter.startsWith('challenge:')) return `Challenge: ${filter.replace('challenge:', '')}`;
         return filter;
@@ -467,34 +467,34 @@ export function MasteryLedger() {
             {/* Weekly Growth Summary Panel */}
             {weeklySummary && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <Card className="bg-zinc-950 border-purple-900/30 p-4">
-                        <div className="text-[10px] text-purple-200/60 font-semibold mb-1">Quests (vs last week)</div>
+                    <Card className="bg-zinc-950/90 border-amber-900/30 p-4 shadow-md">
+                        <div className="text-[10px] text-zinc-400 font-serif mb-1">Quests (vs last week)</div>
                         <div className="flex items-end gap-2">
-                            <span className="text-2xl font-bold text-white">{weeklySummary.questsThisWeek}</span>
-                            <span className={cn("text-sm font-bold pb-0.5", weeklySummary.questDelta >= 0 ? "text-green-400" : "text-red-400")}>
+                            <span className="text-2xl font-bold font-mono text-white">{weeklySummary.questsThisWeek}</span>
+                            <span className={cn("text-sm font-bold pb-0.5 font-mono", weeklySummary.questDelta >= 0 ? "text-green-400" : "text-red-400")}>
                                 {weeklySummary.questDelta >= 0 ? "+" : ""}{weeklySummary.questDelta}%
                             </span>
                         </div>
                     </Card>
-                    <Card className="bg-zinc-950 border-blue-900/30 p-4">
-                        <div className="text-[10px] text-blue-200/60 font-semibold mb-1">Est. XP earned</div>
+                    <Card className="bg-zinc-950/90 border-amber-900/30 p-4 shadow-md">
+                        <div className="text-[10px] text-zinc-400 font-serif mb-1">Est. XP earned</div>
                         <div className="flex items-end gap-2">
-                            <span className="text-2xl font-bold text-white">{weeklySummary.xpThisWeek}</span>
-                            <span className={cn("text-sm font-bold pb-0.5", weeklySummary.xpDelta >= 0 ? "text-green-400" : "text-red-400")}>
+                            <span className="text-2xl font-bold font-mono text-white">{weeklySummary.xpThisWeek}</span>
+                            <span className={cn("text-sm font-bold pb-0.5 font-mono", weeklySummary.xpDelta >= 0 ? "text-green-400" : "text-red-400")}>
                                 {weeklySummary.xpDelta >= 0 ? "+" : ""}{weeklySummary.xpDelta}%
                             </span>
                         </div>
                     </Card>
-                    <Card className="bg-zinc-950 border-orange-900/30 p-4">
-                        <div className="text-[10px] text-orange-200/60 font-semibold mb-1">Top category</div>
+                    <Card className="bg-zinc-950/90 border-amber-900/30 p-4 shadow-md">
+                        <div className="text-[10px] text-zinc-400 font-serif mb-1">Top category</div>
                         <div className="flex items-end gap-2 mt-1.5">
-                            <span className="text-lg font-bold text-orange-400 capitalize truncate">{weeklySummary.bestCategory}</span>
+                            <span className="text-lg font-bold text-amber-400 capitalize truncate">{weeklySummary.bestCategory}</span>
                         </div>
                     </Card>
-                    <Card className="bg-zinc-950 border-green-900/30 p-4">
-                        <div className="text-[10px] text-green-200/50 uppercase font-bold tracking-wider mb-1">Momentum</div>
+                    <Card className="bg-zinc-950/90 border-emerald-900/30 p-4 shadow-md">
+                        <div className="text-[10px] text-emerald-200/70 font-serif font-bold mb-1">Momentum</div>
                         <div className="flex items-end gap-2 mt-1.5">
-                            <span className="text-lg font-bold text-green-400">{weeklySummary.questsThisWeek >= weeklySummary.questsLastWeek ? 'Growing 🌿' : 'Resting ⛺'}</span>
+                            <span className="text-lg font-bold text-emerald-400">{weeklySummary.questsThisWeek >= weeklySummary.questsLastWeek ? 'Growing 🌿' : 'Resting ⛺'}</span>
                         </div>
                     </Card>
                 </div>
@@ -505,23 +505,23 @@ export function MasteryLedger() {
                 {/* Filters */}
                 <div className="space-y-4">
                     <Card className="p-4 bg-zinc-950 border-amber-900/20">
-                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 block">
-                            Filter by Type & Category
+                        <label className="text-[10px] font-bold text-zinc-400 font-serif tracking-wide mb-2 block">
+                            Filter by type & category
                         </label>
                         <Select value={selectedFilter} onValueChange={setSelectedFilter}>
                             <SelectTrigger className="w-full bg-zinc-900 border-amber-900/30 text-amber-100">
-                                <SelectValue placeholder="All Activities" />
+                                <SelectValue placeholder="All activities" />
                             </SelectTrigger>
                             <SelectContent className="bg-zinc-950 border-amber-900/30 text-amber-100 max-h-[300px]">
-                                <SelectItem value="all">All Activities</SelectItem>
+                                <SelectItem value="all">All activities</SelectItem>
                                 <SelectGroup>
-                                    <SelectLabel className="text-xs text-amber-500/70 font-bold uppercase mt-2">Types</SelectLabel>
-                                    <SelectItem value="type:quest" className="pl-6">All Quests</SelectItem>
-                                    <SelectItem value="type:challenge" className="pl-6">All Challenges</SelectItem>
+                                    <SelectLabel className="text-xs text-amber-500/70 font-bold mt-2">Types</SelectLabel>
+                                    <SelectItem value="type:quest" className="pl-6">All quests</SelectItem>
+                                    <SelectItem value="type:challenge" className="pl-6">All challenges</SelectItem>
                                 </SelectGroup>
                                 {filterOptions.quests.length > 0 && ((selectedFilter === 'all' || selectedFilter.includes('quest')) || true) && (
                                     <SelectGroup>
-                                        <SelectLabel className="text-xs text-purple-500/70 font-bold uppercase mt-2">Quest Categories</SelectLabel>
+                                        <SelectLabel className="text-xs text-amber-500/70 font-bold mt-2">Quest categories</SelectLabel>
                                         {filterOptions.quests.map(cat => (
                                             <SelectItem key={`quest:${cat}`} value={`quest:${cat}`} className="pl-6 capitalize">
                                                 {cat}
@@ -531,7 +531,7 @@ export function MasteryLedger() {
                                 )}
                                 {filterOptions.challenges.length > 0 && ((selectedFilter === 'all' || selectedFilter.includes('challenge')) || true) && (
                                     <SelectGroup>
-                                        <SelectLabel className="text-xs text-orange-500/70 font-bold uppercase mt-2">Challenge Categories</SelectLabel>
+                                        <SelectLabel className="text-xs text-amber-500/70 font-bold mt-2">Challenge categories</SelectLabel>
                                         {filterOptions.challenges.map(cat => (
                                             <SelectItem key={`challenge:${cat}`} value={`challenge:${cat}`} className="pl-6 capitalize">
                                                 {cat}
@@ -544,11 +544,11 @@ export function MasteryLedger() {
 
                         <div className="mt-6 pt-4 border-t border-white/5 space-y-3">
                             <div className="flex justify-between items-center text-xs">
-                                <span className="text-zinc-500 uppercase font-bold tracking-wider">Shown</span>
+                                <span className="text-zinc-500 font-serif">Shown</span>
                                 <span className="font-mono text-white text-lg font-bold">{filteredHabits.length}</span>
                             </div>
                             <div className="flex justify-between items-center text-xs">
-                                <span className="text-zinc-500 uppercase font-bold tracking-wider">Avg Yield</span>
+                                <span className="text-zinc-500 font-serif">Avg yield</span>
                                 <span style={{ color: getFilterColor() }} className="font-mono text-lg font-bold">
                                     {filteredHabits.length > 0
                                         ? Math.round(filteredHabits.reduce((acc, h) => acc + h.stats.fulfillment, 0) / filteredHabits.length)

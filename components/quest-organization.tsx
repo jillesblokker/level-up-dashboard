@@ -420,22 +420,22 @@ export function QuestOrganization({
           </CardHeader>
           {!isOverviewCollapsed && (
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-4">
-                <div className="text-center p-4 bg-zinc-800/50 rounded-lg">
-                  <div className="text-2xl font-bold text-white">{stats.total}</div>
-                  <div className="text-sm text-zinc-400">Total Quests</div>
+              <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+                <div className="text-center p-4 bg-zinc-950/80 border border-amber-900/30 rounded-xl shadow-md space-y-1">
+                  <div className="text-2xl font-bold font-mono text-white">{stats.total}</div>
+                  <div className="text-xs text-zinc-400 font-serif">Total quests</div>
                 </div>
-                <div className="text-center p-4 bg-green-800/50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-400">{stats.completed}</div>
-                  <div className="text-sm text-zinc-400">Completed</div>
+                <div className="text-center p-4 bg-emerald-950/20 border border-emerald-500/30 rounded-xl shadow-md space-y-1">
+                  <div className="text-2xl font-bold font-mono text-emerald-400">{stats.completed}</div>
+                  <div className="text-xs text-zinc-400 font-serif">Completed</div>
                 </div>
-                <div className="text-center p-4 bg-amber-800/50 rounded-lg">
-                  <div className="text-2xl font-bold text-amber-400">{stats.active}</div>
-                  <div className="text-sm text-zinc-400">Active</div>
+                <div className="text-center p-4 bg-amber-950/20 border border-amber-500/30 rounded-xl shadow-md space-y-1">
+                  <div className="text-2xl font-bold font-mono text-amber-400">{stats.active}</div>
+                  <div className="text-xs text-zinc-400 font-serif">Active</div>
                 </div>
-                <div className="text-center p-4 bg-purple-800/50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-400">{stats.totalReward}</div>
-                  <div className="text-sm text-zinc-400">Total Reward</div>
+                <div className="text-center p-4 bg-purple-950/20 border border-purple-500/30 rounded-xl shadow-md space-y-1">
+                  <div className="text-2xl font-bold font-mono text-purple-400">{stats.totalReward}</div>
+                  <div className="text-xs text-zinc-400 font-serif">Total reward</div>
                 </div>
               </div>
             </CardContent>
@@ -559,7 +559,7 @@ export function QuestOrganization({
                           : "bg-zinc-900 text-zinc-300 border-zinc-700/60 hover:bg-zinc-800"
                       )}
                     >
-                      🌟 All Categories
+                      🌟 All categories
                     </button>
                     {getAvailableCategories().map(key => {
                       const cfg = categoryConfig[key as keyof typeof categoryConfig];
@@ -584,13 +584,13 @@ export function QuestOrganization({
                 )}
                 <div className="grid gap-4 md:grid-cols-3">
                   <div>
-                    <label className="text-sm text-zinc-300 mb-2 block">Difficulty</label>
+                    <label className="text-sm text-zinc-300 mb-2 block font-serif">Difficulty</label>
                     <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
                       <SelectTrigger className="bg-zinc-800 border-zinc-700">
                         <SelectValue placeholder="All difficulties" />
                       </SelectTrigger>
                       <SelectContent className="bg-zinc-900 border-zinc-700">
-                        <SelectItem value="all">All Difficulties</SelectItem>
+                        <SelectItem value="all">All difficulties</SelectItem>
                         {Object.entries(difficultyConfig).map(([key, config]) => (
                           <SelectItem key={key} value={key}>
                             {config.name}
@@ -601,13 +601,13 @@ export function QuestOrganization({
                   </div>
 
                   <div>
-                    <label className="text-sm text-zinc-300 mb-2 block">Status</label>
+                    <label className="text-sm text-zinc-300 mb-2 block font-serif">Status</label>
                     <Select value={selectedStatus} onValueChange={setSelectedStatus}>
                       <SelectTrigger className="bg-zinc-800 border-zinc-700">
                         <SelectValue placeholder="All statuses" />
                       </SelectTrigger>
                       <SelectContent className="bg-zinc-900 border-zinc-700">
-                        <SelectItem value="all">All Statuses</SelectItem>
+                        <SelectItem value="all">All statuses</SelectItem>
                         <SelectItem value="active">Active</SelectItem>
                         <SelectItem value="completed">Completed</SelectItem>
                       </SelectContent>
@@ -615,7 +615,7 @@ export function QuestOrganization({
                   </div>
 
                   <div>
-                    <label className="text-sm text-zinc-300 mb-2 block">Sort By</label>
+                    <label className="text-sm text-zinc-300 mb-2 block font-serif">Sort by</label>
                     <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'name' | 'reward' | 'difficulty')}>
                       <SelectTrigger className="bg-zinc-800 border-zinc-700">
                         <SelectValue placeholder="Sort by" />
