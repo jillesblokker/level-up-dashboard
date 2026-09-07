@@ -84,7 +84,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
             )}
 
             <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Trial Title</Label>
+                <Label className="text-xs font-bold text-zinc-400 ml-1">Trial title</Label>
                 <Input
                     className="bg-zinc-900 border-white/5 focus:border-red-500/50 h-12 rounded-xl px-4 text-zinc-200 placeholder:text-zinc-600 transition-all font-serif italic text-lg shadow-inner"
                     value={newChallenge.name}
@@ -96,7 +96,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
             </div>
 
             <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">The Ritual (Instructions)</Label>
+                <Label className="text-xs font-bold text-zinc-400 ml-1">The ritual (instructions)</Label>
                 <Textarea
                     className="bg-zinc-900 border-white/5 focus:border-red-500/30 min-h-[100px] rounded-xl p-4 text-zinc-300 placeholder:text-zinc-700 resize-none font-serif italic"
                     value={newChallenge.instructions}
@@ -107,7 +107,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
 
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1 flex items-center gap-1.5">
+                    <Label className="text-xs font-bold text-zinc-400 ml-1 flex items-center gap-1.5">
                         <History className="w-3 h-3" /> Repetitions
                     </Label>
                     <Input
@@ -118,8 +118,8 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
                     />
                 </div>
                 <div className="space-y-2">
-                    <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1 flex items-center gap-1.5">
-                        <Dumbbell className="w-3 h-3" /> Burden (Weight)
+                    <Label className="text-xs font-bold text-zinc-400 ml-1 flex items-center gap-1.5">
+                        <Dumbbell className="w-3 h-3" /> Burden (weight)
                     </Label>
                     <Input
                         className="bg-zinc-900 border-white/5 focus:border-red-500/50 h-12 rounded-xl px-4 text-zinc-200"
@@ -131,8 +131,8 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
             </div>
 
             <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1 flex items-center gap-1.5">
-                    <Info className="w-3 h-3" /> Sage Advice (Tips)
+                <Label className="text-xs font-bold text-zinc-400 ml-1 flex items-center gap-1.5">
+                    <Info className="w-3 h-3" /> Sage advice (tips)
                 </Label>
                 <Input
                     className="bg-zinc-900 border-white/5 focus:border-red-500/50 h-12 rounded-xl px-4 text-zinc-200"
@@ -145,13 +145,13 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
             {/* Strategic Mandate Section */}
             <div className="space-y-4 p-5 bg-red-950/10 border-2 border-red-900/20 rounded-2xl">
                 <div className="flex items-center justify-between">
-                    <label className="text-sm font-bold uppercase tracking-wider text-red-500/80 font-serif">{TEXT_CONTENT.quests.mastery.form.sectionTitle}</label>
-                    <div className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20 uppercase tracking-tighter">Trials System</div>
+                    <label className="text-sm font-bold text-red-500/80 font-serif">{TEXT_CONTENT.quests.mastery.form.sectionTitle}</label>
+                    <div className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">Trials system</div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1">{TEXT_CONTENT.quests.mastery.form.periodLabel}</label>
+                        <label className="text-[10px] font-bold text-zinc-400 ml-1">{TEXT_CONTENT.quests.mastery.form.periodLabel}</label>
                         <Select
                             value={newChallenge.mandatePeriod}
                             onValueChange={(val) => setNewChallenge({ ...newChallenge, mandatePeriod: val as any })}
@@ -168,7 +168,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1">{TEXT_CONTENT.quests.mastery.form.countLabel}</label>
+                        <label className="text-[10px] font-bold text-zinc-400 ml-1">{TEXT_CONTENT.quests.mastery.form.countLabel}</label>
                         <div className="flex items-center gap-2">
                             <Input
                                 type="number"
@@ -178,7 +178,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
                                 value={newChallenge.mandateCount}
                                 onChange={(e) => setNewChallenge({ ...newChallenge, mandateCount: parseInt(e.target.value) || 1 })}
                             />
-                            <div className="text-[10px] font-bold text-zinc-600 uppercase">Times</div>
+                            <div className="text-[10px] font-bold text-zinc-500">times</div>
                         </div>
                     </div>
                 </div>
@@ -195,7 +195,7 @@ export function AddChallengeForm({ onSuccess, onCancel, initialData }: AddChalle
                     <Flame className="w-5 h-5 text-red-500 animate-pulse" />
                 </div>
                 <div>
-                    <div className="text-[10px] font-bold text-red-500/60 uppercase tracking-widest">Reward Potential</div>
+                    <div className="text-[10px] font-bold text-red-500/60">Reward potential</div>
                     <div className="text-lg font-serif italic text-white flex items-center gap-2">
                         +50 XP <Sword className="w-4 h-4 text-red-400" />
                     </div>

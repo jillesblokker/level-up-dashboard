@@ -196,18 +196,18 @@ export function MedievalHelpModal({
               </p>
 
               {currentItem.tips && (
-                <div className="space-y-2">
-                  <h4 className="text-lg font-semibold text-amber-100">
-                    💡 Pro Tips:
+                <div className="space-y-2 pt-2">
+                  <h4 className="text-xs font-bold text-amber-300 flex items-center gap-1.5 font-cardo">
+                    <span>📜</span> Realm guidance
                   </h4>
-                  <ul className="space-y-1">
+                  <div className="space-y-1.5">
                     {currentItem.tips.map((tip, index) => (
-                      <li key={index} className="flex items-start space-x-2 text-amber-200">
-                        <span className="text-amber-400 mt-1">•</span>
-                        <span className="text-sm">{tip}</span>
-                      </li>
+                      <div key={index} className="flex items-start gap-2 p-2 rounded-lg bg-black/30 border border-amber-500/20 text-xs text-amber-100/90 leading-relaxed">
+                        <span className="text-amber-400 shrink-0 text-xs">◆</span>
+                        <span>{tip}</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               )}
             </div>

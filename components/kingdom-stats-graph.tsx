@@ -20,6 +20,7 @@ import Link from 'next/link'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useSupabaseRealtimeSync } from '@/hooks/useSupabaseRealtimeSync'
 import { useAuth } from '@clerk/nextjs'
+import { cn } from '@/lib/utils'
 
 import { format, parseISO, isThisWeek, isThisMonth, isThisYear } from 'date-fns';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart as RechartsBarChart, Bar, Legend, Cell, Area } from 'recharts';
@@ -66,6 +67,40 @@ interface EmptyStateProps {
   buttonText: string;
 }
 
+function EmptyStateCreature({ src, fallbackSrc, alt, borderClass, emojiFallback }: {
+  src: string;
+  fallbackSrc?: string;
+  alt: string;
+  borderClass: string;
+  emojiFallback: string;
+}) {
+  const [currentSrc, setCurrentSrc] = useState(src);
+  const [failed, setFailed] = useState(false);
+
+  return (
+    <div className={cn("relative w-14 h-14 rounded-2xl border-2 bg-zinc-950/90 shadow-xl overflow-hidden shrink-0 flex items-center justify-center", borderClass)}>
+      {!failed ? (
+        <Image
+          src={currentSrc}
+          alt={alt}
+          fill
+          className="object-contain p-1"
+          unoptimized
+          onError={() => {
+            if (fallbackSrc && currentSrc !== fallbackSrc) {
+              setCurrentSrc(fallbackSrc);
+            } else {
+              setFailed(true);
+            }
+          }}
+        />
+      ) : (
+        <span className="text-2xl select-none" role="img" aria-label={alt}>{emojiFallback}</span>
+      )}
+    </div>
+  );
+}
+
 function EmptyState({ title, description, href, buttonText }: EmptyStateProps) {
   return (
     <section
@@ -76,24 +111,20 @@ function EmptyState({ title, description, href, buttonText }: EmptyStateProps) {
 
       {/* Living Creatures: Leaf & Turtoisy studying the maps */}
       <div className="flex items-center justify-center gap-3 relative z-10">
-        <div className="relative w-14 h-14 rounded-2xl border-2 border-emerald-500/40 bg-zinc-950/90 shadow-xl overflow-hidden shrink-0">
-          <Image
-            src="/images/creatures/Leaf.webp"
-            alt="Leaf"
-            fill
-            className="object-contain p-1"
-            unoptimized
-          />
-        </div>
-        <div className="relative w-14 h-14 rounded-2xl border-2 border-amber-500/40 bg-zinc-950/90 shadow-xl overflow-hidden shrink-0">
-          <Image
-            src="/images/creatures/Turtoisy.webp"
-            alt="Turtoisy"
-            fill
-            className="object-contain p-1"
-            unoptimized
-          />
-        </div>
+        <EmptyStateCreature
+          src="/images/creatures/Leaf.webp"
+          fallbackSrc="/images/creatures/007.webp"
+          alt="Leaf"
+          borderClass="border-emerald-500/40"
+          emojiFallback="🌱"
+        />
+        <EmptyStateCreature
+          src="/images/creatures/Turtoisy.webp"
+          fallbackSrc="/images/creatures/Turtlo.webp"
+          alt="Turtoisy"
+          borderClass="border-amber-500/40"
+          emojiFallback="🐢"
+        />
       </div>
 
       <div className="relative z-10 max-w-md space-y-1 px-2">
@@ -1257,7 +1288,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
               value={activeTab}
               onChange={e => setActiveTab(e.target.value as typeof activeTab)}
             >
-              <option value="gold-gained">Gold Gained</option>
+              <option value="gold-gained">Gold gained</option>
               <option value="gold-spent">Spent</option>
               <option value="experience">Experience</option>
               <option value="level">Level</option>
@@ -1265,7 +1296,7 @@ export function KingStatsBlock({ userId }: { userId: string | null }) {
           </div>
           <Tabs value={activeTab} onValueChange={v => setActiveTab(v as typeof activeTab)} className="mb-4 hidden md:block">
             <TabsList aria-label="king-stats-tabs">
-              <TabsTrigger value="gold-gained" aria-label="gold-gained-tab">Gold Gained</TabsTrigger>
+              <TabsTrigger value="gold-gained" aria-label="gold-gained-tab">Gold gained</TabsTrigger>
               <TabsTrigger value="gold-spent" aria-label="gold-spent-tab">Spent</TabsTrigger>
               <TabsTrigger value="experience" aria-label="experience-tab">Experience</TabsTrigger>
               <TabsTrigger value="level" aria-label="level-tab">Level</TabsTrigger>

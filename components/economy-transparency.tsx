@@ -216,7 +216,7 @@ export function EconomyTransparency() {
           {/* Analysis Graph / Empty State */}
           <div className="bg-[#0e0a07]/90 rounded-2xl p-4 sm:p-5 border border-amber-900/40 shadow-inner">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-amber-400/90 flex items-center gap-2 font-serif">
+              <h3 className="text-xs font-bold text-amber-400/90 flex items-center gap-2 font-serif">
                 <TrendingUp className="h-4 w-4 text-amber-500" />
                 {filterType === 'all' ? 'Treasury flow ledger' : filterType === 'earned' ? 'Tithe velocity' : 'Expenditure volume'}
               </h3>
@@ -262,11 +262,11 @@ export function EconomyTransparency() {
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (
-                /* Rich Medieval Empty State with Rockie & Treasure Chest Visual */
+                /* Rich Medieval Empty State with Rockie & Symmetrical Vault Chest Frame */
                 <div className="w-full py-6 px-4 flex flex-col items-center justify-center text-center space-y-4 animate-in fade-in duration-300">
-                  <div className="flex items-center justify-center gap-4 relative">
+                  <div className="flex items-center justify-center gap-3 relative">
                     {/* Rockie Avatar Frame */}
-                    <div className="relative w-16 h-16 rounded-2xl border-2 border-amber-500/40 bg-zinc-900/90 shadow-xl overflow-hidden shrink-0 animate-bounce" style={{ animationDuration: '4s' }}>
+                    <div className="relative w-14 h-14 rounded-2xl border-2 border-amber-500/40 bg-zinc-950/90 shadow-xl overflow-hidden shrink-0 flex items-center justify-center">
                       <Image
                         src="/images/creatures/Rockie.webp"
                         alt="Rockie"
@@ -276,13 +276,34 @@ export function EconomyTransparency() {
                       />
                     </div>
 
-                    {/* Locked Empty Chest Visual */}
-                    <div className="w-24 shrink-0">
-                      <TreasureChestVisual
-                        state="locked"
-                        tierLabel="Iron Chest"
-                        className="p-3 border-amber-600/30 bg-black/40 scale-90 shadow-lg"
-                      />
+                    {/* Matching Iron Chest Frame */}
+                    <div className="relative w-14 h-14 rounded-2xl border-2 border-amber-500/40 bg-gradient-to-b from-amber-950/60 to-zinc-950 shadow-xl overflow-hidden shrink-0 flex items-center justify-center p-2 relative group">
+                      <svg viewBox="0 0 120 100" className="w-full h-full drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+                        <defs>
+                          <linearGradient id="oakWoodEmpty" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stopColor="#78350f" />
+                            <stop offset="50%" stopColor="#451a03" />
+                            <stop offset="100%" stopColor="#290e02" />
+                          </linearGradient>
+                          <linearGradient id="goldPlateEmpty" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor="#b45309" />
+                            <stop offset="30%" stopColor="#f59e0b" />
+                            <stop offset="70%" stopColor="#fbbf24" />
+                            <stop offset="100%" stopColor="#78350f" />
+                          </linearGradient>
+                        </defs>
+                        <rect x="15" y="45" width="90" height="45" rx="6" fill="url(#oakWoodEmpty)" stroke="#18181b" strokeWidth="2" />
+                        <rect x="25" y="45" width="10" height="45" fill="url(#goldPlateEmpty)" opacity="0.9" />
+                        <rect x="85" y="45" width="10" height="45" fill="url(#goldPlateEmpty)" opacity="0.9" />
+                        <path d="M 12 45 Q 60 12 108 45 Z" fill="url(#oakWoodEmpty)" stroke="#18181b" strokeWidth="2" />
+                        <path d="M 25 45 Q 60 22 85 45" fill="none" stroke="url(#goldPlateEmpty)" strokeWidth="6" opacity="0.9" />
+                        <rect x="50" y="40" width="20" height="22" rx="3" fill="url(#goldPlateEmpty)" stroke="#451a03" strokeWidth="1.5" />
+                        <circle cx="60" cy="48" r="3" fill="#18181b" />
+                        <polygon points="58.5,48 61.5,48 62,56 58,56" fill="#18181b" />
+                      </svg>
+                      <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-zinc-950 border border-amber-500/50 flex items-center justify-center text-[9px]" title="Locked vault">
+                        🔒
+                      </div>
                     </div>
                   </div>
 

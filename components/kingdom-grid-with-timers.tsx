@@ -1572,26 +1572,13 @@ export function KingdomGridWithTimers({
 
     setTileTimers(finalTimers);
 
-    // Only persist new default timers to database if server fetch was unsuccessful (offline initialization)
-    if (!success && didAddDefaults && initialNewTimers.length > 0) {
+    // If defaults were initialized while offline or server failed, cache locally in user-scoped storage
+    // NEVER hammer a failing or 502 server with dozens of concurrent POST requests
+    if (didAddDefaults && initialNewTimers.length > 0) {
       try {
-        for (const timer of initialNewTimers) {
-          const endIso = new Date(timer.endTime).toISOString()
-          await fetchAuthRetry('/api/property-timers', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              tileId: timer.tileId,
-              x: timer.x,
-              y: timer.y,
-              tileType: timer.tileId,
-              endTime: endIso,
-              isReady: timer.isReady
-            })
-          })
-        }
+        setUserScopedItem('kingdom-tile-timers', JSON.stringify(finalTimers));
       } catch (err) {
-        logger.error("[KingdomGrid] Failed to persist initial property timers:", err)
+        logger.error("[KingdomGrid] Failed to cache initial property timers:", err);
       }
     }
   }, [grid]);

@@ -26,13 +26,14 @@ export function NotificationsBell() {
     const fetchNotifications = async () => {
         try {
             const res = await fetch('/api/notifications');
+            if (!res.ok) return;
             const data = await res.json();
             if (Array.isArray(data)) {
                 setNotifications(data);
                 setUnreadCount(data.filter(n => !n.is_read).length);
             }
         } catch (error) {
-            logger.error("Failed to fetch notifications", error);
+            logger.warn("[NotificationsBell] Background fetch failed:", error);
         }
     };
 

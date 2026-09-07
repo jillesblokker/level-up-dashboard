@@ -810,108 +810,171 @@ export function AlchemyLabTab() {
           </Card>
         </div>
 
-        {/* Buff Status Overview (Right 1/3) */}
+        {/* Active Elixirs & Blessings (Right 1/3) */}
         <div className="lg:col-span-1 w-full">
-          <Card className="bg-[#0f1115] border border-amber-950/20 rounded-2xl p-5 shadow-xl flex flex-col justify-between h-full min-h-[280px]">
-            <div>
-              <h4 className="font-cardo font-bold text-xs text-amber-500 flex items-center gap-1.5 uppercase tracking-wider mb-3">
-                <Activity className="w-4 h-4 text-amber-500" /> Buff Status Overview
-              </h4>
+          <Card className="bg-[#0f1115] border border-amber-950/30 rounded-2xl p-5 shadow-xl flex flex-col justify-between h-full">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
+                <h4 className="font-cardo font-bold text-xs text-amber-400 flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-amber-400" /> Active buffs & elixirs
+                </h4>
+                <span className="text-[10px] font-mono text-zinc-500">
+                  {((activeBuffs.combatProtectionCharges > 0 ? 1 : 0) +
+                    (activeBuffs.forgeLuckCharges > 0 ? 1 : 0) +
+                    (isDoubleHarvestActive ? 1 : 0) +
+                    (isSpellActive ? 1 : 0) +
+                    activeModifiers.filter(m => new Date(m.expires_at).getTime() > timeState).length)} active
+                </span>
+              </div>
 
-              <div className="space-y-2.5 mt-2">
+              <div className="space-y-2.5">
+                {/* Combat Protection */}
+                {activeBuffs.combatProtectionCharges > 0 ? (
+                  <div className="p-2.5 rounded-xl border border-emerald-500/30 bg-emerald-950/20 flex items-center justify-between transition-all">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <Shield className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-emerald-300">Combat shielding</div>
+                        <div className="text-[10px] text-zinc-400">Absorbs 1 defeat in dungeon keep</div>
+                      </div>
+                    </div>
+                    <Badge className="bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono font-bold">
+                      {activeBuffs.combatProtectionCharges} {activeBuffs.combatProtectionCharges === 1 ? 'charge' : 'charges'}
+                    </Badge>
+                  </div>
+                ) : (
+                  <div className="p-2.5 rounded-xl border border-dashed border-zinc-800 bg-zinc-950/40 flex items-center justify-between opacity-70">
+                    <div className="flex items-center gap-2 text-zinc-500 text-xs">
+                      <Shield className="w-3.5 h-3.5 text-zinc-600" />
+                      <span className="text-[11px]">Dungeon ward slot</span>
+                    </div>
+                    <span className="text-[10px] text-zinc-600 font-mono">Empty</span>
+                  </div>
+                )}
+
+                {/* Double Harvest */}
+                {isDoubleHarvestActive ? (
+                  <div className="p-2.5 rounded-xl border border-blue-500/30 bg-blue-950/20 flex items-center justify-between transition-all">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        <Hourglass className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-blue-300">Double harvest</div>
+                        <div className="text-[10px] text-zinc-400">Doubles all citizen crop & gold yields</div>
+                      </div>
+                    </div>
+                    <Badge className="bg-blue-950/80 text-blue-300 border border-blue-500/30 text-[10px] font-mono font-bold">
+                      {formatExpires(activeBuffs.doubleHarvestUntil)}
+                    </Badge>
+                  </div>
+                ) : (
+                  <div className="p-2.5 rounded-xl border border-dashed border-zinc-800 bg-zinc-950/40 flex items-center justify-between opacity-70">
+                    <div className="flex items-center gap-2 text-zinc-500 text-xs">
+                      <Hourglass className="w-3.5 h-3.5 text-zinc-600" />
+                      <span className="text-[11px]">Harvest draught slot</span>
+                    </div>
+                    <span className="text-[10px] text-zinc-600 font-mono">Empty</span>
+                  </div>
+                )}
+
+                {/* Forge Luck Elixir */}
                 {activeBuffs.forgeLuckCharges > 0 && (
-                  <div className="flex justify-between items-center text-xs bg-amber-950/15 border border-amber-500/20 p-2 rounded-xl text-amber-400">
-                    <span className="font-bold flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5" /> Forge Luck Elixir
-                    </span>
-                    <span className="font-mono font-bold text-[10px]">{activeBuffs.forgeLuckCharges} charges</span>
+                  <div className="p-2.5 rounded-xl border border-amber-500/30 bg-amber-950/20 flex items-center justify-between transition-all">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-amber-300">Forge luck elixir</div>
+                        <div className="text-[10px] text-zinc-400">Boosts upgrade & crafting success</div>
+                      </div>
+                    </div>
+                    <Badge className="bg-amber-950/80 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold">
+                      {activeBuffs.forgeLuckCharges} {activeBuffs.forgeLuckCharges === 1 ? 'charge' : 'charges'}
+                    </Badge>
                   </div>
                 )}
 
-                {activeBuffs.combatProtectionCharges > 0 && (
-                  <div className="flex justify-between items-center text-xs bg-emerald-950/15 border border-emerald-500/20 p-2 rounded-xl text-emerald-400">
-                    <span className="font-bold flex items-center gap-1.5">
-                      <Shield className="w-3.5 h-3.5" /> Combat Shielding
-                    </span>
-                    <span className="font-mono font-bold text-[10px]">{activeBuffs.combatProtectionCharges} charges</span>
-                  </div>
-                )}
-
-                {isDoubleHarvestActive && (
-                  <div className="flex justify-between items-center text-xs bg-blue-950/15 border border-blue-500/20 p-2 rounded-xl text-blue-400">
-                    <span className="font-bold flex items-center gap-1.5">
-                      <Hourglass className="w-3.5 h-3.5" /> Double Harvest
-                    </span>
-                    <span className="font-mono font-bold text-[9px]">{formatExpires(activeBuffs.doubleHarvestUntil)}</span>
-                  </div>
-                )}
-
+                {/* Altar Spell Blessing */}
                 {isSpellActive && (
-                  <div className="flex justify-between items-center text-xs bg-indigo-950/15 border border-indigo-500/20 p-2 rounded-xl text-indigo-400">
-                    <span className="font-bold flex items-center gap-1.5">
-                      <Flame className="w-3.5 h-3.5" /> Blessing of {activeSpell}
-                    </span>
-                    <span className="font-mono font-bold text-[9px]">{formatExpires(spellExpiresAt)}</span>
+                  <div className="p-2.5 rounded-xl border border-indigo-500/30 bg-indigo-950/20 flex items-center justify-between transition-all">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                        <Flame className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-indigo-300">Blessing of {activeSpell}</div>
+                        <div className="text-[10px] text-zinc-400">Empowers realm virtue energy</div>
+                      </div>
+                    </div>
+                    <Badge className="bg-indigo-950/80 text-indigo-300 border border-indigo-500/30 text-[10px] font-mono font-bold">
+                      {formatExpires(spellExpiresAt)}
+                    </Badge>
                   </div>
                 )}
 
-                {/* Display active cauldron modifiers from database */}
+                {/* Cauldron Modifiers from database */}
                 {activeModifiers.map((mod: any) => {
                   const isExpired = new Date(mod.expires_at).getTime() <= timeState;
                   if (isExpired) return null;
 
                   const modName = mod.name.toLowerCase();
                   let IconComponent = Sparkles;
-                  let colorClass = "text-purple-400 bg-purple-950/15 border-purple-500/20";
+                  let colorClass = "text-purple-300 bg-purple-950/20 border-purple-500/30";
+                  let iconBoxClass = "bg-purple-500/10 text-purple-400 border-purple-500/20";
                   if (modName.includes('midas') || modName.includes('dread')) {
                     IconComponent = Coins;
-                    colorClass = "text-amber-400 bg-amber-950/15 border-amber-500/20";
+                    colorClass = "text-amber-300 bg-amber-950/20 border-amber-500/30";
+                    iconBoxClass = "bg-amber-500/10 text-amber-400 border-amber-500/20";
                   } else if (modName.includes('focus') || modName.includes('sage')) {
                     IconComponent = Award;
-                    colorClass = "text-cyan-400 bg-cyan-950/15 border-cyan-500/20";
+                    colorClass = "text-cyan-300 bg-cyan-950/20 border-cyan-500/30";
+                    iconBoxClass = "bg-cyan-500/10 text-cyan-400 border-cyan-500/20";
                   } else if (modName.includes('aegis') || modName.includes('shield')) {
                     IconComponent = Shield;
-                    colorClass = "text-emerald-400 bg-emerald-950/15 border-emerald-500/20";
+                    colorClass = "text-emerald-300 bg-emerald-950/20 border-emerald-500/30";
+                    iconBoxClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
                   } else if (modName.includes('ironheart')) {
                     IconComponent = Heart;
-                    colorClass = "text-red-400 bg-red-950/15 border-red-500/20";
+                    colorClass = "text-red-300 bg-red-950/20 border-red-500/30";
+                    iconBoxClass = "bg-red-500/10 text-red-400 border-red-500/20";
                   } else if (modName.includes('mercury')) {
                     IconComponent = Hourglass;
-                    colorClass = "text-purple-400 bg-purple-950/15 border-purple-500/20";
+                    colorClass = "text-purple-300 bg-purple-950/20 border-purple-500/30";
+                    iconBoxClass = "bg-purple-500/10 text-purple-400 border-purple-500/20";
                   }
 
                   return (
-                    <div key={mod.id} className={cn("flex justify-between items-center text-xs p-2 rounded-xl border", colorClass)}>
-                      <span className="font-bold flex items-center gap-1.5">
-                        <IconComponent className="w-3.5 h-3.5" /> {mod.name}
-                      </span>
-                      <span className="font-mono font-bold text-[9px]">{formatExpires(mod.expires_at)}</span>
+                    <div key={mod.id} className={cn("p-2.5 rounded-xl border flex items-center justify-between", colorClass)}>
+                      <div className="flex items-center gap-2.5">
+                        <div className={cn("p-1.5 rounded-lg border", iconBoxClass)}>
+                          <IconComponent className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold capitalize">{mod.name}</div>
+                          <div className="text-[10px] text-zinc-400">{mod.description || 'Active cauldron elixir effect'}</div>
+                        </div>
+                      </div>
+                      <Badge className="bg-zinc-950/80 text-zinc-300 border border-white/10 text-[10px] font-mono font-bold">
+                        {formatExpires(mod.expires_at)}
+                      </Badge>
                     </div>
                   );
                 })}
-
-                {!activeBuffs.forgeLuckCharges &&
-                 !activeBuffs.combatProtectionCharges &&
-                 !isDoubleHarvestActive &&
-                 !isSpellActive &&
-                 activeModifiers.filter(m => new Date(m.expires_at).getTime() > timeState).length === 0 && (
-                  <div className="flex flex-col items-center py-4 text-center">
-                    <p className="text-[10px] text-zinc-500 leading-normal">
-                      No active potion elixirs or altar blessings. Open the cauldron inside your inventory bag to brew modifiers!
-                    </p>
-                    <Button
-                      onClick={handleOpenBagOverlay}
-                      className="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs py-2 h-9 rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]"
-                    >
-                      <Sparkles className="w-4 h-4 shrink-0" /> Open Cauldron in Bag
-                    </Button>
-                  </div>
-                )}
               </div>
             </div>
             
-            <div className="pt-4 text-[9px] text-zinc-600 text-center font-semibold border-t border-white/5 mt-4">
-              Tip: Brew elixirs using the Alchemist Cauldron inside your Inventory Bag overlay.
+            {/* Direct Action Bottom CTA */}
+            <div className="pt-4 border-t border-white/5 mt-4">
+              <Button
+                onClick={handleOpenBagOverlay}
+                className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-zinc-950 font-bold text-xs h-9 rounded-xl shadow-md flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]"
+              >
+                <Sparkles className="w-3.5 h-3.5 shrink-0 text-zinc-950" /> Brew elixirs in cauldron
+              </Button>
             </div>
           </Card>
         </div>

@@ -93,14 +93,38 @@ export function MigrationModal({ isOpen, onClose, onComplete }: MigrationModalPr
           {/* Data Summary */}
           {localData && (
             <div className="space-y-2">
-              <h4 className="font-medium text-sm">Local Data Found:</h4>
-              <div className="text-xs space-y-1">
-                {localData.gridData && <div>• Grid/Map Data</div>}
-                {localData.characterPosition && <div>• Character Position</div>}
-                {localData.tileInventory && <div>• Tile Inventory</div>}
-                {localData.userPreferences && <div>• User Preferences</div>}
-                {localData.imageDescriptions && <div>• Image Descriptions</div>}
-                {localData.gameSettings && <div>• Game Settings</div>}
+              <h4 className="font-medium text-xs text-zinc-300">Local data detected:</h4>
+              <div className="grid grid-cols-2 gap-1.5 text-xs">
+                {localData.gridData && (
+                  <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Grid & map data
+                  </div>
+                )}
+                {localData.characterPosition && (
+                  <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Character position
+                  </div>
+                )}
+                {localData.tileInventory && (
+                  <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Tile inventory
+                  </div>
+                )}
+                {localData.userPreferences && (
+                  <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> User preferences
+                  </div>
+                )}
+                {localData.imageDescriptions && (
+                  <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Image descriptions
+                  </div>
+                )}
+                {localData.gameSettings && (
+                  <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Game settings
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -115,53 +139,57 @@ export function MigrationModal({ isOpen, onClose, onComplete }: MigrationModalPr
             </Alert>
           )}
 
-          {/* Migration Progress */}
+          {/* Progress */}
           {isMigrating && (
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Migrating data...
+              <div className="flex justify-between text-xs">
+                <span>Migrating data...</span>
+                <span>{progress}%</span>
               </div>
-              <Progress value={progress} className="h-2" />
+              <Progress value={progress} />
             </div>
           )}
 
-          {/* Migration Result */}
+          {/* Result */}
           {result && (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {result.success ? (
-                <Alert>
+                <Alert className="border-green-200 bg-green-50 text-green-800">
                   <CheckCircle className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-600">
+                  <AlertDescription>
                     Migration completed successfully!
                   </AlertDescription>
                 </Alert>
               ) : (
-                <Alert>
+                <Alert className="border-red-200 bg-red-50 text-red-800">
                   <AlertCircle className="h-4 w-4 text-red-600" />
-                  <AlertDescription className="text-red-600">
-                    Migration failed. Please try again.
+                  <AlertDescription>
+                    Migration completed with errors. Check details below.
                   </AlertDescription>
                 </Alert>
               )}
 
               {result.migrated.length > 0 && (
-                <div className="text-xs">
-                  <div className="font-medium">Migrated:</div>
-                  <div className="space-y-1">
+                <div className="text-xs space-y-1.5">
+                  <div className="font-medium text-emerald-400">Migrated items:</div>
+                  <div className="flex flex-wrap gap-1.5">
                     {result.migrated.map(item => (
-                      <div key={item}>• {item}</div>
+                      <span key={item} className="px-2 py-0.5 rounded-md bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-[11px] font-mono">
+                        ✓ {item}
+                      </span>
                     ))}
                   </div>
                 </div>
               )}
 
               {result.errors.length > 0 && (
-                <div className="text-xs text-red-600">
+                <div className="text-xs space-y-1.5 text-red-400">
                   <div className="font-medium">Errors:</div>
                   <div className="space-y-1">
                     {result.errors.map((error, index) => (
-                      <div key={index}>• {error}</div>
+                      <div key={index} className="p-1.5 rounded bg-red-950/30 border border-red-500/20 text-[11px]">
+                        {error}
+                      </div>
                     ))}
                   </div>
                 </div>
