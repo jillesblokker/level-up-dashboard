@@ -112,52 +112,46 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
           {!selectedChoice ? (
             /* ── STAGE 1: The Narrative Scene ── */
             <div className="space-y-5">
-              {/* Character Illustration & Cast Ribbon */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 p-3.5 rounded-xl bg-gradient-to-r from-amber-950/40 via-zinc-900/60 to-zinc-950 border border-amber-900/40 shadow-sm">
-                <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-amber-900 via-amber-950 to-black border-2 border-amber-400 shadow-[0_4px_16px_rgba(0,0,0,0.8),0_0_12px_rgba(245,158,11,0.3)] flex items-center justify-center overflow-hidden shrink-0 p-0.5">
-                  <div className="relative w-full h-full rounded-lg overflow-hidden bg-zinc-950/80">
-                    <Image
-                      src={story.avatarImage}
-                      alt={story.title}
-                      fill
-                      className="object-contain p-0.5"
-                      unoptimized
-                    />
-                  </div>
-                </div>
-                <div>
-                  <span className="text-[11px] font-mono text-zinc-400 block mb-1.5">Creatures in this story:</span>
-                  <div className="flex flex-wrap gap-2">
-                    {story.characters.map((char, idx) => (
-                      <div key={idx} className="flex items-center gap-2 bg-zinc-900/95 border border-amber-500/50 px-2.5 py-1.5 rounded-xl shadow-sm">
-                        <div className="relative w-7 h-7 rounded-lg overflow-hidden bg-amber-950/90 border border-amber-400/60 shrink-0">
-                          <Image
-                            src={char.image}
-                            alt={char.name}
-                            fill
-                            className="object-contain p-0.5"
-                            unoptimized
-                          />
-                        </div>
-                        <span className="text-xs font-bold text-amber-200 font-serif">
-                          {char.name}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Atmospheric Narrative Text (Parchment styled with soft black ink) */}
-              <div className="parchment-container storybook-parchment p-5 sm:p-6 rounded-xl bg-[#fdfaf3] shadow-inner border border-amber-300/40 space-y-3 font-serif text-sm sm:text-base leading-relaxed">
-                {story.narrativeText.split('\n\n').map((paragraph, pIdx) => (
-                  <p
-                    key={pIdx}
-                    className="text-[#1c140d] font-serif leading-relaxed"
-                    style={{ color: '#1c140d', textShadow: 'none' }}
+              {/* Atmospheric Narrative Text with Speaker Avatars */}
+              <div className="parchment-container storybook-parchment p-4 sm:p-5 rounded-2xl bg-[#fdfaf3] shadow-inner border border-amber-300/40 space-y-3 font-serif">
+                {(story.dialogue && story.dialogue.length > 0
+                  ? story.dialogue
+                  : story.narrativeText.split('\n\n').map(para => {
+                      const matched = story.characters.find(c =>
+                        para.toLowerCase().includes(c.name.toLowerCase())
+                      );
+                      return {
+                        speaker: matched ? matched.name : story.characters[0]?.name || 'Narrator',
+                        speakerImage: matched ? matched.image : story.avatarImage,
+                        text: para
+                      };
+                    })
+                ).map((beat, bIdx) => (
+                  <div
+                    key={bIdx}
+                    className="flex items-start gap-3 p-3 rounded-xl bg-[#f7f2e7] border border-amber-900/10 shadow-xs"
                   >
-                    {paragraph}
-                  </p>
+                    <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 border border-amber-700/40 shadow-xs overflow-hidden shrink-0 mt-0.5">
+                      <Image
+                        src={beat.speakerImage || story.avatarImage}
+                        alt={beat.speaker}
+                        fill
+                        className="object-contain p-0.5"
+                        unoptimized
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0 space-y-0.5">
+                      <span className="text-xs font-bold text-amber-950 font-serif block tracking-wide">
+                        {beat.speaker}
+                      </span>
+                      <p
+                        className="text-[#1c140d] font-serif text-sm sm:text-[15px] leading-relaxed"
+                        style={{ color: '#1c140d', textShadow: 'none' }}
+                      >
+                        {beat.text}
+                      </p>
+                    </div>
+                  </div>
                 ))}
               </div>
 
@@ -168,49 +162,88 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
                 </span>
 
                 <div className="flex flex-col gap-2.5 pb-8">
-                  {story.choices.map(choice => (
-                    <button
-                      key={choice.id}
-                      onClick={() => handleSelectChoice(choice)}
-                      disabled={isResolving}
-                      className={cn(
-                        "w-full text-left p-3.5 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 group cursor-pointer",
-                        "bg-zinc-950/90 border-amber-700/40 hover:border-amber-400 hover:bg-amber-950/20 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]",
-                        isResolving && "opacity-50 pointer-events-none"
-                      )}
-                    >
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm text-amber-300 font-serif group-hover:text-amber-200">
-                            {choice.verb}
-                          </span>
-                          <Badge variant="outline" className={cn("text-[9px] font-mono px-1.5 py-0 font-bold", getVirtueBadgeStyle(choice.virtueType))}>
-                            +{choice.virtuePoints} {choice.virtueType}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-zinc-300 font-sans leading-snug">
-                          {choice.label}
-                        </p>
-                      </div>
+                  {story.choices.map(choice => {
+                    const choiceImg = choice.characterImage || (
+                      story.characters.find(c =>
+                        choice.verb.toLowerCase().includes(c.name.toLowerCase()) ||
+                        choice.label.toLowerCase().includes(c.name.toLowerCase())
+                      )?.image || story.avatarImage
+                    );
+                    const choiceName = choice.characterName || (
+                      story.characters.find(c =>
+                        choice.verb.toLowerCase().includes(c.name.toLowerCase()) ||
+                        choice.label.toLowerCase().includes(c.name.toLowerCase())
+                      )?.name || 'Creature'
+                    );
 
-                      <div className="flex items-center gap-1 text-[11px] font-mono text-amber-400 shrink-0 self-end sm:self-center">
-                        <span>Choose</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </button>
-                  ))}
+                    return (
+                      <button
+                        key={choice.id}
+                        onClick={() => handleSelectChoice(choice)}
+                        disabled={isResolving}
+                        className={cn(
+                          "w-full text-left p-3 rounded-xl border transition-all flex items-center gap-3.5 group cursor-pointer",
+                          "bg-zinc-950/90 border-amber-700/40 hover:border-amber-400 hover:bg-amber-950/20 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]",
+                          isResolving && "opacity-50 pointer-events-none"
+                        )}
+                      >
+                        {/* Visual Creature Avatar */}
+                        <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-amber-900/90 via-amber-950 to-zinc-950 border-2 border-amber-400/80 shadow-[0_2px_10px_rgba(0,0,0,0.7)] flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 group-hover:border-amber-300 transition-all p-0.5">
+                          <div className="relative w-full h-full rounded-lg overflow-hidden bg-zinc-950/80">
+                            <Image
+                              src={choiceImg}
+                              alt={choiceName}
+                              fill
+                              className="object-contain p-0.5"
+                              unoptimized
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-0.5 flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-sm text-amber-300 font-serif group-hover:text-amber-200">
+                              {choice.verb}
+                            </span>
+                            <Badge variant="outline" className={cn("text-[9px] font-mono px-1.5 py-0 font-bold", getVirtueBadgeStyle(choice.virtueType))}>
+                              +{choice.virtuePoints} {choice.virtueType}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-zinc-300 font-sans leading-snug">
+                            {choice.label}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-1 text-[11px] font-mono text-amber-400 shrink-0 self-center">
+                          <span className="hidden sm:inline">Choose</span>
+                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
           ) : (
             /* ── STAGE 2: Resolution & Real-Life Lesson ── */
             <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300 pb-8">
-              {/* Selected Choice Pill */}
-              <div className="flex items-center justify-between p-2.5 px-4 rounded-xl bg-amber-950/40 border border-amber-500/40">
-                <span className="text-xs text-zinc-300 font-sans">
-                  You chose: <strong className="text-amber-300 font-serif">{selectedChoice.verb}</strong>
-                </span>
-                <Badge variant="outline" className={cn("text-[9px] font-mono font-bold", getVirtueBadgeStyle(selectedChoice.virtueType))}>
+              {/* Selected Choice Pill with Avatar */}
+              <div className="flex items-center justify-between p-2.5 px-3.5 rounded-xl bg-amber-950/40 border border-amber-500/40 gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-zinc-950 border border-amber-400/60 shadow-xs shrink-0">
+                    <Image
+                      src={selectedChoice.characterImage || story.avatarImage}
+                      alt={selectedChoice.characterName || 'Creature'}
+                      fill
+                      className="object-contain p-0.5"
+                      unoptimized
+                    />
+                  </div>
+                  <span className="text-xs text-zinc-300 font-sans truncate">
+                    You chose: <strong className="text-amber-300 font-serif">{selectedChoice.verb}</strong>
+                  </span>
+                </div>
+                <Badge variant="outline" className={cn("text-[9px] font-mono font-bold shrink-0", getVirtueBadgeStyle(selectedChoice.virtueType))}>
                   +{selectedChoice.virtuePoints} {selectedChoice.virtueType}
                 </Badge>
               </div>

@@ -23,11 +23,35 @@ Down the path, old Turtoisy was walking very, very slowly. He carried a heavy sh
 "Hello little Sparky," Turtoisy said in a warm, calm voice. "You run like a flash of lightning, but a race is long. If you want to finish, you must learn to run slowly."
 
 Leaf hopped over with a cup of cool water. "Turtoisy is right! Can you let him coach you?"`,
+    dialogue: [
+      {
+        speaker: 'Sparky',
+        speakerImage: '/images/creatures/Sparky.webp',
+        text: 'Sparky was zipping around in circles like a little lightning bolt. Zzzt! Zip! Zoom! "Look at me! I am the fastest runner in the whole realm!"'
+      },
+      {
+        speaker: 'Sparky',
+        speakerImage: '/images/creatures/Sparky.webp',
+        text: 'Ten seconds later, Sparky crashed into the grass. His sparks were gone and his little legs were shaking. "Oh no... I am out of energy already. My race is tomorrow, and I cannot even run one lap!"'
+      },
+      {
+        speaker: 'Turtoisy',
+        speakerImage: '/images/creatures/Turtoisy.webp',
+        text: 'Down the path, old Turtoisy was walking very, very slowly with his heavy shell, smiling and breathing easily. "Hello little Sparky. You run like a flash of lightning, but a race is long. If you want to finish, you must learn to run slowly."'
+      },
+      {
+        speaker: 'Leaf',
+        speakerImage: '/images/creatures/Leaf.webp',
+        text: 'Leaf hopped over with a cup of cool water. "Turtoisy is right! Can you let him coach you?"'
+      }
+    ],
     choices: [
       {
         id: 'choice-jog-turtoisy',
         verb: 'Jog with Turtoisy',
         label: 'Match his slow and steady pace without rushing',
+        characterName: 'Turtoisy',
+        characterImage: '/images/creatures/Turtoisy.webp',
         virtueType: 'vitality',
         virtuePoints: 15,
         goldReward: 35,
@@ -44,6 +68,8 @@ Turtoisy gives him a gentle nod and a gold medal made of polished wood.`
         id: 'choice-breathe-leaf',
         verb: 'Breathe with Leaf',
         label: 'Take deep breaths through your nose to keep your heart calm',
+        characterName: 'Leaf',
+        characterImage: '/images/creatures/Leaf.webp',
         virtueType: 'wellness',
         virtuePoints: 15,
         goldReward: 30,
@@ -56,6 +82,8 @@ Sparky's electric sparks change from wild crackles into a smooth, steady glow. H
         id: 'choice-sprint-fast',
         verb: 'Sprint at full speed',
         label: 'Run as fast as possible to show off your speed',
+        characterName: 'Sparky',
+        characterImage: '/images/creatures/Sparky.webp',
         virtueType: 'might',
         virtuePoints: 10,
         goldReward: 20,
@@ -87,11 +115,25 @@ His room was a total mess. Books were open on the floor. Plant pots were piled h
 Just then, Rockie the stone golem looked through the window. Rockie was huge and made of smooth river stones.
 
 "Hello friend Leaf," Rockie rumbled in a friendly voice. "A big stone castle is built one stone at a time. You do not need to clean the whole room right now. What if you just pick up one thing?"`,
+    dialogue: [
+      {
+        speaker: 'Leaf',
+        speakerImage: '/images/creatures/Leaf.webp',
+        text: 'Leaf sat on the floor with his sprout drooping down. His room was a total mess with books and quest scrolls scattered everywhere. "There is too much stuff! I want to clean, but it feels too big and I don\'t know where to start."'
+      },
+      {
+        speaker: 'Rockie',
+        speakerImage: '/images/creatures/Rockie.webp',
+        text: 'Rockie the river-stone golem looked through the window and rumbled warmly: "Hello friend Leaf! A big stone castle is built one stone at a time. You do not need to clean the whole room right now. What if you just pick up one thing?"'
+      }
+    ],
     choices: [
       {
         id: 'choice-pick-three',
         verb: 'Pick up 3 things',
         label: 'Clear just your desk and put three books back on the shelf',
+        characterName: 'Leaf',
+        characterImage: '/images/creatures/Leaf.webp',
         virtueType: 'wellness',
         virtuePoints: 15,
         goldReward: 35,
@@ -106,6 +148,8 @@ Leaf picks up one book, then another, then a third. It took less than one minute
         id: 'choice-help-rockie',
         verb: 'Clean with Rockie',
         label: 'Hand the heavy boxes to Rockie to sort them together',
+        characterName: 'Rockie',
+        characterImage: '/images/creatures/Rockie.webp',
         virtueType: 'craft',
         virtuePoints: 15,
         goldReward: 30,
@@ -120,6 +164,8 @@ Leaf's cottage feels bright and sunny again. Rockie gets a big bowl of clean riv
         id: 'choice-hide-bed',
         verb: 'Shove under the bed',
         label: 'Kick all the toys and scrolls under the bed quickly',
+        characterName: 'Leaf',
+        characterImage: '/images/creatures/Leaf.webp',
         virtueType: 'honor',
         virtuePoints: 10,
         goldReward: 20,
@@ -153,11 +199,25 @@ Flamio was bouncing up and down on the hearthstones. His fire was glowing bright
 Up in the wooden rafters, Sage Owl closed his big book quietly. He adjusted his glasses and looked down with kind eyes.
 
 "Little flame," Sage Owl said softly. "A campfire cannot burn all night, or there will be no wood left for the morning. Your thoughts are just spinning like wheels. Let us help your flame settle down."`,
+    dialogue: [
+      {
+        speaker: 'Flamio',
+        speakerImage: '/images/creatures/Flamio.webp',
+        text: 'It was dark outside and everyone was asleep, but Flamio was bouncing on the hearthstones with crackling sparks! "I cannot sleep, Sage Owl! My head is buzzing with tomorrow\'s quests! What if, what if, what if?!"'
+      },
+      {
+        speaker: 'Sage Owl',
+        speakerImage: '/images/creatures/SageOwl.webp',
+        text: 'Up in the rafters, Sage Owl closed his big book and whispered kindly: "Little flame, a campfire cannot burn all night, or there will be no wood left for the morning. Let us help your flame settle down."'
+      }
+    ],
     choices: [
       {
         id: 'choice-dim-lights',
         verb: 'Turn off the lights',
         label: 'Blow out the bright lanterns and take five slow breaths',
+        characterName: 'Flamio',
+        characterImage: '/images/creatures/Flamio.webp',
         virtueType: 'wellness',
         virtuePoints: 20,
         goldReward: 30,
@@ -172,6 +232,8 @@ Within three minutes, a tiny snore comes from the fireplace. Flamio is fast asle
         id: 'choice-write-worries',
         verb: 'Write on paper',
         label: 'Write down tomorrow’s tasks on paper so your mind can rest',
+        characterName: 'Sage Owl',
+        characterImage: '/images/creatures/SageOwl.webp',
         virtueType: 'knowledge',
         virtuePoints: 15,
         goldReward: 30,
@@ -205,11 +267,25 @@ His wooden back was completely stiff. His branches were locked tight. When he tr
 Suddenly, Dolphio the blue dolphin leaped out of the fountain pond! Splash! He did a smooth, playful flip in the air and landed with a happy giggle.
 
 "Friend Oaky!" Dolphio clicked cheerfully. "You are standing still like a flagpole! Even trees need to bend with the wind. Have you stretched your branches today?"`,
+    dialogue: [
+      {
+        speaker: 'Oaky',
+        speakerImage: '/images/creatures/Oaky.webp',
+        text: 'Oaky the tree guardian had been standing still for four hours. His wooden branches went CREEEAK-SNAP! "Ouch! I want to be a strong guard, but my wooden joints feel like solid stone. I can barely lift my arms!"'
+      },
+      {
+        speaker: 'Dolphio',
+        speakerImage: '/images/creatures/Dolphio.webp',
+        text: 'Dolphio the blue dolphin leaped out of the fountain pond with a cheerful splash! "Friend Oaky! Even trees need to bend with the wind. Have you stretched your branches today?"'
+      }
+    ],
     choices: [
       {
         id: 'choice-branch-stretch',
         verb: 'Stretch your branches',
         label: 'Reach your arms up to the sky and bend gently side to side',
+        characterName: 'Oaky',
+        characterImage: '/images/creatures/Oaky.webp',
         virtueType: 'vitality',
         virtuePoints: 15,
         goldReward: 35,
@@ -224,6 +300,8 @@ Oaky follows along. As he bends, the stiffness in his bark melts away with a ple
         id: 'choice-fountain-break',
         verb: 'Take a water break',
         label: 'Step away from your post to splash cool water on your face',
+        characterName: 'Dolphio',
+        characterImage: '/images/creatures/Dolphio.webp',
         virtueType: 'wellness',
         virtuePoints: 15,
         goldReward: 30,
@@ -255,11 +333,25 @@ Penguin tried to slide on his belly on the grass, but he just went "THUD" and st
 "My feet are so tiny!" Penguin whined. "Walking is too hard! My legs feel like jelly!"
 
 Leaf walked over with his sturdy little roots. "Your legs are only tired because they are not used to walking yet. If you take a few steps every day, they will grow strong!"`,
+    dialogue: [
+      {
+        speaker: 'Penguin',
+        speakerImage: '/images/Animals/penguin.webp',
+        text: 'Happy Penguin loved sliding on his belly across snow, but on summer grass he just went THUD! He took five wobbly steps and sat down: "My feet are so tiny! Walking is too hard! My legs feel like jelly!"'
+      },
+      {
+        speaker: 'Leaf',
+        speakerImage: '/images/creatures/Leaf.webp',
+        text: 'Leaf walked over with his sturdy little roots and an encouraging smile: "Your legs are only tired because they are not used to walking yet. If you take a few steps every day, they will grow strong!"'
+      }
+    ],
     choices: [
       {
         id: 'choice-twenty-steps',
         verb: 'Walk 20 steps together',
         label: 'Hold hands with Leaf and count twenty steps up the path',
+        characterName: 'Leaf',
+        characterImage: '/images/creatures/Leaf.webp',
         virtueType: 'vitality',
         virtuePoints: 15,
         goldReward: 35,
@@ -274,6 +366,8 @@ Waddle, waddle, waddle! Before Penguin knows it, they count all the way to twent
         id: 'choice-apple-snack',
         verb: 'Have an apple reward',
         label: 'Walk to the apple tree and share a sweet red apple',
+        characterName: 'Penguin',
+        characterImage: '/images/Animals/penguin.webp',
         virtueType: 'wellness',
         virtuePoints: 15,
         goldReward: 30,

@@ -4,6 +4,12 @@ import { logger } from './logger';
 
 export type VirtueCategory = 'might' | 'knowledge' | 'honor' | 'castle' | 'craft' | 'vitality' | 'wellness';
 
+export interface StoryDialogueLine {
+  speaker: string;
+  speakerImage?: string;
+  text: string;
+}
+
 export interface StoryChoice {
   id: string;
   verb: string;                 // Highlighted action verb (e.g. "Run with Turtoisy")
@@ -14,6 +20,8 @@ export interface StoryChoice {
   itemReward?: string;
   resolutionText: string;       // Consequence outcome scene
   lessonMoral: string;          // Real-life habit metaphor
+  characterName?: string;       // Visual avatar name
+  characterImage?: string;      // Visual avatar portrait image
 }
 
 export interface StoryCharacter {
@@ -29,6 +37,7 @@ export interface StoryAdventure {
   avatarImage: string;          // Main character portrait
   locationName: string;         // Kingdom location
   narrativeText: string;        // Opening simple story
+  dialogue?: StoryDialogueLine[]; // Structured dialogue beats with speaker avatars
   choices: StoryChoice[];
   unlockedRequirement?: {
     habitCategory?: string;
