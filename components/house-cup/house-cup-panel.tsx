@@ -93,21 +93,21 @@ function AllyCarouselCard({
                   </div>
                   <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-1">
                     <div className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Virtue wins</div>
-                    <div className="font-bold text-emerald-400 text-lg">{ally.categories_won} / 9 Categories</div>
+                    <div className="font-bold text-emerald-400 text-lg">{ally.categories_won} / 9 categories</div>
                   </div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-950/40 via-zinc-900 to-amber-950/40 border border-amber-500/40 text-center space-y-1 relative shadow-md">
                   <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-amber-300 font-serif">
-                    <Crown className="w-4 h-4 text-amber-400 animate-pulse" /> House Leader: {ally.display_name}
+                    <Crown className="w-4 h-4 text-amber-400 animate-pulse" /> House leader: {ally.display_name}
                   </div>
-                  <p className="text-[10px] text-zinc-400 font-mono">👑 Glowing Virtues Leader Active</p>
+                  <p className="text-[10px] text-zinc-400 font-mono">👑 Glowing virtues leader active</p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-zinc-950/40 border border-zinc-800/60 text-xs space-y-1.5 text-zinc-300">
                   <div className="text-[10px] text-amber-400 font-semibold uppercase tracking-wider flex items-center justify-between">
                     <span>Standings breakdown</span>
-                    <span className="text-[9px] text-emerald-400 font-mono font-bold">Top Virtues Active</span>
+                    <span className="text-[9px] text-emerald-400 font-mono font-bold">Top virtues active</span>
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5 pt-1">
                     <span className="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold">🥇 #1 Might</span>
@@ -368,10 +368,10 @@ export function HouseCupPanel() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-amber-300 font-serif font-bold text-sm">
             <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
-            <span>1v1 Virtue Duel Race</span>
+            <span>1v1 virtue duel race</span>
           </div>
           <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30">
-            +10 Bonus Virtue Points
+            +10 bonus virtue points
           </span>
         </div>
         <p className="text-xs text-zinc-300 leading-relaxed">
@@ -382,7 +382,7 @@ export function HouseCupPanel() {
       {/* Friends Standings Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-amber-300 flex items-center gap-2">
+          <h3 className="text-base font-semibold text-amber-300 flex items-center gap-2 font-serif">
             <Users className="w-4 h-4 text-amber-400" />
             Friends rankings
           </h3>
@@ -412,7 +412,7 @@ export function HouseCupPanel() {
         {alliesStandings.length === 0 ? (
           <Card className="border border-dashed border-amber-900/40 bg-zinc-950/80 p-8 text-center space-y-3 rounded-2xl">
             <div className="text-3xl">🏆</div>
-            <h4 className="font-serif text-amber-300 font-bold text-sm">House Cup Standings Active</h4>
+            <h4 className="font-serif text-amber-300 font-bold text-sm">House cup standings active</h4>
             <p className="text-xs text-zinc-400 max-w-sm mx-auto">
               Your virtue hourglasses are tracking your daily habits! Search for friends in the Friend Board to invite allies to your House Cup circle.
             </p>
