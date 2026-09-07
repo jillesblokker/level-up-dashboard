@@ -312,7 +312,7 @@ export function CompanionOverlay() {
     if (guardianId === 'ember-drake') return { name: 'Ember Drake', image: '/images/creatures/EmberDrake.webp' }
     if (guardianId === 'sage-owl') return { name: 'Sage Owl', image: '/images/creatures/SageOwl.webp' }
     if (guardianId === 'spirit-sprite') return { name: 'Spirit Sprite', image: '/images/creatures/SpiritSprite.webp' }
-    if (guardianId === 'grove-fox') return { name: 'Grove Fox', image: '/images/creatures/GroveFox.webp' }
+    if (guardianId === 'grove-fox') return { name: 'Grove Fox', image: '/images/creatures/GroveFox.webp?v=2' }
 
     // Fallback active Guardian (Ember Drake)
     return { name: 'Ember Drake', image: '/images/creatures/EmberDrake.webp' }

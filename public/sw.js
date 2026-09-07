@@ -1,6 +1,6 @@
 // Service Worker for Level Up - Medieval Habit Tracker
-// v2.1.0-force-purge - Direct-pass SW for API, JS bundles, and App Pages; Cache-First for static media assets ONLY
-const CACHE_VERSION = 'v2.1.0-force-purge'
+// v2.2.0-grove-fox-purge - Direct-pass SW for API/pages, Stale-While-Revalidate for media assets
+const CACHE_VERSION = 'v2.2.0-grove-fox-purge'
 const STATIC_CACHE = `level-up-static-${CACHE_VERSION}`
 const DYNAMIC_CACHE = `level-up-dynamic-${CACHE_VERSION}`
 
@@ -64,18 +64,20 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Strategy: Cache First ONLY for Images and Audio
+// Strategy: Stale-While-Revalidate for Images and Audio (serves fast while background-updating fresh assets)
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse
-      return fetch(request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200) return networkResponse
-        const responseToCache = networkResponse.clone()
-        caches.open(DYNAMIC_CACHE).then((cache) => {
-          cache.put(request, responseToCache)
-        })
+      const fetchPromise = fetch(request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone()
+          caches.open(DYNAMIC_CACHE).then((cache) => {
+            cache.put(request, responseToCache)
+          })
+        }
         return networkResponse
-      })
+      }).catch(() => null)
+
+      return cachedResponse || fetchPromise
     })
   )
 })
