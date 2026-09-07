@@ -14,6 +14,8 @@ import { Badge } from '@/components/ui/badge'
 import { WeeklyGrowthInsightsCard } from '@/components/chronicle/WeeklyGrowthInsightsCard'
 import { TalesShelfCard } from '@/components/storybook/tales-shelf-card'
 import { EmptyState } from '@/components/ui/empty-state'
+import { ReflectionsBookcase } from '@/components/chronicle/ReflectionsBookcase'
+import { cn } from '@/lib/utils'
 
 export default function ChroniclePage() {
     const [entries, setEntries] = useState<any[]>([])
@@ -23,6 +25,7 @@ export default function ChroniclePage() {
     const [journalEntry, setJournalEntry] = useState<any | null>(null)
     const [filterDate, setFilterDate] = useState<string>('')
     const [showInsights, setShowInsights] = useState(false)
+    const [viewMode, setViewMode] = useState<'bookcase' | 'list'>('bookcase')
 
     const { getToken } = useAuth()
 
@@ -174,73 +177,128 @@ export default function ChroniclePage() {
                     )}
                 </div>
 
-                {/* SECONDARY TIER: Clean Filters & Dual Tabs */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-zinc-900/60 p-3 rounded-xl border border-zinc-800">
-                    <div className="flex items-center gap-2">
-                        <Filter className="w-3.5 h-3.5 text-zinc-400" />
-                        <span className="text-xs font-bold text-zinc-400">Filter Month:</span>
-                        <input
-                            type="month"
-                            value={filterDate}
-                            onChange={(e) => setFilterDate(e.target.value)}
-                            className="bg-black border border-zinc-700 rounded-lg px-2.5 py-1 text-xs text-amber-100 focus:outline-none focus:border-amber-500 font-mono"
-                        />
-                        {filterDate && (
-                            <Button variant="ghost" size="sm" onClick={() => setFilterDate('')} className="h-6 px-2 text-zinc-400 text-xs">
-                                Clear
-                            </Button>
-                        )}
+                {/* SECONDARY TIER: View Switcher (Bookcase vs List) */}
+                <div className="flex items-center justify-between gap-3 bg-zinc-900/60 p-2.5 sm:p-3 rounded-xl border border-zinc-800">
+                    <div className="flex items-center gap-1.5 bg-black/60 p-1 rounded-lg border border-zinc-800">
+                        <button
+                            type="button"
+                            onClick={() => setViewMode('bookcase')}
+                            className={cn(
+                                "flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer",
+                                viewMode === 'bookcase'
+                                    ? "bg-amber-950/80 text-amber-300 border border-amber-500/40 shadow-sm"
+                                    : "text-zinc-400 hover:text-zinc-200"
+                            )}
+                        >
+                            <BookOpen className="w-3.5 h-3.5" />
+                            <span>Bookcase</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setViewMode('list')}
+                            className={cn(
+                                "flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer",
+                                viewMode === 'list'
+                                    ? "bg-amber-950/80 text-amber-300 border border-amber-500/40 shadow-sm"
+                                    : "text-zinc-400 hover:text-zinc-200"
+                            )}
+                        >
+                            <Filter className="w-3.5 h-3.5" />
+                            <span>List</span>
+                        </button>
                     </div>
-                    <span className="text-xs font-mono text-amber-400 font-bold">{filteredEntries.length} Reflections Archived</span>
+
+                    <span className="text-xs font-mono text-amber-400/90 font-bold">
+                        {entries.length} {entries.length === 1 ? 'reflection archived' : 'reflections archived'}
+                    </span>
                 </div>
 
-                {/* SECONDARY TIER: Clean Reflection Entry Cards */}
-                {isLoading ? (
-                    <div className="space-y-3">
-                        {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full bg-zinc-900 rounded-xl" />)}
-                    </div>
-                ) : filteredEntries.length > 0 ? (
-                    <div className="space-y-3">
-                        {filteredEntries.map(entry => (
-                            <Card
-                                key={entry.id}
-                                onClick={() => handleEdit(entry)}
-                                className="bg-zinc-900/40 border-zinc-800 hover:border-amber-500/40 hover:bg-zinc-900/80 transition-all duration-200 cursor-pointer group rounded-xl"
-                            >
-                                <CardContent className="p-4 flex items-center justify-between gap-4">
-                                    <div className="space-y-1 flex-1">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-sm font-serif font-bold text-amber-300">
-                                                {formatDate(entry.entry_date)}
-                                            </span>
-                                            {getMoodIcon(entry.mood_score)}
-                                            {entry.mood_tag && (
-                                                <Badge className="bg-amber-950/80 border-amber-500/30 text-amber-300 text-[9px] font-mono">
-                                                    {entry.mood_tag}
-                                                </Badge>
-                                            )}
-                                        </div>
-                                        <p className="text-xs text-zinc-300 line-clamp-1 italic font-serif">
-                                            {entry.content}
-                                        </p>
-                                    </div>
-                                    <span className="text-xs text-amber-500/60 font-bold group-hover:text-amber-400 transition-colors">
-                                        Edit ✎
-                                    </span>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="py-6">
-                        <EmptyState
-                            title="No journal entries yet"
-                            description="Sage Owl dips a quill in golden ink: 'Scribe your first private reflection to begin chronicling your thoughts and nurturing your inner wisdom.'"
-                            creatureImage="/images/creatures/Sage_owl.webp"
-                            creatureName="Sage Owl"
-                            actionLabel="Scribe first reflection"
-                            onAction={handleCreate}
+                {/* Reflections Content: Bookcase or List */}
+                {viewMode === 'bookcase' ? (
+                    isLoading ? (
+                        <div className="p-12 rounded-2xl border-4 border-[#3a2012] bg-[#0c0805] flex flex-col gap-4 items-center justify-center min-h-[320px]">
+                            <div className="w-8 h-8 rounded-full border-2 border-amber-500/30 border-t-amber-400 animate-spin" />
+                            <p className="text-xs font-serif text-amber-400/60">Opening the royal library shelves...</p>
+                        </div>
+                    ) : (
+                        <ReflectionsBookcase
+                            entries={entries}
+                            onSelectEntry={handleEdit}
+                            onCreateEntry={handleCreate}
                         />
+                    )
+                ) : (
+                    <div className="space-y-4">
+                        {/* List View Month Filter Bar */}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-zinc-900/40 p-3 rounded-xl border border-zinc-800/80">
+                            <div className="flex items-center gap-2">
+                                <Filter className="w-3.5 h-3.5 text-zinc-400" />
+                                <span className="text-xs font-bold text-zinc-400">Filter month:</span>
+                                <input
+                                    type="month"
+                                    value={filterDate}
+                                    onChange={(e) => setFilterDate(e.target.value)}
+                                    className="bg-black border border-zinc-700 rounded-lg px-2.5 py-1 text-xs text-amber-100 focus:outline-none focus:border-amber-500 font-mono"
+                                />
+                                {filterDate && (
+                                    <Button variant="ghost" size="sm" onClick={() => setFilterDate('')} className="h-6 px-2 text-zinc-400 text-xs">
+                                        Clear
+                                    </Button>
+                                )}
+                            </div>
+                            <span className="text-xs font-mono text-zinc-400">
+                                Showing {filteredEntries.length} entries
+                            </span>
+                        </div>
+
+                        {isLoading ? (
+                            <div className="space-y-3">
+                                {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full bg-zinc-900 rounded-xl" />)}
+                            </div>
+                        ) : filteredEntries.length > 0 ? (
+                            <div className="space-y-3">
+                                {filteredEntries.map(entry => (
+                                    <Card
+                                        key={entry.id}
+                                        onClick={() => handleEdit(entry)}
+                                        className="bg-zinc-900/40 border-zinc-800 hover:border-amber-500/40 hover:bg-zinc-900/80 transition-all duration-200 cursor-pointer group rounded-xl"
+                                    >
+                                        <CardContent className="p-4 flex items-center justify-between gap-4">
+                                            <div className="space-y-1 flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm font-serif font-bold text-amber-300">
+                                                        {formatDate(entry.entry_date)}
+                                                    </span>
+                                                    {getMoodIcon(entry.mood_score)}
+                                                    {entry.mood_tag && (
+                                                        <Badge className="bg-amber-950/80 border-amber-500/30 text-amber-300 text-[9px] font-mono">
+                                                            {entry.mood_tag}
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                <p className="text-xs text-zinc-300 line-clamp-1 italic font-serif">
+                                                    {entry.content}
+                                                </p>
+                                            </div>
+                                            <span className="text-xs text-amber-500/60 font-bold group-hover:text-amber-400 transition-colors">
+                                                Edit ✎
+                                            </span>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="py-6">
+                                <EmptyState
+                                    title="No journal entries yet"
+                                    description="Sage Owl dips a quill in golden ink: 'Scribe your first private reflection to begin chronicling your thoughts and nurturing your inner wisdom.'"
+                                    creatureImage="/images/creatures/Sage_owl.webp"
+                                    creatureName="Sage Owl"
+                                    actionLabel="Scribe first reflection"
+                                    onAction={handleCreate}
+                                />
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
