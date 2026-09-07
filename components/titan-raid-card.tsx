@@ -3,12 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
-import { Shield, Sword, Target, Flame, Crown, CheckCircle2, Zap, Trophy, Gift, Lock } from "lucide-react";
-import { getCurrentMonthlyTitan, MonthlyTitan } from "@/lib/titan-bosses";
+import { Shield, Sword, Target, Flame, Crown, CheckCircle2, Zap, Trophy, Gift, Lock, BookOpen } from "lucide-react";
+import { getCurrentMonthlyTitan, MonthlyTitan, MONTHLY_TITANS, MONTH_NAMES } from "@/lib/titan-bosses";
 import { motion } from "framer-motion";
 import { TitanSiegeArsenal } from "@/components/titan-siege-arsenal";
 import { TreasureChestVisual } from "@/components/ui/treasure-chest-visual";
@@ -24,6 +25,7 @@ export function TitanRaidCard() {
   const [stats, setStats] = useState({ quests: 0, challenges: 0, milestones: 0, petitions: 0 });
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
+  const [showLoreModal, setShowLoreModal] = useState(false);
 
   useEffect(() => {
     const fetchRaidStatus = async () => {
@@ -122,32 +124,68 @@ export function TitanRaidCard() {
   const biome = getElementalBiomeStyle(titan.element);
 
   return (
+    <>
     <Card className="bg-gradient-to-br from-zinc-950 via-purple-950/20 to-zinc-950 border-purple-900/40 shadow-xl overflow-hidden relative">
       <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 blur-[90px] pointer-events-none" />
-      <CardHeader className="p-5 pb-3">
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-          <div className="flex items-center gap-2">
+      <CardHeader className="p-5 pb-4 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Badge className="bg-purple-900/60 text-purple-300 border border-purple-500/40 px-2.5 py-1 uppercase text-[10px] tracking-widest font-bold">
               ⚔️ Monthly raid
+            </Badge>
+            <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-300/90 bg-amber-950/30 font-medium">
+              {MONTH_NAMES[titan.monthIndex]}
             </Badge>
             {remainingHp < titan.totalHp / 2 && !isDefeated && (
               <Badge className="bg-red-950 text-red-300 border border-red-500/50 text-[10px] font-bold animate-pulse">
                 ⚠️ Angry (+30% dmg)
               </Badge>
             )}
+            {isDefeated && (
+              <Badge className="bg-emerald-950 text-emerald-300 border border-emerald-500/50 flex items-center gap-1 font-bold text-[10px]">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Boss defeated!
+              </Badge>
+            )}
           </div>
-          {isDefeated && (
-            <Badge className="bg-emerald-950 text-emerald-300 border border-emerald-500/50 flex items-center gap-1 font-bold">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Boss defeated!
-            </Badge>
-          )}
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowLoreModal(true)}
+            className="h-7 text-xs text-amber-300/90 border-amber-900/50 bg-amber-950/20 hover:bg-amber-900/40 hover:text-amber-200 rounded-lg flex items-center gap-1.5 px-2.5"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+            <span>All 12 titans</span>
+          </Button>
         </div>
-        <CardTitle className="text-2xl font-serif font-bold text-amber-300 flex items-center gap-2">
-          {titan.name}
-        </CardTitle>
-        <CardDescription className="text-zinc-400 text-xs">
-          {titan.title}: {titan.description}
-        </CardDescription>
+
+        <div>
+          <div className="flex flex-wrap items-baseline gap-2">
+            <CardTitle className="text-xl sm:text-2xl font-serif font-bold text-amber-300">
+              {titan.name}
+            </CardTitle>
+            <span className="text-xs font-serif text-amber-400/80 italic font-medium">
+              • {titan.title}
+            </span>
+          </div>
+        </div>
+
+        {/* Narrative Threat Intro Banner */}
+        <div className="relative overflow-hidden rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-950/40 via-zinc-950/90 to-purple-950/40 p-3 sm:p-3.5 shadow-inner">
+          <div className="flex items-start gap-2.5">
+            <span className="text-base sm:text-lg select-none shrink-0 mt-0.5">📜</span>
+            <div className="space-y-1">
+              <div className="text-[10px] uppercase font-bold tracking-wider text-amber-400/90 flex items-center gap-1.5">
+                <span>Realm threat dispatch</span>
+                <span className="text-zinc-500">•</span>
+                <span className="font-normal text-zinc-400 font-sans capitalize">{titan.element} elemental threat</span>
+              </div>
+              <p className="text-xs sm:text-[13px] text-zinc-200 font-serif italic leading-relaxed">
+                &ldquo;{titan.storyIntro || titan.description}&rdquo;
+              </p>
+            </div>
+          </div>
+        </div>
       </CardHeader>
 
       <CardContent className="p-5 pt-0">
@@ -287,12 +325,95 @@ export function TitanRaidCard() {
                       <span className="flex items-center justify-center gap-1.5 font-bold font-mono text-xs"><Lock className="w-4 h-4" /> Defeat Titan Wyrm to Unlock</span>
                     )}
                   </Button>
-                </div>
               </div>
             </div>
+          </div>
         </div>
       </div>
     </CardContent>
     </Card>
+
+    {/* 12 Monthly Titans Threat Lore Modal */}
+    <Dialog open={showLoreModal} onOpenChange={setShowLoreModal}>
+      <DialogContent className="max-w-2xl bg-zinc-950 border border-amber-900/60 text-white rounded-2xl p-4 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader className="pb-3 border-b border-zinc-800">
+          <div className="flex items-center gap-2 text-amber-400">
+            <BookOpen className="w-5 h-5" />
+            <DialogTitle className="text-lg sm:text-xl font-serif font-bold text-amber-300">
+              Monthly titan raid chronicle
+            </DialogTitle>
+          </div>
+          <DialogDescription className="text-xs text-zinc-400">
+            Twelve primal titans threaten the realm across the year. Rally with your fellowship allies to repel each sovereign!
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3 pt-3">
+          {MONTHLY_TITANS.map((t) => {
+            const isCurrent = t.monthIndex === titan.monthIndex;
+            return (
+              <div
+                key={t.monthIndex}
+                className={cn(
+                  "rounded-xl border p-3.5 transition-all flex flex-col sm:flex-row items-start gap-3.5",
+                  isCurrent
+                    ? "bg-gradient-to-r from-amber-950/50 via-zinc-900 to-purple-950/40 border-amber-500/60 shadow-lg shadow-amber-950/30"
+                    : "bg-zinc-900/60 border-zinc-800 hover:border-zinc-700"
+                )}
+              >
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden border border-zinc-700 bg-zinc-950 flex items-center justify-center self-center sm:self-start">
+                  <Image
+                    src={t.image}
+                    alt={t.name}
+                    width={80}
+                    height={80}
+                    className="object-contain w-full h-full"
+                    unoptimized
+                  />
+                  {isCurrent && (
+                    <span className="absolute top-1 right-1 bg-amber-500 text-zinc-950 text-[8px] font-bold px-1.5 py-0.5 rounded-full font-mono uppercase">
+                      Current
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex-1 space-y-1.5 w-full">
+                  <div className="flex items-center justify-between flex-wrap gap-1">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-[10px] font-mono border-amber-500/40 text-amber-300 bg-amber-950/40 font-semibold">
+                        {MONTH_NAMES[t.monthIndex]}
+                      </Badge>
+                      <span className="text-sm font-serif font-bold text-zinc-100">
+                        {t.name}
+                      </span>
+                    </div>
+                    <Badge variant="outline" className="text-[9px] text-zinc-400 border-zinc-700 bg-zinc-950">
+                      {t.element} realm
+                    </Badge>
+                  </div>
+
+                  <div className="text-[11px] text-amber-400/80 font-serif italic">
+                    • {t.title}
+                  </div>
+
+                  <p className="text-xs text-zinc-200 font-serif italic leading-relaxed bg-zinc-950/60 p-2.5 rounded-lg border border-zinc-800/80">
+                    &ldquo;{t.storyIntro}&rdquo;
+                  </p>
+
+                  <div className="flex items-center justify-between pt-0.5 text-[10px] text-zinc-400 font-mono flex-wrap gap-2">
+                    <span className="text-zinc-500">HP: {t.totalHp.toLocaleString()}</span>
+                    <div className="flex items-center gap-2 font-bold">
+                      <span className="text-amber-400">🪙 +{t.rewardGold} Gold</span>
+                      <span className="text-purple-400">💎 +{t.rewardGems} Gems</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
