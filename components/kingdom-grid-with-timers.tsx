@@ -1838,8 +1838,8 @@ export function KingdomGridWithTimers({
       return;
     }
     if (tile.type?.toLowerCase() === 'library') {
-      toast({ title: "Entering library...", description: "Opening chronicle." });
-      router.push('/chronicle');
+      toast({ title: "Entering library...", description: "Opening tales of the realm." });
+      router.push('/tales');
       return;
     }
     if (tile.type === 'crystal_cavern') {

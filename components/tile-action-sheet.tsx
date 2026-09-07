@@ -138,20 +138,20 @@ export function TileActionSheet({
                                 </div>
                                 <div className="text-left flex-1">
                                     <div className="font-bold text-white text-base">
-                                        {tileName.toLowerCase().includes('library') ? 'Read chronicle & archives' : `Enter ${tileName.replace(/_/g, ' ')}`}
+                                        {tileName.toLowerCase().includes('library') ? 'Read tales of the realm' : `Enter ${tileName.replace(/_/g, ' ')}`}
                                     </div>
                                     <div className="text-blue-100 text-sm">
-                                        {tileName.toLowerCase().includes('library') ? 'View daily journals and reflections' : 'Travel to this location'}
+                                        {tileName.toLowerCase().includes('library') ? 'Explore creature story adventures & reflection journal' : 'Travel to this location'}
                                     </div>
                                 </div>
                             </button>
                         )}
 
-                        {/* Castle / Archives Action - Open Realm Chronicle */}
+                        {/* Castle / Archives Action - Open Realm Tales */}
                         {(tile?.type === 'castle' || tileName.toLowerCase().includes('castle')) && (
                             <button
                                 onClick={() => {
-                                    router.push('/chronicle')
+                                    router.push('/tales')
                                     onClose()
                                 }}
                                 className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 transition-all active:scale-[0.98] shadow-lg shadow-amber-900/30 mb-2 border border-amber-500/30"
@@ -160,8 +160,8 @@ export function TileActionSheet({
                                     <BookOpen className="w-6 h-6 text-amber-200" />
                                 </div>
                                 <div className="text-left flex-1">
-                                    <div className="font-bold text-white text-base">Read realm chronicle</div>
-                                    <div className="text-amber-200/90 text-sm">View milestone lore, past champions & reflection diary</div>
+                                    <div className="font-bold text-white text-base">Read realm tales</div>
+                                    <div className="text-amber-200/90 text-sm">View creature stories, milestone lore & reflection diary</div>
                                 </div>
                             </button>
                         )}

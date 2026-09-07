@@ -72,9 +72,9 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && handleClose()}>
-      <DialogContent className="max-w-xl p-0 overflow-hidden border-2 border-amber-700/60 rounded-2xl shadow-2xl bg-[#0e131f] text-zinc-100 font-serif">
+      <DialogContent className="max-w-xl max-h-[90vh] max-h-[90dvh] p-0 overflow-hidden flex flex-col border-2 border-amber-700/60 rounded-2xl shadow-2xl bg-[#0e131f] text-zinc-100 font-serif storybook-modal">
         {/* Parchment Storybook Cover Header */}
-        <div className="relative bg-gradient-to-b from-[#1b140d] via-[#15100a] to-[#0e131f] p-5 pb-4 border-b border-amber-900/40">
+        <div className="relative shrink-0 bg-gradient-to-b from-[#1b140d] via-[#15100a] to-[#0e131f] p-5 pb-4 border-b border-amber-900/40">
           <div className="flex flex-wrap items-center justify-between gap-2.5 mb-2.5 pr-8">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline" className="border-amber-500/60 text-amber-300 bg-amber-950/70 font-mono text-xs px-2.5 py-0.5 font-bold shrink-0">
@@ -90,7 +90,15 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
           </div>
 
           <DialogHeader className="text-left">
-            <DialogTitle className="text-xl sm:text-2xl font-bold font-serif text-amber-200 tracking-wide">
+            <DialogTitle
+              className="story-title text-xl sm:text-2xl font-bold text-amber-200"
+              style={{
+                fontFamily: 'var(--font-libre-baskerville), Georgia, serif',
+                textTransform: 'none',
+                fontVariant: 'normal',
+                letterSpacing: 'normal'
+              }}
+            >
               {story.title}
             </DialogTitle>
             <DialogDescription className="sr-only">
@@ -99,8 +107,8 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
           </DialogHeader>
         </div>
 
-        {/* Story Body Content Container */}
-        <div className="p-5 sm:p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+        {/* Story Body Content Container with Generous Bottom Clearance */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 pb-28 sm:pb-32 space-y-6">
           {!selectedChoice ? (
             /* ── STAGE 1: The Narrative Scene ── */
             <div className="space-y-5">
@@ -159,7 +167,7 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
                   <Sparkles className="w-3.5 h-3.5" /> What would you like to do?
                 </span>
 
-                <div className="flex flex-col gap-2.5">
+                <div className="flex flex-col gap-2.5 pb-8">
                   {story.choices.map(choice => (
                     <button
                       key={choice.id}
@@ -196,7 +204,7 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
             </div>
           ) : (
             /* ── STAGE 2: Resolution & Real-Life Lesson ── */
-            <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300">
+            <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300 pb-8">
               {/* Selected Choice Pill */}
               <div className="flex items-center justify-between p-2.5 px-4 rounded-xl bg-amber-950/40 border border-amber-500/40">
                 <span className="text-xs text-zinc-300 font-sans">
@@ -233,16 +241,16 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
               {/* Rewards Summary Tray */}
               <div className="p-3.5 rounded-xl bg-zinc-950 border border-amber-700/40 flex items-center justify-around text-center">
                 <div>
-                  <span className="text-[10px] uppercase font-mono text-zinc-400 block">House cup virtue</span>
+                  <span className="text-[10px] font-mono text-zinc-400 block">House cup virtue</span>
                   <span className="text-sm font-bold text-emerald-400 font-mono">
-                    +{selectedChoice.virtuePoints} {selectedChoice.virtueType.toUpperCase()}
+                    +{selectedChoice.virtuePoints} {selectedChoice.virtueType}
                   </span>
                 </div>
                 <div className="h-7 w-px bg-zinc-800" />
                 <div>
-                  <span className="text-[10px] uppercase font-mono text-zinc-400 block">Realm treasury</span>
+                  <span className="text-[10px] font-mono text-zinc-400 block">Realm treasury</span>
                   <span className="text-sm font-bold text-amber-400 font-mono">
-                    +{selectedChoice.goldReward} Gold 🪙
+                    +{selectedChoice.goldReward} gold 🪙
                   </span>
                 </div>
               </div>
@@ -252,7 +260,7 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
                 onClick={handleClose}
                 className="w-full h-11 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 text-black font-serif font-bold text-sm rounded-xl shadow-lg hover:from-amber-400 hover:to-amber-500 transition-all"
               >
-                Save to chronicle & continue ✨
+                Save tale & continue ✨
               </Button>
             </div>
           )}

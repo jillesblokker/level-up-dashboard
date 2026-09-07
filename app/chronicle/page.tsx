@@ -102,9 +102,9 @@ export default function ChroniclePage() {
                         </Link>
                         <div>
                             <h1 className="text-2xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500">
-                                Chronicle & reflection journal
+                                Tales of the realm
                             </h1>
-                            <p className="text-xs text-zinc-400">Track habit milestones & record private daily reflections</p>
+                            <p className="text-xs text-zinc-400">Interactive creature stories, habit lessons & reflection journal</p>
                         </div>
                     </div>
 
@@ -140,11 +140,11 @@ export default function ChroniclePage() {
                     >
                         <span className="flex items-center gap-2">
                             <Sparkles className="w-4 h-4 text-amber-400" />
-                            Monthly Growth Insights & Mood Radar
+                            Monthly growth insights & mood radar
                         </span>
                         <div className="flex items-center gap-2">
                             <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-400 bg-emerald-950/40">
-                                Optimal Balance
+                                Optimal balance
                             </Badge>
                             {showInsights ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                         </div>

@@ -82,6 +82,11 @@ const HINTS_BY_ROUTE: Record<string, string[]> = {
     "Consistency in habit tracking writes the heroic history of Valoreth!",
     "Quest inspiration for your logbook: call or text an old friend to catch up, or go for a 15-minute evening walk."
   ],
+  '/tales': [
+    "Your logbook records your daily progress and sovereign reflections.",
+    "Consistency in habit tracking writes the heroic history of Valoreth!",
+    "Quest inspiration for your logbook: call or text an old friend to catch up, or go for a 15-minute evening walk."
+  ],
   '/character': [
     "Refine your character attributes and unlock legendary titles!",
     "Equip your favorite crest sigil to show your alliance pride."

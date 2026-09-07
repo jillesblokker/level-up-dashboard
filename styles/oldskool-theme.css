@@ -39,6 +39,22 @@
   text-shadow: 0 2px 4px #000000, 0 0 10px rgba(245, 158, 11, 0.35) !important;
 }
 
+/* Storybook Modal & Sentence Case Titles */
+.story-title,
+[data-slot="dialog-title"].story-title,
+.storybook-modal h1,
+.storybook-modal h2,
+.storybook-modal [data-slot="dialog-title"],
+[data-theme="oldskool"] .story-title,
+.theme-oldskool .story-title,
+[data-theme="oldskool"] .storybook-modal h2,
+.theme-oldskool .storybook-modal h2 {
+  font-family: var(--font-libre-baskerville), Georgia, serif !important;
+  text-transform: none !important;
+  font-variant: normal !important;
+  letter-spacing: normal !important;
+}
+
 /* Light Parchment Text Overrides - Soft Black Ink (#2b201a) */
 [data-theme="oldskool"] .parchment-container,
 .theme-oldskool .parchment-container,

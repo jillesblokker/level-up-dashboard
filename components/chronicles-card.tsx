@@ -149,12 +149,12 @@ export function ChroniclesCard({ currentLevel }: ChroniclesCardProps) {
                 <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-amber-500">
                         <BookOpen className="w-5 h-5" />
-                        <span className="text-sm font-bold text-amber-300">The chronicles</span>
-                        <span className="text-[10px] text-amber-400/60 font-serif italic hidden sm:inline">• Rebuilding Thrivehaven Story Arc</span>
+                        <span className="text-sm font-bold text-amber-300">The tales</span>
+                        <span className="text-[10px] text-amber-400/60 font-serif italic hidden sm:inline">• Rebuilding Thrivehaven story arc</span>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Link href="/chronicle" className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-amber-400 hover:text-amber-300 hover:underline">
-                            <span>Open journal & reflections →</span>
+                        <Link href="/tales" className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-amber-400 hover:text-amber-300 hover:underline">
+                            <span>Open tales & reflections →</span>
                         </Link>
                         <div className="flex items-center gap-1 text-amber-400/60 text-xs font-mono">
                             <Map className="w-3 h-3" />

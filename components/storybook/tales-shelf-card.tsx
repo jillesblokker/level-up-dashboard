@@ -38,7 +38,7 @@ export function TalesShelfCard() {
             </CardTitle>
           </div>
           <Badge variant="outline" className="border-amber-500/50 text-amber-300 bg-amber-950/40 text-xs font-mono">
-            {completedRecords.length} / {STORY_ADVENTURES.length} Unlocked
+            {completedRecords.length} / {STORY_ADVENTURES.length} unlocked
           </Badge>
         </div>
         <CardDescription className="text-xs text-zinc-400 font-sans mt-0.5">
@@ -82,7 +82,14 @@ export function TalesShelfCard() {
                       </div>
                     </div>
                     <div className="space-y-1 flex-1 min-w-0">
-                      <h4 className="text-sm font-bold text-zinc-100 font-serif group-hover:text-amber-300 transition-colors line-clamp-1">
+                      <h4
+                        className="story-title text-sm font-bold text-zinc-100 font-serif group-hover:text-amber-300 transition-colors line-clamp-1"
+                        style={{
+                          fontFamily: 'var(--font-libre-baskerville), Georgia, serif',
+                          textTransform: 'none',
+                          fontVariant: 'normal'
+                        }}
+                      >
                         {story.title}
                       </h4>
                       {/* Mini creature badges */}

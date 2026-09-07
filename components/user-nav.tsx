@@ -136,12 +136,12 @@ export function UserNav() {
                 </div>
               </DropdownMenuItem>
             </Link>
-            <Link href="/chronicle">
+            <Link href="/tales">
               <DropdownMenuItem className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation">
                 <Scroll className="h-5 w-5 text-amber-400" />
                 <div className="flex-1 text-left">
-                  <span className="text-base font-medium text-white">My Chronicle</span>
-                  <p className="text-xs text-zinc-400">View your daily journals</p>
+                  <span className="text-base font-medium text-white">Tales & reflections</span>
+                  <p className="text-xs text-zinc-400">Read creature stories & reflections</p>
                 </div>
               </DropdownMenuItem>
             </Link>

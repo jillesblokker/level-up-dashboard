@@ -136,17 +136,17 @@ export function MainNav() {
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Link
-              href="/chronicle"
+              href="/tales"
               className={cn(
                 "text-base font-semibold transition-all duration-200 hover:text-amber-400 hover:bg-amber-500/10 px-3 py-2 rounded-md",
-                pathname?.startsWith("/chronicle")
+                pathname?.startsWith("/tales") || pathname?.startsWith("/chronicle")
                   ? "text-amber-500 bg-amber-500/15 border border-amber-500/30"
                   : "text-white"
               )}
-              aria-label="Navigate to Chronicle"
-              aria-current={pathname?.startsWith("/chronicle") ? "page" : undefined}
+              aria-label="Navigate to Tales"
+              aria-current={pathname?.startsWith("/tales") || pathname?.startsWith("/chronicle") ? "page" : undefined}
             >
-              Chronicle
+              Tales
             </Link>
           </NavigationMenuItem>
         </NavigationMenuList>
