@@ -338,8 +338,39 @@ export function ReflectionsBookcase({ entries, onSelectEntry, onCreateEntry }: R
 
       {/* The Majestic Bookcase Cabinet */}
       <div className="relative rounded-2xl border-4 border-[#3a2012] bg-[#0c0805] shadow-2xl overflow-hidden p-2 sm:p-4">
-        {/* Subtle woodgrain backdrop gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none" />
+        {/* Rustic Tavern Wood Background Backdrop */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+          {/* Desktop: Single tavern wood texture zoomed in slightly */}
+          <div 
+            className="hidden sm:block absolute inset-0 bg-cover bg-center scale-105"
+            style={{ backgroundImage: "url('/images/backgrounds/tavern-wood-bg.webp')" }}
+          />
+
+          {/* Mobile: 3 stacked tavern wood panels without padding, zoomed in to fit proportions */}
+          <div className="flex sm:hidden flex-col h-full w-full">
+            <div className="flex-1 w-full overflow-hidden relative">
+              <div 
+                className="absolute inset-0 bg-cover bg-center scale-110"
+                style={{ backgroundImage: "url('/images/backgrounds/tavern-wood-bg.webp')" }}
+              />
+            </div>
+            <div className="flex-1 w-full overflow-hidden relative">
+              <div 
+                className="absolute inset-0 bg-cover bg-center scale-110"
+                style={{ backgroundImage: "url('/images/backgrounds/tavern-wood-bg.webp')" }}
+              />
+            </div>
+            <div className="flex-1 w-full overflow-hidden relative">
+              <div 
+                className="absolute inset-0 bg-cover bg-center scale-110"
+                style={{ backgroundImage: "url('/images/backgrounds/tavern-wood-bg.webp')" }}
+              />
+            </div>
+          </div>
+
+          {/* Ambient Vignette & Depth Overlay for book spine contrast */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/75 shadow-[inset_0_0_50px_rgba(0,0,0,0.9)]" />
+        </div>
 
         {/* DESKTOP VIEW: 3 Grand Shelf Tiers */}
         <div className="hidden sm:flex sm:flex-col gap-6 relative z-10 py-2">
