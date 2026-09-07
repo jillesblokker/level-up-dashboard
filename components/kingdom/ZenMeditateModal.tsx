@@ -288,16 +288,19 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
     const activeExercise = BREATHING_EXERCISES[exerciseIndex] || BREATHING_EXERCISES[0]!;
     const currentPhase = activeExercise.phases[phaseIndex] || activeExercise.phases[0]!;
 
-    // Auto-rotate exercise index on each modal open
+    // Randomly select a guide for each meditation session
     useEffect(() => {
         if (isOpen) {
             try {
                 const last = parseInt(localStorage.getItem('thrivehaven_zen_exercise_index') || '-1', 10);
-                const next = (last + 1) % BREATHING_EXERCISES.length;
+                let next = Math.floor(Math.random() * BREATHING_EXERCISES.length);
+                if (next === last && BREATHING_EXERCISES.length > 1) {
+                    next = (next + 1) % BREATHING_EXERCISES.length;
+                }
                 localStorage.setItem('thrivehaven_zen_exercise_index', String(next));
                 setExerciseIndex(next);
             } catch {
-                setExerciseIndex(0);
+                setExerciseIndex(Math.floor(Math.random() * BREATHING_EXERCISES.length));
             }
 
             setPhaseIndex(0);
@@ -445,34 +448,7 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="relative z-10 flex flex-col items-center justify-center py-4 sm:py-6 space-y-5 sm:space-y-6">
-                    {/* Guardian Guide Selector */}
-                    <div className="flex items-center justify-center gap-2">
-                        {BREATHING_EXERCISES.map((ex, idx) => (
-                            <button
-                                key={ex.id}
-                                type="button"
-                                onClick={() => setExerciseIndex(idx)}
-                                className={cn(
-                                    "relative w-8 h-8 rounded-xl overflow-hidden border transition-all duration-200 cursor-pointer p-0.5",
-                                    exerciseIndex === idx
-                                        ? "border-amber-400 ring-2 ring-amber-400/40 scale-105 bg-amber-950/70 shadow-md shadow-amber-950/50"
-                                        : "border-zinc-800/80 opacity-50 hover:opacity-100 hover:border-zinc-600 bg-zinc-900/60"
-                                )}
-                                title={`${ex.characterName}: ${ex.name} (${ex.badge})`}
-                            >
-                                <Image
-                                    src={ex.characterImage}
-                                    alt={ex.characterName}
-                                    width={32}
-                                    height={32}
-                                    className="object-contain w-full h-full drop-shadow-xs"
-                                    unoptimized
-                                />
-                            </button>
-                        ))}
-                    </div>
-
+                <div className="relative z-10 flex flex-col items-center justify-center py-4 sm:py-6 space-y-6">
                     {/* Sacred Guide Avatar Whisper Card */}
                     <div className="w-full max-w-sm px-1 sm:px-2">
                         <div className="relative flex items-center gap-3 p-3 rounded-2xl bg-zinc-900/90 border border-amber-500/30 shadow-xl backdrop-blur-xs transition-all duration-300 hover:border-amber-500/50">
