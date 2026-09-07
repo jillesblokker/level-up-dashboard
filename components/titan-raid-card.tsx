@@ -21,7 +21,7 @@ export function TitanRaidCard() {
   const [remainingHp, setRemainingHp] = useState(1000);
   const [isDefeated, setIsDefeated] = useState(false);
   const [claimed, setClaimed] = useState(false);
-  const [stats, setStats] = useState({ quests: 0, challenges: 0, milestones: 0 });
+  const [stats, setStats] = useState({ quests: 0, challenges: 0, milestones: 0, petitions: 0 });
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
 
@@ -226,6 +226,10 @@ export function TitanRaidCard() {
                   <span className="text-zinc-300 font-medium">Milestones (+10 HP)</span>
                   <span className="text-emerald-400 font-bold font-mono text-sm">{stats.milestones}</span>
                 </div>
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-950/80 border border-zinc-800">
+                  <span className="text-zinc-300 font-medium">Royal petitions (+15 HP)</span>
+                  <span className="text-rose-400 font-bold font-mono text-sm">{stats.petitions || 0}</span>
+                </div>
               </div>
             </div>
 
@@ -233,7 +237,7 @@ export function TitanRaidCard() {
             <div className="bg-purple-950/40 p-3 rounded-xl border border-purple-500/30 text-xs text-purple-200 flex items-start gap-2.5">
               <Zap className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold text-amber-300">Habit Raid Damage:</span> Completing real-life habits damages the boss! Quests (+1 HP), Tasks (+5 HP), and Goals (+10 HP).
+                <span className="font-bold text-amber-300">Raid Strikes:</span> Completing habits and decrees damages the boss! Quests (+1 HP), Challenges (+5 HP), Milestones (+10 HP), and Royal Petitions (+15 HP).
               </div>
             </div>
           </div>

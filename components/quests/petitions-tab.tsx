@@ -19,16 +19,20 @@ import {
   CitizenHappinessState
 } from '@/lib/petitions-service';
 import { addToCharacterStat } from '@/lib/character-stats-service';
-import { Scale, RefreshCw } from 'lucide-react';
+import { getCurrentMonthlyTitan } from '@/lib/titan-bosses';
+import { Scale, RefreshCw, Sword, ShieldAlert } from 'lucide-react';
 
 export function PetitionsTab() {
   const [happiness, setHappiness] = useState<CitizenHappinessState>({ score: 75, lastUpdated: '' });
   const [petitions, setPetitions] = useState<Petition[]>([]);
+  const monthlyTitan = getCurrentMonthlyTitan();
   const [activeOutcomeModal, setActiveOutcomeModal] = useState<{
     isOpen: boolean;
     petitionTitle: string;
     chosenOptionLabel: string;
     outcome: PetitionOutcome;
+    raidDamage: number;
+    titanName: string;
   } | null>(null);
 
   useEffect(() => {
@@ -50,12 +54,36 @@ export function PetitionsTab() {
       addToCharacterStat('gold', res.goldChange, `petition-${petitionId}`);
     }
 
-    // Open standard modal dialog with hilarious story reveal
+    const raidDamage = res.raidBossDamage || 15;
+
+    // Direct attack on monthly Titan Wyrm raid boss
+    try {
+      const currentTitanHp = parseInt(localStorage.getItem('thrivehaven_titan_hp') || '6450', 10);
+      const currentDmg = parseInt(localStorage.getItem('thrivehaven_user_titan_dmg') || '14', 10);
+      localStorage.setItem('thrivehaven_titan_hp', Math.max(0, currentTitanHp - raidDamage).toString());
+      localStorage.setItem('thrivehaven_user_titan_dmg', (currentDmg + raidDamage).toString());
+    } catch {}
+
+    // Record petition decree strike on server
+    fetch('/api/alliance/titan-raid', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'record_petition', damage: raidDamage })
+    }).catch(() => {});
+
+    // Open standard modal dialog with story reveal and raid boss damage
     setActiveOutcomeModal({
       isOpen: true,
       petitionTitle: target.title,
       chosenOptionLabel: res.chosenOptionLabel,
-      outcome: res.outcome
+      outcome: res.outcome,
+      raidDamage,
+      titanName: monthlyTitan.name
+    });
+
+    toast({
+      title: `⚔️ Royal Decree Struck ${monthlyTitan.name}!`,
+      description: `Decree enacted! Dealt -${raidDamage} HP damage to the monthly raid boss while keeping House Cup focused on your daily habits!`,
     });
   };
 
@@ -110,6 +138,27 @@ export function PetitionsTab() {
             <p className="text-xs text-zinc-300 italic pt-1 border-t border-white/5">
               💡 {tier.description}
             </p>
+          </div>
+
+          {/* Monthly Raid Boss Strike Feature Banner */}
+          <div className="bg-gradient-to-r from-red-950/40 via-zinc-900/90 to-amber-950/30 p-3 rounded-xl border border-red-500/30 flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-lg bg-red-900/60 border border-red-500/50 flex items-center justify-center text-base shrink-0">
+                🐉
+              </span>
+              <div>
+                <div className="text-xs font-bold text-red-200 flex items-center gap-1.5 font-serif">
+                  <span>Monthly raid boss attack:</span>
+                  <span className="text-amber-300 font-normal">{monthlyTitan.name}</span>
+                </div>
+                <div className="text-[11px] text-zinc-400">
+                  Each royal decree strikes the monthly Titan (-15 HP), leaving the House Cup strictly focused on your daily habits!
+                </div>
+              </div>
+            </div>
+            <Badge className="bg-red-950/80 text-red-300 border-red-500/40 text-[10px] font-mono shrink-0">
+              ⚔️ -15 HP per decree
+            </Badge>
           </div>
         </CardContent>
       </Card>
@@ -217,9 +266,14 @@ export function PetitionsTab() {
                   </div>
                 ) : (
                   <div className="bg-zinc-950/80 p-3 rounded-xl border border-emerald-500/30 text-xs space-y-1.5">
-                    <span className="text-[10px] text-amber-400 font-bold tracking-wide block font-mono">
-                      Chosen decree outcome:
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-amber-400 font-bold tracking-wide block font-mono">
+                        Chosen decree outcome:
+                      </span>
+                      <span className="text-[10px] text-red-400 font-bold font-mono">
+                        ⚔️ -{p.chosenOutcome?.raidBossDamage || 15} Raid HP
+                      </span>
+                    </div>
                     <p className="text-zinc-300 italic font-serif text-[11px] leading-relaxed">
                       {p.chosenOutcome?.storyText || "Decree executed cleanly."}
                     </p>
@@ -254,14 +308,20 @@ export function PetitionsTab() {
                 {activeOutcomeModal.outcome.storyText}
               </p>
 
-              <div className="flex items-center justify-between text-xs font-mono font-bold flex-wrap gap-2">
-                <span className={activeOutcomeModal.outcome.goldChange >= 0 ? "text-amber-400" : "text-red-400"}>
-                  🪙 Treasury gold: {activeOutcomeModal.outcome.goldChange >= 0 ? '+' : ''}{activeOutcomeModal.outcome.goldChange} Gold
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-mono font-bold">
+                <span className={`p-2 rounded-lg bg-zinc-900/80 border text-center ${activeOutcomeModal.outcome.goldChange >= 0 ? "text-amber-400 border-amber-500/30" : "text-red-400 border-red-500/30"}`}>
+                  🪙 Treasury: {activeOutcomeModal.outcome.goldChange >= 0 ? '+' : ''}{activeOutcomeModal.outcome.goldChange} Gold
                 </span>
-                <span className={activeOutcomeModal.outcome.loyaltyChange >= 0 ? "text-emerald-400" : "text-orange-400"}>
-                  👑 Town loyalty: {activeOutcomeModal.outcome.loyaltyChange >= 0 ? '+' : ''}{activeOutcomeModal.outcome.loyaltyChange}%
+                <span className={`p-2 rounded-lg bg-zinc-900/80 border text-center ${activeOutcomeModal.outcome.loyaltyChange >= 0 ? "text-emerald-400 border-emerald-500/30" : "text-orange-400 border-orange-500/30"}`}>
+                  👑 Loyalty: {activeOutcomeModal.outcome.loyaltyChange >= 0 ? '+' : ''}{activeOutcomeModal.outcome.loyaltyChange}%
+                </span>
+                <span className="p-2 rounded-lg bg-red-950/50 border border-red-500/40 text-red-300 flex items-center justify-center gap-1">
+                  ⚔️ Raid: -{activeOutcomeModal.raidDamage} HP
                 </span>
               </div>
+              <p className="text-[10px] text-zinc-400 italic text-center">
+                🛡️ Struck monthly titan {activeOutcomeModal.titanName}! House Cup remains purely earned via real daily habits.
+              </p>
             </div>
 
             <Button

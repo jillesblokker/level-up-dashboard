@@ -29,7 +29,9 @@ export async function GET(request: NextRequest) {
       claimed: false,
       questsCompleted: 0,
       challengesCompleted: 0,
-      milestonesCompleted: 0
+      milestonesCompleted: 0,
+      petitionsCompleted: 0,
+      petitionDamage: 0
     };
 
     // Calculate actual habit completions from quest_completion table FOR CURRENT MONTH ONLY
@@ -42,9 +44,11 @@ export async function GET(request: NextRequest) {
     const monthlyQuests = questCount || 0;
     const actualChallenges = raidData.challengesCompleted || 0;
     const actualMilestones = raidData.milestonesCompleted || 0;
+    const actualPetitions = raidData.petitionsCompleted || 0;
+    const petitionDmg = raidData.petitionDamage || (actualPetitions * 15);
 
-    // Calculate live habit damage for current month: 1 per quest, 5 per challenge, 10 per milestone
-    const calculatedDamage = (monthlyQuests * 1) + (actualChallenges * 5) + (actualMilestones * 10);
+    // Calculate live habit & petition damage for current month: 1 per quest, 5 per challenge, 10 per milestone, + petition decrees
+    const calculatedDamage = (monthlyQuests * 1) + (actualChallenges * 5) + (actualMilestones * 10) + petitionDmg;
     const totalDamageDealt = Math.min(currentTitan.totalHp, Math.max(0, calculatedDamage));
 
     const remainingHp = Math.max(0, currentTitan.totalHp - totalDamageDealt);
@@ -78,7 +82,8 @@ export async function GET(request: NextRequest) {
       stats: {
         quests: monthlyQuests,
         challenges: actualChallenges,
-        milestones: actualMilestones
+        milestones: actualMilestones,
+        petitions: actualPetitions
       }
     });
   } catch (error) {
@@ -112,8 +117,42 @@ export async function POST(request: NextRequest) {
       claimed: false,
       questsCompleted: 0,
       challengesCompleted: 0,
-      milestonesCompleted: 0
+      milestonesCompleted: 0,
+      petitionsCompleted: 0,
+      petitionDamage: 0
     };
+
+    if (action === 'record_petition' || (action === 'record_habit' && type === 'petition')) {
+      const dmg = typeof body.damage === 'number' && body.damage > 0 ? body.damage : 15;
+      const newPetitions = (raidData.petitionsCompleted || 0) + 1;
+      const newPetDmg = (raidData.petitionDamage || 0) + dmg;
+      const newDmg = Math.min(currentTitan.totalHp, (raidData.damageDealt || 0) + dmg);
+
+      const updatedRaidData = {
+        ...raidData,
+        damageDealt: newDmg,
+        petitionsCompleted: newPetitions,
+        petitionDamage: newPetDmg
+      };
+
+      await supabaseServer
+        .from('user_preferences')
+        .upsert({
+          user_id: userId,
+          preference_key: `titan_raid_${currentMonthKey}`,
+          preference_value: updatedRaidData,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id,preference_key' });
+
+      return NextResponse.json({
+        success: true,
+        damageDealt: dmg,
+        totalDamage: newDmg,
+        remainingHp: Math.max(0, currentTitan.totalHp - newDmg),
+        isDefeated: newDmg >= currentTitan.totalHp,
+        titanName: currentTitan.name
+      });
+    }
 
     if (action === 'record_habit') {
       let dmg = 1;

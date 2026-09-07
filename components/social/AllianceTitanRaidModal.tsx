@@ -68,7 +68,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
             </Badge>
           </div>
           <DialogDescription className="text-zinc-400 text-xs mt-1">
-            Complete daily quests (1 dmg), weekly challenges (10 dmg), and cumulative milestones (100 dmg) to slay the Titan Wyrm!
+            Complete daily quests (1 dmg), weekly challenges (10 dmg), cumulative milestones (100 dmg), and royal petitions (15 dmg) to slay the Titan Wyrm!
           </DialogDescription>
         </DialogHeader>
 

@@ -11,6 +11,7 @@ export interface PetitionOutcome {
   storyText: string;
   goldChange: number;
   loyaltyChange: number;
+  raidBossDamage?: number;
   itemReward?: string;
   isFunnyTwist: boolean;
 }
@@ -596,7 +597,7 @@ export function getActivePetitions(): Petition[] {
   return refreshAllPetitions();
 }
 
-export function resolvePetition(petitionId: string, choice: 'A' | 'B'): { happiness: CitizenHappinessState; goldChange: number; outcome: PetitionOutcome; chosenOptionLabel: string } {
+export function resolvePetition(petitionId: string, choice: 'A' | 'B'): { happiness: CitizenHappinessState; goldChange: number; raidBossDamage: number; outcome: PetitionOutcome; chosenOptionLabel: string } {
   const petitions = getActivePetitions();
   const target = petitions.find(p => p.id === petitionId);
   
@@ -604,17 +605,25 @@ export function resolvePetition(petitionId: string, choice: 'A' | 'B'): { happin
     storyText: "Decree enacted peacefully.",
     goldChange: 0,
     loyaltyChange: 0,
+    raidBossDamage: 15,
     isFunnyTwist: false
   };
 
   if (!target) {
-    return { happiness: getCitizenHappiness(), goldChange: 0, outcome: fallbackOutcome, chosenOptionLabel: "Decree" };
+    return { happiness: getCitizenHappiness(), goldChange: 0, raidBossDamage: 15, outcome: fallbackOutcome, chosenOptionLabel: "Decree" };
   }
 
   const option = choice === 'A' ? target.optionA : target.optionB;
   const outcomes = option?.outcomes || [fallbackOutcome];
   // 50/50 randomized outcome roll
   const rolledOutcome = outcomes[Math.floor(Math.random() * outcomes.length)] || outcomes[0] || fallbackOutcome;
+
+  // Calculate raid boss strike damage (15 HP for standard decree, 10 HP for chaotic twist)
+  const raidBossDamage = rolledOutcome.raidBossDamage ?? (rolledOutcome.isFunnyTwist ? 10 : 15);
+  const outcomeWithRaidDmg: PetitionOutcome = {
+    ...rolledOutcome,
+    raidBossDamage,
+  };
 
   const newHappiness = updateCitizenHappiness(rolledOutcome.loyaltyChange || 0);
 
@@ -623,7 +632,7 @@ export function resolvePetition(petitionId: string, choice: 'A' | 'B'): { happin
       return {
         ...p,
         completed: true,
-        chosenOutcome: rolledOutcome,
+        chosenOutcome: outcomeWithRaidDmg,
         chosenOptionLabel: option?.label || "Decree"
       };
     }
@@ -635,7 +644,8 @@ export function resolvePetition(petitionId: string, choice: 'A' | 'B'): { happin
   return {
     happiness: newHappiness,
     goldChange: rolledOutcome.goldChange || 0,
-    outcome: rolledOutcome,
+    raidBossDamage,
+    outcome: outcomeWithRaidDmg,
     chosenOptionLabel: option?.label || "Decree"
   };
 }
