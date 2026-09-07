@@ -106,7 +106,7 @@ const HEIGHT_VARIANTS = ['h-[138px]', 'h-[148px]', 'h-[156px]', 'h-[144px]', 'h-
 export function ReflectionsBookcase({ entries, onSelectEntry, onCreateEntry }: ReflectionsBookcaseProps) {
   // Current active month view (defaulting to current real-world month)
   const [selectedMonthDate, setSelectedMonthDate] = useState<Date>(() => new Date());
-  const [hoveredEntry, setHoveredEntry] = useState<ReflectionEntry | null>(null);
+  const [hoveredEntry, setHoveredEntry] = useState<ReflectionEntry | 'scribe' | null>(null);
 
   const currentYear = selectedMonthDate.getFullYear();
   const currentMonth = selectedMonthDate.getMonth(); // 0-indexed
@@ -185,6 +185,8 @@ export function ReflectionsBookcase({ entries, onSelectEntry, onCreateEntry }: R
         <button
           key="scribe_action_book"
           onClick={onCreateEntry}
+          onMouseEnter={() => setHoveredEntry('scribe')}
+          onMouseLeave={() => setHoveredEntry(null)}
           className="group relative flex flex-col items-center justify-between w-[44px] sm:w-[48px] h-[142px] sm:h-[150px] rounded-t-md rounded-b-sm border-2 border-dashed border-amber-500/40 bg-zinc-950/60 hover:bg-amber-950/40 hover:border-amber-400 transition-all duration-200 hover:-translate-y-2 cursor-pointer shadow-md shadow-black/60 shrink-0 select-none p-1.5"
           title="Scribe a new reflection"
         >
@@ -334,31 +336,6 @@ export function ReflectionsBookcase({ entries, onSelectEntry, onCreateEntry }: R
         </div>
       </div>
 
-      {/* Floating Hover Preview Card if user hovers over a book */}
-      {hoveredEntry && (
-        <div className="bg-gradient-to-r from-amber-950/90 via-zinc-950 to-zinc-950 border border-amber-500/50 rounded-xl p-3 shadow-xl animate-in fade-in duration-150 flex items-start gap-3">
-          <div className="p-2 rounded-lg bg-zinc-900 border border-amber-500/30 text-amber-300 shrink-0">
-            {getMoodIcon(hoveredEntry.mood_score) || <BookOpen className="w-4 h-4" />}
-          </div>
-          <div className="space-y-1 flex-1 overflow-hidden">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-serif font-bold text-amber-300">
-                {new Date(hoveredEntry.entry_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
-              </span>
-              {hoveredEntry.mood_tag && (
-                <Badge className="bg-amber-950/80 border-amber-500/30 text-amber-300 text-[9px] font-mono">
-                  {hoveredEntry.mood_tag}
-                </Badge>
-              )}
-            </div>
-            <p className="text-xs text-zinc-300 italic font-serif line-clamp-2 leading-relaxed">
-              &ldquo;{hoveredEntry.content}&rdquo;
-            </p>
-          </div>
-          <span className="text-[10px] text-amber-400 font-bold shrink-0 self-center">Click to open ↗</span>
-        </div>
-      )}
-
       {/* The Majestic Bookcase Cabinet */}
       <div className="relative rounded-2xl border-4 border-[#3a2012] bg-[#0c0805] shadow-2xl overflow-hidden p-2 sm:p-4">
         {/* Subtle woodgrain backdrop gradient */}
@@ -373,6 +350,81 @@ export function ReflectionsBookcase({ entries, onSelectEntry, onCreateEntry }: R
         <div className="flex sm:hidden flex-col gap-4 relative z-10 py-1">
           {mobileRows.map((row, idx) => renderShelfRow(row, idx))}
         </div>
+      </div>
+
+      {/* Reading Lectern Desk: Fixed height preview below bookcase to eliminate all layout shifts & flash */}
+      <div className="min-h-[72px] sm:min-h-[64px] bg-gradient-to-r from-zinc-950 via-amber-950/25 to-zinc-950 border border-amber-900/40 rounded-xl p-3 shadow-lg flex items-center transition-all duration-200">
+        {hoveredEntry === 'scribe' ? (
+          <div 
+            onClick={onCreateEntry}
+            className="w-full flex items-center justify-between gap-3 cursor-pointer group select-none animate-in fade-in duration-150"
+          >
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="p-2 rounded-lg bg-amber-950/60 border border-amber-500/40 text-amber-300 shrink-0 group-hover:scale-105 transition-transform">
+                <PenTool className="w-4 h-4" />
+              </div>
+              <div className="space-y-0.5 overflow-hidden">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-serif font-bold text-amber-300 group-hover:text-amber-200">
+                    Scribe new reflection
+                  </span>
+                  <Badge className="bg-amber-950/80 border-amber-500/40 text-amber-300 text-[9px] font-mono">
+                    New entry
+                  </Badge>
+                </div>
+                <p className="text-xs text-zinc-300 italic font-serif line-clamp-1 group-hover:text-amber-100/90 transition-colors">
+                  Open your private journal and record today&apos;s thoughts, lessons, or milestones.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0 text-amber-400 group-hover:text-amber-200 text-xs font-serif font-bold">
+              <span>Scribe volume</span>
+              <span className="group-hover:translate-x-0.5 transition-transform">↗</span>
+            </div>
+          </div>
+        ) : hoveredEntry ? (
+          <div 
+            onClick={() => onSelectEntry(hoveredEntry)}
+            className="w-full flex items-center justify-between gap-3 cursor-pointer group select-none animate-in fade-in duration-150"
+          >
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="p-2 rounded-lg bg-zinc-900 border border-amber-500/30 text-amber-300 shrink-0 group-hover:border-amber-400 group-hover:bg-amber-950/60 transition-colors">
+                {getMoodIcon(hoveredEntry.mood_score) || <BookOpen className="w-4 h-4" />}
+              </div>
+              <div className="space-y-0.5 overflow-hidden">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-serif font-bold text-amber-300 group-hover:text-amber-200">
+                    {new Date(hoveredEntry.entry_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                  {hoveredEntry.mood_tag && (
+                    <Badge className="bg-amber-950/80 border-amber-500/30 text-amber-300 text-[9px] font-mono">
+                      {hoveredEntry.mood_tag}
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-zinc-300 italic font-serif line-clamp-1 group-hover:text-amber-100/90 transition-colors">
+                  &ldquo;{hoveredEntry.content}&rdquo;
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0 text-amber-400 group-hover:text-amber-200 text-xs font-serif font-bold">
+              <span>Open journal</span>
+              <span className="group-hover:translate-x-0.5 transition-transform">↗</span>
+            </div>
+          </div>
+        ) : (
+          <div className="w-full flex items-center justify-between gap-3 text-zinc-500 px-1 select-none">
+            <div className="flex items-center gap-2.5">
+              <BookOpen className="w-4 h-4 text-amber-500/40 shrink-0" />
+              <p className="text-xs font-serif italic text-zinc-400">
+                Hover over any volume to inspect its tale, or click to open your reflections.
+              </p>
+            </div>
+            <span className="hidden sm:inline-block text-[11px] font-mono text-amber-500/40">
+              Royal library lectern
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
