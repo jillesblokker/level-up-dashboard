@@ -82,8 +82,36 @@ const TOWN_RIDDLES = [
     options: ["The House Cup", "The Town Clock", "The Dungeon Altar", "The Market Scale"],
     correctIndex: 0,
     rewardDesc: "+300 Gold & +10 Virtue Points"
+  },
+  {
+    id: 'r-11',
+    question: "I am the ancient shadow slumbering deep below, feeding on broken vows and idle promises until habit fires drive me back. Who am I?",
+    options: ["Necrion the Shadow Lord", "The Red Cyclops", "The Abyssal Kraken", "The Stone Golem"],
+    correctIndex: 0,
+    rewardDesc: "+250 Gold & 150 Character XP"
+  },
+  {
+    id: 'r-12',
+    question: "I wander from kingdom to kingdom with a lute in hand, singing ballads of brave rulers and playing soothing melodies. Who am I?",
+    options: ["Alistair the Traveling Bard", "Archmage Turtoisy", "Ignisio the Sprite", "Barnaby the Scholar"],
+    correctIndex: 0,
+    rewardDesc: "+180 Gold & 5 Focus Points"
+  },
+  {
+    id: 'r-13',
+    question: "I am the wise sage who counsels patience, reminding runners that sprinting too soon snuffs out your sparks. Who am I?",
+    options: ["Archmage Turtoisy", "Sparky the Drake", "Oaky the Guardian", "Flippur the Otter"],
+    correctIndex: 0,
+    rewardDesc: "+200 Gold & 1x Ancient Blueprint"
+  },
+  {
+    id: 'r-14',
+    question: "I am the proud monarch of the Sunspire Empire who rides from the Iron Peaks with imperial guards to forge an alliance. Who am I?",
+    options: ["Queen Valandriel", "Princess Beatrice", "Lady Seraphina", "Empress Morgana"],
+    correctIndex: 0,
+    rewardDesc: "+240 Gold & +15 House Cup Points"
   }
-]
+];
 
 export function AncientRiddleModal({ isOpen, onClose }: AncientRiddleModalProps) {
   const { toast } = useToast()

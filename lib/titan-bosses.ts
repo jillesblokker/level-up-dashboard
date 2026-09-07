@@ -16,6 +16,14 @@ export const MONTH_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
+/**
+ * Overarching Worldbuilding Mythos:
+ * The Twelve Primal Calamities are ancient elemental sovereigns awakened by shifting Ether currents
+ * as Castle Valoreth's reconstruction pushes against Necrion's shadowy mist.
+ * Uniting in fellowship and channeling daily habit momentum seals these elemental breaches.
+ */
+export const TITAN_LORE_OVERVIEW = "The Twelve Primal Calamities: ancient elemental sovereigns stirred awake by shifting Ether currents as the realm of Thrivehaven battles against Necrion's shadowy mist. By uniting in fellowship and channeling daily habit momentum, heroes seal these ancient breaches before shadow can claim the realm.";
+
 export const MONTHLY_TITANS: MonthlyTitan[] = [
   {
     monthIndex: 0,

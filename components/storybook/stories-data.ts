@@ -377,6 +377,318 @@ Waddle, waddle, waddle! Before Penguin knows it, they count all the way to twent
 Penguin's eyes go wide. He waddles with great determination, motivated by the delicious treat. When they reach the top, they crunch on crisp apples while enjoying the view.`
       }
     ]
+  },
+  {
+    id: 'story-grove-fox-vase',
+    storyNumber: 'Tale 6',
+    title: 'Grove Fox and the broken vase',
+    characters: [
+      { name: 'Grove Fox', image: '/images/creatures/GroveFox.webp' },
+      { name: 'Turtoisy', image: '/images/creatures/Turtoisy.webp' }
+    ],
+    avatarImage: '/images/creatures/GroveFox.webp',
+    locationName: 'The grand library terrace',
+    narrativeText: `Grove Fox was practicing his stealthy leaps along the library stone terrace when his bushy tail clipped a porcelain vase.
+
+CRASH! The vase shattered into ten sparkling shards on the cobblestones.
+
+Grove Fox gasped, his ears pinning flat with panic. "Oh no! Archmage Turtoisy cherished this antique! If I sweep the pieces into the rosebush, nobody will ever know it was me..."
+
+Slow, rhythmic thuds echoed down the corridor as Turtoisy approached.
+
+"Hiding an accident turns a small mistake into a heavy burden of guilt, little fox," Turtoisy spoke gently from the doorway. "True honor is not about never making mistakes; it is having the courage to speak the truth."`,
+    dialogue: [
+      {
+        speaker: 'Grove Fox',
+        speakerImage: '/images/creatures/GroveFox.webp',
+        text: 'Grove Fox leaped along the terrace until his tail clipped a porcelain vase! CRASH! "Oh no! Archmage Turtoisy loved this antique! If I sweep the pieces into the bushes, nobody will ever know..."'
+      },
+      {
+        speaker: 'Turtoisy',
+        speakerImage: '/images/creatures/Turtoisy.webp',
+        text: 'Turtoisy walked over slowly with a warm, steady gaze: "Hiding an accident turns a small mistake into a heavy burden of guilt. True honor is having the courage to speak the truth."'
+      }
+    ],
+    choices: [
+      {
+        id: 'choice-confess-truth',
+        verb: 'Tell the truth to Turtoisy',
+        label: 'Step forward, admit the accident, and offer to help glue the shards together',
+        characterName: 'Turtoisy',
+        characterImage: '/images/creatures/Turtoisy.webp',
+        virtueType: 'honor',
+        virtuePoints: 20,
+        goldReward: 35,
+        lessonMoral: 'Honesty repairs trust faster than magic, turning accidents into lessons.',
+        resolutionText: `Grove Fox takes a deep breath and confesses: "Master Turtoisy, I was jumping recklessly and broke the vase. I am truly sorry."
+
+Turtoisy smiles with immense warmth. He brings out a small jar of golden resin. Together, they mend the porcelain with gleaming golden seams.
+
+The vase is now even stronger and more radiant than before! "A repaired vessel is a mark of resilience," Turtoisy nods proudly.`
+      },
+      {
+        id: 'choice-sweep-rosebush',
+        verb: 'Sweep into the bushes',
+        label: 'Push the broken shards under the thorny roses and pretend nothing happened',
+        characterName: 'Grove Fox',
+        characterImage: '/images/creatures/GroveFox.webp',
+        virtueType: 'craft',
+        virtuePoints: 10,
+        goldReward: 15,
+        lessonMoral: 'Hiding the truth leaves worry in your chest until you make things right.',
+        resolutionText: `Grove Fox sweeps the shards away, but his chest aches with worry all afternoon.
+
+Unable to bear the knot in his stomach, he runs back, digs out the shards, and tells the truth.
+
+Turtoisy gives him a reassuring pat: "I saw you sweep them, little friend. But I waited because I knew your good heart would bring you back. Let us mend it together."`
+      }
+    ]
+  },
+  {
+    id: 'story-montano-boulder',
+    storyNumber: 'Tale 7',
+    title: 'Montano and the heavy boulder',
+    characters: [
+      { name: 'Montano', image: '/images/creatures/Montano.webp' },
+      { name: 'Rockie', image: '/images/creatures/Rockie.webp' }
+    ],
+    avatarImage: '/images/creatures/Montano.webp',
+    locationName: 'The northern mountain quarry',
+    narrativeText: `Montano the horned mountain guardian was trying to hoist a colossal granite boulder twice his size to prove his strength.
+
+His hooves slipped on the gravel. His back muscles strained and twitched violently.
+
+"GRRR!" Montano bellowed. "I must lift this in one mighty heave, or I am weak!"
+
+Rockie sat nearby on a mossy ledge, calmly polishing a set of smooth training stones.
+
+"Friend Montano," Rockie rumbled gently like rolling thunder. "A muscle grows strong through steady sets and correct form, not by breaking under reckless weight. If you injure your back today, you cannot train for a month. Drop the ego and lift with form!"`,
+    dialogue: [
+      {
+        speaker: 'Montano',
+        speakerImage: '/images/creatures/Montano.webp',
+        text: 'Montano strained under a giant granite boulder with shaky hooves! "GRRR! I must lift this in one heave to prove I am strong!"'
+      },
+      {
+        speaker: 'Rockie',
+        speakerImage: '/images/creatures/Rockie.webp',
+        text: 'Rockie rumbled calmly from a stone ledge: "Friend Montano! Real strength comes from steady form, not reckless weight. Lift with control so you can grow stronger tomorrow!"'
+      }
+    ],
+    choices: [
+      {
+        id: 'choice-progressive-form',
+        verb: 'Lift lighter with good form',
+        label: 'Switch to a manageable stone and practice five controlled, perfect repetitions',
+        characterName: 'Rockie',
+        characterImage: '/images/creatures/Rockie.webp',
+        virtueType: 'might',
+        virtuePoints: 20,
+        goldReward: 40,
+        lessonMoral: 'Good form and progressive overload build real strength without injury.',
+        resolutionText: `Montano rolls the colossal boulder aside and picks up a balanced stone.
+
+He engages his core, plants his hooves firmly, and performs five smooth, powerful repetitions. His muscles burn with invigorating energy!
+
+Rockie nods with a broad grin: "Now that is the form of a true citadel defender!"`
+      },
+      {
+        id: 'choice-rest-day-stretch',
+        verb: 'Take a rest day',
+        label: 'Put the weights down and drink cool spring water with Rockie',
+        characterName: 'Montano',
+        characterImage: '/images/creatures/Montano.webp',
+        virtueType: 'vitality',
+        virtuePoints: 15,
+        goldReward: 30,
+        lessonMoral: 'Rest days are when your body repairs itself and builds new strength.',
+        resolutionText: `Montano sits in the cool shade of the quarry and shares a bowl of fresh spring water with Rockie.
+
+As the afternoon sun warms the stone walls, his tight muscles relax and recover. He feels energized, confident, and ready for tomorrow's workout.`
+      }
+    ]
+  },
+  {
+    id: 'story-buldour-blueprint',
+    storyNumber: 'Tale 8',
+    title: 'Buldour forges a blueprint',
+    characters: [
+      { name: 'Buldour', image: '/images/creatures/Buldour.webp' },
+      { name: 'Sage Owl', image: '/images/creatures/SageOwl.webp' }
+    ],
+    avatarImage: '/images/creatures/Buldour.webp',
+    locationName: 'The royal architect workshop',
+    narrativeText: `Buldour stared at a massive blank architectural parchment. His drafting table was cluttered with rulers and compasses, but not a single stroke of ink had been drawn.
+
+"I have to design the entire eastern aqueduct!" Buldour groaned, melting into a discouraged puddle of slime. "It is too complex! I don't know the exact water pressure, I don't know the arch height... I think I will just procrastinate and look out the window."
+
+Up on a bookshelf, Sage Owl adjusted his spectacles and fluttered down.
+
+"When a grand project looms before you, do not try to draw the whole aqueduct in one breath," Sage Owl whispered. "Divide your work into one twenty-minute focus block. Draw just the first foundation arch. That is all."`,
+    dialogue: [
+      {
+        speaker: 'Buldour',
+        speakerImage: '/images/creatures/Buldour.webp',
+        text: 'Buldour slumped over a blank parchment: "The aqueduct is too big! I don\'t know where to start, so I am just going to stare out the window all day."'
+      },
+      {
+        speaker: 'Sage Owl',
+        speakerImage: '/images/creatures/SageOwl.webp',
+        text: 'Sage Owl tapped his spectacles softly: "Do not draw the whole aqueduct at once, Buldour. Set a timer for twenty minutes and sketch just the first archway."'
+      }
+    ],
+    choices: [
+      {
+        id: 'choice-focus-timer',
+        verb: 'Focus for 20 minutes',
+        label: 'Turn over a 20-minute sand timer and sketch only the first foundation archway',
+        characterName: 'Sage Owl',
+        characterImage: '/images/creatures/SageOwl.webp',
+        virtueType: 'knowledge',
+        virtuePoints: 20,
+        goldReward: 35,
+        lessonMoral: 'Starting with a short timer breaks procrastination and gets you into flow.',
+        resolutionText: `Buldour turns over the small sand timer and dips his quill into black ink.
+
+Because the goal is so small, his dread completely evaporates! Before the sand runs out, Buldour has drawn three elegant arches and is eager to finish the entire canal.`
+      },
+      {
+        id: 'choice-outline-steps',
+        verb: 'Write a 3-step checklist',
+        label: 'Break the project into three bite-sized bullet points on scratch paper',
+        characterName: 'Buldour',
+        characterImage: '/images/creatures/Buldour.webp',
+        virtueType: 'craft',
+        virtuePoints: 15,
+        goldReward: 30,
+        lessonMoral: 'A clear checklist turns an overwhelming project into easy daily steps.',
+        resolutionText: `Buldour writes down three simple steps: 1. Measure canal width. 2. Choose granite type. 3. Sketch foundation.
+
+Crossing off step one takes only two minutes and gives him a quick rush of motivation! Within an hour, his draft is complete.`
+      }
+    ]
+  },
+  {
+    id: 'story-spirit-sprite-walk',
+    storyNumber: 'Tale 9',
+    title: 'Spirit Sprite wanders outside',
+    characters: [
+      { name: 'Spirit Sprite', image: '/images/creatures/SpiritSprite.webp' },
+      { name: 'Leaf', image: '/images/creatures/Leaf.webp' }
+    ],
+    avatarImage: '/images/creatures/SpiritSprite.webp',
+    locationName: 'The dim archives cellar',
+    narrativeText: `Spirit Sprite had spent three days straight inside the dim castle archives, staring at glowing crystal screens and dusty scrolls.
+
+Her ethereal glow had faded into a dull, tired grey. Her eyes stung and her head felt heavy.
+
+"I feel so sluggish," Spirit Sprite muttered, floating barely an inch above the cold floor. "I have no energy or motivation left."
+
+Leaf popped his head through the cellar door, bathed in warm afternoon sunlight.
+
+"Little sprite!" Leaf cheered with a waving sprout. "You have been cooped up in the shadows for way too long! Even magical beings need fresh air and sunshine. Come take a ten-minute stroll through the clover meadows!"`,
+    dialogue: [
+      {
+        speaker: 'Spirit Sprite',
+        speakerImage: '/images/creatures/SpiritSprite.webp',
+        text: 'Spirit Sprite drifted barely above the floor with a dim grey glow: "I have been inside for three days. My head hurts and I have no energy left."'
+      },
+      {
+        speaker: 'Leaf',
+        speakerImage: '/images/creatures/Leaf.webp',
+        text: 'Leaf waved from the sunny doorway: "You need fresh air and sunlight, little sprite! Come take a ten-minute stroll across the flower meadows!"'
+      }
+    ],
+    choices: [
+      {
+        id: 'choice-sunlight-walk',
+        verb: 'Walk in the sunshine',
+        label: 'Step outside into the meadows and feel the warm breeze on your face',
+        characterName: 'Leaf',
+        characterImage: '/images/creatures/Leaf.webp',
+        virtueType: 'vitality',
+        virtuePoints: 20,
+        goldReward: 35,
+        lessonMoral: 'Stepping outside into natural light clears brain fog and restores your energy.',
+        resolutionText: `Spirit Sprite floats out into the sun-drenched meadow.
+
+The golden sunbeams warm her spirit, and the fresh floral breeze clears her headache within minutes! Her glow returns in dazzling violet and cyan sparkles.`
+      },
+      {
+        id: 'choice-deep-breaths',
+        verb: 'Breathe fresh meadow air',
+        label: 'Sit on the grassy bank with Leaf and take ten deep, revitalizing breaths',
+        characterName: 'Spirit Sprite',
+        characterImage: '/images/creatures/SpiritSprite.webp',
+        virtueType: 'wellness',
+        virtuePoints: 15,
+        goldReward: 30,
+        lessonMoral: 'Oxygen and quiet nature reset your nervous system when feeling drained.',
+        resolutionText: `Spirit Sprite and Leaf sit together on a grassy clover bank.
+
+With each deep breath of crisp outdoor air, the tension in her chest releases, leaving her rejuvenated, cheerful, and ready for the evening.`
+      }
+    ]
+  },
+  {
+    id: 'story-turtoisy-tea',
+    storyNumber: 'Tale 10',
+    title: 'Turtoisy\'s tea ceremony',
+    characters: [
+      { name: 'Turtoisy', image: '/images/creatures/Turtoisy.webp' },
+      { name: 'Flamio', image: '/images/creatures/Flamio.webp' }
+    ],
+    avatarImage: '/images/creatures/Turtoisy.webp',
+    locationName: 'The tranquil bamboo courtyard',
+    narrativeText: `The sun was dipping below the ramparts of Castle Valoreth. In the courtyard, Archmage Turtoisy was heating a cast-iron kettle over embers.
+
+Flamio rushed into the courtyard, crackling with nervous sparks. "Archmage! I must prepare five more combat scrolls for tomorrow! What if the Titan raids breach our gates? What if I didn't train hard enough today?!"
+
+Turtoisy poured steaming herbal tea into two porcelain cups. A soothing aroma of mint and honey rose into the twilight air.
+
+"Sit with me, Flamio," Turtoisy said in a peaceful voice. "Today's tasks are done. If you spend your evening fighting tomorrow's battles in your mind, you arrive at tomorrow already defeated. Hold this warm cup, breathe in the steam, and name three things you are grateful for today."`,
+    dialogue: [
+      {
+        speaker: 'Flamio',
+        speakerImage: '/images/creatures/Flamio.webp',
+        text: 'Flamio crackled with nervous sparks: "Archmage! I must prepare more scrolls for tomorrow! What if I didn\'t train hard enough today?!"'
+      },
+      {
+        speaker: 'Turtoisy',
+        speakerImage: '/images/creatures/Turtoisy.webp',
+        text: 'Turtoisy poured two cups of herbal tea: "Today\'s work is done, Flamio. Hold this warm cup, breathe in the steam, and name three things you are grateful for today."'
+      }
+    ],
+    choices: [
+      {
+        id: 'choice-practice-gratitude',
+        verb: 'Name 3 things you are grateful for',
+        label: 'Sip the warm tea slowly and reflect on three good moments from today',
+        characterName: 'Turtoisy',
+        characterImage: '/images/creatures/Turtoisy.webp',
+        virtueType: 'wellness',
+        virtuePoints: 25,
+        goldReward: 40,
+        lessonMoral: 'Daily gratitude rewires your mind to notice progress instead of anxiety.',
+        resolutionText: `Flamio holds the warm cup with both hands. He names three blessings: completing his morning habit, sharing a laugh with Leaf, and having a safe kingdom to protect.
+
+His wild flames soften into a cozy, comforting glow. "Thank you, master," Flamio whispers peacefully.`
+      },
+      {
+        id: 'choice-mindful-silence',
+        verb: 'Sit in mindful silence',
+        label: 'Listen to the wind rustling through the bamboo leaves without speaking',
+        characterName: 'Flamio',
+        characterImage: '/images/creatures/Flamio.webp',
+        virtueType: 'knowledge',
+        virtuePoints: 15,
+        goldReward: 30,
+        lessonMoral: 'Silent moments allow your mind to digest the day and regain peace.',
+        resolutionText: `Flamio and Turtoisy sit quietly for five minutes, watching the steam curl toward the twilight stars.
+
+The evening breeze rustles the bamboo, the fortress ward stones glow steadily, and Castle Valoreth rests in deep peace.`
+      }
+    ]
   }
 ];
 

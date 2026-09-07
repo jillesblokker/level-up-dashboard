@@ -8,7 +8,7 @@ export const TEXT_CONTENT = {
             "Every daily habit mastered emits Ether Sparks that clear the mist from ruined land tiles.",
             "Archmage Turtoisy synthesizes rare Ether Essence into legendary dragon-tempered armor.",
             "Restoring your daily streak shield keeps the fires of Castle Valoreth burning brightly.",
-            "Queen Beatrice of Iron Peaks observes your realm's revival with keen interest.",
+            "Queen Valandriel of the Sunspire Empire observes your realm's revival with keen interest from the Iron Peaks.",
             "Completing routines extends citizen fed time and boosts passive crop harvesting.",
             "Zenith teaches that a quiet mind is the foundation for building a magnificent settlement.",
             "Consistency is the true magic that reconstructs the shattered Ether Crystal.",

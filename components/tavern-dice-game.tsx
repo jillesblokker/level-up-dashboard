@@ -652,7 +652,7 @@ export function TavernDiceGame() {
             </div>
             <div>
               <CardTitle className="font-serif text-xl sm:text-2xl font-bold tracking-wider text-[#f5e6c8] flex items-center gap-2">
-                Liar&apos;s Dice Tavern
+                Liar&apos;s dice tavern
                 {phase !== 'difficultySelect' && (
                   <Badge variant="outline" className="text-[10px] font-mono border-amber-500/40 text-amber-300 uppercase">
                     {selectedTier.name} ({selectedTier.multiplier}x)
@@ -660,7 +660,7 @@ export function TavernDiceGame() {
                 )}
               </CardTitle>
               <CardDescription className="text-xs text-zinc-400">
-                Outwit Thrivehaven inhabitants in a medieval game of bluff & deduction
+                After a day of rebuilding Castle Valoreth and conquering habits, unwind by the tavern hearth with creatures and allies in a game of bluff and deduction
               </CardDescription>
             </div>
           </div>

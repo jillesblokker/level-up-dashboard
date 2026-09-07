@@ -12,9 +12,69 @@ import { playSFX, SOUNDS } from '@/lib/sound-manager';
 import { Gift, Sparkles } from 'lucide-react';
 import { hapticSuccess } from '@/lib/haptics';
 
+interface BardBallad {
+  title: string;
+  subtitle: string;
+  verses: string[];
+}
+
+const BARD_BALLADS: BardBallad[] = [
+  {
+    title: "The Hearth of Valoreth",
+    subtitle: "A Ballad of Rebirth & Habit Energy",
+    verses: [
+      "Sing hail to Sir {displayName}, of Might and of Mind,",
+      "Level {level} champion, the bravest you’ll find!",
+      "From rubble and mist, ancient towers arise,",
+      "As daily consistency brightens the skies!"
+    ]
+  },
+  {
+    title: "The Race of Turtoisy & Sparky",
+    subtitle: "A Tale of Pacing & Endurance",
+    verses: [
+      "Young Sparky dashed forward till sparks flickered cold,",
+      "While Turtoisy strolled with his calm shell of gold!",
+      "‘Jog slow,’ hummed the sage, ‘for the journey is long,’",
+      "And steady small steps made the runner grow strong!"
+    ]
+  },
+  {
+    title: "The Whispers of Necrion",
+    subtitle: "A Cautionary Song of the Shadow Pit",
+    verses: [
+      "Down deep in the chasm where broken vows sleep,",
+      "Dark Necrion waits for the idle to weep!",
+      "Yet kindle your streak fires and wake with the dawn,",
+      "And every dark shadow is scattered and gone!"
+    ]
+  },
+  {
+    title: "Queen Valandriel’s Golden March",
+    subtitle: "The Sunspire Alliance of the Iron Peaks",
+    verses: [
+      "From high Sunspire halls where the iron guards ride,",
+      "Queen Valandriel watches our stronghold with pride!",
+      "She opens the cauldrons and mountain-pass gate,",
+      "For rulers who master their habits and fate!"
+    ]
+  },
+  {
+    title: "Song of the Twelve Titans",
+    subtitle: "The Fellowship’s Elemental Stand",
+    verses: [
+      "Twelve primal calamities rage through the year,",
+      "Yet allied fellowships conquer all fear!",
+      "With habits as shields and with virtues ablaze,",
+      "We send every beast through the vanishing haze!"
+    ]
+  }
+];
+
 export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { level?: number; displayName?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isAvailable, setIsAvailable] = useState(true);
+  const [balladIndex, setBalladIndex] = useState(0);
 
   useEffect(() => {
     try {
@@ -25,8 +85,13 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
           setIsAvailable(false);
         }
       }
+      // Pick a ballad based on the day of the month
+      const day = new Date().getDate();
+      setBalladIndex(day % BARD_BALLADS.length);
     } catch {}
   }, []);
+
+  const currentBallad = BARD_BALLADS[balladIndex] || BARD_BALLADS[0]!;
 
   const handleListenBallad = () => {
     setUserPreference('traveling-bard-last-visit', new Date().toISOString());
@@ -40,8 +105,13 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
 
     toast({
       title: "🪕 Royal bard's blessing!",
-      description: "The traveling bard's song inspired your realm! Earned +100 XP & 🧠 +5 Focus Points!",
+      description: `Alistair performed "${currentBallad.title}"! Earned +100 XP & 🧠 +5 Focus Points!`,
     });
+  };
+
+  const cycleBallad = () => {
+    playSFX(SOUNDS.BARD_LUTE);
+    setBalladIndex((prev) => (prev + 1) % BARD_BALLADS.length);
   };
 
   if (!isAvailable) return null;
@@ -107,22 +177,35 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
           <div className="p-5 sm:p-6 space-y-4 text-center overflow-y-auto flex-1">
             <div className="space-y-1">
               <DialogTitle className="font-medieval text-xl sm:text-2xl text-amber-300 tracking-wide leading-tight">
-                The traveling bard<br />
-                <span className="text-purple-300 text-lg font-serif">Applaud the troubadour</span>
+                Alistair the traveling bard<br />
+                <span className="text-purple-300 text-sm font-serif italic">{currentBallad.title}</span>
               </DialogTitle>
               <DialogDescription className="text-xs text-purple-300/80 font-medium">
-                Alistair • Royal Realm Troubadour
+                {currentBallad.subtitle}
               </DialogDescription>
             </div>
 
             {/* Ballad Poem Box */}
-            <div className="bg-zinc-950/90 p-4 rounded-xl border border-purple-500/30 text-center space-y-2">
-              <p className="text-amber-200 text-xs italic leading-relaxed font-serif">
-                &quot;Sing hail to Sir {displayName}, of Might and of Mind,<br />
-                Level {level} warrior, the bravest you’ll find!<br />
-                Daily habits completed, daily challenges won,<br />
-                Thrivehaven shall flourish under golden sun!&quot;
+            <div className="bg-zinc-950/90 p-4 rounded-xl border border-purple-500/30 text-center space-y-2 relative group">
+              <p className="text-amber-200 text-xs sm:text-sm italic leading-relaxed font-serif">
+                {currentBallad.verses.map((v, i) => (
+                  <React.Fragment key={i}>
+                    {v.replace('{displayName}', displayName).replace('{level}', String(level))}
+                    {i < currentBallad.verses.length - 1 && <br />}
+                  </React.Fragment>
+                ))}
               </p>
+            </div>
+
+            {/* Switch ballad button */}
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={cycleBallad}
+                className="text-[11px] text-purple-400 hover:text-purple-200 flex items-center gap-1.5 transition-colors underline cursor-pointer"
+              >
+                <span>🪕 Ask Alistair for another ballad ({balladIndex + 1}/{BARD_BALLADS.length})</span>
+              </button>
             </div>
 
             {/* Action Button & Reward Text Below */}
@@ -131,7 +214,7 @@ export function TravelingBardWidget({ level = 10, displayName = 'Hero' }: { leve
                 onClick={handleListenBallad}
                 className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs min-h-[44px] py-3 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.4)] flex items-center justify-center gap-2 uppercase tracking-wider"
               >
-                <Gift className="w-4 h-4 text-amber-300" /> Applaud Bard
+                <Gift className="w-4 h-4 text-amber-300" /> Applaud bard & receive blessing
               </Button>
               <p className="text-[11px] text-amber-400 font-medium flex items-center justify-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Reward: +100 XP & 🧠 +5 Focus Points

@@ -10,7 +10,7 @@ export const CHRONICLES_DATA: Chapter[] = [
     {
         id: 1,
         title: "The Awakening",
-        description: "The Kingdom of Thrivehaven was covered in dark mist. Castle Valoreth lay in ruins, its courtyard overgrown and its gates broken. But when you finished your first daily task, a bright spark of magic lit up the air. Archmage Turtoisy saw it happen: every good habit you complete gives off real energy, letting you clean up the rubble of the north tower and rebuild the kingdom stone by stone.",
+        description: "The Kingdom of Thrivehaven lay smothered in a choking dark mist. Castle Valoreth sat in ruins, its courtyard overgrown and its gates broken. Archmage Turtoisy looked upon the crumbling stones with sorrow: the mist was the exhalation of Necrion, an ancient shadow entity slumbering deep below that feeds on forgotten promises and abandoned disciplines. But when you finished your first daily task, a bright spark of Ether lit the air. Turtoisy smiled: every good habit you complete generates real energy to pierce Necrion's haze, clearing rubble and rebuilding the realm stone by stone.",
         levelRequirement: 1,
         image: "/images/chronicles/chronicle_image_1.webp"
     },
@@ -24,7 +24,7 @@ export const CHRONICLES_DATA: Chapter[] = [
     {
         id: 3,
         title: "Laying the Foundations",
-        description: "With your companion helping, gold earned from your tasks funded the repair work. Rockie and Buldour helped haul heavy granite to patch the broken city gate. You dusted off the dungeon floor, fixed up the old bakery, and swept the ash from the blacksmith forge. Life was returning to Thrivehaven.",
+        description: "With your companion helping, gold earned from your tasks funded the repair work. Rockie and Buldour helped haul heavy granite to patch the broken city gate. Each stone laid into the ramparts wasn't just physical mortar—it reignited ancient ward runes that held back Necrion's shadowy whispers. You dusted off the dungeon floor, fixed up the old bakery, and swept ash from the blacksmith forge. Life was returning to Thrivehaven.",
         levelRequirement: 20,
         image: "/images/chronicles/chronicle_image_3.webp"
     },
@@ -38,14 +38,14 @@ export const CHRONICLES_DATA: Chapter[] = [
     {
         id: 5,
         title: "The Frost Season",
-        description: "When cold winter days arrive over the kingdom, Icey and Blizzey gather near the warm hearth. During chilly seasons, you rebuild Thrivehaven through focused home habit tasks, keeping the fortress cozy while frosty winds blow across the peaks.",
+        description: "When cold winter days arrive over the kingdom, Icey and Blizzey gather near the warm hearth. During chilly seasons, lethargy threatens to take hold—the very complacency Necrion relies upon to snuff out human will. But through focused home habit tasks, you keep the fortress cozy and your streak fires roaring while frosty winds blow across the peaks.",
         levelRequirement: 40,
         image: "/images/chronicles/chronicle_image_5.webp"
     },
     {
         id: 6,
         title: "The Iron Peaks Alliance",
-        description: "Queen Valandriel of Iron Peaks rode through your gates with royal guards. Seeing your creatures evolve into mighty forms like Oaky and Seqoio powered by your daily habits, she offered a trade alliance, opening new mountain roads and secret potion recipes in the Alchemist Cauldron.",
+        description: "Queen Valandriel of the Sunspire Empire rode through your gates flanked by her royal Iron Peaks guard. Seeing your creatures evolve into mighty forms like Oaky and Seqoio powered by daily habits, she offered an imperial trade alliance, opening new mountain roads and secret potion recipes in the Alchemist Cauldron to unite against the gathering gloom.",
         levelRequirement: 50,
         image: "/images/chronicles/chronicle_image_6.webp"
     },
@@ -59,7 +59,7 @@ export const CHRONICLES_DATA: Chapter[] = [
     {
         id: 8,
         title: "The Shadow's Edge",
-        description: "Every bright fire casts a shadow. Deep under the earth, an ancient enemy named Necrion woke up. Necrion grows stronger whenever people break their promises or give up on their habits. Only your daily streak pyres keep his dark mist from creeping back into town.",
+        description: "Every bright fire casts a shadow. Deep under the earth, the ancient enemy Necrion fully stirred, provoked by the brilliance of your restored citadel. Necrion hungers whenever people break their promises or give up on their goals, sending shadow tendrils toward the outer ramparts. Only your daily streak pyres and allied fellowships keep his darkness from breaching the gates.",
         levelRequirement: 70,
         image: "/images/chronicles/chronicle_image_8.webp"
     },

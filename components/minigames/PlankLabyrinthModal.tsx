@@ -71,10 +71,10 @@ export function PlankLabyrinthModal({ isOpen, onClose }: PlankLabyrinthModalProp
             <Footprints className="w-6 h-6 text-amber-400 animate-pulse" />
           </div>
           <DialogTitle className="text-2xl font-medieval text-amber-300">
-            Plank Labyrinth Trail
+            Plank labyrinth trail
           </DialogTitle>
-          <DialogDescription className="text-xs text-zinc-400 italic">
-            Tap the town tiles sequentially (1 → 2 → 3 → 4 → 5) to pave the road to the King’s Altar!
+          <DialogDescription className="text-xs text-zinc-300 italic leading-relaxed pt-1">
+            The Master Builders of Castle Valoreth teach that every grand citadel is paved one stepping stone at a time. Tap the nodes sequentially (1 → 5) without skipping ahead to reconnect the King’s Shrine!
           </DialogDescription>
         </DialogHeader>
 
@@ -103,8 +103,8 @@ export function PlankLabyrinthModal({ isOpen, onClose }: PlankLabyrinthModalProp
           </div>
 
           {isCompleted && (
-            <div className="p-3 bg-amber-500/20 border border-amber-400/50 rounded-xl text-xs font-bold text-amber-300 animate-in fade-in">
-              ✨ King’s Path Connected! +250 Gold & 3x Building Blocks awarded.
+            <div className="p-3 bg-amber-500/20 border border-amber-400/50 rounded-xl text-xs font-bold text-amber-300 animate-in fade-in leading-relaxed">
+              ✨ Master builder’s lesson proven! Stepping steadily without rushing ahead reconnected the King’s Shrine. Awarded +250 Gold & 3x Crafting Blocks.
             </div>
           )}
         </div>

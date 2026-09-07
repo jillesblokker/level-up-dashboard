@@ -75,10 +75,10 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
             <Wand2 className="w-6 h-6 text-purple-300 animate-spin" />
           </div>
           <DialogTitle className="text-2xl font-medieval text-purple-200">
-            Town Fortune Tarot Reading
+            Town fortune tarot reading
           </DialogTitle>
-          <DialogDescription className="text-xs text-zinc-400 italic">
-            Draw a daily Tarot Card in town to receive active daily habit blessings and gold offerings.
+          <DialogDescription className="text-xs text-zinc-300 italic leading-relaxed pt-1">
+            The royal Cartomancer reads the shifting Ether currents across Thrivehaven. Draw a daily card to reveal how today’s discipline channels ancient blessings into the realm!
           </DialogDescription>
         </DialogHeader>
 
