@@ -2,6 +2,7 @@
 
 import { logger } from "@/lib/logger";
 import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Wind, Sparkles, ScrollText, Loader2 } from 'lucide-react'
@@ -28,7 +29,8 @@ export interface BreathingExercise {
     name: string;
     badge: string;
     characterName: string;
-    characterAvatar: string;
+    characterImage: string;
+    characterAvatar?: string;
     characterTip: string;
     iconEmoji: string;
     phases: BreathPhase[];
@@ -53,6 +55,7 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
         name: 'Box breathing',
         badge: '4-4-4-4',
         characterName: 'Sage Owl',
+        characterImage: '/images/creatures/SageOwl.webp',
         characterAvatar: '🦉',
         characterTip: 'A calm breath sharpens the mind for every quest.',
         iconEmoji: '⏹️',
@@ -117,6 +120,7 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
         name: '4-7-8 Deep calm',
         badge: '4-7-8',
         characterName: 'Seqoio',
+        characterImage: '/images/creatures/Seqoio.webp',
         characterAvatar: '🌲',
         characterTip: 'Even ancient roots pause to drink the quiet rain.',
         iconEmoji: '🌙',
@@ -171,6 +175,7 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
         name: 'Coherent rhythm',
         badge: '6-6',
         characterName: 'Spirit Sprite',
+        characterImage: '/images/creatures/SpiritSprite.webp',
         characterAvatar: '✨',
         characterTip: 'Flow like the river; gentle consistency moves mountains.',
         iconEmoji: '🌊',
@@ -215,6 +220,7 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
         name: 'Equanimity breath',
         badge: '4-4-4',
         characterName: 'Ember Drake',
+        characterImage: '/images/creatures/EmberDrake.webp',
         characterAvatar: '🐉',
         characterTip: 'Kindle stillness within; rest fuels tomorrow’s victories.',
         iconEmoji: '🍃',
@@ -427,7 +433,7 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className={cn("max-w-md bg-zinc-950 text-zinc-100 overflow-hidden shadow-2xl transition-colors duration-700", activeExercise.theme.dialogBorder, activeExercise.theme.dialogShadow)}>
+            <DialogContent className={cn("max-w-md max-h-[92vh] overflow-y-auto bg-zinc-950 text-zinc-100 shadow-2xl transition-colors duration-700", activeExercise.theme.dialogBorder, activeExercise.theme.dialogShadow)}>
                 <div className={cn("absolute inset-0 bg-gradient-to-b to-transparent pointer-events-none transition-colors duration-700", activeExercise.theme.topGradient)} />
 
                 <DialogHeader className="relative z-10 space-y-1.5">
@@ -439,17 +445,64 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="relative z-10 flex flex-col items-center justify-center py-6 space-y-7">
-                    {/* Character Whisper & Technique Banner */}
-                    <div className="text-center space-y-1.5 max-w-xs px-2">
-                        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-zinc-900/90 border border-zinc-800 shadow-sm text-xs font-serif text-amber-200/90">
-                            <span>{activeExercise.characterAvatar}</span>
-                            <span className="font-semibold">{activeExercise.characterName}:</span>
-                            <span className="text-zinc-300 font-light italic">“{activeExercise.characterTip}”</span>
+                <div className="relative z-10 flex flex-col items-center justify-center py-4 sm:py-6 space-y-5 sm:space-y-6">
+                    {/* Guardian Guide Selector */}
+                    <div className="flex items-center justify-center gap-2">
+                        {BREATHING_EXERCISES.map((ex, idx) => (
+                            <button
+                                key={ex.id}
+                                type="button"
+                                onClick={() => setExerciseIndex(idx)}
+                                className={cn(
+                                    "relative w-8 h-8 rounded-xl overflow-hidden border transition-all duration-200 cursor-pointer p-0.5",
+                                    exerciseIndex === idx
+                                        ? "border-amber-400 ring-2 ring-amber-400/40 scale-105 bg-amber-950/70 shadow-md shadow-amber-950/50"
+                                        : "border-zinc-800/80 opacity-50 hover:opacity-100 hover:border-zinc-600 bg-zinc-900/60"
+                                )}
+                                title={`${ex.characterName}: ${ex.name} (${ex.badge})`}
+                            >
+                                <Image
+                                    src={ex.characterImage}
+                                    alt={ex.characterName}
+                                    width={32}
+                                    height={32}
+                                    className="object-contain w-full h-full drop-shadow-xs"
+                                    unoptimized
+                                />
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Sacred Guide Avatar Whisper Card */}
+                    <div className="w-full max-w-sm px-1 sm:px-2">
+                        <div className="relative flex items-center gap-3 p-3 rounded-2xl bg-zinc-900/90 border border-amber-500/30 shadow-xl backdrop-blur-xs transition-all duration-300 hover:border-amber-500/50">
+                            {/* Guide Avatar Portrait Frame */}
+                            <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-amber-950/40 via-zinc-900 to-zinc-950 border border-amber-500/40 shadow-md overflow-hidden shrink-0 flex items-center justify-center p-1">
+                                <Image
+                                    src={activeExercise.characterImage}
+                                    alt={activeExercise.characterName}
+                                    width={56}
+                                    height={56}
+                                    className="object-contain w-full h-full drop-shadow-md"
+                                    unoptimized
+                                />
+                            </div>
+
+                            {/* Dialogue & Technique Tag */}
+                            <div className="flex-1 min-w-0 text-left space-y-1">
+                                <div className="flex items-center justify-between gap-1.5">
+                                    <span className="text-xs sm:text-sm font-serif font-bold text-amber-300 tracking-wide truncate">
+                                        {activeExercise.characterName}
+                                    </span>
+                                    <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 bg-zinc-800/80 border border-zinc-700/60 px-2 py-0.5 rounded-md shrink-0">
+                                        {activeExercise.name} · {activeExercise.badge}
+                                    </span>
+                                </div>
+                                <p className="text-xs text-zinc-300 font-serif italic leading-relaxed">
+                                    &ldquo;{activeExercise.characterTip}&rdquo;
+                                </p>
+                            </div>
                         </div>
-                        <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-bold block pt-0.5">
-                            {activeExercise.name} · {activeExercise.badge}
-                        </span>
                     </div>
 
                     {/* Breathing Visual */}
