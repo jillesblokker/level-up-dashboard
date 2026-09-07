@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 import { cn } from "@/lib/utils";
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hammer, Heart, AlertCircle, Loader2, Sparkles, AlertTriangle, Star, Coins, Clock, Check, ChevronDown, Utensils, Compass, Shield } from "lucide-react"
+import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hammer, Heart, AlertCircle, Loader2, Sparkles, AlertTriangle, Star, Coins, Clock, Check, ChevronDown, Utensils, Compass, Shield, FlaskConical, Zap } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
@@ -18,6 +18,11 @@ import { ElementalAura } from '@/components/character/elemental-aura'
 import { LegacyRoadmap } from "@/components/character/legacy-roadmap"
 import { playSFX } from "@/lib/sound-manager";
 import dynamic from 'next/dynamic';
+
+const ApothecaModal = dynamic(
+  () => import('@/components/kingdom/apotheca-modal').then((mod) => mod.ApothecaModal),
+  { ssr: false }
+);
 import { Progress } from "@/components/ui/progress"
 import {
   AlertDialog,
@@ -138,6 +143,7 @@ export default function CharacterPage() {
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [showFocusModal, setShowFocusModal] = useState(false)
+  const [showApothecaModal, setShowApothecaModal] = useState(false)
   const [activePotionPerks, setActivePotionPerks] = useState<{ name: string, effect: string, expiresAt: string }[]>([])
   const [activeTab, setActiveTab] = useState("titles")
 
@@ -1053,100 +1059,224 @@ export default function CharacterPage() {
                         setCharacterStats(prev => ({ ...prev, gold: stats.gold, focus_points: stats.focus_points || 0 }));
                       }}
                     />
+
+                    {/* Apotheca Elixirs Modal */}
+                    <ApothecaModal
+                      open={showApothecaModal}
+                      onOpenChange={setShowApothecaModal}
+                      onComplete={() => {
+                        const stats = getCharacterStats();
+                        setCharacterStats(prev => ({ ...prev, gold: stats.gold, focus_points: stats.focus_points || 0 }));
+                      }}
+                    />
                   </div>
                 </div>
-                {/* Right: Active Bonuses */}
-                <div className="flex flex-col h-full">
-                  <h3 className="text-lg font-medium mb-2">{TEXT_CONTENT.character.ui.overview.activeBonuses}</h3>
-                  <div className="flex-1 flex flex-col gap-4">
-                    {perks.filter((p) => p.active && p.unlocked).length === 0 && (
-                      <Card className="bg-black border-amber-800 h-full flex-1 flex flex-col items-center justify-center min-h-[300px]">
-                        <CardContent className="pt-6 flex items-center justify-center h-full">
-                          <div className="flex items-center gap-4 text-center">
-                            {/* Blessing image */}
-                            <div className="relative w-32 h-32 flex-shrink-0">
-                              <Image
-                                src="/images/items/blessing.webp"
-                                alt={TEXT_CONTENT.character.ui.overview.noBonuses}
-                                fill
-                                className="object-contain opacity-50 rounded"
-                              />
-                            </div>
-                            <p className="text-muted-foreground font-serif">{TEXT_CONTENT.character.ui.overview.noBonuses}</p>
-                          </div>
-                        </CardContent>
-                      </Card>
+
+                {/* Right: Active Bonuses & Altar */}
+                <div className="space-y-6 flex flex-col justify-between">
+                  <div>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-lg font-medium">{TEXT_CONTENT.character.ui.overview.activeBonuses}</h3>
+                        {perks.filter((p) => p.active && p.unlocked).length > 0 || activePotionPerks.length > 0 ? (
+                          <Badge variant="outline" className="text-emerald-400 border-emerald-500/40 text-xs">
+                            {perks.filter((p) => p.active && p.unlocked).length + activePotionPerks.length} active
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-amber-400/80 border-amber-500/30 text-xs font-serif">
+                            Altar of blessings
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Active Perks List */}
+                    {perks.filter((p) => p.active && p.unlocked).length > 0 && (
+                      <div className="space-y-3 mb-4">
+                        {perks
+                          .filter((p) => p.active && p.unlocked)
+                          .map((perk) => (
+                            <Card
+                              key={perk.id}
+                              className="bg-zinc-950 border-amber-800/30"
+                              aria-label={`active-bonus-${perk.id}`}
+                            >
+                              <CardHeader className="pb-2">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    {(() => {
+                                      const meta = categoryMeta[perk.category as keyof typeof categoryMeta];
+                                      if (meta) {
+                                        const Icon = meta.icon;
+                                        return <Icon className={`h-5 w-5 shrink-0 ${meta.iconClass}`} />;
+                                      }
+                                      return null;
+                                    })()}
+                                    <CardTitle className="text-base font-medium">{perk.name}</CardTitle>
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => deactivatePerk(perk.id)}
+                                    className="h-6 w-6 p-0 text-red-400 hover:text-red-300"
+                                    aria-label={TEXT_CONTENT.character.perks.deactivate + ` ${perk.name}`}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="space-y-2">
+                                  <Badge className="bg-purple-500 hover:bg-purple-600">Level {perk.level}</Badge>
+                                  <p className="text-sm text-muted-foreground">
+                                    {perk.effect.replace("per level", `(${perk.level * 10}% total)`)}
+                                  </p>
+                                  <p className="text-xs text-amber-400">
+                                    {getTimeUntilExpiry(perk)}
+                                  </p>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                      </div>
                     )}
-                    {perks
-                      .filter((p) => p.active && p.unlocked)
-                      .map((perk) => (
-                        <Card
-                          key={perk.id}
-                          className="bg-zinc-950 border-amber-800/30"
-                          aria-label={`active-bonus-${perk.id}`}
-                        >
-                          <CardHeader className="pb-2">
-                            <div className="flex items-center justify-between">
+
+                    {/* Active Potion Perks */}
+                    {activePotionPerks.length > 0 && (
+                      <div className="space-y-3 mb-4">
+                        {activePotionPerks.map((perk) => (
+                          <Card key={perk.name} className="bg-black border-amber-800" aria-label={`active-bonus-potion-${perk.name}`}>
+                            <CardHeader className="pb-2">
                               <div className="flex items-center gap-2">
-                                {(() => {
-                                  const meta = categoryMeta[perk.category as keyof typeof categoryMeta];
-                                  if (meta) {
-                                    const Icon = meta.icon;
-                                    return <Icon className={`h-5 w-5 shrink-0 ${meta.iconClass}`} />;
-                                  }
-                                  return null;
-                                })()}
-                                <CardTitle className="text-base font-medium">{perk.name}</CardTitle>
+                                <CardTitle className="text-base font-medium">{TEXT_CONTENT.character.activePerkCard.potionPerkObs.replace("{name}", perk.name)}</CardTitle>
                               </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => deactivatePerk(perk.id)}
-                                className="h-6 w-6 p-0 text-red-400 hover:text-red-300"
-                                aria-label={TEXT_CONTENT.character.perks.deactivate + ` ${perk.name}`}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="space-y-2">
-                              <Badge className="bg-purple-500 hover:bg-purple-600">Level {perk.level}</Badge>
-                              <p className="text-sm text-muted-foreground">
-                                {perk.effect.replace("per level", `(${perk.level * 10}% total)`)}
-                              </p>
-                              <p className="text-xs text-amber-400">
-                                {getTimeUntilExpiry(perk)}
-                              </p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    {activePotionPerks.length > 0 && activePotionPerks.map((perk) => (
-                      <Card key={perk.name} className="bg-black border-amber-800" aria-label={`active-bonus-potion-${perk.name}`}>
-                        <CardHeader className="pb-2">
-                          <div className="flex items-center gap-2">
-                            <CardTitle className="text-base font-medium">{TEXT_CONTENT.character.activePerkCard.potionPerkObs.replace("{name}", perk.name)}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-2">
+                                <p className="text-sm text-muted-foreground">{perk.effect}</p>
+                                <p className="text-xs text-amber-400">
+                                  {(() => {
+                                    const expires = new Date(perk.expiresAt)
+                                    const now = new Date()
+                                    const diff = expires.getTime() - now.getTime()
+                                    if (diff <= 0) return "Expired"
+                                    const hours = Math.floor(diff / (60 * 60 * 1000))
+                                    const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000))
+                                    return `${hours}h ${minutes}m remaining`
+                                  })()}
+                                </p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Empty State: Archmage Turtoisy at the Sacred Altar */}
+                    {perks.filter((p) => p.active && p.unlocked).length === 0 && activePotionPerks.length === 0 && (
+                      <div className="relative overflow-hidden rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-950/25 via-[#14121a] to-[#0c0f17] p-4 shadow-lg">
+                        <div className="flex items-start gap-4">
+                          {/* Turtoisy Creature Avatar */}
+                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-amber-400/50 bg-gradient-to-b from-amber-500/20 to-zinc-950 p-1 shadow-[0_0_15px_rgba(245,158,11,0.2)] shrink-0 overflow-hidden">
+                            <Image
+                              src="/images/creatures/Turtoisy.webp"
+                              alt="Archmage Turtoisy"
+                              fill
+                              className="object-cover rounded-xl"
+                            />
                           </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <p className="text-sm text-muted-foreground">{perk.effect}</p>
-                            <p className="text-xs text-amber-400">
-                              {(() => {
-                                const expires = new Date(perk.expiresAt)
-                                const now = new Date()
-                                const diff = expires.getTime() - now.getTime()
-                                if (diff <= 0) return "Expired"
-                                const hours = Math.floor(diff / (60 * 60 * 1000))
-                                const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000))
-                                return `${hours}h ${minutes}m remaining`
-                              })()}
+
+                          {/* Dialogue quote */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                              <span className="text-xs font-bold text-amber-300 tracking-wide flex items-center gap-1.5 font-serif">
+                                <span>🐢</span> Archmage Turtoisy
+                              </span>
+                              <span className="text-[11px] text-zinc-400">• Sacred altar</span>
+                            </div>
+                            <p
+                              style={{ fontFamily: 'var(--font-libre-baskerville), Georgia, serif' }}
+                              className="text-xs sm:text-[13px] text-zinc-300 italic leading-relaxed normal-case border-l-2 border-amber-500/40 pl-2.5 py-0.5"
+                            >
+                              &ldquo;No blessings active right now. Activate a perk or brew an elixir to empower your stats.&rdquo;
                             </p>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Middle: Available Empowerments (Directly mirrors Alchemy Essences Vault) */}
+                  <div className="pt-4 mt-4 border-t border-amber-900/30">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-xs font-serif font-bold text-amber-300 uppercase tracking-widest flex items-center gap-1.5">
+                        <span>⚡</span> Available Empowerments
+                      </h4>
+                      <span className="text-[11px] text-zinc-400">Quick sockets</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2.5 text-xs font-serif">
+                      {/* Perk Socket */}
+                      <div className="flex flex-col justify-between p-2.5 bg-gradient-to-r from-purple-950/40 via-[#181124] to-[#0f1526] rounded-lg border border-purple-500/30 shadow-inner">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="w-7 h-7 rounded-full border border-purple-400 bg-radial from-purple-500 to-purple-950 flex items-center justify-center text-xs shadow-[0_0_8px_rgba(168,85,247,0.4)] shrink-0">✨</span>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-slate-200 font-bold truncate">Class perk</div>
+                            <div className="text-[10px] text-purple-300/80">{perks.filter((p) => p.unlocked).length} unlocked</div>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setActiveTab("perks");
+                            const el = document.getElementById("character-vault-tabs");
+                            if (el) el.scrollIntoView({ behavior: "smooth" });
+                          }}
+                          className="h-7 text-xs bg-purple-950/60 hover:bg-purple-900 text-purple-200 border-purple-500/40 font-serif w-full"
+                        >
+                          Activate perk →
+                        </Button>
+                      </div>
+
+                      {/* Apotheca Elixir Socket */}
+                      <div className="flex flex-col justify-between p-2.5 bg-gradient-to-r from-emerald-950/40 via-[#0b241c] to-[#0f1526] rounded-lg border border-emerald-500/30 shadow-inner">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="w-7 h-7 rounded-full border border-emerald-400 bg-radial from-emerald-500 to-emerald-950 flex items-center justify-center text-xs shadow-[0_0_8px_rgba(34,197,94,0.4)] shrink-0">🧪</span>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-slate-200 font-bold truncate">Apotheca elixir</div>
+                            <div className="text-[10px] text-emerald-300/80">Herbal stats buff</div>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setShowApothecaModal(true)}
+                          className="h-7 text-xs bg-emerald-950/60 hover:bg-emerald-900 text-emerald-200 border-emerald-500/40 font-serif w-full"
+                        >
+                          Brew elixir →
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom: Focus Surge (Directly mirrors Focus Points Card) */}
+                  <div className="pt-4 mt-4 border-t border-amber-900/30 bg-gradient-to-r from-amber-950/20 via-zinc-950 to-zinc-900 p-3.5 rounded-xl border border-amber-500/20">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+                        <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider">Focus Surge</h4>
+                      </div>
+                      <Button
+                        onClick={() => setShowFocusModal(true)}
+                        size="sm"
+                        className="h-7 text-xs bg-amber-950 hover:bg-amber-900 text-amber-200 border border-amber-500/40 font-bold px-3 font-serif"
+                      >
+                        ⚡ Empower
+                      </Button>
+                    </div>
+                    <p className="text-[11px] text-zinc-400">
+                      Spend focus points to activate immediate double-XP bursts or instant kingdom productivity boosts.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1165,7 +1295,7 @@ export default function CharacterPage() {
           </Card>
 
           {/* Responsive Character Vault Tabs (Horizontal Touch Snap Carousel) */}
-          <div className="flex justify-center w-full">
+          <div id="character-vault-tabs" className="flex justify-center w-full">
             <Tabs defaultValue="titles" value={activeTab} onValueChange={setActiveTab} className="w-full">
               <div className="flex overflow-x-auto snap-x snap-mandatory gap-2 pb-2 custom-scrollbar mobile-scroll-hide w-full mb-6">
                 <TabsList className="flex shrink-0 snap-start space-x-1 p-1.5 bg-zinc-950/90 border border-amber-900/40 rounded-2xl w-full max-w-2xl mx-auto shadow-lg">
