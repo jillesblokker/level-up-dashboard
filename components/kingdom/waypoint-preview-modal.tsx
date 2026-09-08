@@ -26,8 +26,8 @@ const WAYPOINT_REGISTRY: Record<string, WaypointInfo> = {
     image: '/images/kingdom-tiles/Dailyhub.webp',
     description: 'Enter your main habit dashboard to view streak progress, check off daily routines, and earn House Cup virtue energy.',
     destination: '/daily-hub',
-    buttonText: '📅 Enter daily hub',
-    icon: '📅',
+    buttonText: '📜 Enter daily hub',
+    icon: '📜',
     badgeText: 'Habit engine',
     badgeColor: 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300'
   },
@@ -103,8 +103,8 @@ const WAYPOINT_REGISTRY: Record<string, WaypointInfo> = {
     image: '/images/kingdom-tiles/Airship_harbor.webp',
     description: 'Assign citizen crews to airship voyages propelled by your real-world daily habit completions.',
     destination: '/airship-harbor',
-    buttonText: '🛸 Enter skydock',
-    icon: '🛸',
+    buttonText: '⚓ Enter skydock',
+    icon: '⚓',
     badgeText: 'Habit engine',
     badgeColor: 'bg-cyan-950/80 border-cyan-500/50 text-cyan-300'
   },
@@ -290,8 +290,8 @@ const WAYPOINT_REGISTRY: Record<string, WaypointInfo> = {
     image: '/images/kingdom-tiles/Dailyhub.webp',
     description: 'Enter your main habit dashboard to view streak progress, check off daily routines, and earn House Cup virtue energy.',
     destination: '/daily-hub',
-    buttonText: '📅 Enter daily hub',
-    icon: '📅',
+    buttonText: '📜 Enter daily hub',
+    icon: '📜',
     badgeText: 'Habit engine',
     badgeColor: 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300'
   },
@@ -301,8 +301,8 @@ const WAYPOINT_REGISTRY: Record<string, WaypointInfo> = {
     image: '/images/kingdom-tiles/Dailyhub.webp',
     description: 'Enter your main habit dashboard to view streak progress, check off daily routines, and earn House Cup virtue energy.',
     destination: '/daily-hub',
-    buttonText: '📅 Enter daily hub',
-    icon: '📅',
+    buttonText: '📜 Enter daily hub',
+    icon: '📜',
     badgeText: 'Habit engine',
     badgeColor: 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300'
   }
@@ -358,7 +358,25 @@ export function WaypointPreviewModal({
             "absolute top-3 left-3 z-20 px-2.5 py-1 rounded-full border text-[10px] sm:text-xs font-mono font-bold flex items-center gap-1.5 shadow-lg backdrop-blur-md",
             info.badgeColor
           )}>
-            <span>{info.icon}</span>
+            <div className="w-4 h-4 rounded-full overflow-hidden bg-black/40 relative flex items-center justify-center shrink-0">
+              {info.image ? (
+                <Image
+                  src={info.image}
+                  alt={info.title}
+                  width={16}
+                  height={16}
+                  className="object-cover"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLElement).style.display = 'none';
+                    const fallback = e.currentTarget.parentElement?.querySelector('.waypoint-badge-fallback');
+                    if (fallback) (fallback as HTMLElement).style.display = 'inline';
+                  }}
+                />
+              ) : null}
+              <span className={cn("waypoint-badge-fallback text-[10px]", info.image ? "hidden" : "inline")}>
+                {info.icon}
+              </span>
+            </div>
             <span>{info.badgeText}</span>
           </div>
         </div>
@@ -366,8 +384,26 @@ export function WaypointPreviewModal({
         {/* Content Section */}
         <div className="p-4 sm:p-6 space-y-4">
           <DialogHeader className="text-left space-y-1">
-            <DialogTitle className="text-xl sm:text-2xl font-black text-amber-200 tracking-tight flex items-center gap-2">
-              <span>{info.icon}</span>
+            <DialogTitle className="text-xl sm:text-2xl font-black text-amber-200 tracking-tight flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-amber-950/40 border border-amber-500/30 overflow-hidden relative flex items-center justify-center shrink-0 p-0.5">
+                {info.image ? (
+                  <Image
+                    src={info.image}
+                    alt={info.title}
+                    width={28}
+                    height={28}
+                    className="object-cover"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLElement).style.display = 'none';
+                      const fallback = e.currentTarget.parentElement?.querySelector('.waypoint-title-fallback');
+                      if (fallback) (fallback as HTMLElement).style.display = 'inline';
+                    }}
+                  />
+                ) : null}
+                <span className={cn("waypoint-title-fallback text-base", info.image ? "hidden" : "inline")}>
+                  {info.icon}
+                </span>
+              </div>
               <span>{info.title}</span>
             </DialogTitle>
             <DialogDescription className="text-xs sm:text-sm text-zinc-400 font-medium">

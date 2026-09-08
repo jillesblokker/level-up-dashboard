@@ -91,7 +91,7 @@ const EconomyTransparency = dynamic(
   () => import('@/components/economy-transparency').then(m => ({ default: m.EconomyTransparency })),
   { loading: () => <div className="animate-pulse h-40 bg-zinc-900 rounded-xl border border-zinc-800" />, ssr: false }
 );
-import { Users, Crown, Shield, FlaskConical, Plane } from "lucide-react";
+import { Users, Crown, Shield, FlaskConical, Wind } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TEXT_CONTENT } from "@/lib/text-content";
 import { CitizensTab } from "@/components/kingdom/citizens-tab";
@@ -1832,7 +1832,7 @@ export function KingdomClient() {
                 <span>Enhanced</span>
               </TabsTrigger>
               <TabsTrigger value="airship" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
-                <Plane className="w-4 h-4" />
+                <Wind className="w-4 h-4" />
                 <span>Airship Harbor</span>
               </TabsTrigger>
             </TabsList>

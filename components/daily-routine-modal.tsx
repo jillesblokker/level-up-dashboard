@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Trophy, Calendar, CheckSquare, Gift, ArrowRight, Flame, Shield, Sun } from "lucide-react";
+import { Sparkles, Trophy, ScrollText, CheckSquare, Gift, ArrowRight, Flame, Shield, Sun } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { addToCharacterStat } from '@/lib/character-stats-service';
 import { getUserScopedItem } from "@/lib/user-scoped-storage";
@@ -105,7 +105,7 @@ export function DailyRoutineModal({
           <div className="space-y-4 py-2 animate-in fade-in duration-300">
             <div className="text-center space-y-1">
               <div className="mx-auto w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-1">
-                <Calendar className="w-5 h-5 text-amber-400" />
+                <ScrollText className="w-5 h-5 text-amber-400" />
               </div>
               <h3 className="font-medieval text-xl text-amber-200">1. Yesterday&apos;s recap</h3>
               <p className="text-xs text-zinc-400 italic">Reviewing your momentum & overnight realm events.</p>

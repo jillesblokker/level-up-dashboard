@@ -37,7 +37,7 @@ export function DragonMountCard({ heroLevel = 1 }: { heroLevel?: number }) {
             <div>
               <CardTitle className="font-serif text-red-300 text-base flex items-center gap-2">
                 Ignis the Ancient Dragon Mount
-                {isFlying && <Badge className="bg-amber-500 text-black font-bold text-[10px] animate-pulse">In Flight ✈️</Badge>}
+                {isFlying && <Badge className="bg-amber-500 text-black font-bold text-[10px] animate-pulse">In flight 🪽</Badge>}
               </CardTitle>
               <CardDescription className="text-zinc-400 text-xs">
                 {isFlyable ? "Level 50 Unlocked: Flyable Battle Mount" : "Requires Hero Level 50+ to Take Flight (Current Lvl: " + heroLevel + ")"}

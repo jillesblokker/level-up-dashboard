@@ -2,7 +2,7 @@
 
 import { logger } from "@/lib/logger";
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { Plane, Sparkles, Check, Flame, Shield, Users, Clock, Trophy, Trash2, ArrowRight } from "lucide-react"
+import { Wind, Sparkles, Check, Flame, Shield, Users, Clock, Trophy, Trash2, ArrowRight, Compass } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
@@ -25,7 +25,7 @@ interface JourneyRegion {
   category: 'knowledge' | 'might' | 'wellness' | 'social';
   description: string;
   affinityElements: string[];
-  rewards: { id: string; name: string; emoji: string; quantity: number }[];
+  rewards: { id: string; name: string; emoji: string; image?: string; quantity: number }[];
 }
 
 const HABIT_JOURNEYS: JourneyRegion[] = [
@@ -36,8 +36,8 @@ const HABIT_JOURNEYS: JourneyRegion[] = [
     description: 'Advance by completing Knowledge or Intelligence habits. Collect magical crystals and pure water.',
     affinityElements: ['water', 'ice'],
     rewards: [
-      { id: 'material-crystal', name: 'Essence Crystals', emoji: '💎', quantity: 2 },
-      { id: 'material-water', name: 'Water', emoji: '💧', quantity: 3 }
+      { id: 'material-crystal', name: 'Essence Crystals', emoji: '💎', image: '/images/items/materials/material-crystal.webp', quantity: 2 },
+      { id: 'material-water', name: 'Water', emoji: '💧', image: '/images/items/materials/material-water.webp', quantity: 3 }
     ]
   },
   {
@@ -47,8 +47,8 @@ const HABIT_JOURNEYS: JourneyRegion[] = [
     description: 'Advance by completing Might or Agility habits. Forge ahead for solid steel and building logs.',
     affinityElements: ['fire', 'earth'],
     rewards: [
-      { id: 'material-steel', name: 'Steel Ingots', emoji: '⚔️', quantity: 2 },
-      { id: 'material-logs', name: 'Wooden Logs', emoji: '🪵', quantity: 4 }
+      { id: 'material-steel', name: 'Steel Ingots', emoji: '⚔️', image: '/images/items/materials/material-steel.webp', quantity: 2 },
+      { id: 'material-logs', name: 'Wooden Logs', emoji: '🪵', image: '/images/items/materials/material-logs.webp', quantity: 4 }
     ]
   },
   {
@@ -58,8 +58,8 @@ const HABIT_JOURNEYS: JourneyRegion[] = [
     description: 'Advance by completing Wellness, Vitality, or Spiritual habits. Net rare rainbow fish and mountain water.',
     affinityElements: ['nature', 'water'],
     rewards: [
-      { id: 'fish-rainbow', name: 'Rainbow Fish', emoji: '🌈🐟', quantity: 1 },
-      { id: 'material-water', name: 'Water', emoji: '💧', quantity: 2 }
+      { id: 'fish-rainbow', name: 'Rainbow Fish', emoji: '🌈🐟', image: '/images/items/food/fish-rainbow.webp', quantity: 1 },
+      { id: 'material-water', name: 'Water', emoji: '💧', image: '/images/items/materials/material-water.webp', quantity: 2 }
     ]
   },
   {
@@ -69,8 +69,8 @@ const HABIT_JOURNEYS: JourneyRegion[] = [
     description: 'Advance by completing Social or Creative habits. Bring back premium silver and golden fish.',
     affinityElements: ['special', 'earth'],
     rewards: [
-      { id: 'material-silver', name: 'Silver Bars', emoji: '🪙', quantity: 2 },
-      { id: 'fish-silver', name: 'Silver Fish', emoji: '🐟', quantity: 2 }
+      { id: 'material-silver', name: 'Silver Bars', emoji: '🪙', image: '/images/items/materials/material-silver.webp', quantity: 2 },
+      { id: 'fish-silver', name: 'Silver Fish', emoji: '🐟', image: '/images/items/food/fish-silver.webp', quantity: 2 }
     ]
   }
 ];
@@ -678,8 +678,25 @@ export function AirshipHarborTab() {
                             className="p-3.5 bg-gradient-to-r from-amber-950/20 via-zinc-950/80 to-zinc-900/60 border border-amber-500/20 hover:border-amber-500/40 rounded-xl flex items-center justify-between gap-3 shadow-md transition-all group"
                           >
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className="w-10 h-10 rounded-lg bg-zinc-900/90 border border-amber-500/20 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform shadow-inner">
-                                {reward.emoji}
+                              <div className="w-10 h-10 rounded-lg bg-zinc-900/90 border border-amber-500/20 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform shadow-inner overflow-hidden relative p-1">
+                                {reward.image ? (
+                                  <Image
+                                    src={reward.image}
+                                    alt={reward.name}
+                                    width={32}
+                                    height={32}
+                                    className="object-contain drop-shadow"
+                                    onError={(e) => {
+                                      // Fallback to emoji if image fails
+                                      (e.currentTarget as HTMLElement).style.display = 'none';
+                                      const fallback = e.currentTarget.parentElement?.querySelector('.emoji-fallback');
+                                      if (fallback) (fallback as HTMLElement).style.display = 'inline';
+                                    }}
+                                  />
+                                ) : null}
+                                <span className={cn("emoji-fallback", reward.image ? "hidden" : "inline")}>
+                                  {reward.emoji}
+                                </span>
                               </div>
                               <div className="min-w-0">
                                 <p className="font-bold text-white text-xs font-serif truncate group-hover:text-amber-200 transition-colors">
@@ -830,7 +847,7 @@ export function AirshipHarborTab() {
           {/* Journeys Selection list */}
           <div className="lg:col-span-1 space-y-4">
             <h3 className="text-lg font-cardo font-bold text-amber-100 flex items-center gap-2 px-1">
-              <Plane className="w-5 h-5 text-amber-500" /> Choose habit journey
+              <Wind className="w-5 h-5 text-amber-500" /> Choose habit journey
             </h3>
             
             <div className="space-y-2.5 max-h-[450px] overflow-y-auto pr-1">
@@ -874,7 +891,7 @@ export function AirshipHarborTab() {
               <div className="space-y-5">
                 <div className="flex items-center gap-3.5 pb-4 border-b border-white/5">
                   <div className="w-12 h-12 rounded-xl bg-amber-950/20 border border-amber-500/20 flex items-center justify-center shrink-0">
-                    <Plane className="w-6 h-6 text-amber-500" />
+                    <Compass className="w-6 h-6 text-amber-500" />
                   </div>
                   <div>
                     <h3 className="font-cardo font-bold text-white text-sm">{selectedJourney.name} setup</h3>

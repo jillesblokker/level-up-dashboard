@@ -160,7 +160,7 @@ export function createGoldGainedNotification(amount: number, source: string) {
       title = "Daily blessing 🌅";
       message = `The kingdom's daily prosperity has granted you ${amount} gold!`;
     } else if (source === 'weekly-bonus') {
-      title = "Weekly fortune 📅";
+      title = "Weekly fortune 📜";
       message = `Your weekly kingdom management has earned you ${amount} gold!`;
     } else if (source.startsWith('tile-collect:')) {
       const tileType = formatCleanName(source.split(':')[1] || '');

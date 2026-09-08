@@ -21,6 +21,7 @@ import {
   ChevronDown,
   Bug,
   Calendar,
+  Sun,
   ShoppingBag
 } from "lucide-react";
 
@@ -272,7 +273,7 @@ export function AccountMenu() {
               aria-label="Daily Hub page"
               onClick={() => setIsOpen(false)}
             >
-              <Calendar className="h-5 w-5 text-amber-400" />
+              <Sun className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">Daily Hub</span>
                 <p className="text-xs text-zinc-400">View streaks and news</p>
