@@ -402,10 +402,11 @@ export default function MarketPage() {
     
     // Generate and save pack to Owned Packs inventory (Buy Moment!)
     const generatedPackData = generatePack(packType.id, Math.random, ownedMythics, hasAstralFortune)
+    const cleanStoredTitle = packType.title ? packType.title.replace(/\bChest\b/gi, 'Pack').trim() : 'Mystery Card Pack'
     const newOwnedPack: OwnedPack = {
       id: `owned_pack_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       packTypeId: packType.id,
-      packTitle: packType.title || 'Mythic Card Pack',
+      packTitle: cleanStoredTitle,
       shortLabel: packType.shortLabel || 'Card Pack',
       purchasedAt: Date.now(),
       packData: generatedPackData
@@ -477,52 +478,52 @@ export default function MarketPage() {
   // Helper to resolve styling, image, and visual type for Owned Packs
   const getOwnedPackMeta = (op: OwnedPack) => {
     const typeId = op.packTypeId?.toLowerCase() || '';
-    const title = op.packTitle?.toLowerCase() || '';
-    const isChest = typeId.startsWith('free_') || title.includes('chest');
+    const rawTitle = op.packTitle || '';
+    const titleLower = rawTitle.toLowerCase();
+    const cleanTitle = rawTitle.replace(/\bChest\b/gi, 'Pack').trim();
 
-    if (isChest) {
-      if (typeId === 'free_monthly' || title.includes('monthly')) {
-        return {
-          isChest: true,
-          image: '',
-          rarity: 'legendary' as const,
-          border: 'border-amber-500/45 hover:border-amber-400/90 shadow-[0_0_18px_rgba(245,158,11,0.15)] hover:shadow-[0_0_30px_rgba(245,158,11,0.35)]',
-          gradient: 'from-amber-950/30 via-zinc-900 to-zinc-900',
-          titleColor: 'text-amber-300',
-          subColor: 'text-amber-400/80',
-          btnColor: 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-500 text-zinc-950 font-black shadow-amber-500/25',
-        };
-      }
-      if (typeId === 'free_mystery' || title.includes('mystery')) {
-        return {
-          isChest: true,
-          image: '',
-          rarity: 'epic' as const,
-          border: 'border-purple-500/35 hover:border-purple-400/80 shadow-[0_0_15px_rgba(168,85,247,0.1)] hover:shadow-[0_0_25px_rgba(168,85,247,0.25)]',
-          gradient: 'from-purple-950/25 via-zinc-900 to-zinc-900',
-          titleColor: 'text-purple-300',
-          subColor: 'text-purple-400/80',
-          btnColor: 'bg-gradient-to-r from-purple-600 via-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white shadow-purple-950/50',
-        };
-      }
-      if (typeId === 'free_weekly' || title.includes('weekly')) {
-        return {
-          isChest: true,
-          image: '',
-          rarity: 'rare' as const,
-          border: 'border-blue-500/35 hover:border-blue-400/80 shadow-[0_0_15px_rgba(59,130,246,0.1)] hover:shadow-[0_0_25px_rgba(59,130,246,0.25)]',
-          gradient: 'from-blue-950/25 via-zinc-900 to-zinc-900',
-          titleColor: 'text-blue-300',
-          subColor: 'text-blue-400/80',
-          btnColor: 'bg-gradient-to-r from-blue-600 via-blue-600 to-cyan-700 hover:from-blue-500 hover:to-cyan-600 text-white shadow-blue-950/50',
-        };
-      }
-      // Default Daily Chest
+    if (typeId === 'free_monthly' || titleLower.includes('monthly')) {
       return {
-        isChest: true,
-        image: '',
-        rarity: 'uncommon' as const,
-        border: 'border-emerald-500/35 hover:border-emerald-400/80 shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_25px_rgba(16,185,129,0.25)]',
+        cleanTitle,
+        image: '/images/packs/monthly-pack.jpg',
+        cardBorder: 'border-2 border-amber-500/50 hover:border-amber-400/90 shadow-[0_0_20px_rgba(245,158,11,0.25)] hover:shadow-[0_0_35px_rgba(245,158,11,0.45)]',
+        packBorder: 'border-amber-400/80 shadow-[0_10px_25px_rgba(245,158,11,0.4)]',
+        gradient: 'from-amber-950/30 via-zinc-900 to-zinc-900',
+        titleColor: 'text-amber-300',
+        subColor: 'text-amber-400/80',
+        btnColor: 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-500 text-zinc-950 font-black shadow-amber-500/25',
+      };
+    }
+    if (typeId === 'free_mystery' || titleLower.includes('mystery')) {
+      return {
+        cleanTitle: cleanTitle.includes('Pack') ? cleanTitle : `${cleanTitle} Pack`,
+        image: '/images/packs/mystery-pack.jpg',
+        cardBorder: 'border-2 border-purple-500/40 hover:border-purple-400/90 shadow-[0_0_20px_rgba(168,85,247,0.2)] hover:shadow-[0_0_35px_rgba(168,85,247,0.35)]',
+        packBorder: 'border-purple-400/80 shadow-[0_10px_25px_rgba(168,85,247,0.4)]',
+        gradient: 'from-purple-950/25 via-zinc-900 to-zinc-900',
+        titleColor: 'text-purple-300',
+        subColor: 'text-purple-400/80',
+        btnColor: 'bg-gradient-to-r from-purple-600 via-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white shadow-purple-950/50',
+      };
+    }
+    if (typeId === 'free_weekly' || titleLower.includes('weekly')) {
+      return {
+        cleanTitle,
+        image: '/images/packs/weekly-pack.jpg',
+        cardBorder: 'border-2 border-blue-500/40 hover:border-blue-400/90 shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_35px_rgba(59,130,246,0.35)]',
+        packBorder: 'border-blue-400/80 shadow-[0_10px_25px_rgba(59,130,246,0.35)]',
+        gradient: 'from-blue-950/25 via-zinc-900 to-zinc-900',
+        titleColor: 'text-blue-300',
+        subColor: 'text-blue-400/80',
+        btnColor: 'bg-gradient-to-r from-blue-600 via-blue-600 to-cyan-700 hover:from-blue-500 hover:to-cyan-600 text-white shadow-blue-950/50',
+      };
+    }
+    if (typeId === 'free_daily' || titleLower.includes('daily')) {
+      return {
+        cleanTitle,
+        image: '/images/packs/daily-pack.jpg',
+        cardBorder: 'border-2 border-emerald-500/40 hover:border-emerald-400/90 shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_35px_rgba(16,185,129,0.35)]',
+        packBorder: 'border-emerald-400/80 shadow-[0_10px_25px_rgba(16,185,129,0.35)]',
         gradient: 'from-emerald-950/25 via-zinc-900 to-zinc-900',
         titleColor: 'text-emerald-300',
         subColor: 'text-emerald-400/80',
@@ -530,25 +531,25 @@ export default function MarketPage() {
       };
     }
 
-    // Card Packs (Drift, Vault, Crown)
-    if (typeId === 'crown' || title.includes('crown')) {
+    // Paid Card Packs (Crown, Vault, Drift)
+    if (typeId === 'crown' || titleLower.includes('crown')) {
       return {
-        isChest: false,
+        cleanTitle,
         image: '/images/packs/crown-pack.jpg',
-        rarity: 'legendary' as const,
-        border: 'border-2 border-amber-500/50 hover:border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.25)] hover:shadow-[0_0_35px_rgba(245,158,11,0.45)]',
+        cardBorder: 'border-2 border-amber-500/50 hover:border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.25)] hover:shadow-[0_0_35px_rgba(245,158,11,0.45)]',
+        packBorder: 'border-amber-400/80 shadow-[0_10px_25px_rgba(245,158,11,0.4)]',
         gradient: 'from-amber-600/20 via-zinc-900 to-zinc-900',
         titleColor: 'text-amber-300',
         subColor: 'text-amber-200/80',
         btnColor: 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-500 text-zinc-950 font-black shadow-amber-500/25',
       };
     }
-    if (typeId === 'vault' || title.includes('vault')) {
+    if (typeId === 'vault' || titleLower.includes('vault')) {
       return {
-        isChest: false,
+        cleanTitle,
         image: '/images/packs/vault-pack.jpg',
-        rarity: 'rare' as const,
-        border: 'border-2 border-purple-500/50 hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.2)] hover:shadow-[0_0_35px_rgba(168,85,247,0.4)]',
+        cardBorder: 'border-2 border-purple-500/50 hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.2)] hover:shadow-[0_0_35px_rgba(168,85,247,0.4)]',
+        packBorder: 'border-purple-400/80 shadow-[0_10px_25px_rgba(168,85,247,0.4)]',
         gradient: 'from-purple-600/20 via-zinc-900 to-zinc-900',
         titleColor: 'text-purple-300',
         subColor: 'text-purple-200/80',
@@ -557,10 +558,10 @@ export default function MarketPage() {
     }
     // Default Drift pack (Tier I)
     return {
-      isChest: false,
+      cleanTitle,
       image: '/images/packs/drift-pack.jpg',
-      rarity: 'uncommon' as const,
-      border: 'border-2 border-cyan-500/40 hover:border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.15)] hover:shadow-[0_0_30px_rgba(6,182,212,0.35)]',
+      cardBorder: 'border-2 border-cyan-500/40 hover:border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.15)] hover:shadow-[0_0_30px_rgba(6,182,212,0.35)]',
+      packBorder: 'border-cyan-400/80 shadow-[0_10px_25px_rgba(6,182,212,0.3)]',
       gradient: 'from-cyan-600/20 via-zinc-900 to-zinc-900',
       titleColor: 'text-cyan-300',
       subColor: 'text-cyan-200/80',
@@ -662,7 +663,13 @@ export default function MarketPage() {
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:gap-6 pt-2">
+                <div className={cn(
+                  "gap-5 lg:gap-6 pt-2",
+                  ownedPacksList.length === 1 && "max-w-sm mx-auto flex justify-center",
+                  ownedPacksList.length === 2 && "max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2",
+                  ownedPacksList.length === 3 && "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+                  ownedPacksList.length >= 4 && "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+                )}>
                   {ownedPacksList.map((op, index) => {
                     const meta = getOwnedPackMeta(op);
                     return (
@@ -674,9 +681,9 @@ export default function MarketPage() {
                           setOpeningPack({ ...op.packData, ownedPackId: op.id });
                         }}
                         className={cn(
-                          "bg-gradient-to-b transition-all duration-300 group flex flex-col justify-between relative overflow-hidden animate-in fade-in slide-in-from-bottom-3 cursor-pointer hover:scale-[1.02] shadow-xl min-h-[390px]",
+                          "bg-gradient-to-b transition-all duration-300 group flex flex-col justify-between relative overflow-hidden animate-in fade-in slide-in-from-bottom-3 cursor-pointer hover:scale-[1.02] shadow-xl min-h-[420px] w-full",
                           meta.gradient,
-                          meta.border
+                          meta.cardBorder
                         )}
                       >
                         <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-40 pointer-events-none" />
@@ -684,41 +691,31 @@ export default function MarketPage() {
                         <div>
                           <CardHeader className="text-center relative z-10 pb-2 pt-4">
                             <CardTitle className={cn("text-xl sm:text-2xl font-black font-serif tracking-wide leading-tight", meta.titleColor)}>
-                              {op.packTitle}
+                              {meta.cleanTitle}
                             </CardTitle>
                             <CardDescription className={cn("text-xs font-mono font-bold tracking-wider uppercase mt-1", meta.subColor)}>
                               {op.shortLabel ? `${op.shortLabel} • Ready to Unpack` : "Ready to Unpack"}
                             </CardDescription>
                           </CardHeader>
 
-                          <CardContent className="text-center relative z-10 space-y-3 px-4">
-                            {meta.isChest ? (
-                              <div className="relative w-full max-w-[170px] h-36 mx-auto flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-                                <TreasureChestVisual
-                                  state="ready"
-                                  rarity={meta.rarity}
-                                  tierLabel={op.shortLabel || "Ready"}
-                                  hideLabels={true}
-                                  className="w-full h-full bg-transparent border-0 p-0 shadow-none"
-                                />
-                              </div>
-                            ) : (
-                              <div className={cn(
-                                "relative w-36 h-48 sm:w-40 sm:h-52 mx-auto rounded-2xl overflow-hidden shadow-2xl border-2 transition-all duration-500 group-hover:scale-105 group-hover:rotate-1 group-hover:-translate-y-1",
-                                meta.border
-                              )}>
-                                <Image
-                                  src={meta.image}
-                                  alt={op.packTitle}
-                                  fill
-                                  sizes="(max-width: 768px) 160px, 180px"
-                                  className="object-cover"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                              </div>
-                            )}
+                          <CardContent className="text-center relative z-10 space-y-4 px-4">
+                            {/* 3D Realistic Tactile Booster Pack Visual (Identical to Buy Card Packs) */}
+                            <div className={cn(
+                              "relative w-36 h-48 sm:w-44 sm:h-56 mx-auto rounded-2xl overflow-hidden shadow-2xl border-2 transition-all duration-500 group-hover:scale-105 group-hover:rotate-1 group-hover:-translate-y-1",
+                              meta.packBorder
+                            )}>
+                              <Image
+                                src={meta.image}
+                                alt={meta.cleanTitle}
+                                fill
+                                sizes="(max-width: 768px) 160px, 180px"
+                                className="object-cover"
+                              />
+                              {/* Foil Sheen Glint Effect on Hover */}
+                              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                            </div>
 
-                            <p className="text-xs text-zinc-300 leading-snug line-clamp-2 px-1">
+                            <p className="text-xs sm:text-sm text-zinc-300 leading-snug line-clamp-2 px-1">
                               Tap to begin scratching cards and reveal 3 matching symbols to win!
                             </p>
                           </CardContent>
