@@ -13,6 +13,7 @@ interface TreasureChestVisualProps {
   tierColor?: string
   className?: string
   onClick?: () => void
+  hideLabels?: boolean
 }
 
 interface RarityTheme {
@@ -166,7 +167,8 @@ export function TreasureChestVisual({
   tierLabel,
   tierColor,
   className,
-  onClick
+  onClick,
+  hideLabels = false
 }: TreasureChestVisualProps) {
   const uniqueId = useId().replace(/:/g, '')
   const activeRarity = resolveRarity(rarity, tierLabel)
@@ -374,36 +376,38 @@ export function TreasureChestVisual({
       </div>
 
       {/* Tier Label Badge */}
-      <div className="mt-2 text-center space-y-1 z-10">
-        <span className={cn(
-          "px-3 py-1 rounded-full font-serif text-xs font-bold tracking-wider capitalize shadow-md border",
-          theme.badgeBg,
-          theme.badgeText,
-          theme.badgeBorder
-        )}>
-          {displayLabel}
-        </span>
+      {!hideLabels && (
+        <div className="mt-2 text-center space-y-1 z-10">
+          <span className={cn(
+            "px-3 py-1 rounded-full font-serif text-xs font-bold tracking-wider capitalize shadow-md border",
+            theme.badgeBg,
+            theme.badgeText,
+            theme.badgeBorder
+          )}>
+            {displayLabel}
+          </span>
 
-        {isClaimed && (
-          <div className="flex items-center justify-center gap-1 text-[11px] text-zinc-400 font-medium mt-1 font-serif">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-            Claimed today
-          </div>
-        )}
+          {isClaimed && (
+            <div className="flex items-center justify-center gap-1 text-[11px] text-zinc-400 font-medium mt-1 font-serif">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              Claimed today
+            </div>
+          )}
 
-        {isLocked && (
-          <div className="flex items-center justify-center gap-1 text-[10px] sm:text-[11px] text-zinc-400 font-medium mt-1 font-serif">
-            <Lock className="w-3.5 h-3.5 text-amber-500" />
-            Locked • objective required
-          </div>
-        )}
+          {isLocked && (
+            <div className="flex items-center justify-center gap-1 text-[10px] sm:text-[11px] text-zinc-400 font-medium mt-1 font-serif">
+              <Lock className="w-3.5 h-3.5 text-amber-500" />
+              Locked • objective required
+            </div>
+          )}
 
-        {isReady && (
-          <div className={cn("text-[11px] font-bold animate-pulse mt-1 font-serif", theme.badgeText)}>
-            Tap to open {theme.name.toLowerCase()} chest!
-          </div>
-        )}
-      </div>
+          {isReady && (
+            <div className={cn("text-[11px] font-bold animate-pulse mt-1 font-serif", theme.badgeText)}>
+              Tap to open {theme.name.toLowerCase()} chest!
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

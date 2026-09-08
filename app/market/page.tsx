@@ -17,6 +17,7 @@ import { toast } from "@/components/ui/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TileType } from "@/types/tiles"
 import { PACK_TYPES, FREE_PACK_TYPES, generatePack } from "@/lib/pack-generator"
+import { TreasureChestVisual } from "@/components/ui/treasure-chest-visual"
 import dynamic from 'next/dynamic'
 const PackOpeningModal = dynamic(
   () => import('@/components/pack-opening-modal').then((mod) => mod.PackOpeningModal),
@@ -531,17 +532,17 @@ export default function MarketPage() {
                   ✨ Mystic Bazaar • Cards of Fate
                 </Badge>
                 <h2 className="font-medieval text-2xl sm:text-4xl text-amber-300 tracking-wide drop-shadow-md">
-                  Mystic bazaar
+                  Mystic Bazaar
                 </h2>
                 <p className="text-xs sm:text-sm text-zinc-200 max-w-2xl leading-relaxed italic drop-shadow-sm">
-                  Find your destiny! Unroll daily Chrono Chests, collect Mythic creature card packs, and unlock legendary realm blueprint tiles.
+                  Find Your Destiny! Unlock Daily Mystic Chests, Collect Mystery Cards, and Unlock Legendary Realm Blueprint Tiles.
                 </p>
                 <div className="flex items-center gap-2 flex-wrap pt-1">
                   <Badge className="bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-sm">
-                    🎁 Free chests
+                    🎁 Mystic Chests
                   </Badge>
                   <Badge className="bg-amber-950/90 border border-amber-500/50 text-amber-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-sm">
-                    🃏 Creature packs
+                    🃏 Buy Card Packs
                   </Badge>
                 </div>
               </div>
@@ -553,7 +554,7 @@ export default function MarketPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">🎴</span>
-                    <h3 className="text-xl font-bold text-amber-300 font-serif">Owned packs ({ownedPacksList.length})</h3>
+                    <h3 className="text-xl font-bold text-amber-300 font-serif">Owned Packs ({ownedPacksList.length})</h3>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -572,7 +573,7 @@ export default function MarketPage() {
                         </div>
                         <div>
                           <h4 className="font-bold text-amber-200 text-sm font-serif">{op.packTitle}</h4>
-                          <p className="text-xs text-zinc-400 font-mono">Ready to unpack</p>
+                          <p className="text-xs text-zinc-400 font-mono">Ready to Unpack</p>
                         </div>
                       </div>
                       <Button size="sm" className="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-md">
@@ -583,11 +584,11 @@ export default function MarketPage() {
                 </div>
               </div>
             )}
-            {/* Free Packs Section (Horizontal Touch Snap Carousel on Mobile) */}
+            {/* Free Packs Section - Mystic Chests */}
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🎁</span>
-                <h2 className="text-2xl font-bold tracking-tight text-amber-400 font-serif">Free chests</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-amber-400 font-serif">Mystic Chests</h2>
               </div>
               <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-3 custom-scrollbar mobile-scroll-hide sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
                 {FREE_PACK_TYPES.map((pack, index) => {
@@ -638,55 +639,25 @@ export default function MarketPage() {
                         <CardTitle className="text-base sm:text-lg font-bold text-amber-300 font-serif leading-tight">{pack.title}</CardTitle>
                         <CardDescription className="text-[10px] text-amber-200/60 font-mono font-bold mt-0.5">{pack.shortLabel}</CardDescription>
                       </CardHeader>
-                      <CardContent className="flex-1 text-center relative z-10 space-y-2.5 px-3">
-                        {/* 3D Tactile Chrono Chest Stage */}
-                        <div className="relative w-32 h-36 mx-auto flex items-center justify-center">
-                          {/* Radiating Golden God-Rays when ready */}
-                          {!onCooldown && !isUnlocking && (
-                            <div className="absolute inset-0 bg-radial from-amber-400/30 via-amber-600/10 to-transparent blur-md rounded-2xl animate-pulse pointer-events-none" />
-                          )}
-
-                          <div className={cn(
-                            "relative w-28 h-32 rounded-2xl shadow-2xl flex flex-col items-center justify-center border-2 transition-all duration-500 overflow-hidden",
-                            onCooldown
-                              ? "bg-gradient-to-b from-zinc-800 to-zinc-950 border-zinc-700/50 grayscale opacity-80"
-                              : isUnlocking
-                              ? "bg-gradient-to-b from-amber-950/70 via-zinc-900 to-zinc-950 border-amber-600/50"
-                              : "bg-gradient-to-b from-amber-800 via-amber-950 to-zinc-950 border-amber-400/80 shadow-[0_0_25px_rgba(245,158,11,0.6)] group-hover:scale-105 group-hover:rotate-2 group-hover:shadow-[0_0_35px_rgba(245,158,11,0.9)] cursor-pointer"
-                          )}>
-                            {/* Iron Bands & Gold Trims */}
-                            <div className="absolute inset-x-0 top-3 h-1.5 bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-600 opacity-70 pointer-events-none" />
-                            <div className="absolute inset-x-0 bottom-3 h-1.5 bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-600 opacity-70 pointer-events-none" />
-
-                            {/* Center Lock Clasp & Chest Icon */}
-                            <div className={cn(
-                              "relative z-10 w-12 h-12 rounded-full flex items-center justify-center border transition-all duration-300 shadow-md",
-                              onCooldown
-                                ? "bg-zinc-900 border-zinc-700 text-zinc-400"
-                                : isUnlocking
-                                ? "bg-amber-950/90 border-amber-500 text-amber-300 animate-pulse"
-                                : "bg-gradient-to-br from-amber-400 to-yellow-600 border-amber-200 text-zinc-950 shadow-[0_0_15px_rgba(245,158,11,0.8)] group-hover:scale-110"
-                            )}>
-                              <span className="text-2xl drop-shadow">
-                                {onCooldown ? '🔒' : isUnlocking ? '⏳' : '🎁'}
-                              </span>
-                            </div>
-
-                            {/* Corner Studs */}
-                            <div className="absolute top-1.5 left-1.5 w-1.5 h-1.5 rounded-full bg-amber-400/60" />
-                            <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-amber-400/60" />
-                            <div className="absolute bottom-1.5 left-1.5 w-1.5 h-1.5 rounded-full bg-amber-400/60" />
-                            <div className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-amber-400/60" />
-                          </div>
+                      <CardContent className="flex-1 text-center relative z-10 space-y-2 px-3">
+                        {/* 3D Tactile Treasure Chest Visual */}
+                        <div className="relative w-full max-w-[170px] h-32 mx-auto flex items-center justify-center">
+                          <TreasureChestVisual
+                            state={onCooldown ? 'claimed' : isUnlocking ? 'opening' : 'ready'}
+                            rarity={(pack as any).rarity || (pack.id === 'free_monthly' ? 'legendary' : pack.id === 'free_mystery' ? 'epic' : pack.id === 'free_weekly' ? 'rare' : 'uncommon')}
+                            tierLabel={pack.shortLabel}
+                            hideLabels={true}
+                            className="w-full h-full bg-transparent border-0 p-0 shadow-none"
+                          />
                         </div>
 
                         <p className="text-xs text-zinc-300 px-2 line-clamp-2 min-h-[32px] leading-snug">{pack.description}</p>
                         {(onCooldown && remaining) ? (
-                          <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/40 py-1 px-2.5 rounded-full inline-block border border-amber-900/30">
+                          <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/40 py-1 px-2.5 rounded-full inline-block border border-amber-900/30 font-mono">
                             ⏱️ {remaining}
                           </div>
                         ) : (isUnlocking && unlockRemaining) ? (
-                          <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/40 py-1 px-2.5 rounded-full inline-block border border-amber-900/30">
+                          <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/40 py-1 px-2.5 rounded-full inline-block border border-amber-900/30 font-mono">
                             ⏳ {unlockRemaining}
                           </div>
                         ) : null}
@@ -706,43 +677,87 @@ export default function MarketPage() {
               </div>
             </div>
 
-            {/* Paid Packs Section */}
+            {/* Paid Packs Section - Buy Card Packs */}
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🪙</span>
-                <h2 className="text-2xl font-bold tracking-tight text-purple-400 font-serif">Royal Exchange Card Packs</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-amber-300 font-serif">Buy Card Packs</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {PACK_TYPES.map((pack, index) => (
-                  <Card key={pack.id} style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }} className={cn(
-                    "bg-zinc-900 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden animate-in fade-in slide-in-from-bottom-4",
-                    pack.id === 'crown' 
-                      ? "border-2 border-purple-500/40 hover:border-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.15)]" 
-                      : "border border-purple-900/50 hover:border-purple-500/50"
-                  )}>
-                    <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent opacity-50"></div>
-                    <CardHeader className="text-center relative z-10 pb-4">
-                      <CardTitle className="text-2xl font-black text-purple-300 tracking-wide">{pack.title}</CardTitle>
-                      <CardDescription className="text-purple-200/60 font-bold">{pack.shortLabel}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-1 text-center relative z-10 space-y-4">
-                      <div className="w-32 h-40 mx-auto bg-gradient-to-br from-purple-800 to-indigo-900 rounded-lg shadow-2xl flex items-center justify-center border-2 border-purple-500/30 transform group-hover:scale-105 group-hover:rotate-3 transition-transform duration-500">
-                        <span className="text-5xl drop-shadow-lg">🎴</span>
-                      </div>
-                      <p className="text-sm text-zinc-300 px-4">{pack.description}</p>
-                    </CardContent>
-                    <CardFooter className="relative z-10 pt-4">
-                      <Button 
-                        className="w-full h-14 text-lg font-black bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg shadow-purple-900/50 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                        onClick={() => handleBuyPack(pack)}
-                        disabled={(pack.currency === 'gems' ? gemBalance < pack.price : goldBalance < pack.price) || isProcessing}
-                      >
-                        {isProcessing ? "Processing..." : `Buy for ${pack.currency === 'gems' ? pack.price : formatGold(pack.price)}`} 
-                        {pack.currency === 'gems' ? <Gem className="w-5 h-5 ml-2 text-pink-400" /> : <Coins className="w-5 h-5 ml-2 text-yellow-400" />}
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
+                {PACK_TYPES.map((pack, index) => {
+                  const packImg = (pack as any).image || (pack.id === 'starter' ? '/images/packs/drift-pack.jpg' : pack.id === 'vault' ? '/images/packs/vault-pack.jpg' : '/images/packs/crown-pack.jpg');
+                  const isCrown = pack.id === 'crown';
+                  const isVault = pack.id === 'vault';
+                  const isDrift = pack.id === 'starter';
+                  
+                  return (
+                    <Card key={pack.id} style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }} className={cn(
+                      "bg-zinc-900 transition-all duration-300 shadow-xl group flex flex-col relative overflow-hidden animate-in fade-in slide-in-from-bottom-4",
+                      isCrown 
+                        ? "border-2 border-amber-500/50 hover:border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.25)] hover:shadow-[0_0_35px_rgba(245,158,11,0.45)]" 
+                        : isVault
+                        ? "border-2 border-purple-500/50 hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.2)] hover:shadow-[0_0_35px_rgba(168,85,247,0.4)]"
+                        : "border-2 border-cyan-500/40 hover:border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.15)] hover:shadow-[0_0_30px_rgba(6,182,212,0.35)]"
+                    )}>
+                      <div className={cn(
+                        "absolute inset-0 bg-gradient-to-b opacity-40 pointer-events-none",
+                        isCrown ? "from-amber-600/20 to-transparent" : isVault ? "from-purple-600/20 to-transparent" : "from-cyan-600/20 to-transparent"
+                      )} />
+                      <CardHeader className="text-center relative z-10 pb-2 pt-4">
+                        <CardTitle className={cn(
+                          "text-2xl font-black font-serif tracking-wide",
+                          isCrown ? "text-amber-300" : isVault ? "text-purple-300" : "text-cyan-300"
+                        )}>
+                          {pack.title}
+                        </CardTitle>
+                        <CardDescription className={cn(
+                          "text-xs font-mono font-bold tracking-wider uppercase",
+                          isCrown ? "text-amber-200/80" : isVault ? "text-purple-200/80" : "text-cyan-200/80"
+                        )}>
+                          {pack.shortLabel}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="flex-1 text-center relative z-10 space-y-4 px-4">
+                        {/* 3D Realistic Tactile Booster Pack Visual */}
+                        <div className={cn(
+                          "relative w-36 h-48 sm:w-44 sm:h-56 mx-auto rounded-2xl overflow-hidden shadow-2xl border-2 transition-all duration-500 group-hover:scale-105 group-hover:rotate-1 group-hover:-translate-y-1",
+                          isCrown ? "border-amber-400/80 shadow-[0_10px_25px_rgba(245,158,11,0.4)]" : isVault ? "border-purple-400/80 shadow-[0_10px_25px_rgba(168,85,247,0.4)]" : "border-cyan-400/80 shadow-[0_10px_25px_rgba(6,182,212,0.3)]"
+                        )}>
+                          <Image
+                            src={packImg}
+                            alt={pack.title}
+                            fill
+                            sizes="(max-width: 768px) 160px, 180px"
+                            className="object-cover"
+                            priority={index === 0}
+                          />
+                          {/* Foil Sheen Glint Effect on Hover */}
+                          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                        </div>
+                        <p className="text-xs sm:text-sm text-zinc-300 px-2 line-clamp-2 min-h-[36px] leading-snug">
+                          {pack.description}
+                        </p>
+                      </CardContent>
+                      <CardFooter className="relative z-10 pb-4 pt-2">
+                        <Button 
+                          className={cn(
+                            "w-full h-14 text-base font-black tracking-wide rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed",
+                            isCrown
+                              ? "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-500 text-zinc-950 font-black shadow-amber-500/25"
+                              : isVault
+                              ? "bg-gradient-to-r from-purple-600 via-fuchsia-600 to-indigo-600 hover:from-purple-500 hover:to-fuchsia-500 text-white shadow-purple-600/30"
+                              : "bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-600/30"
+                          )}
+                          onClick={() => handleBuyPack(pack)}
+                          disabled={(pack.currency === 'gems' ? gemBalance < pack.price : goldBalance < pack.price) || isProcessing}
+                        >
+                          {isProcessing ? "Processing..." : `Buy for ${pack.currency === 'gems' ? `${pack.price} Gems` : `${formatGold(pack.price)} Gold`}`} 
+                          {pack.currency === 'gems' ? <Gem className="w-5 h-5 ml-2 text-pink-300" /> : <Coins className="w-5 h-5 ml-2 text-yellow-300" />}
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  );
+                })}
               </div>
             </div>
           </TabsContent>

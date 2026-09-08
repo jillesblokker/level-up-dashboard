@@ -134,7 +134,7 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-amber-400" />
           <span className="font-serif font-bold text-amber-300 text-sm sm:text-base">
-            {packData.title || "Mythic scratch pack"}
+            {packData.title || "Mystery Card Pack"}
           </span>
           <span className="text-xs text-amber-500/70 font-mono font-bold hidden sm:inline">
             ({revealedIds.size} / {totalCards} scratched)
@@ -149,7 +149,7 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
             className="text-amber-300 hover:text-white bg-amber-950/60 hover:bg-amber-900 border border-amber-500/40 text-xs font-mono font-bold px-3 h-9"
           >
             <Grid className="w-3.5 h-3.5 mr-1" />
-            {viewMode === 'single' ? 'Grid view' : 'Single view'}
+            {viewMode === 'single' ? 'Grid View' : 'Single View'}
           </Button>
 
           <button 
@@ -169,19 +169,19 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
         {isWon ? (
           <div className="text-center mb-3 space-y-1 animate-bounce shrink-0">
             <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 px-4 py-1 rounded-full text-[10px] sm:text-xs font-bold tracking-wide uppercase shadow-lg border border-amber-200">
-              🎉 3 matching cards found!
+              🎉 3 Matching Cards Found!
             </div>
             <h2 className="text-2xl sm:text-4xl font-serif font-bold text-amber-300 drop-shadow-md">
-              {isNewCard ? "✨ New creature unlocked! ✨" : "✨ Mythic card claimed! ✨"}
+              {isNewCard ? "✨ New Creature Unlocked! ✨" : "✨ Mystery Card Claimed! ✨"}
             </h2>
             <p className="text-xs text-amber-200/90 font-medium">
-              {isNewCard ? "Added to your mythic collection vault!" : "Duplicate converted to +50 alchemy essences."}
+              {isNewCard ? "Added to your Mystery Card vault!" : "Duplicate converted to +50 alchemy essences."}
             </p>
           </div>
         ) : (
           <div className="text-center mb-3 space-y-0.5 shrink-0">
             <h2 className="text-xl sm:text-3xl font-serif font-bold text-amber-400 drop-shadow-sm">
-              Scratch 3 matching cards to win
+              Scratch 3 Matching Cards to Win
             </h2>
             <p className="text-xs text-zinc-400 font-medium">
               {viewMode === 'single' ? `Scratching card ${activeCardIndex + 1} of ${totalCards}` : "Scratch all 9 cards on grid to reveal matching cards"}

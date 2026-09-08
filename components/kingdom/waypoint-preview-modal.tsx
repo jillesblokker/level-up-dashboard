@@ -87,14 +87,14 @@ const WAYPOINT_REGISTRY: Record<string, WaypointInfo> = {
     badgeColor: 'bg-yellow-950/80 border-yellow-500/50 text-yellow-300'
   },
   'mystic_bazaar': {
-    title: 'Mystic bazaar',
-    subtitle: 'Enchanted card pack & chrono shop',
+    title: 'Mystic Bazaar',
+    subtitle: 'Enchanted Mystery Card & Mystic Chest Shop',
     image: '/images/kingdom-tiles/Mystic_bazaar.webp',
-    description: 'Open Chrono Chests, collect Mythic worker cards, and browse rare kingdom blueprints.',
+    description: 'Open Mystic Chests, collect Mystery Cards, and browse rare kingdom blueprints.',
     destination: '/market?tab=mystic-bazaar',
-    buttonText: '✨ Open mystic bazaar',
+    buttonText: '✨ Open Mystic Bazaar',
     icon: '✨',
-    badgeText: 'Card shop',
+    badgeText: 'Card Shop',
     badgeColor: 'bg-fuchsia-950/80 border-fuchsia-500/50 text-fuchsia-300'
   },
   'airship_harbor': {

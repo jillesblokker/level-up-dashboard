@@ -130,6 +130,7 @@ export const PACK_TYPES = [
     rarityShift: 0,
     accent: "starter",
     description: "Best for steady farming. Keeps the classic odds curve.",
+    image: "/images/packs/drift-pack.jpg",
   },
   {
     id: "vault",
@@ -140,6 +141,7 @@ export const PACK_TYPES = [
     rarityShift: 0.38,
     accent: "vault",
     description: "Costs more, trims low-rarity weight, and improves premium filler odds.",
+    image: "/images/packs/vault-pack.jpg",
   },
   {
     id: "crown",
@@ -151,13 +153,14 @@ export const PACK_TYPES = [
     rarityShift: 0.76,
     accent: "crown",
     description: "Most expensive tier with the strongest push toward rare winners and elite side cards.",
+    image: "/images/packs/crown-pack.jpg",
   },
 ];
 
 export const FREE_PACK_TYPES = [
   {
     id: "free_daily",
-    title: "Free Daily Pack",
+    title: "Free Daily Chest",
     subtitle: "Claim once every day",
     shortLabel: "Daily",
     price: 0,
@@ -165,6 +168,7 @@ export const FREE_PACK_TYPES = [
     accent: "starter",
     description: "Your daily gift! Open to claim random cards.",
     cooldownType: "daily",
+    rarity: "uncommon" as const,
   },
   {
     id: "free_mystery",
@@ -176,10 +180,11 @@ export const FREE_PACK_TYPES = [
     accent: "vault",
     description: "Tap to begin unlocking your mystery treasure!",
     cooldownType: "mystery",
+    rarity: "epic" as const,
   },
   {
     id: "free_weekly",
-    title: "Free Weekly Pack",
+    title: "Free Weekly Chest",
     subtitle: "Claim once every week",
     shortLabel: "Weekly",
     price: 0,
@@ -187,10 +192,11 @@ export const FREE_PACK_TYPES = [
     accent: "vault",
     description: "Your weekly premium bounty! Open for enhanced odds.",
     cooldownType: "weekly",
+    rarity: "rare" as const,
   },
   {
     id: "free_monthly",
-    title: "Free Monthly Pack",
+    title: "Free Monthly Chest",
     subtitle: "Claim once every month",
     shortLabel: "Monthly",
     price: 0,
@@ -198,6 +204,7 @@ export const FREE_PACK_TYPES = [
     accent: "crown",
     description: "An elite monthly treasure chest! High chance of ultra-rare pulls.",
     cooldownType: "monthly",
+    rarity: "legendary" as const,
   },
 ];
 
