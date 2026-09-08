@@ -676,7 +676,7 @@ export function AirshipHarborTab() {
                 <span className="text-[10px] text-zinc-400 font-mono">Flight deck dispatch</span>
               </div>
               <p className="text-xs text-zinc-200 font-serif leading-relaxed italic">
-                "{mascotSpeech}"
+                &ldquo;{mascotSpeech}&rdquo;
               </p>
             </div>
 
