@@ -666,7 +666,7 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
             Plank labyrinth
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400 italic">
-            Slide the heavy oak barriers to unlock the path. Escort the Ancient Keystone to the portal arch.
+            Slide the heavy oak barriers to clear the water channel. Guide your ship to the open sea.
           </DialogDescription>
         </DialogHeader>
 
@@ -692,21 +692,27 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
             </div>
           </div>
 
-          {/* Full-Size Responsive 6x6 Grid Container */}
+          {/* Full-Size Responsive 6x6 Grid Container with Water Channel Tiles */}
           <div
             ref={gridRef}
-            className="relative w-full max-w-[min(90vw,440px)] aspect-square mx-auto bg-zinc-900/70 border-4 border-amber-900/60 rounded-2xl overflow-hidden shadow-2xl flex flex-wrap"
+            className="relative w-full max-w-[min(90vw,440px)] aspect-square mx-auto bg-[#1a3a4b] border-4 border-[#3d240f] rounded-2xl overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.8),0_10px_25px_rgba(0,0,0,0.6)] flex flex-wrap"
           >
-            {/* Grid cell lines (cobblestone texture) */}
+            {/* 6x6 Kingdom Water Tiles */}
             {Array.from({ length: 36 }).map((_, i) => (
               <div
                 key={i}
-                className="w-[16.666%] h-[16.666%] border border-zinc-950/40 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900/20 to-zinc-950/40"
-              />
+                className="w-[16.666%] h-[16.666%] border border-sky-950/40 bg-cover bg-center relative"
+                style={{
+                  backgroundImage: `url('/images/tiles/water-tile.webp')`,
+                }}
+              >
+                {/* Subtle calm water ambient tint */}
+                <div className="absolute inset-0 bg-sky-950/20 pointer-events-none" />
+              </div>
             ))}
 
-            {/* Exit Gate Arch Indicator (glowing portal) */}
-            <div className="absolute right-0 top-[33.33%] w-2.5 h-[16.666%] bg-gradient-to-r from-red-600 to-orange-500 rounded-l-md animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.9)] z-10 border border-red-500/50" />
+            {/* Exit Gate Arch Indicator (glowing harbor beacon) */}
+            <div className="absolute right-0 top-[33.33%] w-2.5 h-[16.666%] bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 rounded-l-md animate-pulse shadow-[0_0_15px_rgba(245,158,11,0.9)] z-10 border border-amber-300/60" />
 
             {/* Render Planks */}
             {planks.map((plank) => {
@@ -734,19 +740,20 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
                   {plank.isTarget ? (
                     <div
                       className={cn(
-                        "w-full h-full rounded-md border-2 border-red-700/80 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black text-red-500 relative overflow-hidden flex items-center justify-center shadow-lg transition-all",
+                        "w-full h-full relative transition-transform duration-100 flex items-center justify-center select-none",
                         isSelected
-                          ? "ring-2 ring-red-400 scale-[1.03] shadow-red-500/40"
-                          : "opacity-90 hover:opacity-100"
+                          ? "scale-[1.04] z-30 filter drop-shadow-[0_0_12px_rgba(245,158,11,0.85)] drop-shadow-[0_6px_10px_rgba(0,0,0,0.7)]"
+                          : "filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)] hover:drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] hover:scale-[1.01]"
                       )}
                     >
-                      {/* Keystone Stone Texture & Glowing Runes */}
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.25)_0%,transparent_70%)] pointer-events-none" />
-                      <div className="relative flex items-center justify-center gap-1.5 pointer-events-none select-none">
-                        <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)] animate-pulse" />
-                        <span className="text-[10px] font-mono font-black tracking-widest text-red-400 uppercase">Exit</span>
-                        <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)] animate-pulse" />
-                      </div>
+                      {/* Subtle water wake underneath the vessel */}
+                      <div className="absolute inset-x-2 bottom-1 top-2 rounded-full bg-cyan-400/20 blur-xs pointer-events-none" />
+                      <img
+                        src="/images/tiles/pirate-ship-horizontal.webp"
+                        alt="Flagship vessel"
+                        className="w-full h-full object-contain pointer-events-none select-none"
+                        draggable={false}
+                      />
                     </div>
                   ) : (
                     <div
