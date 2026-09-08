@@ -931,7 +931,7 @@ export const comprehensiveItems: ComprehensiveItem[] = [
   },
   {
     id: 'waterway_canal',
-    name: 'Waterway Canal & Stone Bridge',
+    name: 'Waterway canal',
     description: 'A serene medieval canal tile with flowing aquamarine waters and arched stone bridge',
     type: 'building',
     category: 'building',

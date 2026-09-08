@@ -642,7 +642,7 @@ export function KingdomGridWithTimers({
       const type = tile?.type?.toLowerCase() || '';
       const ktile = KINGDOM_TILES.find(kt => kt.id === type);
       const isNonProducer = (ktile && ktile.timerMinutes === 0) ||
-        ['vacant', 'empty', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue'].includes(type) ||
+        ['vacant', 'empty', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue', 'waterway_canal'].includes(type) ||
         type.includes('road') || type.includes('path') || type.includes('cobble') || type.includes('dirt');
       const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'fortune_teller', 'zen-garden'].includes(type);
       return !isNonProducer && !isMinigame && (t.isReady || Date.now() >= t.endTime);
@@ -667,7 +667,7 @@ export function KingdomGridWithTimers({
       const type = tile?.type?.toLowerCase() || '';
       const ktile = KINGDOM_TILES.find(kt => kt.id === type);
       const isNonProducer = (ktile && ktile.timerMinutes === 0) ||
-        ['vacant', 'empty', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue'].includes(type) ||
+        ['vacant', 'empty', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue', 'waterway_canal'].includes(type) ||
         type.includes('road') || type.includes('path') || type.includes('cobble') || type.includes('dirt');
       const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'fortune_teller', 'zen-garden'].includes(type);
       if (!isNonProducer && !isMinigame && (t.isReady || now >= t.endTime)) {
@@ -1745,33 +1745,13 @@ export function KingdomGridWithTimers({
       setSiegeWorkshopModalOpen(true);
       return;
     }
-    if (tile.type.includes('astral')) {
-      (async () => {
-        const now = Date.now();
-        try {
-          const activeBuffs = await getUserPreference('active_alchemy_buffs') as any || {};
-          const astralUntil = now + (2 * 60 * 60 * 1000);
-          await setUserPreference('active_alchemy_buffs', {
-            ...activeBuffs,
-            astralFortuneUntil: astralUntil
-          });
-        } catch (err) {
-          console.error('Failed to set astral fortune buff:', err);
-        }
-
-        const { goldManager } = await loadManagers();
-        goldManager.gainGold(250, `tile-collect:${tile.type}`);
-        addToCharacterStat('focus_points', 5, 'astral-monument-awakened');
-
-        toast({
-          title: "🔮 Astral Citadel Monument Awakened!",
-          description: "Channeled cosmic crystal power: +250 Gold, +5 Focus Points, and 2 Hours of Astral Fortune (+15% unowned scratch card odds)!"
-        });
-
-        window.dispatchEvent(new CustomEvent('coin-burst', {
-          detail: { amount: 250, x: window.innerWidth / 2, y: window.innerHeight / 2 }
-        }));
-      })();
+    if (tile.type === 'waterway_canal') {
+      return;
+    }
+    if (tile.type === 'astral_citadel_monument' || tile.type.includes('astral')) {
+      const activeTimer = tileTimers.find(t => t.x === x && t.y === y);
+      setSpecialTileData({ x, y, tile, timer: activeTimer });
+      setSpecialModalOpen(true);
       return;
     }
     if (tile.type === 'abbey') {
@@ -2010,6 +1990,46 @@ export function KingdomGridWithTimers({
             localStorage.setItem('active-potion-perks', JSON.stringify(perks));
           } catch (e) {}
         }).catch(err => console.error(err));
+      }
+
+      // Handle Astral Citadel Monument special effect
+      if (kingdomTile.id === 'astral_citadel_monument' || kingdomTile.id.includes('astral')) {
+        const expiry = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
+        fetch('/api/active-perks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            perk_name: 'Astral Fortune',
+            effect: '+15% unowned scratch card chance',
+            expires_at: expiry
+          })
+        }).then(() => {
+          try {
+            const stored = localStorage.getItem('active-potion-perks');
+            const perks = stored ? JSON.parse(stored) : {};
+            perks['Astral Fortune'] = {
+              effect: '+15% unowned scratch card chance',
+              expiresAt: expiry
+            };
+            localStorage.setItem('active-potion-perks', JSON.stringify(perks));
+          } catch (e) {}
+        }).catch(err => console.error(err));
+
+        (async () => {
+          try {
+            const activeBuffs = await getUserPreference('active_alchemy_buffs') as any || {};
+            await setUserPreference('active_alchemy_buffs', {
+              ...activeBuffs,
+              astralFortuneUntil: Date.now() + (2 * 60 * 60 * 1000)
+            });
+          } catch (err) {}
+          addToCharacterStat('focus_points', 5, 'astral-monument-awakened');
+        })();
+
+        confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } });
+        window.dispatchEvent(new CustomEvent('coin-burst', {
+          detail: { amount: 250, x: window.innerWidth / 2, y: window.innerHeight / 2 }
+        }));
       }
 
       // Handle Golden Pantheon special drops
@@ -3216,7 +3236,7 @@ export function KingdomGridWithTimers({
             setActionSheetOpen(false);
           }
         } : undefined}
-        canUpgrade={actionSheetTile ? !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'vacant', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad'].includes(actionSheetTile.tile.type) : false}
+        canUpgrade={actionSheetTile ? !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'vacant', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'waterway_canal'].includes(actionSheetTile.tile.type) : false}
         upgradeCost={actionSheetTile ? (getUpgradeCost(actionSheetTile.tile.type, (actionSheetTile.tile as any).level || 1) || undefined) : undefined}
         currentTier={actionSheetTile ? ((actionSheetTile.tile as any).level || 1) : 1}
         onDelete={() => {

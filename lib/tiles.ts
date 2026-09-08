@@ -96,7 +96,7 @@ export function getTileName(type: TileType): string {
     siege_dragon_mortar: 'Flaming scorpion',
     siege_astral_projector: 'Flaming trebuchet',
     abbey: 'Silent Abbey',
-    waterway_canal: 'Waterway Canal & Stone Bridge',
+    waterway_canal: 'Waterway canal',
     astral_citadel_monument: 'Astral Citadel Monument',
     serene_lake: 'Serene Lake',
     mystic_bazaar: 'Mystic Bazaar',

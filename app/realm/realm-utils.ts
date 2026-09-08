@@ -66,7 +66,7 @@ export const defaultTile = (type: TileType | string): Tile => {
     if (t === 'prison') name = 'Iron Citadel Prison';
     if (t === 'apotheca') name = 'Grand Apotheca';
     if (t === 'abbey') name = 'Silent Abbey';
-    if (t === 'waterway_canal') name = 'Waterway Canal & Stone Bridge';
+    if (t === 'waterway_canal') name = 'Waterway canal';
     if (t === 'astral_citadel_monument') name = 'Astral Citadel Monument';
     if (t === 'serene_lake') name = 'Serene Lake';
 

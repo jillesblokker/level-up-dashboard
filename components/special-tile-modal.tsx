@@ -47,7 +47,10 @@ const getBuildingSubTitle = (id: string) => {
     'jousting': 'Chivalrous knight arena',
     'watchtower': 'Fortress border defense guard',
     'mystic-obelisk': 'Ancient cosmic beacon',
-    'golden-pantheon': 'Sacred golden shrine'
+    'golden-pantheon': 'Sacred golden shrine',
+    'astral_citadel_monument': 'Celestial spire & cosmic crystal orb',
+    'astral-citadel-monument': 'Celestial spire & cosmic crystal orb',
+    'astral_citadel': 'Celestial spire & cosmic crystal orb'
   }
   return map[id] || 'Kingdom property'
 }
@@ -83,7 +86,10 @@ const getBuildingSpecialOutput = (id: string, kt: any) => {
     'jousting': 'Yields champion crests & joust rewards.',
     'watchtower': 'Defends kingdom from chaotic rifts.',
     'mystic-obelisk': 'Effect: +15% unowned scratch card chance (2 hours)',
-    'golden-pantheon': 'Bonus: 35% chance of crown pack, gems, or 500 essence'
+    'golden-pantheon': 'Bonus: 35% chance of crown pack, gems, or 500 essence',
+    'astral_citadel_monument': 'Effect: +15% unowned scratch card odds (2 hours), +250 Gold, +5 Focus points',
+    'astral-citadel-monument': 'Effect: +15% unowned scratch card odds (2 hours), +250 Gold, +5 Focus points',
+    'astral_citadel': 'Effect: +15% unowned scratch card odds (2 hours), +250 Gold, +5 Focus points'
   }
   return map[id] || `Produces passive gold & experience.`
 }
@@ -161,6 +167,7 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
 
   const isObelisk = typeLower === "mystic-obelisk"
   const isPantheon = typeLower === "golden-pantheon"
+  const isAstral = typeLower === "astral_citadel_monument" || typeLower.includes('astral')
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -169,7 +176,7 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
         <div className="absolute inset-0 pointer-events-none -z-10 opacity-30">
           <div className={cn(
             "absolute -top-24 -left-24 w-48 h-48 rounded-full blur-3xl",
-            isObelisk ? "bg-purple-500/20" : isPantheon ? "bg-yellow-500/20" : "bg-amber-600/10"
+            isAstral ? "bg-purple-600/30" : isObelisk ? "bg-purple-500/20" : isPantheon ? "bg-yellow-500/20" : "bg-amber-600/10"
           )} />
         </div>
 
@@ -228,11 +235,13 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
             {/* Special Output Banner */}
             <div className={cn(
               "rounded-xl p-3 border text-xs flex items-center justify-center gap-2",
-              isObelisk 
-                ? "bg-purple-950/20 border-purple-500/30 text-purple-200"
-                : isPantheon 
-                  ? "bg-amber-950/20 border-amber-500/30 text-amber-200"
-                  : "bg-zinc-900/40 border-amber-900/20 text-amber-100"
+              isAstral
+                ? "bg-purple-950/40 border-purple-500/40 text-purple-200"
+                : isObelisk 
+                  ? "bg-purple-950/20 border-purple-500/30 text-purple-200"
+                  : isPantheon 
+                    ? "bg-amber-950/20 border-amber-500/30 text-amber-200"
+                    : "bg-zinc-900/40 border-amber-900/20 text-amber-100"
             )}>
               <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
               <span className="text-left font-serif leading-tight">
@@ -290,9 +299,14 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
                   onCollect();
                   onClose();
                 }}
-                className="flex-1 bg-gradient-to-br from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white font-bold rounded-xl py-5 shadow-lg shadow-amber-500/10 border border-amber-400/20"
+                className={cn(
+                  "flex-1 text-white font-bold rounded-xl py-5 shadow-lg border",
+                  isAstral
+                    ? "bg-gradient-to-br from-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 border-purple-400/30 shadow-purple-500/20"
+                    : "bg-gradient-to-br from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 border-amber-400/20 shadow-amber-500/10"
+                )}
               >
-                Harvest Building
+                {isAstral ? "Awaken astral crystal" : "Harvest building"}
               </Button>
             )}
           </div>

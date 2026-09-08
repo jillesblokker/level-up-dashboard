@@ -117,7 +117,7 @@ export const KingdomTileItem = React.memo(({
     if (libraryTile && libraryTile.timerMinutes === 0) return true;
     if (kingdomTile && kingdomTile.timerMinutes === 0) return true;
     const t = tile.type?.toLowerCase() || '';
-    return t.includes('road') || t.includes('path') || t.includes('cobble') || t.includes('dirt') || t === 'water' || t === 'grass' || t === 'wall';
+    return t.includes('road') || t.includes('path') || t.includes('cobble') || t.includes('dirt') || t === 'water' || t === 'grass' || t === 'wall' || t === 'waterway_canal';
   }, [tile.type, libraryTile, kingdomTile]);
 
   // Synergy Aura logic hoisted for efficiency
@@ -195,7 +195,7 @@ export const KingdomTileItem = React.memo(({
       )}
 
       {/* Efficiency Badge */}
-      {tile.type !== 'vacant' && !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad'].includes(tile.type) && (
+      {tile.type !== 'vacant' && !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'waterway_canal'].includes(tile.type) && (
         <div className="absolute bottom-1 right-1 bg-zinc-950 px-1 rounded border border-white/10 text-[7px] font-bold text-amber-500/90 tracking-tighter z-40">
           {currentTier > 2 ? 'III' : currentTier > 1 ? 'II' : 'I'}
         </div>
@@ -258,7 +258,7 @@ export const KingdomTileItem = React.memo(({
       )}
 
       {/* Hover Info-Card (Desktop Only) */}
-      {(['daily-hub', 'dailyhub', 'daily_hub', 'quest-board', 'market', 'market-stalls', 'dungeon', 'dungeon-keep', 'crystal_cavern', 'monument', 'hall_of_fame', 'mystic_bazaar', 'airship_harbor', 'housecup', 'observatory', 'hall_of_champions', 'titan_watchtower', 'castle', 'library', 'barracks', 'training-grounds', 'training_grounds', 'tavern', 'inn', 'town-hall', 'town_hall', 'mayor', 'zen-garden', 'plank-labyrinth', 'fortune_teller', 'fortune-teller', 'apotheca', 'siege_workshop', 'prison', 'serene_lake'].includes(type) || auraColor) && (
+      {(['daily-hub', 'dailyhub', 'daily_hub', 'quest-board', 'market', 'market-stalls', 'dungeon', 'dungeon-keep', 'crystal_cavern', 'monument', 'hall_of_fame', 'mystic_bazaar', 'airship_harbor', 'housecup', 'observatory', 'hall_of_champions', 'titan_watchtower', 'castle', 'library', 'barracks', 'training-grounds', 'training_grounds', 'tavern', 'inn', 'town-hall', 'town_hall', 'mayor', 'zen-garden', 'plank-labyrinth', 'fortune_teller', 'fortune-teller', 'apotheca', 'siege_workshop', 'prison', 'serene_lake', 'astral_citadel_monument'].includes(type) || auraColor) && (
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-zinc-950/80 transition-all pointer-events-none hidden md:flex flex-col items-center justify-center p-1 z-50">
             <div className="bg-zinc-900/95 border border-white/10 rounded-lg p-2 shadow-2xl scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-300 ">
               <p className="text-[10px] font-bold text-amber-100 uppercase tracking-tighter text-center">{libraryTile?.name || kingdomTile?.name || tile.name || tile.type}</p>
@@ -270,6 +270,7 @@ export const KingdomTileItem = React.memo(({
                  type.includes('mystic') ? 'Portal: Mystic bazaar' :
                  type === 'dungeon' || type === 'dungeon-keep' || type === 'crystal_cavern' ? 'Portal: Combat depths' :
                  type === 'monument' || type === 'hall_of_fame' ? 'Statue: Hall of fame' :
+                 type === 'astral_citadel_monument' ? 'Monument: Cosmic crystal spire' :
                  type === 'airship_harbor' ? 'Portal: Skydock voyages' :
                  type === 'housecup' ? 'Portal: Hourglass spire' :
                  type === 'observatory' ? 'Portal: Cartography & world map' :
@@ -467,7 +468,7 @@ export const KingdomTileItem = React.memo(({
       {/* Timer overlay */}
       {isKingdomTile && (
         (() => {
-          const isRoadOrTerrain = ['vacant', 'empty', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall'].includes(type) ||
+          const isRoadOrTerrain = ['vacant', 'empty', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'waterway_canal'].includes(type) ||
             type.includes('road') ||
             type.includes('path') ||
             type.includes('cobble') ||
