@@ -663,17 +663,36 @@ export function AirshipHarborTab() {
                       )}
                     </div>
 
-                    {/* Rewards Preview */}
-                    <div className="space-y-2">
-                      <h4 className="text-[10px] font-bold text-zinc-500 tracking-wider">Voyage chest cargo:</h4>
-                      <div className="grid grid-cols-2 gap-3">
+                    {/* Rewards Preview (Enhanced Card Elements) */}
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-[10px] font-bold text-amber-400 tracking-wider uppercase font-mono">
+                          📦 Guaranteed voyage cargo:
+                        </h4>
+                        <span className="text-[10px] text-zinc-500 font-mono font-medium">Secured on arrival</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {region.rewards.map(reward => (
-                          <div key={reward.id} className="p-3 bg-zinc-950/40 border border-white/5 rounded-xl flex items-center gap-2.5 text-xs">
-                            <span className="text-xl">{reward.emoji}</span>
-                            <div>
-                              <p className="font-bold text-white">{reward.name}</p>
-                              <p className="text-[10px] text-zinc-500 font-bold">Qty: x{reward.quantity}</p>
+                          <div
+                            key={reward.id}
+                            className="p-3.5 bg-gradient-to-r from-amber-950/20 via-zinc-950/80 to-zinc-900/60 border border-amber-500/20 hover:border-amber-500/40 rounded-xl flex items-center justify-between gap-3 shadow-md transition-all group"
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-10 h-10 rounded-lg bg-zinc-900/90 border border-amber-500/20 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform shadow-inner">
+                                {reward.emoji}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-white text-xs font-serif truncate group-hover:text-amber-200 transition-colors">
+                                  {reward.name}
+                                </p>
+                                <p className="text-[10px] text-zinc-400 font-sans">
+                                  Kingdom crafting material
+                                </p>
+                              </div>
                             </div>
+                            <Badge className="bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold px-2 py-0.5 shrink-0">
+                              x{reward.quantity}
+                            </Badge>
                           </div>
                         ))}
                       </div>
@@ -689,7 +708,7 @@ export function AirshipHarborTab() {
               <Button
                 variant="outline"
                 onClick={handleAbandon}
-                className="w-1/3 text-xs border-red-950/45 text-red-500 bg-red-950/5 hover:bg-red-950/20 font-bold"
+                className="w-1/3 text-xs border-red-950/45 text-red-500 bg-red-950/5 hover:bg-red-950/20 font-bold rounded-xl py-4"
               >
                 <Trash2 className="w-4 h-4 mr-1.5" /> Abandon voyage
               </Button>
@@ -710,37 +729,94 @@ export function AirshipHarborTab() {
 
           </Card>
 
-          {/* Slotted Crew List */}
-          <div className="lg:col-span-1 space-y-4">
-            <h3 className="text-lg font-cardo font-bold text-amber-100 flex items-center gap-2 px-1">
-              <Users className="w-5 h-5 text-amber-500" /> Slotted crew members
-            </h3>
+          {/* Slotted Crew List - Expanded Height & Rich Details to Balance Left Component */}
+          <div className="lg:col-span-1 flex flex-col space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <h3 className="text-base font-cardo font-bold text-amber-100 flex items-center gap-2">
+                <Users className="w-4 h-4 text-amber-500" /> Slotted crew members
+              </h3>
+              <Badge className="bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono text-[9px] px-2 py-0.5">
+                {activeVoyage.crew.length} / 2 active
+              </Badge>
+            </div>
 
-            <div className="space-y-3">
+            <div className="flex-1 flex flex-col gap-3.5">
               {activeVoyage.crew.map((cId: string) => {
                 const citizen = citizens.find(c => c.id === cId);
                 if (!citizen) return null;
 
+                const curExp = citizen.experience || 0;
+                const curLvl = citizen.level || 1;
+                const reqExp = curLvl * 100;
+                const expPct = Math.min(100, Math.round((curExp / reqExp) * 100));
+
+                const elementColors: Record<string, { border: string; bg: string; text: string; glow: string }> = {
+                  fire: { border: 'border-red-500/40', bg: 'bg-red-950/20', text: 'text-red-400', glow: 'shadow-[0_0_15px_rgba(239,68,68,0.15)]' },
+                  water: { border: 'border-blue-500/40', bg: 'bg-blue-950/20', text: 'text-blue-400', glow: 'shadow-[0_0_15px_rgba(59,130,246,0.15)]' },
+                  earth: { border: 'border-amber-500/40', bg: 'bg-amber-950/20', text: 'text-amber-400', glow: 'shadow-[0_0_15px_rgba(245,158,11,0.15)]' },
+                  nature: { border: 'border-emerald-500/40', bg: 'bg-emerald-950/20', text: 'text-emerald-400', glow: 'shadow-[0_0_15px_rgba(16,185,129,0.15)]' },
+                  ice: { border: 'border-cyan-500/40', bg: 'bg-cyan-950/20', text: 'text-cyan-400', glow: 'shadow-[0_0_15px_rgba(6,182,212,0.15)]' },
+                };
+                const theme = elementColors[citizen.type?.toLowerCase()] || { border: 'border-zinc-800', bg: 'bg-zinc-950/60', text: 'text-zinc-400', glow: '' };
+
                 return (
-                  <div key={cId} className="bg-[#0f1115] border border-white/5 rounded-xl p-4 flex items-center gap-3.5 shadow-md">
-                    <div className="w-12 h-12 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-2xl relative shrink-0">
-                      <Image
-                        src={citizen.filename ? `/images/creatures/${citizen.filename}` : '/images/placeholders/creature.webp'}
-                        alt={citizen.name}
-                        width={40}
-                        height={40}
-                        className="object-contain"
-                      />
+                  <Card
+                    key={cId}
+                    className={cn(
+                      "bg-[#0f1115] border rounded-2xl p-4 sm:p-5 flex flex-col justify-between flex-1 shadow-xl transition-all relative overflow-hidden",
+                      theme.border,
+                      theme.glow
+                    )}
+                  >
+                    <div className="absolute top-0 right-0 w-32 h-24 bg-gradient-to-bl from-white/5 to-transparent pointer-events-none rounded-tr-2xl" />
+
+                    <div className="space-y-3 relative z-10">
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-16 h-16 bg-gradient-to-b from-zinc-900 to-zinc-950 border border-white/10 rounded-2xl flex items-center justify-center relative shrink-0 shadow-inner p-1.5">
+                          <Image
+                            src={citizen.filename ? `/images/creatures/${citizen.filename}` : '/images/placeholders/creature.webp'}
+                            alt={citizen.name}
+                            width={54}
+                            height={54}
+                            className="object-contain drop-shadow-md"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-1">
+                            <h4 className="font-cardo font-bold text-white text-sm truncate">{citizen.name}</h4>
+                            <Badge className={cn("text-[9px] font-mono font-bold capitalize px-1.5 py-0.5 border", theme.bg, theme.border, theme.text)}>
+                              {citizen.type}
+                            </Badge>
+                          </div>
+                          <p className="text-[11px] text-zinc-400 font-mono mt-0.5 flex items-center gap-1.5">
+                            <span className="text-amber-400 font-bold">Level {curLvl}</span>
+                            <span className="w-1 h-1 bg-zinc-600 rounded-full" />
+                            <span>Affection {citizen.affection || 50}%</span>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Citizen Voyage EXP Progress Bar */}
+                      <div className="space-y-1 bg-zinc-950/70 p-2.5 rounded-xl border border-white/5">
+                        <div className="flex justify-between items-center text-[10px] font-mono">
+                          <span className="text-zinc-400">Expedition EXP</span>
+                          <span className="text-amber-300 font-bold">{curExp} / {reqExp} XP ({expPct}%)</span>
+                        </div>
+                        <div className="w-full bg-zinc-900 rounded-full h-2 overflow-hidden border border-zinc-800">
+                          <div
+                            className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 transition-all duration-500 rounded-full"
+                            style={{ width: `${expPct}%` }}
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-bold text-white text-xs leading-none">{citizen.name}</h4>
-                      <p className="text-[10px] text-zinc-500 tracking-wider mt-1.5 font-bold flex items-center gap-1">
-                        <span className="capitalize">{citizen.type} element</span>
-                        <span className="w-1 h-1 bg-zinc-700 rounded-full" />
-                        <span>Level {citizen.level || 1}</span>
-                      </p>
+
+                    {/* Return Bonus Preview */}
+                    <div className="pt-2.5 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-zinc-400 mt-2">
+                      <span>Arrival gain:</span>
+                      <span className="text-emerald-400 font-bold">+150 XP & +15 Affection</span>
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
             </div>

@@ -1405,7 +1405,7 @@ function DailyChestStatusWidget() {
             {isClaiming ? "Claiming..." : "Claim free chest 🎁"}
           </Button>
         ) : (
-          <Link href="/achievements?tab=mystery-cards" className="w-full sm:w-auto">
+          <Link href="/market?tab=mystic-shop" className="w-full sm:w-auto">
             <Button
               size="sm"
               variant="outline"
