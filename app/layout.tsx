@@ -44,7 +44,7 @@ const fontGloock = Gloock({
   subsets: ["latin"],
   variable: "--font-gloock",
   display: "swap",
-  preload: true,
+  preload: false,
   weight: "400",
 })
 
@@ -52,7 +52,7 @@ const fontLibreBaskerville = Libre_Baskerville({
   subsets: ["latin"],
   variable: "--font-libre-baskerville",
   display: "swap",
-  preload: true,
+  preload: false,
   weight: ["400", "700"],
 })
 
@@ -60,7 +60,7 @@ const fontCinzel = Cinzel({
   subsets: ["latin"],
   variable: "--font-cinzel",
   display: "swap",
-  preload: true,
+  preload: false,
   weight: ["400", "600", "700", "900"],
 })
 

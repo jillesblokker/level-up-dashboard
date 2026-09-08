@@ -1173,12 +1173,12 @@ export default function DungeonPage() {
 
           <div className="flex flex-col gap-3 w-full max-w-md mx-auto">
             <Button
-              onClick={() => router.push('/kingdom?tab=thrivehaven&openDrawer=barracks')}
+              onClick={() => router.push('/kingdom?tab=barracks')}
               variant="outline"
               size="lg"
               className="w-full h-12 sm:h-14 px-6 border-amber-500/40 text-amber-300 hover:bg-amber-950/40 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shrink-0 min-h-[44px] rounded-xl shadow-lg"
             >
-              <span>🛡️ Squad Management</span>
+              <span>🛡️ Squad management</span>
               <span className="text-[10px] text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/30 font-mono">(Barracks)</span>
             </Button>
             <Button

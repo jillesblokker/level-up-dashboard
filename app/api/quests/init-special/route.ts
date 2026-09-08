@@ -28,33 +28,48 @@ export async function POST(request: NextRequest) {
                 .maybeSingle();
 
             if (fetchError) {
-                logger.error('[InitSpecialQuest] Error checking quest:', fetchError);
-                throw new Error(`Database error checking quest: ${fetchError.message}`);
+                logger.warn('[InitSpecialQuest] Non-fatal error checking quest:', fetchError.message);
+                return { success: false, created: false, message: fetchError.message };
             }
 
             if (!existingQuest) {
                 logger.debug('[InitSpecialQuest] Creating Daily Meditation quest for user:', userId);
                 
-                const { error: insertError } = await supabase
-                    .from('quests')
-                    .insert({
-                        user_id: userId,
-                        name: 'Daily Meditation',
-                        description: 'A moment of stillness to center your spirit and prepare for the journey ahead.',
-                        category: 'wellness',
-                        difficulty: 'easy',
-                        xp_reward: 75,
-                        gold_reward: 20,
-                        is_active: true,
-                        is_recurring: true,
-                        recurrence_interval: 'daily',
-                        mandate_period: 'daily',
-                        mandate_count: 1
-                    });
+                // Base payload with guaranteed columns across all schema migrations
+                const baseQuest = {
+                    user_id: userId,
+                    name: 'Daily Meditation',
+                    description: 'A moment of stillness to center your spirit and prepare for the journey ahead.',
+                    category: 'wellness',
+                    difficulty: 'easy',
+                    xp_reward: 75,
+                    gold_reward: 20,
+                    is_active: true
+                };
+
+                // Try inserting with recurrence metadata first
+                const fullQuest = {
+                    ...baseQuest,
+                    is_recurring: true,
+                    recurrence_interval: 'daily',
+                    mandate_period: 'daily',
+                    mandate_count: 1
+                };
+
+                let insertError = null;
+                const { error: fullError } = await supabase.from('quests').insert(fullQuest);
+
+                if (fullError) {
+                    logger.debug('[InitSpecialQuest] Full insert failed, falling back to base columns:', fullError.message);
+                    const { error: baseError } = await supabase.from('quests').insert(baseQuest);
+                    if (baseError) {
+                        insertError = baseError;
+                    }
+                }
 
                 if (insertError) {
-                    logger.error('[InitSpecialQuest] Error inserting quest:', insertError);
-                    throw new Error(`Database error inserting quest: ${insertError.message}`);
+                    logger.warn('[InitSpecialQuest] Error inserting quest:', insertError.message);
+                    return { success: false, created: false, message: insertError.message };
                 }
 
                 return { success: true, created: true, message: 'Daily Meditation quest added to ledger.' };
@@ -64,10 +79,12 @@ export async function POST(request: NextRequest) {
         });
 
         if (!result.success) {
+            const errStr = (result.error || '').toLowerCase();
+            const isAuth = !result.error || errStr.includes('auth') || errStr.includes('session') || errStr.includes('unauthorized') || errStr.includes('valid session');
             return NextResponse.json({ 
-                error: result.error || 'Authentication failed',
+                error: result.error || 'Authentication required',
                 details: result.error 
-            }, { status: result.error?.includes('Authentication') ? 401 : 500 });
+            }, { status: isAuth ? 401 : 500 });
         }
 
         return NextResponse.json(result.data);

@@ -1729,7 +1729,8 @@ export function KingdomGridWithTimers({
       'daily-hub', 'dailyhub', 'daily_hub', 'dungeon', 'dungeon-keep', 'quest-board', 'market',
       'market-stalls', 'mystic_bazaar', 'airship_harbor', 'housecup',
       'observatory', 'hall_of_champions', 'titan_watchtower', 'castle',
-      'library', 'training-grounds', 'monument', 'hall_of_fame'
+      'library', 'barracks', 'training-grounds', 'training_grounds', 'monument', 'hall_of_fame',
+      'tavern', 'inn', 'town-hall', 'town_hall', 'mayor'
     ];
     if (WAYPOINT_TILES.includes(tile.type)) {
       setSelectedWaypointTileType(tile.type);
@@ -3357,7 +3358,15 @@ export function KingdomGridWithTimers({
             setSelectedWaypointTileType(null);
           }}
           tileType={selectedWaypointTileType}
-          onConfirmNavigate={(url) => router.push(url)}
+          onConfirmNavigate={(url) => {
+            if (url.includes('tab=')) {
+              const tab = new URLSearchParams(url.split('?')[1] || '').get('tab');
+              if (tab) {
+                window.dispatchEvent(new CustomEvent('switch-kingdom-tab', { detail: { tab } }));
+              }
+            }
+            router.push(url);
+          }}
         />
       )}
     </div >

@@ -432,7 +432,39 @@ export function KingdomClient() {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalText, setModalText] = useState("")
   const [activeTab, setActiveTab] = useState("equipped")
-  const [kingdomTab, setKingdomTab] = useState("thrivehaven");
+  const [kingdomTab, setKingdomTab] = useState(() => {
+    const directTab = searchParams?.get('tab');
+    const openDrawer = searchParams?.get('openDrawer');
+    const validTabs = ['thrivehaven', 'journey', 'citizens', 'barracks', 'alchemy', 'airship'];
+    if (openDrawer === 'barracks') return 'barracks';
+    if (directTab && validTabs.includes(directTab)) return directTab;
+    return "thrivehaven";
+  });
+
+  // Sync tab with search params changes (e.g. from waypoint navigation or external links)
+  useEffect(() => {
+    const directTab = searchParams?.get('tab');
+    const openDrawer = searchParams?.get('openDrawer');
+    const validTabs = ['thrivehaven', 'journey', 'citizens', 'barracks', 'alchemy', 'airship'];
+    if (openDrawer === 'barracks') {
+      setKingdomTab('barracks');
+    } else if (directTab && validTabs.includes(directTab)) {
+      setKingdomTab(directTab);
+    }
+  }, [searchParams]);
+
+  // Support immediate in-page tab switches from Waypoint modals
+  useEffect(() => {
+    const handleSwitchTab = (e: any) => {
+      const tab = e?.detail?.tab;
+      const validTabs = ['thrivehaven', 'journey', 'citizens', 'barracks', 'alchemy', 'airship'];
+      if (tab && validTabs.includes(tab)) {
+        setKingdomTab(tab);
+      }
+    };
+    window.addEventListener('switch-kingdom-tab', handleSwitchTab);
+    return () => window.removeEventListener('switch-kingdom-tab', handleSwitchTab);
+  }, []);
   const [kingdomGrid, setKingdomGrid] = useState<Tile[][]>([]);
   const [tileTimers, setTileTimers] = useState<Record<string, any>>({});
   const [selectedKingdomTile, setSelectedKingdomTile] = useState<Tile | null>(null);

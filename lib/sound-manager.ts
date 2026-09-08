@@ -36,26 +36,26 @@ class SoundManager {
 
     // Map sound names to file paths
     const soundFiles: Record<string, string> = {
-      'questComplete': '/quest-complete.wav',
-      'levelUp': '/level-up.wav',
-      'buttonClick': '/button-click.wav',
-      'achievement': '/achievement-unlock.wav',
-      'success': '/gold-earned.wav',
-      'xpEarned': '/xp-earned.wav',
-      'streak': '/magic-spell.wav',
-      'monsterSpawn': '/door-open.wav',
-      'battleWin': '/sword-clash.wav',
-      'allianceOath': '/magic-spell.wav',
-      'dungeonChallenge': '/chest-open.wav',
-      'ambientTavern': '/medieval-tavern.wav',
-      'ambientBattle': '/medieval-battle.wav',
-      'ambientCastle': '/medieval-castle.wav',
-      'ambientForest': '/medieval-forest.wav',
-      'ambientAdventure': '/medieval-adventure.wav',
-      'ambientEpic': '/medieval-epic.wav',
-      'ambientVillage': '/medieval-village.wav',
-      'ambientMystical': '/medieval-mystical.wav',
-      'ambientCalm': '/medieval-calm.wav'
+      'questComplete': '/audio/quest-complete.wav',
+      'levelUp': '/audio/level-up.wav',
+      'buttonClick': '/audio/button-click.wav',
+      'achievement': '/audio/achievement-unlock.wav',
+      'success': '/audio/gold-earned.wav',
+      'xpEarned': '/audio/xp-earned.wav',
+      'streak': '/audio/magic-spell.wav',
+      'monsterSpawn': '/audio/door-open.wav',
+      'battleWin': '/audio/sword-clash.wav',
+      'allianceOath': '/audio/magic-spell.wav',
+      'dungeonChallenge': '/audio/chest-open.wav',
+      'ambientTavern': '/audio/medieval-tavern.wav',
+      'ambientBattle': '/audio/medieval-battle.wav',
+      'ambientCastle': '/audio/medieval-castle.wav',
+      'ambientForest': '/audio/medieval-forest.wav',
+      'ambientAdventure': '/audio/medieval-adventure.wav',
+      'ambientEpic': '/audio/medieval-epic.wav',
+      'ambientVillage': '/audio/medieval-village.wav',
+      'ambientMystical': '/audio/medieval-mystical.wav',
+      'ambientCalm': '/audio/medieval-calm.wav'
     };
 
     // Try to load real files first
@@ -67,7 +67,7 @@ class SoundManager {
         const audioBuffer = await this.audioContext!.decodeAudioData(arrayBuffer);
         this.sounds.set(key, audioBuffer);
       } catch (e) {
-        logger.warn(`Failed to lead sound ${key}, falling back to generated`, e);
+        logger.warn(`Failed to load sound ${key}, falling back to generated`, e);
       }
     });
 

@@ -313,7 +313,7 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ type: 'meditation' })
-            }).catch(err => logger.error('Failed to init meditation quest:', err));
+            }).catch(err => logger.debug('Non-fatal: failed to init meditation quest:', err));
         }
     }, [isOpen]);
 
