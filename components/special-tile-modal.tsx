@@ -18,29 +18,59 @@ interface SpecialTileModalProps {
 
 const getBuildingSubTitle = (id: string) => {
   const map: Record<string, string> = {
-    'blacksmith': 'Refiner of Ore & Armory',
-    'sawmill': 'Lumberyard & Wood Processing',
-    'fisherman': 'Quiet Angler\'s Dock',
-    'grocery': 'Fresh Harvest Market Stall',
-    'foodcourt': 'Medieval Feast & Tavern Stall',
-    'well': 'Fresh Water Stone Well',
-    'windmill': 'Grain Mill & Bakery Supplies',
-    'fountain': 'Sanctuary of Flowing Springs',
-    'mansion': 'Wealthy Aristocrat\'s Manor',
-    'mayor': 'Town Administration Office',
-    'archery': 'Military Ranged Training Range',
-    'jousting': 'Chivalrous Knight Arena',
-    'watchtower': 'Fortress Border Defense Guard',
-    'mystic-obelisk': 'Ancient Cosmic Beacon',
-    'golden-pantheon': 'Sacred Golden Shrine'
+    'stable': 'Steed breeding & mount equerry',
+    'blacksmith': 'Refiner of ore & armory',
+    'sawmill': 'Lumberyard & wood processing',
+    'stone-quarry': 'Granite & marble quarry',
+    'stone_quarry': 'Granite & marble quarry',
+    'bakery': 'Warm hearth & bread bakery',
+    'brewery': 'Tavern ale & mead brewery',
+    'harvest-barn': 'Crop storage & silo depot',
+    'harvest_barn': 'Crop storage & silo depot',
+    'farm': 'Fertile crops & grain fields',
+    'vegetables': 'Vegetable farm & harvest patch',
+    'pumpkin-patch': 'Autumn gourd & harvest patch',
+    'serene-lake': 'Tranquil reservoir & spring water',
+    'serene_lake': 'Tranquil reservoir & spring water',
+    'pond': 'Reflective koi pond & natural spring',
+    'house': 'Citizen homestead & living quarters',
+    'inn': 'Traveler lodge & rest sanctuary',
+    'fisherman': 'Quiet angler\'s dock',
+    'grocery': 'Fresh harvest market stall',
+    'foodcourt': 'Medieval feast & tavern stall',
+    'well': 'Fresh water stone well',
+    'windmill': 'Grain mill & bakery supplies',
+    'fountain': 'Sanctuary of flowing springs',
+    'mansion': 'Wealthy aristocrat\'s manor',
+    'mayor': 'Town administration office',
+    'archery': 'Military ranged training range',
+    'jousting': 'Chivalrous knight arena',
+    'watchtower': 'Fortress border defense guard',
+    'mystic-obelisk': 'Ancient cosmic beacon',
+    'golden-pantheon': 'Sacred golden shrine'
   }
-  return map[id] || 'Kingdom Building'
+  return map[id] || 'Kingdom property'
 }
 
 const getBuildingSpecialOutput = (id: string, kt: any) => {
   const map: Record<string, string> = {
+    'stable': 'Breeds sturdy mounts & supplies fresh timber/tack.',
     'blacksmith': 'Crafts refined metal materials & equipment.',
     'sawmill': 'Processes raw logs into building planks.',
+    'stone-quarry': 'Extracts heavy stone & masonry blocks.',
+    'stone_quarry': 'Extracts heavy stone & masonry blocks.',
+    'bakery': 'Bakes warm loaves & fresh pastries.',
+    'brewery': 'Brews ales and restorative beverages.',
+    'harvest-barn': 'Stores winter grain & organic harvest.',
+    'harvest_barn': 'Stores winter grain & organic harvest.',
+    'farm': 'Harvests golden grain & botanical crops.',
+    'vegetables': 'Grows fresh vegetables & produce.',
+    'pumpkin-patch': 'Grows autumn pumpkins & gourds.',
+    'serene-lake': 'Provides pure spring water & calm reflection.',
+    'serene_lake': 'Provides pure spring water & calm reflection.',
+    'pond': 'Stocked with fresh river fish & lotus flowers.',
+    'house': 'Collects modest municipal tenant taxes.',
+    'inn': 'Welcomes wandering travelers with warm food.',
     'fisherman': 'Catches fresh river fish & edible items.',
     'grocery': 'Distributes daily food rations & grain.',
     'foodcourt': 'Cooks premium meals for companions.',
@@ -51,11 +81,11 @@ const getBuildingSpecialOutput = (id: string, kt: any) => {
     'mayor': 'Oversees town upgrades and expansion.',
     'archery': 'Improves combat readiness and skills.',
     'jousting': 'Yields champion crests & joust rewards.',
-    'watchtower': 'Defends kingdom from chaotic rift rifts.',
-    'mystic-obelisk': 'Effect: +15% Unowned Scratch Card Chance (2 Hours)',
-    'golden-pantheon': 'Bonus: 35% chance of Crown Pack, Gems, or 500 Essence'
+    'watchtower': 'Defends kingdom from chaotic rifts.',
+    'mystic-obelisk': 'Effect: +15% unowned scratch card chance (2 hours)',
+    'golden-pantheon': 'Bonus: 35% chance of crown pack, gems, or 500 essence'
   }
-  return map[id] || `Produces passive Gold & Experience.`
+  return map[id] || `Produces passive gold & experience.`
 }
 
 const getRarityColorClass = (rarity: string) => {
@@ -188,7 +218,7 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
                 </span>
               </div>
               <div>
-                <span className="text-zinc-500 block text-[9px] tracking-wider">LUCKY BONUSES</span>
+                <span className="text-zinc-500 block text-[9px] tracking-wider">Lucky bonuses</span>
                 <span className="text-white font-semibold">
                   {luckyGold} Gold ({luckyChancePercent}%)
                 </span>
@@ -224,12 +254,12 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
                 </div>
               )}
               <div className="text-left font-serif">
-                <span className="text-xs text-zinc-400 font-mono block leading-none">STATUS</span>
+                <span className="text-xs text-zinc-400 font-mono block leading-none">Status</span>
                 <span className={cn(
                   "font-bold text-sm",
                   isReady ? "text-green-400" : "text-amber-300"
                 )}>
-                  {isReady ? "Ready to Harvest" : "Recharging..."}
+                  {isReady ? "Ready to harvest" : "Recharging..."}
                 </span>
               </div>
             </div>

@@ -258,27 +258,36 @@ export const KingdomTileItem = React.memo(({
       )}
 
       {/* Hover Info-Card (Desktop Only) */}
-      {(['daily-hub', 'dailyhub', 'daily_hub', 'quest-board', 'market', 'market-stalls', 'dungeon', 'dungeon-keep', 'monument', 'mystic_bazaar', 'airship_harbor', 'housecup', 'observatory', 'hall_of_champions', 'titan_watchtower', 'castle', 'library', 'training-grounds', 'serene_lake'].includes(type) || auraColor) && (
+      {(['daily-hub', 'dailyhub', 'daily_hub', 'quest-board', 'market', 'market-stalls', 'dungeon', 'dungeon-keep', 'crystal_cavern', 'monument', 'hall_of_fame', 'mystic_bazaar', 'airship_harbor', 'housecup', 'observatory', 'hall_of_champions', 'titan_watchtower', 'castle', 'library', 'barracks', 'training-grounds', 'training_grounds', 'tavern', 'inn', 'town-hall', 'town_hall', 'mayor', 'zen-garden', 'plank-labyrinth', 'fortune_teller', 'fortune-teller', 'apotheca', 'siege_workshop', 'prison', 'serene_lake'].includes(type) || auraColor) && (
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-zinc-950/80 transition-all pointer-events-none hidden md:flex flex-col items-center justify-center p-1 z-50">
             <div className="bg-zinc-900/95 border border-white/10 rounded-lg p-2 shadow-2xl scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-300 ">
               <p className="text-[10px] font-bold text-amber-100 uppercase tracking-tighter text-center">{libraryTile?.name || kingdomTile?.name || tile.name || tile.type}</p>
               <div className="h-px bg-white/10 my-1 w-full" />
               <p className="text-[8px] text-zinc-400 text-center italic">
-                {type.includes('daily') ? 'Portal: Habit Dashboard' :
-                 type === 'quest-board' ? 'Portal: Tasks & Milestones' :
-                 type === 'market' || type === 'market-stalls' ? 'Portal: Royal Exchange' :
-                 type.includes('mystic') ? 'Portal: Mystic Bazaar' :
-                 type === 'dungeon' || type === 'dungeon-keep' ? 'Portal: Combat Depths' :
-                 type === 'monument' ? 'Statue: Achievements' :
-                 type === 'airship_harbor' ? 'Portal: Skydock Voyages' :
-                 type === 'housecup' ? 'Portal: Hourglass Spire' :
-                 type === 'observatory' ? 'Portal: Cartography Spire' :
-                 type === 'hall_of_champions' ? 'Portal: Hall of Champions' :
-                 type === 'titan_watchtower' ? 'Portal: Titan Raid' :
-                 type === 'castle' ? 'Portal: Royal Castle' :
-                 type === 'library' ? 'Portal: Archives & Lore' :
-                 type === 'training-grounds' ? 'Portal: Barracks Vault' :
-                 auraColor ? synergyLabel : 'Waypoint Available'}
+                {type.includes('daily') ? 'Portal: Habit dashboard' :
+                 type === 'quest-board' ? 'Portal: Tasks & milestones' :
+                 type === 'market' || type === 'market-stalls' ? 'Portal: Royal exchange' :
+                 type.includes('mystic') ? 'Portal: Mystic bazaar' :
+                 type === 'dungeon' || type === 'dungeon-keep' || type === 'crystal_cavern' ? 'Portal: Combat depths' :
+                 type === 'monument' || type === 'hall_of_fame' ? 'Statue: Hall of fame' :
+                 type === 'airship_harbor' ? 'Portal: Skydock voyages' :
+                 type === 'housecup' ? 'Portal: Hourglass spire' :
+                 type === 'observatory' ? 'Portal: Cartography & world map' :
+                 type === 'hall_of_champions' ? 'Portal: Hall of champions' :
+                 type === 'titan_watchtower' ? 'Portal: Titan raid watchtower' :
+                 type === 'castle' ? 'Portal: Royal castle & sandbox' :
+                 type === 'library' ? 'Portal: Archives & lore' :
+                 type === 'barracks' ? 'Portal: Citizen barracks' :
+                 type === 'training-grounds' || type === 'training_grounds' ? 'Portal: Hero vault & equipment' :
+                 type === 'tavern' || type === 'inn' ? 'Portal: Social hall & dares' :
+                 type === 'town-hall' || type === 'town_hall' || type === 'mayor' ? 'Portal: Citizen workforce' :
+                 type.includes('zen') ? 'Minigame: Sacred meditation' :
+                 type.includes('labyrinth') ? 'Minigame: River plank puzzle' :
+                 type.includes('fortune') ? 'Minigame: Daily tarot reading' :
+                 type === 'apotheca' ? 'Workshop: Potion brewing' :
+                 type === 'siege_workshop' ? 'Workshop: Titan siege engines' :
+                 type.includes('prison') ? 'Settlement: Royal prison' :
+                 auraColor ? synergyLabel : 'Waypoint available'}
               </p>
               
               <div className="flex items-center justify-between text-[10px] text-zinc-400 border-t border-white/5 pt-2 mt-2">

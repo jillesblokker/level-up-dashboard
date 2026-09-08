@@ -19,6 +19,7 @@ interface TileActionSheetProps {
     onDelete: () => void
     onRotate: () => void
     onCollect?: (() => void) | undefined
+    onInspect?: (() => void) | undefined
     onMeditate?: (() => void) | undefined
     onCollectAll?: (() => void) | undefined
     hasBatchReady?: boolean
@@ -40,6 +41,7 @@ export function TileActionSheet({
     onDelete,
     onRotate,
     onCollect,
+    onInspect,
     onMeditate,
     onCollectAll,
     hasBatchReady,
@@ -185,6 +187,25 @@ export function TileActionSheet({
                             </button>
                         )}
 
+                        {/* Inspect details if recharging */}
+                        {!isReady && timeRemaining && onInspect && (
+                            <button
+                                onClick={() => {
+                                    onInspect()
+                                    onClose()
+                                }}
+                                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-zinc-900 hover:bg-zinc-800 transition-all active:scale-[0.98] border border-amber-900/30 mb-2"
+                            >
+                                <div className="w-12 h-12 rounded-xl bg-amber-950/40 border border-amber-500/30 flex items-center justify-center">
+                                    <Clock className="w-6 h-6 text-amber-400 animate-pulse" />
+                                </div>
+                                <div className="text-left flex-1">
+                                    <div className="font-bold text-white text-base">View recharging status</div>
+                                    <div className="text-zinc-400 text-sm">{timeRemaining} remaining • Tap to inspect yields</div>
+                                </div>
+                            </button>
+                        )}
+
                         {/* Collect action - only if ready */}
                         {isReady && onCollect && (
                             <button
@@ -198,7 +219,7 @@ export function TileActionSheet({
                                     <Sparkles className="w-6 h-6 text-white" />
                                 </div>
                                 <div className="text-left flex-1">
-                                    <div className="font-bold text-white text-base">Collect Rewards</div>
+                                    <div className="font-bold text-white text-base">Collect rewards</div>
                                     <div className="text-green-200 text-sm">Tap to claim your earnings</div>
                                 </div>
                             </button>

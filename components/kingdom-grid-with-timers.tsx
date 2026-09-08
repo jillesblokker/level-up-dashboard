@@ -1846,13 +1846,9 @@ export function KingdomGridWithTimers({
       setPlankModalOpen(true);
       return;
     }
-    const propertyTypes = [
-      'blacksmith', 'sawmill', 'fisherman', 'grocery', 'foodcourt',
-      'well', 'windmill', 'fountain', 'mansion', 'mayor',
-      'archery', 'jousting', 'watchtower', 'mystic-obelisk', 'golden-pantheon'
-    ];
-
-    if (tile.type && propertyTypes.includes(tile.type.toLowerCase())) {
+    // Flavor 4: Production Properties Modal (Stable, Blacksmith, Sawmill, Bakery, Quarry, etc.)
+    const kingdomTileForTimer = KINGDOM_TILES.find(kt => kt.id === tile.type?.toLowerCase());
+    if (kingdomTileForTimer && kingdomTileForTimer.timerMinutes > 0) {
       const activeTimer = tileTimers.find(t => t.x === x && t.y === y);
       setSpecialTileData({ x, y, tile, timer: activeTimer });
       setSpecialModalOpen(true);
@@ -3207,9 +3203,17 @@ export function KingdomGridWithTimers({
             handleUpgradeTile(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
           }
         }}
-        onEnter={actionSheetTile && ['dungeon', 'market', 'quest-board', 'monument', 'tavern', 'castle', 'library', 'training-grounds', 'crystal_cavern', 'plank-labyrinth'].includes(actionSheetTile.tile.type) ? () => {
+        onEnter={actionSheetTile && [
+          'daily-hub', 'dailyhub', 'daily_hub', 'dungeon', 'dungeon-keep', 'quest-board', 'market',
+          'market-stalls', 'mystic_bazaar', 'airship_harbor', 'housecup',
+          'observatory', 'hall_of_champions', 'titan_watchtower', 'castle',
+          'library', 'barracks', 'training-grounds', 'training_grounds', 'monument', 'hall_of_fame',
+          'tavern', 'inn', 'town-hall', 'town_hall', 'mayor', 'crystal_cavern', 'plank-labyrinth',
+          'fortune_teller', 'fortune-teller', 'apotheca', 'siege_workshop', 'prison'
+        ].includes(actionSheetTile.tile.type) ? () => {
           if (actionSheetTile) {
             handleTileClick(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
+            setActionSheetOpen(false);
           }
         } : undefined}
         canUpgrade={actionSheetTile ? !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'vacant', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad'].includes(actionSheetTile.tile.type) : false}
@@ -3230,6 +3234,12 @@ export function KingdomGridWithTimers({
             collectPropertyTile(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
           }
         } : undefined}
+        onInspect={() => {
+          if (actionSheetTile) {
+            handleTileClick(actionSheetTile.x, actionSheetTile.y, actionSheetTile.tile);
+            setActionSheetOpen(false);
+          }
+        }}
         onCollectAll={handleCollectAllReady}
         hasBatchReady={tileTimers.filter(t => t.isReady).length > 1}
         onMeditate={actionSheetTile?.tile?.type === 'zen-garden' ? () => {
@@ -3347,6 +3357,8 @@ export function KingdomGridWithTimers({
           timer={specialTileData.timer}
           onCollect={() => {
             collectPropertyTile(specialTileData.x, specialTileData.y, specialTileData.tile);
+            setSpecialModalOpen(false);
+            setSpecialTileData(null);
           }}
         />
       )}
