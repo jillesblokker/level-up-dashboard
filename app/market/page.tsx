@@ -474,6 +474,100 @@ export default function MarketPage() {
     });
   }, [searchQuery, sortBy, filterBy, activeTab, inventoryAsItems, scaledMaterials]);
 
+  // Helper to resolve styling, image, and visual type for Owned Packs
+  const getOwnedPackMeta = (op: OwnedPack) => {
+    const typeId = op.packTypeId?.toLowerCase() || '';
+    const title = op.packTitle?.toLowerCase() || '';
+    const isChest = typeId.startsWith('free_') || title.includes('chest');
+
+    if (isChest) {
+      if (typeId === 'free_monthly' || title.includes('monthly')) {
+        return {
+          isChest: true,
+          image: '',
+          rarity: 'legendary' as const,
+          border: 'border-amber-500/45 hover:border-amber-400/90 shadow-[0_0_18px_rgba(245,158,11,0.15)] hover:shadow-[0_0_30px_rgba(245,158,11,0.35)]',
+          gradient: 'from-amber-950/30 via-zinc-900 to-zinc-900',
+          titleColor: 'text-amber-300',
+          subColor: 'text-amber-400/80',
+          btnColor: 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-500 text-zinc-950 font-black shadow-amber-500/25',
+        };
+      }
+      if (typeId === 'free_mystery' || title.includes('mystery')) {
+        return {
+          isChest: true,
+          image: '',
+          rarity: 'epic' as const,
+          border: 'border-purple-500/35 hover:border-purple-400/80 shadow-[0_0_15px_rgba(168,85,247,0.1)] hover:shadow-[0_0_25px_rgba(168,85,247,0.25)]',
+          gradient: 'from-purple-950/25 via-zinc-900 to-zinc-900',
+          titleColor: 'text-purple-300',
+          subColor: 'text-purple-400/80',
+          btnColor: 'bg-gradient-to-r from-purple-600 via-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white shadow-purple-950/50',
+        };
+      }
+      if (typeId === 'free_weekly' || title.includes('weekly')) {
+        return {
+          isChest: true,
+          image: '',
+          rarity: 'rare' as const,
+          border: 'border-blue-500/35 hover:border-blue-400/80 shadow-[0_0_15px_rgba(59,130,246,0.1)] hover:shadow-[0_0_25px_rgba(59,130,246,0.25)]',
+          gradient: 'from-blue-950/25 via-zinc-900 to-zinc-900',
+          titleColor: 'text-blue-300',
+          subColor: 'text-blue-400/80',
+          btnColor: 'bg-gradient-to-r from-blue-600 via-blue-600 to-cyan-700 hover:from-blue-500 hover:to-cyan-600 text-white shadow-blue-950/50',
+        };
+      }
+      // Default Daily Chest
+      return {
+        isChest: true,
+        image: '',
+        rarity: 'uncommon' as const,
+        border: 'border-emerald-500/35 hover:border-emerald-400/80 shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_25px_rgba(16,185,129,0.25)]',
+        gradient: 'from-emerald-950/25 via-zinc-900 to-zinc-900',
+        titleColor: 'text-emerald-300',
+        subColor: 'text-emerald-400/80',
+        btnColor: 'bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white shadow-emerald-950/50',
+      };
+    }
+
+    // Card Packs (Drift, Vault, Crown)
+    if (typeId === 'crown' || title.includes('crown')) {
+      return {
+        isChest: false,
+        image: '/images/packs/crown-pack.jpg',
+        rarity: 'legendary' as const,
+        border: 'border-2 border-amber-500/50 hover:border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.25)] hover:shadow-[0_0_35px_rgba(245,158,11,0.45)]',
+        gradient: 'from-amber-600/20 via-zinc-900 to-zinc-900',
+        titleColor: 'text-amber-300',
+        subColor: 'text-amber-200/80',
+        btnColor: 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-500 text-zinc-950 font-black shadow-amber-500/25',
+      };
+    }
+    if (typeId === 'vault' || title.includes('vault')) {
+      return {
+        isChest: false,
+        image: '/images/packs/vault-pack.jpg',
+        rarity: 'rare' as const,
+        border: 'border-2 border-purple-500/50 hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.2)] hover:shadow-[0_0_35px_rgba(168,85,247,0.4)]',
+        gradient: 'from-purple-600/20 via-zinc-900 to-zinc-900',
+        titleColor: 'text-purple-300',
+        subColor: 'text-purple-200/80',
+        btnColor: 'bg-gradient-to-r from-purple-600 via-fuchsia-600 to-indigo-600 hover:from-purple-500 hover:to-fuchsia-500 text-white shadow-purple-600/30',
+      };
+    }
+    // Default Drift pack (Tier I)
+    return {
+      isChest: false,
+      image: '/images/packs/drift-pack.jpg',
+      rarity: 'uncommon' as const,
+      border: 'border-2 border-cyan-500/40 hover:border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.15)] hover:shadow-[0_0_30px_rgba(6,182,212,0.35)]',
+      gradient: 'from-cyan-600/20 via-zinc-900 to-zinc-900',
+      titleColor: 'text-cyan-300',
+      subColor: 'text-cyan-200/80',
+      btnColor: 'bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-600/30',
+    };
+  };
+
   return (
     <div className="min-h-screen thrivehaven-page-bg text-zinc-100 p-4 sm:p-6 lg:p-8 font-serif">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -550,37 +644,99 @@ export default function MarketPage() {
 
             {/* OWNED PACKS INVENTORY SECTION (Buy vs Unpack Flow!) */}
             {ownedPacksList.length > 0 && (
-              <div className="space-y-4 bg-gradient-to-r from-amber-950/40 via-zinc-950 to-purple-950/40 p-5 rounded-2xl border-2 border-amber-500/50 shadow-xl animate-fadeIn">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">🎴</span>
-                    <h3 className="text-xl font-bold text-amber-300 font-serif">Owned Packs ({ownedPacksList.length})</h3>
+              <div className="space-y-4 bg-gradient-to-b from-amber-950/30 via-zinc-950 to-zinc-950 p-5 sm:p-6 rounded-2xl border-2 border-amber-500/40 shadow-2xl animate-fadeIn">
+                <div className="flex items-center justify-between flex-wrap gap-3 pb-2 border-b border-amber-900/30">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">📦</span>
+                    <div>
+                      <h3 className="text-xl sm:text-2xl font-bold text-amber-300 font-serif">
+                        Owned Packs ({ownedPacksList.length})
+                      </h3>
+                      <p className="text-xs text-zinc-400 font-serif">
+                        Scratch cards to reveal matching symbols and claim Mystery Cards for your vault
+                      </p>
+                    </div>
                   </div>
+                  <Badge className="bg-amber-950/90 border border-amber-500/50 text-amber-300 text-xs font-mono font-bold px-3 py-1 shadow-md">
+                    Ready to Unpack ✨
+                  </Badge>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {ownedPacksList.map((op) => (
-                    <Card
-                      key={op.id}
-                      onClick={() => {
-                        hapticSuccess();
-                        setOpeningPack({ ...op.packData, ownedPackId: op.id });
-                      }}
-                      className="bg-zinc-900 border-amber-500/50 hover:border-amber-400 cursor-pointer hover:scale-[1.02] transition-all shadow-lg group p-4 flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-14 bg-gradient-to-br from-amber-600 via-orange-600 to-amber-800 rounded-lg flex items-center justify-center text-2xl shadow-md group-hover:rotate-6 transition-transform border border-amber-300/40">
-                          🎴
-                        </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:gap-6 pt-2">
+                  {ownedPacksList.map((op, index) => {
+                    const meta = getOwnedPackMeta(op);
+                    return (
+                      <Card
+                        key={op.id}
+                        style={{ animationDelay: `${index * 60}ms` }}
+                        onClick={() => {
+                          hapticSuccess();
+                          setOpeningPack({ ...op.packData, ownedPackId: op.id });
+                        }}
+                        className={cn(
+                          "bg-gradient-to-b transition-all duration-300 group flex flex-col justify-between relative overflow-hidden animate-in fade-in slide-in-from-bottom-3 cursor-pointer hover:scale-[1.02] shadow-xl min-h-[390px]",
+                          meta.gradient,
+                          meta.border
+                        )}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-40 pointer-events-none" />
+
                         <div>
-                          <h4 className="font-bold text-amber-200 text-sm font-serif">{op.packTitle}</h4>
-                          <p className="text-xs text-zinc-400 font-mono">Ready to Unpack</p>
+                          <CardHeader className="text-center relative z-10 pb-2 pt-4">
+                            <CardTitle className={cn("text-xl sm:text-2xl font-black font-serif tracking-wide leading-tight", meta.titleColor)}>
+                              {op.packTitle}
+                            </CardTitle>
+                            <CardDescription className={cn("text-xs font-mono font-bold tracking-wider uppercase mt-1", meta.subColor)}>
+                              {op.shortLabel ? `${op.shortLabel} • Ready to Unpack` : "Ready to Unpack"}
+                            </CardDescription>
+                          </CardHeader>
+
+                          <CardContent className="text-center relative z-10 space-y-3 px-4">
+                            {meta.isChest ? (
+                              <div className="relative w-full max-w-[170px] h-36 mx-auto flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+                                <TreasureChestVisual
+                                  state="ready"
+                                  rarity={meta.rarity}
+                                  tierLabel={op.shortLabel || "Ready"}
+                                  hideLabels={true}
+                                  className="w-full h-full bg-transparent border-0 p-0 shadow-none"
+                                />
+                              </div>
+                            ) : (
+                              <div className={cn(
+                                "relative w-36 h-48 sm:w-40 sm:h-52 mx-auto rounded-2xl overflow-hidden shadow-2xl border-2 transition-all duration-500 group-hover:scale-105 group-hover:rotate-1 group-hover:-translate-y-1",
+                                meta.border
+                              )}>
+                                <Image
+                                  src={meta.image}
+                                  alt={op.packTitle}
+                                  fill
+                                  sizes="(max-width: 768px) 160px, 180px"
+                                  className="object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                              </div>
+                            )}
+
+                            <p className="text-xs text-zinc-300 leading-snug line-clamp-2 px-1">
+                              Tap to begin scratching cards and reveal 3 matching symbols to win!
+                            </p>
+                          </CardContent>
                         </div>
-                      </div>
-                      <Button size="sm" className="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-md">
-                        Unpack ✨
-                      </Button>
-                    </Card>
-                  ))}
+
+                        <CardFooter className="pt-2 pb-4 relative z-10">
+                          <Button
+                            className={cn(
+                              "w-full h-12 text-sm font-black uppercase tracking-wider rounded-xl shadow-lg transition-all duration-300 group-hover:brightness-110",
+                              meta.btnColor
+                            )}
+                          >
+                            Unpack Now ✨
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
             )}
