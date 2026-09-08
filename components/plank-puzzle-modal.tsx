@@ -351,8 +351,8 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
                   await addToCharacterStat('focus_points', -FOCUS_COST, 'unlock-plank-labyrinth');
                   localStorage.removeItem('labyrinth_daily_limit');
                   try {
-                    const { fetchAuthRetry } = await import('@/lib/api-retry');
-                    await fetchAuthRetry('/api/property-timers', {
+                    const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+                    await fetchWithAuth('/api/property-timers', {
                       method: 'PUT',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ tileId: 'plank-labyrinth', isReady: true, endTime: new Date(Date.now() - 1000).toISOString() })

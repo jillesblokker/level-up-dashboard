@@ -1782,7 +1782,7 @@ export function KingdomGridWithTimers({
       setFortuneModalOpen(true);
       return;
     }
-    if (tile.type === 'plank-labyrinth' || tile.type === 'labyrinth' || tile.type === 'plank_labyrinth') {
+    if (tile.type === 'plank-labyrinth' || (tile.type as string).includes('labyrinth')) {
       const activeTimer = tileTimers.find(t => t.x === x && t.y === y);
       const today = new Date().toISOString().split('T')[0];
       const storage = typeof window !== 'undefined' ? localStorage.getItem('labyrinth_daily_limit') : null;
