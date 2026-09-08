@@ -5,6 +5,8 @@ import { X, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Trophy, Sparkles } from "
 import { Button } from "./ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog"
 import { toast } from "./ui/use-toast"
+import { ToastAction } from "./ui/toast"
+import { getCharacterStats, addToCharacterStat } from "@/lib/character-stats-service"
 import { cn } from "@/lib/utils"
 
 interface Plank {
@@ -334,10 +336,53 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
       if (data.date !== today) data = { date: today, count: 0 };
 
       if (data.count >= 1) {
-        toast({
-          title: "🛑 Daily Limit Reached (1/1)",
-          description: "The Plank Labyrinth is locked until local midnight reset.",
-        });
+        const stats = getCharacterStats();
+        const currentFocus = stats.focus_points || 0;
+        const FOCUS_COST = 5;
+
+        if (currentFocus >= FOCUS_COST) {
+          toast({
+            title: "Labyrinth already used (1/1) 🧩",
+            description: `Locked until midnight. Spend ${FOCUS_COST} focus points to reset and play again?`,
+            action: (
+              <ToastAction
+                altText={`Reset (${FOCUS_COST} FP)`}
+                onClick={async () => {
+                  await addToCharacterStat('focus_points', -FOCUS_COST, 'unlock-plank-labyrinth');
+                  localStorage.removeItem('labyrinth_daily_limit');
+                  try {
+                    const { fetchAuthRetry } = await import('@/lib/api-retry');
+                    await fetchAuthRetry('/api/property-timers', {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ tileId: 'plank-labyrinth', isReady: true, endTime: new Date(Date.now() - 1000).toISOString() })
+                    });
+                  } catch {}
+                  window.dispatchEvent(new Event('character-stats-update'));
+                  window.dispatchEvent(new CustomEvent('minigame-reset', { detail: { type: 'plank-labyrinth' } }));
+                  window.dispatchEvent(new CustomEvent('open-plank-labyrinth'));
+                  toast({
+                    title: "Labyrinth unlocked! 🧠",
+                    description: `Spent ${FOCUS_COST} focus points! The plank labyrinth has been reset.`
+                  });
+                }}
+              >
+                Reset ({FOCUS_COST} FP)
+              </ToastAction>
+            )
+          });
+        } else {
+          toast({
+            title: "Labyrinth locked (1/1) 🧩",
+            description: `The labyrinth is locked until midnight. Earn ${FOCUS_COST - currentFocus} more focus points (you have ${currentFocus}) to unlock immediately!`,
+            variant: "destructive",
+            action: (
+              <ToastAction altText="View focus" onClick={() => window.location.href = '/character'}>
+                View focus
+              </ToastAction>
+            )
+          });
+        }
         onClose();
         return;
       }

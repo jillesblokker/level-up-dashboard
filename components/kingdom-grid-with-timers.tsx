@@ -16,6 +16,7 @@ import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, ge
 import { KingdomTileModal } from './kingdom-tile-modal'
 import { ZenMeditateModal } from './kingdom/ZenMeditateModal'
 import { useToast, toast } from '@/components/ui/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 import { notificationService } from '@/lib/notification-service';
 import { KingdomTileItem } from './KingdomTileItem'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
@@ -613,6 +614,15 @@ export function KingdomGridWithTimers({
   const [specialTileData, setSpecialTileData] = useState<{ x: number, y: number, tile: Tile, timer: TileTimer | undefined } | null>(null);
   const [waypointModalOpen, setWaypointModalOpen] = useState(false);
   const [selectedWaypointTileType, setSelectedWaypointTileType] = useState<string | null>(null);
+
+  // Listen for external labyrinth open requests (e.g. from reset toast action)
+  useEffect(() => {
+    const handleOpenPlank = () => {
+      setPlankModalOpen(true);
+    };
+    window.addEventListener('open-plank-labyrinth', handleOpenPlank);
+    return () => window.removeEventListener('open-plank-labyrinth', handleOpenPlank);
+  }, []);
 
   // Batch collection state
   const [showSummaryModal, setShowSummaryModal] = useState(false)
@@ -1772,37 +1782,67 @@ export function KingdomGridWithTimers({
       setFortuneModalOpen(true);
       return;
     }
-    if (tile.type === 'plank-labyrinth') {
+    if (tile.type === 'plank-labyrinth' || tile.type === 'labyrinth' || tile.type === 'plank_labyrinth') {
       const activeTimer = tileTimers.find(t => t.x === x && t.y === y);
-      if (activeTimer && !activeTimer.isReady) {
+      const today = new Date().toISOString().split('T')[0];
+      const storage = typeof window !== 'undefined' ? localStorage.getItem('labyrinth_daily_limit') : null;
+      let data = storage ? JSON.parse(storage) : null;
+      const isDailyLocked = data && data.date === today && data.count >= 1;
+      const isTimerLocked = activeTimer && !activeTimer.isReady;
+
+      if (isTimerLocked || isDailyLocked) {
         const stats = getCharacterStats();
         const currentFocus = stats.focus_points || 0;
-        if (currentFocus >= 5) {
-          addToCharacterStat('focus_points', -5, 'unlock-plank-labyrinth');
-          setTileTimers(prev => prev.map(t => (t.x === x && t.y === y ? { ...t, isReady: true } : t)));
-          fetchAuthRetry('/api/property-timers', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ x, y, isReady: true, endTime: new Date(Date.now() - 1000).toISOString() })
-          }).catch(() => {});
+        const FOCUS_COST = 5;
 
+        if (currentFocus >= FOCUS_COST) {
           toast({
-            title: "🧠 Labyrinth Unlocked!",
-            description: "Spent 5 Focus Points to instantly reset the Plank Labyrinth!"
+            title: "Labyrinth already used (1/1) 🧠",
+            description: `The labyrinth is locked until midnight. Spend ${FOCUS_COST} focus points to reset immediately?`,
+            action: (
+              <ToastAction
+                altText={`Reset (${FOCUS_COST} FP)`}
+                onClick={async () => {
+                  addToCharacterStat('focus_points', -FOCUS_COST, 'unlock-plank-labyrinth');
+                  localStorage.removeItem('labyrinth_daily_limit');
+                  setTileTimers(prev => prev.map(t => (t.x === x && t.y === y ? { ...t, isReady: true } : t)));
+                  fetchAuthRetry('/api/property-timers', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ x, y, isReady: true, endTime: new Date(Date.now() - 1000).toISOString(), tileId: 'plank-labyrinth' })
+                  }).catch(() => {});
+                  window.dispatchEvent(new Event('character-stats-update'));
+                  window.dispatchEvent(new CustomEvent('minigame-reset', { detail: { type: 'plank-labyrinth' } }));
+
+                  toast({
+                    title: "Labyrinth unlocked! 🧠",
+                    description: `Spent ${FOCUS_COST} focus points to instantly reset the plank labyrinth!`
+                  });
+                  setPlankTileData({ x, y });
+                  setPlankModalOpen(true);
+                }}
+              >
+                Reset ({FOCUS_COST} FP)
+              </ToastAction>
+            )
           });
-          setPlankTileData({ x, y });
-          setPlankModalOpen(true);
         } else {
           toast({
-            title: "Labyrinth Resetting 🧠",
-            description: `The Labyrinth is resetting. Earn ${5 - currentFocus} more Focus Points to unlock immediately!`,
-            variant: "destructive"
+            title: "Labyrinth resetting 🧠",
+            description: `The labyrinth is locked. Earn ${FOCUS_COST - currentFocus} more focus points (you have ${currentFocus}) to unlock immediately!`,
+            variant: "destructive",
+            action: (
+              <ToastAction altText="View focus" onClick={() => router.push('/character')}>
+                View focus
+              </ToastAction>
+            )
           });
         }
-      } else {
-        setPlankTileData({ x, y });
-        setPlankModalOpen(true);
+        return;
       }
+
+      setPlankTileData({ x, y });
+      setPlankModalOpen(true);
       return;
     }
     const propertyTypes = [

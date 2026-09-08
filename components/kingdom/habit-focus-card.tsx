@@ -87,6 +87,14 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
   const [riddleOpen, setRiddleOpen] = useState(false);
   const [labyrinthOpen, setLabyrinthOpen] = useState(false);
 
+  useEffect(() => {
+    const handleOpenLabyrinth = () => {
+      setLabyrinthOpen(true);
+    };
+    window.addEventListener('open-plank-labyrinth', handleOpenLabyrinth);
+    return () => window.removeEventListener('open-plank-labyrinth', handleOpenLabyrinth);
+  }, []);
+
   // Load configuration and quests
   const loadData = useCallback(async () => {
     if (!user?.id) return;
