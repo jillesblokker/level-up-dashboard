@@ -590,7 +590,7 @@ export default function MarketPage() {
                 <span className="text-2xl">🎁</span>
                 <h2 className="text-2xl font-bold tracking-tight text-amber-400 font-serif">Mystic Chests</h2>
               </div>
-              <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-3 custom-scrollbar mobile-scroll-hide sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
+              <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-3 custom-scrollbar mobile-scroll-hide sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-5 lg:gap-6">
                 {FREE_PACK_TYPES.map((pack, index) => {
                   const onCooldown = isPackOnCooldown(pack);
                   const remaining = getCooldownRemaining(pack);
@@ -632,39 +632,106 @@ export default function MarketPage() {
                     }
                   }
 
-                  return (
-                    <Card key={pack.id} style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }} className={`bg-zinc-900 border-amber-900/30 hover:border-amber-500/50 transition-all duration-300 shadow-lg group flex flex-col relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 snap-start shrink-0 w-[calc(100vw-3.25rem)] max-w-[285px] sm:w-auto sm:min-w-0 sm:shrink min-h-[390px] ${onCooldown ? 'opacity-70' : 'shadow-amber-500/5'}`}>
-                      <div className="absolute inset-0 bg-gradient-to-b from-amber-900/10 to-transparent opacity-50"></div>
-                      <CardHeader className="text-center relative z-10 pb-1.5 pt-4">
-                        <CardTitle className="text-base sm:text-lg font-bold text-amber-300 font-serif leading-tight">{pack.title}</CardTitle>
-                        <CardDescription className="text-[10px] text-amber-200/60 font-mono font-bold mt-0.5">{pack.shortLabel}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="flex-1 text-center relative z-10 space-y-2 px-3">
-                        {/* 3D Tactile Treasure Chest Visual */}
-                        <div className="relative w-full max-w-[170px] h-32 mx-auto flex items-center justify-center">
-                          <TreasureChestVisual
-                            state={onCooldown ? 'claimed' : isUnlocking ? 'opening' : 'ready'}
-                            rarity={(pack as any).rarity || (pack.id === 'free_monthly' ? 'legendary' : pack.id === 'free_mystery' ? 'epic' : pack.id === 'free_weekly' ? 'rare' : 'uncommon')}
-                            tierLabel={pack.shortLabel}
-                            hideLabels={true}
-                            className="w-full h-full bg-transparent border-0 p-0 shadow-none"
-                          />
-                        </div>
+                  const isDaily = pack.id === 'free_daily';
+                  const isMystery = pack.id === 'free_mystery';
+                  const isWeekly = pack.id === 'free_weekly';
+                  const isMonthly = pack.id === 'free_monthly';
 
-                        <p className="text-xs text-zinc-300 px-2 line-clamp-2 min-h-[32px] leading-snug">{pack.description}</p>
-                        {(onCooldown && remaining) ? (
-                          <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/40 py-1 px-2.5 rounded-full inline-block border border-amber-900/30 font-mono">
-                            ⏱️ {remaining}
+                  const cardTheme = isDaily
+                    ? {
+                        border: "border-emerald-500/35 hover:border-emerald-400/80 shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_25px_rgba(16,185,129,0.25)]",
+                        gradient: "from-emerald-950/25 via-zinc-900 to-zinc-900",
+                        title: "text-emerald-300",
+                        sub: "text-emerald-400/80",
+                        btn: "bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white shadow-emerald-950/50",
+                        rarity: "uncommon" as const
+                      }
+                    : isMystery
+                    ? {
+                        border: "border-purple-500/35 hover:border-purple-400/80 shadow-[0_0_15px_rgba(168,85,247,0.1)] hover:shadow-[0_0_25px_rgba(168,85,247,0.25)]",
+                        gradient: "from-purple-950/25 via-zinc-900 to-zinc-900",
+                        title: "text-purple-300",
+                        sub: "text-purple-400/80",
+                        btn: "bg-gradient-to-r from-purple-600 via-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white shadow-purple-950/50",
+                        rarity: "epic" as const
+                      }
+                    : isWeekly
+                    ? {
+                        border: "border-blue-500/35 hover:border-blue-400/80 shadow-[0_0_15px_rgba(59,130,246,0.1)] hover:shadow-[0_0_25px_rgba(59,130,246,0.25)]",
+                        gradient: "from-blue-950/25 via-zinc-900 to-zinc-900",
+                        title: "text-blue-300",
+                        sub: "text-blue-400/80",
+                        btn: "bg-gradient-to-r from-blue-600 via-blue-600 to-cyan-700 hover:from-blue-500 hover:to-cyan-600 text-white shadow-blue-950/50",
+                        rarity: "rare" as const
+                      }
+                    : {
+                        border: "border-amber-500/45 hover:border-amber-400/90 shadow-[0_0_18px_rgba(245,158,11,0.15)] hover:shadow-[0_0_30px_rgba(245,158,11,0.35)]",
+                        gradient: "from-amber-950/30 via-zinc-900 to-zinc-900",
+                        title: "text-amber-300",
+                        sub: "text-amber-400/80",
+                        btn: "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-500 text-zinc-950 font-black shadow-amber-500/25",
+                        rarity: "legendary" as const
+                      };
+
+                  return (
+                    <Card
+                      key={pack.id}
+                      style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }}
+                      className={cn(
+                        "bg-gradient-to-b transition-all duration-300 group flex flex-col justify-between relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 snap-start shrink-0 w-[calc(100vw-3.25rem)] max-w-[285px] sm:w-auto sm:max-w-none sm:min-w-0 sm:shrink min-h-[390px] border-2",
+                        cardTheme.gradient,
+                        cardTheme.border,
+                        onCooldown && "opacity-70 saturate-75"
+                      )}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-40 pointer-events-none" />
+                      
+                      <div>
+                        <CardHeader className="text-center relative z-10 pb-1.5 pt-4">
+                          <CardTitle className={cn("text-base sm:text-lg font-bold font-serif leading-tight", cardTheme.title)}>
+                            {pack.title}
+                          </CardTitle>
+                          <CardDescription className={cn("text-[10px] font-mono font-bold mt-0.5 tracking-wider uppercase", cardTheme.sub)}>
+                            {pack.shortLabel}
+                          </CardDescription>
+                        </CardHeader>
+                        
+                        <CardContent className="text-center relative z-10 space-y-2 px-3">
+                          {/* 3D Tactile Treasure Chest Visual */}
+                          <div className="relative w-full max-w-[170px] h-32 mx-auto flex items-center justify-center">
+                            <TreasureChestVisual
+                              state={onCooldown ? 'claimed' : isUnlocking ? 'opening' : 'ready'}
+                              rarity={cardTheme.rarity}
+                              tierLabel={pack.shortLabel}
+                              hideLabels={true}
+                              className="w-full h-full bg-transparent border-0 p-0 shadow-none"
+                            />
                           </div>
-                        ) : (isUnlocking && unlockRemaining) ? (
-                          <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/40 py-1 px-2.5 rounded-full inline-block border border-amber-900/30 font-mono">
-                            ⏳ {unlockRemaining}
-                          </div>
-                        ) : null}
-                      </CardContent>
-                      <CardFooter className="pt-2 relative z-10">
+
+                          <p className="text-xs text-zinc-300 px-1 line-clamp-2 min-h-[32px] leading-snug">
+                            {pack.description}
+                          </p>
+                          
+                          {(onCooldown && remaining) ? (
+                            <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/50 py-1 px-2.5 rounded-full inline-block border border-amber-900/40 font-mono">
+                              ⏱️ {remaining}
+                            </div>
+                          ) : (isUnlocking && unlockRemaining) ? (
+                            <div className="text-[10px] font-semibold text-purple-300 bg-purple-950/50 py-1 px-2.5 rounded-full inline-block border border-purple-900/40 font-mono">
+                              ⏳ {unlockRemaining}
+                            </div>
+                          ) : null}
+                        </CardContent>
+                      </div>
+
+                      <CardFooter className="pt-2 pb-4 relative z-10">
                         <Button 
-                          className={`w-full h-14 text-base font-black uppercase tracking-wider rounded-xl transition-all duration-300 ${isButtonDisabled ? 'bg-zinc-800 text-zinc-500 border border-zinc-700/50 cursor-not-allowed shadow-none' : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg shadow-amber-900/50'}`}
+                          className={cn(
+                            "w-full h-12 text-xs sm:text-sm font-black uppercase tracking-wider rounded-xl transition-all duration-300 shadow-md",
+                            isButtonDisabled
+                              ? "bg-zinc-800 text-zinc-500 border border-zinc-700/50 cursor-not-allowed shadow-none"
+                              : cardTheme.btn
+                          )}
                           onClick={() => handleBuyPack(pack)}
                           disabled={isButtonDisabled}
                         >
