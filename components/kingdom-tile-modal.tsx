@@ -26,152 +26,110 @@ interface KingdomTileModalProps {
   hasBatchReady?: boolean
 }
 
-export function KingdomTileModal({ isOpen, onClose, reward, onCollectAll, hasBatchReady }: KingdomTileModalProps) {
+export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalProps) {
   if (!reward) return null
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className={cn(
-          "max-w-sm max-h-[90vh] border-amber-600/20 overflow-hidden shadow-2xl p-0 bg-zinc-950 flex flex-col",
-          reward.isLucky && "bg-gradient-to-b from-amber-950/80 via-zinc-950 to-zinc-950 shadow-amber-500/20"
+          "max-w-xs sm:max-w-sm w-full border-amber-600/30 overflow-hidden shadow-2xl p-5 bg-zinc-950 flex flex-col rounded-2xl font-serif max-h-[85dvh]",
+          reward.isLucky && "bg-gradient-to-b from-amber-950/70 via-zinc-950 to-zinc-950 shadow-amber-500/10"
         )}
         aria-describedby="kingdom-tile-modal-description"
       >
-        <div className="relative z-10 flex-1 overflow-y-auto p-6 scrollbar-hide">
-          <div className="flex flex-col">
-            {/* Background Glow for Lucky */}
-            {reward.isLucky && (
-              <div className="absolute inset-x-0 top-0 pointer-events-none -z-10">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl animate-pulse" />
-              </div>
+        {/* Background Glow for Lucky */}
+        {reward.isLucky && (
+          <div className="absolute inset-x-0 top-0 pointer-events-none -z-10">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-32 bg-amber-400/10 rounded-full blur-2xl animate-pulse" />
+          </div>
+        )}
+
+        <DialogHeader className="text-center pb-2 items-center">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            {reward.isLucky ? (
+              <Crown className="h-5 w-5 text-amber-400 animate-bounce" />
+            ) : (
+              <Sparkles className="h-5 w-5 text-amber-400" />
             )}
+            <DialogTitle className={cn(
+              "font-medieval text-xl sm:text-2xl tracking-tight font-bold",
+              reward.isLucky ? "text-amber-300" : "text-amber-100"
+            )}>
+              {reward.isLucky ? 'Fortune smiles upon you' : "The day's harvest"}
+            </DialogTitle>
+          </div>
+          <DialogDescription id="kingdom-tile-modal-description" className="text-zinc-400 text-xs italic">
+            {reward.message}
+          </DialogDescription>
+        </DialogHeader>
 
-            <DialogHeader className="relative z-10 text-center pb-4 items-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                {reward.isLucky ? (
-                  <Crown className="h-6 w-6 text-amber-400 animate-bounce" />
-                ) : (
-                  <Sparkles className="h-5 w-5 text-amber-500/70" />
-                )}
-                <DialogTitle className={cn(
-                  "font-serif text-2xl tracking-tight",
-                  reward.isLucky ? "text-amber-300" : "text-zinc-100"
-                )}>
-                  {reward.isLucky ? 'Fortune Smiles Upon You!' : "The Day's Harvest"}
-                </DialogTitle>
-                {reward.isLucky && (
-                  <Crown className="h-6 w-6 text-amber-400 animate-bounce" />
-                )}
+        <div className="space-y-2.5 my-2">
+          {/* Gold Reward Card */}
+          <div className={cn(
+            "rounded-xl p-3 border transition-all flex items-center justify-between",
+            reward.isLucky
+              ? "bg-amber-900/30 border-amber-500/40 shadow-xs"
+              : "bg-zinc-900/80 border-amber-900/30"
+          )}>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-amber-500/10 text-amber-400">
+                <Coins className="h-5 w-5" />
               </div>
-              <DialogDescription id="kingdom-tile-modal-description" className="text-zinc-400 text-sm italic font-light leading-relaxed">
-                {reward.message}
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="relative z-10 space-y-4">
-              {/* Gold Reward Card */}
-              <div className={cn(
-                "relative rounded-xl p-4 border transition-all duration-300",
-                reward.isLucky
-                  ? "bg-gradient-to-r from-amber-900/40 to-amber-800/20 border-amber-500/50 shadow-lg shadow-amber-500/10"
-                  : "bg-zinc-900 border-amber-700/20"
-              )}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={cn(
-                      "p-2.5 rounded-full shadow-inner",
-                      reward.isLucky ? "bg-amber-400/20" : "bg-amber-500/10"
-                    )}>
-                      <Coins className={cn(
-                        "h-6 w-6",
-                        reward.isLucky ? "text-amber-300" : "text-amber-400"
-                      )} />
-                    </div>
-                    <div>
-                      <span className="font-medium text-amber-100 block">Gold Earned</span>
-                      <span className="text-xs text-amber-300/40">From {reward.tileName}</span>
-                    </div>
-                  </div>
-                  <div className={cn(
-                    "text-3xl font-bold font-serif tabular-nums",
-                    reward.isLucky ? "text-amber-300" : "text-amber-400"
-                  )}>
-                    +{reward.goldEarned}
-                  </div>
-                </div>
-              </div>
-
-              {/* Item Found Card */}
-              {reward.itemFound && (
-                <div className="relative rounded-xl p-4 border bg-gradient-to-r from-blue-900/20 to-indigo-900/10 border-blue-500/20 shadow-lg shadow-blue-500/5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2.5 rounded-full bg-blue-500/10 shadow-inner">
-                        <Gift className="h-6 w-6 text-blue-300" />
-                      </div>
-                      <div>
-                        <span className="font-medium text-blue-100 block">Treasure Found</span>
-                        <span className="text-xs text-blue-300/40 capitalize">{reward.itemFound.type}</span>
-                      </div>
-                    </div>
-
-                    {/* Improved Image Container */}
-                    <div className="relative w-24 h-24 rounded-2xl bg-zinc-950 border border-blue-500/20 overflow-hidden shadow-2xl group flex items-center justify-center">
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent opacity-50" />
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500/5 via-transparent to-transparent" />
-                      <div className="relative w-16 h-16">
-                        <Image
-                          src={reward.itemFound.image}
-                          alt={reward.itemFound.name}
-                          fill
-                          className="object-contain transition-transform duration-500 group-hover:scale-110 drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]"
-                          onError={(e) => {
-                            const target = e.currentTarget as HTMLImageElement;
-                            target.src = '/images/placeholders/item-placeholder.svg'
-                          }}
-                        />
-                      </div>
-                      <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Lucky Bonus Banner */}
-              {reward.isLucky && (
-                <div className="relative rounded-xl p-4 bg-gradient-to-r from-emerald-900/30 to-teal-900/10 border border-emerald-500/20 text-center overflow-hidden">
-                  <div className="absolute top-0 right-0 p-1 opacity-20">
-                    <Sparkles className="h-8 w-8 text-emerald-300" />
-                  </div>
-                  <div className="flex items-center justify-center gap-2 relative z-10">
-                    <Sparkles className="h-4 w-4 text-emerald-300 animate-pulse" />
-                    <span className="text-sm font-semibold text-emerald-100 tracking-wide uppercase">Luck Bonus Active!</span>
-                    <Sparkles className="h-4 w-4 text-emerald-300 animate-pulse" />
-                  </div>
-                  <p className="text-xs text-emerald-300/60 mt-1 font-light italic">
-                    The spirits have blessed your harvest today
-                  </p>
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex flex-col gap-2">
-
-                <Button
-                  onClick={onClose}
-                  className={cn(
-                    "w-full py-6 font-serif text-lg tracking-wide transition-all duration-300 rounded-xl",
-                    reward.isLucky
-                      ? "bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/30 border-t border-white/10"
-                      : "bg-amber-700/90 hover:bg-amber-600 text-amber-50 border-t border-white/5 shadow-xl shadow-black/40"
-                  )}
-                >
-                  Collect & Continue
-                </Button>
+              <div>
+                <span className="font-bold text-xs text-amber-100 block">Gold earned</span>
+                <span className="text-[10px] text-zinc-400">From {reward.tileName}</span>
               </div>
             </div>
+            <span className="text-2xl font-black font-mono text-amber-300 tabular-nums">
+              +{reward.goldEarned}
+            </span>
           </div>
+
+          {/* Item Found Card */}
+          {reward.itemFound && (
+            <div className="rounded-xl p-3 border bg-zinc-900/80 border-blue-500/30 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-blue-500/10 text-blue-400">
+                  <Gift className="h-5 w-5" />
+                </div>
+                <div>
+                  <span className="font-bold text-xs text-blue-100 block">{reward.itemFound.name}</span>
+                  <span className="text-[10px] text-zinc-400 capitalize">{reward.itemFound.type}</span>
+                </div>
+              </div>
+              <div className="relative w-10 h-10 rounded-lg bg-zinc-950 border border-blue-500/30 overflow-hidden flex items-center justify-center shrink-0">
+                <Image
+                  src={reward.itemFound.image}
+                  alt={reward.itemFound.name}
+                  fill
+                  className="object-contain p-1"
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement
+                    target.src = '/images/items/placeholder.webp'
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Lucky Bonus Pill */}
+          {reward.isLucky && (
+            <div className="rounded-lg p-2 bg-amber-950/40 border border-amber-500/30 text-center flex items-center justify-center gap-1.5 text-xs text-amber-300 font-mono">
+              <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
+              <span className="font-bold">Lucky windfall bonus active</span>
+            </div>
+          )}
+        </div>
+
+        {/* Action Button */}
+        <div className="pt-2">
+          <Button
+            onClick={onClose}
+            className="w-full py-5 font-serif text-sm font-bold bg-amber-600 hover:bg-amber-500 text-zinc-950 rounded-xl shadow-lg shadow-amber-950/30 transition-all active:scale-[0.98]"
+          >
+            Collect & continue
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

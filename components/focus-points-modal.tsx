@@ -4,9 +4,9 @@ import { useState } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Brain, Zap, Sparkles, CheckCircle2 } from "lucide-react"
+import { Brain, Zap, Sparkles, CheckCircle2, Loader2 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
-import { addToCharacterStat, updateCharacterStats } from "@/lib/character-stats-service"
+import { addToCharacterStat } from "@/lib/character-stats-service"
 
 interface FocusPointsModalProps {
   isOpen: boolean
@@ -26,8 +26,8 @@ export function FocusPointsModal({
   const handleSpendPoints = async (cost: number, actionType: 'xp_boost' | 'rush_timers' | 'astral_reward') => {
     if (currentFocusPoints < cost) {
       toast({
-        title: "Insufficient Focus Points 🧠",
-        description: `You need ${cost} Focus Points to unlock this power. Complete daily habits to earn more!`,
+        title: "Insufficient focus points",
+        description: `You need ${cost} focus points to unlock this power. Complete daily habits to earn more.`,
         variant: "destructive"
       })
       return
@@ -48,8 +48,8 @@ export function FocusPointsModal({
         await addToCharacterStat('focus_points', -cost, 'focus-spend-xp-boost')
 
         toast({
-          title: "🧠 Deep Focus Stance Activated!",
-          description: "Gained +20% Experience boost on all habit completions for 2 hours!"
+          title: "Deep focus stance activated",
+          description: "Gained +20% experience boost on all habit completions for 2 hours.",
         })
       } else if (actionType === 'rush_timers') {
         const res = await fetch('/api/property-timers', {
@@ -63,8 +63,8 @@ export function FocusPointsModal({
           window.dispatchEvent(new CustomEvent('property-timers-update'))
 
           toast({
-            title: "⚡ Time Accelerated!",
-            description: "Advanced all active kingdom property timers by 15 minutes!"
+            title: "Time accelerated",
+            description: "Advanced all active kingdom property timers by 15 minutes.",
           })
         } else {
           throw new Error('Failed to accelerate timers')
@@ -75,8 +75,8 @@ export function FocusPointsModal({
         await addToCharacterStat('build_tokens', 1, 'focus-spend-astral-token')
 
         toast({
-          title: "🔮 Astral Insight Unlocked!",
-          description: "Received +500 Gold and 1 Build Token!"
+          title: "Astral insight unlocked",
+          description: "Received +500 gold and 1 build token.",
         })
       }
 
@@ -84,8 +84,8 @@ export function FocusPointsModal({
       onClose()
     } catch (err) {
       toast({
-        title: "Action Failed",
-        description: err instanceof Error ? err.message : "Could not spend Focus Points.",
+        title: "Action failed",
+        description: err instanceof Error ? err.message : "Could not spend focus points.",
         variant: "destructive"
       })
     } finally {
@@ -95,88 +95,99 @@ export function FocusPointsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-zinc-950 border-amber-800/40 text-white max-w-lg shadow-2xl">
-        <DialogHeader>
-          <DialogTitle className="font-serif text-xl text-amber-400 flex items-center gap-2">
-            <Brain className="w-6 h-6 text-purple-400 animate-pulse" />
-            Focus Point Powers
+      <DialogContent className="bg-zinc-950 border border-purple-900/40 text-white max-w-sm sm:max-w-xl shadow-2xl p-5 rounded-2xl font-serif max-h-[85dvh] flex flex-col overflow-y-auto">
+        <DialogHeader className="text-center flex flex-col items-center pb-2">
+          <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-1.5 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+            <Brain className="w-5 h-5" />
+          </div>
+          <DialogTitle className="font-medieval text-xl sm:text-2xl text-amber-200 tracking-tight font-bold">
+            Focus point powers
           </DialogTitle>
-          <DialogDescription className="text-zinc-400 text-xs">
-            Earn Focus Points by completing daily habits & meditation sessions. Spend them to accelerate kingdom growth!
+          <DialogDescription className="text-zinc-400 text-xs mt-0.5">
+            Earned from daily habits and meditation. Spend to accelerate kingdom growth.
           </DialogDescription>
         </DialogHeader>
 
         {/* Current Balance Bar */}
-        <div className="bg-gradient-to-r from-purple-950/60 via-zinc-900 to-amber-950/60 p-3.5 rounded-xl border border-purple-500/30 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">🧠</span>
+        <div className="bg-gradient-to-r from-purple-950/50 via-zinc-900 to-amber-950/50 p-3 rounded-xl border border-purple-500/30 flex items-center justify-between my-1">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xl">🧠</span>
             <div>
-              <p className="text-[10px] text-purple-300 font-bold tracking-wider">Your focus balance</p>
-              <p className="text-lg font-black text-white font-mono">{currentFocusPoints} <span className="text-xs text-purple-300 font-normal">points</span></p>
+              <p className="text-[10px] text-purple-300 font-mono font-bold uppercase tracking-wider">Focus balance</p>
+              <p className="text-base font-black text-white font-mono leading-none mt-0.5">
+                {currentFocusPoints} <span className="text-xs text-purple-300/80 font-normal">points</span>
+              </p>
             </div>
           </div>
-          <Badge variant="outline" className="text-xs border-purple-500/40 text-purple-300 font-bold">
+          <Badge variant="outline" className="text-[10px] border-purple-500/40 text-purple-300 font-mono">
             +1 per habit completed
           </Badge>
         </div>
 
-        {/* Powers Menu */}
-        <div className="space-y-3 pt-2">
-          
+        {/* 3-Column Power Cards Deck */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
           {/* Power 1: Deep Focus Stance */}
-          <div className="p-3.5 bg-zinc-900/90 rounded-xl border border-white/10 hover:border-purple-500/40 transition-all flex items-center justify-between gap-3">
-            <div className="space-y-0.5">
-              <h4 className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                Deep Focus Stance
-              </h4>
-              <p className="text-[11px] text-zinc-400">Activates +20% XP bonus on all habits for 2 hours.</p>
+          <button
+            onClick={() => handleSpendPoints(5, 'xp_boost')}
+            disabled={currentFocusPoints < 5 || isProcessing}
+            className="p-3.5 rounded-xl bg-zinc-900/90 hover:bg-purple-950/30 border border-white/10 hover:border-purple-500/40 text-left flex flex-col justify-between gap-3 transition-all shadow-xs group active:scale-[0.98] disabled:opacity-40"
+          >
+            <div className="flex items-center justify-between w-full">
+              <Sparkles className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-mono font-bold text-purple-300 bg-purple-950 border border-purple-400/30 px-1.5 py-0.5 rounded">
+                5 FP
+              </span>
             </div>
-            <Button
-              onClick={() => handleSpendPoints(5, 'xp_boost')}
-              disabled={currentFocusPoints < 5 || isProcessing}
-              className="bg-purple-900 hover:bg-purple-800 text-purple-200 border border-purple-500/40 text-xs font-bold shrink-0"
-            >
-              🧠 5 Points
-            </Button>
-          </div>
+            <div>
+              <h4 className="text-xs font-bold text-zinc-100 group-hover:text-amber-200">Deep focus stance</h4>
+              <p className="text-[10px] text-zinc-400 mt-1 leading-snug">+20% exp bonus on all habits for 2 hours.</p>
+            </div>
+            <div className="w-full py-1.5 rounded-lg bg-purple-950/80 group-hover:bg-purple-900 text-purple-200 text-center text-[10px] font-mono font-bold border border-purple-500/30 transition-colors">
+              Activate power
+            </div>
+          </button>
 
-          {/* Power 2: Rush Kingdom Timers */}
-          <div className="p-3.5 bg-zinc-900/90 rounded-xl border border-white/10 hover:border-blue-500/40 transition-all flex items-center justify-between gap-3">
-            <div className="space-y-0.5">
-              <h4 className="text-xs font-bold text-blue-300 flex items-center gap-1.5">
-                <Zap className="w-4 h-4 text-blue-400" />
-                Rush Property Timers
-              </h4>
-              <p className="text-[11px] text-zinc-400">Accelerates all active kingdom property timers by 15 minutes.</p>
+          {/* Power 2: Rush Property Timers */}
+          <button
+            onClick={() => handleSpendPoints(10, 'rush_timers')}
+            disabled={currentFocusPoints < 10 || isProcessing}
+            className="p-3.5 rounded-xl bg-zinc-900/90 hover:bg-blue-950/30 border border-white/10 hover:border-blue-500/40 text-left flex flex-col justify-between gap-3 transition-all shadow-xs group active:scale-[0.98] disabled:opacity-40"
+          >
+            <div className="flex items-center justify-between w-full">
+              <Zap className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-mono font-bold text-blue-300 bg-blue-950 border border-blue-400/30 px-1.5 py-0.5 rounded">
+                10 FP
+              </span>
             </div>
-            <Button
-              onClick={() => handleSpendPoints(10, 'rush_timers')}
-              disabled={currentFocusPoints < 10 || isProcessing}
-              className="bg-blue-900 hover:bg-blue-800 text-blue-200 border border-blue-500/40 text-xs font-bold shrink-0"
-            >
-              ⚡ 10 Points
-            </Button>
-          </div>
+            <div>
+              <h4 className="text-xs font-bold text-zinc-100 group-hover:text-blue-200">Rush property timers</h4>
+              <p className="text-[10px] text-zinc-400 mt-1 leading-snug">Accelerates active kingdom timers by 15 min.</p>
+            </div>
+            <div className="w-full py-1.5 rounded-lg bg-blue-950/80 group-hover:bg-blue-900 text-blue-200 text-center text-[10px] font-mono font-bold border border-blue-500/30 transition-colors">
+              Activate power
+            </div>
+          </button>
 
           {/* Power 3: Astral Insight */}
-          <div className="p-3.5 bg-zinc-900/90 rounded-xl border border-white/10 hover:border-amber-500/40 transition-all flex items-center justify-between gap-3">
-            <div className="space-y-0.5">
-              <h4 className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                Astral Insight Reward
-              </h4>
-              <p className="text-[11px] text-zinc-400">Instantly grants +500 Gold and 1 Build Token.</p>
+          <button
+            onClick={() => handleSpendPoints(15, 'astral_reward')}
+            disabled={currentFocusPoints < 15 || isProcessing}
+            className="p-3.5 rounded-xl bg-zinc-900/90 hover:bg-amber-950/30 border border-white/10 hover:border-amber-500/40 text-left flex flex-col justify-between gap-3 transition-all shadow-xs group active:scale-[0.98] disabled:opacity-40"
+          >
+            <div className="flex items-center justify-between w-full">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-mono font-bold text-amber-300 bg-amber-950 border border-amber-400/30 px-1.5 py-0.5 rounded">
+                15 FP
+              </span>
             </div>
-            <Button
-              onClick={() => handleSpendPoints(15, 'astral_reward')}
-              disabled={currentFocusPoints < 15 || isProcessing}
-              className="bg-amber-900 hover:bg-amber-800 text-amber-200 border border-amber-500/40 text-xs font-bold shrink-0"
-            >
-              🔮 15 Points
-            </Button>
-          </div>
-
+            <div>
+              <h4 className="text-xs font-bold text-zinc-100 group-hover:text-amber-200">Astral insight</h4>
+              <p className="text-[10px] text-zinc-400 mt-1 leading-snug">Instantly grants +500 gold and 1 build token.</p>
+            </div>
+            <div className="w-full py-1.5 rounded-lg bg-amber-950/80 group-hover:bg-amber-900 text-amber-200 text-center text-[10px] font-mono font-bold border border-amber-500/30 transition-colors">
+              Activate power
+            </div>
+          </button>
         </div>
       </DialogContent>
     </Dialog>

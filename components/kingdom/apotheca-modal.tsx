@@ -53,14 +53,14 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
       const data = await res.json()
       setResultMessage(data.message)
       toast({
-        title: "Apothecary Decoction Consumed!",
+        title: "Decoction consumed",
         description: data.message,
       })
       await fetchFreshCharacterStats()
       if (onComplete) onComplete()
     } catch (err: any) {
       toast({
-        title: "Brew Error",
+        title: "Brew error",
         description: err.message || "Failed to drink daily decoction.",
         variant: "destructive"
       })
@@ -81,14 +81,14 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
       const data = await res.json()
       setResultMessage(data.message)
       toast({
-        title: "Botanical Distillation Complete",
+        title: "Distillation complete",
         description: data.message,
       })
       await fetchFreshCharacterStats()
       if (onComplete) onComplete()
     } catch (err: any) {
       toast({
-        title: "Trade Error",
+        title: "Trade error",
         description: err.message || "Failed to trade botanical material.",
         variant: "destructive"
       })
@@ -98,161 +98,145 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
   }
 
   const handleFocusDoubleBrew = async () => {
-    const stats = getCharacterStats();
+    const stats = getCharacterStats()
     if ((stats.focus_points || 0) < 5) {
       toast({
-        title: "Insufficient Focus Points 🧠",
-        description: "You need 5 Focus Points. Complete daily habits to earn more!",
+        title: "Insufficient focus points",
+        description: "You need 5 focus points to double brew.",
         variant: "destructive"
-      });
-      return;
+      })
+      return
     }
-    setLoading(true);
+    setLoading(true)
     try {
-      const { addToCharacterStat } = await import('@/lib/character-stats-service');
-      await addToCharacterStat('focus_points', -5, 'focus-double-brew');
-      await addToCharacterStat('gold', 300, 'focus-double-brew-gold');
+      const { addToCharacterStat } = await import('@/lib/character-stats-service')
+      await addToCharacterStat('focus_points', -5, 'focus-double-brew')
+      await addToCharacterStat('gold', 300, 'focus-double-brew-gold')
       toast({
-        title: "🧠 Double Elixir Brew Distilled!",
-        description: "Spent 5 Focus Points. Granted +300 Gold & Double Apothecary Elixir Boost!"
-      });
-      await fetchFreshCharacterStats();
-      if (onComplete) onComplete();
-      onOpenChange(false);
+        title: "Double elixir distilled",
+        description: "Spent 5 focus points. Granted +300 gold & double potion effect.",
+      })
+      await fetchFreshCharacterStats()
+      if (onComplete) onComplete()
+      onOpenChange(false)
     } catch (err: any) {
-      toast({ title: "Brew Error", description: err.message, variant: "destructive" });
+      toast({ title: "Brew error", description: err.message, variant: "destructive" })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-full sm:max-w-[500px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 border-2 border-emerald-800/50 text-white rounded-2xl p-4 sm:p-6 shadow-2xl overflow-x-hidden">
-        <DialogHeader className="text-center flex flex-col items-center">
-          <div className="p-3 rounded-2xl bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 mb-2 shadow-inner">
-            <FlaskConical className="w-8 h-8" />
+      <DialogContent className="max-w-sm sm:max-w-md w-full bg-zinc-950 border border-emerald-900/40 text-white rounded-2xl p-5 shadow-2xl font-serif max-h-[85dvh] flex flex-col overflow-y-auto">
+        <DialogHeader className="text-center flex flex-col items-center pb-2">
+          <div className="p-2.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mb-1.5 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+            <FlaskConical className="w-5 h-5" />
           </div>
-          <DialogTitle className="text-2xl font-serif font-bold text-emerald-300 drop-shadow">
-            Grand Apotheca
+          <DialogTitle className="text-xl font-medieval text-emerald-200 tracking-tight font-bold">
+            Grand apotheca
           </DialogTitle>
-          <DialogDescription className="text-xs text-zinc-300">
-            Botanical Glasshouse & Daily Decoction Sanctuary
+          <DialogDescription className="text-xs text-zinc-400">
+            Botanical glasshouse & daily decoction sanctuary
           </DialogDescription>
-          <div className="mt-2 inline-flex items-center gap-2 bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 px-3 py-1 rounded-full text-[10px] font-mono font-bold shadow-md">
-            <span>🧪 Alchemist Mastery Tier II</span>
-            <span className="text-zinc-400">•</span>
-            <span className="text-amber-300">+15% Double Brew Chance</span>
-          </div>
         </DialogHeader>
 
         {brew ? (
-          <div className="space-y-4 my-2">
-            {/* Animated Cauldron Alchemy Stage */}
-            <div className="relative p-5 bg-gradient-to-b from-emerald-950/80 via-zinc-950 to-zinc-900 border border-emerald-500/40 rounded-2xl text-center space-y-3 overflow-hidden shadow-xl">
-              <div className="absolute inset-0 bg-radial from-emerald-500/10 via-transparent to-transparent blur-xl pointer-events-none" />
-              
-              {/* Bubbling Cauldron & Vapor Rise Sparkles */}
-              <div className="relative w-16 h-16 mx-auto rounded-full bg-emerald-950/90 border-2 border-emerald-400 flex items-center justify-center text-3xl shadow-[0_0_25px_rgba(16,185,129,0.7)] animate-pulse transform-gpu">
-                <span className="animate-bounce">🧪</span>
-                <Sparkles className="w-4 h-4 text-emerald-300 absolute -top-1 -right-1 animate-spin-slow" />
-                <span className="absolute -top-3 left-2 text-xs opacity-75 animate-bounce transition-all duration-700">🫧</span>
-                <span className="absolute -top-4 right-2 text-xs opacity-60 animate-pulse">✨</span>
+          <div className="space-y-3 my-1">
+            {/* Compact Cauldron Brew Display */}
+            <div className="p-3.5 bg-gradient-to-br from-emerald-950/40 via-zinc-900 to-zinc-950 border border-emerald-500/30 rounded-xl flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-emerald-950/80 border border-emerald-400/50 flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                🧪
               </div>
-
-              <div className="space-y-1">
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-xs font-bold font-mono text-emerald-400 uppercase tracking-widest">Master Alchemy Cauldron</span>
-                  <span className="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold">Bubbling Active</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider">
+                    Today&apos;s brew
+                  </span>
+                  <span className="text-[9px] bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.2 rounded font-mono">
+                    Active
+                  </span>
                 </div>
-                <h4 className="text-xl font-serif font-bold text-emerald-200">{brew.name}</h4>
-                <p className="text-xs text-zinc-300 italic max-w-sm mx-auto">{brew.effect}</p>
+                <h4 className="text-sm font-bold text-emerald-100 font-serif truncate mt-0.5">{brew.name}</h4>
+                <p className="text-[11px] text-zinc-400 truncate">{brew.effect}</p>
               </div>
             </div>
 
             {resultMessage ? (
-              <div className="p-4 bg-emerald-950/50 border border-emerald-500/40 rounded-xl text-center space-y-2">
-                <p className="text-sm font-semibold text-emerald-200">{resultMessage}</p>
+              <div className="p-4 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-center space-y-3">
+                <p className="text-xs font-semibold text-emerald-200 leading-relaxed">{resultMessage}</p>
                 <Button
                   onClick={() => onOpenChange(false)}
-                  className="mt-2 bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-bold w-full"
+                  className="bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-bold w-full py-4 text-xs font-serif rounded-xl"
                 >
-                  Close Apotheca
+                  Close apotheca
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-2.5">
-                {/* Batch Distillation Multiplier Toggle */}
-                <div className="flex items-center justify-between bg-zinc-950 p-2.5 rounded-xl border border-emerald-500/30 text-xs">
-                  <span className="font-serif font-bold text-emerald-300">🧪 Batch Distillation Multiplier:</span>
-                  <div className="flex items-center gap-1 font-mono font-bold">
-                    <button type="button" onClick={() => toast({ title: "Batch Set: 1x", description: "Standard single potion distillation." })} className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px]">1x</button>
-                    <button type="button" onClick={() => toast({ title: "Batch Set: 3x", description: "Triple potion distillation active (+3x Yield)." })} className="px-2 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800 text-[10px] hover:text-emerald-300">3x</button>
-                    <button type="button" onClick={() => toast({ title: "Batch Set: 5x", description: "Quintuple potion distillation active (+5x Yield)." })} className="px-2 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800 text-[10px] hover:text-emerald-300">5x</button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between bg-zinc-950/80 p-2.5 rounded-xl border border-teal-500/30 text-xs">
-                  <span className="text-zinc-300 font-serif">🌿 Missing botanical potion reagents?</span>
-                  <button
-                    type="button"
-                    onClick={() => toast({ title: "🌿 Reagents Synthesized!", description: "Converted 50 Gold into 2x Botanical Glasshouse Reagents!" })}
-                    className="px-3 py-1 rounded-lg bg-teal-950 text-teal-300 border border-teal-500/40 text-[10px] font-bold hover:bg-teal-900 transition-colors"
-                  >
-                    Synthesize Reagents (50 Gold)
-                  </button>
-                </div>
-
-                <Button
+              <div className="space-y-2 pt-1">
+                {/* Primary CTA: Drink Daily Brew */}
+                <button
                   onClick={handleDrink}
                   disabled={loading}
-                  className="h-auto py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-zinc-950 font-bold border border-emerald-300/30 rounded-xl flex items-center justify-between px-4"
+                  className="w-full p-3 rounded-xl bg-gradient-to-r from-emerald-950/70 via-teal-950/50 to-zinc-900 hover:from-emerald-900/80 border border-emerald-500/40 text-left flex items-center justify-between transition-all shadow-xs group active:scale-[0.98] disabled:opacity-50"
                 >
-                  <div className="flex items-center gap-2 text-left">
-                    <Sparkles className="w-5 h-5 text-zinc-950 shrink-0" />
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 rounded-lg bg-emerald-400/10 border border-emerald-400/20 text-emerald-300">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
                     <div>
-                      <div className="text-sm">Drink Master Decoction</div>
-                      <div className="text-[10px] text-zinc-900 font-normal">Claim free daily elixir potion effect</div>
+                      <div className="text-xs font-bold text-zinc-100 group-hover:text-emerald-200">Drink decoction</div>
+                      <div className="text-[10px] text-zinc-400">Claim free daily elixir perk</div>
                     </div>
                   </div>
-                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                </Button>
+                  <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">
+                    Free daily
+                  </span>
+                </button>
 
-                <Button
-                  onClick={handleFocusDoubleBrew}
-                  disabled={loading}
-                  className="h-auto py-3 bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 rounded-xl flex items-center justify-between px-4"
-                >
-                  <div className="flex items-center gap-2 text-left">
-                    <span className="text-xl">🧠</span>
-                    <div>
-                      <div className="text-sm font-bold">Spend 5 Focus Points: Double Brew</div>
-                      <div className="text-[10px] text-purple-300 font-normal">Instant Double Elixir & +300 Gold Surge</div>
+                {/* Secondary Actions: 2-col */}
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Focus Double Brew */}
+                  <button
+                    onClick={handleFocusDoubleBrew}
+                    disabled={loading}
+                    className="p-3 rounded-xl bg-purple-950/30 hover:bg-purple-900/40 border border-purple-500/20 hover:border-purple-400/50 text-left flex flex-col justify-between gap-2 transition-all shadow-xs group active:scale-[0.98] disabled:opacity-50"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-sm">🧠</span>
+                      <span className="text-[10px] font-mono font-bold text-purple-300 bg-purple-950 border border-purple-400/30 px-1.5 py-0.2 rounded">
+                        5 FP
+                      </span>
                     </div>
-                  </div>
-                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                </Button>
+                    <div>
+                      <div className="text-xs font-bold text-purple-200">Double brew</div>
+                      <div className="text-[10px] text-zinc-400 mt-0.5">+300g & 2x elixir</div>
+                    </div>
+                  </button>
 
-                <Button
-                  onClick={() => handleTrade('material-water')}
-                  disabled={loading}
-                  variant="outline"
-                  className="h-auto py-3 bg-zinc-900 border-emerald-700/50 hover:bg-zinc-800 text-emerald-200 font-bold rounded-xl flex items-center justify-between px-4"
-                >
-                  <div className="flex items-center gap-2 text-left">
-                    <RefreshCw className="w-5 h-5 text-emerald-400 shrink-0" />
-                    <div>
-                      <div className="text-sm">Distill Water Element</div>
-                      <div className="text-[10px] text-zinc-400 font-normal">Trade 1 Water for 1x Crystal Essence</div>
+                  {/* Trade Water */}
+                  <button
+                    onClick={() => handleTrade('material-water')}
+                    disabled={loading}
+                    className="p-3 rounded-xl bg-zinc-900/90 hover:bg-emerald-950/20 border border-emerald-900/30 hover:border-emerald-500/40 text-left flex flex-col justify-between gap-2 transition-all shadow-xs group active:scale-[0.98] disabled:opacity-50"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <RefreshCw className="w-4 h-4 text-emerald-400" />
+                      <span className="text-[10px] font-mono font-bold text-teal-400 bg-teal-950/50 border border-teal-500/20 px-1.5 py-0.2 rounded">
+                        Trade 1💧
+                      </span>
                     </div>
-                  </div>
-                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                </Button>
+                    <div>
+                      <div className="text-xs font-bold text-zinc-100">Distill water</div>
+                      <div className="text-[10px] text-zinc-400 mt-0.5">Yields crystal essence</div>
+                    </div>
+                  </button>
+                </div>
               </div>
             )}
           </div>
         ) : (
-          <div className="py-8 flex justify-center">
+          <div className="py-8 flex justify-center items-center">
             <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
           </div>
         )}

@@ -49,19 +49,19 @@ export function AbbeyModal({ open, onOpenChange, onComplete }: AbbeyModalProps) 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'claim_benediction' })
       })
-      if (!res.ok) throw new Error('Vow of Focus not yet completed today!')
+      if (!res.ok) throw new Error('Vow of focus not yet completed today')
       const data = await res.json()
       setResultMessage(data.message)
       toast({
-        title: "Benediction Granted!",
+        title: "Benediction granted",
         description: data.message,
       })
       await fetchFreshCharacterStats()
       if (onComplete) onComplete()
     } catch (err: any) {
       toast({
-        title: "Benediction Error",
-        description: err.message || "Fulfill your daily Vow of Focus first.",
+        title: "Benediction error",
+        description: err.message || "Fulfill your daily vow of focus first.",
         variant: "destructive"
       })
     } finally {
@@ -81,14 +81,14 @@ export function AbbeyModal({ open, onOpenChange, onComplete }: AbbeyModalProps) 
       const data = await res.json()
       setResultMessage(data.message)
       toast({
-        title: "Alms Bestowed",
+        title: "Alms bestowed",
         description: data.message,
       })
       await fetchFreshCharacterStats()
       if (onComplete) onComplete()
     } catch (err: any) {
       toast({
-        title: "Alms Error",
+        title: "Alms error",
         description: err.message || "Could not bestow alms.",
         variant: "destructive"
       })
@@ -99,128 +99,143 @@ export function AbbeyModal({ open, onOpenChange, onComplete }: AbbeyModalProps) 
 
   const handleFocusDivineBlessing = async () => {
     try {
-      const { getCharacterStats, addToCharacterStat } = await import('@/lib/character-stats-service');
-      const stats = getCharacterStats();
+      const { getCharacterStats, addToCharacterStat } = await import('@/lib/character-stats-service')
+      const stats = getCharacterStats()
       if ((stats.focus_points || 0) < 5) {
         toast({
-          title: "Insufficient Focus Points 🧠",
-          description: "You need 5 Focus Points for Divine Blessing!",
+          title: "Insufficient focus points",
+          description: "You need 5 focus points for a divine blessing.",
           variant: "destructive"
-        });
-        return;
+        })
+        return
       }
-      setLoading(true);
-      await addToCharacterStat('focus_points', -5, 'focus-divine-blessing');
-      await addToCharacterStat('experience', 200, 'focus-blessing-xp');
-      await addToCharacterStat('gems', 10, 'focus-blessing-gems');
-      setResultMessage("Divine Blessing bestowed upon your kingdom (+200 XP, +10 Gems).");
+      setLoading(true)
+      await addToCharacterStat('focus_points', -5, 'focus-divine-blessing')
+      await addToCharacterStat('experience', 200, 'focus-blessing-xp')
+      await addToCharacterStat('gems', 10, 'focus-blessing-gems')
+      setResultMessage("Divine blessing bestowed upon your kingdom (+200 exp, +10 gems).")
       toast({
-        title: "🧠 Divine Blessing Bestowed!",
-        description: "Spent 5 Focus Points. Granted +200 XP & +10 Gems!"
-      });
-      await fetchFreshCharacterStats();
-      if (onComplete) onComplete();
+        title: "Divine blessing bestowed",
+        description: "Spent 5 focus points. Granted +200 exp & +10 gems.",
+      })
+      await fetchFreshCharacterStats()
+      if (onComplete) onComplete()
     } catch (err: any) {
-      toast({ title: "Blessing Error", description: err.message, variant: "destructive" });
+      toast({ title: "Blessing error", description: err.message, variant: "destructive" })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-full sm:max-w-[500px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 border-2 border-purple-800/50 text-white rounded-2xl p-4 sm:p-6 shadow-2xl overflow-x-hidden">
-        <DialogHeader className="text-center flex flex-col items-center">
-          <div className="p-3 rounded-2xl bg-purple-950/60 border border-purple-500/30 text-purple-400 mb-2 shadow-inner">
-            <Church className="w-8 h-8" />
+      <DialogContent className="max-w-sm sm:max-w-md w-full bg-zinc-950 border border-purple-900/40 text-white rounded-2xl p-5 shadow-2xl font-serif max-h-[85dvh] flex flex-col overflow-y-auto">
+        <DialogHeader className="text-center flex flex-col items-center pb-2">
+          <div className="p-2.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 mb-1.5 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+            <Church className="w-5 h-5" />
           </div>
-          <DialogTitle className="text-2xl font-serif font-bold text-purple-300 drop-shadow">
-            Silent Abbey
+          <DialogTitle className="text-xl font-medieval text-purple-200 tracking-tight font-bold">
+            Silent abbey
           </DialogTitle>
-          <DialogDescription className="text-xs text-zinc-300">
-            Monastery of Silent Vows & Benedictine Grace
+          <DialogDescription className="text-xs text-zinc-400">
+            Monastery of silent vows & benedictine grace
           </DialogDescription>
         </DialogHeader>
 
         {vowState ? (
-          <div className="space-y-4 my-2">
-            <div className="p-4 bg-zinc-950/90 border border-purple-900/40 rounded-xl">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold font-mono text-purple-300 uppercase tracking-wider">Vow of Focus</span>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${vowState.vowFulfilled ? 'bg-emerald-950 text-emerald-300 border-emerald-500/40' : 'bg-amber-950 text-amber-300 border-amber-500/40'}`}>
-                  {vowState.vowFulfilled ? 'Vow Fulfilled' : 'In Progress'}
-                </span>
-              </div>
-              <h4 className="text-lg font-serif font-bold text-zinc-100 mt-1">Daily Habit Pledge</h4>
-              <p className="text-xs text-zinc-300 mt-0.5">Complete at least 1 Quest or Habit today to unlock the Abbot&apos;s Benediction.</p>
-              <div className="mt-2 text-xs font-mono text-purple-300 flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4 text-purple-400" />
-                <span>Today&apos;s Completed Quests: {vowState.todayCompletedCount} / 1</span>
+          <div className="space-y-3 my-1">
+            {/* Vow of Focus Status Banner */}
+            <div className="p-3 bg-zinc-900/80 border border-purple-900/40 rounded-xl flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-zinc-200">Vow of focus</span>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-bold border ${vowState.vowFulfilled ? 'bg-emerald-950 text-emerald-300 border-emerald-500/40' : 'bg-amber-950 text-amber-300 border-amber-500/40'}`}>
+                    {vowState.vowFulfilled ? 'Fulfilled ✓' : 'In progress'}
+                  </span>
+                </div>
+                <div className="text-[11px] text-zinc-400 mt-0.5 flex items-center gap-1">
+                  <CheckCircle className="w-3.5 h-3.5 text-purple-400" />
+                  <span>Habits completed today: {vowState.todayCompletedCount} / 1</span>
+                </div>
               </div>
             </div>
 
             {resultMessage ? (
-              <div className="p-4 bg-purple-950/50 border border-purple-500/40 rounded-xl text-center space-y-2">
-                <p className="text-sm font-semibold text-purple-200">{resultMessage}</p>
+              <div className="p-4 bg-purple-950/40 border border-purple-500/30 rounded-xl text-center space-y-3">
+                <p className="text-xs font-semibold text-purple-200 leading-relaxed">{resultMessage}</p>
                 <Button
                   onClick={() => onOpenChange(false)}
-                  className="mt-2 bg-purple-600 hover:bg-purple-500 text-white font-bold w-full"
+                  className="bg-purple-600 hover:bg-purple-500 text-white font-bold w-full py-4 text-xs font-serif rounded-xl"
                 >
-                  Return to Sanctuary
+                  Return to sanctuary
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-2.5">
-                <Button
+              /* Tactile Action Cards */
+              <div className="space-y-2 pt-1">
+                {/* Primary: Claim Abbot's Benediction */}
+                <button
                   onClick={handleClaimBenediction}
                   disabled={loading || !vowState.vowFulfilled}
-                  className="h-auto py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold border border-purple-300/30 rounded-xl flex items-center justify-between px-4 disabled:opacity-50"
+                  className="w-full p-3 rounded-xl bg-gradient-to-r from-purple-950/70 via-indigo-950/50 to-zinc-900 hover:from-purple-900/80 border border-purple-500/40 text-left flex items-center justify-between transition-all shadow-xs group active:scale-[0.98] disabled:opacity-40"
                 >
-                  <div className="flex items-center gap-2 text-left">
-                    <Sun className="w-5 h-5 text-yellow-300 shrink-0" />
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 rounded-lg bg-yellow-400/10 border border-yellow-400/20 text-yellow-300">
+                      <Sun className="w-4 h-4" />
+                    </div>
                     <div>
-                      <div className="text-sm">Claim Abbot&apos;s Benediction</div>
-                      <div className="text-[10px] text-purple-100 font-normal">Receive +200 XP and +10 Gems</div>
+                      <div className="text-xs font-bold text-zinc-100 group-hover:text-purple-200">Abbot&apos;s benediction</div>
+                      <div className="text-[10px] text-zinc-400">Claim daily vow reward</div>
                     </div>
                   </div>
-                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                </Button>
+                  <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">
+                    +200 exp · +10 gems
+                  </span>
+                </button>
 
-                <Button
-                  onClick={handleFocusDivineBlessing}
-                  disabled={loading}
-                  className="h-auto py-3 bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 rounded-xl flex items-center justify-between px-4"
-                >
-                  <div className="flex items-center gap-2 text-left">
-                    <span className="text-xl">🧠</span>
-                    <div>
-                      <div className="text-sm font-bold">Spend 5 Focus Points: Divine Blessing</div>
-                      <div className="text-[10px] text-purple-300 font-normal">Instant Divine Grace (+200 XP & +10 Gems)</div>
+                {/* Secondary Actions Row: 2-col */}
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Focus Blessing */}
+                  <button
+                    onClick={handleFocusDivineBlessing}
+                    disabled={loading}
+                    className="p-3 rounded-xl bg-purple-950/30 hover:bg-purple-900/40 border border-purple-500/20 hover:border-purple-400/50 text-left flex flex-col justify-between gap-2 transition-all shadow-xs group active:scale-[0.98] disabled:opacity-50"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-sm">🧠</span>
+                      <span className="text-[10px] font-mono font-bold text-purple-300 bg-purple-950 border border-purple-400/30 px-1.5 py-0.2 rounded">
+                        5 FP
+                      </span>
                     </div>
-                  </div>
-                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                </Button>
+                    <div>
+                      <div className="text-xs font-bold text-purple-200">Divine blessing</div>
+                      <div className="text-[10px] text-zinc-400 mt-0.5">+200 exp & +10 gems</div>
+                    </div>
+                  </button>
 
-                <Button
-                  onClick={handleGiveAlms}
-                  disabled={loading}
-                  variant="outline"
-                  className="h-auto py-3 bg-zinc-900 border-purple-700/50 hover:bg-zinc-800 text-purple-200 font-bold rounded-xl flex items-center justify-between px-4"
-                >
-                  <div className="flex items-center gap-2 text-left">
-                    <Coins className="w-5 h-5 text-amber-400 shrink-0" />
-                    <div>
-                      <div className="text-sm">Offer Pilgrims&apos; Alms</div>
-                      <div className="text-[10px] text-zinc-400 font-normal">Give alms to receive +75 XP grace</div>
+                  {/* Give Alms */}
+                  <button
+                    onClick={handleGiveAlms}
+                    disabled={loading}
+                    className="p-3 rounded-xl bg-zinc-900/90 hover:bg-amber-950/20 border border-amber-900/30 hover:border-amber-500/40 text-left flex flex-col justify-between gap-2 transition-all shadow-xs group active:scale-[0.98] disabled:opacity-50"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <Coins className="w-4 h-4 text-amber-400" />
+                      <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/50 border border-amber-500/20 px-1.5 py-0.2 rounded">
+                        +75 exp
+                      </span>
                     </div>
-                  </div>
-                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                </Button>
+                    <div>
+                      <div className="text-xs font-bold text-zinc-100">Offer alms</div>
+                      <div className="text-[10px] text-zinc-400 mt-0.5">Receive pilgrim grace</div>
+                    </div>
+                  </button>
+                </div>
               </div>
             )}
           </div>
         ) : (
-          <div className="py-8 flex justify-center">
+          <div className="py-8 flex justify-center items-center">
             <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
           </div>
         )}
