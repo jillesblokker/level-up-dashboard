@@ -45,9 +45,11 @@ import { DailyRoutineModal } from "@/components/daily-routine-modal"
 import { StreakRecoveryCard } from "@/components/streaks/streak-recovery-card"
 import { getUserAlliances, checkInToAlliance, Alliance } from "@/lib/alliance-manager"
 import { useToast } from "@/components/ui/use-toast"
-import { useSound, SOUNDS } from "@/lib/sound-manager"
+import { useSound, SOUNDS, playSFX } from "@/lib/sound-manager"
 import { CheckCircle2, Shield } from "lucide-react"
 import { MedievalOrbIcon } from "@/components/ui/medieval-orb-icon"
+import { generatePack } from "@/lib/pack-generator"
+import { saveOwnedPack, OwnedPack } from "@/lib/owned-packs-service"
 
 interface Quest {
     id: string
@@ -478,6 +480,10 @@ export function DailyHubClient() {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 md:-mt-20 relative z-10 space-y-6 md:space-y-8">
                 <StreakRecoveryCard />
+
+                {/* Free Daily Mystery Chest Quick Claim / Status */}
+                <DailyChestStatusWidget />
+
                 {/* Habit Milestone Escalation Banner & Morning Focus Ring */}
                 {(() => {
                     const count = completedQuestIds.size;
@@ -545,8 +551,6 @@ export function DailyHubClient() {
                 })()}
 
                 <AllianceDailyOathWidget />
-
-                <DailyChestStatusWidget />
 
                 <HabitGuardian favoritedQuests={favoritedQuests} />
 
@@ -1259,44 +1263,111 @@ function AllianceDailyOathWidget() {
 function DailyChestStatusWidget() {
   const [isReady, setIsReady] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [timeUntilReset, setTimeUntilReset] = useState("");
+  const [isClaiming, setIsClaiming] = useState(false);
+  const router = useRouter();
 
-  useEffect(() => {
-    setMounted(true);
-    const checkStatus = () => {
-      try {
-        const stored = localStorage.getItem("claimed_packs_timestamps");
-        if (!stored) {
-          setIsReady(true);
-          return;
-        }
+  const updateStatus = useCallback(() => {
+    try {
+      const todayStr = new Date().toDateString();
+      const stored = localStorage.getItem("claimed_packs_timestamps");
+      if (!stored) {
+        setIsReady(true);
+      } else {
         const parsed = JSON.parse(stored);
         const lastClaimed = parsed["free_daily"];
         if (!lastClaimed) {
           setIsReady(true);
-          return;
+        } else {
+          const lastDateStr = new Date(lastClaimed).toDateString();
+          // Strict calendar date matching: if claimed today, not ready until midnight
+          setIsReady(lastDateStr !== todayStr);
         }
-        const diff = Date.now() - lastClaimed;
-        setIsReady(diff >= 24 * 60 * 60 * 1000);
-      } catch {
-        setIsReady(true);
       }
-    };
-    checkStatus();
-    const interval = setInterval(checkStatus, 10000);
-    return () => clearInterval(interval);
+
+      // Calculate time remaining until local midnight
+      const now = new Date();
+      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+      const diffMs = Math.max(0, midnight.getTime() - now.getTime());
+      const hours = Math.floor(diffMs / (1000 * 60 * 60));
+      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      setTimeUntilReset(`${hours}h ${minutes}m`);
+    } catch {
+      setIsReady(true);
+    }
   }, []);
+
+  useEffect(() => {
+    setMounted(true);
+    updateStatus();
+    const interval = setInterval(updateStatus, 15000);
+    return () => clearInterval(interval);
+  }, [updateStatus]);
+
+  const handleClaim = () => {
+    if (isClaiming) return;
+    setIsClaiming(true);
+
+    try {
+      // 1. Generate daily pack
+      const generatedPackData = generatePack("free_daily", Math.random);
+      const newOwnedPack: OwnedPack = {
+        id: `owned_pack_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        packTypeId: "free_daily",
+        packTitle: "Free Daily Pack",
+        shortLabel: "Daily",
+        purchasedAt: Date.now(),
+        packData: generatedPackData,
+      };
+
+      // 2. Save pack to owned inventory
+      saveOwnedPack(newOwnedPack);
+
+      // 3. Update claimed pack timestamps
+      let timestamps: Record<string, number> = {};
+      try {
+        const stored = localStorage.getItem("claimed_packs_timestamps");
+        if (stored) timestamps = JSON.parse(stored);
+      } catch {}
+      timestamps["free_daily"] = Date.now();
+      localStorage.setItem("claimed_packs_timestamps", JSON.stringify(timestamps));
+
+      // 4. Confetti celebration & SFX
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ["#f59e0b", "#fbbf24", "#fcd34d", "#10b981", "#ffffff"],
+      });
+      playSFX("sparkle");
+      hapticMedium();
+
+      toast.success("Free daily chest claimed! Added to your mystery card vault.");
+      updateStatus();
+    } catch (e) {
+      toast.error("Failed to claim daily chest.");
+    } finally {
+      setIsClaiming(false);
+    }
+  };
 
   if (!mounted) return null;
 
   return (
-    <div className={cn(
-      "w-full rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-300",
-      isReady 
-        ? "bg-gradient-to-r from-amber-950/40 via-zinc-950 to-amber-950/20 border border-amber-500/50 shadow-[0_0_25px_rgba(245,158,11,0.15)]"
-        : "bg-zinc-950/60 border border-zinc-800/80"
-    )}>
+    <div
+      className={cn(
+        "w-full rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-300",
+        isReady
+          ? "bg-gradient-to-r from-amber-950/40 via-zinc-950 to-amber-950/20 border border-amber-500/50 shadow-[0_0_25px_rgba(245,158,11,0.18)]"
+          : "bg-zinc-950/80 border border-zinc-800/80 shadow-md"
+      )}
+    >
       <div className="flex items-center gap-3.5 w-full sm:w-auto">
-        <MedievalOrbIcon color={isReady ? "gold" : "green"} size="md" className={isReady ? "scale-105 animate-pulse" : ""}>
+        <MedievalOrbIcon
+          color={isReady ? "gold" : "green"}
+          size="md"
+          className={isReady ? "scale-105 animate-pulse" : ""}
+        >
           {isReady ? "🎁" : "✓"}
         </MedievalOrbIcon>
         <div>
@@ -1304,39 +1375,53 @@ function DailyChestStatusWidget() {
             <h4 className="font-bold text-sm text-white font-serif">
               {isReady ? "Free daily chest ready" : "Daily chest claimed"}
             </h4>
-            <Badge className={cn(
-              "text-[9px] font-mono font-bold px-2 py-0.5",
-              isReady 
-                ? "bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse" 
-                : "bg-zinc-800 text-zinc-400 border-zinc-700"
-            )}>
+            <Badge
+              className={cn(
+                "text-[9px] font-mono font-bold px-2 py-0.5",
+                isReady
+                  ? "bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse"
+                  : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+              )}
+            >
               {isReady ? "Ready to open" : "Claimed today"}
             </Badge>
           </div>
           <p className="text-[11px] text-zinc-400 font-sans mt-0.5">
-            {isReady 
-              ? "Open your daily gift in the Mystic Bazaar to uncover mystery cards & potions."
-              : "Next free chest resets tomorrow at midnight. Browse the Mystic Bazaar."}
+            {isReady
+              ? "Claim today's free daily gift to unlock mystery creature cards & rare alchemy essences."
+              : `Opened today. Next free chest unlocks at midnight (${timeUntilReset} remaining).`}
           </p>
         </div>
       </div>
 
-      <div className="w-full sm:w-auto flex justify-end shrink-0">
+      <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center gap-2 shrink-0">
+        {isReady ? (
+          <Button
+            size="sm"
+            onClick={handleClaim}
+            disabled={isClaiming}
+            className="w-full sm:w-auto text-xs font-bold tracking-wide rounded-xl px-4 py-2 flex items-center justify-center gap-1.5 btn-primary-cta shadow-[0_0_15px_rgba(245,158,11,0.4)]"
+          >
+            {isClaiming ? "Claiming..." : "Claim free chest 🎁"}
+          </Button>
+        ) : (
+          <Link href="/achievements?tab=mystery-cards" className="w-full sm:w-auto">
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full sm:w-auto text-xs font-semibold rounded-xl px-3.5 py-2 border-amber-500/30 text-amber-300 bg-amber-950/20 hover:bg-amber-950/40 flex items-center justify-center gap-1.5"
+            >
+              Open owned packs 🃏 →
+            </Button>
+          </Link>
+        )}
+
         <Link href="/market?tab=mystic-shop" className="w-full sm:w-auto">
           <Button
             size="sm"
-            className={cn(
-              "w-full sm:w-auto text-xs font-bold tracking-wide rounded-xl px-4 py-2 flex items-center justify-center gap-1.5",
-              isReady
-                ? "btn-primary-cta shadow-[0_0_15px_rgba(245,158,11,0.4)]"
-                : "bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300"
-            )}
+            className="w-full sm:w-auto text-xs font-medium rounded-xl px-3 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 flex items-center justify-center gap-1"
           >
-            {isReady ? (
-              <>Claim free chest 🎁 →</>
-            ) : (
-              <>Mystic bazaar →</>
-            )}
+            Mystic bazaar →
           </Button>
         </Link>
       </div>

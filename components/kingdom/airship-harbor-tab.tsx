@@ -434,132 +434,134 @@ export function AirshipHarborTab() {
         </div>
       </div>
 
-      {/* Category-Themed Ether Fuel Progress Indicator */}
-      <Card className="bg-[#0f1115] border border-amber-900/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-32 bg-gradient-to-bl from-cyan-500/10 via-amber-500/5 to-transparent pointer-events-none rounded-tr-2xl" />
-        <div className="relative z-10 space-y-3.5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-950 to-blue-950 border border-cyan-500/40 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(6,182,212,0.25)]">
-                <Flame className="w-5 h-5 text-cyan-400 animate-pulse" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-cardo font-bold text-base text-white">Ether fuel engine</h3>
-                  <Badge className={cn(
-                    "text-[9px] font-mono font-bold tracking-wide uppercase px-2 py-0.5",
-                    fuelMetrics.totalFuel >= 100 
-                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 animate-pulse" 
-                      : fuelMetrics.totalFuel > 0
-                      ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/40"
-                      : "bg-zinc-800 text-zinc-400 border-zinc-700"
-                  )}>
-                    {fuelMetrics.totalFuel >= 100 ? "⚡ 100% Full capacity" : `${fuelMetrics.totalFuel}% / 100% Charged`}
-                  </Badge>
+      {/* Category-Themed Ether Fuel Progress Indicator (Shown only when no active voyage, preventing duplicate bars) */}
+      {!activeVoyage?.active && (
+        <Card className="bg-[#0f1115] border border-amber-900/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-32 bg-gradient-to-bl from-cyan-500/10 via-amber-500/5 to-transparent pointer-events-none rounded-tr-2xl" />
+          <div className="relative z-10 space-y-3.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-950 to-blue-950 border border-cyan-500/40 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(6,182,212,0.25)]">
+                  <Flame className="w-5 h-5 text-cyan-400 animate-pulse" />
                 </div>
-                <p className="text-[11px] text-zinc-400 font-sans">
-                  Propelled directly by completing daily habits across 4 elemental categories.
-                </p>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-cardo font-bold text-base text-white">Ether fuel engine</h3>
+                    <Badge className={cn(
+                      "text-[9px] font-mono font-bold tracking-wide uppercase px-2 py-0.5",
+                      fuelMetrics.totalFuel >= 100 
+                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 animate-pulse" 
+                        : fuelMetrics.totalFuel > 0
+                        ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/40"
+                        : "bg-zinc-800 text-zinc-400 border-zinc-700"
+                    )}>
+                      {fuelMetrics.totalFuel >= 100 ? "⚡ 100% Full capacity" : `${fuelMetrics.totalFuel}% / 100% Charged`}
+                    </Badge>
+                  </div>
+                  <p className="text-[11px] text-zinc-400 font-sans">
+                    Propelled directly by completing daily habits across 4 elemental categories.
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-right sm:self-center">
+                <span className="text-xl sm:text-2xl font-mono font-bold text-amber-400 drop-shadow-md">
+                  {fuelMetrics.totalFuel}%
+                </span>
+                <span className="text-[10px] text-zinc-500 block font-mono">Fuel capacity</span>
               </div>
             </div>
 
-            <div className="text-right sm:self-center">
-              <span className="text-xl sm:text-2xl font-mono font-bold text-amber-400 drop-shadow-md">
-                {fuelMetrics.totalFuel}%
-              </span>
-              <span className="text-[10px] text-zinc-500 block font-mono">Fuel capacity</span>
+            {/* Multi-Segment Category Fuel Progress Bar Leading to 100% */}
+            <div className="space-y-1.5">
+              <div className="w-full bg-zinc-950 rounded-full h-4 sm:h-5 p-0.5 border border-zinc-800 relative overflow-hidden shadow-inner flex">
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_2.5s_infinite] pointer-events-none z-20" />
+
+                {/* Knowledge Segment (Cyan) */}
+                {fuelMetrics.kPct > 0 && (
+                  <div
+                    style={{ width: `${fuelMetrics.kPct}%` }}
+                    className="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 transition-all duration-700 relative group first:rounded-l-full last:rounded-r-full shadow-[0_0_10px_rgba(6,182,212,0.4)]"
+                    title={`Knowledge Ether: ${fuelMetrics.kPct}% (${fuelMetrics.knowledgeCount} habits)`}
+                  />
+                )}
+
+                {/* Might Segment (Amber / Orange) */}
+                {fuelMetrics.mPct > 0 && (
+                  <div
+                    style={{ width: `${fuelMetrics.mPct}%` }}
+                    className="h-full bg-gradient-to-r from-amber-600 to-amber-400 transition-all duration-700 relative group first:rounded-l-full last:rounded-r-full shadow-[0_0_10px_rgba(245,158,11,0.4)]"
+                    title={`Might Ether: ${fuelMetrics.mPct}% (${fuelMetrics.mightCount} habits)`}
+                  />
+                )}
+
+                {/* Wellness Segment (Emerald) */}
+                {fuelMetrics.wPct > 0 && (
+                  <div
+                    style={{ width: `${fuelMetrics.wPct}%` }}
+                    className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-all duration-700 relative group first:rounded-l-full last:rounded-r-full shadow-[0_0_10px_rgba(16,185,129,0.4)]"
+                    title={`Wellness Ether: ${fuelMetrics.wPct}% (${fuelMetrics.wellnessCount} habits)`}
+                  />
+                )}
+
+                {/* Social / Craft Segment (Purple) */}
+                {fuelMetrics.sPct > 0 && (
+                  <div
+                    style={{ width: `${fuelMetrics.sPct}%` }}
+                    className="h-full bg-gradient-to-r from-purple-600 to-purple-400 transition-all duration-700 relative group first:rounded-l-full last:rounded-r-full shadow-[0_0_10px_rgba(168,85,247,0.4)]"
+                    title={`Social Ether: ${fuelMetrics.sPct}% (${fuelMetrics.socialCount} habits)`}
+                  />
+                )}
+
+                {/* Base Affinity Fuel (in active flight if starting fuel) */}
+                {fuelMetrics.basePct > 0 && (
+                  <div
+                    style={{ width: `${fuelMetrics.basePct}%` }}
+                    className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 transition-all duration-700 relative group first:rounded-l-full last:rounded-r-full shadow-[0_0_10px_rgba(59,130,246,0.4)]"
+                    title={`Crew Affinity Fuel: ${fuelMetrics.basePct}%`}
+                  />
+                )}
+              </div>
+
+              {/* Category Fuel Badges / Legend */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                <div className="p-2 rounded-lg bg-zinc-950/70 border border-cyan-500/20 flex items-center justify-between text-[10px]">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
+                    <span className="text-zinc-300 font-semibold">Knowledge</span>
+                  </div>
+                  <span className="font-mono font-bold text-cyan-400">+{fuelMetrics.kPct}%</span>
+                </div>
+
+                <div className="p-2 rounded-lg bg-zinc-950/70 border border-amber-500/20 flex items-center justify-between text-[10px]">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(245,158,11,0.8)]" />
+                    <span className="text-zinc-300 font-semibold">Might</span>
+                  </div>
+                  <span className="font-mono font-bold text-amber-400">+{fuelMetrics.mPct}%</span>
+                </div>
+
+                <div className="p-2 rounded-lg bg-zinc-950/70 border border-emerald-500/20 flex items-center justify-between text-[10px]">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.8)]" />
+                    <span className="text-zinc-300 font-semibold">Wellness</span>
+                  </div>
+                  <span className="font-mono font-bold text-emerald-400">+{fuelMetrics.wPct}%</span>
+                </div>
+
+                <div className="p-2 rounded-lg bg-zinc-950/70 border border-purple-500/20 flex items-center justify-between text-[10px]">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_6px_rgba(168,85,247,0.8)]" />
+                    <span className="text-zinc-300 font-semibold">Social</span>
+                  </div>
+                  <span className="font-mono font-bold text-purple-400">+{fuelMetrics.sPct}%</span>
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* Multi-Segment Category Fuel Progress Bar Leading to 100% */}
-          <div className="space-y-1.5">
-            <div className="w-full bg-zinc-950 rounded-full h-4 sm:h-5 p-0.5 border border-zinc-800 relative overflow-hidden shadow-inner flex">
-              {/* Shimmer effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_2.5s_infinite] pointer-events-none z-20" />
-
-              {/* Knowledge Segment (Cyan) */}
-              {fuelMetrics.kPct > 0 && (
-                <div
-                  style={{ width: `${fuelMetrics.kPct}%` }}
-                  className="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 transition-all duration-700 relative group first:rounded-l-full last:rounded-r-full shadow-[0_0_10px_rgba(6,182,212,0.4)]"
-                  title={`Knowledge Ether: ${fuelMetrics.kPct}% (${fuelMetrics.knowledgeCount} habits)`}
-                />
-              )}
-
-              {/* Might Segment (Amber / Orange) */}
-              {fuelMetrics.mPct > 0 && (
-                <div
-                  style={{ width: `${fuelMetrics.mPct}%` }}
-                  className="h-full bg-gradient-to-r from-amber-600 to-amber-400 transition-all duration-700 relative group first:rounded-l-full last:rounded-r-full shadow-[0_0_10px_rgba(245,158,11,0.4)]"
-                  title={`Might Ether: ${fuelMetrics.mPct}% (${fuelMetrics.mightCount} habits)`}
-                />
-              )}
-
-              {/* Wellness Segment (Emerald) */}
-              {fuelMetrics.wPct > 0 && (
-                <div
-                  style={{ width: `${fuelMetrics.wPct}%` }}
-                  className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-all duration-700 relative group first:rounded-l-full last:rounded-r-full shadow-[0_0_10px_rgba(16,185,129,0.4)]"
-                  title={`Wellness Ether: ${fuelMetrics.wPct}% (${fuelMetrics.wellnessCount} habits)`}
-                />
-              )}
-
-              {/* Social / Craft Segment (Purple) */}
-              {fuelMetrics.sPct > 0 && (
-                <div
-                  style={{ width: `${fuelMetrics.sPct}%` }}
-                  className="h-full bg-gradient-to-r from-purple-600 to-purple-400 transition-all duration-700 relative group first:rounded-l-full last:rounded-r-full shadow-[0_0_10px_rgba(168,85,247,0.4)]"
-                  title={`Social Ether: ${fuelMetrics.sPct}% (${fuelMetrics.socialCount} habits)`}
-                />
-              )}
-
-              {/* Base Affinity Fuel (in active flight if starting fuel) */}
-              {fuelMetrics.basePct > 0 && (
-                <div
-                  style={{ width: `${fuelMetrics.basePct}%` }}
-                  className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 transition-all duration-700 relative group first:rounded-l-full last:rounded-r-full shadow-[0_0_10px_rgba(59,130,246,0.4)]"
-                  title={`Crew Affinity Fuel: ${fuelMetrics.basePct}%`}
-                />
-              )}
-            </div>
-
-            {/* Category Fuel Badges / Legend */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-              <div className="p-2 rounded-lg bg-zinc-950/70 border border-cyan-500/20 flex items-center justify-between text-[10px]">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
-                  <span className="text-zinc-300 font-semibold">Knowledge</span>
-                </div>
-                <span className="font-mono font-bold text-cyan-400">+{fuelMetrics.kPct}%</span>
-              </div>
-
-              <div className="p-2 rounded-lg bg-zinc-950/70 border border-amber-500/20 flex items-center justify-between text-[10px]">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(245,158,11,0.8)]" />
-                  <span className="text-zinc-300 font-semibold">Might</span>
-                </div>
-                <span className="font-mono font-bold text-amber-400">+{fuelMetrics.mPct}%</span>
-              </div>
-
-              <div className="p-2 rounded-lg bg-zinc-950/70 border border-emerald-500/20 flex items-center justify-between text-[10px]">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.8)]" />
-                  <span className="text-zinc-300 font-semibold">Wellness</span>
-                </div>
-                <span className="font-mono font-bold text-emerald-400">+{fuelMetrics.wPct}%</span>
-              </div>
-
-              <div className="p-2 rounded-lg bg-zinc-950/70 border border-purple-500/20 flex items-center justify-between text-[10px]">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_6px_rgba(168,85,247,0.8)]" />
-                  <span className="text-zinc-300 font-semibold">Social</span>
-                </div>
-                <span className="font-mono font-bold text-purple-400">+{fuelMetrics.sPct}%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       {activeVoyage?.active ? (
         /* Active Voyage Screen */
@@ -579,42 +581,75 @@ export function AirshipHarborTab() {
                     <div className="flex justify-between items-start border-b border-white/5 pb-4">
                       <div>
                         <span className="text-[10px] font-bold text-amber-500 tracking-wider">Active voyage</span>
-                        <h3 className="font-cardo font-bold text-lg text-white mt-1">{region.name}</h3>
+                        <h3 className="font-cardo font-bold text-xl text-white mt-1">{region.name}</h3>
                       </div>
                       <Badge className={cn(
-                        "text-[9px] font-bold tracking-wider",
-                        isFinished ? "bg-emerald-600 text-white" : "bg-blue-600 text-white"
+                        "text-[9px] font-bold tracking-wider px-2.5 py-1",
+                        isFinished ? "bg-emerald-600 text-white shadow-[0_0_12px_rgba(16,185,129,0.4)]" : "bg-blue-600 text-white shadow-[0_0_12px_rgba(59,130,246,0.4)]"
                       )}>
                         {isFinished ? "Ready to dock" : "In flight"}
                       </Badge>
                     </div>
 
-                    {/* Progress details with Category Colors */}
+                    {/* Progress details with Category Colors & Breakdown Legend */}
                     <div className="space-y-3 bg-zinc-950/60 p-4 rounded-xl border border-white/5">
                       <div className="flex justify-between items-center text-xs font-bold">
-                        <span className="text-zinc-400 flex items-center gap-1.5">
+                        <span className="text-zinc-300 flex items-center gap-1.5">
                           <Flame className="w-3.5 h-3.5 text-cyan-400 animate-pulse" /> Ether flight propulsion:
                         </span>
-                        <span className="text-amber-400 font-mono">{progress}% completed</span>
+                        <span className="text-amber-400 font-mono text-sm">{progress}% completed</span>
                       </div>
                       
                       {/* Dynamic Category Color Bar */}
-                      <div className="w-full bg-zinc-900 rounded-full h-3.5 p-0.5 border border-white/5 relative overflow-hidden flex shadow-inner">
+                      <div className="w-full bg-zinc-900 rounded-full h-4 sm:h-4.5 p-0.5 border border-white/5 relative overflow-hidden flex shadow-inner">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_2.5s_infinite] pointer-events-none z-20" />
                         {fuelMetrics.kPct > 0 && (
-                          <div style={{ width: `${fuelMetrics.kPct}%` }} className="h-full bg-gradient-to-r from-cyan-600 to-cyan-400" title={`Knowledge: ${fuelMetrics.kPct}%`} />
+                          <div style={{ width: `${fuelMetrics.kPct}%` }} className="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 first:rounded-l-full last:rounded-r-full shadow-[0_0_8px_rgba(6,182,212,0.4)]" title={`Knowledge: +${fuelMetrics.kPct}%`} />
                         )}
                         {fuelMetrics.mPct > 0 && (
-                          <div style={{ width: `${fuelMetrics.mPct}%` }} className="h-full bg-gradient-to-r from-amber-600 to-amber-400" title={`Might: ${fuelMetrics.mPct}%`} />
+                          <div style={{ width: `${fuelMetrics.mPct}%` }} className="h-full bg-gradient-to-r from-amber-600 to-amber-400 first:rounded-l-full last:rounded-r-full shadow-[0_0_8px_rgba(245,158,11,0.4)]" title={`Might: +${fuelMetrics.mPct}%`} />
                         )}
                         {fuelMetrics.wPct > 0 && (
-                          <div style={{ width: `${fuelMetrics.wPct}%` }} className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400" title={`Wellness: ${fuelMetrics.wPct}%`} />
+                          <div style={{ width: `${fuelMetrics.wPct}%` }} className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 first:rounded-l-full last:rounded-r-full shadow-[0_0_8px_rgba(16,185,129,0.4)]" title={`Wellness: +${fuelMetrics.wPct}%`} />
                         )}
                         {fuelMetrics.sPct > 0 && (
-                          <div style={{ width: `${fuelMetrics.sPct}%` }} className="h-full bg-gradient-to-r from-purple-600 to-purple-400" title={`Social: ${fuelMetrics.sPct}%`} />
+                          <div style={{ width: `${fuelMetrics.sPct}%` }} className="h-full bg-gradient-to-r from-purple-600 to-purple-400 first:rounded-l-full last:rounded-r-full shadow-[0_0_8px_rgba(168,85,247,0.4)]" title={`Social: +${fuelMetrics.sPct}%`} />
                         )}
                         {fuelMetrics.basePct > 0 && (
-                          <div style={{ width: `${fuelMetrics.basePct}%` }} className="h-full bg-gradient-to-r from-blue-600 to-indigo-500" title={`Propulsion: ${fuelMetrics.basePct}%`} />
+                          <div style={{ width: `${fuelMetrics.basePct}%` }} className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 first:rounded-l-full last:rounded-r-full shadow-[0_0_8px_rgba(59,130,246,0.4)]" title={`Crew Affinity Fuel: +${fuelMetrics.basePct}%`} />
                         )}
+                      </div>
+
+                      {/* In-Card Category Fuel Legend */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                        <div className="p-1.5 rounded-lg bg-zinc-950/80 border border-cyan-500/20 flex items-center justify-between text-[10px]">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
+                            <span className="text-zinc-300 font-medium">Knowledge</span>
+                          </div>
+                          <span className="font-mono font-bold text-cyan-400">+{fuelMetrics.kPct}%</span>
+                        </div>
+                        <div className="p-1.5 rounded-lg bg-zinc-950/80 border border-amber-500/20 flex items-center justify-between text-[10px]">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(245,158,11,0.8)]" />
+                            <span className="text-zinc-300 font-medium">Might</span>
+                          </div>
+                          <span className="font-mono font-bold text-amber-400">+{fuelMetrics.mPct}%</span>
+                        </div>
+                        <div className="p-1.5 rounded-lg bg-zinc-950/80 border border-emerald-500/20 flex items-center justify-between text-[10px]">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.8)]" />
+                            <span className="text-zinc-300 font-medium">Wellness</span>
+                          </div>
+                          <span className="font-mono font-bold text-emerald-400">+{fuelMetrics.wPct}%</span>
+                        </div>
+                        <div className="p-1.5 rounded-lg bg-zinc-950/80 border border-purple-500/20 flex items-center justify-between text-[10px]">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_6px_rgba(168,85,247,0.8)]" />
+                            <span className="text-zinc-300 font-medium">Social</span>
+                          </div>
+                          <span className="font-mono font-bold text-purple-400">+{fuelMetrics.sPct}%</span>
+                        </div>
                       </div>
                       
                       {isFinished ? (
@@ -622,8 +657,8 @@ export function AirshipHarborTab() {
                           <Check className="w-3.5 h-3.5" /> Destination reached! The Airship has safely docked. Claim your resource chests.
                         </p>
                       ) : (
-                        <p className="text-[10px] text-zinc-500 leading-relaxed mt-1 font-semibold">
-                          Propel this voyage by completing habits/quests under the <strong className="text-amber-500 capitalize">{region.category}</strong> category. Complete any quest to add +20% distance.
+                        <p className="text-[10px] text-zinc-400 leading-relaxed mt-1 font-semibold">
+                          Propel this voyage by completing habits/quests under the <strong className="text-amber-400 capitalize">{region.category}</strong> category (+30% Ether bonus). Any other habit adds +25% fuel distance.
                         </p>
                       )}
                     </div>
