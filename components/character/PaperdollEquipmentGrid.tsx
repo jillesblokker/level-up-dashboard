@@ -69,6 +69,51 @@ const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'reli
   }
 }
 
+export const getItemRarityStyles = (rarity: string) => {
+  switch (rarity) {
+    case 'legendary':
+      return {
+        border: 'border-amber-400/90 shadow-[0_0_16px_rgba(245,158,11,0.4)] ring-2 ring-amber-500/20',
+        modalBorder: '!border-amber-500/70 shadow-[0_0_30px_rgba(245,158,11,0.35)]',
+        badge: 'bg-amber-500/20 text-amber-300 border-amber-500/50',
+        text: 'text-amber-400',
+        thumbnailBg: 'from-amber-950/40 via-zinc-900 to-zinc-950',
+      }
+    case 'epic':
+      return {
+        border: 'border-purple-400/90 shadow-[0_0_16px_rgba(168,85,247,0.4)] ring-2 ring-purple-500/20',
+        modalBorder: '!border-purple-500/70 shadow-[0_0_30px_rgba(168,85,247,0.35)]',
+        badge: 'bg-purple-500/20 text-purple-300 border-purple-500/50',
+        text: 'text-purple-400',
+        thumbnailBg: 'from-purple-950/40 via-zinc-900 to-zinc-950',
+      }
+    case 'rare':
+      return {
+        border: 'border-blue-400/90 shadow-[0_0_16px_rgba(59,130,246,0.4)] ring-2 ring-blue-500/20',
+        modalBorder: '!border-blue-500/70 shadow-[0_0_30px_rgba(59,130,246,0.35)]',
+        badge: 'bg-blue-500/20 text-blue-300 border-blue-500/50',
+        text: 'text-blue-400',
+        thumbnailBg: 'from-blue-950/40 via-zinc-900 to-zinc-950',
+      }
+    case 'uncommon':
+      return {
+        border: 'border-emerald-400/90 shadow-[0_0_16px_rgba(16,185,129,0.4)] ring-2 ring-emerald-500/20',
+        modalBorder: '!border-emerald-500/70 shadow-[0_0_30px_rgba(16,185,129,0.35)]',
+        badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50',
+        text: 'text-emerald-400',
+        thumbnailBg: 'from-emerald-950/40 via-zinc-900 to-zinc-950',
+      }
+    default:
+      return {
+        border: 'border-zinc-400/80 shadow-[0_0_12px_rgba(161,161,170,0.25)] ring-2 ring-zinc-500/20',
+        modalBorder: '!border-zinc-700 shadow-xl',
+        badge: 'bg-zinc-800 text-zinc-300 border-zinc-700',
+        text: 'text-zinc-300',
+        thumbnailBg: 'from-zinc-900 via-zinc-900 to-zinc-950',
+      }
+  }
+}
+
 interface PaperdollEquipmentGridProps {
   avatarImage?: string
   heroName?: string
@@ -113,14 +158,7 @@ export function PaperdollEquipmentGrid({
     { slot: 'relic', label: 'Artifact', icon: <Gem className="w-7 h-7 text-purple-400" /> }
   ]
 
-  const getRarityBadge = (rarity: string) => {
-    switch (rarity) {
-      case 'legendary': return 'bg-amber-500/20 text-amber-300 border-amber-500/50'
-      case 'epic': return 'bg-purple-500/20 text-purple-300 border-purple-500/50'
-      case 'rare': return 'bg-blue-500/20 text-blue-300 border-blue-500/50'
-      default: return 'bg-zinc-800 text-zinc-300 border-zinc-700'
-    }
-  }
+  const getRarityBadge = (rarity: string) => getItemRarityStyles(rarity).badge
 
   const handleEquipmentChange = () => {
     if (typeof window !== 'undefined') {
@@ -368,30 +406,32 @@ export function PaperdollEquipmentGrid({
 
         {/* Visually Enhanced Item Inspect Dialog with RPG Stat Deltas */}
         <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-          {selectedItem && (
-            <DialogContent className="max-w-sm bg-zinc-950 border-2 border-amber-500/40 text-white rounded-2xl p-6 shadow-2xl font-serif">
-              <DialogHeader>
-                <div className="flex items-center gap-4">
-                  <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-b from-zinc-900 to-zinc-950 border-2 border-amber-500/40 p-2 shrink-0 shadow-lg flex items-center justify-center">
-                    <Image
-                      src={selectedItem.image}
-                      alt={selectedItem.name}
-                      fill
-                      className="object-contain p-1 filter drop-shadow-md"
-                      unoptimized
-                    />
+          {selectedItem && (() => {
+            const rarityStyle = getItemRarityStyles(selectedItem.rarity);
+            return (
+              <DialogContent className={cn("max-w-sm bg-zinc-950 border-2 text-white rounded-2xl p-6 shadow-2xl font-serif", rarityStyle.modalBorder)}>
+                <DialogHeader>
+                  <div className="flex items-center gap-4">
+                    <div className={cn("relative w-16 h-16 rounded-2xl bg-gradient-to-b border-2 p-2 shrink-0 shadow-lg flex items-center justify-center", rarityStyle.thumbnailBg, rarityStyle.border)}>
+                      <Image
+                        src={selectedItem.image}
+                        alt={selectedItem.name}
+                        fill
+                        className="object-contain p-1 filter drop-shadow-md"
+                        unoptimized
+                      />
+                    </div>
+                    <div>
+                      <DialogTitle className="text-base font-bold text-zinc-100">{selectedItem.name}</DialogTitle>
+                      <Badge variant="outline" className={`text-[10px] mt-1 font-semibold capitalize ${rarityStyle.badge}`}>
+                        {selectedItem.rarity} • {selectedItem.slot}
+                      </Badge>
+                    </div>
                   </div>
-                  <div>
-                    <DialogTitle className="text-base font-bold text-zinc-100">{selectedItem.name}</DialogTitle>
-                    <Badge variant="outline" className={`text-[10px] mt-1 font-semibold capitalize ${getRarityBadge(selectedItem.rarity)}`}>
-                      {selectedItem.rarity} • {selectedItem.slot}
-                    </Badge>
-                  </div>
-                </div>
-                <DialogDescription className="text-zinc-300 text-xs mt-3 leading-relaxed font-sans">
-                  {selectedItem.description}
-                </DialogDescription>
-              </DialogHeader>
+                  <DialogDescription className="text-zinc-300 text-xs mt-3 leading-relaxed font-sans">
+                    {selectedItem.description}
+                  </DialogDescription>
+                </DialogHeader>
 
               <div className="my-4 p-3.5 bg-zinc-900/90 rounded-xl border border-zinc-800 space-y-2 text-xs font-sans">
                 <span className="text-[10px] font-bold text-amber-400 block font-serif tracking-wide">
@@ -451,7 +491,7 @@ export function PaperdollEquipmentGrid({
                 </Button>
               </DialogFooter>
             </DialogContent>
-          )}
+          ); })()}
         </Dialog>
       </CardContent>
     </Card>
@@ -520,33 +560,32 @@ function EquipmentSlotButton({
           className={cn(
             "pointer-events-none absolute inset-0 rounded-2xl border-2 z-10 transition-all duration-200",
             item
-              ? item.rarity === 'legendary'
-                ? 'border-amber-400/90 shadow-[0_0_16px_rgba(245,158,11,0.4)] ring-2 ring-amber-500/20'
-                : item.rarity === 'epic'
-                ? 'border-purple-400/90 shadow-[0_0_16px_rgba(168,85,247,0.4)] ring-2 ring-purple-500/20'
-                : 'border-cyan-400/90 shadow-[0_0_12px_rgba(6,182,212,0.3)] ring-2 ring-cyan-500/20'
+              ? getItemRarityStyles(item.rarity).border
               : 'border-zinc-800/80 text-zinc-600 opacity-60'
           )}
         />
       </button>
 
       {/* Interactive Micro-Tooltip Card */}
-      {isHovered && item && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 rounded-xl bg-zinc-950/95 border border-amber-500/50 shadow-2xl z-50 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
-          <div className="flex items-center justify-between gap-1 mb-1">
-            <span className="text-xs font-bold text-amber-300 truncate">{item.name}</span>
-            <span className="text-[9px] font-bold capitalize px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-500/40 font-mono">
-              {item.rarity}
-            </span>
+      {isHovered && item && (() => {
+        const rarityStyle = getItemRarityStyles(item.rarity);
+        return (
+          <div className={cn("absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 rounded-xl bg-zinc-950/95 border shadow-2xl z-50 pointer-events-none animate-in fade-in zoom-in-95 duration-150", rarityStyle.modalBorder)}>
+            <div className="flex items-center justify-between gap-1 mb-1">
+              <span className={cn("text-xs font-bold truncate", rarityStyle.text)}>{item.name}</span>
+              <span className={cn("text-[9px] font-bold capitalize px-1.5 py-0.5 rounded font-mono", rarityStyle.badge)}>
+                {item.rarity}
+              </span>
+            </div>
+            <p className="text-[10px] text-zinc-400 leading-tight mb-2">{item.description}</p>
+            <div className="flex items-center gap-2 text-[10px] font-mono font-bold text-emerald-400 pt-1 border-t border-zinc-800">
+              {item.stats.atk && <span>⚔️ +{item.stats.atk} atk</span>}
+              {item.stats.def && <span>🛡️ +{item.stats.def} def</span>}
+              {item.stats.spd && <span>💨 +{item.stats.spd} spd</span>}
+            </div>
           </div>
-          <p className="text-[10px] text-zinc-400 leading-tight mb-2">{item.description}</p>
-          <div className="flex items-center gap-2 text-[10px] font-mono font-bold text-emerald-400 pt-1 border-t border-zinc-800">
-            {item.stats.atk && <span>⚔️ +{item.stats.atk} atk</span>}
-            {item.stats.def && <span>🛡️ +{item.stats.def} def</span>}
-            {item.stats.spd && <span>💨 +{item.stats.spd} spd</span>}
-          </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   )
 }

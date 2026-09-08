@@ -4,6 +4,7 @@ import { logger } from "@/lib/logger";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react"
 import { useLocalStorage } from "@/lib/hooks/use-local-storage"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
@@ -544,6 +545,8 @@ export function DailyHubClient() {
                 })()}
 
                 <AllianceDailyOathWidget />
+
+                <DailyChestStatusWidget />
 
                 <HabitGuardian favoritedQuests={favoritedQuests} />
 
@@ -1252,3 +1255,92 @@ function AllianceDailyOathWidget() {
     </Card>
   );
 }
+
+function DailyChestStatusWidget() {
+  const [isReady, setIsReady] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const checkStatus = () => {
+      try {
+        const stored = localStorage.getItem("claimed_packs_timestamps");
+        if (!stored) {
+          setIsReady(true);
+          return;
+        }
+        const parsed = JSON.parse(stored);
+        const lastClaimed = parsed["free_daily"];
+        if (!lastClaimed) {
+          setIsReady(true);
+          return;
+        }
+        const diff = Date.now() - lastClaimed;
+        setIsReady(diff >= 24 * 60 * 60 * 1000);
+      } catch {
+        setIsReady(true);
+      }
+    };
+    checkStatus();
+    const interval = setInterval(checkStatus, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (!mounted) return null;
+
+  return (
+    <div className={cn(
+      "w-full rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-300",
+      isReady 
+        ? "bg-gradient-to-r from-amber-950/40 via-zinc-950 to-amber-950/20 border border-amber-500/50 shadow-[0_0_25px_rgba(245,158,11,0.15)]"
+        : "bg-zinc-950/60 border border-zinc-800/80"
+    )}>
+      <div className="flex items-center gap-3.5 w-full sm:w-auto">
+        <MedievalOrbIcon color={isReady ? "gold" : "green"} size="md" className={isReady ? "scale-105 animate-pulse" : ""}>
+          {isReady ? "🎁" : "✓"}
+        </MedievalOrbIcon>
+        <div>
+          <div className="flex items-center gap-2">
+            <h4 className="font-bold text-sm text-white font-serif">
+              {isReady ? "Free daily chest ready" : "Daily chest claimed"}
+            </h4>
+            <Badge className={cn(
+              "text-[9px] font-mono font-bold px-2 py-0.5",
+              isReady 
+                ? "bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse" 
+                : "bg-zinc-800 text-zinc-400 border-zinc-700"
+            )}>
+              {isReady ? "Ready to open" : "Claimed today"}
+            </Badge>
+          </div>
+          <p className="text-[11px] text-zinc-400 font-sans mt-0.5">
+            {isReady 
+              ? "Open your daily gift in the Mystic Bazaar to uncover mystery cards & potions."
+              : "Next free chest resets tomorrow at midnight. Browse the Mystic Bazaar."}
+          </p>
+        </div>
+      </div>
+
+      <div className="w-full sm:w-auto flex justify-end shrink-0">
+        <Link href="/market?tab=mystic-shop" className="w-full sm:w-auto">
+          <Button
+            size="sm"
+            className={cn(
+              "w-full sm:w-auto text-xs font-bold tracking-wide rounded-xl px-4 py-2 flex items-center justify-center gap-1.5",
+              isReady
+                ? "btn-primary-cta shadow-[0_0_15px_rgba(245,158,11,0.4)]"
+                : "bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300"
+            )}
+          >
+            {isReady ? (
+              <>Claim free chest 🎁 →</>
+            ) : (
+              <>Mystic bazaar →</>
+            )}
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
+}
+

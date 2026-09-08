@@ -54,6 +54,19 @@ export default function Page() {
   const [mythics, setMythics] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'creatures' | 'mythic' | 'alliance' | 'monsters' | 'progress'>('creatures');
 
+  // Handle URL deep-linking (e.g. /achievements?tab=mystery-cards)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      if (tab === 'mystery-cards' || tab === 'mystery' || tab === 'mythic') {
+        setActiveTab('mythic');
+      } else if (tab === 'creatures' || tab === 'alliance' || tab === 'monsters' || tab === 'progress') {
+        setActiveTab(tab);
+      }
+    }
+  }, []);
+
 
   // Fetch new monster achievement definitions (201-206)
   useEffect(() => {
@@ -817,7 +830,7 @@ export default function Page() {
                 <Crosshair className="w-4 h-4" /><span>Creatures</span>
               </TabsTrigger>
               <TabsTrigger value="mythic">
-                <Sparkles className="w-4 h-4" /><span>Mythic</span>
+                <Sparkles className="w-4 h-4" /><span>Mystery cards</span>
               </TabsTrigger>
               <TabsTrigger value="alliance">
                 <Users className="w-4 h-4" /><span>Alliance</span>
@@ -971,8 +984,8 @@ export default function Page() {
                     <Sparkles className="w-6 h-6 text-purple-500" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-purple-400 leading-none mb-1">Mythic Cards</h2>
-                    <span className="text-sm text-muted-foreground font-medium">Scratched from Market Packs</span>
+                    <h2 className="text-2xl font-bold text-purple-400 leading-none mb-1 font-serif">Mystery cards</h2>
+                    <span className="text-sm text-muted-foreground font-medium">Unlocked from Mystic chests & Mystery card packs</span>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1">

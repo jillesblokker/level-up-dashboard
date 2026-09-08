@@ -307,10 +307,10 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
             className="w-full bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border-zinc-700 font-bold text-xs sm:text-sm rounded-xl h-11"
             onClick={() => {
               onClose();
-              router.push('/achievements');
+              router.push('/achievements?tab=mystery-cards');
             }}
           >
-            🏆 Vault collection
+            🏆 Mystery cards vault
           </Button>
           <Button 
             size="lg" 

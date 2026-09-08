@@ -149,8 +149,9 @@
     font-size: 16px !important;
     /* Prevent iOS zoom */
   }
+}
 
-  /* Utility to hide scrollbars for horizontal scrolling areas */
+/* Utility to hide scrollbars for horizontal scrolling areas */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -1050,4 +1051,3 @@
       transition-duration: 0.01ms !important;
     }
   }
-}
