@@ -686,19 +686,89 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
                     isSelected ? "z-20 cursor-grabbing" : "cursor-grab"
                   )}
                 >
-                  <div
-                    className={cn(
-                      "w-full h-full rounded-md border-2 flex flex-col items-center justify-center font-bold text-center transition-all shadow-inner",
-                      plank.isTarget
-                        ? "bg-gradient-to-br from-zinc-800 to-zinc-950 border-red-800 text-red-500"
-                        : "bg-gradient-to-br from-amber-700 to-amber-900 border-amber-950 text-amber-200",
-                      isSelected
-                        ? "ring-2 ring-amber-400 scale-[1.03] shadow-amber-500/20 shadow-lg border-amber-400"
-                        : "opacity-90 hover:opacity-100"
-                    )}
-                  >
-                    {/* Clean planks — no labels or icons */}
-                  </div>
+                  {plank.isTarget ? (
+                    <div
+                      className={cn(
+                        "w-full h-full rounded-md border-2 border-red-700/80 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black text-red-500 relative overflow-hidden flex items-center justify-center shadow-lg transition-all",
+                        isSelected
+                          ? "ring-2 ring-red-400 scale-[1.03] shadow-red-500/40"
+                          : "opacity-90 hover:opacity-100"
+                      )}
+                    >
+                      {/* Keystone Stone Texture & Glowing Runes */}
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.25)_0%,transparent_70%)] pointer-events-none" />
+                      <div className="relative flex items-center justify-center gap-1.5 pointer-events-none select-none">
+                        <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)] animate-pulse" />
+                        <span className="text-[10px] font-mono font-black tracking-widest text-red-400 uppercase">Exit</span>
+                        <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)] animate-pulse" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className={cn(
+                        "relative w-full h-full rounded-md border-2 border-[#3d240f] overflow-hidden transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-2px_4px_rgba(0,0,0,0.6),0_3px_6px_rgba(0,0,0,0.4)]",
+                        isSelected
+                          ? "ring-2 ring-amber-400 scale-[1.03] shadow-[0_4px_18px_rgba(245,158,11,0.45)] border-amber-400 brightness-110 z-20"
+                          : "opacity-95 hover:opacity-100 hover:brightness-105"
+                      )}
+                    >
+                      {/* Smart Oriented Tavern Wood Background */}
+                      <div className="absolute inset-0 overflow-hidden rounded-[inherit] pointer-events-none">
+                        {plank.orientation === "horizontal" ? (
+                          /* Horizontal plank: wood grain naturally runs along the horizontal length */
+                          <div
+                            className="w-full h-full bg-cover bg-center"
+                            style={{
+                              backgroundImage: `url('/images/backgrounds/tavern-wood-bg.webp')`,
+                              filter: "contrast(1.08) saturate(1.15)",
+                            }}
+                          />
+                        ) : (
+                          /* Vertical plank: rotated 90deg so wood grain runs vertically along the plank */
+                          <div
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350%] h-[350%] bg-cover bg-center rotate-90"
+                            style={{
+                              backgroundImage: `url('/images/backgrounds/tavern-wood-bg.webp')`,
+                              filter: "contrast(1.08) saturate(1.15)",
+                            }}
+                          />
+                        )}
+                        {/* Rich amber carpentry stain wash */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-amber-900/25 via-amber-950/10 to-black/40 pointer-events-none" />
+
+                        {/* Subtle central wood grain groove line */}
+                        <div
+                          className={cn(
+                            "absolute bg-black/30 pointer-events-none",
+                            plank.orientation === "horizontal"
+                              ? "left-0 right-0 top-1/2 -translate-y-1/2 h-[1px] shadow-[0_1px_0_rgba(255,255,255,0.08)]"
+                              : "top-0 bottom-0 left-1/2 -translate-x-1/2 w-[1px] shadow-[1px_0_0_rgba(255,255,255,0.08)]"
+                          )}
+                        />
+                      </div>
+
+                      {/* Authentic Carpentry Brass / Iron Studs at Plank Ends */}
+                      {plank.orientation === "horizontal" ? (
+                        <>
+                          {/* Left studs */}
+                          <div className="absolute left-1 top-1.5 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-amber-300 via-amber-600 to-amber-950 shadow-xs border border-amber-950/80 pointer-events-none" />
+                          <div className="absolute left-1 bottom-1.5 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-amber-300 via-amber-600 to-amber-950 shadow-xs border border-amber-950/80 pointer-events-none" />
+                          {/* Right studs */}
+                          <div className="absolute right-1 top-1.5 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-amber-300 via-amber-600 to-amber-950 shadow-xs border border-amber-950/80 pointer-events-none" />
+                          <div className="absolute right-1 bottom-1.5 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-amber-300 via-amber-600 to-amber-950 shadow-xs border border-amber-950/80 pointer-events-none" />
+                        </>
+                      ) : (
+                        <>
+                          {/* Top studs */}
+                          <div className="absolute top-1 left-1.5 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-amber-300 via-amber-600 to-amber-950 shadow-xs border border-amber-950/80 pointer-events-none" />
+                          <div className="absolute top-1 right-1.5 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-amber-300 via-amber-600 to-amber-950 shadow-xs border border-amber-950/80 pointer-events-none" />
+                          {/* Bottom studs */}
+                          <div className="absolute bottom-1 left-1.5 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-amber-300 via-amber-600 to-amber-950 shadow-xs border border-amber-950/80 pointer-events-none" />
+                          <div className="absolute bottom-1 right-1.5 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-amber-300 via-amber-600 to-amber-950 shadow-xs border border-amber-950/80 pointer-events-none" />
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               )
             })}

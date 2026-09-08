@@ -325,13 +325,22 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
         setCanClaim(false);
     }, [exerciseIndex, activeExercise]);
 
-    // Dynamic phase and timer ticker
     // Dynamic phase and timer ticker with sacred bowl audio cues
     useEffect(() => {
         if (!isOpen) return;
+        // Stop timer once the sequence is complete
+        if (canClaim) return;
 
         const timer = setInterval(() => {
-            setSeconds((prevSec) => prevSec + 1);
+            setSeconds((prevSec) => {
+                const nextSec = prevSec + 1;
+                if (nextSec >= activeExercise.totalSeconds) {
+                    setCanClaim(true);
+                    playSFX('sparkle');
+                    return activeExercise.totalSeconds;
+                }
+                return nextSec;
+            });
 
             setPhaseSecondsLeft((prevLeft) => {
                 if (prevLeft <= 1) {
@@ -348,9 +357,9 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [isOpen, activeExercise, phaseIndex]);
+    }, [isOpen, activeExercise, phaseIndex, canClaim]);
 
-    // Unlock claim when total required exercise seconds are reached
+    // Safety fallback: unlock claim if seconds reach or exceed totalSeconds
     useEffect(() => {
         if (seconds >= activeExercise.totalSeconds) {
             setCanClaim(true);
@@ -481,44 +490,48 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
                         </div>
                     </div>
 
-                    {/* Breathing Visual */}
-                    <div className="relative flex flex-col items-center justify-center">
-                        {/* Outer Glows */}
-                        <div 
-                            className={cn(
-                                "absolute w-48 h-48 rounded-full transition-all blur-3xl opacity-20",
-                                currentPhase.glowBg
-                            )} 
-                            style={{ transitionDuration: `${currentPhase.duration}s` }}
-                        />
+                    {/* Breathing Visual Area with generous whitespace so scaling never touches the card above */}
+                    <div className="relative w-full flex flex-col items-center justify-center pt-4 sm:pt-6 pb-2">
+                        {/* Dedicated Height Frame for the Scaling Breathing Circle */}
+                        <div className="relative w-full h-48 sm:h-52 flex items-center justify-center">
+                            {/* Outer Ambient Glow */}
+                            <div 
+                                className={cn(
+                                    "absolute w-52 h-52 rounded-full transition-all blur-3xl opacity-20 pointer-events-none",
+                                    canClaim ? "bg-emerald-400 scale-110" : currentPhase.glowBg
+                                )} 
+                                style={{ transitionDuration: `${currentPhase.duration}s` }}
+                            />
 
-                        {/* The Actual Breathing Circle */}
-                        <div 
-                            className={cn(
-                                "relative w-32 h-32 rounded-full border flex items-center justify-center transition-all ease-in-out shadow-inner",
-                                activeExercise.theme.circleBorder,
-                                currentPhase.scale,
-                                currentPhase.circleBg
-                            )}
-                            style={{ transitionDuration: `${currentPhase.duration}s` }}
-                        >
-                            <div className="flex flex-col items-center justify-center">
-                                <Wind className={cn(
-                                    "w-12 h-12 transition-all duration-700",
-                                    activeExercise.theme.iconColor,
-                                    currentPhase.iconRotation,
-                                    currentPhase.iconOpacity
-                                )} />
+                            {/* The Actual Breathing Circle */}
+                            <div 
+                                className={cn(
+                                    "relative w-32 h-32 rounded-full border flex items-center justify-center transition-all ease-in-out shadow-inner",
+                                    activeExercise.theme.circleBorder,
+                                    canClaim
+                                        ? "scale-110 bg-emerald-500/20 border-emerald-500/60 shadow-[0_0_25px_rgba(16,185,129,0.3)]"
+                                        : cn(currentPhase.scale, currentPhase.circleBg)
+                                )}
+                                style={{ transitionDuration: `${currentPhase.duration}s` }}
+                            >
+                                <div className="flex flex-col items-center justify-center">
+                                    <Wind className={cn(
+                                        "w-12 h-12 transition-all duration-700",
+                                        canClaim
+                                            ? "text-emerald-300 rotate-0 opacity-100"
+                                            : cn(activeExercise.theme.iconColor, currentPhase.iconRotation, currentPhase.iconOpacity)
+                                    )} />
+                                </div>
                             </div>
                         </div>
 
                         {/* Phase Text & Seconds Countdown */}
-                        <div className="mt-10 flex flex-col items-center gap-1">
+                        <div className="mt-3 flex flex-col items-center gap-1">
                             <span className="text-xl font-serif text-zinc-100 tracking-[0.25em] uppercase transition-all duration-500">
-                                {currentPhase.label}
+                                {canClaim ? "Spirit centered" : currentPhase.label}
                             </span>
                             <span className="text-xs font-mono text-zinc-400">
-                                {phaseSecondsLeft}s
+                                {canClaim ? "Ready" : `${phaseSecondsLeft}s`}
                             </span>
                             <div className={cn("w-14 h-px bg-gradient-to-r from-transparent to-transparent mt-1", activeExercise.theme.dividerGlow)} />
                         </div>
