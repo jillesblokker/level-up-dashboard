@@ -569,6 +569,44 @@ export default function MarketPage() {
     };
   };
 
+  // Group owned packs by pack type so duplicate packs stack together
+  const groupedOwnedPacks = useMemo(() => {
+    const groups: {
+      key: string;
+      packTypeId: string;
+      packTitle: string;
+      shortLabel: string;
+      count: number;
+      packs: OwnedPack[];
+      latestPack: OwnedPack;
+    }[] = [];
+
+    const map = new Map<string, typeof groups[0]>();
+
+    for (const op of ownedPacksList) {
+      const key = op.packTypeId || op.packTitle.toLowerCase().trim();
+      let existing = map.get(key);
+      if (!existing) {
+        existing = {
+          key,
+          packTypeId: op.packTypeId,
+          packTitle: op.packTitle,
+          shortLabel: op.shortLabel,
+          count: 0,
+          packs: [],
+          latestPack: op
+        };
+        map.set(key, existing);
+        groups.push(existing);
+      }
+      existing.count += 1;
+      existing.packs.push(op);
+      existing.latestPack = op;
+    }
+
+    return groups;
+  }, [ownedPacksList]);
+
   return (
     <div className="min-h-screen thrivehaven-page-bg text-zinc-100 p-4 sm:p-6 lg:p-8 font-serif">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -665,23 +703,26 @@ export default function MarketPage() {
 
                 <div className={cn(
                   "gap-5 lg:gap-6 pt-2",
-                  ownedPacksList.length === 1 && "max-w-sm mx-auto flex justify-center",
-                  ownedPacksList.length === 2 && "max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2",
-                  ownedPacksList.length === 3 && "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
-                  ownedPacksList.length >= 4 && "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+                  groupedOwnedPacks.length === 1 && "max-w-sm mx-auto flex justify-center",
+                  groupedOwnedPacks.length === 2 && "max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2",
+                  groupedOwnedPacks.length === 3 && "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+                  groupedOwnedPacks.length >= 4 && "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
                 )}>
-                  {ownedPacksList.map((op, index) => {
-                    const meta = getOwnedPackMeta(op);
+                  {groupedOwnedPacks.map((group, index) => {
+                    const meta = getOwnedPackMeta(group.latestPack);
+                    const currentPackToOpen = group.packs[0] || group.latestPack;
+
                     return (
                       <Card
-                        key={op.id}
+                        key={group.key}
                         style={{ animationDelay: `${index * 60}ms` }}
                         onClick={() => {
+                          if (!currentPackToOpen) return;
                           hapticSuccess();
-                          setOpeningPack({ ...op.packData, ownedPackId: op.id });
+                          setOpeningPack({ ...currentPackToOpen.packData, ownedPackId: currentPackToOpen.id });
                         }}
                         className={cn(
-                          "bg-gradient-to-b transition-all duration-300 group flex flex-col justify-between relative overflow-hidden animate-in fade-in slide-in-from-bottom-3 cursor-pointer hover:scale-[1.02] shadow-xl min-h-[420px] w-full",
+                          "bg-gradient-to-b transition-all duration-300 group flex flex-col justify-between relative overflow-hidden animate-in fade-in slide-in-from-bottom-3 cursor-pointer hover:scale-[1.02] shadow-xl min-h-[430px] w-full",
                           meta.gradient,
                           meta.cardBorder
                         )}
@@ -689,30 +730,59 @@ export default function MarketPage() {
                         <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-40 pointer-events-none" />
 
                         <div>
-                          <CardHeader className="text-center relative z-10 pb-2 pt-4">
-                            <CardTitle className={cn("text-xl sm:text-2xl font-black font-serif tracking-wide leading-tight", meta.titleColor)}>
-                              {meta.cleanTitle}
-                            </CardTitle>
-                            <CardDescription className={cn("text-xs font-mono font-bold tracking-wider uppercase mt-1", meta.subColor)}>
-                              {op.shortLabel ? `${op.shortLabel} • Ready to Unpack` : "Ready to Unpack"}
+                          {/* Fixed-height header anchoring titles to bottom so all pack images start at identical vertical height */}
+                          <CardHeader className="text-center relative z-10 pb-2 pt-3 h-24 sm:h-28 flex flex-col justify-end px-3">
+                            <div className="min-h-[44px] sm:min-h-[50px] flex items-end justify-center">
+                              <CardTitle className={cn("text-lg sm:text-xl font-black font-serif tracking-wide leading-tight", meta.titleColor)}>
+                                {meta.cleanTitle}
+                              </CardTitle>
+                            </div>
+                            <CardDescription className={cn("text-[11px] font-mono font-bold tracking-wider uppercase mt-1", meta.subColor)}>
+                              {group.shortLabel ? `${group.shortLabel} • Ready to Unpack` : "Ready to Unpack"}
                             </CardDescription>
                           </CardHeader>
 
-                          <CardContent className="text-center relative z-10 space-y-4 px-4">
-                            {/* 3D Realistic Tactile Booster Pack Visual (Identical to Buy Card Packs) */}
-                            <div className={cn(
-                              "relative w-36 h-48 sm:w-44 sm:h-56 mx-auto rounded-2xl overflow-hidden shadow-2xl border-2 transition-all duration-500 group-hover:scale-105 group-hover:rotate-1 group-hover:-translate-y-1",
-                              meta.packBorder
-                            )}>
-                              <Image
-                                src={meta.image}
-                                alt={meta.cleanTitle}
-                                fill
-                                sizes="(max-width: 768px) 160px, 180px"
-                                className="object-cover"
-                              />
-                              {/* Foil Sheen Glint Effect on Hover */}
-                              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                          <CardContent className="text-center relative z-10 space-y-4 px-4 pt-1">
+                            {/* 3D Realistic Tactile Booster Pack Visual with Duplicate Stacking */}
+                            <div className="relative w-36 h-48 sm:w-44 sm:h-56 mx-auto">
+                              {/* Visual Physical Stack Layers for duplicates */}
+                              {group.count > 1 && (
+                                <>
+                                  {group.count > 2 && (
+                                    <div className={cn(
+                                      "absolute -top-3 -right-2.5 w-full h-full rounded-2xl border-2 opacity-35 transform rotate-3 pointer-events-none transition-all duration-300",
+                                      meta.packBorder
+                                    )} />
+                                  )}
+                                  <div className={cn(
+                                    "absolute -top-1.5 -right-1.5 w-full h-full rounded-2xl border-2 opacity-60 transform rotate-1.5 pointer-events-none transition-all duration-300",
+                                    meta.packBorder
+                                  )} />
+                                </>
+                              )}
+
+                              {/* Main Pack Sleeve */}
+                              <div className={cn(
+                                "relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border-2 transition-all duration-500 group-hover:scale-105 group-hover:rotate-1 group-hover:-translate-y-1",
+                                meta.packBorder
+                              )}>
+                                <Image
+                                  src={meta.image}
+                                  alt={meta.cleanTitle}
+                                  fill
+                                  sizes="(max-width: 768px) 160px, 180px"
+                                  className="object-cover"
+                                />
+                                {/* Foil Sheen Glint Effect on Hover */}
+                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                              </div>
+
+                              {/* Prominent Duplicate Stack Pill Badge */}
+                              {group.count > 1 && (
+                                <div className="absolute -top-2.5 -right-2.5 z-30 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-zinc-950 font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.8)] border-2 border-white flex items-center gap-1">
+                                  <span>x{group.count}</span>
+                                </div>
+                              )}
                             </div>
 
                             <p className="text-xs sm:text-sm text-zinc-300 leading-snug line-clamp-2 px-1">
@@ -728,7 +798,7 @@ export default function MarketPage() {
                               meta.btnColor
                             )}
                           >
-                            Unpack Now ✨
+                            {group.count > 1 ? `Unpack (x${group.count}) ✨` : "Unpack Now ✨"}
                           </Button>
                         </CardFooter>
                       </Card>
