@@ -62,16 +62,8 @@ export function getUnifiedChatterPool(
 ): string[] {
     const citizenTitle = CITIZEN_TITLES[def.id] || 'Elder';
     
-    // Greetings: alternate names, titles, and player variables
-    const base = (def.greetings || []).map((greet: string, index: number) => {
-        if (index % 3 === 0) {
-            return `${greet} - Sincerely, the ${citizenTitle}.`;
-        } else if (index % 3 === 1) {
-            return `"${greet}" says ${def.name}.`;
-        } else {
-            return `${greet} What news, ${playerTitle} ${playerName}?`;
-        }
-    });
+    // Greetings: direct character speech
+    const base = (def.greetings || []).map((greet: string) => greet);
 
     if (!questStats) return base;
 
@@ -487,7 +479,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
     // Get the selected citizen object from the store dynamically
     const selectedCitizen = citizens.find(c => c.id === selectedCitizenId) || null;
 
-    // Rotate quotes every 2 seconds when modal is open
+    // Rotate quotes every 4 seconds when modal is open
     useEffect(() => {
         if (!isModalOpen || !selectedCitizen || !selectedCitizen.greetings || selectedCitizen.greetings.length <= 1) {
             return;
@@ -496,7 +488,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
         // Reset to 0 when opening a new citizen
         const interval = setInterval(() => {
             setQuoteIndex(prev => (prev + 1) % selectedCitizen.greetings.length);
-        }, 2000);
+        }, 4000);
 
         return () => clearInterval(interval);
     }, [isModalOpen, selectedCitizen]);
@@ -1060,39 +1052,40 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                     </div>
 
                     <div 
-                        className="overflow-y-auto flex-1 min-h-0 [scrollbar-width:thin] [scrollbar-color:rgba(245,158,11,0.3)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-amber-500/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-amber-400/60"
+                        className="overflow-y-auto flex-1 min-h-0 [scrollbar-width:thin] [scrollbar-color:rgba(245,158,11,0.3)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-amber-500/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-amber-400/60 !border-0 !border-none"
                         tabIndex={0}
-                        role="region"
                         aria-label="Citizen interaction details"
                     >
                         <div className="relative z-10 flex flex-col items-center pt-8 pb-4 px-6">
                         {/* Portrait */}
-                        <div className="relative w-32 h-32 flex items-center justify-center bg-zinc-900 rounded-full border-2 border-zinc-800 shadow-xl overflow-hidden p-4">
-                            {selectedCitizen && (() => {
-                                let fn = selectedCitizen.filename || (selectedCitizen.id ? `${selectedCitizen.id}.webp` : `${selectedCitizen.name}.webp`);
-                                if (fn.endsWith('.png')) fn = fn.replace(/\.png$/i, '.webp');
-                                else if (!fn.endsWith('.webp')) fn = `${fn}.webp`;
-                                const imgSrc = selectedCitizen.isMythic ? `/images/Mythics/${fn}?v=2` : `/images/creatures/${fn}`;
+                        <div className="relative w-32 h-32 flex items-center justify-center bg-zinc-900 rounded-full border-2 border-zinc-800 shadow-xl p-4">
+                            <div className="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center">
+                                {selectedCitizen && (() => {
+                                    let fn = selectedCitizen.filename || (selectedCitizen.id ? `${selectedCitizen.id}.webp` : `${selectedCitizen.name}.webp`);
+                                    if (fn.endsWith('.png')) fn = fn.replace(/\.png$/i, '.webp');
+                                    else if (!fn.endsWith('.webp')) fn = `${fn}.webp`;
+                                    const imgSrc = selectedCitizen.isMythic ? `/images/Mythics/${fn}?v=2` : `/images/creatures/${fn}`;
 
-                                return (
-                                    <div className="w-24 h-24 relative">
-                                        <Image
-                                            src={imgSrc}
-                                            alt={selectedCitizen.name}
-                                            fill
-                                            sizes="96px"
-                                            className="object-contain drop-shadow-md"
-                                            onError={(e) => {
-                                                logger.warn('Failed to load modal citizen image:', selectedCitizen.name);
-                                                (e.target as any).src = '/images/placeholders/creature.webp';
-                                            }}
-                                        />
-                                    </div>
-                                );
-                            })()}
+                                    return (
+                                        <div className="w-24 h-24 relative">
+                                            <Image
+                                                src={imgSrc}
+                                                alt={selectedCitizen.name}
+                                                fill
+                                                sizes="96px"
+                                                className="object-contain drop-shadow-md"
+                                                onError={(e) => {
+                                                    logger.warn('Failed to load modal citizen image:', selectedCitizen.name);
+                                                    (e.target as any).src = '/images/placeholders/creature.webp';
+                                                }}
+                                            />
+                                        </div>
+                                    );
+                                })()}
+                            </div>
                             {selectedCitizen?.favorite && (
-                                <div className="absolute top-1 right-1 bg-amber-500 text-black rounded-full p-1 border border-yellow-300 shadow z-20">
-                                    <Star className="w-3 h-3 fill-current" />
+                                <div className="absolute top-0 right-0 bg-amber-500 text-black rounded-full p-1.5 border-2 border-yellow-300 shadow-lg z-20 translate-x-1 -translate-y-1">
+                                    <Star className="w-3.5 h-3.5 fill-current" />
                                 </div>
                             )}
                         </div>
@@ -1122,14 +1115,15 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                         </div>
 
                         {/* Speech Bubble / Greeting */}
-                        <div className="mt-4 bg-zinc-900 border border-zinc-800/60 rounded-xl px-4 py-2.5 text-zinc-300 text-xs text-center italic max-w-xs relative transition-opacity duration-300">
+                        <div className="mt-4 bg-zinc-900 border border-zinc-800/60 rounded-xl px-4 py-3 text-zinc-300 text-xs text-center italic max-w-xs w-full min-h-[76px] flex items-center justify-center relative transition-opacity duration-300">
                             {(() => {
                                 if (!selectedCitizen) return null;
                                 const playerName = user?.firstName || 'Traveler';
                                 const playerTitle = getCharacterStats()?.title || 'Lord';
                                 const pool = getUnifiedChatterPool(selectedCitizen, questStats, playerName, playerTitle);
-                                const quote = pool[quoteIndex % (pool.length || 1)] || "";
-                                return <span>&ldquo;{quote}&rdquo;</span>;
+                                const rawQuote = pool[quoteIndex % (pool.length || 1)] || "";
+                                const cleanQuote = rawQuote.replace(/^["“”']+|["“”']+$/g, '').trim();
+                                return <span className="leading-relaxed line-clamp-3">&ldquo;{cleanQuote}&rdquo;</span>;
                             })()}
                             <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-zinc-900 rotate-45 border-t border-l border-zinc-800/60" />
                         </div>
@@ -1235,11 +1229,12 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
 
                         {selectedCitizen && dailyEncounter && !dailyEncounter.completed && dailyEncounter.citizenId !== selectedCitizen.id && (
                             <div className="bg-zinc-900/50 border border-zinc-800/40 rounded-xl p-3 flex flex-col gap-1.5 text-xs mb-1">
-                                <p className="text-zinc-500 text-[10px] leading-relaxed">
-                                    This citizen has no active requests today.
+                                <p className="text-zinc-400 text-xs italic font-serif leading-relaxed text-center">
                                     {(() => {
                                         const questGiver = citizens.find(c => c.id === dailyEncounter.citizenId);
-                                        return questGiver ? ` Go visit ${questGiver.name} who has an active quest! ⭐` : '';
+                                        return questGiver 
+                                            ? `“I don't need help at the moment, but I heard ${questGiver.name} was in need of assistance”` 
+                                            : `“I don't need help at the moment.”`;
                                     })()}
                                 </p>
                             </div>
