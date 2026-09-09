@@ -613,6 +613,12 @@ function RealmPageContent() {
         }
     }, [userId]);
 
+    const {
+        horsePos, eaglePos, isHorsePresent, isPenguinPresent, penguinPos,
+        sheepPos, isSheepPresent, horseCaught, sheepCaught, penguinCaught,
+        handleAnimalInteraction, setIsPenguinPresent
+    } = useRealmAnimals(grid, isMounted, characterPosition, setAnimalInteractionModal);
+
     const handleAnimalFeed = async (animalType: string, itemId: string) => {
         try {
             const defId = animalType === 'sheep' ? '901' : animalType === 'horse' ? '902' : '903';
@@ -651,12 +657,6 @@ function RealmPageContent() {
             fetchFoodForAnimal();
         }
     }, [animalInteractionModal?.isOpen, fetchFoodForAnimal]);
-
-    const {
-        horsePos, eaglePos, isHorsePresent, isPenguinPresent, penguinPos,
-        sheepPos, isSheepPresent, horseCaught, sheepCaught, penguinCaught,
-        handleAnimalInteraction
-    } = useRealmAnimals(grid, isMounted, characterPosition, setAnimalInteractionModal);
 
     const {
         passiveRewards,
