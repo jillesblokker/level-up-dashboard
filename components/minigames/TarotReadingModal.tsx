@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Sparkles, Compass, Trophy, Star, Shield, Flame, Wand2 } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
 import { addToCharacterStat } from '@/lib/character-stats-service'
+import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager'
 
 interface TarotReadingModalProps {
   isOpen: boolean
@@ -59,9 +60,39 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
 
     await addToCharacterStat('gold', randomCard.goldBonus, 'town-tarot-reading')
 
+    // Apply active blessing to active_alchemy_buffs
+    try {
+      const currentBuffs = ((await getUserPreference('active_alchemy_buffs')) as any) || {}
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+      const updatedBuffs: any = {
+        ...currentBuffs,
+        tarotCardName: randomCard.name,
+        tarotExpiresAt: expiresAt,
+      }
+
+      if (randomCard.name.includes('Sun')) {
+        updatedBuffs.activeSpell = 'greed'
+        updatedBuffs.spellExpiresAt = expiresAt
+      } else if (randomCard.name.includes('Dragon')) {
+        updatedBuffs.bonusAtkPercent = 15
+        updatedBuffs.combatProtectionCharges = Math.max(currentBuffs.combatProtectionCharges || 0, 2)
+      } else if (randomCard.name.includes('Sage')) {
+        updatedBuffs.activeSpell = 'swiftness'
+        updatedBuffs.spellExpiresAt = expiresAt
+      } else if (randomCard.name.includes('Aegis')) {
+        updatedBuffs.streakProtection = true
+        updatedBuffs.combatProtectionCharges = (currentBuffs.combatProtectionCharges || 0) + 3
+      }
+
+      await setUserPreference('active_alchemy_buffs', updatedBuffs)
+      window.dispatchEvent(new CustomEvent('tarot-buff-activated', { detail: updatedBuffs }))
+    } catch (e) {
+      console.error('Failed to set tarot blessing buff:', e)
+    }
+
     toast({
-      title: `🔮 Town Tarot Drawn: ${randomCard.name}`,
-      description: `${randomCard.buff} Awarded +${randomCard.goldBonus} Gold!`,
+      title: `🔮 Town tarot drawn: ${randomCard.name}`,
+      description: `${randomCard.buff} Awarded +${randomCard.goldBonus} gold!`,
     })
   }
 

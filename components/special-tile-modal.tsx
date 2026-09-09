@@ -304,6 +304,34 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
               </Button>
             )}
 
+            {(tile?.id === 'arena' || tile?.type === 'arena' || tile?.id === 'colosseum' || tile?.id === 'training_grounds' || tile?.id === 'barracks' || tile?.id === 'tourney' || String(tile?.id || '').includes('joust')) && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  onClose();
+                  window.dispatchEvent(new CustomEvent('open-jousting-minigame'));
+                }}
+                className="flex-1 bg-gradient-to-r from-amber-950 to-red-950/80 hover:from-amber-900 hover:to-red-900 border-amber-500/40 text-amber-200 rounded-xl py-4 sm:py-5 font-serif font-semibold shadow-lg shadow-amber-950/40 flex items-center justify-center gap-1.5"
+              >
+                <span>Enter jousting tournament</span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              </Button>
+            )}
+
+            {(tile?.id === 'siege_catapult' || tile?.type === 'catapult' || tile?.id === 'siege_workshop' || String(tile?.id || '').includes('catapult') || String(tile?.id || '').includes('siege')) && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  onClose();
+                  window.dispatchEvent(new CustomEvent('open-catapult-siege-minigame'));
+                }}
+                className="flex-1 bg-gradient-to-r from-red-950 to-orange-950/80 hover:from-red-900 hover:to-orange-900 border-orange-500/40 text-orange-200 rounded-xl py-4 sm:py-5 font-serif font-semibold shadow-lg shadow-red-950/40 flex items-center justify-center gap-1.5"
+              >
+                <span>Command catapult siege</span>
+                <Sparkles className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+              </Button>
+            )}
+
             {isReady && (
               <Button
                 disabled={isCollecting}

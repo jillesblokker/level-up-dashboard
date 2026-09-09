@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 
 import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, Citizen } from '@/stores/citizensStore';
+import { CitizenSpecializationModal, CitizenClass } from '@/components/character/CitizenSpecializationModal';
 import { getInventory } from '@/lib/inventory-manager';
 import { loadTileInventory } from '@/lib/data-loaders';
 import { useGameStore } from '@/stores/game-store';
@@ -88,10 +89,12 @@ export function CitizensTab() {
   const toggleFavorite = useCitizensStore(state => state.toggleFavorite);
   const feedCitizen = useCitizensStore(state => state.feedCitizen);
   const mergeDuplicateCitizens = useCitizensStore(state => state.mergeDuplicateCitizens);
+  const specializeCitizen = useCitizensStore(state => state.specializeCitizen);
 
   const [citizenFilter, setCitizenFilter] = useState<"all" | "active" | "inactive" | "favorites">("all");
   const [speciesFilter, setSpeciesFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [specializeCitizenTarget, setSpecializeCitizenTarget] = useState<Citizen | null>(null);
   const [inventoryFood, setInventoryFood] = useState<{ id: string; name: string; quantity: number; emoji: string }[]>([]);
   const [feedModalCitizenId, setFeedModalCitizenId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -572,6 +575,16 @@ export function CitizensTab() {
                           >
                             {citizen.active ? "Set to Tab Only" : "Let Wander Map"}
                           </Button>
+
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full font-semibold text-xs border-amber-800/50 bg-amber-950/20 text-amber-300 hover:bg-amber-900/40 hover:text-amber-100"
+                            onClick={() => setSpecializeCitizenTarget(citizen)}
+                          >
+                            <Sparkles className="w-3.5 h-3.5 mr-1.5 shrink-0 text-amber-400" />
+                            {citizen.specialization ? `Class: ${citizen.specialization}` : 'Specialize class'}
+                          </Button>
                         </CardFooter>
                       </Card>
                     </div>
@@ -832,6 +845,16 @@ export function CitizensTab() {
                       )}
                     </Button>
 
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full font-semibold text-xs border-amber-800/50 bg-amber-950/20 text-amber-300 hover:bg-amber-900/40 hover:text-amber-100"
+                      onClick={() => setSpecializeCitizenTarget(citizen)}
+                    >
+                      <Sparkles className="w-3.5 h-3.5 mr-1.5 shrink-0 text-amber-400" />
+                      {citizen.specialization ? `Class: ${citizen.specialization}` : 'Specialize class'}
+                    </Button>
+
                     {isHungry ? (
                       <div className="w-full">
                         {inventoryFood.length === 0 ? (
@@ -904,7 +927,25 @@ export function CitizensTab() {
           </div>
           </>
         )}
+
+        {specializeCitizenTarget && (
+          <CitizenSpecializationModal
+            isOpen={!!specializeCitizenTarget}
+            onClose={() => setSpecializeCitizenTarget(null)}
+            citizenName={specializeCitizenTarget.name}
+            currentClass={specializeCitizenTarget.specialization as CitizenClass}
+            onSpecialize={async (chosenClass) => {
+              if (user?.id && specializeCitizenTarget) {
+                await specializeCitizen(user.id, specializeCitizenTarget.id, chosenClass)
+                toast({
+                  title: "Citizen specialized!",
+                  description: `${specializeCitizenTarget.name} is now trained as a ${chosenClass}.`,
+                })
+              }
+            }}
+          />
+        )}
       </div>
     </div>
-  );
+  )
 }

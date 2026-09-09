@@ -18,8 +18,21 @@ export interface JoustCategory {
   allyStat: number;
 }
 
-export function JoustingTournamentModal() {
-  const [isOpen, setIsOpen] = useState(false);
+interface JoustingTournamentModalProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export function JoustingTournamentModal({ isOpen: controlledIsOpen, onClose }: JoustingTournamentModalProps = {}) {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isControlled = controlledIsOpen !== undefined;
+  const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open && onClose) onClose();
+    if (!isControlled) setInternalIsOpen(open);
+  };
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [battleState, setBattleState] = useState<'selecting' | 'jousting' | 'result'>('selecting');
   const [joustResults, setJoustResults] = useState<{ wins: number; ties: number; losses: number; netGold: number } | null>(null);
@@ -88,13 +101,15 @@ export function JoustingTournamentModal() {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-500 hover:to-amber-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
-          <Swords className="w-4 h-4 text-amber-300" />
-          <span>Friend joust bet</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          <Button className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-500 hover:to-amber-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
+            <Swords className="w-4 h-4 text-amber-300" />
+            <span>Friend joust bet</span>
+          </Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent className="bg-zinc-950 border border-amber-500/30 text-white max-w-lg p-6 rounded-2xl shadow-2xl space-y-4 max-h-[88dvh] overflow-y-auto custom-scrollbar">
         <DialogHeader>
@@ -224,7 +239,7 @@ export function JoustingTournamentModal() {
             </div>
 
             <Button
-              onClick={() => { setBattleState('selecting'); setSelectedCategories([]); setIsOpen(false); }}
+              onClick={() => { setBattleState('selecting'); setSelectedCategories([]); handleOpenChange(false); }}
               className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs h-10 rounded-xl"
             >
               Return to Hall

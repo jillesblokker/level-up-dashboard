@@ -10,6 +10,9 @@ import { useCitizensStore } from '@/stores/citizensStore'
 import { useToast } from '@/components/ui/use-toast'
 import { playSFX, SOUNDS } from '@/lib/sound-manager'
 import { hapticSuccess } from '@/lib/haptics'
+import { useUser } from '@clerk/nextjs'
+import { addToCharacterStat } from '@/lib/character-stats-service'
+import { addTileToInventory } from '@/lib/tile-inventory-manager'
 
 interface AirshipHarborModalProps {
   isOpen: boolean
@@ -22,6 +25,7 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
   const [activeDestination, setActiveDestination] = useState('Port of Celestial Spire')
   const [selectedCrew, setSelectedCrew] = useState<string[]>([])
 
+  const { user } = useUser()
   const { citizens, addCitizenExp } = useCitizensStore()
   const { toast } = useToast()
 
@@ -39,7 +43,7 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
       setSelectedCrew(selectedCrew.filter(cId => cId !== id))
     } else {
       if (selectedCrew.length >= 3) {
-        toast({ title: 'Crew Full', description: 'Max 3 citizens per expedition crew.' })
+        toast({ title: 'Crew full', description: 'Max 3 citizens per expedition crew.' })
         return
       }
       setSelectedCrew([...selectedCrew, id])
@@ -47,10 +51,40 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
   }
 
   const handleLaunchCourse = async (portName: string) => {
-    playSFX(SOUNDS.ETHER_LAUNCH);
-    hapticSuccess();
+    const port = PORTS.find(p => p.name === portName) || PORTS[0]!
+    if (etherFuel < port.reqFuel) {
+      playSFX(SOUNDS.ERROR)
+      toast({
+        title: "Insufficient ether fuel",
+        description: `Voyage to ${port.name} requires ${port.reqFuel} ether fuel. You have ${etherFuel}. Complete habits to generate more!`,
+        variant: "destructive"
+      })
+      return
+    }
+
+    // Deduct fuel
+    const nextFuel = Math.max(0, etherFuel - port.reqFuel)
+    setEtherFuel(nextFuel)
+    try {
+      localStorage.setItem('thrivehaven_ether_fuel', nextFuel.toString())
+    } catch {}
+
+    playSFX(SOUNDS.ETHER_LAUNCH)
+    hapticSuccess()
     setActiveDestination(portName)
     setVoyageProgress(100)
+
+    const currentUserId = user?.id || 'guest'
+
+    // Deliver promised guaranteed loot
+    await addToCharacterStat('ember_essence', 15, 'airship-voyage-loot')
+    if (user?.id) {
+      await addTileToInventory(user.id, {
+        id: 'blueprint_serene_lake',
+        name: 'Serene lake blueprint',
+        type: 'lake' as any,
+      })
+    }
 
     // Award Expedition EXP to assigned crew
     if (selectedCrew.length > 0) {
@@ -59,17 +93,17 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
         const isSynergyClass = citizen?.type === 'special' || citizen?.type === 'nature'
         const expAwarded = isSynergyClass ? 150 : 100
 
-        await addCitizenExp('user', citizenId, expAwarded)
+        await addCitizenExp(currentUserId, citizenId, expAwarded)
       }
 
       toast({
-        title: "🛸 Voyage Complete!",
-        description: `Awarded Expedition EXP to ${selectedCrew.length} crew member(s)! (+50% Synergy Bonus applied!)`,
+        title: "🛸 Voyage complete!",
+        description: `Awarded expedition exp to ${selectedCrew.length} crew member(s), +15 essences & 1x Serene lake blueprint!`,
       })
     } else {
       toast({
-        title: "🛸 Course set!",
-        description: `Ivory gryphon spreads its wings from the bow: 'Course locked for ${portName}! Keep your habits burning to feed the thrusters.'`,
+        title: "🛸 Course complete!",
+        description: `Course completed for ${portName}! Loot secured: +15 essences & 1x Serene lake blueprint.`,
       })
     }
   }

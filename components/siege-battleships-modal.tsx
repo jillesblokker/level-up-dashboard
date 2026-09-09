@@ -17,8 +17,21 @@ interface GridCell {
   hit: boolean;
 }
 
-export function SiegeBattleshipModal() {
-  const [isOpen, setIsOpen] = useState(false);
+interface SiegeBattleshipModalProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export function SiegeBattleshipModal({ isOpen: controlledIsOpen, onClose }: SiegeBattleshipModalProps = {}) {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isControlled = controlledIsOpen !== undefined;
+  const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open && onClose) onClose();
+    if (!isControlled) setInternalIsOpen(open);
+  };
+
   const [boulders, setBoulders] = useState(5);
   const [score, setScore] = useState(0);
   const [grid, setGrid] = useState<GridCell[]>(() => generateInitialGrid());
@@ -54,10 +67,11 @@ export function SiegeBattleshipModal() {
     if (newGrid[index]!.hasTarget) {
       setScore(prev => prev + 1);
       addToCharacterStat('gold', 250);
+      addToCharacterStat('build_tokens', 1);
       playSFX(SOUNDS.DUNGEON_CHALLENGE);
       toast({
-        title: "💥 DIRECT CATAPULT HIT!",
-        description: `Destroyed enemy ${newGrid[index]!.targetType || 'fortress wall'}! Earned +250 Gold & Stone Materials.`,
+        title: "💥 Direct catapult hit!",
+        description: `Destroyed enemy ${newGrid[index]!.targetType || 'fortress wall'}! Earned +250 gold & 1x crafting stone.`,
       });
     } else {
       toast({
@@ -74,13 +88,15 @@ export function SiegeBattleshipModal() {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
-          <Bomb className="w-4 h-4 text-red-300" />
-          <span>Catapult Siege</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          <Button className="bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
+            <Bomb className="w-4 h-4 text-red-300" />
+            <span>Catapult Siege</span>
+          </Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent className="bg-zinc-950 border border-red-500/30 text-white max-w-md p-6 rounded-2xl shadow-2xl space-y-4 max-h-[88dvh] overflow-y-auto">
         <DialogHeader>

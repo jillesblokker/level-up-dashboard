@@ -49,9 +49,10 @@ export function PlankLabyrinthModal({ isOpen, onClose }: PlankLabyrinthModalProp
         const today = new Date().toDateString()
         localStorage.setItem('plank_labyrinth_solve_date', today)
         await addToCharacterStat('gold', 250, 'plank-labyrinth-solve')
+        await addToCharacterStat('build_tokens', 3, 'plank-labyrinth-solve')
         toast({
-          title: "🧱 Plank Labyrinth Mastered!",
-          description: "King’s path paved! Awarded +250 Gold & 3x Crafting Blocks.",
+          title: "🧱 Plank labyrinth mastered!",
+          description: "King’s path paved! Awarded +250 gold & 3x crafting blocks.",
         })
       }
     } else if (!visitedNodes.includes(id)) {

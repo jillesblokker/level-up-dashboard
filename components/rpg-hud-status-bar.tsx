@@ -549,7 +549,7 @@ export function RpgHudStatusBar() {
                       }}
                       className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-purple-950/80 border border-purple-500/50 text-purple-200 hover:bg-purple-900 transition-colors cursor-pointer"
                     >
-                      <span>🧠</span> <span>Quick Focus ({charStats.focus_points || 102} FP)</span>
+                      <span>🧠</span> <span>Quick focus ({charStats.focus_points ?? 0} FP)</span>
                     </button>
 
                     <button
@@ -730,7 +730,7 @@ export function RpgHudStatusBar() {
                       }}
                       className="flex items-center gap-1 px-2 py-0.5 rounded bg-purple-950 border border-purple-500/50 text-purple-200 active:scale-95 transition-transform"
                     >
-                      <span>🧠</span> <span>Focus ({charStats.focus_points || 102})</span>
+                      <span>🧠</span> <span>Focus ({charStats.focus_points ?? 0})</span>
                     </button>
 
                     <button

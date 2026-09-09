@@ -105,6 +105,12 @@ const SewerPipesModal = dynamic(() => import('@/components/minigames/SewerPipesM
 const PenguinIceSlideModal = dynamic(() => import('@/components/minigames/PenguinIceSlideModal').then(mod => ({ default: mod.PenguinIceSlideModal })), {
     ssr: false
 });
+const JoustingTournamentModal = dynamic(() => import('@/components/jousting-modal').then(mod => ({ default: mod.JoustingTournamentModal })), {
+    ssr: false
+});
+const SiegeBattleshipModal = dynamic(() => import('@/components/siege-battleships-modal').then(mod => ({ default: mod.SiegeBattleshipModal })), {
+    ssr: false
+});
 
 // Utilities and constants (GRID_COLS, INITIAL_ROWS, defaultTile, etc.) moved to realm-utils.ts
 
@@ -214,6 +220,8 @@ function RealmPageContent() {
     // Minigame modal states
     const [sewerModalOpen, setSewerModalOpen] = useState(false);
     const [penguinSlideModalOpen, setPenguinSlideModalOpen] = useState(false);
+    const [joustModalOpen, setJoustModalOpen] = useState(false);
+    const [catapultModalOpen, setCatapultModalOpen] = useState(false);
     const sewerModalOpenRef = useRef(sewerModalOpen);
     useEffect(() => { sewerModalOpenRef.current = sewerModalOpen; }, [sewerModalOpen]);
     const penguinSlideModalOpenRef = useRef(penguinSlideModalOpen);
@@ -222,6 +230,8 @@ function RealmPageContent() {
     useEffect(() => {
         const handleOpenSewer = () => setSewerModalOpen(true);
         const handleOpenPenguin = () => setPenguinSlideModalOpen(true);
+        const handleOpenJoust = () => setJoustModalOpen(true);
+        const handleOpenCatapult = () => setCatapultModalOpen(true);
         const handleOpenAnimalInteraction = (e: Event) => {
             const customEvent = e as CustomEvent;
             if (customEvent.detail) {
@@ -234,10 +244,14 @@ function RealmPageContent() {
         };
         window.addEventListener('open-sewer-minigame', handleOpenSewer);
         window.addEventListener('open-penguin-minigame', handleOpenPenguin);
+        window.addEventListener('open-jousting-minigame', handleOpenJoust);
+        window.addEventListener('open-catapult-siege-minigame', handleOpenCatapult);
         window.addEventListener('open-animal-interaction', handleOpenAnimalInteraction);
         return () => {
             window.removeEventListener('open-sewer-minigame', handleOpenSewer);
             window.removeEventListener('open-penguin-minigame', handleOpenPenguin);
+            window.removeEventListener('open-jousting-minigame', handleOpenJoust);
+            window.removeEventListener('open-catapult-siege-minigame', handleOpenCatapult);
             window.removeEventListener('open-animal-interaction', handleOpenAnimalInteraction);
         };
     }, []);
@@ -2384,6 +2398,18 @@ function RealmPageContent() {
                     <PenguinIceSlideModal
                         isOpen={penguinSlideModalOpen}
                         onClose={() => setPenguinSlideModalOpen(false)}
+                    />
+                )}
+                {joustModalOpen && (
+                    <JoustingTournamentModal
+                        isOpen={joustModalOpen}
+                        onClose={() => setJoustModalOpen(false)}
+                    />
+                )}
+                {catapultModalOpen && (
+                    <SiegeBattleshipModal
+                        isOpen={catapultModalOpen}
+                        onClose={() => setCatapultModalOpen(false)}
                     />
                 )}
                 {/* Map Area - Restored to fixed to ensure original rendering logic works */}

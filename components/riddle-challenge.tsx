@@ -10,6 +10,7 @@ import { TEXT_CONTENT } from "@/lib/text-content"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { playSFX, SOUNDS } from "@/lib/sound-manager"
+import { addToCharacterStat } from "@/lib/character-stats-service"
 
 // Medieval-themed riddles with answers
 const riddles = [
@@ -286,7 +287,11 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
         xpEarned: prev.xpEarned + xpAmount,
       }))
 
-      if (onEarnXp) onEarnXp(xpAmount)
+      if (onEarnXp) {
+        onEarnXp(xpAmount)
+      } else {
+        addToCharacterStat('experience', xpAmount, 'riddle-correct')
+      }
 
       setIsAnimating(true)
       setTimeout(() => setIsAnimating(false), 1000)
@@ -306,7 +311,11 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
           goldSpent: prev.goldSpent + goldAmount,
         }))
 
-        if (onSpendGold) onSpendGold(goldAmount)
+        if (onSpendGold) {
+          onSpendGold(goldAmount)
+        } else {
+          addToCharacterStat('gold', -goldAmount, 'riddle-wrong')
+        }
 
         toast({
           title: TEXT_CONTENT.riddleChallenge.failure.title,

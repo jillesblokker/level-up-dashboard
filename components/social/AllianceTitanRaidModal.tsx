@@ -9,6 +9,7 @@ import { ShieldAlert, Swords, Trophy, Gift, Zap, CheckCircle2 } from 'lucide-rea
 import { toast } from '@/components/ui/use-toast'
 import { TitanSiegeArsenal } from '@/components/titan-siege-arsenal'
 import { TreasureChestVisual } from '@/components/ui/treasure-chest-visual'
+import { playSFX, SOUNDS } from '@/lib/sound-manager'
 
 interface AllianceTitanRaidModalProps {
   isOpen: boolean
@@ -292,14 +293,21 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-xs font-bold text-red-400">{contributor.damage} DMG</span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => toast({ title: "🍻 Fellowship Cheers Sent!", description: `Sent a celebratory cheers toast to ${contributor.name}!` })}
-                      className="h-6 text-[9px] px-2 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 font-bold rounded"
-                    >
-                      🍻 Cheers
-                    </Button>
+                    {contributor.rank === 1 ? (
+                      <span className="text-[10px] text-amber-400/80 font-serif italic px-2">Your impact</span>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          playSFX('button-click')
+                          toast({ title: "🍻 Fellowship cheers sent!", description: `Sent a celebratory cheers toast to ${contributor.name}!` })
+                        }}
+                        className="h-6 text-[9px] px-2 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 font-bold rounded"
+                      >
+                        🍻 Cheers
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}

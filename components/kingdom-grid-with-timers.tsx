@@ -40,6 +40,8 @@ import { PlankPuzzleModal } from './plank-puzzle-modal'
 import { SpecialTileModal } from './special-tile-modal'
 import { SewerPipesModal } from '@/components/minigames/SewerPipesModal'
 import { PenguinIceSlideModal } from '@/components/minigames/PenguinIceSlideModal'
+import { JoustingTournamentModal } from '@/components/jousting-modal'
+import { SiegeBattleshipModal } from '@/components/siege-battleships-modal'
 import { WaypointPreviewModal } from '@/components/kingdom/waypoint-preview-modal'
 import { getActiveEvent } from '@/lib/seasonal-events'
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage'
@@ -619,6 +621,8 @@ export function KingdomGridWithTimers({
 
   const [sewerModalOpen, setSewerModalOpen] = useState(false);
   const [penguinModalOpen, setPenguinModalOpen] = useState(false);
+  const [joustModalOpen, setJoustModalOpen] = useState(false);
+  const [catapultModalOpen, setCatapultModalOpen] = useState(false);
 
   // Listen for external minigame open requests
   useEffect(() => {
@@ -631,13 +635,23 @@ export function KingdomGridWithTimers({
     const handleOpenPenguin = () => {
       setPenguinModalOpen(true);
     };
+    const handleOpenJoust = () => {
+      setJoustModalOpen(true);
+    };
+    const handleOpenCatapult = () => {
+      setCatapultModalOpen(true);
+    };
     window.addEventListener('open-plank-labyrinth', handleOpenPlank);
     window.addEventListener('open-sewer-minigame', handleOpenSewer);
     window.addEventListener('open-penguin-minigame', handleOpenPenguin);
+    window.addEventListener('open-jousting-minigame', handleOpenJoust);
+    window.addEventListener('open-catapult-siege-minigame', handleOpenCatapult);
     return () => {
       window.removeEventListener('open-plank-labyrinth', handleOpenPlank);
       window.removeEventListener('open-sewer-minigame', handleOpenSewer);
       window.removeEventListener('open-penguin-minigame', handleOpenPenguin);
+      window.removeEventListener('open-jousting-minigame', handleOpenJoust);
+      window.removeEventListener('open-catapult-siege-minigame', handleOpenCatapult);
     };
   }, []);
 
@@ -3409,6 +3423,18 @@ export function KingdomGridWithTimers({
         <PenguinIceSlideModal
           isOpen={penguinModalOpen}
           onClose={() => setPenguinModalOpen(false)}
+        />
+      )}
+      {joustModalOpen && (
+        <JoustingTournamentModal
+          isOpen={joustModalOpen}
+          onClose={() => setJoustModalOpen(false)}
+        />
+      )}
+      {catapultModalOpen && (
+        <SiegeBattleshipModal
+          isOpen={catapultModalOpen}
+          onClose={() => setCatapultModalOpen(false)}
         />
       )}
       {waypointModalOpen && selectedWaypointTileType && (

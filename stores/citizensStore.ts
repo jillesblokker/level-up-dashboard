@@ -18,6 +18,7 @@ export interface CitizenState {
   level?: number;
   experience?: number;
   lockedReason?: 'expedition' | null;
+  specialization?: 'Tank' | 'Mage' | 'Alchemist' | 'Scout';
 }
 
 export interface Citizen {
@@ -42,6 +43,7 @@ export interface Citizen {
   level: number;
   experience: number;
   lockedReason?: 'expedition' | null;
+  specialization?: 'Tank' | 'Mage' | 'Alchemist' | 'Scout';
 }
 
 interface CitizensStore {
@@ -69,6 +71,7 @@ interface CitizensStore {
   boostActiveCitizensNourishment: (userId: string, hoursToAdd?: number) => Promise<void>;
   triggerAutopilotHarvest: (userId: string, activePartnerId: string | undefined) => Promise<{ gold: number; items: Record<string, { quantity: number; name: string; emoji: string }>; partnerName: string; count: number } | null>;
   mergeDuplicateCitizens: (userId: string) => Promise<{ success: boolean; count: number; mergedNames: string[] }>;
+  specializeCitizen: (userId: string, citizenId: string, chosenClass: 'Tank' | 'Mage' | 'Alchemist' | 'Scout') => Promise<void>;
 }
 
 // Map card types/rarity to habitat types
@@ -1092,6 +1095,29 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       count: totalMergedCount,
       mergedNames: Array.from(mergedNamesSet)
     };
+  },
+
+  specializeCitizen: async (userId: string, citizenId: string, chosenClass: 'Tank' | 'Mage' | 'Alchemist' | 'Scout') => {
+    if (!userId || !citizenId) return;
+    const { citizens } = get();
+    const citizen = citizens.find(c => c.id === citizenId);
+    if (!citizen) return;
+
+    set(state => ({
+      citizens: state.citizens.map(c =>
+        c.id === citizenId ? { ...c, specialization: chosenClass } : c
+      )
+    }));
+
+    const currentPrefs = ((await getUserPreference('citizens_state')) as any) || {};
+    const prevCitizenState = currentPrefs[citizen.id] || {};
+    await setUserPreference('citizens_state', {
+      ...currentPrefs,
+      [citizen.id]: {
+        ...prevCitizenState,
+        specialization: chosenClass
+      }
+    });
   }
 }));
 
