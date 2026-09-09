@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Sparkles, Trophy, RotateCcw, Droplets, CheckCircle2, Waves, ArrowRight, ShieldAlert } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useUser } from '@clerk/nextjs';
 import { addToCharacterStat, getCharacterStats } from '@/lib/character-stats-service';
 import { gainGold } from '@/lib/gold-manager';
 import { gainExperience } from '@/lib/experience-manager';
@@ -29,9 +30,18 @@ interface SewerPipesModalProps {
 
 export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalProps) {
   const { toast } = useToast();
+  const { user } = useUser();
+  const playerName = user?.firstName || user?.username || 'Hero';
 
-  const [levelIndex, setLevelIndex] = useState<number>(() => Math.floor(Math.random() * PIPE_LEVELS.length));
-  const currentConfig: PipeLevelConfig = PIPE_LEVELS[levelIndex] || PIPE_LEVELS[0]!;
+  const [encounterPuzzles, setEncounterPuzzles] = useState<PipeLevelConfig[]>(() => {
+    const shuffled = [...PIPE_LEVELS].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3);
+  });
+  const [encounterStep, setEncounterStep] = useState<number>(1);
+  const [isEncounterCompleted, setIsEncounterCompleted] = useState<boolean>(false);
+
+  const currentConfig: PipeLevelConfig =
+    encounterPuzzles[encounterStep - 1] || encounterPuzzles[0] || PIPE_LEVELS[0]!;
 
   const [grid, setGrid] = useState<PipeCell[][]>([]);
   const [moves, setMoves] = useState<number>(0);
@@ -59,7 +69,7 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
     []
   );
 
-  // Check daily limit and randomize puzzle on modal open
+  // Check daily limit and randomize 3-puzzle encounter on modal open
   useEffect(() => {
     if (!isOpen) {
       setIsTimerRunning(false);
@@ -71,10 +81,13 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
     const lastPlayed = typeof window !== 'undefined' ? localStorage.getItem('minigame_sewer_pipes_date') : null;
     setIsDailyClaimed(lastPlayed === today);
 
-    // Pick a random level so each time it's one of the different games
-    const nextIdx = Math.floor(Math.random() * PIPE_LEVELS.length);
-    setLevelIndex(nextIdx);
-    initLevel(PIPE_LEVELS[nextIdx]!);
+    // Pick 3 distinct random levels for this encounter
+    const shuffled = [...PIPE_LEVELS].sort(() => 0.5 - Math.random());
+    const threePuzzles = shuffled.slice(0, 3);
+    setEncounterPuzzles(threePuzzles);
+    setEncounterStep(1);
+    setIsEncounterCompleted(false);
+    initLevel(threePuzzles[0]!);
   }, [isOpen, initLevel]);
 
   // Timer counter
@@ -139,6 +152,10 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
       playSFX(SOUNDS.ACHIEVEMENT);
     } catch (e) {}
 
+    if (encounterStep >= 3) {
+      setIsEncounterCompleted(true);
+    }
+
     const today = new Date().toDateString();
     const lastPlayed = typeof window !== 'undefined' ? localStorage.getItem('minigame_sewer_pipes_date') : null;
     const isFirstTimeToday = lastPlayed !== today;
@@ -161,8 +178,11 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
         window.dispatchEvent(new CustomEvent('kingdom-building-collected'));
 
         toast({
-          title: "💧 Aqueduct restored!",
-          description: `All valves sealed! Awarded +${goldBonus} Gold, +${xpBonus} EXP, +2 Crafting Blocks & +1 Tide Essence.`,
+          title: encounterStep >= 3 ? "Crisis averted! 💧" : "💧 Aqueduct restored!",
+          description:
+            encounterStep >= 3
+              ? `All 3 aqueducts secured! Awarded +${goldBonus} Gold, +${xpBonus} EXP, +2 Crafting Blocks & +1 Tide Essence.`
+              : `Aqueduct ${encounterStep} of 3 sealed! Awarded +${goldBonus} Gold, +${xpBonus} EXP, +2 Crafting Blocks & +1 Tide Essence.`,
         });
 
         if (onSuccess) onSuccess();
@@ -173,8 +193,11 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
       }
     } else {
       toast({
-        title: "💧 Clear water flowing!",
-        description: `Practice puzzle solved in ${finalMoves} moves!`,
+        title: encounterStep >= 3 ? "Crisis averted! 💧" : "💧 Clear water flowing!",
+        description:
+          encounterStep >= 3
+            ? `All 3 aqueducts secured! Valerion thanks you for saving Thrivehaven.`
+            : `Aqueduct ${encounterStep} of 3 solved in ${finalMoves} moves!`,
       });
     }
 
@@ -244,15 +267,21 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
               <span className="text-[10px] font-mono text-zinc-400 font-normal">Dragon Lord of Valoreth</span>
             </div>
             <p className="text-xs text-zinc-200 font-serif italic leading-snug pt-0.5">
-              &ldquo;Valerion needs help with connecting the pipes so Thrivehaven doesn&apos;t flood.&rdquo;
+              {isEncounterCompleted ? (
+                <span>&ldquo;Crisis averted, thanks for your help {playerName}, the pipes should hold for a bit longer.&rdquo;</span>
+              ) : (
+                <span>&ldquo;Valerion needs help with connecting the pipes so Thrivehaven doesn&apos;t flood.&rdquo;</span>
+              )}
             </p>
           </div>
         </div>
 
         {/* Moves & Time Stats Bar */}
         <div className="flex items-center justify-between bg-zinc-950/80 px-3 py-2 rounded-xl border border-cyan-950/60 text-xs my-1">
-          <span className="text-zinc-400 font-mono text-[11px] truncate">
-            {currentConfig.title}
+          <span className="text-zinc-400 font-mono text-[11px] truncate flex items-center gap-1.5">
+            <span className="text-cyan-400 font-bold font-serif">Aqueduct {encounterStep} of 3</span>
+            <span className="text-zinc-600">&bull;</span>
+            <span className="truncate">{currentConfig.title}</span>
           </span>
           <div className="flex items-center gap-4 font-mono text-xs text-zinc-300 ml-auto">
             <span>Moves: <strong className="text-cyan-400 font-bold">{moves}</strong></span>
@@ -391,29 +420,47 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
           </div>
         </div>
 
+        {/* Encounter Completed Celebratory Card */}
+        {isEncounterCompleted && (
+          <div className="p-3 rounded-xl bg-gradient-to-r from-amber-950/60 via-zinc-950 to-cyan-950/60 border border-amber-500/40 text-center my-1">
+            <p className="text-amber-300 font-serif font-bold text-sm">Crisis averted!</p>
+            <p className="text-zinc-300 text-xs mt-0.5">All 3 aqueducts successfully aligned. The subterranean pipes are secured.</p>
+          </div>
+        )}
+
         {/* Bottom Action Controls */}
         <div className="flex items-center justify-between gap-3 pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => initLevel(currentConfig)}
-            className="bg-zinc-900 hover:bg-zinc-800 border-zinc-700 text-zinc-300 text-xs gap-1.5"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            Scramble & reset
-          </Button>
+          {!isEncounterCompleted && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => initLevel(currentConfig)}
+              className="bg-zinc-900 hover:bg-zinc-800 border-zinc-700 text-zinc-300 text-xs gap-1.5"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Scramble & reset
+            </Button>
+          )}
 
-          {isSolved ? (
+          {isEncounterCompleted ? (
+            <Button
+              size="sm"
+              onClick={onClose}
+              className="w-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-serif font-bold text-xs shadow-lg shadow-amber-950 py-2.5"
+            >
+              Close
+            </Button>
+          ) : isSolved ? (
             <Button
               size="sm"
               onClick={() => {
-                const nextIdx = (levelIndex + 1) % PIPE_LEVELS.length;
-                setLevelIndex(nextIdx);
-                initLevel(PIPE_LEVELS[nextIdx]!);
+                const nextStep = encounterStep + 1;
+                setEncounterStep(nextStep);
+                initLevel(encounterPuzzles[nextStep - 1]!);
               }}
               className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-serif text-xs gap-1 shadow-lg shadow-cyan-950"
             >
-              Next aqueduct
+              Next aqueduct ({encounterStep + 1}/3)
               <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           ) : (

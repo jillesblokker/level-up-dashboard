@@ -17,6 +17,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useUser } from '@clerk/nextjs';
 import { addToCharacterStat, getCharacterStats } from '@/lib/character-stats-service';
 import { gainGold } from '@/lib/gold-manager';
 import { gainExperience } from '@/lib/experience-manager';
@@ -37,9 +38,18 @@ interface PenguinIceSlideModalProps {
 
 export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceSlideModalProps) {
   const { toast } = useToast();
+  const { user } = useUser();
+  const playerName = user?.firstName || user?.username || 'Hero';
 
-  const [levelIndex, setLevelIndex] = useState<number>(() => Math.floor(Math.random() * ICE_LEVELS.length));
-  const currentConfig: IceLevelConfig = ICE_LEVELS[levelIndex] || ICE_LEVELS[0]!;
+  const [encounterPuzzles, setEncounterPuzzles] = useState<IceLevelConfig[]>(() => {
+    const shuffled = [...ICE_LEVELS].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3);
+  });
+  const [encounterStep, setEncounterStep] = useState<number>(1);
+  const [isEncounterCompleted, setIsEncounterCompleted] = useState<boolean>(false);
+
+  const currentConfig: IceLevelConfig =
+    encounterPuzzles[encounterStep - 1] || encounterPuzzles[0] || ICE_LEVELS[0]!;
 
   const [penguinPos, setPenguinPos] = useState<{ x: number; y: number }>(currentConfig.start);
   const [history, setHistory] = useState<Array<{ x: number; y: number }>>([]);
@@ -67,7 +77,7 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
     setFacing('right');
   }, []);
 
-  // Daily check and randomize puzzle on open
+  // Daily check and randomize 3-puzzle encounter on open
   useEffect(() => {
     if (!isOpen) {
       setIsTimerRunning(false);
@@ -79,10 +89,13 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
     const lastPlayed = typeof window !== 'undefined' ? localStorage.getItem('minigame_penguin_ice_date') : null;
     setIsDailyClaimed(lastPlayed === today);
 
-    // Pick a random level so each time it's one of the different games
-    const nextIdx = Math.floor(Math.random() * ICE_LEVELS.length);
-    setLevelIndex(nextIdx);
-    initLevel(ICE_LEVELS[nextIdx]!);
+    // Pick 3 distinct random levels for this encounter
+    const shuffled = [...ICE_LEVELS].sort(() => 0.5 - Math.random());
+    const threePuzzles = shuffled.slice(0, 3);
+    setEncounterPuzzles(threePuzzles);
+    setEncounterStep(1);
+    setIsEncounterCompleted(false);
+    initLevel(threePuzzles[0]!);
   }, [isOpen, initLevel]);
 
   // Stopwatch timer
@@ -157,6 +170,10 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
       playSFX(SOUNDS.ACHIEVEMENT);
     } catch (e) {}
 
+    if (encounterStep >= 3) {
+      setIsEncounterCompleted(true);
+    }
+
     const today = new Date().toDateString();
     const lastPlayed = typeof window !== 'undefined' ? localStorage.getItem('minigame_penguin_ice_date') : null;
     const isFirstTimeToday = lastPlayed !== today;
@@ -177,8 +194,11 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
         window.dispatchEvent(new Event('character-stats-update'));
 
         toast({
-          title: "Penguino reached his igloo!",
-          description: `Penguino safely glided home across the ice! Awarded +${goldBonus} gold, +${xpBonus} exp & +1 frost essence.`,
+          title: encounterStep >= 3 ? "Penguino reached his igloo! 🐧" : "Glacier crossed! 🐧",
+          description:
+            encounterStep >= 3
+              ? `Penguino safely crossed all 3 glaciers home! Awarded +${goldBonus} gold, +${xpBonus} exp & +1 frost essence.`
+              : `Glacier ${encounterStep} of 3 crossed! Awarded +${goldBonus} gold, +${xpBonus} exp & +1 frost essence.`,
         });
 
         if (onSuccess) onSuccess();
@@ -189,8 +209,11 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
       }
     } else {
       toast({
-        title: "Clean glide!",
-        description: `Penguino reached his igloo in ${finalMoves} moves!`,
+        title: encounterStep >= 3 ? "Penguino reached his igloo! 🐧" : "Clean glide!",
+        description:
+          encounterStep >= 3
+            ? `Penguino safely made it across all 3 glaciers back to his igloo!`
+            : `Glacier ${encounterStep} of 3 completed in ${finalMoves} moves!`,
       });
     }
   };
@@ -351,15 +374,21 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
               <span className="text-[10px] font-mono text-zinc-400 font-normal">Glacial Wanderer</span>
             </div>
             <p className="text-xs text-zinc-200 font-serif italic leading-snug pt-0.5">
-              &ldquo;Penguino wants to get back to his igloo, help him slide across the ice to the exit.&rdquo;
+              {isEncounterCompleted ? (
+                <span>&ldquo;Thanks for your help {playerName}, Penguino made it safely back to his igloo!&rdquo;</span>
+              ) : (
+                <span>&ldquo;Penguino wants to get back to his igloo, help him slide across the ice to the exit.&rdquo;</span>
+              )}
             </p>
           </div>
         </div>
 
         {/* Moves & Time Stats Bar */}
         <div className="flex items-center justify-between bg-zinc-950/80 px-3 py-2 rounded-xl border border-cyan-950/60 text-xs my-1">
-          <span className="text-zinc-400 font-mono text-[11px] truncate">
-            {currentConfig.title}
+          <span className="text-zinc-400 font-mono text-[11px] truncate flex items-center gap-1.5">
+            <span className="text-cyan-400 font-bold font-serif">Glacier {encounterStep} of 3</span>
+            <span className="text-zinc-600">&bull;</span>
+            <span className="truncate">{currentConfig.title}</span>
           </span>
           <div className="flex items-center gap-4 font-mono text-xs text-zinc-300 ml-auto">
             <span>Moves: <strong className="text-cyan-400 font-bold">{moves}</strong> / {currentConfig.parMoves}</span>
@@ -537,41 +566,59 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
           </div>
         </div>
 
+        {/* Encounter Completed Celebratory Card */}
+        {isEncounterCompleted && (
+          <div className="p-3 rounded-xl bg-gradient-to-r from-sky-950/60 via-zinc-950 to-cyan-950/60 border border-cyan-500/40 text-center my-1">
+            <p className="text-cyan-300 font-serif font-bold text-sm">Igloo reached safely!</p>
+            <p className="text-zinc-300 text-xs mt-0.5">Penguino safely glided across all 3 glaciers back home.</p>
+          </div>
+        )}
+
         {/* Bottom Action Controls */}
         <div className="flex items-center justify-between gap-3 pt-2">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleUndo}
-              disabled={isSliding || isSolved || history.length === 0}
-              className="bg-zinc-900 hover:bg-zinc-800 border-zinc-700 text-zinc-300 text-xs gap-1"
-            >
-              <Undo2 className="w-3.5 h-3.5" />
-              Undo
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => initLevel(currentConfig)}
-              className="bg-zinc-900 hover:bg-zinc-800 border-zinc-700 text-zinc-300 text-xs gap-1"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              Reset
-            </Button>
-          </div>
+          {!isEncounterCompleted && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleUndo}
+                disabled={isSliding || isSolved || history.length === 0}
+                className="bg-zinc-900 hover:bg-zinc-800 border-zinc-700 text-zinc-300 text-xs gap-1"
+              >
+                <Undo2 className="w-3.5 h-3.5" />
+                Undo
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => initLevel(currentConfig)}
+                className="bg-zinc-900 hover:bg-zinc-800 border-zinc-700 text-zinc-300 text-xs gap-1"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Reset
+              </Button>
+            </div>
+          )}
 
-          {isSolved ? (
+          {isEncounterCompleted ? (
+            <Button
+              size="sm"
+              onClick={onClose}
+              className="w-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-serif font-bold text-xs shadow-lg shadow-amber-950 py-2.5"
+            >
+              Close
+            </Button>
+          ) : isSolved ? (
             <Button
               size="sm"
               onClick={() => {
-                const nextIdx = (levelIndex + 1) % ICE_LEVELS.length;
-                setLevelIndex(nextIdx);
-                initLevel(ICE_LEVELS[nextIdx]!);
+                const nextStep = encounterStep + 1;
+                setEncounterStep(nextStep);
+                initLevel(encounterPuzzles[nextStep - 1]!);
               }}
               className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-serif text-xs gap-1 shadow-lg shadow-cyan-950"
             >
-              Next glacier
+              Next glacier ({encounterStep + 1}/3)
               <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           ) : (

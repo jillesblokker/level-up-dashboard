@@ -108,7 +108,7 @@ export function AnimalInteractionModal({
       case 'sheep':
         return "A fluffy sheep looks up at you with curious, gentle eyes. Its wool is thick and pristine - a valuable find for any traveler.";
       case 'penguin':
-        return "Penguino waddles across the ice with comical determination. Help him slide across the frozen terrain to find his way back to his igloo!";
+        return "Penguino waddles across the ice with comical determination. Offer him some warmth or a treat from your pack.";
       case 'eagle':
         return "A majestic eagle perches proudly on a crag. Its keen eyes watch the horizon, radiating grace and untamed authority.";
       default:
@@ -256,18 +256,6 @@ export function AnimalInteractionModal({
               <><Heart className="w-4 h-4" /> {getActionButtonText()}</>
             )}
           </Button>
-
-          {animalType === 'penguin' && (
-            <Button
-              onClick={() => {
-                onClose();
-                window.dispatchEvent(new CustomEvent('open-penguin-minigame'));
-              }}
-              className="w-full h-11 text-white rounded-xl gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shadow-lg shadow-cyan-950 font-serif"
-            >
-              <Sparkles className="w-4 h-4" /> Help Penguino escape
-            </Button>
-          )}
 
           {firstFood && foodLabel && (
             <Button

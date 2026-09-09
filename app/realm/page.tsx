@@ -221,11 +221,23 @@ function RealmPageContent() {
     useEffect(() => {
         const handleOpenSewer = () => setSewerModalOpen(true);
         const handleOpenPenguin = () => setPenguinSlideModalOpen(true);
+        const handleOpenAnimalInteraction = (e: Event) => {
+            const customEvent = e as CustomEvent;
+            if (customEvent.detail) {
+                setAnimalInteractionModal({
+                    isOpen: true,
+                    animalType: customEvent.detail.animalType || 'penguin',
+                    animalName: customEvent.detail.animalName || 'Penguino',
+                });
+            }
+        };
         window.addEventListener('open-sewer-minigame', handleOpenSewer);
         window.addEventListener('open-penguin-minigame', handleOpenPenguin);
+        window.addEventListener('open-animal-interaction', handleOpenAnimalInteraction);
         return () => {
             window.removeEventListener('open-sewer-minigame', handleOpenSewer);
             window.removeEventListener('open-penguin-minigame', handleOpenPenguin);
+            window.removeEventListener('open-animal-interaction', handleOpenAnimalInteraction);
         };
     }, []);
 
@@ -620,6 +632,9 @@ function RealmPageContent() {
                     title: "🍎 Animal Fed!",
                     description: data.message,
                 });
+                if (animalType === 'penguin') {
+                    setIsPenguinPresent(false);
+                }
                 setAnimalInteractionModal(null);
                 // Refresh character stats to show buff if we add that later
                 window.dispatchEvent(new CustomEvent('character-stats-update'));
