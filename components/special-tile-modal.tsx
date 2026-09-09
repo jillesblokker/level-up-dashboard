@@ -299,7 +299,7 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
                 }}
                 className="flex-1 bg-gradient-to-r from-cyan-950 to-amber-950/80 hover:from-cyan-900 hover:to-amber-900 border-amber-500/40 text-amber-200 rounded-xl py-4 sm:py-5 font-serif font-semibold shadow-lg shadow-cyan-950/40 flex items-center justify-center gap-1.5"
               >
-                <span>Climb down well (Valerion plumbing)</span>
+                <span>Go into sewers (Valerion plumbing)</span>
                 <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               </Button>
             )}

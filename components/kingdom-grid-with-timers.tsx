@@ -1843,12 +1843,7 @@ export function KingdomGridWithTimers({
       setPlankModalOpen(true);
       return;
     }
-    // Well tile: Triggers Castle Sewers Connect the Pipes minigame
-    if (tile.type === 'well' || (tile.type as string)?.toLowerCase().includes('well')) {
-      setSewerModalOpen(true);
-      return;
-    }
-    // Flavor 4: Production Properties Modal (Stable, Blacksmith, Sawmill, Bakery, Quarry, etc.)
+    // Flavor 4: Production Properties Modal (Stable, Blacksmith, Sawmill, Bakery, Quarry, Well, etc.)
     const kingdomTileForTimer = KINGDOM_TILES.find(kt => kt.id === tile.type?.toLowerCase());
     if (kingdomTileForTimer && kingdomTileForTimer.timerMinutes > 0) {
       const activeTimer = tileTimers.find(t => t.x === x && t.y === y);

@@ -15,7 +15,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ArrowRight,
-  Fish,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { addToCharacterStat, getCharacterStats } from '@/lib/character-stats-service';
@@ -26,7 +25,6 @@ import { hapticSuccess, hapticMedium, hapticLight } from '@/lib/haptics';
 import {
   ICE_LEVELS,
   IceLevelConfig,
-  IceDifficulty,
   SlideDirection,
   calculateSlide,
 } from '@/lib/minigames/ice-slide-engine';
@@ -37,22 +35,11 @@ interface PenguinIceSlideModalProps {
   onSuccess?: () => void;
 }
 
-const ICE_DIFFICULTIES: Array<{ id: IceDifficulty; label: string; size: string }> = [
-  { id: 'novice', label: 'Novice', size: '5×5' },
-  { id: 'gentle', label: 'Gentle', size: '6×6' },
-  { id: 'frosty', label: 'Frosty', size: '7×7' },
-  { id: 'glacial', label: 'Glacial', size: '8×8' },
-  { id: 'blizzard', label: 'Blizzard', size: '9×9' },
-];
-
 export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceSlideModalProps) {
   const { toast } = useToast();
 
-  const [difficulty, setDifficulty] = useState<IceDifficulty>('novice');
-  const [variationIndex, setVariationIndex] = useState<number>(0);
-
-  const availableLevels = ICE_LEVELS.filter(l => l.difficulty === difficulty);
-  const currentConfig: IceLevelConfig = availableLevels[variationIndex] || availableLevels[0] || ICE_LEVELS[0]!;
+  const [levelIndex, setLevelIndex] = useState<number>(() => Math.floor(Math.random() * ICE_LEVELS.length));
+  const currentConfig: IceLevelConfig = ICE_LEVELS[levelIndex] || ICE_LEVELS[0]!;
 
   const [penguinPos, setPenguinPos] = useState<{ x: number; y: number }>(currentConfig.start);
   const [history, setHistory] = useState<Array<{ x: number; y: number }>>([]);
@@ -80,7 +67,7 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
     setFacing('right');
   }, []);
 
-  // Daily check and init on open
+  // Daily check and randomize puzzle on open
   useEffect(() => {
     if (!isOpen) {
       setIsTimerRunning(false);
@@ -92,8 +79,11 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
     const lastPlayed = typeof window !== 'undefined' ? localStorage.getItem('minigame_penguin_ice_date') : null;
     setIsDailyClaimed(lastPlayed === today);
 
-    initLevel(currentConfig);
-  }, [isOpen, currentConfig, initLevel]);
+    // Pick a random level so each time it's one of the different games
+    const nextIdx = Math.floor(Math.random() * ICE_LEVELS.length);
+    setLevelIndex(nextIdx);
+    initLevel(ICE_LEVELS[nextIdx]!);
+  }, [isOpen, initLevel]);
 
   // Stopwatch timer
   useEffect(() => {
@@ -252,39 +242,38 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
       // Avoid capturing when typing inside inputs
       if (['input', 'textarea'].includes((e.target as HTMLElement)?.tagName?.toLowerCase())) return;
 
+      if (['ArrowUp', 'w', 'W', 'ArrowDown', 's', 'S', 'ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D', 'z', 'Z', 'r', 'R'].includes(e.key)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
       switch (e.key) {
         case 'ArrowUp':
         case 'w':
         case 'W':
-          e.preventDefault();
           handleSlide('up');
           break;
         case 'ArrowDown':
         case 's':
         case 'S':
-          e.preventDefault();
           handleSlide('down');
           break;
         case 'ArrowLeft':
         case 'a':
         case 'A':
-          e.preventDefault();
           handleSlide('left');
           break;
         case 'ArrowRight':
         case 'd':
         case 'D':
-          e.preventDefault();
           handleSlide('right');
           break;
         case 'z':
         case 'Z':
-          e.preventDefault();
           handleUndo();
           break;
         case 'r':
         case 'R':
-          e.preventDefault();
           initLevel(currentConfig);
           break;
         default:
@@ -292,8 +281,8 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
       }
     };
 
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    window.addEventListener('keydown', onKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', onKeyDown, { capture: true });
   }, [isOpen, handleSlide, handleUndo, initLevel, currentConfig]);
 
   // Touch swipe support for mobile
@@ -367,64 +356,14 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
           </div>
         </div>
 
-        {/* 5 Difficulty Tiers Selector */}
-        <div className="flex flex-col gap-1.5 bg-zinc-950/80 p-2 rounded-xl border border-cyan-950/60 text-xs">
-          <div className="flex flex-wrap items-center justify-between gap-1">
-            <div className="flex flex-wrap items-center gap-1">
-              {ICE_DIFFICULTIES.map((d) => {
-                const active = d.id === difficulty;
-                return (
-                  <button
-                    key={d.id}
-                    onClick={() => {
-                      setDifficulty(d.id);
-                      setVariationIndex(0);
-                      const target = ICE_LEVELS.filter(l => l.difficulty === d.id)[0];
-                      if (target) initLevel(target);
-                    }}
-                    className={`px-2 py-1 rounded-lg font-sans font-medium transition-colors ${
-                      active
-                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold'
-                        : 'text-zinc-400 hover:text-zinc-200 bg-zinc-900/60'
-                    }`}
-                  >
-                    {d.label} <span className="text-[10px] opacity-70">({d.size})</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="flex items-center gap-3 font-mono text-[11px] text-zinc-300 ml-auto">
-              <span>Moves: <strong className="text-cyan-400">{moves}</strong> / {currentConfig.parMoves}</span>
-              <span>Time: <strong className="text-amber-400">{formatTime(seconds)}</strong></span>
-            </div>
-          </div>
-
-          {/* Puzzle Variations (Multiple games per difficulty) */}
-          <div className="flex items-center gap-1.5 pt-1 border-t border-zinc-800/60 text-[11px] font-sans">
-            <span className="text-zinc-400 text-[10px]">Puzzles:</span>
-            {availableLevels.map((lvl, vIdx) => {
-              const active = vIdx === variationIndex;
-              return (
-                <button
-                  key={lvl.id}
-                  onClick={() => {
-                    setVariationIndex(vIdx);
-                    initLevel(lvl);
-                  }}
-                  className={`px-2 py-0.5 rounded font-mono text-[10px] transition-colors ${
-                    active
-                      ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-500/50 font-bold'
-                      : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200'
-                  }`}
-                >
-                  Puzzle {vIdx + 1}
-                </button>
-              );
-            })}
-            <span className="text-zinc-500 font-mono text-[10px] ml-auto truncate">
-              {currentConfig.title}
-            </span>
+        {/* Moves & Time Stats Bar */}
+        <div className="flex items-center justify-between bg-zinc-950/80 px-3 py-2 rounded-xl border border-cyan-950/60 text-xs my-1">
+          <span className="text-zinc-400 font-mono text-[11px] truncate">
+            {currentConfig.title}
+          </span>
+          <div className="flex items-center gap-4 font-mono text-xs text-zinc-300 ml-auto">
+            <span>Moves: <strong className="text-cyan-400 font-bold">{moves}</strong> / {currentConfig.parMoves}</span>
+            <span>Time: <strong className="text-amber-400 font-bold">{formatTime(seconds)}</strong></span>
           </div>
         </div>
 
@@ -480,15 +419,22 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
                 return (
                   <div
                     key={`tile-${c}-${r}`}
-                    className={`w-9 h-9 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center relative transition-colors ${
+                    className={`w-9 h-9 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center relative overflow-hidden transition-colors border ${
                       isRock
-                        ? 'bg-stone-900 border border-stone-700 shadow-md'
+                        ? 'bg-stone-900 border-stone-700 shadow-md'
                         : isExit
-                        ? 'bg-amber-950/40 border-2 border-amber-400/60 shadow-[0_0_12px_rgba(251,191,36,0.3)] animate-pulse'
-                        : isStart
-                        ? 'bg-cyan-950/40 border border-cyan-600/20'
-                        : 'bg-cyan-900/15 border border-cyan-500/10 hover:bg-cyan-900/25'
+                        ? 'border-2 border-amber-400/80 shadow-[0_0_15px_rgba(251,191,36,0.4)]'
+                        : 'border-cyan-400/20'
                     }`}
+                    style={
+                      !isRock
+                        ? {
+                            backgroundImage: `url('/images/tiles/ice-tile.webp')`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                          }
+                        : undefined
+                    }
                   >
                     {/* Rock Graphic */}
                     {isRock && (
@@ -502,13 +448,11 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
                       </div>
                     )}
 
-                    {/* Exit Hole Graphic */}
+                    {/* Exit Glowing Bar Indicator (similar to plank labyrinth exit beacon) */}
                     {isExit && (
-                      <div className="flex flex-col items-center justify-center">
-                        <Fish className="w-4 h-4 text-amber-300 drop-shadow" />
-                        <span className="text-[7px] font-mono text-amber-200 font-bold uppercase tracking-wider">
-                          Exit
-                        </span>
+                      <div className="absolute inset-0 bg-amber-400/20 pointer-events-none flex items-center justify-center">
+                        <div className="w-full h-full border-2 border-amber-300/80 rounded-lg shadow-[inset_0_0_10px_rgba(245,158,11,0.6)] animate-pulse" />
+                        <div className="absolute right-0 inset-y-1.5 w-1.5 rounded-l-md bg-gradient-to-b from-amber-400 via-orange-400 to-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.95)] animate-pulse border border-amber-200" />
                       </div>
                     )}
                   </div>
@@ -544,8 +488,8 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
           </div>
         </div>
 
-        {/* Mobile & Tablet Virtual D-Pad */}
-        <div className="flex flex-col items-center justify-center pt-1">
+        {/* Mobile & Tablet Virtual D-Pad (hidden on desktop) */}
+        <div className="flex flex-col items-center justify-center pt-1 sm:hidden">
           <div className="grid grid-cols-3 gap-1.5 w-44">
             <div />
             <Button
@@ -621,23 +565,9 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
             <Button
               size="sm"
               onClick={() => {
-                if (variationIndex < availableLevels.length - 1) {
-                  const nextIdx = variationIndex + 1;
-                  setVariationIndex(nextIdx);
-                  initLevel(availableLevels[nextIdx]!);
-                } else {
-                  const diffOrder: IceDifficulty[] = ['novice', 'gentle', 'frosty', 'glacial', 'blizzard'];
-                  const curDiffIdx = diffOrder.indexOf(difficulty);
-                  if (curDiffIdx < diffOrder.length - 1) {
-                    const nextDiff = diffOrder[curDiffIdx + 1]!;
-                    setDifficulty(nextDiff);
-                    setVariationIndex(0);
-                    const target = ICE_LEVELS.filter(l => l.difficulty === nextDiff)[0];
-                    if (target) initLevel(target);
-                  } else {
-                    onClose();
-                  }
-                }
+                const nextIdx = (levelIndex + 1) % ICE_LEVELS.length;
+                setLevelIndex(nextIdx);
+                initLevel(ICE_LEVELS[nextIdx]!);
               }}
               className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-serif text-xs gap-1 shadow-lg shadow-cyan-950"
             >

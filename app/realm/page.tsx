@@ -213,6 +213,10 @@ function RealmPageContent() {
     // Minigame modal states
     const [sewerModalOpen, setSewerModalOpen] = useState(false);
     const [penguinSlideModalOpen, setPenguinSlideModalOpen] = useState(false);
+    const sewerModalOpenRef = useRef(sewerModalOpen);
+    useEffect(() => { sewerModalOpenRef.current = sewerModalOpen; }, [sewerModalOpen]);
+    const penguinSlideModalOpenRef = useRef(penguinSlideModalOpen);
+    useEffect(() => { penguinSlideModalOpenRef.current = penguinSlideModalOpen; }, [penguinSlideModalOpen]);
 
     useEffect(() => {
         const handleOpenSewer = () => setSewerModalOpen(true);
@@ -905,7 +909,7 @@ function RealmPageContent() {
 
         if (currentGameMode !== 'build' || !currentSelectedTile) {
             if (clickedTile?.type === 'well' || (clickedTile?.type as string)?.toLowerCase().includes('well')) {
-                setSewerModalOpen(true);
+                setWellEvent({ open: true, pact: null, availableHabits: [], loading: false });
                 return;
             }
             return;
@@ -1449,6 +1453,11 @@ function RealmPageContent() {
     // Keyboard movement handlers
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
+            // Block realm character movement when minigame modals are active
+            if (penguinSlideModalOpenRef.current || sewerModalOpenRef.current) {
+                return;
+            }
+
             // Open inventory with 'i' key if not in an input/textarea
             if (event.key === 'i' || event.key === 'I') {
                 const active = document.activeElement;
@@ -2977,6 +2986,16 @@ function RealmPageContent() {
                                             </div>
                                         </ScrollArea>
                                     )}
+                                    <Button
+                                        className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold font-serif py-3 rounded-xl shadow-lg border border-cyan-400/40 flex items-center justify-center gap-2"
+                                        onClick={() => {
+                                            setWellEvent(null);
+                                            setSewerModalOpen(true);
+                                        }}
+                                    >
+                                        <span>Go into sewers (Valerion plumbing)</span>
+                                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                                    </Button>
                                     <Button
                                         className="w-full bg-zinc-900 border border-zinc-800 text-zinc-400 py-2.5 rounded-xl text-xs"
                                         onClick={() => setWellEvent(null)}

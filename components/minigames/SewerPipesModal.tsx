@@ -14,7 +14,6 @@ import { hapticSuccess, hapticMedium } from '@/lib/haptics';
 import {
   PIPE_LEVELS,
   PipeLevelConfig,
-  PipeDifficulty,
   PipeCell,
   createPipeGrid,
   simulateFlow,
@@ -27,22 +26,12 @@ interface SewerPipesModalProps {
   onSuccess?: () => void;
 }
 
-const DIFFICULTIES: Array<{ id: PipeDifficulty; label: string; size: string }> = [
-  { id: 'apprentice', label: 'Apprentice', size: '4×4' },
-  { id: 'journeyman', label: 'Journeyman', size: '5×5' },
-  { id: 'master', label: 'Master', size: '5×5' },
-  { id: 'grandmaster', label: 'Grandmaster', size: '6×6' },
-  { id: 'expert', label: 'Expert dual', size: '6×6' },
-];
 
 export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalProps) {
   const { toast } = useToast();
 
-  const [difficulty, setDifficulty] = useState<PipeDifficulty>('apprentice');
-  const [variationIndex, setVariationIndex] = useState<number>(0);
-
-  const availableLevels = PIPE_LEVELS.filter(l => l.difficulty === difficulty);
-  const currentConfig: PipeLevelConfig = availableLevels[variationIndex] || availableLevels[0] || PIPE_LEVELS[0]!;
+  const [levelIndex, setLevelIndex] = useState<number>(() => Math.floor(Math.random() * PIPE_LEVELS.length));
+  const currentConfig: PipeLevelConfig = PIPE_LEVELS[levelIndex] || PIPE_LEVELS[0]!;
 
   const [grid, setGrid] = useState<PipeCell[][]>([]);
   const [moves, setMoves] = useState<number>(0);
@@ -70,7 +59,7 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
     []
   );
 
-  // Check daily limit on modal open
+  // Check daily limit and randomize puzzle on modal open
   useEffect(() => {
     if (!isOpen) {
       setIsTimerRunning(false);
@@ -82,8 +71,11 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
     const lastPlayed = typeof window !== 'undefined' ? localStorage.getItem('minigame_sewer_pipes_date') : null;
     setIsDailyClaimed(lastPlayed === today);
 
-    initLevel(currentConfig);
-  }, [isOpen, currentConfig, initLevel]);
+    // Pick a random level so each time it's one of the different games
+    const nextIdx = Math.floor(Math.random() * PIPE_LEVELS.length);
+    setLevelIndex(nextIdx);
+    initLevel(PIPE_LEVELS[nextIdx]!);
+  }, [isOpen, initLevel]);
 
   // Timer counter
   useEffect(() => {
@@ -257,64 +249,14 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
           </div>
         </div>
 
-        {/* 5 Difficulty Tiers Selector */}
-        <div className="flex flex-col gap-1.5 bg-zinc-950/80 p-2 rounded-xl border border-cyan-950/60 text-xs">
-          <div className="flex flex-wrap items-center justify-between gap-1">
-            <div className="flex flex-wrap items-center gap-1">
-              {DIFFICULTIES.map((d) => {
-                const active = d.id === difficulty;
-                return (
-                  <button
-                    key={d.id}
-                    onClick={() => {
-                      setDifficulty(d.id);
-                      setVariationIndex(0);
-                      const target = PIPE_LEVELS.filter(l => l.difficulty === d.id)[0];
-                      if (target) initLevel(target);
-                    }}
-                    className={`px-2 py-1 rounded-lg font-sans font-medium transition-colors ${
-                      active
-                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold'
-                        : 'text-zinc-400 hover:text-zinc-200 bg-zinc-900/60'
-                    }`}
-                  >
-                    {d.label} <span className="text-[10px] opacity-70">({d.size})</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="flex items-center gap-3 font-mono text-[11px] text-zinc-300 ml-auto">
-              <span>Moves: <strong className="text-cyan-400">{moves}</strong></span>
-              <span>Time: <strong className="text-amber-400">{formatTime(seconds)}</strong></span>
-            </div>
-          </div>
-
-          {/* Puzzle Variations (Multiple games per difficulty) */}
-          <div className="flex items-center gap-1.5 pt-1 border-t border-zinc-800/60 text-[11px] font-sans">
-            <span className="text-zinc-400 text-[10px]">Puzzles:</span>
-            {availableLevels.map((lvl, vIdx) => {
-              const active = vIdx === variationIndex;
-              return (
-                <button
-                  key={lvl.id}
-                  onClick={() => {
-                    setVariationIndex(vIdx);
-                    initLevel(lvl);
-                  }}
-                  className={`px-2 py-0.5 rounded font-mono text-[10px] transition-colors ${
-                    active
-                      ? 'bg-amber-500/30 text-amber-300 border border-amber-500/50 font-bold'
-                      : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200'
-                  }`}
-                >
-                  Puzzle {vIdx + 1}
-                </button>
-              );
-            })}
-            <span className="text-zinc-500 font-mono text-[10px] ml-auto truncate">
-              {currentConfig.title}
-            </span>
+        {/* Moves & Time Stats Bar */}
+        <div className="flex items-center justify-between bg-zinc-950/80 px-3 py-2 rounded-xl border border-cyan-950/60 text-xs my-1">
+          <span className="text-zinc-400 font-mono text-[11px] truncate">
+            {currentConfig.title}
+          </span>
+          <div className="flex items-center gap-4 font-mono text-xs text-zinc-300 ml-auto">
+            <span>Moves: <strong className="text-cyan-400 font-bold">{moves}</strong></span>
+            <span>Time: <strong className="text-amber-400 font-bold">{formatTime(seconds)}</strong></span>
           </div>
         </div>
 
@@ -397,27 +339,51 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
                       crossFlow={cell.crossFlow}
                     />
 
-                    {/* Source / Drain Indicators */}
-                    {r === 0 && c === 0 && (
-                      <span className="absolute -top-1 -left-1 text-[8px] bg-cyan-950 border border-cyan-400 text-cyan-300 font-mono px-1 rounded-sm shadow">
-                        IN
-                      </span>
-                    )}
-                    {currentConfig.difficulty === 'expert' && r === 2 && c === 0 && (
-                      <span className="absolute -top-1 -left-1 text-[8px] bg-purple-950 border border-purple-400 text-purple-300 font-mono px-1 rounded-sm shadow">
-                        IN
-                      </span>
-                    )}
-                    {r === currentConfig.size - 1 && c === currentConfig.size - 1 && (
-                      <span className="absolute -bottom-1 -right-1 text-[8px] bg-cyan-950 border border-cyan-400 text-cyan-300 font-mono px-1 rounded-sm shadow">
-                        OUT
-                      </span>
-                    )}
-                    {currentConfig.difficulty === 'expert' && r === 2 && c === currentConfig.size - 1 && (
-                      <span className="absolute -bottom-1 -right-1 text-[8px] bg-purple-950 border border-purple-400 text-purple-300 font-mono px-1 rounded-sm shadow">
-                        OUT
-                      </span>
-                    )}
+                    {/* Source / Drain Indicators: Glowing bars without text (similar to plank labyrinth exit beacon) */}
+                    {(() => {
+                      const source = currentConfig.sources.find(s => s.row === r && s.col === c);
+                      const drain = currentConfig.drains.find(d => d.row === r && d.col === c);
+
+                      return (
+                        <>
+                          {source && (
+                            <div
+                              className={`absolute pointer-events-none z-20 animate-pulse border shadow-[0_0_15px_rgba(56,189,248,0.95)] ${
+                                source.fluid === 'ether'
+                                  ? 'bg-gradient-to-r from-purple-400 to-fuchsia-400 border-purple-200 shadow-[0_0_15px_rgba(192,132,252,0.95)]'
+                                  : 'bg-gradient-to-r from-cyan-400 to-sky-300 border-cyan-200 shadow-[0_0_15px_rgba(56,189,248,0.95)]'
+                              } ${
+                                source.dir === 'N'
+                                  ? '-top-1 inset-x-2 h-1.5 rounded-b-md'
+                                  : source.dir === 'S'
+                                  ? '-bottom-1 inset-x-2 h-1.5 rounded-t-md'
+                                  : source.dir === 'W'
+                                  ? '-left-1 inset-y-2 w-1.5 rounded-r-md'
+                                  : '-right-1 inset-y-2 w-1.5 rounded-l-md'
+                              }`}
+                            />
+                          )}
+
+                          {drain && (
+                            <div
+                              className={`absolute pointer-events-none z-20 animate-pulse border shadow-[0_0_15px_rgba(56,189,248,0.95)] ${
+                                drain.fluid === 'ether'
+                                  ? 'bg-gradient-to-r from-purple-400 to-fuchsia-400 border-purple-200 shadow-[0_0_15px_rgba(192,132,252,0.95)]'
+                                  : 'bg-gradient-to-r from-cyan-400 to-sky-300 border-cyan-200 shadow-[0_0_15px_rgba(56,189,248,0.95)]'
+                              } ${
+                                drain.dir === 'N'
+                                  ? '-top-1 inset-x-2 h-1.5 rounded-b-md'
+                                  : drain.dir === 'S'
+                                  ? '-bottom-1 inset-x-2 h-1.5 rounded-t-md'
+                                  : drain.dir === 'W'
+                                  ? '-left-1 inset-y-2 w-1.5 rounded-r-md'
+                                  : '-right-1 inset-y-2 w-1.5 rounded-l-md'
+                              }`}
+                            />
+                          )}
+                        </>
+                      );
+                    })()}
                   </button>
                 );
               })
@@ -441,23 +407,9 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
             <Button
               size="sm"
               onClick={() => {
-                if (variationIndex < availableLevels.length - 1) {
-                  const nextIdx = variationIndex + 1;
-                  setVariationIndex(nextIdx);
-                  initLevel(availableLevels[nextIdx]!);
-                } else {
-                  const diffOrder: PipeDifficulty[] = ['apprentice', 'journeyman', 'master', 'grandmaster', 'expert'];
-                  const curDiffIdx = diffOrder.indexOf(difficulty);
-                  if (curDiffIdx < diffOrder.length - 1) {
-                    const nextDiff = diffOrder[curDiffIdx + 1]!;
-                    setDifficulty(nextDiff);
-                    setVariationIndex(0);
-                    const target = PIPE_LEVELS.filter(l => l.difficulty === nextDiff)[0];
-                    if (target) initLevel(target);
-                  } else {
-                    onClose();
-                  }
-                }
+                const nextIdx = (levelIndex + 1) % PIPE_LEVELS.length;
+                setLevelIndex(nextIdx);
+                initLevel(PIPE_LEVELS[nextIdx]!);
               }}
               className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-serif text-xs gap-1 shadow-lg shadow-cyan-950"
             >
