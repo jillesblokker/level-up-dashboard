@@ -359,7 +359,7 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
         {/* Penguino Avatar & Story Banner */}
         <div className="flex items-center gap-3 bg-gradient-to-r from-sky-950/40 via-cyan-950/30 to-zinc-950 border border-cyan-500/30 p-2.5 rounded-2xl shadow-md my-1">
           <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-cyan-400/60 shadow-[0_0_10px_rgba(56,189,248,0.3)] shrink-0 bg-cyan-950 flex items-center justify-center">
-            <div className="w-8 h-8 relative">
+            <div className="w-10 h-10 relative">
               <Image
                 src="/images/Animals/penguin.webp"
                 alt="Penguino"
@@ -489,9 +489,9 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
               })
             )}
 
-            {/* Sliding Penguin Actor */}
+            {/* Sliding Penguin Actor (scaled up 2x for clear visibility) */}
             <div
-              className="absolute z-30 pointer-events-none transition-all duration-200 ease-out"
+              className="absolute z-30 pointer-events-none transition-all duration-200 ease-out overflow-visible"
               style={{
                 width: `${100 / currentConfig.width}%`,
                 height: `${100 / currentConfig.height}%`,
@@ -500,15 +500,16 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
               }}
             >
               <div
-                className={`w-full h-full flex items-center justify-center p-1 transition-transform duration-150 ${
+                className={`w-full h-full flex items-center justify-center transition-transform duration-150 overflow-visible ${
                   facing === 'left' ? 'scale-x-[-1]' : ''
                 } ${isSliding ? 'scale-105' : ''}`}
               >
-                <div className="w-7 h-7 sm:w-9 sm:h-9 relative drop-shadow-[0_4px_6px_rgba(0,0,0,0.6)]">
+                <div className="w-14 h-14 sm:w-18 sm:h-18 relative drop-shadow-[0_6px_12px_rgba(0,0,0,0.75)] shrink-0">
                   <Image
                     src="/images/Animals/penguin.webp"
-                    alt="Penguin"
+                    alt="Penguino"
                     fill
+                    sizes="(max-width: 640px) 56px, 72px"
                     className="object-contain"
                   />
                 </div>
