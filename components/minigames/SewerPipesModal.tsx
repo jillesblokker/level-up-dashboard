@@ -441,23 +441,28 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
             <Button
               size="sm"
               onClick={() => {
-                if (levelIndex < PIPE_LEVELS.length - 1) {
-                  setLevelIndex(l => l + 1);
-                  initLevel(PIPE_LEVELS[levelIndex + 1]!);
+                if (variationIndex < availableLevels.length - 1) {
+                  const nextIdx = variationIndex + 1;
+                  setVariationIndex(nextIdx);
+                  initLevel(availableLevels[nextIdx]!);
                 } else {
-                  onClose();
+                  const diffOrder: PipeDifficulty[] = ['apprentice', 'journeyman', 'master', 'grandmaster', 'expert'];
+                  const curDiffIdx = diffOrder.indexOf(difficulty);
+                  if (curDiffIdx < diffOrder.length - 1) {
+                    const nextDiff = diffOrder[curDiffIdx + 1]!;
+                    setDifficulty(nextDiff);
+                    setVariationIndex(0);
+                    const target = PIPE_LEVELS.filter(l => l.difficulty === nextDiff)[0];
+                    if (target) initLevel(target);
+                  } else {
+                    onClose();
+                  }
                 }
               }}
               className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-serif text-xs gap-1 shadow-lg shadow-cyan-950"
             >
-              {levelIndex < PIPE_LEVELS.length - 1 ? (
-                <>
-                  Next difficulty
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </>
-              ) : (
-                'Close aqueduct'
-              )}
+              Next aqueduct
+              <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           ) : (
             <Button
