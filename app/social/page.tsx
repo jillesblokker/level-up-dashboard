@@ -491,29 +491,29 @@ export default function AlliesPage() {
             <div className="container mx-auto p-4 max-w-7xl space-y-6">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList 
-                        className="flex h-14 bg-zinc-950 border border-amber-900/20 p-1.5 rounded-2xl mb-8 w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar gap-2 md:gap-0"
+                        className="flex h-12 bg-zinc-950/90 border border-amber-900/30 p-1.5 rounded-2xl mb-8 w-full md:w-auto overflow-x-auto overflow-y-hidden justify-start no-scrollbar gap-2"
                         style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x' }}
                     >
-                        <TabsTrigger value="house-cup" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                        <TabsTrigger value="house-cup" className="flex items-center gap-2 py-2.5 h-full px-5 rounded-xl text-xs font-bold font-serif transition-all whitespace-nowrap min-h-[40px]">
                             <Trophy className="w-4 h-4 text-amber-400" />
-                            House Cup
+                            House cup
                         </TabsTrigger>
-                        <TabsTrigger value="alliances" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                        <TabsTrigger value="alliances" className="flex items-center gap-2 py-2.5 h-full px-5 rounded-xl text-xs font-bold font-serif transition-all whitespace-nowrap min-h-[40px]">
                             <Shield className="w-4 h-4 text-amber-500" />
-                            Fellowships
+                            Titan raid & fellowships
                         </TabsTrigger>
-                        <TabsTrigger value="allies" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
-                            <Users className="w-4 h-4" />
-                            {TEXT_CONTENT.social.tabs.allies}
-                            {friends.length > 0 && <Badge variant="secondary" className="ml-1">{friends.length}</Badge>}
+                        <TabsTrigger value="allies" className="flex items-center gap-2 py-2.5 h-full px-5 rounded-xl text-xs font-bold font-serif transition-all whitespace-nowrap min-h-[40px]">
+                            <Users className="w-4 h-4 text-amber-400" />
+                            Allies & friends
+                            {friends.length > 0 && <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{friends.length}</Badge>}
                         </TabsTrigger>
-                        <TabsTrigger value="legends" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                        <TabsTrigger value="legends" className="flex items-center gap-2 py-2.5 h-full px-5 rounded-xl text-xs font-bold font-serif transition-all whitespace-nowrap min-h-[40px]">
                             <Crown className="w-4 h-4 text-amber-300" />
-                            Legends
+                            Hall of legends
                         </TabsTrigger>
-                        <TabsTrigger value="tavern-dice" className="flex items-center gap-2 py-3 h-full px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap min-h-[44px]">
+                        <TabsTrigger value="tavern-dice" className="flex items-center gap-2 py-2.5 h-full px-5 rounded-xl text-xs font-bold font-serif transition-all whitespace-nowrap min-h-[40px]">
                             <Dices className="w-4 h-4 text-amber-400" />
-                            Dice
+                            Tavern dice
                         </TabsTrigger>
                     </TabsList>
 
@@ -526,14 +526,14 @@ export default function AlliesPage() {
                                     ⚔️
                                 </div>
                                 <div>
-                                    <h3 className="font-medieval text-lg font-bold text-amber-300">1v1 Virtue Duel Daily Habit Race</h3>
+                                    <h3 className="font-medieval text-lg font-bold text-amber-300">1v1 Virtue duel daily habit race</h3>
                                     <p className="text-xs text-zinc-300 mt-0.5">
-                                        First friend to reach their 5/10 daily habit sweet spot wins <span className="font-bold text-amber-400">+10 House Cup Virtue Points</span> for both players!
+                                        First friend to reach their 5/10 daily habit sweet spot wins <span className="font-bold text-amber-400">+10 House Cup virtue points</span> for both players!
                                     </p>
                                 </div>
                             </div>
-                            <Badge className="bg-amber-600/30 border border-amber-400/60 text-amber-300 font-bold px-4 py-1.5 text-xs uppercase tracking-widest shrink-0">
-                                Race Active Today
+                            <Badge className="bg-amber-600/30 border border-amber-400/60 text-amber-300 font-bold px-4 py-1.5 text-xs shrink-0">
+                                Race active today
                             </Badge>
                         </div>
                         <HouseCupPanel />

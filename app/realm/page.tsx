@@ -211,6 +211,7 @@ function RealmPageContent() {
     } = useRealmInventory(userId, isMounted);
 
     // Animal interaction modal state
+    const [lastPlacement, setLastPlacement] = useState<{ x: number; y: number; previousTile: Tile; placedType: string } | null>(null);
     const [animalInteractionModal, setAnimalInteractionModal] = useState<{
         isOpen: boolean;
         animalType: 'horse' | 'sheep' | 'penguin' | 'eagle';
@@ -979,6 +980,11 @@ function RealmPageContent() {
             }
         }
 
+        // Record previous tile for undo
+        if (clickedTile) {
+            setLastPlacement({ x, y, previousTile: { ...clickedTile }, placedType: currentSelectedTile.type });
+        }
+
         // Optimistically update the UI first
         setGrid(prevGrid => {
             const newGrid = prevGrid.map(row => row.slice());
@@ -1113,6 +1119,42 @@ function RealmPageContent() {
             logger.error('Error placing tile:', err);
         }
     };
+
+    // Undo last tile placement handler
+    const handleUndoPlacement = useCallback(async () => {
+        if (!lastPlacement) return;
+        const { x, y, previousTile, placedType } = lastPlacement;
+
+        // Restore grid tile
+        setGrid(prevGrid => {
+            const newGrid = prevGrid.map(row => row.slice());
+            if (newGrid[y]?.[x]) {
+                newGrid[y][x] = { ...previousTile };
+            }
+            return newGrid;
+        });
+
+        // Refund placed tile
+        updateTileQuantity(placedType as TileType, 1);
+
+        // Persist previous tile to backend
+        try {
+            const prevNumeric = tileTypeToNumeric[previousTile.type] || 2;
+            const { fetchWithAuth } = await import('@/lib/fetchWithAuth');
+            await fetchWithAuth('/api/realm-tiles', {
+                method: 'POST',
+                body: JSON.stringify({ x, y, tile_type: prevNumeric, meta: {} })
+            });
+            toast({
+                title: "Placement undone",
+                description: `Restored previous tile and refunded 1x ${placedType}.`,
+            });
+        } catch (e) {
+            logger.error('[Realm] Failed to undo placement:', e);
+        }
+
+        setLastPlacement(null);
+    }, [lastPlacement, updateTileQuantity, toast]);
 
     const handleCharacterMove = (x: number, y: number) => {
         const currentGameMode = gameModeRef.current; // Use ref!
@@ -2240,6 +2282,18 @@ function RealmPageContent() {
                                     <Trash2 className="w-4 h-4" />
                                     <span className="hidden md:inline">{TEXT_CONTENT.realm.modes.destroy}</span>
                                 </Button>
+                                {lastPlacement && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleUndoPlacement}
+                                        className="flex items-center gap-1.5 min-w-[44px] min-h-[44px] bg-zinc-900 border-amber-500/40 text-amber-300 hover:bg-zinc-800 shadow-sm"
+                                        aria-label="Undo last placement"
+                                    >
+                                        <RotateCcw className="w-4 h-4 text-amber-400" />
+                                        <span className="hidden md:inline">Undo</span>
+                                    </Button>
+                                )}
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <div className="flex items-center">

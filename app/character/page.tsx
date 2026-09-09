@@ -1370,7 +1370,7 @@ export default function CharacterPage() {
                                               : "bg-red-500 h-fit"
                                   }
                                 >
-                                  {rarity.charAt(0).toUpperCase() + rarity.slice(1)}
+                                  {rarity}
                                 </Badge>
                               </div>
                               <CardDescription className="min-h-[4.5rem] text-sm leading-relaxed">
@@ -1395,7 +1395,7 @@ export default function CharacterPage() {
                                   disabled={isEquipped}
                                   onClick={() => equipTitle(title.id)}
                                 >
-                                  {isEquipped ? TEXT_CONTENT.character.titles.current : "Equip Title"}
+                                  {isEquipped ? TEXT_CONTENT.character.titles.current : "Equip title"}
                                 </Button>
                               ) : (
                                 <Button className="w-full" variant="outline" disabled>

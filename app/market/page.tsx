@@ -1315,38 +1315,59 @@ export default function MarketPage() {
                     </CardHeader>
                     <CardContent className="pt-6 space-y-4 flex-1">
                       <div className="flex justify-between items-center text-sm text-zinc-400 bg-zinc-950 p-2 rounded-lg">
-                        <span>Available for Sale:</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-white font-bold">{getInventoryQuantity(material.id)}</span>
-                          {getInventoryQuantity(material.id) > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => handleQuantityChange(material.id, String(getInventoryQuantity(material.id)))}
-                              className="text-[10px] font-mono px-2 py-0.5 rounded border bg-emerald-950/80 border-emerald-500/40 text-emerald-300 font-bold hover:bg-emerald-900 shadow-sm transition-all"
-                            >
-                              Sell Max
-                            </button>
-                          )}
-                        </div>
+                        <span>Available for sale:</span>
+                        <span className="font-mono text-white font-bold">{getInventoryQuantity(material.id)}</span>
                       </div>
 
-                      <div className="flex items-end gap-3">
-                        <div className="flex-1 space-y-2">
-                          <label className="text-xs font-bold uppercase text-zinc-500 tracking-wider">Quantity</label>
-                          <Input
-                            type="number"
-                            min="0"
-                            max={getInventoryQuantity(material.id)}
-                            placeholder="0"
-                            className="bg-zinc-950 border-zinc-700 focus:border-green-500 text-lg font-mono text-center"
-                            value={quantities[material.id] || ''}
-                            onChange={(e) => handleQuantityChange(material.id, e.target.value)}
-                          />
+                      {/* 1-Tap Quick Quantity Multiplier Pills for Selling */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs font-bold text-zinc-400">
+                          <span>Quantity</span>
+                          <div className="flex gap-1">
+                            {[1, 5, 10].map((qty) => (
+                              <button
+                                key={qty}
+                                type="button"
+                                onClick={() => handleQuantityChange(material.id, String(Math.min(qty, getInventoryQuantity(material.id))))}
+                                disabled={getInventoryQuantity(material.id) < qty}
+                                className={`text-[10px] font-mono px-2 py-0.5 rounded border transition-all ${
+                                  (quantities[material.id] || 0) === qty
+                                    ? 'bg-emerald-500 text-black font-extrabold border-emerald-400 shadow-sm'
+                                    : 'bg-zinc-950 text-zinc-400 border-zinc-800 hover:border-emerald-500/40 hover:text-white disabled:opacity-40 disabled:hover:border-zinc-800'
+                                }`}
+                              >
+                                {qty}x
+                              </button>
+                            ))}
+                            {getInventoryQuantity(material.id) > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => handleQuantityChange(material.id, String(getInventoryQuantity(material.id)))}
+                                className="text-[10px] font-mono px-2 py-0.5 rounded border bg-emerald-950/80 border-emerald-500/40 text-emerald-300 font-bold hover:bg-emerald-900 shadow-sm transition-all"
+                              >
+                                Max ({getInventoryQuantity(material.id)})
+                              </button>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex-1 space-y-2 text-right">
-                          <label className="text-xs font-bold uppercase text-zinc-500 tracking-wider">Total Value</label>
-                          <div className="text-lg font-bold text-green-400 font-mono flex items-center justify-end gap-1 h-10">
-                            {(quantities[material.id] || 0) * material.sellPrice} <Coins className="w-4 h-4" />
+
+                        <div className="flex items-end gap-3">
+                          <div className="flex-1">
+                            <Input
+                              type="number"
+                              min="0"
+                              max={getInventoryQuantity(material.id)}
+                              placeholder="0"
+                              className="bg-zinc-950 border-zinc-700 focus:border-green-500 text-lg font-mono text-center"
+                              value={quantities[material.id] || ''}
+                              onChange={(e) => handleQuantityChange(material.id, e.target.value)}
+                            />
+                          </div>
+                          <div className="flex-1 text-right">
+                            <label className="text-[10px] font-bold text-zinc-400">Total value</label>
+                            <div className="text-lg font-bold text-green-400 font-mono flex items-center justify-end gap-1 h-10">
+                              {(quantities[material.id] || 0) * material.sellPrice} <Coins className="w-4 h-4" />
+                            </div>
                           </div>
                         </div>
                       </div>
