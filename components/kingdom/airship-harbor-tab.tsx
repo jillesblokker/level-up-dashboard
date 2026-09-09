@@ -1,8 +1,8 @@
 "use client"
 
 import { logger } from "@/lib/logger";
-import { useState, useEffect, useCallback, useMemo, useRef } from "react"
-import { Wind, Sparkles, Check, Flame, Shield, Users, Clock, Trophy, Trash2, ArrowRight, Compass, Anchor, MapPin, Gauge, Radio, Volume2, VolumeX, MessageSquare, ChevronRight } from "lucide-react"
+import { useState, useEffect, useCallback, useMemo } from "react"
+import { Wind, Sparkles, Check, Flame, Shield, Users, Clock, Trophy, Trash2, ArrowRight, Compass, Anchor, MapPin, Gauge, Radio, Volume2, VolumeX, MessageSquare, ChevronRight, Zap, Coins } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress"
 
 import { useCitizensStore } from "@/stores/citizensStore"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
+import { addToCharacterStat } from "@/lib/character-stats-service";
 import { playSFX } from "@/lib/sound-manager";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { unwrapApiResponse } from "@/lib/api-response-unwrapper";
@@ -35,7 +36,6 @@ class SkydockAudioEngine {
     return this.ctx;
   }
 
-  // Double brass ship bell strike ("Ding-ding!")
   playBellChime() {
     if (!this.enabled) return;
     const ctx = this.getContext();
@@ -49,9 +49,9 @@ class SkydockAudioEngine {
         const gain = ctx.createGain();
 
         osc1.type = 'sine';
-        osc1.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        osc1.frequency.setValueAtTime(587.33, ctx.currentTime);
         osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(1174.66, ctx.currentTime); // D6 harmonic
+        osc2.frequency.setValueAtTime(1174.66, ctx.currentTime);
 
         gain.gain.setValueAtTime(0.18, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
@@ -68,7 +68,6 @@ class SkydockAudioEngine {
     });
   }
 
-  // Deep airship steam horn whistle
   playSteamHorn() {
     if (!this.enabled) return;
     const ctx = this.getContext();
@@ -96,7 +95,6 @@ class SkydockAudioEngine {
     osc.stop(ctx.currentTime + 1.2);
   }
 
-  // Mechanical brass telegraph lever click
   playTelegraphClick() {
     if (!this.enabled) return;
     const ctx = this.getContext();
@@ -118,7 +116,6 @@ class SkydockAudioEngine {
     osc.stop(ctx.currentTime + 0.05);
   }
 
-  // Rewarding chest unlock fanfare
   playChestUnlock() {
     if (!this.enabled) return;
     const ctx = this.getContext();
@@ -145,8 +142,101 @@ class SkydockAudioEngine {
 
 const skydockAudio = new SkydockAudioEngine();
 
-// --- DATA STRUCTURES ---
-interface JourneyRegion {
+// --- 7 CORE HABIT CATEGORIES & PERKS ---
+export type HabitCategory = 'knowledge' | 'might' | 'vitality' | 'wellness' | 'craft' | 'honor' | 'castle';
+
+export interface CategoryMetadata {
+  id: HabitCategory;
+  name: string;
+  emoji: string;
+  colorName: string;
+  textColor: string;
+  borderColor: string;
+  glowColor: string;
+  gradient: string;
+}
+
+export const HABIT_CATEGORY_META: Record<HabitCategory, CategoryMetadata> = {
+  knowledge: {
+    id: 'knowledge',
+    name: 'Knowledge',
+    emoji: '🧪',
+    colorName: 'cyan',
+    textColor: 'text-cyan-300',
+    borderColor: 'border-cyan-500/40',
+    glowColor: 'shadow-[0_0_15px_#06b6d4]',
+    gradient: 'from-cyan-600 via-cyan-400 to-cyan-200'
+  },
+  might: {
+    id: 'might',
+    name: 'Might',
+    emoji: '⚔️',
+    colorName: 'amber',
+    textColor: 'text-amber-300',
+    borderColor: 'border-amber-500/40',
+    glowColor: 'shadow-[0_0_15px_#f59e0b]',
+    gradient: 'from-amber-600 via-amber-400 to-amber-200'
+  },
+  vitality: {
+    id: 'vitality',
+    name: 'Vitality',
+    emoji: '🌿',
+    colorName: 'emerald',
+    textColor: 'text-emerald-300',
+    borderColor: 'border-emerald-500/40',
+    glowColor: 'shadow-[0_0_15px_#10b981]',
+    gradient: 'from-emerald-600 via-emerald-400 to-emerald-200'
+  },
+  wellness: {
+    id: 'wellness',
+    name: 'Wellness',
+    emoji: '✨',
+    colorName: 'teal',
+    textColor: 'text-teal-300',
+    borderColor: 'border-teal-500/40',
+    glowColor: 'shadow-[0_0_15px_#14b8a6]',
+    gradient: 'from-teal-600 via-teal-400 to-teal-200'
+  },
+  craft: {
+    id: 'craft',
+    name: 'Craft',
+    emoji: '⚙️',
+    colorName: 'orange',
+    textColor: 'text-orange-300',
+    borderColor: 'border-orange-500/40',
+    glowColor: 'shadow-[0_0_15px_#f97316]',
+    gradient: 'from-orange-600 via-orange-400 to-orange-200'
+  },
+  honor: {
+    id: 'honor',
+    name: 'Honor',
+    emoji: '👑',
+    colorName: 'purple',
+    textColor: 'text-purple-300',
+    borderColor: 'border-purple-500/40',
+    glowColor: 'shadow-[0_0_15px_#a855f7]',
+    gradient: 'from-purple-600 via-purple-400 to-purple-200'
+  },
+  castle: {
+    id: 'castle',
+    name: 'Castle',
+    emoji: '🏰',
+    colorName: 'indigo',
+    textColor: 'text-indigo-300',
+    borderColor: 'border-indigo-500/40',
+    glowColor: 'shadow-[0_0_15px_#6366f1]',
+    gradient: 'from-indigo-600 via-indigo-400 to-indigo-200'
+  }
+};
+
+export interface JourneyTubeRequirement {
+  category: HabitCategory;
+  perkName: string;
+  perkEffect: string;
+  perkType: 'speed' | 'cargo' | 'crew_exp' | 'gold';
+}
+
+export interface JourneyRegion {
   id: string;
   name: string;
   category: 'knowledge' | 'might' | 'wellness' | 'social';
@@ -155,9 +245,11 @@ interface JourneyRegion {
   description: string;
   affinityElements: string[];
   pinPosition: { x: string; y: string };
+  tubes: JourneyTubeRequirement[];
   rewards: { id: string; name: string; emoji: string; image?: string; quantity: number }[];
 }
 
+// 4 THEMATIC JOURNEYS WITH ROTATING CATEGORIES & REAL MECHANICAL PERKS
 const HABIT_JOURNEYS: JourneyRegion[] = [
   {
     id: 'pilgrimage-knowledge',
@@ -168,6 +260,12 @@ const HABIT_JOURNEYS: JourneyRegion[] = [
     description: 'Advance by completing Knowledge or Intelligence habits. Collect magical essence crystals and pure cloud water.',
     affinityElements: ['water', 'ice'],
     pinPosition: { x: '24%', y: '26%' },
+    tubes: [
+      { category: 'knowledge', perkName: 'Astral speed burst', perkEffect: '+15% starting launch distance', perkType: 'speed' },
+      { category: 'craft', perkName: 'Crystal blueprint salvage', perkEffect: '+1 bonus essence crystal', perkType: 'cargo' },
+      { category: 'honor', perkName: 'Scholar academy tutor', perkEffect: '+50 bonus EXP to all 3 crew', perkType: 'crew_exp' },
+      { category: 'vitality', perkName: 'Sky haven treasury', perkEffect: '+100 gold bonus on arrival', perkType: 'gold' }
+    ],
     rewards: [
       { id: 'material-crystal', name: 'Essence Crystals', emoji: '💎', image: '/images/items/materials/material-crystal.webp', quantity: 2 },
       { id: 'material-water', name: 'Water', emoji: '💧', image: '/images/items/materials/material-water.webp', quantity: 3 }
@@ -182,6 +280,12 @@ const HABIT_JOURNEYS: JourneyRegion[] = [
     description: 'Advance by completing Might or Agility habits. Forge ahead through wind shear for tempered steel and solid building logs.',
     affinityElements: ['fire', 'earth'],
     pinPosition: { x: '78%', y: '28%' },
+    tubes: [
+      { category: 'might', perkName: 'Storm-cutter momentum', perkEffect: '+15% starting launch distance', perkType: 'speed' },
+      { category: 'vitality', perkName: 'Ironbark timber harvesting', perkEffect: '+2 bonus wooden logs', perkType: 'cargo' },
+      { category: 'craft', perkName: 'Rigging reinforcement', perkEffect: '+50 bonus EXP to all 3 crew', perkType: 'crew_exp' },
+      { category: 'castle', perkName: 'Mountain stronghold tribute', perkEffect: '+100 gold bonus on arrival', perkType: 'gold' }
+    ],
     rewards: [
       { id: 'material-steel', name: 'Steel Ingots', emoji: '⚔️', image: '/images/items/materials/material-steel.webp', quantity: 2 },
       { id: 'material-logs', name: 'Wooden Logs', emoji: '🪵', image: '/images/items/materials/material-logs.webp', quantity: 4 }
@@ -196,6 +300,12 @@ const HABIT_JOURNEYS: JourneyRegion[] = [
     description: 'Advance by completing Wellness, Vitality, or Spiritual habits. Net iridescent rainbow fish and mountain water.',
     affinityElements: ['nature', 'water'],
     pinPosition: { x: '22%', y: '72%' },
+    tubes: [
+      { category: 'wellness', perkName: 'Serene tailwind channel', perkEffect: '+15% starting launch distance', perkType: 'speed' },
+      { category: 'vitality', perkName: 'Iridescent fish trawling', perkEffect: '+1 bonus rainbow fish', perkType: 'cargo' },
+      { category: 'knowledge', perkName: 'Botanical expedition flora', perkEffect: '+50 bonus EXP to all 3 crew', perkType: 'crew_exp' },
+      { category: 'honor', perkName: 'Spring guardian offering', perkEffect: '+100 gold bonus on arrival', perkType: 'gold' }
+    ],
     rewards: [
       { id: 'fish-rainbow', name: 'Rainbow Fish', emoji: '🌈🐟', image: '/images/items/food/fish-rainbow.webp', quantity: 1 },
       { id: 'material-water', name: 'Water', emoji: '💧', image: '/images/items/materials/material-water.webp', quantity: 2 }
@@ -210,6 +320,12 @@ const HABIT_JOURNEYS: JourneyRegion[] = [
     description: 'Advance by completing Social, Honor, or Creative habits. Bring back fine minted silver bars and silver fish.',
     affinityElements: ['special', 'earth'],
     pinPosition: { x: '74%', y: '74%' },
+    tubes: [
+      { category: 'honor', perkName: 'Bazaar trade pact', perkEffect: '+1 bonus minted silver bar', perkType: 'cargo' },
+      { category: 'castle', perkName: 'Port anchorage rights', perkEffect: '+15% starting launch distance', perkType: 'speed' },
+      { category: 'craft', perkName: 'Artisan guild commissions', perkEffect: '+50 bonus EXP to all 3 crew', perkType: 'crew_exp' },
+      { category: 'might', perkName: 'Heavy caravan hauling', perkEffect: '+100 gold bonus on arrival', perkType: 'gold' }
+    ],
     rewards: [
       { id: 'material-silver', name: 'Silver Bars', emoji: '🪙', image: '/images/items/materials/material-silver.webp', quantity: 2 },
       { id: 'fish-silver', name: 'Silver Fish', emoji: '🐟', image: '/images/items/food/fish-silver.webp', quantity: 2 }
@@ -231,20 +347,23 @@ export function AirshipHarborTab() {
   // States
   const [activeVoyage, setActiveVoyage] = useState<any>(null);
   const [selectedJourneyId, setSelectedJourneyId] = useState<string>('pilgrimage-knowledge');
-  const [selectedCrew, setSelectedCrew] = useState<string[]>([]);
+  const [selectedCrew, setSelectedCrew] = useState<string[]>([]); // 3 crew members
   const [isLaunching, setIsLaunching] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
   const [guardianPet, setGuardianPet] = useState<{ id: string; name: string; image: string } | null>(null);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [steamPuff, setSteamPuff] = useState(false);
 
-  const [questFuelData, setQuestFuelData] = useState<{
-    knowledge: number;
-    might: number;
-    wellness: number;
-    social: number;
-    totalCompleted: number;
-  }>({ knowledge: 0, might: 0, wellness: 0, social: 0, totalCompleted: 0 });
+  // 7 Habit Categories Counts
+  const [categoryCounts, setCategoryCounts] = useState<Record<HabitCategory, number>>({
+    knowledge: 0,
+    might: 0,
+    vitality: 0,
+    wellness: 0,
+    craft: 0,
+    honor: 0,
+    castle: 0
+  });
 
   // Citizens store
   const loadCitizens = useCitizensStore(state => state.loadCitizens);
@@ -277,31 +396,45 @@ export function AirshipHarborTab() {
         window.dispatchEvent(new CustomEvent('airship-cargo-status', { detail: { ready: isReady } }));
       }
 
-      // Fetch completed quests to compute category-colored Ether Fuel
+      // Fetch completed quests for today to tally actual habit completions across 7 categories
       try {
         const questRes = await fetchWithAuth('/api/quests');
         if (questRes.ok) {
           const raw = await questRes.json();
           const quests = unwrapApiResponse<any[]>(raw) || [];
-          let k = 0, m = 0, w = 0, s = 0, total = 0;
+          const counts: Record<HabitCategory, number> = {
+            knowledge: 0,
+            might: 0,
+            vitality: 0,
+            wellness: 0,
+            craft: 0,
+            honor: 0,
+            castle: 0
+          };
+
           quests.forEach(q => {
             if (q.completed) {
-              total++;
               const cat = (q.category || '').toLowerCase();
               if (cat.includes('know') || cat.includes('intel') || cat.includes('read') || cat.includes('study') || cat.includes('learn')) {
-                k++;
-              } else if (cat.includes('might') || cat.includes('agil') || cat.includes('craft') || cat.includes('strength')) {
-                m++;
-              } else if (cat.includes('well') || cat.includes('vital') || cat.includes('spirit')) {
-                w++;
-              } else if (cat.includes('social') || cat.includes('creat') || cat.includes('honor')) {
-                s++;
+                counts.knowledge++;
+              } else if (cat.includes('might') || cat.includes('agil') || cat.includes('strength') || cat.includes('push')) {
+                counts.might++;
+              } else if (cat.includes('vital') || cat.includes('sleep') || cat.includes('water') || cat.includes('eat') || cat.includes('nutri')) {
+                counts.vitality++;
+              } else if (cat.includes('well') || cat.includes('medit') || cat.includes('calm') || cat.includes('peace') || cat.includes('spirit')) {
+                counts.wellness++;
+              } else if (cat.includes('craft') || cat.includes('code') || cat.includes('build') || cat.includes('make') || cat.includes('work')) {
+                counts.craft++;
+              } else if (cat.includes('honor') || cat.includes('social') || cat.includes('friend') || cat.includes('kind') || cat.includes('help')) {
+                counts.honor++;
+              } else if (cat.includes('castle') || cat.includes('clean') || cat.includes('tidy') || cat.includes('chore') || cat.includes('house')) {
+                counts.castle++;
               } else {
-                k++;
+                counts.knowledge++;
               }
             }
           });
-          setQuestFuelData({ knowledge: k, might: m, wellness: w, social: s, totalCompleted: total });
+          setCategoryCounts(counts);
         }
       } catch (e) {
         logger.error('[Airship] Failed to load quest fuel data:', e);
@@ -317,95 +450,84 @@ export function AirshipHarborTab() {
     }
   }, [user?.id, loadVoyageData]);
 
-  // Sync audio toggle with audio synthesizer
   useEffect(() => {
     skydockAudio.enabled = audioEnabled;
   }, [audioEnabled]);
 
-  // Category Ether Fuel Calculation for Vacuum Tubes
-  const fuelMetrics = useMemo(() => {
-    const isVoyageActive = Boolean(activeVoyage?.active);
-    const targetProgress = isVoyageActive
-      ? Math.min(100, Math.max(0, activeVoyage.progress || 0))
-      : Math.min(100, (questFuelData.totalCompleted || 0) * 25);
-
-    let kPct = 0;
-    let mPct = 0;
-    let wPct = 0;
-    let sPct = 0;
-    let basePct = 0;
-
-    if (questFuelData.totalCompleted > 0) {
-      if (isVoyageActive) {
-        kPct = Math.round((questFuelData.knowledge / questFuelData.totalCompleted) * targetProgress);
-        mPct = Math.round((questFuelData.might / questFuelData.totalCompleted) * targetProgress);
-        wPct = Math.round((questFuelData.wellness / questFuelData.totalCompleted) * targetProgress);
-        sPct = Math.max(0, targetProgress - (kPct + mPct + wPct));
-      } else {
-        kPct = Math.min(100, questFuelData.knowledge * 25);
-        mPct = Math.min(Math.max(0, 100 - kPct), questFuelData.might * 25);
-        wPct = Math.min(Math.max(0, 100 - kPct - mPct), questFuelData.wellness * 25);
-        sPct = Math.min(Math.max(0, 100 - kPct - mPct - wPct), questFuelData.social * 25);
-      }
-    } else if (isVoyageActive && targetProgress > 0) {
-      basePct = targetProgress;
+  // Current Journey definition
+  const currentJourney = useMemo(() => {
+    if (activeVoyage?.active && activeVoyage.journeyId) {
+      return HABIT_JOURNEYS.find(j => j.id === activeVoyage.journeyId) || HABIT_JOURNEYS[0]!;
     }
+    return HABIT_JOURNEYS.find(j => j.id === selectedJourneyId) || HABIT_JOURNEYS[0]!;
+  }, [activeVoyage, selectedJourneyId]);
 
-    const totalFuel = isVoyageActive ? targetProgress : Math.min(100, kPct + mPct + wPct + sPct);
+  // 4 Vacuum Tubes metrics calculated for the active/selected journey
+  const tubesState = useMemo(() => {
+    const tubes = currentJourney.tubes.map(tube => {
+      const meta = HABIT_CATEGORY_META[tube.category];
+      const count = categoryCounts[tube.category] || 0;
+      const isCharged = count >= 1;
+
+      return {
+        ...tube,
+        meta,
+        count,
+        isCharged,
+        fillPct: isCharged ? 100 : Math.min(25, count * 25)
+      };
+    });
+
+    const chargedCount = tubes.filter(t => t.isCharged).length;
+    const boilerPressurePct = Math.round((chargedCount / 4) * 100);
+    const hasResonance = chargedCount === 4;
 
     return {
-      totalFuel,
-      targetProgress,
-      kPct,
-      mPct,
-      wPct,
-      sPct,
-      basePct,
-      knowledgeCount: questFuelData.knowledge,
-      mightCount: questFuelData.might,
-      wellnessCount: questFuelData.wellness,
-      socialCount: questFuelData.social,
-      totalCount: questFuelData.totalCompleted,
+      tubes,
+      chargedCount,
+      boilerPressurePct,
+      hasResonance
     };
-  }, [activeVoyage, questFuelData]);
+  }, [currentJourney, categoryCounts]);
 
-  const selectedJourney = HABIT_JOURNEYS.find(j => j.id === selectedJourneyId) || HABIT_JOURNEYS[0]!;
   const idleCitizens = citizens.filter(c => !c.lockedReason);
 
-  // Dynamic Quartermaster Speech Bubble
+  // Dynamic Quartermaster Mascot Speech Bubble
   const mascotSpeech = useMemo(() => {
     if (activeVoyage?.active) {
       const progress = activeVoyage.progress || 0;
       if (progress >= 100) {
         return "Anchor dropped! We have reached celestial port safely. Crack the cargo bay chest locks and claim our spoils!";
       }
-      return `Cruising at 4,820 ft through the cloudsea! Boilers running steady at ${progress}% to destination. Keep up your habits!`;
+      return `Cruising at 4,820 ft through the cloudsea! Boilers pressurized at ${tubesState.boilerPressurePct}%. Keep completing daily habits to propel our ship!`;
     }
-    if (selectedCrew.length === 2) {
-      return "Crew is stationed at the helm and crow's nest! Pull the engine telegraph lever to full ahead when you are ready to depart.";
+    if (selectedCrew.length === 3) {
+      return "All 3 crew stations manned: Helmsman, Machinist, and Lookout! Pull the engine telegraph lever to full ahead to cast off!";
     }
-    if (selectedCrew.length === 1) {
-      return "First station manned! Select one more citizen from the dormitory to complete our 2-person expedition complement.";
+    if (selectedCrew.length > 0) {
+      return `Stationed ${selectedCrew.length}/3 crew members. Assign all 3 citizen stations to maximize affinity tailwinds!`;
     }
-    if (fuelMetrics.totalFuel >= 100) {
-      return "Boiler vacuum tubes are bubbling at 100% capacity! Plot our heading on the sky chart and assign our bridge crew.";
+    if (tubesState.chargedCount === 4) {
+      return "Hyper-Ether Resonance active! All 4 vacuum tubes are glowing at maximum pressure. Select 3 crew members and depart!";
     }
-    return "Welcome to the Skydock Bridge, Captain! Complete daily habits IRL to fill our vacuum tubes with pressurized elemental ether.";
-  }, [activeVoyage, selectedCrew.length, fuelMetrics.totalFuel]);
+    return `Welcome to the Skydock Bridge! Complete habits in ${currentJourney.tubes.map(t => t.category).join(', ')} to pressurize the 4 engine tubes.`;
+  }, [activeVoyage, selectedCrew.length, tubesState.chargedCount, tubesState.boilerPressurePct, currentJourney]);
 
+  // Crew Selection (up to 3 citizens)
   const handleToggleCrewSelection = (id: string) => {
     skydockAudio.playTelegraphClick();
     setSelectedCrew(prev => {
       if (prev.includes(id)) {
         return prev.filter(cId => cId !== id);
       }
-      if (prev.length >= 2) {
-        return [prev[1]!, id];
+      if (prev.length >= 3) {
+        return [prev[1]!, prev[2]!, id];
       }
       return [...prev, id];
     });
   };
 
+  // Launch Sequence
   const handleTelegraphLaunch = async () => {
     if (!user?.id || isLaunching) return;
     if (selectedCrew.length === 0) {
@@ -422,22 +544,24 @@ export function AirshipHarborTab() {
       setSteamPuff(true);
       setTimeout(() => setSteamPuff(false), 2000);
 
-      // Play authentic sound sequence
       skydockAudio.playTelegraphClick();
       skydockAudio.playBellChime();
       setTimeout(() => skydockAudio.playSteamHorn(), 250);
 
-      // Calculate initial progress based on Element Affinities
+      // Calculate initial starting progress from 3 Crew Affinities (+10% each) + Charged Tubes (+7.5% each)
       let affinityCount = 0;
       selectedCrew.forEach(cId => {
         const citizen = citizens.find(c => c.id === cId);
-        if (citizen && selectedJourney.affinityElements.includes(citizen.type)) {
+        if (citizen && currentJourney.affinityElements.includes(citizen.type?.toLowerCase())) {
           affinityCount += 1;
         }
       });
-      const initialProgress = Math.min(60, affinityCount * 20 + 20);
 
-      // 1. Lock citizens in preferences
+      const affinityBurst = affinityCount * 10;
+      const tubesBurst = tubesState.chargedCount * 7.5;
+      const initialProgress = Math.min(75, Math.round(20 + affinityBurst + tubesBurst));
+
+      // 1. Lock 3 citizens in preferences
       const savedPrefs: any = await getUserPreference('citizens_state') || {};
       selectedCrew.forEach(cId => {
         if (!savedPrefs[cId]) {
@@ -447,20 +571,21 @@ export function AirshipHarborTab() {
       });
       await setUserPreference('citizens_state', savedPrefs);
 
-      // 2. Save active expedition preference
+      // 2. Save active expedition preference with charged tubes recorded
       const newVoyage = {
         active: true,
-        journeyId: selectedJourney.id,
-        category: selectedJourney.category,
+        journeyId: currentJourney.id,
+        category: currentJourney.category,
         progress: initialProgress,
         crew: selectedCrew,
+        chargedTubes: tubesState.tubes.filter(t => t.isCharged).map(t => t.category),
         startedAt: new Date().toISOString()
       };
       await setUserPreference('active_expeditions', newVoyage);
 
       toast({
         title: "Mooring lines cast! ⛵✨",
-        description: `${selectedJourney.name} is underway. Complete habits to propel our voyage!`
+        description: `${currentJourney.name} is underway with ${selectedCrew.length} crew. Initial ether burst: +${initialProgress}%!`
       });
 
       setSelectedCrew([]);
@@ -476,6 +601,7 @@ export function AirshipHarborTab() {
     }
   };
 
+  // Abandon Voyage
   const handleAbandon = async () => {
     if (!user?.id || !activeVoyage) return;
     const confirm = window.confirm("Are you sure you want to abandon this voyage? Your citizens will return immediately, but all progress and cargo will be forfeit.");
@@ -502,6 +628,7 @@ export function AirshipHarborTab() {
     }
   };
 
+  // Claim Cargo & Rewards
   const handleClaim = async () => {
     if (!user?.id || !activeVoyage || isClaiming) return;
     const voyageRegion = HABIT_JOURNEYS.find(j => j.id === activeVoyage.journeyId) || HABIT_JOURNEYS[0]!;
@@ -514,26 +641,39 @@ export function AirshipHarborTab() {
       setIsClaiming(true);
       skydockAudio.playChestUnlock();
 
-      // Sequentially add rewards to inventory
+      // Check which tube perks were charged
+      const chargedTubes: HabitCategory[] = activeVoyage.chargedTubes || [];
+      const hasBonusCargo = chargedTubes.some(c => voyageRegion.tubes.some(t => t.category === c && t.perkType === 'cargo'));
+      const hasBonusExp = chargedTubes.some(c => voyageRegion.tubes.some(t => t.category === c && t.perkType === 'crew_exp'));
+      const hasBonusGold = chargedTubes.some(c => voyageRegion.tubes.some(t => t.category === c && t.perkType === 'gold'));
+
+      // 1. Add base rewards to inventory
       for (const item of voyageRegion.rewards) {
+        const extraQty = hasBonusCargo ? 1 : 0;
         await fetch('/api/inventory', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             item: {
               id: item.id,
-              quantity: item.quantity
+              quantity: item.quantity + extraQty
             }
           })
         });
       }
 
-      // Unlock citizens & grant expedition XP + affection
+      // 2. Add bonus gold if gold tube was pressurized
+      if (hasBonusGold) {
+        await addToCharacterStat('gold', 150, 'airship-vacuum-tube');
+      }
+
+      // 3. Unlock 3 citizens & grant expedition XP + affection
+      const expEarned = hasBonusExp ? 200 : 150;
       const savedPrefs: any = await getUserPreference('citizens_state') || {};
       activeVoyage.crew.forEach((cId: string) => {
         if (savedPrefs[cId]) {
           savedPrefs[cId].lockedReason = null;
-          const curExp = (savedPrefs[cId].experience || 0) + 150;
+          const curExp = (savedPrefs[cId].experience || 0) + expEarned;
           const curLvl = savedPrefs[cId].level || 1;
           const reqExp = curLvl * 100;
           let nextLvl = curLvl;
@@ -554,7 +694,7 @@ export function AirshipHarborTab() {
 
       toast({
         title: "Cargo chests claimed! 🪙📦",
-        description: `Your crew returned safely with materials! Crew earned +150 XP and +15 affection.`
+        description: `Your 3 crew members returned safely! Each earned +${expEarned} XP and +15 affection.${hasBonusCargo ? " (Includes +1 bonus material from pressurized tube!)" : ""}`
       });
 
       window.dispatchEvent(new Event('character-inventory-update'));
@@ -573,25 +713,24 @@ export function AirshipHarborTab() {
   return (
     <div className="space-y-6 font-serif select-none">
 
-      {/* TOP SKYDOCK HERO WITH PARALLAX BRIDGE & LIVING QUARTERMASTER */}
+      {/* TOP AIRSHIP HARBOR HERO HEADER (Requested Image: /images/headers/airship-harbor.webp) */}
       <div className="relative rounded-3xl overflow-hidden border-2 border-amber-900/40 shadow-2xl bg-zinc-950">
         
-        {/* Background Flight Deck Panoramic Art */}
         <div className="relative h-64 sm:h-72 w-full">
           <Image
-            src="/images/headers/airship-skydock-bridge.jpg"
-            alt="Airship Skydock Bridge"
+            src="/images/headers/airship-harbor.webp"
+            alt="Airship Harbor"
             fill
             priority
             unoptimized
-            className="object-cover brightness-70 contrast-105 select-none pointer-events-none"
+            className="object-cover brightness-75 contrast-105 select-none pointer-events-none"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-black/40" />
 
-          {/* Steam Puff Particle Overlay */}
+          {/* Steam Puff Particle Overlay on Launch */}
           {steamPuff && (
             <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px] animate-pulse pointer-events-none z-30 flex items-center justify-center">
-              <span className="text-amber-300 font-mono text-sm tracking-widest uppercase bg-black/80 px-4 py-1.5 rounded-full border border-amber-500/50 shadow-2xl">
+              <span className="text-amber-300 font-mono text-sm tracking-widest uppercase bg-black/85 px-4 py-1.5 rounded-full border border-amber-500/50 shadow-2xl">
                 💨 Steam pressure released — full ahead!
               </span>
             </div>
@@ -606,7 +745,7 @@ export function AirshipHarborTab() {
               </Badge>
               <Badge className="bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-[10px] font-mono px-2 py-0.5 backdrop-blur-md hidden sm:flex items-center gap-1">
                 <Radio className="w-3 h-3 text-cyan-400 animate-pulse" />
-                <span>Nav channel: 142.8 Mhz</span>
+                <span>Channel: 142.8 Mhz</span>
               </Badge>
             </div>
 
@@ -624,7 +763,7 @@ export function AirshipHarborTab() {
           {/* Living Quartermaster Mascot & Speech Bubble Overlay */}
           <div className="absolute bottom-4 left-4 right-4 z-20 flex flex-col sm:flex-row sm:items-end gap-3.5">
             
-            {/* Mascot Avatar Frame (Aviator Goggles Perch) */}
+            {/* Mascot Avatar Frame */}
             <div
               onClick={() => {
                 skydockAudio.playBellChime();
@@ -685,10 +824,10 @@ export function AirshipHarborTab() {
         </div>
       </div>
 
-      {/* THE ETHER BOILER & 4 GLOWING VACUUM TUBES CONSOLE */}
+      {/* THE 4 ETHER VACUUM TUBES CONSOLE (ROTATING PER JOURNEY WITH ACTIVE PERKS) */}
       <Card className="bg-[#0b0d11] border-2 border-amber-900/40 rounded-3xl p-5 sm:p-6 shadow-2xl relative overflow-hidden">
         
-        {/* Steam Boiler Top Readout */}
+        {/* Boiler Pressure Bar Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-amber-900/30">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-950/40 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-inner">
@@ -696,20 +835,24 @@ export function AirshipHarborTab() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-cardo font-bold text-base text-amber-100">Ether boiler & vacuum chambers</h3>
+                <h3 className="font-cardo font-bold text-base text-amber-100">
+                  {currentJourney.name} &mdash; 4 ether vacuum tubes
+                </h3>
                 <Badge className={cn(
                   "text-[9px] font-mono font-bold tracking-wide uppercase px-2 py-0.5",
-                  fuelMetrics.totalFuel >= 100 
-                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 animate-pulse" 
-                    : fuelMetrics.totalFuel > 0
+                  tubesState.hasResonance
+                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 animate-pulse"
+                    : tubesState.chargedCount > 0
                     ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/40"
                     : "bg-zinc-800 text-zinc-400 border-zinc-700"
                 )}>
-                  {fuelMetrics.totalFuel >= 100 ? "⚡ 100% Maximum pressure" : `${fuelMetrics.totalFuel}% / 100% Pressure`}
+                  {tubesState.hasResonance
+                    ? "⚡ Hyper-resonance active (4/4 tubes)"
+                    : `${tubesState.chargedCount} / 4 tubes pressurized`}
                 </Badge>
               </div>
               <p className="text-[11px] text-zinc-400 font-sans">
-                Real-world habit rituals compress elemental gas into the 4 vacuum tubes below.
+                Each tube corresponds to a required habit ritual for this voyage. Complete habits IRL to pressurize each chamber and unlock its active perk.
               </p>
             </div>
           </div>
@@ -717,122 +860,71 @@ export function AirshipHarborTab() {
           <div className="flex items-center gap-3 text-right">
             <div>
               <span className="text-2xl sm:text-3xl font-mono font-bold text-amber-400 drop-shadow-md">
-                {fuelMetrics.totalFuel}%
+                {tubesState.boilerPressurePct}%
               </span>
               <span className="text-[10px] text-zinc-500 block font-mono">Boiler output</span>
             </div>
           </div>
         </div>
 
-        {/* 4 Vertical Tactile Glass Vacuum Tubes */}
+        {/* 4 Thematic Rotating Vacuum Tubes */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4 pt-5">
-          
-          {/* 1. Knowledge Vacuum Tube (Cyan) */}
-          <div className="bg-zinc-950/80 border border-cyan-500/30 rounded-2xl p-3.5 flex flex-col items-center justify-between text-center relative overflow-hidden group shadow-lg">
-            <div className="absolute inset-0 bg-cyan-950/10 pointer-events-none" />
-            <div className="flex items-center justify-between w-full text-[10px] font-mono text-cyan-300 pb-2">
-              <span className="font-bold">Knowledge</span>
-              <span>{fuelMetrics.knowledgeCount} habits</span>
-            </div>
+          {tubesState.tubes.map(tube => {
+            const { meta, isCharged, count, perkName, perkEffect } = tube;
 
-            {/* Vertical Glass Tube Graphic */}
-            <div className="w-14 sm:w-16 h-28 sm:h-32 rounded-full border-2 border-cyan-500/50 bg-black/60 p-1 relative overflow-hidden flex flex-col justify-end shadow-inner">
-              {/* Glass Reflection Highlight */}
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-black/30 pointer-events-none z-20 rounded-full" />
-              
-              {/* Glowing Liquid */}
+            return (
               <div
-                style={{ height: `${Math.min(100, Math.max(8, fuelMetrics.kPct))}%` }}
-                className="w-full bg-gradient-to-t from-cyan-600 via-cyan-400 to-cyan-200 rounded-b-full transition-all duration-700 relative shadow-[0_0_15px_#06b6d4]"
+                key={tube.category}
+                className={cn(
+                  "border rounded-2xl p-3.5 flex flex-col items-center justify-between text-center relative overflow-hidden group shadow-lg transition-all",
+                  isCharged
+                    ? cn("bg-zinc-950/90", meta.borderColor, meta.glowColor)
+                    : "bg-zinc-950/50 border-zinc-800 opacity-80"
+                )}
               >
-                <span className="absolute top-0 inset-x-0 h-1.5 bg-white/60 rounded-full animate-pulse" />
+                {/* Category Header */}
+                <div className="flex items-center justify-between w-full text-[10px] font-mono pb-2">
+                  <span className={cn("font-bold capitalize flex items-center gap-1", isCharged ? meta.textColor : "text-zinc-400")}>
+                    <span>{meta.emoji}</span> {meta.name}
+                  </span>
+                  <Badge className={cn("text-[8px] font-mono px-1 py-0", isCharged ? "bg-emerald-500/20 text-emerald-300" : "bg-zinc-800 text-zinc-500")}>
+                    {count > 0 ? `${count} habits` : "0 / 1"}
+                  </Badge>
+                </div>
+
+                {/* Vertical Glass Vacuum Chamber Graphic */}
+                <div className="w-14 sm:w-16 h-28 sm:h-32 rounded-full border-2 border-zinc-700 bg-black/70 p-1 relative overflow-hidden flex flex-col justify-end shadow-inner my-1">
+                  {/* Glass Reflection Highlight */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-black/30 pointer-events-none z-20 rounded-full" />
+
+                  {/* Bubbling Elemental Liquid Level */}
+                  <div
+                    style={{ height: `${isCharged ? 100 : 15}%` }}
+                    className={cn(
+                      "w-full rounded-b-full transition-all duration-700 relative",
+                      isCharged
+                        ? cn("bg-gradient-to-t", meta.gradient, meta.glowColor)
+                        : "bg-zinc-800/40"
+                    )}
+                  >
+                    {isCharged && (
+                      <span className="absolute top-0 inset-x-0 h-1.5 bg-white/70 rounded-full animate-pulse" />
+                    )}
+                  </div>
+                </div>
+
+                {/* Mechanical Perk Description */}
+                <div className="pt-2 text-center w-full">
+                  <span className={cn("text-[11px] font-mono font-bold block truncate", isCharged ? meta.textColor : "text-zinc-500")}>
+                    {isCharged ? `✓ ${perkName}` : perkName}
+                  </span>
+                  <span className="text-[9px] text-zinc-400 block font-sans line-clamp-1 mt-0.5">
+                    {perkEffect}
+                  </span>
+                </div>
               </div>
-            </div>
-
-            <div className="pt-2 text-center">
-              <span className="text-xs font-mono font-bold text-cyan-400">+{fuelMetrics.kPct}%</span>
-              <span className="text-[9px] text-zinc-500 block font-sans">Flight speed perk</span>
-            </div>
-          </div>
-
-          {/* 2. Might Vacuum Tube (Amber / Flame) */}
-          <div className="bg-zinc-950/80 border border-amber-500/30 rounded-2xl p-3.5 flex flex-col items-center justify-between text-center relative overflow-hidden group shadow-lg">
-            <div className="absolute inset-0 bg-amber-950/10 pointer-events-none" />
-            <div className="flex items-center justify-between w-full text-[10px] font-mono text-amber-300 pb-2">
-              <span className="font-bold">Might</span>
-              <span>{fuelMetrics.mightCount} habits</span>
-            </div>
-
-            {/* Vertical Glass Tube Graphic */}
-            <div className="w-14 sm:w-16 h-28 sm:h-32 rounded-full border-2 border-amber-500/50 bg-black/60 p-1 relative overflow-hidden flex flex-col justify-end shadow-inner">
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-black/30 pointer-events-none z-20 rounded-full" />
-              
-              <div
-                style={{ height: `${Math.min(100, Math.max(8, fuelMetrics.mPct))}%` }}
-                className="w-full bg-gradient-to-t from-amber-600 via-amber-400 to-amber-200 rounded-b-full transition-all duration-700 relative shadow-[0_0_15px_#f59e0b]"
-              >
-                <span className="absolute top-0 inset-x-0 h-1.5 bg-white/60 rounded-full animate-pulse" />
-              </div>
-            </div>
-
-            <div className="pt-2 text-center">
-              <span className="text-xs font-mono font-bold text-amber-400">+{fuelMetrics.mPct}%</span>
-              <span className="text-[9px] text-zinc-500 block font-sans">Cargo size perk</span>
-            </div>
-          </div>
-
-          {/* 3. Wellness Vacuum Tube (Emerald / Nature) */}
-          <div className="bg-zinc-950/80 border border-emerald-500/30 rounded-2xl p-3.5 flex flex-col items-center justify-between text-center relative overflow-hidden group shadow-lg">
-            <div className="absolute inset-0 bg-emerald-950/10 pointer-events-none" />
-            <div className="flex items-center justify-between w-full text-[10px] font-mono text-emerald-300 pb-2">
-              <span className="font-bold">Wellness</span>
-              <span>{fuelMetrics.wellnessCount} habits</span>
-            </div>
-
-            {/* Vertical Glass Tube Graphic */}
-            <div className="w-14 sm:w-16 h-28 sm:h-32 rounded-full border-2 border-emerald-500/50 bg-black/60 p-1 relative overflow-hidden flex flex-col justify-end shadow-inner">
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-black/30 pointer-events-none z-20 rounded-full" />
-              
-              <div
-                style={{ height: `${Math.min(100, Math.max(8, fuelMetrics.wPct))}%` }}
-                className="w-full bg-gradient-to-t from-emerald-600 via-emerald-400 to-emerald-200 rounded-b-full transition-all duration-700 relative shadow-[0_0_15px_#10b981]"
-              >
-                <span className="absolute top-0 inset-x-0 h-1.5 bg-white/60 rounded-full animate-pulse" />
-              </div>
-            </div>
-
-            <div className="pt-2 text-center">
-              <span className="text-xs font-mono font-bold text-emerald-400">+{fuelMetrics.wPct}%</span>
-              <span className="text-[9px] text-zinc-500 block font-sans">Hull shielding perk</span>
-            </div>
-          </div>
-
-          {/* 4. Social Vacuum Tube (Violet / Astral) */}
-          <div className="bg-zinc-950/80 border border-purple-500/30 rounded-2xl p-3.5 flex flex-col items-center justify-between text-center relative overflow-hidden group shadow-lg">
-            <div className="absolute inset-0 bg-purple-950/10 pointer-events-none" />
-            <div className="flex items-center justify-between w-full text-[10px] font-mono text-purple-300 pb-2">
-              <span className="font-bold">Social</span>
-              <span>{fuelMetrics.socialCount} habits</span>
-            </div>
-
-            {/* Vertical Glass Tube Graphic */}
-            <div className="w-14 sm:w-16 h-28 sm:h-32 rounded-full border-2 border-purple-500/50 bg-black/60 p-1 relative overflow-hidden flex flex-col justify-end shadow-inner">
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-black/30 pointer-events-none z-20 rounded-full" />
-              
-              <div
-                style={{ height: `${Math.min(100, Math.max(8, fuelMetrics.sPct))}%` }}
-                className="w-full bg-gradient-to-t from-purple-600 via-purple-400 to-purple-200 rounded-b-full transition-all duration-700 relative shadow-[0_0_15px_#a855f7]"
-              >
-                <span className="absolute top-0 inset-x-0 h-1.5 bg-white/60 rounded-full animate-pulse" />
-              </div>
-            </div>
-
-            <div className="pt-2 text-center">
-              <span className="text-xs font-mono font-bold text-purple-400">+{fuelMetrics.sPct}%</span>
-              <span className="text-[9px] text-zinc-500 block font-sans">Trading post perk</span>
-            </div>
-          </div>
-
+            );
+          })}
         </div>
 
       </Card>
@@ -846,7 +938,7 @@ export function AirshipHarborTab() {
           <Card className="lg:col-span-2 bg-[#0b0d11] border-2 border-amber-900/40 rounded-3xl p-6 shadow-2xl flex flex-col justify-between min-h-[420px] space-y-6">
             
             {(() => {
-              const region = HABIT_JOURNEYS.find(j => j.id === activeVoyage.journeyId) || HABIT_JOURNEYS[0]!;
+              const region = currentJourney;
               const progress = activeVoyage.progress || 0;
               const isFinished = progress >= 100;
 
@@ -939,7 +1031,7 @@ export function AirshipHarborTab() {
                     </div>
                   </div>
 
-                  {/* Multi-Segment Ether Progress Bar */}
+                  {/* Flight Progress Bar */}
                   <div className="space-y-2 bg-zinc-950/70 p-4 rounded-2xl border border-amber-900/30 shadow-inner">
                     <div className="flex justify-between items-center text-xs font-bold font-mono">
                       <span className="text-zinc-300 flex items-center gap-1.5 font-serif">
@@ -950,11 +1042,10 @@ export function AirshipHarborTab() {
 
                     <div className="w-full bg-zinc-900 rounded-full h-4 p-0.5 border border-white/10 relative overflow-hidden flex shadow-inner">
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_2.5s_infinite] pointer-events-none z-20" />
-                      {fuelMetrics.kPct > 0 && <div style={{ width: `${fuelMetrics.kPct}%` }} className="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 first:rounded-l-full last:rounded-r-full shadow-[0_0_8px_rgba(6,182,212,0.4)]" />}
-                      {fuelMetrics.mPct > 0 && <div style={{ width: `${fuelMetrics.mPct}%` }} className="h-full bg-gradient-to-r from-amber-600 to-amber-400 first:rounded-l-full last:rounded-r-full shadow-[0_0_8px_rgba(245,158,11,0.4)]" />}
-                      {fuelMetrics.wPct > 0 && <div style={{ width: `${fuelMetrics.wPct}%` }} className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 first:rounded-l-full last:rounded-r-full shadow-[0_0_8px_rgba(16,185,129,0.4)]" />}
-                      {fuelMetrics.sPct > 0 && <div style={{ width: `${fuelMetrics.sPct}%` }} className="h-full bg-gradient-to-r from-purple-600 to-purple-400 first:rounded-l-full last:rounded-r-full shadow-[0_0_8px_rgba(168,85,247,0.4)]" />}
-                      {fuelMetrics.basePct > 0 && <div style={{ width: `${fuelMetrics.basePct}%` }} className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 first:rounded-l-full last:rounded-r-full shadow-[0_0_8px_rgba(59,130,246,0.4)]" />}
+                      <div
+                        style={{ width: `${progress}%` }}
+                        className="h-full bg-gradient-to-r from-amber-600 via-amber-400 to-yellow-400 rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(245,158,11,0.5)]"
+                      />
                     </div>
 
                     <p className="text-[11px] text-zinc-400 font-sans leading-relaxed pt-1">
@@ -1047,19 +1138,19 @@ export function AirshipHarborTab() {
 
           </Card>
 
-          {/* SLOTTED CREW ON ACTIVE FLIGHT (Porthole Stations) */}
+          {/* SLOTTED CREW ON ACTIVE FLIGHT (3 Porthole Stations) */}
           <div className="lg:col-span-1 space-y-4">
             <div className="flex items-center justify-between px-1">
               <h3 className="text-base font-cardo font-bold text-amber-100 flex items-center gap-2">
                 <Users className="w-4 h-4 text-amber-500" /> Slotted crew members
               </h3>
               <Badge className="bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono text-[9px] px-2 py-0.5">
-                {activeVoyage.crew.length} / 2 active
+                {activeVoyage.crew?.length || 0} / 3 active
               </Badge>
             </div>
 
-            <div className="space-y-3.5">
-              {activeVoyage.crew.map((cId: string, stationIdx: number) => {
+            <div className="space-y-3">
+              {(activeVoyage.crew || []).map((cId: string, stationIdx: number) => {
                 const citizen = citizens.find(c => c.id === cId);
                 if (!citizen) return null;
 
@@ -1067,22 +1158,28 @@ export function AirshipHarborTab() {
                 const curLvl = citizen.level || 1;
                 const reqExp = curLvl * 100;
                 const expPct = Math.min(100, Math.round((curExp / reqExp) * 100));
-                const stationRole = stationIdx === 0 ? "Station 1: Helmsman / Navigator" : "Station 2: Crow's Nest / Lookout";
+                
+                const stationRoles = [
+                  "Station 1: Helmsman / Navigator",
+                  "Station 2: Machinist / Engineer",
+                  "Station 3: Lookout / Quartermaster"
+                ];
+                const stationRole = stationRoles[stationIdx] || `Station ${stationIdx + 1}: Crew Member`;
 
                 return (
                   <Card
                     key={cId}
-                    className="bg-[#0b0d11] border-2 border-amber-500/40 rounded-3xl p-4 sm:p-5 shadow-xl relative overflow-hidden group"
+                    className="bg-[#0b0d11] border-2 border-amber-500/40 rounded-3xl p-3.5 sm:p-4 shadow-xl relative overflow-hidden group"
                   >
-                    <div className="flex items-center gap-3.5">
+                    <div className="flex items-center gap-3">
                       
                       {/* Riveted Brass Porthole Frame */}
-                      <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full border-4 border-amber-500/60 bg-gradient-to-b from-zinc-900 to-black flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.25)] relative p-1 overflow-hidden">
+                      <div className="w-14 h-14 rounded-full border-4 border-amber-500/60 bg-gradient-to-b from-zinc-900 to-black flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(245,158,11,0.25)] relative p-1 overflow-hidden">
                         <Image
                           src={citizen.filename ? `/images/creatures/${citizen.filename.replace(/\.png$/i, '.webp')}` : `/images/creatures/${citizen.id}.webp`}
                           alt={citizen.name}
-                          width={52}
-                          height={52}
+                          width={44}
+                          height={44}
                           unoptimized
                           className="object-contain group-hover:scale-110 transition-transform"
                           onError={(e) => {
@@ -1092,10 +1189,10 @@ export function AirshipHarborTab() {
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <span className="text-[9px] font-mono text-amber-400 font-bold uppercase tracking-wider block">
+                        <span className="text-[8px] font-mono text-amber-400 font-bold uppercase tracking-wider block">
                           {stationRole}
                         </span>
-                        <h4 className="font-cardo font-bold text-white text-sm truncate">
+                        <h4 className="font-cardo font-bold text-white text-xs sm:text-sm truncate">
                           {citizen.name}
                         </h4>
                         <div className="flex items-center gap-2 text-[10px] text-zinc-400 font-mono mt-0.5">
@@ -1107,17 +1204,17 @@ export function AirshipHarborTab() {
                     </div>
 
                     {/* EXP Progress */}
-                    <div className="space-y-1 bg-zinc-950/70 p-2.5 rounded-xl border border-white/5 mt-3">
-                      <div className="flex justify-between items-center text-[10px] font-mono">
+                    <div className="space-y-1 bg-zinc-950/70 p-2 rounded-xl border border-white/5 mt-2.5">
+                      <div className="flex justify-between items-center text-[9px] font-mono">
                         <span className="text-zinc-400">Expedition EXP</span>
                         <span className="text-amber-300 font-bold">{curExp} / {reqExp} XP</span>
                       </div>
-                      <div className="w-full bg-zinc-900 rounded-full h-2 overflow-hidden border border-zinc-800">
+                      <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden border border-zinc-800">
                         <div className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all" style={{ width: `${expPct}%` }} />
                       </div>
                     </div>
 
-                    <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-zinc-400 mt-2">
+                    <div className="pt-1.5 border-t border-white/5 flex items-center justify-between text-[9px] font-mono text-zinc-400 mt-1.5">
                       <span>Arrival bonus:</span>
                       <span className="text-emerald-400 font-bold">+150 XP & +15 Affection</span>
                     </div>
@@ -1131,7 +1228,7 @@ export function AirshipHarborTab() {
 
       ) : (
 
-        /* LAUNCH SETUP: CELESTIAL SKY-CHART & ENGINE TELEGRAPH */
+        /* LAUNCH SETUP: CELESTIAL SKY-CHART & 3 CREW STATIONS */
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
           
           {/* THE CELESTIAL SKY-CHART NAVIGATION TABLE */}
@@ -1202,11 +1299,11 @@ export function AirshipHarborTab() {
                     <Compass className="w-4 h-4 text-amber-400 animate-spin" />
                     <div>
                       <span className="text-[9px] font-mono uppercase text-amber-400 font-bold block">Plotted heading</span>
-                      <span className="text-xs font-serif font-bold text-white">{selectedJourney.name} ({selectedJourney.coordinates})</span>
+                      <span className="text-xs font-serif font-bold text-white">{currentJourney.name} ({currentJourney.coordinates})</span>
                     </div>
                   </div>
                   <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] font-mono capitalize">
-                    {selectedJourney.category} rituals
+                    {currentJourney.category} rituals
                   </Badge>
                 </div>
 
@@ -1254,7 +1351,7 @@ export function AirshipHarborTab() {
 
           </div>
 
-          {/* RIGHT COLUMN: BRIDGE CREW STATIONS & ENGINE TELEGRAPH LAUNCH */}
+          {/* RIGHT COLUMN: 3 BRIDGE CREW STATIONS & ENGINE TELEGRAPH LAUNCH */}
           <div className="lg:col-span-1 space-y-4">
             
             <Card className="bg-[#0b0d11] border-2 border-amber-900/40 rounded-3xl p-5 sm:p-6 shadow-2xl flex flex-col justify-between min-h-[460px] space-y-5">
@@ -1263,90 +1360,129 @@ export function AirshipHarborTab() {
                 
                 <div className="flex items-center justify-between pb-3 border-b border-amber-900/30">
                   <div>
-                    <h3 className="font-cardo font-bold text-base text-amber-100">Bridge crew stations</h3>
-                    <p className="text-[10px] text-zinc-400 font-mono">Assign 2 citizens to the helm</p>
+                    <h3 className="font-cardo font-bold text-base text-amber-100">3 Bridge crew stations</h3>
+                    <p className="text-[10px] text-zinc-400 font-mono">Assign 3 citizens from the dormitory</p>
                   </div>
                   <Badge className="bg-amber-950/60 text-amber-300 border border-amber-500/40 text-[9px] font-mono">
-                    {selectedCrew.length} / 2 ready
+                    {selectedCrew.length} / 3 ready
                   </Badge>
                 </div>
 
-                {/* The 2 Round Brass Portholes for Station Assignments */}
-                <div className="grid grid-cols-2 gap-3">
+                {/* The 3 Round Brass Portholes for Station Assignments */}
+                <div className="grid grid-cols-3 gap-2">
                   
-                  {/* Station 1: Helmsman / Navigator */}
-                  <div className="bg-zinc-950/80 border border-amber-500/30 rounded-2xl p-3 flex flex-col items-center text-center relative overflow-hidden shadow-md">
-                    <span className="text-[9px] font-mono text-amber-400 uppercase font-bold tracking-wider mb-1.5">
+                  {/* Station 1: Helmsman */}
+                  <div className="bg-zinc-950/80 border border-amber-500/30 rounded-2xl p-2 flex flex-col items-center text-center relative overflow-hidden shadow-md">
+                    <span className="text-[8px] font-mono text-amber-400 uppercase font-bold tracking-wider mb-1">
                       1. Helmsman
                     </span>
                     
                     {selectedCrew[0] ? (() => {
                       const citizen = citizens.find(c => c.id === selectedCrew[0]);
                       if (!citizen) return null;
-                      const hasAffinity = selectedJourney.affinityElements.includes(citizen.type?.toLowerCase());
+                      const hasAffinity = currentJourney.affinityElements.includes(citizen.type?.toLowerCase());
 
                       return (
                         <div className="flex flex-col items-center">
-                          <div className="w-14 h-14 rounded-full border-2 border-amber-400 bg-black/80 flex items-center justify-center p-1 shadow-inner relative">
+                          <div className="w-12 h-12 rounded-full border-2 border-amber-400 bg-black/80 flex items-center justify-center p-0.5 shadow-inner relative">
                             <Image
                               src={citizen.filename ? `/images/creatures/${citizen.filename.replace(/\.png$/i, '.webp')}` : `/images/creatures/${citizen.id}.webp`}
                               alt={citizen.name}
-                              width={44}
-                              height={44}
+                              width={38}
+                              height={38}
                               unoptimized
                               className="object-contain"
                             />
                             {hasAffinity && (
-                              <span className="absolute -top-1 -right-1 text-[9px] bg-amber-500 text-black font-extrabold rounded-full w-4 h-4 flex items-center justify-center shadow">
+                              <span className="absolute -top-1 -right-1 text-[8px] bg-amber-500 text-black font-extrabold rounded-full w-3.5 h-3.5 flex items-center justify-center shadow">
                                 ★
                               </span>
                             )}
                           </div>
-                          <span className="text-xs font-bold text-white mt-1.5 truncate max-w-[90px]">{citizen.name}</span>
-                          <span className="text-[9px] text-zinc-400 font-mono capitalize">{citizen.type}</span>
+                          <span className="text-[10px] font-bold text-white mt-1 truncate max-w-[70px]">{citizen.name}</span>
+                          <span className="text-[8px] text-zinc-400 font-mono capitalize">{citizen.type}</span>
                         </div>
                       );
                     })() : (
-                      <div className="w-14 h-14 rounded-full border-2 border-dashed border-amber-500/30 flex items-center justify-center text-zinc-600 text-xs my-1">
+                      <div className="w-12 h-12 rounded-full border-2 border-dashed border-amber-500/30 flex items-center justify-center text-zinc-600 text-[9px] my-1">
                         Empty
                       </div>
                     )}
                   </div>
 
-                  {/* Station 2: Crow's Nest / Lookout */}
-                  <div className="bg-zinc-950/80 border border-amber-500/30 rounded-2xl p-3 flex flex-col items-center text-center relative overflow-hidden shadow-md">
-                    <span className="text-[9px] font-mono text-amber-400 uppercase font-bold tracking-wider mb-1.5">
-                      2. Lookout
+                  {/* Station 2: Machinist / Engineer */}
+                  <div className="bg-zinc-950/80 border border-amber-500/30 rounded-2xl p-2 flex flex-col items-center text-center relative overflow-hidden shadow-md">
+                    <span className="text-[8px] font-mono text-amber-400 uppercase font-bold tracking-wider mb-1">
+                      2. Machinist
                     </span>
 
                     {selectedCrew[1] ? (() => {
                       const citizen = citizens.find(c => c.id === selectedCrew[1]);
                       if (!citizen) return null;
-                      const hasAffinity = selectedJourney.affinityElements.includes(citizen.type?.toLowerCase());
+                      const hasAffinity = currentJourney.affinityElements.includes(citizen.type?.toLowerCase());
 
                       return (
                         <div className="flex flex-col items-center">
-                          <div className="w-14 h-14 rounded-full border-2 border-amber-400 bg-black/80 flex items-center justify-center p-1 shadow-inner relative">
+                          <div className="w-12 h-12 rounded-full border-2 border-amber-400 bg-black/80 flex items-center justify-center p-0.5 shadow-inner relative">
                             <Image
                               src={citizen.filename ? `/images/creatures/${citizen.filename.replace(/\.png$/i, '.webp')}` : `/images/creatures/${citizen.id}.webp`}
                               alt={citizen.name}
-                              width={44}
-                              height={44}
+                              width={38}
+                              height={38}
                               unoptimized
                               className="object-contain"
                             />
                             {hasAffinity && (
-                              <span className="absolute -top-1 -right-1 text-[9px] bg-amber-500 text-black font-extrabold rounded-full w-4 h-4 flex items-center justify-center shadow">
+                              <span className="absolute -top-1 -right-1 text-[8px] bg-amber-500 text-black font-extrabold rounded-full w-3.5 h-3.5 flex items-center justify-center shadow">
                                 ★
                               </span>
                             )}
                           </div>
-                          <span className="text-xs font-bold text-white mt-1.5 truncate max-w-[90px]">{citizen.name}</span>
-                          <span className="text-[9px] text-zinc-400 font-mono capitalize">{citizen.type}</span>
+                          <span className="text-[10px] font-bold text-white mt-1 truncate max-w-[70px]">{citizen.name}</span>
+                          <span className="text-[8px] text-zinc-400 font-mono capitalize">{citizen.type}</span>
                         </div>
                       );
                     })() : (
-                      <div className="w-14 h-14 rounded-full border-2 border-dashed border-amber-500/30 flex items-center justify-center text-zinc-600 text-xs my-1">
+                      <div className="w-12 h-12 rounded-full border-2 border-dashed border-amber-500/30 flex items-center justify-center text-zinc-600 text-[9px] my-1">
+                        Empty
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Station 3: Lookout / Quartermaster */}
+                  <div className="bg-zinc-950/80 border border-amber-500/30 rounded-2xl p-2 flex flex-col items-center text-center relative overflow-hidden shadow-md">
+                    <span className="text-[8px] font-mono text-amber-400 uppercase font-bold tracking-wider mb-1">
+                      3. Lookout
+                    </span>
+
+                    {selectedCrew[2] ? (() => {
+                      const citizen = citizens.find(c => c.id === selectedCrew[2]);
+                      if (!citizen) return null;
+                      const hasAffinity = currentJourney.affinityElements.includes(citizen.type?.toLowerCase());
+
+                      return (
+                        <div className="flex flex-col items-center">
+                          <div className="w-12 h-12 rounded-full border-2 border-amber-400 bg-black/80 flex items-center justify-center p-0.5 shadow-inner relative">
+                            <Image
+                              src={citizen.filename ? `/images/creatures/${citizen.filename.replace(/\.png$/i, '.webp')}` : `/images/creatures/${citizen.id}.webp`}
+                              alt={citizen.name}
+                              width={38}
+                              height={38}
+                              unoptimized
+                              className="object-contain"
+                            />
+                            {hasAffinity && (
+                              <span className="absolute -top-1 -right-1 text-[8px] bg-amber-500 text-black font-extrabold rounded-full w-3.5 h-3.5 flex items-center justify-center shadow">
+                                ★
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] font-bold text-white mt-1 truncate max-w-[70px]">{citizen.name}</span>
+                          <span className="text-[8px] text-zinc-400 font-mono capitalize">{citizen.type}</span>
+                        </div>
+                      );
+                    })() : (
+                      <div className="w-12 h-12 rounded-full border-2 border-dashed border-amber-500/30 flex items-center justify-center text-zinc-600 text-[9px] my-1">
                         Empty
                       </div>
                     )}
@@ -1368,7 +1504,7 @@ export function AirshipHarborTab() {
                     <div className="grid grid-cols-1 gap-2 max-h-44 overflow-y-auto pr-1">
                       {idleCitizens.map(c => {
                         const isSelected = selectedCrew.includes(c.id);
-                        const hasAffinity = selectedJourney.affinityElements.includes(c.type?.toLowerCase());
+                        const hasAffinity = currentJourney.affinityElements.includes(c.type?.toLowerCase());
 
                         return (
                           <div
@@ -1399,7 +1535,7 @@ export function AirshipHarborTab() {
                             <div className="flex items-center gap-1.5 shrink-0">
                               {hasAffinity && (
                                 <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[8px] font-mono px-1">
-                                  +15% ★
+                                  +10% ★
                                 </Badge>
                               )}
                               <Badge className={cn("text-[8px] font-mono font-bold px-1.5 py-0.5", isSelected ? "bg-amber-500 text-black" : "bg-zinc-800 text-zinc-400")}>
@@ -1415,17 +1551,19 @@ export function AirshipHarborTab() {
 
               </div>
 
-              {/* TACTILE ENGINE ORDER TELEGRAPH LEVER (Launch Control) */}
+              {/* TACTILE ENGINE ORDER TELEGRAPH LEVER (3-Crew Throttle) */}
               <div className="pt-4 border-t border-amber-900/30 space-y-3">
                 
                 <div className="bg-zinc-950/90 border border-amber-500/30 rounded-2xl p-3 flex items-center justify-between text-[10px] font-mono">
                   <span className="text-zinc-400 uppercase font-bold">Engine telegraph:</span>
-                  <div className="flex items-center gap-1.5 font-bold">
+                  <div className="flex items-center gap-1 font-bold">
                     <span className={cn("px-1.5 py-0.5 rounded", selectedCrew.length === 0 ? "bg-zinc-800 text-zinc-400" : "text-zinc-600")}>Standby</span>
                     <span>→</span>
-                    <span className={cn("px-1.5 py-0.5 rounded", selectedCrew.length === 1 ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" : "text-zinc-600")}>Half</span>
+                    <span className={cn("px-1.5 py-0.5 rounded", selectedCrew.length === 1 ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" : "text-zinc-600")}>1/3</span>
                     <span>→</span>
-                    <span className={cn("px-1.5 py-0.5 rounded", selectedCrew.length === 2 ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 animate-pulse" : "text-zinc-600")}>Full ahead</span>
+                    <span className={cn("px-1.5 py-0.5 rounded", selectedCrew.length === 2 ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" : "text-zinc-600")}>2/3</span>
+                    <span>→</span>
+                    <span className={cn("px-1.5 py-0.5 rounded", selectedCrew.length === 3 ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 animate-pulse" : "text-zinc-600")}>Full ahead</span>
                   </div>
                 </div>
 
