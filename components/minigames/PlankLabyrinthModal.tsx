@@ -7,6 +7,8 @@ import { Hammer, Sparkles, Trophy, CheckCircle2, RotateCcw, Footprints } from 'l
 import { useToast } from '@/components/ui/use-toast'
 import { addToCharacterStat } from '@/lib/character-stats-service'
 
+import Image from 'next/image'
+
 interface PlankLabyrinthModalProps {
   isOpen: boolean
   onClose: () => void
@@ -57,7 +59,7 @@ export function PlankLabyrinthModal({ isOpen, onClose }: PlankLabyrinthModalProp
       }
     } else if (!visitedNodes.includes(id)) {
       toast({
-        title: "⚡ Path Blocked",
+        title: "⚡ Path blocked",
         description: `Follow the sequential path! Step on node ${nextExpected} next.`,
         variant: "destructive"
       })
@@ -75,9 +77,34 @@ export function PlankLabyrinthModal({ isOpen, onClose }: PlankLabyrinthModalProp
             Plank labyrinth trail
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-300 italic leading-relaxed pt-1">
-            The Master Builders of Castle Valoreth teach that every grand citadel is paved one stepping stone at a time. Tap the nodes sequentially (1 → 5) without skipping ahead to reconnect the King’s Shrine!
+            Realign the paving stepping stones sequentially (1 → 5) without skipping ahead to reconnect the King’s Shrine!
           </DialogDescription>
         </DialogHeader>
+
+        {/* Buldour Avatar & Story Banner */}
+        <div className="flex items-center gap-3 bg-gradient-to-r from-amber-950/50 via-zinc-950 to-zinc-950 border border-amber-500/30 p-2.5 rounded-2xl shadow-md my-1">
+          <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-amber-500/60 shadow-[0_0_10px_rgba(245,158,11,0.3)] shrink-0 bg-amber-950 flex items-center justify-center">
+            <Image
+              src="/images/creatures/Buldour.webp"
+              alt="Buldour"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="text-left flex-1 min-w-0">
+            <div className="text-xs font-bold font-serif text-amber-300 flex items-center gap-1.5">
+              <span>Buldour</span>
+              <span className="text-[10px] font-mono text-amber-400/90 font-bold bg-amber-950/60 px-1.5 py-0.2 rounded border border-amber-500/30">Fortress builder</span>
+            </div>
+            <p className="text-xs text-zinc-200 font-serif italic leading-snug pt-0.5">
+              {isCompleted ? (
+                <span>&ldquo;Solid as granite! The king&apos;s path is paved true. No dungeon earthquake can crack this foundation!&rdquo;</span>
+              ) : (
+                <span>&ldquo;Measure thrice, chisel once! Every grand citadel is paved one stepping stone at a time. Guide our path sequentially across the labyrinth!&rdquo;</span>
+              )}
+            </p>
+          </div>
+        </div>
 
         <div className="my-4 p-4 bg-zinc-950/90 rounded-2xl border border-amber-950/60 space-y-4">
           <div className="grid grid-cols-5 gap-2">
@@ -112,9 +139,9 @@ export function PlankLabyrinthModal({ isOpen, onClose }: PlankLabyrinthModalProp
 
         <Button
           onClick={onClose}
-          className="w-full py-2.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-amber-950 font-bold uppercase tracking-wider text-xs shadow-lg"
+          className="w-full py-2.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-amber-950 font-bold text-xs shadow-lg"
         >
-          {isCompleted ? 'Path Cross Completed ✓' : 'Cancel'}
+          {isCompleted ? 'Path cross completed ✓' : 'Cancel'}
         </Button>
       </DialogContent>
     </Dialog>

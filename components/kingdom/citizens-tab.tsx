@@ -461,7 +461,12 @@ export function CitizensTab() {
 
                         <CardHeader className="pb-2 pt-4">
                           <CardTitle className="font-serif text-base text-white truncate pr-6">{citizen.name}</CardTitle>
-                          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                          {citizen.loreTitle && (
+                            <span className="text-[10px] text-amber-300 font-serif italic block -mt-0.5 mb-1">
+                              {citizen.loreTitle}
+                            </span>
+                          )}
+                          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                             <Badge variant="outline" className="bg-amber-950/60 border-amber-500/40 text-amber-400 text-[10px] font-bold">
                               Lvl {citizen.level || 1}
                             </Badge>
@@ -502,6 +507,13 @@ export function CitizensTab() {
                           </div>
 
                           <div className="w-full space-y-1.5 text-xs">
+                            <div className="flex justify-between items-center bg-zinc-950/80 p-2 rounded-lg border border-zinc-800/40">
+                              <span className="text-zinc-400">Class:</span>
+                              <Badge variant="outline" className="border-amber-500/40 text-amber-300 bg-amber-950/40 font-mono text-[10px] px-1.5 py-0">
+                                {citizen.specialization || 'Tank'}
+                              </Badge>
+                            </div>
+
                             <div className="flex justify-between items-center bg-zinc-950/80 p-2 rounded-lg border border-zinc-800/40">
                               <span className="text-zinc-400">Map Status:</span>
                               <Badge variant={citizen.active ? "default" : "secondary"} className={citizen.active ? 'bg-emerald-600 text-white' : 'bg-zinc-800 text-zinc-400'}>
@@ -664,6 +676,11 @@ export function CitizensTab() {
                           <Badge variant="outline" className="bg-amber-950/60 border-amber-500/40 text-amber-400 text-[10px] font-bold px-1.5 py-0">
                             Lvl {citizen.level || 1}
                           </Badge>
+                          {citizen.loreTitle && (
+                            <span className="text-[10px] text-amber-300/90 font-serif italic block w-full">
+                              {citizen.loreTitle}
+                            </span>
+                          )}
                           {(() => {
                             const key = citizen.filename?.toLowerCase() || citizen.name?.toLowerCase() || citizen.id;
                             const group = duplicateGroups.find(([k]) => k === key);
@@ -729,6 +746,13 @@ export function CitizensTab() {
                     </div>
 
                     <div className="w-full space-y-2 mt-auto text-xs">
+                      <div className="flex justify-between items-center bg-zinc-950 p-2 rounded border border-zinc-800/20">
+                        <span className="text-zinc-400">Class:</span>
+                        <Badge variant="outline" className="border-amber-500/40 text-amber-300 bg-amber-950/40 font-mono text-[10px] px-2 py-0.5">
+                          {citizen.specialization || 'Tank'}
+                        </Badge>
+                      </div>
+
                       <div className="flex justify-between items-center bg-zinc-950 p-2 rounded border border-zinc-800/20">
                         <span className="text-zinc-400">Map Status:</span>
                         <Badge variant={citizen.active ? "default" : "secondary"} className={`font-semibold ${

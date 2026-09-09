@@ -17,8 +17,9 @@ export interface CitizenState {
   affection: number;
   level?: number;
   experience?: number;
-  lockedReason?: 'expedition' | null;
-  specialization?: 'Tank' | 'Mage' | 'Alchemist' | 'Scout';
+  lockedReason?: 'expedition' | null | undefined;
+  specialization?: 'Tank' | 'Mage' | 'Alchemist' | 'Scout' | undefined;
+  loreTitle?: string | undefined;
 }
 
 export interface Citizen {
@@ -29,10 +30,10 @@ export interface Citizen {
   greetings: string[];
   scale: number;
   isMythic: boolean;
-  cardId?: number;
-  variantId?: number;
-  rarity?: string;
-  variantLabel?: string;
+  cardId?: number | undefined;
+  variantId?: number | undefined;
+  rarity?: string | undefined;
+  variantLabel?: string | undefined;
   // Merged states
   active: boolean;
   favorite: boolean;
@@ -42,8 +43,9 @@ export interface Citizen {
   affection: number;
   level: number;
   experience: number;
-  lockedReason?: 'expedition' | null;
-  specialization?: 'Tank' | 'Mage' | 'Alchemist' | 'Scout';
+  lockedReason?: 'expedition' | null | undefined;
+  specialization?: 'Tank' | 'Mage' | 'Alchemist' | 'Scout' | undefined;
+  loreTitle?: string | undefined;
 }
 
 interface CitizensStore {
@@ -274,6 +276,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
             experience: rawState.experience || 0
           };
 
+          const defaultClass = def.defaultClass || (def.type === 'special' ? 'Mage' : def.type === 'ice' ? 'Scout' : 'Tank');
           rawCitizens.push({
             id,
             name: def.name,
@@ -282,7 +285,9 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
             greetings: def.greetings,
             scale: def.scale,
             isMythic: false,
-            ...state
+            loreTitle: def.loreTitle,
+            ...state,
+            specialization: state.specialization || defaultClass
           });
         }
       });
@@ -314,15 +319,33 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
           experience: rawState.experience || 0
         };
 
+        const getMythicDefaults = (cId: number): { defaultClass: 'Tank' | 'Mage' | 'Alchemist' | 'Scout'; loreTitle: string } => {
+          switch (cId) {
+            case 1: return { defaultClass: 'Tank', loreTitle: 'Labyrinth champion' };
+            case 2: return { defaultClass: 'Tank', loreTitle: 'Catapult engineer' };
+            case 3: return { defaultClass: 'Scout', loreTitle: 'Fleet admiral' };
+            case 4: return { defaultClass: 'Mage', loreTitle: 'Abyssal warden' };
+            case 5: return { defaultClass: 'Scout', loreTitle: 'Sky hunter' };
+            case 6: return { defaultClass: 'Mage', loreTitle: 'Elemental striker' };
+            case 7: return { defaultClass: 'Tank', loreTitle: 'Iron colossus' };
+            case 8: return { defaultClass: 'Tank', loreTitle: 'Regen vanguard' };
+            case 9: return { defaultClass: 'Alchemist', loreTitle: 'Rebirth spirit' };
+            case 10: return { defaultClass: 'Tank', loreTitle: 'Ocean sovereign' };
+            default: return { defaultClass: 'Tank', loreTitle: 'Mythic guardian' };
+          }
+        };
+
+        const mythicMeta = getMythicDefaults(cardId);
+
         rawCitizens.push({
           id: citizenId,
           name: getMythicName(cardId, variantId),
           filename: `Mythic${cardId}${colorName}.webp`,
           type: getMythicType(cardId),
           greetings: [
-            "Shimmering with magic!",
-            "I wield ancient card powers.",
-            "Rare to meet you here!"
+            `I am the ${mythicMeta.loreTitle}. Ancient card power courses through me!`,
+            "Rare to meet in the mortal plane. What deeds shall we achieve today?",
+            "My card variant shines with elemental pride. Stand strong, Sovereign!"
           ],
           scale: 0.95,
           isMythic: true,
@@ -330,7 +353,9 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
           variantId,
           rarity: cardDef.rarity,
           variantLabel: variantLabel(cardId, variantId),
-          ...state
+          loreTitle: mythicMeta.loreTitle,
+          ...state,
+          specialization: state.specialization || mythicMeta.defaultClass
         });
       });
 

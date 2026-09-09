@@ -371,13 +371,13 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
           <div className="text-left flex-1 min-w-0">
             <div className="text-xs font-bold font-serif text-cyan-300 flex items-center gap-1.5">
               <span>Penguino</span>
-              <span className="text-[10px] font-mono text-zinc-400 font-normal">Glacial Wanderer</span>
+              <span className="text-[10px] font-mono text-cyan-400/90 font-bold bg-cyan-950/60 px-1.5 py-0.2 rounded border border-cyan-500/30">Slide master</span>
             </div>
             <p className="text-xs text-zinc-200 font-serif italic leading-snug pt-0.5">
               {isEncounterCompleted ? (
-                <span>&ldquo;Thanks for your help {playerName}, Penguino made it safely back to his igloo!&rdquo;</span>
+                <span>&ldquo;Woohoo! Top-speed glacier glide, {playerName}! Penguino made it home for fish feast!&rdquo;</span>
               ) : (
-                <span>&ldquo;Penguino wants to get back to his igloo, help him slide across the ice to the exit.&rdquo;</span>
+                <span>&ldquo;Noot noot! Belly-sliding is the only way to travel! Line me up and slide me past these crevasses to the igloo!&rdquo;</span>
               )}
             </p>
           </div>

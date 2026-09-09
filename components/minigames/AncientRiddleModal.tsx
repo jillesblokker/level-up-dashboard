@@ -7,6 +7,8 @@ import { BookOpen, Sparkles, CheckCircle2, XCircle, HelpCircle } from 'lucide-re
 import { useToast } from '@/components/ui/use-toast'
 import { addToCharacterStat } from '@/lib/character-stats-service'
 
+import Image from 'next/image'
+
 interface AncientRiddleModalProps {
   isOpen: boolean
   onClose: () => void
@@ -155,13 +157,13 @@ export function AncientRiddleModal({ isOpen, onClose }: AncientRiddleModalProps)
       localStorage.setItem('town_riddle_solve_date', today)
       await addToCharacterStat('gold', 200, 'town-riddle-solve')
       toast({
-        title: "📜 Town Riddle Solved!",
+        title: "📜 Town riddle solved!",
         description: `Correct! Awarded ${riddle.rewardDesc}.`,
       })
     } else {
       setIsCorrect(false)
       toast({
-        title: "❌ Incorrect Answer",
+        title: "❌ Incorrect answer",
         description: "The town scholar's scroll remains sealed today. Return tomorrow!",
         variant: "destructive"
       })
@@ -176,16 +178,45 @@ export function AncientRiddleModal({ isOpen, onClose }: AncientRiddleModalProps)
             <BookOpen className="w-6 h-6 text-blue-300 animate-pulse" />
           </div>
           <DialogTitle className="text-2xl font-medieval text-blue-200">
-            Town Scholar&apos;s Ancient Riddle
+            Town scholar&apos;s ancient riddle
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400 italic">
             Solve today&apos;s unique town lore riddle to unearth blueprints, virtue points, and gold.
           </DialogDescription>
         </DialogHeader>
 
+        {/* Sage Owl Avatar & Story Banner */}
+        <div className="flex items-center gap-3 bg-gradient-to-r from-blue-950/50 via-zinc-950 to-zinc-950 border border-blue-500/30 p-2.5 rounded-2xl shadow-md my-1">
+          <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-blue-400/60 shadow-[0_0_10px_rgba(59,130,246,0.3)] shrink-0 bg-blue-950 flex items-center justify-center">
+            <Image
+              src="/images/creatures/SageOwl.webp"
+              alt="Sage Owl"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="text-left flex-1 min-w-0">
+            <div className="text-xs font-bold font-serif text-blue-300 flex items-center gap-1.5">
+              <span>Sage Owl</span>
+              <span className="text-[10px] font-mono text-blue-400/90 font-bold bg-blue-950/60 px-1.5 py-0.2 rounded border border-blue-500/30">Stargazing astronomer</span>
+            </div>
+            <p className="text-xs text-zinc-200 font-serif italic leading-snug pt-0.5">
+              {isAnswered ? (
+                isCorrect ? (
+                  <span>&ldquo;Wisely deduced, champion! The archives open to sharp minds. May this knowledge guide your kingdom today!&rdquo;</span>
+                ) : (
+                  <span>&ldquo;Hoot... Not quite, friend. The constellations will realign tomorrow. Rest your thoughts and return at dawn!&rdquo;</span>
+                )
+              ) : (
+                <span>&ldquo;Hoot! The stars and scrolls whisper ancient secrets to those who look closely. Ponder today&apos;s lore riddle carefully, traveler!&rdquo;</span>
+              )}
+            </p>
+          </div>
+        </div>
+
         <div className="my-4 p-4 bg-zinc-950/90 rounded-2xl border border-blue-900/40 space-y-4 text-left">
           <div className="flex items-center justify-between border-b border-blue-900/30 pb-2">
-            <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Scholar Attempts:</span>
+            <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Scholar attempts:</span>
             <div className="flex gap-1 text-xs">
               <span className="text-red-400 font-mono font-bold">❤️ ❤️ ❤️</span>
             </div>
@@ -201,11 +232,11 @@ export function AncientRiddleModal({ isOpen, onClose }: AncientRiddleModalProps)
               onClick={() => setShowHint(true)}
               className="text-[10px] text-amber-400 hover:text-amber-300 font-mono font-bold flex items-center gap-1 bg-amber-950/40 px-2.5 py-1 rounded-lg border border-amber-500/30 transition-all"
             >
-              📜 Read Clue Scroll (Realm Lore Hint)
+              📜 Read clue scroll (realm lore hint)
             </button>
           ) : (
             <div className="p-2.5 bg-amber-950/40 border border-amber-500/40 rounded-xl text-[11px] text-amber-300 italic font-serif">
-              ✨ <strong>Scholar Hint:</strong> Reflect on your daily habit routines and kingdom tile buildings!
+              ✨ <strong>Scholar hint:</strong> Reflect on your daily habit routines and kingdom tile buildings!
             </div>
           )}
 
@@ -233,16 +264,16 @@ export function AncientRiddleModal({ isOpen, onClose }: AncientRiddleModalProps)
 
           {isAnswered && isCorrect && (
             <div className="p-3 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-xs text-emerald-300 font-bold text-center animate-in fade-in">
-              ✨ Reward Unlocked: {riddle.rewardDesc}
+              ✨ Reward unlocked: {riddle.rewardDesc}
             </div>
           )}
         </div>
 
         <Button
           onClick={onClose}
-          className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold uppercase tracking-wider text-xs shadow-lg"
+          className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold text-xs shadow-lg"
         >
-          {isAnswered ? 'Close Scroll' : 'Cancel'}
+          {isAnswered ? 'Close scroll' : 'Cancel'}
         </Button>
       </DialogContent>
     </Dialog>

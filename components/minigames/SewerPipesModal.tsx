@@ -264,13 +264,13 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
           <div className="text-left flex-1 min-w-0">
             <div className="text-xs font-bold font-serif text-amber-300 flex items-center gap-1.5">
               <span>Valerion</span>
-              <span className="text-[10px] font-mono text-zinc-400 font-normal">Dragon Lord of Valoreth</span>
+              <span className="text-[10px] font-mono text-amber-400/90 font-bold bg-amber-950/60 px-1.5 py-0.2 rounded border border-amber-500/30">Sewer master</span>
             </div>
             <p className="text-xs text-zinc-200 font-serif italic leading-snug pt-0.5">
               {isEncounterCompleted ? (
-                <span>&ldquo;Crisis averted, thanks for your help {playerName}, the pipes should hold for a bit longer.&rdquo;</span>
+                <span>&ldquo;Pure hydraulic perfection, {playerName}! The subterranean conduits are stabilized. Thrivehaven won&apos;t flood today.&rdquo;</span>
               ) : (
-                <span>&ldquo;Valerion needs help with connecting the pipes so Thrivehaven doesn&apos;t flood.&rdquo;</span>
+                <span>&ldquo;Aqueduct pressure is spiking! Align these subterranean pipe valves quickly before the lower cisterns breach.&rdquo;</span>
               )}
             </p>
           </div>

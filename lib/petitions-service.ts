@@ -540,6 +540,185 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
         }
       ]
     }
+  },
+  {
+    id: 'pet-11',
+    title: "Valerion's singing sewer pipes",
+    requesterRole: 'Valerion',
+    requesterAvatar: '🐉',
+    requesterImage: '/images/creatures/Valerion.webp',
+    description: "Valerion the Sewer master arrived in court carrying brass pipe wrenches. Subterranean conduit steam valves are whistling in three-part harmony, keeping rampart sentries awake all night!",
+    optionA: {
+      label: "Install acoustic pressure dampers",
+      description: "Order royal plumbers to fit lead baffles onto the whistling exhaust valves.",
+      outcomes: [
+        {
+          storyText: "Kazoo chorus! The dampers vibrated at high resonance, making the castle gutters sound like an army of kazoos at sunrise! Tuning bill: 40 Gold.",
+          goldChange: -40,
+          loyaltyChange: -3,
+          isFunnyTwist: true
+        },
+        {
+          storyText: "Hydraulic serenity! Valerion calibrated the steam pressure into a soft subterranean hum that puts tired guards straight to restful sleep!",
+          goldChange: 240,
+          loyaltyChange: 14,
+          itemReward: 'material-steel',
+          isFunnyTwist: false
+        }
+      ]
+    },
+    optionB: {
+      label: "Host underground steam concert",
+      description: "Open the aqueduct catacombs for a novelty musical performance.",
+      outcomes: [
+        {
+          storyText: "Wine cork pop! The acoustic crescendo vibrated the cellar racks, popping three casks of aged royal berry cider into the puddles!",
+          goldChange: -50,
+          loyaltyChange: -5,
+          isFunnyTwist: true
+        },
+        {
+          storyText: "Subterranean acoustic gala! Nobles and bards praised the resonant cistern acoustics, donating generously to kingdom plumbing funds!",
+          goldChange: 300,
+          loyaltyChange: 16,
+          isFunnyTwist: false
+        }
+      ]
+    }
+  },
+  {
+    id: 'pet-12',
+    title: "Penguino's rampart ice slide",
+    requesterRole: 'Happy Penguin',
+    requesterAvatar: '🐧',
+    requesterImage: '/images/Animals/penguin.webp',
+    description: "Penguino paved a slick ice toboggan slide down the castle ramparts and is charging passing citizens two fresh herring per belly-slide! Castle guards and fishmongers are petitioning your court.",
+    optionA: {
+      label: "Sanction official royal slide races",
+      description: "Incorporate the rampart slide into a kingdom winter sports attraction.",
+      outcomes: [
+        {
+          storyText: "Snowdrift spill! An over-enthusiastic knight slid at 40 mph directly into the royal cabbage wagon! Veggie replacement fees: 55 Gold.",
+          goldChange: -55,
+          loyaltyChange: -4,
+          isFunnyTwist: true
+        },
+        {
+          storyText: "Winter tourism boom! Citizens and wandering squires flock to ride Penguino's championship ice chute, sharing fish and cheering daily!",
+          goldChange: 270,
+          loyaltyChange: 15,
+          isFunnyTwist: false
+        }
+      ]
+    },
+    optionB: {
+      label: "Melt the slide with coarse salt",
+      description: "Clear the ramparts so guards can patrol safely without slipping.",
+      outcomes: [
+        {
+          storyText: "Snowball barrage! Penguino and his frosty pals launched a retaliatory snowball barrage from the parapets, knocking off the captain's helmet!",
+          goldChange: -35,
+          loyaltyChange: -6,
+          isFunnyTwist: true
+        },
+        {
+          storyText: "Peaceful ramparts! Penguino accepted a warm fleece scarf instead and waddled cheerfully to practice belly-sliding on the frozen moat!",
+          goldChange: 190,
+          loyaltyChange: 11,
+          isFunnyTwist: false
+        }
+      ]
+    }
+  },
+  {
+    id: 'pet-13',
+    title: "Buldour's shifted watchtower",
+    requesterRole: 'Buldour',
+    requesterAvatar: '🧱',
+    requesterImage: '/images/creatures/Buldour.webp',
+    description: "Buldour the Fortress builder discovered that a cornerstone in the east watchtower shifted by two inches. He demands permission to dismantle all three stories to relevel the mortar foundation!",
+    optionA: {
+      label: "Authorize complete tower teardown",
+      description: "Let Buldour rebuild the tower with granite perfection from the bedrock up.",
+      outcomes: [
+        {
+          storyText: "Rainy tent camp! A sudden autumn thunderstorm soaked the dismounted ramparts while the sentries huddled under canvas tents! Tarpaulin costs: 60 Gold.",
+          goldChange: -60,
+          loyaltyChange: -4,
+          isFunnyTwist: true
+        },
+        {
+          storyText: "Impenetrable granite bastion! Buldour rebuilt the east watchtower so squarely that architects from neighboring empires arrived to marvel at the masonry!",
+          goldChange: 320,
+          loyaltyChange: 18,
+          itemReward: 'material-steel',
+          isFunnyTwist: false
+        }
+      ]
+    },
+    optionB: {
+      label: "Brace the base with steel buttresses",
+      description: "Reinforce the foundation without tearing down the upper crenellations.",
+      outcomes: [
+        {
+          storyText: "Doorway squeeze! The steel brace was bolted so tight it warped the heavy oak armory door, requiring grease and mallet work to unstick!",
+          goldChange: -40,
+          loyaltyChange: -3,
+          isFunnyTwist: true
+        },
+        {
+          storyText: "Rock-solid reinforcement! The steel buttress stabilized the tower foundation instantly, saving the treasury hundreds of construction hours!",
+          goldChange: 210,
+          loyaltyChange: 13,
+          isFunnyTwist: false
+        }
+      ]
+    }
+  },
+  {
+    id: 'pet-14',
+    title: "Barnaby's whispering spellbooks",
+    requesterRole: 'Barnaby',
+    requesterAvatar: '📚',
+    requesterImage: '/images/creatures/000.webp',
+    description: "Barnaby the Library archivist reports that ancient arcane grimoires in the high tower broke their silencing wax seals and are gossiping loudly during quiet study hours!",
+    optionA: {
+      label: "Cast tranquil silencing wards",
+      description: "Enchant the shelves with soothing herbal mist and silencing runes.",
+      outcomes: [
+        {
+          storyText: "Librarian slumber! The herbal mist was so soothing that Barnaby fell sound asleep on his research desk for two days! Late ledger fines: 35 Gold.",
+          goldChange: -35,
+          loyaltyChange: -3,
+          isFunnyTwist: true
+        },
+        {
+          storyText: "Serene sanctuary! The quiet wards restored solemn tranquility to the library archives, allowing scholars to transcribe double the daily scrolls!",
+          goldChange: 260,
+          loyaltyChange: 15,
+          itemReward: 'material-crystal',
+          isFunnyTwist: false
+        }
+      ]
+    },
+    optionB: {
+      label: "Transcribe the books' gossip",
+      description: "Dispatch scribes to write down everything the chatty grimoires are whispering.",
+      outcomes: [
+        {
+          storyText: "Royal turnip scandal! The book only whispered a three-century-old rumor about a chancellor burning cabbage soup! Scribe parchment bill: 30 Gold.",
+          goldChange: -30,
+          loyaltyChange: -2,
+          isFunnyTwist: true
+        },
+        {
+          storyText: "Ancient dungeon secret! The chattering grimoire revealed the forgotten location of a hidden dungeon keep treasure vault!",
+          goldChange: 340,
+          loyaltyChange: 18,
+          isFunnyTwist: false
+        }
+      ]
+    }
   }
 ];
 

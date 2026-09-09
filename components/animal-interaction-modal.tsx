@@ -27,12 +27,13 @@ interface AnimalInteractionModalProps {
   onFeed: (itemId: string) => void;
 }
 
-/** Converts a raw filename like "fish-red.webp" into "Fish Red" */
+/** Converts a raw filename like "fish-red.webp" into "Fish red" */
 function formatFoodName(raw: string): string {
-  return raw
-    .replace(/\.[^/.]+$/, '')        // strip extension
-    .replace(/[-_]/g, ' ')            // dashes → spaces
-    .replace(/\b\w/g, c => c.toUpperCase()); // Title Case
+  const cleaned = raw
+    .replace(/\.[^/.]+$/, '') // strip extension
+    .replace(/[-_]/g, ' ')    // dashes → spaces
+    .trim();
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
 }
 
 export function AnimalInteractionModal({
@@ -113,6 +114,21 @@ export function AnimalInteractionModal({
         return "A majestic eagle perches proudly on a crag. Its keen eyes watch the horizon, radiating grace and untamed authority.";
       default:
         return "A gentle creature of the wilds watches you calmly, welcoming your peaceful presence.";
+    }
+  };
+
+  const getAnimalQuote = () => {
+    switch (animalType) {
+      case 'horse':
+        return "“Neigh! Free spirit, wild wind, and unstoppable momentum! Ready to gallop?”";
+      case 'sheep':
+        return "“Baaa... the clover is so sweet today! Munching grass and weaving banners one thread at a time.”";
+      case 'penguin':
+        return "“Noot noot! Belly-sliding is the only true way to travel! Spare a fish, friend?”";
+      case 'eagle':
+        return "“Screeech! The high thermal winds watch over our kingdom from above!”";
+      default:
+        return "“Gentle footsteps bring peace to the wild.”";
     }
   };
 
@@ -234,6 +250,9 @@ export function AnimalInteractionModal({
           <h2 className={cn("mt-6 text-2xl font-serif font-semibold text-center", style.accent)}>
             {animalName}
           </h2>
+          <p className="mt-1 text-xs text-amber-300 font-serif italic text-center px-2">
+            {getAnimalQuote()}
+          </p>
           <p className="mt-2 text-zinc-300/80 text-sm leading-relaxed text-center">
             {getAnimalDescription()}
           </p>
