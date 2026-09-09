@@ -26,6 +26,7 @@ import { hapticSuccess, hapticMedium, hapticLight } from '@/lib/haptics';
 import {
   ICE_LEVELS,
   IceLevelConfig,
+  IceDifficulty,
   SlideDirection,
   calculateSlide,
 } from '@/lib/minigames/ice-slide-engine';
