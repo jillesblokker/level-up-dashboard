@@ -36,11 +36,22 @@ interface PenguinIceSlideModalProps {
   onSuccess?: () => void;
 }
 
+const ICE_DIFFICULTIES: Array<{ id: IceDifficulty; label: string; size: string }> = [
+  { id: 'novice', label: 'Novice', size: '5×5' },
+  { id: 'gentle', label: 'Gentle', size: '6×6' },
+  { id: 'frosty', label: 'Frosty', size: '7×7' },
+  { id: 'glacial', label: 'Glacial', size: '8×8' },
+  { id: 'blizzard', label: 'Blizzard', size: '9×9' },
+];
+
 export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceSlideModalProps) {
   const { toast } = useToast();
 
-  const [levelIndex, setLevelIndex] = useState<number>(0);
-  const currentConfig: IceLevelConfig = ICE_LEVELS[levelIndex] || ICE_LEVELS[0]!;
+  const [difficulty, setDifficulty] = useState<IceDifficulty>('novice');
+  const [variationIndex, setVariationIndex] = useState<number>(0);
+
+  const availableLevels = ICE_LEVELS.filter(l => l.difficulty === difficulty);
+  const currentConfig: IceLevelConfig = availableLevels[variationIndex] || availableLevels[0] || ICE_LEVELS[0]!;
 
   const [penguinPos, setPenguinPos] = useState<{ x: number; y: number }>(currentConfig.start);
   const [history, setHistory] = useState<Array<{ x: number; y: number }>>([]);
@@ -175,8 +186,8 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
         window.dispatchEvent(new Event('character-stats-update'));
 
         toast({
-          title: "🐧 Noot noot! Glacial maze cleared!",
-          description: `You glided into the sanctuary! Awarded +${goldBonus} Gold, +${xpBonus} EXP & +1 Frost Essence.`,
+          title: "Penguino reached his igloo!",
+          description: `Penguino safely glided home across the ice! Awarded +${goldBonus} gold, +${xpBonus} exp & +1 frost essence.`,
         });
 
         if (onSuccess) onSuccess();
@@ -187,8 +198,8 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
       }
     } else {
       toast({
-        title: "🐧 Clean glide!",
-        description: `Practice ice maze solved in ${finalMoves} moves!`,
+        title: "Clean glide!",
+        description: `Penguino reached his igloo in ${finalMoves} moves!`,
       });
     }
   };
@@ -323,54 +334,96 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-xl w-full bg-[#05111c] border border-cyan-500/30 text-cyan-50 p-4 sm:p-6 rounded-2xl shadow-2xl font-serif z-[100] max-h-[95vh] overflow-y-auto">
-        <DialogHeader className="text-center pb-2">
-          <div className="mx-auto w-12 h-12 rounded-full bg-cyan-950 border border-cyan-400/50 flex items-center justify-center mb-1 shadow-lg shadow-cyan-900/40">
+        <DialogHeader className="text-center pb-1">
+          <DialogTitle className="text-2xl font-medieval text-cyan-300">
+            Penguino escape
+          </DialogTitle>
+          <DialogDescription className="text-xs text-zinc-400 italic">
+            Slide across frictionless ice using arrow keys or the D-pad. Bank off the granite boulders to find the path home.
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Penguino Avatar & Story Banner */}
+        <div className="flex items-center gap-3 bg-gradient-to-r from-sky-950/40 via-cyan-950/30 to-zinc-950 border border-cyan-500/30 p-2.5 rounded-2xl shadow-md my-1">
+          <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-cyan-400/60 shadow-[0_0_10px_rgba(56,189,248,0.3)] shrink-0 bg-cyan-950 flex items-center justify-center">
             <div className="w-8 h-8 relative">
               <Image
                 src="/images/Animals/penguin.webp"
-                alt="Penguin"
+                alt="Penguino"
                 fill
                 className="object-contain"
               />
             </div>
           </div>
-          <DialogTitle className="text-2xl font-medieval text-cyan-200">
-            Penguin&apos;s glacial slide
-          </DialogTitle>
-          <DialogDescription className="text-xs text-zinc-300 italic">
-            Slide across frictionless ice using arrow keys or the D-pad. Bank off the granite boulders to find the sole path to the sanctuary exit!
-          </DialogDescription>
-        </DialogHeader>
+          <div className="text-left flex-1 min-w-0">
+            <div className="text-xs font-bold font-serif text-cyan-300 flex items-center gap-1.5">
+              <span>Penguino</span>
+              <span className="text-[10px] font-mono text-zinc-400 font-normal">Glacial Wanderer</span>
+            </div>
+            <p className="text-xs text-zinc-200 font-serif italic leading-snug pt-0.5">
+              &ldquo;Penguino wants to get back to his igloo, help him slide across the ice to the exit.&rdquo;
+            </p>
+          </div>
+        </div>
 
-        {/* Level / Difficulty Selector */}
-        <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-950/80 p-2 rounded-xl border border-cyan-950/70 text-xs">
-          <div className="flex items-center gap-1">
-            {ICE_LEVELS.map((lvl, idx) => {
-              const active = idx === levelIndex;
+        {/* 5 Difficulty Tiers Selector */}
+        <div className="flex flex-col gap-1.5 bg-zinc-950/80 p-2 rounded-xl border border-cyan-950/60 text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-1">
+            <div className="flex flex-wrap items-center gap-1">
+              {ICE_DIFFICULTIES.map((d) => {
+                const active = d.id === difficulty;
+                return (
+                  <button
+                    key={d.id}
+                    onClick={() => {
+                      setDifficulty(d.id);
+                      setVariationIndex(0);
+                      const target = ICE_LEVELS.filter(l => l.difficulty === d.id)[0];
+                      if (target) initLevel(target);
+                    }}
+                    className={`px-2 py-1 rounded-lg font-sans font-medium transition-colors ${
+                      active
+                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold'
+                        : 'text-zinc-400 hover:text-zinc-200 bg-zinc-900/60'
+                    }`}
+                  >
+                    {d.label} <span className="text-[10px] opacity-70">({d.size})</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-3 font-mono text-[11px] text-zinc-300 ml-auto">
+              <span>Moves: <strong className="text-cyan-400">{moves}</strong> / {currentConfig.parMoves}</span>
+              <span>Time: <strong className="text-amber-400">{formatTime(seconds)}</strong></span>
+            </div>
+          </div>
+
+          {/* Puzzle Variations (Multiple games per difficulty) */}
+          <div className="flex items-center gap-1.5 pt-1 border-t border-zinc-800/60 text-[11px] font-sans">
+            <span className="text-zinc-400 text-[10px]">Puzzles:</span>
+            {availableLevels.map((lvl, vIdx) => {
+              const active = vIdx === variationIndex;
               return (
                 <button
                   key={lvl.id}
                   onClick={() => {
-                    setLevelIndex(idx);
+                    setVariationIndex(vIdx);
                     initLevel(lvl);
                   }}
-                  className={`px-2.5 py-1 rounded-lg font-sans font-medium transition-colors ${
+                  className={`px-2 py-0.5 rounded font-mono text-[10px] transition-colors ${
                     active
-                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 font-bold'
-                      : 'text-zinc-400 hover:text-zinc-200 bg-zinc-900/60'
+                      ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-500/50 font-bold'
+                      : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
-                  {lvl.difficulty === 'gentle' && 'Gentle (6×6)'}
-                  {lvl.difficulty === 'frosty' && 'Frosty (7×7)'}
-                  {lvl.difficulty === 'glacial' && 'Glacial (8×8)'}
+                  Puzzle {vIdx + 1}
                 </button>
               );
             })}
-          </div>
-
-          <div className="flex items-center gap-3 font-mono text-[11px] text-zinc-300 ml-auto">
-            <span>Moves: <strong className="text-cyan-400">{moves}</strong> / {currentConfig.parMoves}</span>
-            <span>Time: <strong className="text-amber-400">{formatTime(seconds)}</strong></span>
+            <span className="text-zinc-500 font-mono text-[10px] ml-auto truncate">
+              {currentConfig.title}
+            </span>
           </div>
         </div>
 
@@ -567,23 +620,28 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
             <Button
               size="sm"
               onClick={() => {
-                if (levelIndex < ICE_LEVELS.length - 1) {
-                  setLevelIndex(l => l + 1);
-                  initLevel(ICE_LEVELS[levelIndex + 1]!);
+                if (variationIndex < availableLevels.length - 1) {
+                  const nextIdx = variationIndex + 1;
+                  setVariationIndex(nextIdx);
+                  initLevel(availableLevels[nextIdx]!);
                 } else {
-                  onClose();
+                  const diffOrder: IceDifficulty[] = ['novice', 'gentle', 'frosty', 'glacial', 'blizzard'];
+                  const curDiffIdx = diffOrder.indexOf(difficulty);
+                  if (curDiffIdx < diffOrder.length - 1) {
+                    const nextDiff = diffOrder[curDiffIdx + 1]!;
+                    setDifficulty(nextDiff);
+                    setVariationIndex(0);
+                    const target = ICE_LEVELS.filter(l => l.difficulty === nextDiff)[0];
+                    if (target) initLevel(target);
+                  } else {
+                    onClose();
+                  }
                 }
               }}
               className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-serif text-xs gap-1 shadow-lg shadow-cyan-950"
             >
-              {levelIndex < ICE_LEVELS.length - 1 ? (
-                <>
-                  Next glacier
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </>
-              ) : (
-                'Close glacier'
-              )}
+              Next glacier
+              <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           ) : (
             <Button

@@ -198,7 +198,7 @@ export function useRealmAnimals(grid: Tile[][], isMounted: boolean, characterPos
             setAnimalInteractionModal({
                 isOpen: true,
                 animalType: 'penguin',
-                animalName: 'Playful Penguin'
+                animalName: 'Penguino'
             });
         }
     }, [characterPosition, horsePos, isHorsePresent, horseCaught, sheepPos, isSheepPresent, sheepCaught, penguinPos, isPenguinPresent, penguinCaught, isMounted]);

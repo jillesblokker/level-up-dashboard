@@ -297,9 +297,10 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
                   onClose();
                   window.dispatchEvent(new CustomEvent('open-sewer-minigame'));
                 }}
-                className="flex-1 bg-cyan-950/80 hover:bg-cyan-900/80 border-cyan-500/40 text-cyan-200 rounded-xl py-4 sm:py-5 font-serif font-semibold shadow-lg shadow-cyan-950/40"
+                className="flex-1 bg-gradient-to-r from-cyan-950 to-amber-950/80 hover:from-cyan-900 hover:to-amber-900 border-amber-500/40 text-amber-200 rounded-xl py-4 sm:py-5 font-serif font-semibold shadow-lg shadow-cyan-950/40 flex items-center justify-center gap-1.5"
               >
-                Enter sewers
+                <span>Climb down well (Valerion plumbing)</span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               </Button>
             )}
 

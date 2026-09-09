@@ -108,7 +108,7 @@ export function AnimalInteractionModal({
       case 'sheep':
         return "A fluffy sheep looks up at you with curious, gentle eyes. Its wool is thick and pristine - a valuable find for any traveler.";
       case 'penguin':
-        return "An adorable penguin waddles across the ice with comical determination. It seems friendly and eager to play!";
+        return "Penguino waddles across the ice with comical determination. Help him slide across the frozen terrain to find his way back to his igloo!";
       case 'eagle':
         return "A majestic eagle perches proudly on a crag. Its keen eyes watch the horizon, radiating grace and untamed authority.";
       default:
@@ -120,7 +120,7 @@ export function AnimalInteractionModal({
     switch (animalType) {
       case 'horse':   return "Mount & bond";
       case 'sheep':   return "Shear wool";
-      case 'penguin': return "Befriend & slide";
+      case 'penguin': return "Befriend Penguino";
       case 'eagle':   return "Beckon to arm";
       default:        return "Pet & bond";
     }
@@ -265,7 +265,7 @@ export function AnimalInteractionModal({
               }}
               className="w-full h-11 text-white rounded-xl gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shadow-lg shadow-cyan-950 font-serif"
             >
-              <Sparkles className="w-4 h-4" /> Glide on the ice maze
+              <Sparkles className="w-4 h-4" /> Help Penguino escape
             </Button>
           )}
 

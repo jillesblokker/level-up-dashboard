@@ -1,5 +1,5 @@
 /**
- * Sewer Pipe Puzzle Engine
+ * Valerion Plumbing - Pipe Puzzle Engine
  * Logic for pipe rotations, directional connectivity, and fluid flow pathfinding.
  */
 
@@ -8,6 +8,8 @@ export type Direction = 'N' | 'E' | 'S' | 'W';
 export type PipeType = 'straight' | 'elbow' | 't-split' | 'cross' | 'empty';
 
 export type FluidType = 'none' | 'water' | 'ether';
+
+export type PipeDifficulty = 'apprentice' | 'journeyman' | 'master' | 'grandmaster' | 'expert';
 
 export interface PipeCell {
   id: string;
@@ -33,7 +35,7 @@ export interface PipeCell {
 export interface PipeLevelConfig {
   id: string;
   title: string;
-  difficulty: 'standard' | 'advanced' | 'expert';
+  difficulty: PipeDifficulty;
   size: number;
   sources: Array<{ row: number; col: number; dir: Direction; fluid: 'water' | 'ether' }>;
   drains: Array<{ row: number; col: number; dir: Direction; fluid: 'water' | 'ether' }>;
@@ -61,13 +63,9 @@ export const OPPOSITE_DIR: Record<Direction, Direction> = {
 
 // Base openings at 0 deg rotation [N, E, S, W]
 export const BASE_OPENINGS: Record<PipeType, [boolean, boolean, boolean, boolean]> = {
-  // straight: vertical [N, S]
   straight: [true, false, true, false],
-  // elbow: corner connecting North and East [N, E]
   elbow: [true, true, false, false],
-  // t-split: connects North, East, South [N, E, S]
   't-split': [true, true, true, false],
-  // cross: 4-way [N, E, S, W]
   cross: [true, true, true, true],
   empty: [false, false, false, false],
 };
@@ -81,7 +79,6 @@ export function hasOpening(type: PipeType, rotation: number, dir: Direction): bo
   if (type === 'empty') return false;
   const base = BASE_OPENINGS[type];
   const dirIdx = DIRS.indexOf(dir);
-  // With 90 deg clockwise rotation, index shifts back by rotation
   const baseIdx = (dirIdx - rotation + 4) % 4;
   return base[baseIdx] ?? false;
 }
@@ -101,7 +98,6 @@ export function createPipeGrid(config: PipeLevelConfig, scramble = true): PipeCe
 
       let initialRotation = def.rotation;
       if (scramble && !def.isLocked && def.type !== 'empty') {
-        // Randomly rotate 1 to 3 times to scramble
         const addRot = Math.floor(Math.random() * 3) + 1;
         initialRotation = (initialRotation + addRot) % 4;
       }
@@ -112,7 +108,7 @@ export function createPipeGrid(config: PipeLevelConfig, scramble = true): PipeCe
         col: c,
         type: def.type,
         rotation: initialRotation,
-        isLocked: def.isLocked,
+        isLocked: def.isLocked ?? false,
         flow: { water: false, ether: false },
         crossFlow: { vertical: 'none', horizontal: 'none' }
       });
@@ -135,7 +131,6 @@ export interface SimulationResult {
  */
 export function simulateFlow(grid: PipeCell[][], config: PipeLevelConfig): SimulationResult {
   const size = config.size;
-  // Clone grid to produce immutable updated state
   const updatedGrid: PipeCell[][] = grid.map(row =>
     row.map(cell => ({
       ...cell,
@@ -151,14 +146,12 @@ export function simulateFlow(grid: PipeCell[][], config: PipeLevelConfig): Simul
     config.drains.filter(d => d.fluid === 'ether').map(d => `${d.row},${d.col}`)
   );
 
-  // Traverse for each fluid
   const fluids: Array<'water' | 'ether'> = ['water', 'ether'];
 
   for (const fluid of fluids) {
     const sources = config.sources.filter(s => s.fluid === fluid);
     if (sources.length === 0) continue;
 
-    // Queue entries: [r, c, incomingDir]
     const queue: Array<{ r: number; c: number; fromDir?: Direction }> = [];
     const visited = new Set<string>();
 
@@ -166,7 +159,6 @@ export function simulateFlow(grid: PipeCell[][], config: PipeLevelConfig): Simul
       const cell = updatedGrid[src.row]?.[src.col];
       if (!cell) continue;
 
-      // Check if source opening matches the source's injected direction
       if (hasOpening(cell.type, cell.rotation, src.dir)) {
         queue.push({ r: src.row, c: src.col, fromDir: src.dir });
         visited.add(`${src.row},${src.col},${src.dir}`);
@@ -179,7 +171,6 @@ export function simulateFlow(grid: PipeCell[][], config: PipeLevelConfig): Simul
       const currentCell = updatedGrid[r]?.[c];
       if (!currentCell) continue;
 
-      // Mark fluid in crossflow if expert cross bridge
       if (currentCell.type === 'cross') {
         if (fromDir === 'N' || fromDir === 'S') {
           currentCell.crossFlow!.vertical = fluid;
@@ -188,7 +179,6 @@ export function simulateFlow(grid: PipeCell[][], config: PipeLevelConfig): Simul
         }
       }
 
-      // Check if this cell satisfies any drain for this fluid
       const coordKey = `${r},${c}`;
       if (fluid === 'water' && waterDrainsRemaining.has(coordKey)) {
         const matchingDrain = config.drains.find(d => d.fluid === 'water' && d.row === r && d.col === c);
@@ -203,9 +193,6 @@ export function simulateFlow(grid: PipeCell[][], config: PipeLevelConfig): Simul
         }
       }
 
-      // For cross bridge in expert mode:
-      // If entered vertically (N or S), fluid can only exit vertically (S or N)
-      // If entered horizontally (E or W), fluid can only exit horizontally (W or E)
       let allowedOutDirs = DIRS.filter(dir => hasOpening(currentCell.type, currentCell.rotation, dir));
       if (currentCell.type === 'cross' && fromDir) {
         if (fromDir === 'N') allowedOutDirs = ['S'];
@@ -214,7 +201,6 @@ export function simulateFlow(grid: PipeCell[][], config: PipeLevelConfig): Simul
         else if (fromDir === 'W') allowedOutDirs = ['E'];
       }
 
-      // Traverse allowed outward directions
       for (const outDir of allowedOutDirs) {
         const [dr, dc] = DIR_DELTA[outDir];
         const nr = r + dr;
@@ -225,14 +211,11 @@ export function simulateFlow(grid: PipeCell[][], config: PipeLevelConfig): Simul
         if (!neighbor || neighbor.type === 'empty') continue;
 
         const inDir = OPPOSITE_DIR[outDir];
-        // Neighbor must have an opening in the matching opposite direction
         if (hasOpening(neighbor.type, neighbor.rotation, inDir)) {
-          // If cross bridge, ensure we don't contaminate the other channel
           if (neighbor.type === 'cross') {
             const isVert = inDir === 'N' || inDir === 'S';
             const existingChannel = isVert ? neighbor.crossFlow?.vertical : neighbor.crossFlow?.horizontal;
             if (existingChannel && existingChannel !== 'none' && existingChannel !== fluid) {
-              // Channel already occupied by a different fluid!
               continue;
             }
           }
@@ -263,40 +246,219 @@ export function simulateFlow(grid: PipeCell[][], config: PipeLevelConfig): Simul
   };
 }
 
-// Built-in verified solvable levels
+function makeGrid(size: number, path: Array<{ r: number; c: number; type: PipeType; rot: number }>): Array<{ type: PipeType; rotation: number }> {
+  const g: Array<{ type: PipeType; rotation: number }> = [];
+  const map = new Map<string, { type: PipeType; rot: number }>();
+  for (const p of path) {
+    map.set(`${p.r},${p.c}`, { type: p.type, rot: p.rot });
+  }
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (map.has(`${r},${c}`)) {
+        const item = map.get(`${r},${c}`)!;
+        g.push({ type: item.type, rotation: item.rot });
+      } else {
+        g.push({ type: (r + c) % 2 === 0 ? 'straight' : 'elbow', rotation: (r + c) % 4 });
+      }
+    }
+  }
+  return g;
+}
+
+// 15 verified solvable pipe levels across 5 difficulty tiers
 export const PIPE_LEVELS: PipeLevelConfig[] = [
+  // 1. Apprentice (4x4)
   {
-    id: 'pipe-standard-1',
-    title: 'Town Aqueduct',
-    difficulty: 'standard',
+    id: 'pipe-apprentice-1',
+    title: 'Aqueduct Conduit I',
+    difficulty: 'apprentice',
     size: 4,
     sources: [{ row: 0, col: 0, dir: 'N', fluid: 'water' }],
     drains: [{ row: 3, col: 3, dir: 'S', fluid: 'water' }],
-    initialGrid: [
-      { type: 'elbow', rotation: 0 },    { type: 'straight', rotation: 1 }, { type: 'elbow', rotation: 2 },    { type: 'straight', rotation: 0 },
-      { type: 'elbow', rotation: 1 },    { type: 't-split', rotation: 1 },  { type: 'straight', rotation: 0 }, { type: 'elbow', rotation: 3 },
-      { type: 'straight', rotation: 1 }, { type: 'elbow', rotation: 0 },    { type: 'elbow', rotation: 0 },    { type: 'elbow', rotation: 2 },
-      { type: 'elbow', rotation: 2 },    { type: 'straight', rotation: 0 }, { type: 'straight', rotation: 1 }, { type: 'straight', rotation: 0 },
-    ],
+    initialGrid: makeGrid(4, [
+      { r: 0, c: 0, type: 'elbow', rot: 0 }, { r: 0, c: 1, type: 'straight', rot: 1 }, { r: 0, c: 2, type: 'elbow', rot: 2 },
+      { r: 1, c: 2, type: 'straight', rot: 0 },
+      { r: 2, c: 2, type: 'elbow', rot: 0 }, { r: 2, c: 3, type: 'elbow', rot: 2 },
+      { r: 3, c: 3, type: 'straight', rot: 0 }
+    ])
   },
   {
-    id: 'pipe-advanced-1',
-    title: 'Castle Cisterns',
-    difficulty: 'advanced',
+    id: 'pipe-apprentice-2',
+    title: 'Aqueduct Conduit II',
+    difficulty: 'apprentice',
+    size: 4,
+    sources: [{ row: 0, col: 0, dir: 'W', fluid: 'water' }],
+    drains: [{ row: 3, col: 3, dir: 'E', fluid: 'water' }],
+    initialGrid: makeGrid(4, [
+      { r: 0, c: 0, type: 'straight', rot: 1 }, { r: 0, c: 1, type: 'straight', rot: 1 }, { r: 0, c: 2, type: 'straight', rot: 1 }, { r: 0, c: 3, type: 'elbow', rot: 2 },
+      { r: 1, c: 3, type: 'straight', rot: 0 },
+      { r: 2, c: 3, type: 'straight', rot: 0 },
+      { r: 3, c: 3, type: 'elbow', rot: 0 }
+    ])
+  },
+  {
+    id: 'pipe-apprentice-3',
+    title: 'Aqueduct Conduit III',
+    difficulty: 'apprentice',
+    size: 4,
+    sources: [{ row: 0, col: 1, dir: 'N', fluid: 'water' }],
+    drains: [{ row: 3, col: 2, dir: 'S', fluid: 'water' }],
+    initialGrid: makeGrid(4, [
+      { r: 0, c: 1, type: 'straight', rot: 0 },
+      { r: 1, c: 1, type: 'elbow', rot: 0 }, { r: 1, c: 2, type: 'elbow', rot: 2 },
+      { r: 2, c: 2, type: 'straight', rot: 0 },
+      { r: 3, c: 2, type: 'straight', rot: 0 }
+    ])
+  },
+
+  // 2. Journeyman (5x5)
+  {
+    id: 'pipe-journeyman-1',
+    title: 'Citadel Flume I',
+    difficulty: 'journeyman',
     size: 5,
     sources: [{ row: 0, col: 0, dir: 'N', fluid: 'water' }],
     drains: [{ row: 4, col: 4, dir: 'S', fluid: 'water' }],
-    initialGrid: [
-      { type: 'elbow', rotation: 0 },    { type: 'straight', rotation: 1 }, { type: 'elbow', rotation: 2 },    { type: 't-split', rotation: 1 },  { type: 'elbow', rotation: 2 },
-      { type: 'straight', rotation: 0 }, { type: 'elbow', rotation: 0 },    { type: 'straight', rotation: 0 }, { type: 'straight', rotation: 0 }, { type: 'elbow', rotation: 3 },
-      { type: 'elbow', rotation: 1 },    { type: 'elbow', rotation: 1 },    { type: 'elbow', rotation: 3 },    { type: 'straight', rotation: 1 }, { type: 'straight', rotation: 0 },
-      { type: 'straight', rotation: 0 }, { type: 'elbow', rotation: 0 },    { type: 'straight', rotation: 1 }, { type: 'elbow', rotation: 2 },    { type: 'elbow', rotation: 0 },
-      { type: 'elbow', rotation: 3 },    { type: 'straight', rotation: 1 }, { type: 'elbow', rotation: 1 },    { type: 'elbow', rotation: 0 },    { type: 'elbow', rotation: 2 },
-    ],
+    initialGrid: makeGrid(5, [
+      { r: 0, c: 0, type: 'elbow', rot: 0 }, { r: 0, c: 1, type: 'straight', rot: 1 }, { r: 0, c: 2, type: 'elbow', rot: 2 },
+      { r: 1, c: 2, type: 'straight', rot: 0 },
+      { r: 2, c: 2, type: 'elbow', rot: 3 }, { r: 2, c: 1, type: 'elbow', rot: 1 },
+      { r: 3, c: 1, type: 'elbow', rot: 0 }, { r: 3, c: 2, type: 'straight', rot: 1 }, { r: 3, c: 3, type: 'straight', rot: 1 }, { r: 3, c: 4, type: 'elbow', rot: 2 },
+      { r: 4, c: 4, type: 'straight', rot: 0 }
+    ])
   },
   {
-    id: 'pipe-expert-dual-1',
-    title: 'Deep Royal Sewers (Dual Pipeline)',
+    id: 'pipe-journeyman-2',
+    title: 'Citadel Flume II',
+    difficulty: 'journeyman',
+    size: 5,
+    sources: [{ row: 0, col: 2, dir: 'N', fluid: 'water' }],
+    drains: [{ row: 4, col: 2, dir: 'S', fluid: 'water' }],
+    initialGrid: makeGrid(5, [
+      { r: 0, c: 2, type: 'elbow', rot: 0 }, { r: 0, c: 3, type: 'elbow', rot: 2 },
+      { r: 1, c: 3, type: 'straight', rot: 0 },
+      { r: 2, c: 3, type: 'elbow', rot: 3 }, { r: 2, c: 2, type: 'straight', rot: 1 }, { r: 2, c: 1, type: 'elbow', rot: 1 },
+      { r: 3, c: 1, type: 'straight', rot: 0 },
+      { r: 4, c: 1, type: 'elbow', rot: 0 }, { r: 4, c: 2, type: 'elbow', rot: 2 }
+    ])
+  },
+  {
+    id: 'pipe-journeyman-3',
+    title: 'Citadel Flume III',
+    difficulty: 'journeyman',
+    size: 5,
+    sources: [{ row: 0, col: 0, dir: 'W', fluid: 'water' }],
+    drains: [{ row: 4, col: 4, dir: 'E', fluid: 'water' }],
+    initialGrid: makeGrid(5, [
+      { r: 0, c: 0, type: 'straight', rot: 1 }, { r: 0, c: 1, type: 'straight', rot: 1 }, { r: 0, c: 2, type: 'elbow', rot: 2 },
+      { r: 1, c: 2, type: 'straight', rot: 0 },
+      { r: 2, c: 2, type: 'elbow', rot: 0 }, { r: 2, c: 3, type: 'straight', rot: 1 }, { r: 2, c: 4, type: 'elbow', rot: 2 },
+      { r: 3, c: 4, type: 'straight', rot: 0 },
+      { r: 4, c: 4, type: 'elbow', rot: 0 }
+    ])
+  },
+
+  // 3. Master (5x5)
+  {
+    id: 'pipe-master-1',
+    title: 'High Reservoir I',
+    difficulty: 'master',
+    size: 5,
+    sources: [{ row: 0, col: 0, dir: 'N', fluid: 'water' }],
+    drains: [{ row: 4, col: 4, dir: 'S', fluid: 'water' }],
+    initialGrid: makeGrid(5, [
+      { r: 0, c: 0, type: 'elbow', rot: 0 }, { r: 0, c: 1, type: 'straight', rot: 1 }, { r: 0, c: 2, type: 'straight', rot: 1 }, { r: 0, c: 3, type: 'elbow', rot: 2 },
+      { r: 1, c: 3, type: 'straight', rot: 0 },
+      { r: 2, c: 3, type: 'elbow', rot: 3 }, { r: 2, c: 2, type: 'straight', rot: 1 }, { r: 2, c: 1, type: 'elbow', rot: 1 },
+      { r: 3, c: 1, type: 'straight', rot: 0 },
+      { r: 4, c: 1, type: 'elbow', rot: 0 }, { r: 4, c: 2, type: 'straight', rot: 1 }, { r: 4, c: 3, type: 'straight', rot: 1 }, { r: 4, c: 4, type: 'elbow', rot: 2 }
+    ])
+  },
+  {
+    id: 'pipe-master-2',
+    title: 'High Reservoir II',
+    difficulty: 'master',
+    size: 5,
+    sources: [{ row: 2, col: 0, dir: 'W', fluid: 'water' }],
+    drains: [{ row: 2, col: 4, dir: 'E', fluid: 'water' }],
+    initialGrid: makeGrid(5, [
+      { r: 2, c: 0, type: 'elbow', rot: 3 },
+      { r: 1, c: 0, type: 'elbow', rot: 1 }, { r: 1, c: 1, type: 'straight', rot: 1 }, { r: 1, c: 2, type: 'elbow', rot: 2 },
+      { r: 2, c: 2, type: 'straight', rot: 0 },
+      { r: 3, c: 2, type: 'elbow', rot: 0 }, { r: 3, c: 3, type: 'straight', rot: 1 }, { r: 3, c: 4, type: 'elbow', rot: 3 },
+      { r: 2, c: 4, type: 'elbow', rot: 1 }
+    ])
+  },
+  {
+    id: 'pipe-master-3',
+    title: 'High Reservoir III',
+    difficulty: 'master',
+    size: 5,
+    sources: [{ row: 0, col: 4, dir: 'N', fluid: 'water' }],
+    drains: [{ row: 4, col: 0, dir: 'S', fluid: 'water' }],
+    initialGrid: makeGrid(5, [
+      { r: 0, c: 4, type: 'elbow', rot: 3 }, { r: 0, c: 3, type: 'straight', rot: 1 }, { r: 0, c: 2, type: 'elbow', rot: 1 },
+      { r: 1, c: 2, type: 'straight', rot: 0 },
+      { r: 2, c: 2, type: 'elbow', rot: 3 }, { r: 2, c: 1, type: 'straight', rot: 1 }, { r: 2, c: 0, type: 'elbow', rot: 1 },
+      { r: 3, c: 0, type: 'straight', rot: 0 },
+      { r: 4, c: 0, type: 'straight', rot: 0 }
+    ])
+  },
+
+  // 4. Grandmaster (6x6 single line)
+  {
+    id: 'pipe-grandmaster-1',
+    title: 'Royal Vault Mains I',
+    difficulty: 'grandmaster',
+    size: 6,
+    sources: [{ row: 0, col: 0, dir: 'N', fluid: 'water' }],
+    drains: [{ row: 5, col: 5, dir: 'S', fluid: 'water' }],
+    initialGrid: makeGrid(6, [
+      { r: 0, c: 0, type: 'elbow', rot: 0 }, { r: 0, c: 1, type: 'straight', rot: 1 }, { r: 0, c: 2, type: 'elbow', rot: 2 },
+      { r: 1, c: 2, type: 'straight', rot: 0 },
+      { r: 2, c: 2, type: 'elbow', rot: 0 }, { r: 2, c: 3, type: 'straight', rot: 1 }, { r: 2, c: 4, type: 'elbow', rot: 2 },
+      { r: 3, c: 4, type: 'straight', rot: 0 },
+      { r: 4, c: 4, type: 'elbow', rot: 0 }, { r: 4, c: 5, type: 'elbow', rot: 2 },
+      { r: 5, c: 5, type: 'straight', rot: 0 }
+    ])
+  },
+  {
+    id: 'pipe-grandmaster-2',
+    title: 'Royal Vault Mains II',
+    difficulty: 'grandmaster',
+    size: 6,
+    sources: [{ row: 0, col: 1, dir: 'N', fluid: 'water' }],
+    drains: [{ row: 5, col: 4, dir: 'S', fluid: 'water' }],
+    initialGrid: makeGrid(6, [
+      { r: 0, c: 1, type: 'straight', rot: 0 },
+      { r: 1, c: 1, type: 'elbow', rot: 0 }, { r: 1, c: 2, type: 'straight', rot: 1 }, { r: 1, c: 3, type: 'elbow', rot: 2 },
+      { r: 2, c: 3, type: 'straight', rot: 0 },
+      { r: 3, c: 3, type: 'elbow', rot: 0 }, { r: 3, c: 4, type: 'elbow', rot: 2 },
+      { r: 4, c: 4, type: 'straight', rot: 0 },
+      { r: 5, c: 4, type: 'straight', rot: 0 }
+    ])
+  },
+  {
+    id: 'pipe-grandmaster-3',
+    title: 'Royal Vault Mains III',
+    difficulty: 'grandmaster',
+    size: 6,
+    sources: [{ row: 0, col: 5, dir: 'N', fluid: 'water' }],
+    drains: [{ row: 5, col: 0, dir: 'S', fluid: 'water' }],
+    initialGrid: makeGrid(6, [
+      { r: 0, c: 5, type: 'elbow', rot: 3 }, { r: 0, c: 4, type: 'straight', rot: 1 }, { r: 0, c: 3, type: 'elbow', rot: 1 },
+      { r: 1, c: 3, type: 'straight', rot: 0 },
+      { r: 2, c: 3, type: 'elbow', rot: 3 }, { r: 2, c: 2, type: 'straight', rot: 1 }, { r: 2, c: 1, type: 'elbow', rot: 1 },
+      { r: 3, c: 1, type: 'straight', rot: 0 },
+      { r: 4, c: 1, type: 'elbow', rot: 3 }, { r: 4, c: 0, type: 'elbow', rot: 1 },
+      { r: 5, c: 0, type: 'straight', rot: 0 }
+    ])
+  },
+
+  // 5. Expert Dual (6x6 dual-pipe)
+  {
+    id: 'pipe-expert-1',
+    title: 'Subterranean Overpass I',
     difficulty: 'expert',
     size: 6,
     sources: [
@@ -307,19 +469,63 @@ export const PIPE_LEVELS: PipeLevelConfig[] = [
       { row: 5, col: 5, dir: 'S', fluid: 'water' },
       { row: 2, col: 5, dir: 'E', fluid: 'ether' },
     ],
-    initialGrid: [
-      // Row 0
-      { type: 'elbow', rotation: 0 },    { type: 'straight', rotation: 1 }, { type: 'elbow', rotation: 2 },    { type: 'straight', rotation: 0 }, { type: 'elbow', rotation: 1 },    { type: 'elbow', rotation: 2 },
-      // Row 1
-      { type: 'straight', rotation: 0 }, { type: 'elbow', rotation: 0 },    { type: 'straight', rotation: 0 }, { type: 'elbow', rotation: 3 },    { type: 'straight', rotation: 0 }, { type: 'straight', rotation: 0 },
-      // Row 2
-      { type: 'straight', rotation: 1 }, { type: 'straight', rotation: 1 }, { type: 'cross', rotation: 0 },    { type: 'straight', rotation: 1 }, { type: 'straight', rotation: 1 }, { type: 'straight', rotation: 1 },
-      // Row 3
-      { type: 'elbow', rotation: 1 },    { type: 'straight', rotation: 1 }, { type: 'straight', rotation: 0 }, { type: 'elbow', rotation: 2 },    { type: 'straight', rotation: 0 }, { type: 'elbow', rotation: 0 },
-      // Row 4
-      { type: 'straight', rotation: 0 }, { type: 'elbow', rotation: 0 },    { type: 'elbow', rotation: 0 },    { type: 'straight', rotation: 1 }, { type: 'elbow', rotation: 2 },    { type: 'straight', rotation: 0 },
-      // Row 5
-      { type: 'elbow', rotation: 3 },    { type: 'straight', rotation: 1 }, { type: 'elbow', rotation: 1 },    { type: 'straight', rotation: 1 }, { type: 'elbow', rotation: 0 },    { type: 'elbow', rotation: 2 },
-    ],
+    initialGrid: makeGrid(6, [
+      { r: 0, c: 0, type: 'elbow', rot: 0 }, { r: 0, c: 1, type: 'straight', rot: 1 }, { r: 0, c: 2, type: 'elbow', rot: 2 },
+      { r: 1, c: 2, type: 'straight', rot: 0 },
+      { r: 2, c: 2, type: 'cross', rot: 0 },
+      { r: 3, c: 2, type: 'straight', rot: 0 },
+      { r: 4, c: 2, type: 'elbow', rot: 0 }, { r: 4, c: 3, type: 'straight', rot: 1 }, { r: 4, c: 4, type: 'straight', rot: 1 }, { r: 4, c: 5, type: 'elbow', rot: 2 },
+      { r: 5, c: 5, type: 'straight', rot: 0 },
+      { r: 2, c: 0, type: 'straight', rot: 1 }, { r: 2, c: 1, type: 'straight', rot: 1 },
+      { r: 2, c: 3, type: 'straight', rot: 1 }, { r: 2, c: 4, type: 'straight', rot: 1 }, { r: 2, c: 5, type: 'straight', rot: 1 }
+    ])
   },
+  {
+    id: 'pipe-expert-2',
+    title: 'Subterranean Overpass II',
+    difficulty: 'expert',
+    size: 6,
+    sources: [
+      { row: 0, col: 2, dir: 'N', fluid: 'water' },
+      { row: 3, col: 0, dir: 'W', fluid: 'ether' },
+    ],
+    drains: [
+      { row: 5, col: 2, dir: 'S', fluid: 'water' },
+      { row: 3, col: 5, dir: 'E', fluid: 'ether' },
+    ],
+    initialGrid: makeGrid(6, [
+      { r: 0, c: 2, type: 'straight', rot: 0 }, { r: 1, c: 2, type: 'straight', rot: 0 }, { r: 2, c: 2, type: 'straight', rot: 0 },
+      { r: 3, c: 2, type: 'cross', rot: 0 },
+      { r: 4, c: 2, type: 'straight', rot: 0 }, { r: 5, c: 2, type: 'straight', rot: 0 },
+      { r: 3, c: 0, type: 'straight', rot: 1 }, { r: 3, c: 1, type: 'straight', rot: 1 },
+      { r: 3, c: 3, type: 'straight', rot: 1 }, { r: 3, c: 4, type: 'straight', rot: 1 }, { r: 3, c: 5, type: 'straight', rot: 1 }
+    ])
+  },
+  {
+    id: 'pipe-expert-3',
+    title: 'Subterranean Overpass III',
+    difficulty: 'expert',
+    size: 6,
+    sources: [
+      { row: 0, col: 4, dir: 'N', fluid: 'water' },
+      { row: 1, col: 0, dir: 'W', fluid: 'ether' },
+    ],
+    drains: [
+      { row: 5, col: 1, dir: 'S', fluid: 'water' },
+      { row: 1, col: 5, dir: 'E', fluid: 'ether' },
+    ],
+    initialGrid: makeGrid(6, [
+      { r: 0, c: 4, type: 'straight', rot: 0 },
+      { r: 1, c: 4, type: 'cross', rot: 0 },
+      { r: 2, c: 4, type: 'straight', rot: 0 },
+      { r: 3, c: 4, type: 'elbow', rot: 3 }, { r: 3, c: 3, type: 'straight', rot: 1 }, { r: 3, c: 2, type: 'straight', rot: 1 }, { r: 3, c: 1, type: 'elbow', rot: 1 },
+      { r: 4, c: 1, type: 'straight', rot: 0 }, { r: 5, c: 1, type: 'straight', rot: 0 },
+      { r: 1, c: 0, type: 'straight', rot: 1 }, { r: 1, c: 1, type: 'straight', rot: 1 }, { r: 1, c: 2, type: 'straight', rot: 1 }, { r: 1, c: 3, type: 'straight', rot: 1 },
+      { r: 1, c: 5, type: 'straight', rot: 1 }
+    ])
+  }
 ];
+
+export function getPipeLevelsByDifficulty(difficulty: PipeDifficulty): PipeLevelConfig[] {
+  return PIPE_LEVELS.filter(l => l.difficulty === difficulty);
+}

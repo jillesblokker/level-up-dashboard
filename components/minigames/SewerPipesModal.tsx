@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Image from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Trophy, RotateCcw, Droplets, CheckCircle2, Waves, ArrowRight, ShieldAlert } from 'lucide-react';
@@ -13,6 +14,7 @@ import { hapticSuccess, hapticMedium } from '@/lib/haptics';
 import {
   PIPE_LEVELS,
   PipeLevelConfig,
+  PipeDifficulty,
   PipeCell,
   createPipeGrid,
   simulateFlow,
@@ -25,11 +27,22 @@ interface SewerPipesModalProps {
   onSuccess?: () => void;
 }
 
+const DIFFICULTIES: Array<{ id: PipeDifficulty; label: string; size: string }> = [
+  { id: 'apprentice', label: 'Apprentice', size: '4×4' },
+  { id: 'journeyman', label: 'Journeyman', size: '5×5' },
+  { id: 'master', label: 'Master', size: '5×5' },
+  { id: 'grandmaster', label: 'Grandmaster', size: '6×6' },
+  { id: 'expert', label: 'Expert dual', size: '6×6' },
+];
+
 export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalProps) {
   const { toast } = useToast();
 
-  const [levelIndex, setLevelIndex] = useState<number>(0);
-  const currentConfig: PipeLevelConfig = PIPE_LEVELS[levelIndex] || PIPE_LEVELS[0]!;
+  const [difficulty, setDifficulty] = useState<PipeDifficulty>('apprentice');
+  const [variationIndex, setVariationIndex] = useState<number>(0);
+
+  const availableLevels = PIPE_LEVELS.filter(l => l.difficulty === difficulty);
+  const currentConfig: PipeLevelConfig = availableLevels[variationIndex] || availableLevels[0] || PIPE_LEVELS[0]!;
 
   const [grid, setGrid] = useState<PipeCell[][]>([]);
   const [moves, setMoves] = useState<number>(0);
@@ -46,7 +59,6 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
   const initLevel = useCallback(
     (config: PipeLevelConfig) => {
       const newGrid = createPipeGrid(config, true);
-      // Run initial flow simulation on scrambled grid
       const sim = simulateFlow(newGrid, config);
       setGrid(sim.updatedGrid);
       setMoves(0);
@@ -145,7 +157,6 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
         localStorage.setItem('minigame_sewer_pipes_date', today);
         setIsDailyClaimed(true);
 
-        // Award rewards
         const goldBonus = currentConfig.difficulty === 'expert' ? 350 : 250;
         const xpBonus = currentConfig.difficulty === 'expert' ? 180 : 120;
 
@@ -216,43 +227,96 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-xl w-full bg-[#0a0f14] border border-cyan-900/40 text-cyan-50 p-4 sm:p-6 rounded-2xl shadow-2xl font-serif z-[100] max-h-[95vh] overflow-y-auto">
-        <DialogHeader className="text-center pb-2">
-          <div className="mx-auto w-12 h-12 rounded-full bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center mb-1 shadow-lg shadow-cyan-950/50">
-            <Droplets className="w-6 h-6 text-cyan-400 animate-pulse" />
-          </div>
+        <DialogHeader className="text-center pb-1">
           <DialogTitle className="text-2xl font-medieval text-cyan-300">
-            Castle sewers & aqueduct
+            Valerion plumbing
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400 italic">
-            Rotate the copper joints and brass valves to restore pressure from the mountain spring to the citadel cisterns.
+            Descend down the kingdom well to align the subterranean conduits and prevent the realm from flooding.
           </DialogDescription>
         </DialogHeader>
 
-        {/* Level / Difficulty Selector */}
-        <div className="flex flex-wrap items-center justify-between gap-2 bg-zinc-950/80 p-2 rounded-xl border border-cyan-950/60 text-xs">
-          <div className="flex items-center gap-1">
-            {PIPE_LEVELS.map((lvl, idx) => {
-              const active = idx === levelIndex;
+        {/* Valerion Avatar & Story Banner */}
+        <div className="flex items-center gap-3 bg-gradient-to-r from-amber-950/40 via-cyan-950/30 to-zinc-950 border border-amber-500/30 p-2.5 rounded-2xl shadow-md my-1">
+          <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-amber-500/50 shadow-[0_0_10px_rgba(245,158,11,0.3)] shrink-0 bg-amber-950">
+            <Image
+              src="/images/creatures/Valerion.webp"
+              alt="Valerion"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="text-left flex-1 min-w-0">
+            <div className="text-xs font-bold font-serif text-amber-300 flex items-center gap-1.5">
+              <span>Valerion</span>
+              <span className="text-[10px] font-mono text-zinc-400 font-normal">Dragon Lord of Valoreth</span>
+            </div>
+            <p className="text-xs text-zinc-200 font-serif italic leading-snug pt-0.5">
+              &ldquo;Valerion needs help with connecting the pipes so Thrivehaven doesn&apos;t flood.&rdquo;
+            </p>
+          </div>
+        </div>
+
+        {/* 5 Difficulty Tiers Selector */}
+        <div className="flex flex-col gap-1.5 bg-zinc-950/80 p-2 rounded-xl border border-cyan-950/60 text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-1">
+            <div className="flex flex-wrap items-center gap-1">
+              {DIFFICULTIES.map((d) => {
+                const active = d.id === difficulty;
+                return (
+                  <button
+                    key={d.id}
+                    onClick={() => {
+                      setDifficulty(d.id);
+                      setVariationIndex(0);
+                      const target = PIPE_LEVELS.filter(l => l.difficulty === d.id)[0];
+                      if (target) initLevel(target);
+                    }}
+                    className={`px-2 py-1 rounded-lg font-sans font-medium transition-colors ${
+                      active
+                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold'
+                        : 'text-zinc-400 hover:text-zinc-200 bg-zinc-900/60'
+                    }`}
+                  >
+                    {d.label} <span className="text-[10px] opacity-70">({d.size})</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-3 font-mono text-[11px] text-zinc-300 ml-auto">
+              <span>Moves: <strong className="text-cyan-400">{moves}</strong></span>
+              <span>Time: <strong className="text-amber-400">{formatTime(seconds)}</strong></span>
+            </div>
+          </div>
+
+          {/* Puzzle Variations (Multiple games per difficulty) */}
+          <div className="flex items-center gap-1.5 pt-1 border-t border-zinc-800/60 text-[11px] font-sans">
+            <span className="text-zinc-400 text-[10px]">Puzzles:</span>
+            {availableLevels.map((lvl, vIdx) => {
+              const active = vIdx === variationIndex;
               return (
                 <button
                   key={lvl.id}
                   onClick={() => {
-                    setLevelIndex(idx);
+                    setVariationIndex(vIdx);
                     initLevel(lvl);
                   }}
-                  className={`px-2.5 py-1 rounded-lg font-sans font-medium transition-colors ${
+                  className={`px-2 py-0.5 rounded font-mono text-[10px] transition-colors ${
                     active
-                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold'
-                      : 'text-zinc-400 hover:text-zinc-200 bg-zinc-900/60'
+                      ? 'bg-amber-500/30 text-amber-300 border border-amber-500/50 font-bold'
+                      : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
-                  {lvl.difficulty === 'standard' && 'Standard (4×4)'}
-                  {lvl.difficulty === 'advanced' && 'Advanced (5×5)'}
-                  {lvl.difficulty === 'expert' && 'Expert dual (6×6)'}
+                  Puzzle {vIdx + 1}
                 </button>
               );
             })}
+            <span className="text-zinc-500 font-mono text-[10px] ml-auto truncate">
+              {currentConfig.title}
+            </span>
           </div>
+        </div>
 
           <div className="flex items-center gap-3 font-mono text-[11px] text-zinc-300 ml-auto">
             <span>Moves: <strong className="text-cyan-400">{moves}</strong></span>

@@ -3235,17 +3235,33 @@ function RealmPageContent() {
                                                 Absorbing Shard...
                                             </span>
                                         ) : (
-                                            "Claim Glacial Touch ❄️"
+                                            "Claim glacial touch ❄️"
                                         )}
+                                    </Button>
+                                    <Button
+                                        className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold font-serif py-3 rounded-xl shadow-lg border border-cyan-400/40 flex items-center justify-center gap-2"
+                                        onClick={() => {
+                                            setObeliskEvent(null);
+                                            setPenguinSlideModalOpen(true);
+                                        }}
+                                    >
+                                        <span>Help Penguino escape</span>
+                                        <span className="text-base">🐧</span>
+                                    </Button>
+                                    <Button
+                                        className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 py-2 rounded-xl text-xs"
+                                        onClick={() => setObeliskEvent(null)}
+                                    >
+                                        Return to journey
                                     </Button>
                                 </div>
                             ) : (
-                                <div className="space-y-4 mt-4">
+                                <div className="space-y-3 mt-4">
                                     <p className="text-sm text-zinc-400 leading-relaxed text-center">
                                         Your daily habits are not yet completed. You can seal a frozen pact for 50 Gold to obtain a **Streak Freeze Scroll** to protect your streak.
                                     </p>
                                     <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800 flex justify-between items-center text-xs">
-                                        <span className="text-zinc-400">Pact Cost</span>
+                                        <span className="text-zinc-400">Pact cost</span>
                                         <span className="font-bold text-amber-400">50 Gold</span>
                                     </div>
                                     <Button
@@ -3254,7 +3270,7 @@ function RealmPageContent() {
                                         onClick={async () => {
                                             if (characterStats.gold < 50) {
                                                 toast({
-                                                    title: "Not Enough Gold",
+                                                    title: "Not enough gold",
                                                     description: `You need 50 Gold to purchase the Streak Freeze Pact. You have ${characterStats.gold} Gold.`,
                                                     variant: "destructive"
                                                 });
@@ -3270,7 +3286,7 @@ function RealmPageContent() {
                                                     ]);
                                                 }
                                                 toast({
-                                                    title: "Streak Freeze Activated! ❄️",
+                                                    title: "Streak freeze activated! ❄️",
                                                     description: "Deducted 50 Gold. A Streak Scroll has been added to your bag!",
                                                 });
                                             } catch (err) {
@@ -3284,17 +3300,27 @@ function RealmPageContent() {
                                         {isObeliskClaiming ? (
                                             <span className="flex items-center justify-center gap-2">
                                                 <Loader2 className="w-4 h-4 animate-spin" />
-                                                Sealing Pact...
+                                                Sealing pact...
                                             </span>
                                         ) : (
-                                            "Activate Streak Freeze (50g) ❄️"
+                                            "Activate streak freeze (50g) ❄️"
                                         )}
                                     </Button>
                                     <Button
-                                        className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 py-2.5 rounded-xl text-xs mt-2"
+                                        className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold font-serif py-3 rounded-xl shadow-lg border border-cyan-400/40 flex items-center justify-center gap-2"
+                                        onClick={() => {
+                                            setObeliskEvent(null);
+                                            setPenguinSlideModalOpen(true);
+                                        }}
+                                    >
+                                        <span>Help Penguino escape</span>
+                                        <span className="text-base">🐧</span>
+                                    </Button>
+                                    <Button
+                                        className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 py-2.5 rounded-xl text-xs mt-1"
                                         onClick={() => setObeliskEvent(null)}
                                     >
-                                        Return to Journey
+                                        Return to journey
                                     </Button>
                                 </div>
                             )}
