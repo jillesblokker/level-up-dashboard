@@ -2112,7 +2112,7 @@ export function KingdomGridWithTimers({
         goldEarned,
         itemFound: itemFound ? {
           image: itemFound,
-          name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+          name: itemFound.split('/').pop()?.replace(/\.[^/.]+$/, '') || 'Unknown Item',
           type: kingdomTile.itemType
         } : undefined,
         isLucky: wasLucky,
@@ -2131,7 +2131,7 @@ export function KingdomGridWithTimers({
       if (onItemFound && itemFound) {
         onItemFound({
           image: itemFound,
-          name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+          name: itemFound.split('/').pop()?.replace(/\.[^/.]+$/, '') || 'Unknown Item',
           type: kingdomTile.itemType
         })
       }

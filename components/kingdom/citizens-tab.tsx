@@ -147,28 +147,58 @@ export function CitizensTab() {
     if (!user?.id) return;
     try {
       const inv = await getInventory(user.id);
-      const foodItems = inv
-        .filter(item => FOOD_DAYS_MAP[item.id] !== undefined && item.quantity > 0)
-        .map(item => ({
-          id: item.id,
-          name: item.name,
-          quantity: item.quantity,
-          emoji: item.emoji || '🐟'
-        }));
+      
+      // Also merge local kingdom-tile-items (e.g. freshly caught fish from kingdom tiles)
+      const allItems: any[] = [...(Array.isArray(inv) ? inv : [])];
+      if (typeof window !== 'undefined') {
+        try {
+          const localTileItems = JSON.parse(localStorage.getItem('kingdom-tile-items') || '[]');
+          if (Array.isArray(localTileItems)) {
+            localTileItems.forEach((lt: any) => {
+              if (lt && lt.id && !allItems.some(i => i.id === lt.id)) {
+                allItems.push(lt);
+              }
+            });
+          }
+        } catch {}
+      }
+
+      const foodItems: { id: string; name: string; quantity: number; emoji: string }[] = [];
+      const seen = new Set<string>();
+
+      allItems
+        .filter(item => isFoodItem(item) && (item.quantity || 0) > 0)
+        .forEach(item => {
+          const cleanId = (item.id || '').toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '');
+          if (!seen.has(cleanId)) {
+            seen.add(cleanId);
+            foodItems.push({
+              id: item.id,
+              name: item.name || (cleanId.includes('fish') ? 'Fish' : item.id),
+              quantity: item.quantity,
+              emoji: item.emoji || (cleanId.includes('water') ? '💧' : '🐟')
+            });
+          }
+        });
 
       const tileInv = await loadTileInventory(user.id);
       if (tileInv && typeof tileInv === 'object') {
         Object.entries(tileInv).forEach(([rawKey, value]) => {
           const key = rawKey === 'water' ? 'material-water' : rawKey;
-          if (FOOD_DAYS_MAP[key] !== undefined && value && value.quantity > 0) {
-            const name = key === 'material-water' ? 'Water' : (value.name || key);
-            const emoji = key === 'material-water' ? '💧' : (value.emoji || '📦');
-            foodItems.push({
-              id: key,
-              name,
-              quantity: value.quantity,
-              emoji
-            });
+          const qty = typeof value === 'number' ? value : (value?.quantity ?? 0);
+          const cleanKey = key.toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '');
+          if (isFoodItem({ id: key, name: typeof value === 'object' ? value?.name : undefined }) && qty > 0) {
+            if (!seen.has(cleanKey)) {
+              seen.add(cleanKey);
+              const name = key === 'material-water' ? 'Water' : (typeof value === 'object' && value?.name ? value.name : key);
+              const emoji = key === 'material-water' ? '💧' : (typeof value === 'object' && value?.emoji ? value.emoji : '📦');
+              foodItems.push({
+                id: key,
+                name,
+                quantity: qty,
+                emoji
+              });
+            }
           }
         });
       }
@@ -192,8 +222,10 @@ export function CitizensTab() {
   useEffect(() => {
     loadInventoryFood();
     window.addEventListener('character-inventory-update', loadInventoryFood);
+    window.addEventListener('tile-inventory-update', loadInventoryFood);
     return () => {
       window.removeEventListener('character-inventory-update', loadInventoryFood);
+      window.removeEventListener('tile-inventory-update', loadInventoryFood);
     };
   }, [loadInventoryFood]);
 
@@ -575,8 +607,8 @@ export function CitizensTab() {
                             className={activePartnerId === citizen.id ? 'w-full bg-amber-500 text-black font-bold' : 'w-full border-zinc-700 bg-zinc-900 text-zinc-300'}
                             onClick={() => setActivePartnerId(activePartnerId === citizen.id ? undefined : citizen.id)}
                           >
-                      <Heart className={`w-3.5 h-3.5 mr-1.5 ${activePartnerId === citizen.id ? 'fill-black' : ''}`} />
-                      {activePartnerId === citizen.id ? "Active Companion" : "Set as Companion"}
+                            <Heart className={`w-3.5 h-3.5 mr-1.5 ${activePartnerId === citizen.id ? 'fill-black' : ''}`} />
+                            {activePartnerId === citizen.id ? "Active Companion" : "Set as Companion"}
                           </Button>
 
                           <Button
@@ -597,6 +629,67 @@ export function CitizensTab() {
                             <Sparkles className="w-3.5 h-3.5 mr-1.5 shrink-0 text-amber-400" />
                             {citizen.specialization ? `Class: ${citizen.specialization}` : 'Specialize class'}
                           </Button>
+
+                          {isHungry && (
+                            <div className="w-full mt-1">
+                              {inventoryFood.length === 0 ? (
+                                <Button disabled size="sm" className="w-full bg-zinc-900 border border-zinc-800 text-zinc-500 text-xs">
+                                  <Utensils className="w-3.5 h-3.5 mr-1.5 shrink-0" />No food in inventory
+                                </Button>
+                              ) : feedModalCitizenId === citizen.id ? (
+                                <div className="w-full rounded-lg border border-amber-800/40 bg-zinc-950 overflow-hidden">
+                                  <div className="flex items-center justify-between px-3 py-2 bg-amber-950/30 border-b border-amber-800/30">
+                                    <span className="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+                                      <Utensils className="w-3 h-3" />Choose food to feed
+                                    </span>
+                                    <button
+                                      onClick={() => setFeedModalCitizenId(null)}
+                                      className="text-zinc-500 hover:text-white transition-colors p-0.5"
+                                    >
+                                      <X className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                  <div className="flex flex-col gap-1 p-2 max-h-48 overflow-y-auto">
+                                    {inventoryFood.map(f => (
+                                      <button
+                                        key={f.id}
+                                        className="flex items-center justify-between w-full text-left px-3 py-2 rounded-md bg-zinc-900 hover:bg-amber-900/30 border border-zinc-800 hover:border-amber-700/50 transition-all duration-150 group"
+                                        onClick={async () => {
+                                          setFeedModalCitizenId(null);
+                                          const success = await feedCitizen(user!.id, citizen.id, f.id);
+                                          if (success) {
+                                            toast({
+                                              title: "Citizen fed! 🍖",
+                                              description: `${citizen.name} is now fed for ${getFoodActiveDays(f.id, f)} day(s) and will produce gold!`,
+                                            });
+                                            await loadInventoryFood();
+                                          }
+                                        }}
+                                      >
+                                        <span className="flex items-center gap-2 text-sm text-white">
+                                          <span className="text-base">{f.emoji}</span>
+                                          <span className="font-medium capitalize">{f.name.toLowerCase()}</span>
+                                        </span>
+                                        <span className="text-xs text-amber-400 font-semibold bg-amber-950/50 px-1.5 py-0.5 rounded">
+                                          ×{f.quantity}
+                                        </span>
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  className="w-full bg-red-950/60 border border-red-800/50 text-red-300 hover:bg-red-900/50 hover:border-red-600/70 hover:text-red-200 text-sm font-semibold"
+                                  onClick={() => setFeedModalCitizenId(citizen.id)}
+                                >
+                                  <Utensils className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                                  Feed citizen
+                                  <ChevronDown className="w-3.5 h-3.5 ml-auto shrink-0 opacity-60" />
+                                </Button>
+                              )}
+                            </div>
+                          )}
                         </CardFooter>
                       </Card>
                     </div>
@@ -909,7 +1002,7 @@ export function CitizensTab() {
                                     if (success) {
                                       toast({
                                         title: "Citizen fed! 🍖",
-                                        description: `${citizen.name} is now fed for ${FOOD_DAYS_MAP[f.id] ?? 1} day(s) and will produce gold!`,
+                                        description: `${citizen.name} is now fed for ${getFoodActiveDays(f.id, f)} day(s) and will produce gold!`,
                                       });
                                       await loadInventoryFood();
                                     }
@@ -917,7 +1010,7 @@ export function CitizensTab() {
                                 >
                                   <span className="flex items-center gap-2 text-sm text-white">
                                     <span className="text-base">{f.emoji}</span>
-                                    <span className="font-medium">{f.name}</span>
+                                    <span className="font-medium capitalize">{f.name.toLowerCase()}</span>
                                   </span>
                                   <span className="text-xs text-amber-400 font-semibold bg-amber-950/50 px-1.5 py-0.5 rounded">
                                     ×{f.quantity}

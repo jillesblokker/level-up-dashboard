@@ -4,7 +4,7 @@ import { CreatureDefinition, CREATURE_DEFINITIONS } from '@/lib/creature-mapping
 import { CreatureSprite } from './creature-sprite';
 import { Tile } from '@/types/tiles';
 import { useUser } from '@clerk/nextjs';
-import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, Citizen } from '@/stores/citizensStore';
+import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, isFoodItem, getFoodActiveDays, Citizen } from '@/stores/citizensStore';
 import { getInventory, removeFromInventory } from '@/lib/inventory-manager';
 import { useGameStore } from '@/stores/game-store';
 import { loadTileInventory } from '@/lib/data-loaders';
@@ -673,40 +673,88 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
 
     const loadLayerInventoryFood = async (userId: string) => {
         const inv = await getInventory(userId);
-        const foodItems = inv
-            .filter(item => FOOD_DAYS_MAP[item.id] !== undefined && item.quantity > 0)
-            .map(item => ({
-                id: item.id,
-                name: item.name,
-                quantity: item.quantity,
-                emoji: item.emoji || '🐟'
-            }));
+
+        // Also merge local kingdom-tile-items (e.g. fresh fish caught on kingdom tiles)
+        const allItems: any[] = [...(Array.isArray(inv) ? inv : [])];
+        if (typeof window !== 'undefined') {
+            try {
+                const localTileItems = JSON.parse(localStorage.getItem('kingdom-tile-items') || '[]');
+                if (Array.isArray(localTileItems)) {
+                    localTileItems.forEach((lt: any) => {
+                        if (lt && lt.id && !allItems.some(i => i.id === lt.id)) {
+                            allItems.push(lt);
+                        }
+                    });
+                }
+            } catch {}
+        }
+
+        const foodItems: { id: string; name: string; quantity: number; emoji: string }[] = [];
+        const seen = new Set<string>();
+
+        allItems
+            .filter(item => isFoodItem(item) && (item.quantity || 0) > 0)
+            .forEach(item => {
+                const cleanId = (item.id || '').toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '');
+                if (!seen.has(cleanId)) {
+                    seen.add(cleanId);
+                    foodItems.push({
+                        id: item.id,
+                        name: item.name || (cleanId.includes('fish') ? 'Fish' : item.id),
+                        quantity: item.quantity,
+                        emoji: item.emoji || (cleanId.includes('water') ? '💧' : '🐟')
+                    });
+                }
+            });
 
         const tileInv = await loadTileInventory(userId);
         if (tileInv && typeof tileInv === 'object') {
             Object.entries(tileInv).forEach(([rawKey, value]) => {
                 const key = rawKey === 'water' ? 'material-water' : rawKey;
-                if (FOOD_DAYS_MAP[key] !== undefined && value && value.quantity > 0) {
-                    const name = key === 'material-water' ? 'Water' : (value.name || key);
-                    const emoji = key === 'material-water' ? '💧' : (value.emoji || '📦');
-                    foodItems.push({
-                        id: key,
-                        name,
-                        quantity: value.quantity,
-                        emoji
-                    });
+                const qty = typeof value === 'number' ? value : (value?.quantity ?? 0);
+                const cleanKey = key.toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '');
+                if (isFoodItem({ id: key, name: typeof value === 'object' ? value?.name : undefined }) && qty > 0) {
+                    if (!seen.has(cleanKey)) {
+                        seen.add(cleanKey);
+                        const name = key === 'material-water' ? 'Water' : (typeof value === 'object' && value?.name ? value.name : key);
+                        const emoji = key === 'material-water' ? '💧' : (typeof value === 'object' && value?.emoji ? value.emoji : '📦');
+                        foodItems.push({
+                            id: key,
+                            name,
+                            quantity: qty,
+                            emoji
+                        });
+                    }
                 }
             });
         }
         return foodItems;
     };
 
+    useEffect(() => {
+        if (!isModalOpen || !user?.id) return;
+        const refreshFoods = async () => {
+            try {
+                const items = await loadLayerInventoryFood(user.id);
+                setInventoryFoods(items);
+            } catch (e) {
+                logger.error('Failed to reload layer inventory food:', e);
+            }
+        };
+        window.addEventListener('character-inventory-update', refreshFoods);
+        window.addEventListener('tile-inventory-update', refreshFoods);
+        return () => {
+            window.removeEventListener('character-inventory-update', refreshFoods);
+            window.removeEventListener('tile-inventory-update', refreshFoods);
+        };
+    }, [isModalOpen, user?.id]);
+
     const handleCreatureClick = async (creature: ActiveCreature) => {
         if (!user) return;
         
         if (isSleepy) {
             toast({
-                title: "Citizens are Sleepy! Zzz...",
+                title: "Citizens are sleepy! Zzz...",
                 description: "Complete a daily habit to wake them up!",
                 variant: "destructive"
             });
@@ -736,21 +784,22 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
         try {
             const success = await feedCitizen(user.id, selectedCitizenId, foodId);
             if (success) {
-                const feedEmoji = foodId === 'material-water' ? '💧' : '🐟';
+                const feedEmoji = foodId.includes('water') ? '💧' : '🐟';
                 toast({
-                    title: `Citizen Fed ${feedEmoji}`,
+                    title: `Citizen fed! ${feedEmoji}`,
                     description: `${selectedCitizen?.name} has been fed! They are happy and active.`,
                 });
                 
                 // Dispatch event so other pages (like Character inventory) sync up
                 window.dispatchEvent(new Event('character-inventory-update'));
+                window.dispatchEvent(new Event('tile-inventory-update'));
                 
                 // Reload food
                 const foodItems = await loadLayerInventoryFood(user.id);
                 setInventoryFoods(foodItems);
             } else {
                 toast({
-                    title: "Feeding Failed",
+                    title: "Feeding failed",
                     description: "You don't have enough food in your inventory.",
                     variant: "destructive"
                 });
@@ -1338,7 +1387,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                                     <span className="text-xs font-semibold capitalize">{food.name.toLowerCase()} (x{food.quantity})</span>
                                                 </div>
                                                 <span className="text-[10px] bg-zinc-950 text-orange-200 px-2 py-0.5 rounded-md font-mono">
-                                                    +{FOOD_DAYS_MAP[food.id]} day{FOOD_DAYS_MAP[food.id] !== 1 ? 's' : ''} active
+                                                    +{getFoodActiveDays(food.id, food)} day{getFoodActiveDays(food.id, food) !== 1 ? 's' : ''} active
                                                 </span>
                                             </Button>
                                         ))}

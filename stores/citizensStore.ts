@@ -170,11 +170,23 @@ function generateGatherDrop(citizen: Citizen): { id: string; name: string; descr
 export const FOOD_DAYS_MAP: Record<string, number> = {
   // Fish (primary food)
   'fish-red': 1,
+  'food-red': 1,
   'food-red-starter': 1,
+  'fish-red.webp': 1,
+  'fish-bass': 1,
+  'red-fish': 1,
   'fish-blue': 3,
+  'food-blue': 3,
+  'fish-blue.webp': 3,
   'fish-silver': 3,
+  'food-silver': 3,
+  'fish-silver.webp': 3,
   'fish-golden': 7,
+  'food-golden': 7,
+  'fish-golden.webp': 7,
   'fish-rainbow': 7,
+  'food-rainbow': 7,
+  'fish-rainbow.webp': 7,
   // Potions (can also nourish citizens)
   'potion-health': 1,
   'potion-health-starter': 1,
@@ -185,7 +197,43 @@ export const FOOD_DAYS_MAP: Record<string, number> = {
   'potion-gold': 3,
   // Water (essential nourishment)
   'material-water': 1,
+  'water': 1,
 };
+
+export function isFoodItem(item: { id?: string; name?: string; type?: string; category?: string; image?: string } | null | undefined): boolean {
+  if (!item) return false;
+  const rawId = item.id || '';
+  const id = rawId.toLowerCase();
+  const name = (item.name || '').toLowerCase();
+  const type = (item.type || '').toLowerCase();
+  const cat = (item.category || '').toLowerCase();
+  const img = (item.image || '').toLowerCase();
+
+  if (FOOD_DAYS_MAP[rawId] !== undefined) return true;
+  if (FOOD_DAYS_MAP[id] !== undefined) return true;
+  const strippedId = id.replace(/\.[^/.]+$/, '').replace(/-item$/, '');
+  if (FOOD_DAYS_MAP[strippedId] !== undefined) return true;
+
+  if (id.includes('fish') || name.includes('fish')) return true;
+  if (id.startsWith('food-') || id.startsWith('fish-')) return true;
+  if (type === 'food' || cat === 'food' || type === 'fish' || cat === 'fish') return true;
+  if (img.includes('/food/') || img.includes('fish-') || img.includes('/fish/')) return true;
+
+  return false;
+}
+
+export function getFoodActiveDays(itemId: string, item?: { name?: string }): number {
+  if (FOOD_DAYS_MAP[itemId] !== undefined) return FOOD_DAYS_MAP[itemId];
+  const id = (itemId || '').toLowerCase();
+  if (FOOD_DAYS_MAP[id] !== undefined) return FOOD_DAYS_MAP[id];
+  const stripped = id.replace(/\.[^/.]+$/, '').replace(/-item$/, '');
+  if (FOOD_DAYS_MAP[stripped] !== undefined) return FOOD_DAYS_MAP[stripped];
+
+  const name = (item?.name || '').toLowerCase();
+  if (id.includes('rainbow') || name.includes('rainbow') || id.includes('golden') || name.includes('golden')) return 7;
+  if (id.includes('silver') || name.includes('silver') || id.includes('blue') || name.includes('blue')) return 3;
+  return 1;
+}
 
 export const useCitizensStore = create<CitizensStore>((set, get) => ({
   citizens: [],
@@ -538,41 +586,104 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     if (!citizen) return false;
 
     let hasFood = false;
-    const isTileInventory = foodItemId.startsWith('material-');
+    const cleanId = foodItemId.toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '');
 
-    if (isTileInventory) {
-      const tileInv = await loadTileInventory(userId);
-      const dbKey = foodItemId === 'material-water' ? 'water' : foodItemId;
-      const itemKey = tileInv[dbKey] ? dbKey : (tileInv[foodItemId] ? foodItemId : null);
-      if (itemKey && tileInv[itemKey] && tileInv[itemKey].quantity > 0) {
-        hasFood = true;
-        tileInv[itemKey].quantity -= 1;
-        if (tileInv[itemKey].quantity <= 0) {
-          delete tileInv[itemKey];
-          delete tileInv[dbKey];
-          delete tileInv[foodItemId];
-        }
-        await saveTileInventory(userId, tileInv);
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new Event('character-inventory-update'));
-        }
-      }
-    } else {
+    // 1. Try to find and deduct from player inventory first
+    try {
       const inventory = await getInventory(userId);
-      const invItem = inventory.find((i) => i.id === foodItemId && i.quantity > 0);
+      const invItem = inventory.find(
+        (i) => (i.id === foodItemId || i.id.toLowerCase() === foodItemId.toLowerCase() || i.id.toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '') === cleanId) && (i.quantity || 0) > 0
+      );
+
       if (invItem) {
         hasFood = true;
-        await removeFromInventory(userId, foodItemId, 1);
+        await removeFromInventory(userId, invItem.id, 1);
         if (typeof window !== 'undefined') {
-          window.dispatchEvent(new Event('character-inventory-update'));
+          try {
+            const localItems = JSON.parse(localStorage.getItem('kingdom-tile-items') || '[]');
+            const idx = localItems.findIndex((it: any) => it.id === invItem.id || it.id === foodItemId || (it.id && it.id.toLowerCase().replace(/\.[^/.]+$/, '') === cleanId));
+            if (idx >= 0) {
+              if ((localItems[idx].quantity || 1) > 1) {
+                localItems[idx].quantity -= 1;
+              } else {
+                localItems.splice(idx, 1);
+              }
+              localStorage.setItem('kingdom-tile-items', JSON.stringify(localItems));
+            }
+          } catch {}
         }
       }
+    } catch (e) {
+      console.warn('Error checking player inventory in feedCitizen:', e);
+    }
+
+    // 2. If not found in player inventory, check tile inventory (e.g. water or tile resources)
+    if (!hasFood) {
+      try {
+        const tileInv = await loadTileInventory(userId);
+        const dbKey = foodItemId === 'material-water' ? 'water' : foodItemId;
+        const itemKey = tileInv[dbKey]
+          ? dbKey
+          : tileInv[foodItemId]
+          ? foodItemId
+          : Object.keys(tileInv).find(
+              (k) =>
+                k.toLowerCase() === foodItemId.toLowerCase() ||
+                k.toLowerCase() === dbKey.toLowerCase() ||
+                k.toLowerCase().replace(/\.[^/.]+$/, '') === cleanId
+            );
+
+        if (itemKey && tileInv[itemKey]) {
+          const currentQty =
+            typeof tileInv[itemKey] === 'number'
+              ? tileInv[itemKey]
+              : tileInv[itemKey].quantity ?? 0;
+
+          if (currentQty > 0) {
+            hasFood = true;
+            const newQty = currentQty - 1;
+            if (typeof tileInv[itemKey] === 'number') {
+              if (newQty <= 0) {
+                delete tileInv[itemKey];
+              } else {
+                tileInv[itemKey] = newQty;
+              }
+            } else {
+              if (newQty <= 0) {
+                delete tileInv[itemKey];
+              } else {
+                tileInv[itemKey].quantity = newQty;
+              }
+            }
+            await saveTileInventory(userId, tileInv);
+          }
+        }
+      } catch (e) {
+        console.warn('Error checking tile inventory in feedCitizen:', e);
+      }
+    }
+
+    // 3. Fallback: check local storage kingdom-tile-items
+    if (!hasFood && typeof window !== 'undefined') {
+      try {
+        const localItems = JSON.parse(localStorage.getItem('kingdom-tile-items') || '[]');
+        const idx = localItems.findIndex((it: any) => it.id === foodItemId || (it.id && it.id.toLowerCase().replace(/\.[^/.]+$/, '') === cleanId));
+        if (idx >= 0 && (localItems[idx].quantity || 1) > 0) {
+          hasFood = true;
+          if ((localItems[idx].quantity || 1) > 1) {
+            localItems[idx].quantity -= 1;
+          } else {
+            localItems.splice(idx, 1);
+          }
+          localStorage.setItem('kingdom-tile-items', JSON.stringify(localItems));
+        }
+      } catch {}
     }
 
     if (!hasFood) return false;
 
     // Update state
-    const daysToAdd = FOOD_DAYS_MAP[foodItemId] || 1;
+    const daysToAdd = getFoodActiveDays(foodItemId);
     const now = new Date().toISOString();
 
     const updated = citizens.map((c) => {
@@ -597,11 +708,18 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         affection: c.affection || 0,
         level: c.level || 1,
         experience: c.experience || 0,
+        specialization: c.specialization,
+        loreTitle: c.loreTitle,
       };
     });
 
     set({ citizens: updated });
     await setUserPreference('citizens_state', citizenPrefs);
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('character-inventory-update'));
+      window.dispatchEvent(new Event('tile-inventory-update'));
+    }
 
     // Trigger random encounter check for feed
     try {

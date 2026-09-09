@@ -1562,18 +1562,50 @@ export function KingdomClient() {
   }
 
   const handleKingdomTileItemFound = (item: { image: string; name: string; type: string }) => {
+    const cleanId = (item.name || '').toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '');
+    let itemName = item.name;
+    let emoji = '📦';
+    let type: any = 'resource';
+    let category = item.type || 'resource';
+
+    if (cleanId === 'fish-red' || item.image.includes('fish-red')) {
+      itemName = 'Red fish';
+      emoji = '🐟';
+      type = 'consumable';
+      category = 'food';
+    } else if (cleanId === 'fish-blue' || item.image.includes('fish-blue')) {
+      itemName = 'Blue fish';
+      emoji = '🐟';
+      type = 'consumable';
+      category = 'food';
+    } else if (cleanId === 'fish-silver' || item.image.includes('fish-silver')) {
+      itemName = 'Silver fish';
+      emoji = '🐟';
+      type = 'consumable';
+      category = 'food';
+    } else if (cleanId === 'fish-golden' || item.image.includes('fish-golden')) {
+      itemName = 'Golden fish';
+      emoji = '🐟';
+      type = 'consumable';
+      category = 'food';
+    } else if (cleanId === 'fish-rainbow' || item.image.includes('fish-rainbow')) {
+      itemName = 'Rainbow fish';
+      emoji = '🐟';
+      type = 'consumable';
+      category = 'food';
+    }
+
     // Add item to inventory
     const inventoryItem: InventoryItem = {
-      // Use item.name (e.g., 'material-planks') as ID to ensure unique but stackable items
-      id: item.name,
-      name: item.name,
-      type: 'resource', // Use 'resource' for materials found on tiles
+      id: cleanId,
+      name: itemName,
+      type: type,
       quantity: 1,
       image: item.image || '/images/items/mystery-item.webp',
-      description: `A valuable resource: ${item.name}`,
-      emoji: '📦',
+      description: `A valuable resource: ${itemName}`,
+      emoji: emoji,
       stats: {},
-      category: item.type || 'resource',
+      category: category,
       rarity: 'common'
     }
 
@@ -1582,16 +1614,27 @@ export function KingdomClient() {
       addToInventory(user.id, inventoryItem);
     }
 
-    // Also store in localStorage for backwards compatibility
-    const existingItems = JSON.parse(localStorage.getItem('kingdom-tile-items') || '[]')
-    existingItems.push(inventoryItem)
-    localStorage.setItem('kingdom-tile-items', JSON.stringify(existingItems))
+    // Also store in localStorage for backwards compatibility (stacking if already exists)
+    if (typeof window !== 'undefined') {
+      try {
+        const existingItems = JSON.parse(localStorage.getItem('kingdom-tile-items') || '[]');
+        const existingIdx = existingItems.findIndex((it: any) => it.id === inventoryItem.id || (it.id && it.id.toLowerCase().replace(/\.[^/.]+$/, '') === cleanId));
+        if (existingIdx >= 0) {
+          existingItems[existingIdx].quantity = (existingItems[existingIdx].quantity || 1) + 1;
+        } else {
+          existingItems.push(inventoryItem);
+        }
+        localStorage.setItem('kingdom-tile-items', JSON.stringify(existingItems));
+      } catch {}
+    }
 
-    // Trigger inventory update
+    // Trigger inventory update events
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('inventory-updated', {
         detail: { item: inventoryItem }
-      }))
+      }));
+      window.dispatchEvent(new Event('character-inventory-update'));
+      window.dispatchEvent(new Event('tile-inventory-update'));
     }
   }
 
