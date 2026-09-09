@@ -473,8 +473,8 @@ export function MapGrid({
             style={{
               left: `${penguinPos.x * tileSize + tileSize / 2}px`,
               top: `${penguinPos.y * tileSize + tileSize / 2}px`,
-              width: `${tileSize * 0.55}px`,
-              height: `${tileSize * 0.55}px`,
+              width: `${tileSize * 0.45}px`,
+              height: `${tileSize * 0.45}px`,
               transform: 'translate(-50%, -50%)'
             }}
             title="Penguino"
@@ -483,7 +483,7 @@ export function MapGrid({
               src="/images/Animals/penguin.webp" 
               alt="Penguino" 
               fill
-              sizes={`${tileSize * 0.55}px`}
+              sizes={`${tileSize * 0.45}px`}
               className="object-contain drop-shadow-md" 
             />
           </div>
@@ -499,8 +499,8 @@ export function MapGrid({
             style={{
               left: `${horsePos.x * tileSize + tileSize / 2}px`,
               top: `${horsePos.y * tileSize + tileSize / 2}px`,
-              width: `${tileSize * 1.1}px`,
-              height: `${tileSize * 1.1}px`,
+              width: `${tileSize * 0.78}px`,
+              height: `${tileSize * 0.78}px`,
               transform: 'translate(-50%, -50%)'
             }}
             title="Horse"
@@ -509,7 +509,7 @@ export function MapGrid({
               src="/images/Animals/horse.webp?v=3" 
               alt="Horse" 
               fill
-              sizes={`${tileSize * 1.1}px`}
+              sizes={`${tileSize * 0.78}px`}
               className="object-contain drop-shadow-md" 
             />
           </div>
@@ -525,8 +525,8 @@ export function MapGrid({
             style={{
               left: `${sheepPos.x * tileSize + tileSize / 2}px`,
               top: `${sheepPos.y * tileSize + tileSize / 2}px`,
-              width: `${tileSize * 0.75}px`,
-              height: `${tileSize * 0.75}px`,
+              width: `${tileSize * 0.52}px`,
+              height: `${tileSize * 0.52}px`,
               transform: 'translate(-50%, -50%)'
             }}
             title="Sheep"
@@ -535,7 +535,7 @@ export function MapGrid({
               src="/images/Animals/sheep.webp?v=3" 
               alt="Sheep" 
               fill
-              sizes={`${tileSize * 0.75}px`}
+              sizes={`${tileSize * 0.52}px`}
               className="object-contain drop-shadow-md" 
             />
           </div>
