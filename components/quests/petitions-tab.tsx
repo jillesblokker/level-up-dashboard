@@ -5,85 +5,69 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/use-toast';
 import {
-  getCitizenHappiness,
-  getHappinessTier,
   getActivePetitions,
   resolvePetition,
   refreshAllPetitions,
   Petition,
   PetitionOutcome,
-  CitizenHappinessState
 } from '@/lib/petitions-service';
 import { addToCharacterStat } from '@/lib/character-stats-service';
-import { getCurrentMonthlyTitan } from '@/lib/titan-bosses';
-import { Scale, RefreshCw, Sword, ShieldAlert } from 'lucide-react';
+import { Scale, RefreshCw } from 'lucide-react';
 
 export function PetitionsTab() {
-  const [happiness, setHappiness] = useState<CitizenHappinessState>({ score: 75, lastUpdated: '' });
   const [petitions, setPetitions] = useState<Petition[]>([]);
-  const monthlyTitan = getCurrentMonthlyTitan();
   const [activeOutcomeModal, setActiveOutcomeModal] = useState<{
     isOpen: boolean;
     petitionTitle: string;
     chosenOptionLabel: string;
+    requesterRole: string;
+    requesterAvatar: string;
+    requesterImage?: string | undefined;
     outcome: PetitionOutcome;
-    raidDamage: number;
-    titanName: string;
+    goldChange: number;
+    xpReward: number;
   } | null>(null);
 
   useEffect(() => {
-    setHappiness(getCitizenHappiness());
     setPetitions(getActivePetitions());
   }, []);
-
-  const tier = getHappinessTier(happiness.score);
 
   const handleChoice = (petitionId: string, choice: 'A' | 'B') => {
     const target = petitions.find(p => p.id === petitionId);
     if (!target) return;
 
     const res = resolvePetition(petitionId, choice);
-    setHappiness(res.happiness);
     setPetitions(getActivePetitions());
 
     if (res.goldChange !== 0) {
       addToCharacterStat('gold', res.goldChange, `petition-${petitionId}`);
     }
+    if (res.xpReward > 0) {
+      addToCharacterStat('experience', res.xpReward, `petition-${petitionId}`);
+    }
 
-    const raidDamage = res.raidBossDamage || 15;
-
-    // Direct attack on monthly Titan Wyrm raid boss
-    try {
-      const currentTitanHp = parseInt(localStorage.getItem('thrivehaven_titan_hp') || '6450', 10);
-      const currentDmg = parseInt(localStorage.getItem('thrivehaven_user_titan_dmg') || '14', 10);
-      localStorage.setItem('thrivehaven_titan_hp', Math.max(0, currentTitanHp - raidDamage).toString());
-      localStorage.setItem('thrivehaven_user_titan_dmg', (currentDmg + raidDamage).toString());
-    } catch {}
-
-    // Record petition decree strike on server
-    fetch('/api/alliance/titan-raid', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'record_petition', damage: raidDamage })
-    }).catch(() => {});
-
-    // Open standard modal dialog with story reveal and raid boss damage
+    // Open outcome modal with petitioner avatar and real rewards
     setActiveOutcomeModal({
       isOpen: true,
       petitionTitle: target.title,
       chosenOptionLabel: res.chosenOptionLabel,
+      requesterRole: target.requesterRole,
+      requesterAvatar: target.requesterAvatar,
+      requesterImage: target.requesterImage,
       outcome: res.outcome,
-      raidDamage,
-      titanName: monthlyTitan.name
+      goldChange: res.goldChange,
+      xpReward: res.xpReward,
     });
 
+    const isFavorable = !res.outcome.isFunnyTwist && res.goldChange >= 0;
     toast({
-      title: `⚔️ Royal Decree Struck ${monthlyTitan.name}!`,
-      description: `Decree enacted! Dealt -${raidDamage} HP damage to the monthly raid boss while keeping House Cup focused on your daily habits!`,
+      title: isFavorable ? `Favorable decree: ${target.title}` : `Chaotic mishap: ${target.title}`,
+      description: res.goldChange >= 0
+        ? `Gained +${res.goldChange} gold and +${res.xpReward} XP!`
+        : `Cost ${Math.abs(res.goldChange)} gold and earned +${res.xpReward} XP.`,
     });
   };
 
@@ -91,14 +75,14 @@ export function PetitionsTab() {
     const fresh = refreshAllPetitions();
     setPetitions(fresh);
     toast({
-      title: "📜 4 New Petitions Summoned!",
+      title: "New petitions summoned",
       description: "Fresh realm decrees have arrived from petitioners across the realm.",
     });
   };
 
   return (
     <div className="space-y-6">
-      {/* Citizen Happiness Header */}
+      {/* Royal Court Header */}
       <Card className="bg-gradient-to-r from-zinc-950 via-[#0e0d14] to-zinc-950 border-amber-500/30 shadow-2xl">
         <CardHeader className="p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -108,66 +92,25 @@ export function PetitionsTab() {
               </div>
               <div>
                 <CardTitle className="font-serif text-amber-300 text-base sm:text-lg flex items-center gap-2 flex-wrap">
-                  King&apos;s rules & town mood
+                  Royal court petitions
                 </CardTitle>
                 <CardDescription className="text-zinc-400 text-[11px] sm:text-xs">
-                  Guide town petitions with blind royal decrees to build loyalty and gold.
+                  Review decrees and resolve town dilemmas from creatures and citizens to earn gold and experience.
                 </CardDescription>
               </div>
             </div>
-            <Badge variant="outline" className={`px-2.5 py-1 text-[11px] sm:text-xs font-bold shrink-0 ${tier.color}`}>
-              {tier.title} ({(tier.taxMultiplier * 100 - 100).toFixed(0)}% gold)
+            <Badge variant="outline" className="px-2.5 py-1 text-[11px] sm:text-xs font-bold shrink-0 text-amber-300 border-amber-500/40 bg-amber-950/40 font-mono">
+              {petitions.filter(p => !p.completed).length} decrees pending
             </Badge>
           </div>
         </CardHeader>
-
-        <CardContent className="space-y-4">
-          {/* Happiness Progress Bar */}
-          <div className="space-y-2 bg-zinc-900/80 p-4 rounded-xl border border-white/10">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-zinc-400 font-medium">Kingdom Alignment Bar:</span>
-              <span className="font-mono font-bold text-amber-300">{happiness.score}% Loyalty</span>
-            </div>
-            <Progress value={happiness.score} className="h-3.5 bg-zinc-950" />
-            <div className="flex justify-between items-center text-[10px] text-zinc-400 pt-1">
-              <span className="text-red-400 font-bold">Revolting (0%)</span>
-              <span className="text-orange-400">Restless (30%)</span>
-              <span className="text-emerald-400">Loyal (70%)</span>
-              <span className="text-amber-400 font-bold">Serving (100%)</span>
-            </div>
-            <p className="text-xs text-zinc-300 italic pt-1 border-t border-white/5">
-              💡 {tier.description}
-            </p>
-          </div>
-
-          {/* Monthly Raid Boss Strike Feature Banner */}
-          <div className="bg-gradient-to-r from-red-950/40 via-zinc-900/90 to-amber-950/30 p-3 rounded-xl border border-red-500/30 flex items-center justify-between gap-3 flex-wrap">
-            <div className="flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-lg bg-red-900/60 border border-red-500/50 flex items-center justify-center text-base shrink-0">
-                🐉
-              </span>
-              <div>
-                <div className="text-xs font-bold text-red-200 flex items-center gap-1.5 font-serif">
-                  <span>Monthly raid boss attack:</span>
-                  <span className="text-amber-300 font-normal">{monthlyTitan.name}</span>
-                </div>
-                <div className="text-[11px] text-zinc-400">
-                  Each royal decree strikes the monthly Titan (-15 HP), leaving the House Cup strictly focused on your daily habits!
-                </div>
-              </div>
-            </div>
-            <Badge className="bg-red-950/80 text-red-300 border-red-500/40 text-[10px] font-mono shrink-0">
-              ⚔️ -15 HP per decree
-            </Badge>
-          </div>
-        </CardContent>
       </Card>
 
-      {/* Active Petitions Section (4 Active Petitions) */}
+      {/* Active Petitions Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-serif font-bold text-amber-300 tracking-wide flex items-center gap-2">
-            <Scale className="w-4 h-4 text-amber-400" /> Pending realm petitions (4 active)
+            <Scale className="w-4 h-4 text-amber-400" /> Pending realm petitions ({petitions.filter(p => !p.completed).length} active)
           </h3>
           <div className="flex items-center gap-2">
             <span className="text-xs text-zinc-400 font-mono hidden sm:inline">
@@ -191,7 +134,7 @@ export function PetitionsTab() {
               key={p.id}
               className={`snap-start shrink-0 w-[88vw] max-w-[340px] sm:w-auto sm:max-w-none transition-all ${
                 p.completed
-                  ? 'opacity-60 bg-zinc-950/60 border-zinc-800'
+                  ? 'opacity-70 bg-zinc-950/60 border-zinc-800'
                   : 'bg-zinc-900/95 border-amber-900/40 hover:border-amber-500/50 shadow-xl'
               }`}
             >
@@ -236,7 +179,7 @@ export function PetitionsTab() {
 
                 {!p.completed ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                    {/* Option 1 Button (Grey fill default, color only on hover) */}
+                    {/* Option 1 Button */}
                     <button
                       type="button"
                       onClick={() => handleChoice(p.id, 'A')}
@@ -250,7 +193,7 @@ export function PetitionsTab() {
                       </span>
                     </button>
 
-                    {/* Option 2 Button (Grey fill default, color only on hover) */}
+                    {/* Option 2 Button */}
                     <button
                       type="button"
                       onClick={() => handleChoice(p.id, 'B')}
@@ -265,14 +208,25 @@ export function PetitionsTab() {
                     </button>
                   </div>
                 ) : (
-                  <div className="bg-zinc-950/80 p-3 rounded-xl border border-emerald-500/30 text-xs space-y-1.5">
+                  <div className={`p-3 rounded-xl border text-xs space-y-1.5 ${
+                    p.chosenOutcome?.isFunnyTwist
+                      ? 'bg-zinc-950/80 border-rose-500/30'
+                      : 'bg-zinc-950/80 border-emerald-500/30'
+                  }`}>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-amber-400 font-bold tracking-wide block font-mono">
-                        Chosen decree outcome:
+                      <span className={`text-[10px] font-bold tracking-wide block font-mono ${
+                        p.chosenOutcome?.isFunnyTwist ? 'text-rose-400' : 'text-emerald-400'
+                      }`}>
+                        {p.chosenOutcome?.isFunnyTwist ? '💥 Chaotic mishap outcome:' : '✨ Favorable outcome:'}
                       </span>
-                      <span className="text-[10px] text-red-400 font-bold font-mono">
-                        ⚔️ -{p.chosenOutcome?.raidBossDamage || 15} Raid HP
-                      </span>
+                      <div className="flex items-center gap-2 text-[10px] font-mono font-bold">
+                        <span className={p.chosenOutcome && p.chosenOutcome.goldChange >= 0 ? "text-amber-400" : "text-rose-400"}>
+                          🪙 {p.chosenOutcome && p.chosenOutcome.goldChange >= 0 ? `+${p.chosenOutcome.goldChange}` : p.chosenOutcome?.goldChange} gold
+                        </span>
+                        <span className="text-indigo-300">
+                          ⭐ +{p.chosenOutcome?.xpReward ?? (p.chosenOutcome?.isFunnyTwist ? 10 : 35)} XP
+                        </span>
+                      </div>
                     </div>
                     <p className="text-zinc-300 italic font-serif text-[11px] leading-relaxed">
                       {p.chosenOutcome?.storyText || "Decree executed cleanly."}
@@ -286,53 +240,92 @@ export function PetitionsTab() {
       </div>
 
       {/* Standard Post-Choice Story Outcome Reveal Dialog */}
-      {activeOutcomeModal && (
-        <Dialog open={activeOutcomeModal.isOpen} onOpenChange={() => setActiveOutcomeModal(null)}>
-          <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border-2 border-amber-500/50 text-white p-6 rounded-2xl shadow-2xl font-serif text-center overflow-hidden z-[100] animate-in zoom-in-95">
-            <DialogHeader>
-              <div className="mx-auto w-14 h-14 rounded-full bg-amber-900/60 border-2 border-amber-400 flex items-center justify-center mb-2 shadow-[0_0_20px_rgba(245,158,11,0.4)] animate-bounce">
-                <span className="text-3xl">
-                  {activeOutcomeModal.outcome.isFunnyTwist ? '🤪' : '🌟'}
-                </span>
+      {activeOutcomeModal && (() => {
+        const isFavorable = !activeOutcomeModal.outcome.isFunnyTwist && activeOutcomeModal.goldChange >= 0;
+        return (
+          <Dialog open={activeOutcomeModal.isOpen} onOpenChange={() => setActiveOutcomeModal(null)}>
+            <DialogContent className={`max-w-md w-full bg-gradient-to-b ${
+              isFavorable
+                ? 'from-emerald-950/40 via-zinc-950 to-zinc-950 border-emerald-500/50'
+                : 'from-amber-950/40 via-zinc-950 to-zinc-950 border-amber-500/50'
+            } border-2 text-white p-6 rounded-2xl shadow-2xl font-serif text-center overflow-hidden z-[100] animate-in zoom-in-95`}>
+              <DialogHeader className="items-center text-center">
+                {/* Petitioner Character Avatar Frame (styled like Tales / Storybook) */}
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-900 via-amber-950 to-black border-2 border-amber-400 shadow-[0_4px_20px_rgba(0,0,0,0.8),0_0_16px_rgba(245,158,11,0.35)] flex items-center justify-center overflow-hidden shrink-0 p-1 mx-auto mb-2">
+                  {activeOutcomeModal.requesterImage ? (
+                    <div className="relative w-full h-full rounded-xl overflow-hidden bg-zinc-950/80">
+                      <Image
+                        src={activeOutcomeModal.requesterImage}
+                        alt={activeOutcomeModal.requesterRole || 'Petitioner'}
+                        fill
+                        className="object-contain p-0.5"
+                        unoptimized
+                      />
+                    </div>
+                  ) : (
+                    <span className="text-3xl filter drop-shadow">{activeOutcomeModal.requesterAvatar || '👑'}</span>
+                  )}
+                </div>
+
+                <div className="text-xs font-mono text-amber-300/90 font-bold tracking-wide">
+                  Petitioner: {activeOutcomeModal.requesterRole || 'Realm citizen'}
+                </div>
+
+                {/* Outcome Status Banner (clearly distinguishes Good vs Bad outcome) */}
+                <div className="pt-2">
+                  {isFavorable ? (
+                    <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-950/90 border border-emerald-500/60 text-emerald-300 text-xs font-serif font-bold shadow-md">
+                      <span>✨</span>
+                      <span>Favorable outcome</span>
+                    </div>
+                  ) : (
+                    <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-rose-950/90 border border-rose-500/60 text-rose-300 text-xs font-serif font-bold shadow-md">
+                      <span>💥</span>
+                      <span>Chaotic mishap</span>
+                    </div>
+                  )}
+                </div>
+
+                <DialogTitle className="text-xl sm:text-2xl font-serif font-bold text-amber-200 mt-2">
+                  Royal decree outcome
+                </DialogTitle>
+                <DialogDescription className="text-xs text-amber-200/80 italic">
+                  Decree: &quot;{activeOutcomeModal.chosenOptionLabel}&quot;
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className={`my-4 p-4 rounded-2xl border ${
+                isFavorable
+                  ? 'bg-emerald-950/20 border-emerald-500/30'
+                  : 'bg-rose-950/20 border-rose-500/30'
+              } space-y-4 text-left`}>
+                <p className="text-sm font-bold text-amber-100 leading-relaxed italic border-b border-amber-900/30 pb-3">
+                  {activeOutcomeModal.outcome.storyText}
+                </p>
+
+                {/* Real Game Rewards Grid: Gold & XP */}
+                <div className="grid grid-cols-2 gap-2.5 text-xs font-mono font-bold">
+                  <span className={`p-2.5 rounded-xl bg-zinc-900/90 border text-center flex items-center justify-center gap-1.5 ${
+                    activeOutcomeModal.goldChange >= 0 ? "text-amber-400 border-amber-500/40" : "text-rose-400 border-rose-500/40"
+                  }`}>
+                    🪙 Treasury: {activeOutcomeModal.goldChange >= 0 ? `+${activeOutcomeModal.goldChange}` : activeOutcomeModal.goldChange} gold
+                  </span>
+                  <span className="p-2.5 rounded-xl bg-zinc-900/90 border border-indigo-500/40 text-indigo-300 text-center flex items-center justify-center gap-1.5">
+                    ⭐ Experience: +{activeOutcomeModal.xpReward} XP
+                  </span>
+                </div>
               </div>
-              <DialogTitle className="text-xl sm:text-2xl font-medieval text-amber-300">
-                Royal decree outcome
-              </DialogTitle>
-              <DialogDescription className="text-xs text-amber-200/80 italic">
-                Decree: &quot;{activeOutcomeModal.chosenOptionLabel}&quot;
-              </DialogDescription>
-            </DialogHeader>
 
-            <div className="my-4 p-4 bg-zinc-950/90 rounded-2xl border border-amber-900/40 space-y-4 text-left">
-              <p className="text-sm font-bold text-amber-100 leading-relaxed italic border-b border-amber-900/30 pb-3">
-                {activeOutcomeModal.outcome.storyText}
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-mono font-bold">
-                <span className={`p-2 rounded-lg bg-zinc-900/80 border text-center ${activeOutcomeModal.outcome.goldChange >= 0 ? "text-amber-400 border-amber-500/30" : "text-red-400 border-red-500/30"}`}>
-                  🪙 Treasury: {activeOutcomeModal.outcome.goldChange >= 0 ? '+' : ''}{activeOutcomeModal.outcome.goldChange} Gold
-                </span>
-                <span className={`p-2 rounded-lg bg-zinc-900/80 border text-center ${activeOutcomeModal.outcome.loyaltyChange >= 0 ? "text-emerald-400 border-emerald-500/30" : "text-orange-400 border-orange-500/30"}`}>
-                  👑 Loyalty: {activeOutcomeModal.outcome.loyaltyChange >= 0 ? '+' : ''}{activeOutcomeModal.outcome.loyaltyChange}%
-                </span>
-                <span className="p-2 rounded-lg bg-red-950/50 border border-red-500/40 text-red-300 flex items-center justify-center gap-1">
-                  ⚔️ Raid: -{activeOutcomeModal.raidDamage} HP
-                </span>
-              </div>
-              <p className="text-[10px] text-zinc-400 italic text-center">
-                🛡️ Struck monthly titan {activeOutcomeModal.titanName}! House Cup remains purely earned via real daily habits.
-              </p>
-            </div>
-
-            <Button
-              onClick={() => setActiveOutcomeModal(null)}
-              className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-extrabold tracking-wide text-xs shadow-lg rounded-xl"
-            >
-              Enact & continue ✓
-            </Button>
-          </DialogContent>
-        </Dialog>
-      )}
+              <Button
+                onClick={() => setActiveOutcomeModal(null)}
+                className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-extrabold tracking-wide text-xs shadow-lg rounded-xl"
+              >
+                Enact & continue ✓
+              </Button>
+            </DialogContent>
+          </Dialog>
+        );
+      })()}
     </div>
   );
 }

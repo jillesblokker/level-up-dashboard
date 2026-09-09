@@ -11,6 +11,7 @@ export interface PetitionOutcome {
   storyText: string;
   goldChange: number;
   loyaltyChange: number;
+  xpReward?: number;
   raidBossDamage?: number;
   itemReward?: string;
   isFunnyTwist: boolean;
@@ -776,7 +777,14 @@ export function getActivePetitions(): Petition[] {
   return refreshAllPetitions();
 }
 
-export function resolvePetition(petitionId: string, choice: 'A' | 'B'): { happiness: CitizenHappinessState; goldChange: number; raidBossDamage: number; outcome: PetitionOutcome; chosenOptionLabel: string } {
+export function resolvePetition(petitionId: string, choice: 'A' | 'B'): {
+  happiness: CitizenHappinessState;
+  goldChange: number;
+  xpReward: number;
+  raidBossDamage: number;
+  outcome: PetitionOutcome;
+  chosenOptionLabel: string;
+} {
   const petitions = getActivePetitions();
   const target = petitions.find(p => p.id === petitionId);
   
@@ -784,12 +792,20 @@ export function resolvePetition(petitionId: string, choice: 'A' | 'B'): { happin
     storyText: "Decree enacted peacefully.",
     goldChange: 0,
     loyaltyChange: 0,
+    xpReward: 20,
     raidBossDamage: 15,
     isFunnyTwist: false
   };
 
   if (!target) {
-    return { happiness: getCitizenHappiness(), goldChange: 0, raidBossDamage: 15, outcome: fallbackOutcome, chosenOptionLabel: "Decree" };
+    return {
+      happiness: getCitizenHappiness(),
+      goldChange: 0,
+      xpReward: 20,
+      raidBossDamage: 15,
+      outcome: fallbackOutcome,
+      chosenOptionLabel: "Decree"
+    };
   }
 
   const option = choice === 'A' ? target.optionA : target.optionB;
@@ -797,10 +813,14 @@ export function resolvePetition(petitionId: string, choice: 'A' | 'B'): { happin
   // 50/50 randomized outcome roll
   const rolledOutcome = outcomes[Math.floor(Math.random() * outcomes.length)] || outcomes[0] || fallbackOutcome;
 
-  // Calculate raid boss strike damage (15 HP for standard decree, 10 HP for chaotic twist)
+  // Calculate real XP reward (+35 XP for favorable triumph, +10 XP for chaotic mishap)
+  const xpReward = rolledOutcome.xpReward ?? (rolledOutcome.isFunnyTwist ? 10 : 35);
+
+  // Calculate raid boss strike damage if needed for compatibility
   const raidBossDamage = rolledOutcome.raidBossDamage ?? (rolledOutcome.isFunnyTwist ? 10 : 15);
-  const outcomeWithRaidDmg: PetitionOutcome = {
+  const resolvedOutcome: PetitionOutcome = {
     ...rolledOutcome,
+    xpReward,
     raidBossDamage,
   };
 
@@ -811,7 +831,7 @@ export function resolvePetition(petitionId: string, choice: 'A' | 'B'): { happin
       return {
         ...p,
         completed: true,
-        chosenOutcome: outcomeWithRaidDmg,
+        chosenOutcome: resolvedOutcome,
         chosenOptionLabel: option?.label || "Decree"
       };
     }
@@ -823,8 +843,9 @@ export function resolvePetition(petitionId: string, choice: 'A' | 'B'): { happin
   return {
     happiness: newHappiness,
     goldChange: rolledOutcome.goldChange || 0,
+    xpReward,
     raidBossDamage,
-    outcome: outcomeWithRaidDmg,
+    outcome: resolvedOutcome,
     chosenOptionLabel: option?.label || "Decree"
   };
 }
