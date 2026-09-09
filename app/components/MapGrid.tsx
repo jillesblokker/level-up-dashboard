@@ -473,8 +473,8 @@ export function MapGrid({
             style={{
               left: `${penguinPos.x * tileSize + tileSize / 2}px`,
               top: `${penguinPos.y * tileSize + tileSize / 2}px`,
-              width: `${tileSize * 0.55}px`,
-              height: `${tileSize * 0.55}px`,
+              width: `${tileSize * 0.44}px`,
+              height: `${tileSize * 0.44}px`,
               transform: 'translate(-50%, -50%)'
             }}
             title="Penguino"
@@ -483,7 +483,7 @@ export function MapGrid({
               src="/images/Animals/penguin.webp" 
               alt="Penguino" 
               fill
-              sizes={`${tileSize * 0.55}px`}
+              sizes={`${tileSize * 0.44}px`}
               className="object-contain drop-shadow-md" 
             />
           </div>
@@ -499,8 +499,8 @@ export function MapGrid({
             style={{
               left: `${horsePos.x * tileSize + tileSize / 2}px`,
               top: `${horsePos.y * tileSize + tileSize / 2}px`,
-              width: `${tileSize * 0.72}px`,
-              height: `${tileSize * 0.72}px`,
+              width: `${tileSize * 0.92}px`,
+              height: `${tileSize * 0.92}px`,
               transform: 'translate(-50%, -50%)'
             }}
             title="Horse"
@@ -509,7 +509,7 @@ export function MapGrid({
               src="/images/Animals/horse.webp" 
               alt="Horse" 
               fill
-              sizes={`${tileSize * 0.72}px`}
+              sizes={`${tileSize * 0.92}px`}
               className="object-contain drop-shadow-md" 
             />
           </div>
@@ -525,8 +525,8 @@ export function MapGrid({
             style={{
               left: `${sheepPos.x * tileSize + tileSize / 2}px`,
               top: `${sheepPos.y * tileSize + tileSize / 2}px`,
-              width: `${tileSize * 0.68}px`,
-              height: `${tileSize * 0.68}px`,
+              width: `${tileSize * 0.56}px`,
+              height: `${tileSize * 0.56}px`,
               transform: 'translate(-50%, -50%)'
             }}
             title="Sheep"
@@ -535,7 +535,7 @@ export function MapGrid({
               src="/images/Animals/sheep.webp" 
               alt="Sheep" 
               fill
-              sizes={`${tileSize * 0.68}px`}
+              sizes={`${tileSize * 0.56}px`}
               className="object-contain drop-shadow-md" 
             />
           </div>
@@ -582,8 +582,8 @@ export function MapGrid({
             style={{
               left: `${eaglePos.x * tileSize + tileSize / 2}px`,
               top: `${eaglePos.y * tileSize + tileSize / 2}px`,
-              width: `${tileSize * 3.2}px`,
-              height: `${tileSize * 3.2}px`,
+              width: `${tileSize * 1.1}px`,
+              height: `${tileSize * 1.1}px`,
               transform: 'translate(-50%, -50%)'
             }}
           >
@@ -591,8 +591,8 @@ export function MapGrid({
               src="/images/Animals/eagle.webp" 
               alt="Eagle" 
               fill
-              sizes={`${tileSize * 3.2}px`}
-              className="object-contain" 
+              sizes={`${tileSize * 1.1}px`}
+              className="object-contain drop-shadow-lg" 
             />
           </div>
         )}

@@ -53,8 +53,12 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className, 
       return fn;
     };
 
+    const isAnimal = creature.id?.startsWith('9') || ['sheep.webp', 'horse.webp', 'penguin.webp', 'eagle.webp'].includes(creature.filename?.toLowerCase() || '');
+
     const primaryImagePath = isMythic 
         ? `/images/Mythics/${resolveFilename(creature.filename)}?v=2` 
+        : isAnimal
+        ? `/images/Animals/${resolveFilename(creature.filename)}`
         : `/images/creatures/${resolveFilename(creature.filename)}`;
 
     const [currentImageSrc, setCurrentImageSrc] = useState(primaryImagePath);
@@ -66,6 +70,8 @@ export function CreatureSprite({ creature, isPlayerOnTile, tileSize, className, 
     const handleImageError = () => {
         const fallbackSrc = isMythic
             ? `/images/Mythics/Mythic1red.webp`
+            : isAnimal
+            ? `/images/Animals/${creature.filename || 'penguin.webp'}`
             : `/images/creatures/${creature.id ? `${creature.id}.webp` : '001.webp'}`;
 
         if (currentImageSrc !== fallbackSrc && currentImageSrc !== '/images/placeholders/creature.webp') {
