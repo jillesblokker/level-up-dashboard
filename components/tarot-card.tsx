@@ -77,22 +77,34 @@ export function TarotCardDisplay() {
     };
 
     return (
-        <Card className="h-full flex flex-col bg-gradient-to-br from-zinc-900 to-zinc-950 border-amber-800/40 shadow-xl overflow-hidden">
-            <CardHeader className="pb-3 border-b border-amber-900/20">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-amber-500">
-                        <Sparkles className="w-5 h-5" />
-                        <CardTitle className="text-lg font-bold tracking-wide font-serif">Daily fate</CardTitle>
-                    </div>
-                    {hasDrawn && (
-                        <div className="text-xs text-amber-400/60 font-mono">
-                            Card drawn today
-                        </div>
-                    )}
-                </div>
-            </CardHeader>
+        <div className="h-full flex flex-col rounded-2xl bg-[#0d0b08] border-2 border-[#42311f] shadow-[0_10px_30px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(255,255,255,0.06)] overflow-hidden relative group">
+            {/* Antique medieval corner rivets & inner gold hairline border */}
+            <div className="absolute inset-1.5 rounded-xl border border-[#2b2014]/70 pointer-events-none z-10" />
+            <div className="absolute top-2 left-2 text-[#785934] text-[10px] select-none pointer-events-none">✦</div>
+            <div className="absolute top-2 right-2 text-[#785934] text-[10px] select-none pointer-events-none">✦</div>
+            <div className="absolute bottom-2 left-2 text-[#785934] text-[10px] select-none pointer-events-none">✦</div>
+            <div className="absolute bottom-2 right-2 text-[#785934] text-[10px] select-none pointer-events-none">✦</div>
 
-            <CardContent className="flex-1 flex flex-col justify-between space-y-4 pt-4">
+            {/* Header with Cross Fleurée and Gold Serif */}
+            <div className="px-5 py-3.5 border-b border-[#2d2115] bg-gradient-to-r from-[#140e09] via-[#1a130c] to-[#140e09] flex items-center justify-between z-20">
+                <div className="flex items-center gap-2.5">
+                    <span className="text-amber-500 font-serif text-base select-none">✢</span>
+                    <h2 className="text-sm sm:text-base font-serif font-bold text-amber-100 tracking-wider uppercase drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                        Daily fate
+                    </h2>
+                </div>
+                {hasDrawn ? (
+                    <div className="text-xs font-serif text-amber-300/80 tracking-wide font-medium">
+                        Card drawn today
+                    </div>
+                ) : (
+                    <div className="text-xs font-serif text-amber-400/70 tracking-wide font-medium">
+                        Card
+                    </div>
+                )}
+            </div>
+
+            <div className="flex-1 flex flex-col justify-between space-y-4 p-4 sm:p-5 z-20">
                 <div className="flex-1 flex flex-col items-center justify-between py-2 space-y-4">
                     {/* 3D Flippable Tarot Card */}
                     <div 
@@ -190,7 +202,7 @@ export function TarotCardDisplay() {
                         </div>
                     ) : null}
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }
