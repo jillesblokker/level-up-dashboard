@@ -2,7 +2,7 @@
 
 import { logger } from "@/lib/logger";
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { Wind, Sparkles, Check, Flame, Shield, Users, Clock, Trophy, Trash2, ArrowRight, Compass, Anchor, MapPin, Gauge, Radio, Volume2, VolumeX, MessageSquare, ChevronRight, Zap, Coins } from "lucide-react"
+import { Wind, Sparkles, Check, Flame, Shield, Users, Clock, Trophy, Trash2, ArrowRight, Compass, Anchor, MapPin, Gauge, Radio, Volume2, VolumeX, MessageSquare, ChevronRight, Zap, Coins, Hammer, Wrench } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
@@ -12,10 +12,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
 import { useCitizensStore } from "@/stores/citizensStore"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
-import { addToCharacterStat } from "@/lib/character-stats-service";
+import { getCharacterStats, addToCharacterStat } from "@/lib/character-stats-service";
+import { getInventory } from "@/lib/inventory-manager";
 import { playSFX } from "@/lib/sound-manager";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { unwrapApiResponse } from "@/lib/api-response-unwrapper";
@@ -142,7 +144,7 @@ class SkydockAudioEngine {
 
 const skydockAudio = new SkydockAudioEngine();
 
-// --- 7 CORE HABIT CATEGORIES & PERKS ---
+// --- 7 CORE HABIT CATEGORIES & METADATA ---
 export type HabitCategory = 'knowledge' | 'might' | 'vitality' | 'wellness' | 'craft' | 'honor' | 'castle';
 
 export interface CategoryMetadata {
@@ -333,6 +335,71 @@ const HABIT_JOURNEYS: JourneyRegion[] = [
   }
 ];
 
+// --- AIRSHIP VESSEL TIERS (DRYDOCK UPGRADES) ---
+export interface VesselTierConfig {
+  rank: number;
+  name: string;
+  badge: string;
+  description: string;
+  perks: string[];
+  cargoBonus: number;
+  speedBonus: number;
+  expBonus: number;
+  costs: {
+    gold: number;
+    wood: number;
+    steel: number;
+    crystals: number;
+  };
+}
+
+export const VESSEL_TIERS: VesselTierConfig[] = [
+  {
+    rank: 1,
+    name: "Cloud skiff",
+    badge: "Rank I",
+    description: "Light exploratory skiff built for short scouting runs through calm air currents.",
+    perks: ["Base cargo hold (x1 yield)", "Standard ether propulsion", "3 citizen crew capacity"],
+    cargoBonus: 0,
+    speedBonus: 0,
+    expBonus: 0,
+    costs: { gold: 0, wood: 0, steel: 0, crystals: 0 }
+  },
+  {
+    rank: 2,
+    name: "Sky sloop",
+    badge: "Rank II",
+    description: "Reinforced pine and steel hull equipped with twin ether outriggers.",
+    perks: ["+1 to all voyage cargo rewards", "+5% starting launch distance", "Increased sky cache spawn rate"],
+    cargoBonus: 1,
+    speedBonus: 5,
+    expBonus: 0,
+    costs: { gold: 500, wood: 4, steel: 2, crystals: 0 }
+  },
+  {
+    rank: 3,
+    name: "Aether frigate",
+    badge: "Rank III",
+    description: "Heavy armored frigate with dual crystal-focused steam boilers.",
+    perks: ["+2 to all voyage cargo rewards", "+10% starting launch distance", "+25 bonus crew EXP upon arrival"],
+    cargoBonus: 2,
+    speedBonus: 10,
+    expBonus: 25,
+    costs: { gold: 1500, wood: 8, steel: 4, crystals: 2 }
+  },
+  {
+    rank: 4,
+    name: "Celestial galleon",
+    badge: "Rank IV",
+    description: "The pride of the realm skydock. An opulent brass behemoth with quad ether turbines.",
+    perks: ["+3 to all voyage cargo rewards", "+20% starting launch distance", "+50 bonus crew EXP upon arrival"],
+    cargoBonus: 3,
+    speedBonus: 20,
+    expBonus: 50,
+    costs: { gold: 3000, wood: 12, steel: 6, crystals: 4 }
+  }
+];
+
 const DEFAULT_CREW_FIGHTERS: any[] = [
   { id: '001', name: 'Flamio', filename: '001.webp', type: 'fire', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
   { id: '004', name: 'Dolphio', filename: '004.webp', type: 'water', active: true, favorite: false, lastFedAt: null, activeDays: 1, lastHarvestedAt: null, affection: 50, level: 1, experience: 0 },
@@ -353,6 +420,14 @@ export function AirshipHarborTab() {
   const [guardianPet, setGuardianPet] = useState<{ id: string; name: string; image: string } | null>(null);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [steamPuff, setSteamPuff] = useState(false);
+  const [isSalvaging, setIsSalvaging] = useState(false);
+
+  // Vessel Upgrade States (Suggestion 3)
+  const [vesselRank, setVesselRank] = useState<number>(1);
+  const [showDrydockModal, setShowDrydockModal] = useState<boolean>(false);
+  const [isUpgradingVessel, setIsUpgradingVessel] = useState<boolean>(false);
+  const [inventoryItemCounts, setInventoryItemCounts] = useState<{ wood: number; steel: number; crystals: number }>({ wood: 0, steel: 0, crystals: 0 });
+  const [goldBalance, setGoldBalance] = useState<number>(0);
 
   // 7 Habit Categories Counts
   const [categoryCounts, setCategoryCounts] = useState<Record<HabitCategory, number>>({
@@ -376,6 +451,30 @@ export function AirshipHarborTab() {
       await loadCitizens(user.id);
       const voyage: any = (await getUserPreference('active_expeditions')) || { active: false };
       setActiveVoyage(voyage);
+
+      // Load Vessel Rank
+      const savedRank: number = Number(await getUserPreference('airship_vessel_rank')) || 1;
+      setVesselRank(savedRank);
+
+      // Load Player Gold
+      const stats = getCharacterStats();
+      setGoldBalance(stats.gold || 0);
+
+      // Load Inventory for Shipwright Materials
+      try {
+        const inv = await getInventory(user.id);
+        let wood = 0, steel = 0, crystals = 0;
+        inv.forEach((item: any) => {
+          const id = (item.id || item.item_id || '').toLowerCase();
+          const qty = item.quantity || 1;
+          if (id.includes('logs') || id.includes('wood')) wood += qty;
+          else if (id.includes('steel') || id.includes('iron')) steel += qty;
+          else if (id.includes('crystal') || id.includes('essence')) crystals += qty;
+        });
+        setInventoryItemCounts({ wood, steel, crystals });
+      } catch (e) {
+        logger.error('[Airship] Failed to load inventory counts:', e);
+      }
 
       // Load Guardian Pet for Quartermaster Mascot
       try {
@@ -462,6 +561,11 @@ export function AirshipHarborTab() {
     return HABIT_JOURNEYS.find(j => j.id === selectedJourneyId) || HABIT_JOURNEYS[0]!;
   }, [activeVoyage, selectedJourneyId]);
 
+  // Current Vessel definition
+  const currentVessel = useMemo(() => {
+    return VESSEL_TIERS.find(v => v.rank === vesselRank) || VESSEL_TIERS[0]!;
+  }, [vesselRank]);
+
   // 4 Vacuum Tubes metrics calculated for the active/selected journey
   const tubesState = useMemo(() => {
     const tubes = currentJourney.tubes.map(tube => {
@@ -499,7 +603,7 @@ export function AirshipHarborTab() {
       if (progress >= 100) {
         return "Anchor dropped! We have reached celestial port safely. Crack the cargo bay chest locks and claim our spoils!";
       }
-      return `Cruising at 4,820 ft through the cloudsea! Boilers pressurized at ${tubesState.boilerPressurePct}%. Keep completing daily habits to propel our ship!`;
+      return `Cruising at 4,820 ft aboard the ${currentVessel.name}! Boilers pressurized at ${tubesState.boilerPressurePct}%. Keep completing daily habits to propel our ship!`;
     }
     if (selectedCrew.length === 3) {
       return "All 3 crew stations manned: Helmsman, Machinist, and Lookout! Pull the engine telegraph lever to full ahead to cast off!";
@@ -511,7 +615,22 @@ export function AirshipHarborTab() {
       return "Hyper-Ether Resonance active! All 4 vacuum tubes are glowing at maximum pressure. Select 3 crew members and depart!";
     }
     return `Welcome to the Skydock Bridge! Complete habits in ${currentJourney.tubes.map(t => t.category).join(', ')} to pressurize the 4 engine tubes.`;
-  }, [activeVoyage, selectedCrew.length, tubesState.chargedCount, tubesState.boilerPressurePct, currentJourney]);
+  }, [activeVoyage, selectedCrew.length, tubesState.chargedCount, tubesState.boilerPressurePct, currentJourney, currentVessel]);
+
+  // Sky Cache Availability Calculation (Suggestion 2)
+  const skyCacheState = useMemo(() => {
+    if (!activeVoyage?.active || (activeVoyage.progress || 0) >= 100) {
+      return { available: false, bracket: 0 };
+    }
+    const progress = activeVoyage.progress || 0;
+    if (progress < 15) return { available: false, bracket: 0 };
+    
+    const bracket = Math.floor(progress / 25);
+    const salvagedBrackets: number[] = activeVoyage.salvagedBrackets || [];
+    const available = bracket >= 1 && !salvagedBrackets.includes(bracket);
+
+    return { available, bracket };
+  }, [activeVoyage]);
 
   // Crew Selection (up to 3 citizens)
   const handleToggleCrewSelection = (id: string) => {
@@ -548,7 +667,7 @@ export function AirshipHarborTab() {
       skydockAudio.playBellChime();
       setTimeout(() => skydockAudio.playSteamHorn(), 250);
 
-      // Calculate initial starting progress from 3 Crew Affinities (+10% each) + Charged Tubes (+7.5% each)
+      // Calculate initial starting progress from 3 Crew Affinities (+10% each) + Charged Tubes (+7.5% each) + Vessel Speed Bonus
       let affinityCount = 0;
       selectedCrew.forEach(cId => {
         const citizen = citizens.find(c => c.id === cId);
@@ -559,7 +678,8 @@ export function AirshipHarborTab() {
 
       const affinityBurst = affinityCount * 10;
       const tubesBurst = tubesState.chargedCount * 7.5;
-      const initialProgress = Math.min(75, Math.round(20 + affinityBurst + tubesBurst));
+      const vesselSpeed = currentVessel.speedBonus || 0;
+      const initialProgress = Math.min(80, Math.round(20 + affinityBurst + tubesBurst + vesselSpeed));
 
       // 1. Lock 3 citizens in preferences
       const savedPrefs: any = await getUserPreference('citizens_state') || {};
@@ -578,6 +698,8 @@ export function AirshipHarborTab() {
         category: currentJourney.category,
         progress: initialProgress,
         crew: selectedCrew,
+        vesselRank: vesselRank,
+        salvagedBrackets: [],
         chargedTubes: tubesState.tubes.filter(t => t.isCharged).map(t => t.category),
         startedAt: new Date().toISOString()
       };
@@ -585,7 +707,7 @@ export function AirshipHarborTab() {
 
       toast({
         title: "Mooring lines cast! ⛵✨",
-        description: `${currentJourney.name} is underway with ${selectedCrew.length} crew. Initial ether burst: +${initialProgress}%!`
+        description: `${currentJourney.name} is underway with 3 crew aboard the ${currentVessel.name}. Initial ether burst: +${initialProgress}%!`
       });
 
       setSelectedCrew([]);
@@ -598,6 +720,132 @@ export function AirshipHarborTab() {
       });
     } finally {
       setIsLaunching(false);
+    }
+  };
+
+  // Sky Cache Salvage Action (Suggestion 2)
+  const handleSalvageSkyCache = async () => {
+    if (!user?.id || !activeVoyage || !skyCacheState.available || isSalvaging) return;
+
+    try {
+      setIsSalvaging(true);
+      skydockAudio.playTelegraphClick();
+      skydockAudio.playChestUnlock();
+
+      // Determine salvage reward: 60% chance for Gold (scaled by vessel tier), 40% for crafting material
+      const isGold = Math.random() < 0.6;
+      let rewardText = "";
+
+      if (isGold) {
+        const baseGold = 75;
+        const goldGain = vesselRank >= 4 ? baseGold * 2 : baseGold;
+        await addToCharacterStat('gold', goldGain, 'sky-cache-salvage');
+        rewardText = `+${goldGain} gold`;
+      } else {
+        const salvageMaterials = ['material-water', 'material-crystal', 'material-silver'];
+        const chosenMat = salvageMaterials[Math.floor(Math.random() * salvageMaterials.length)]!;
+        await fetch('/api/inventory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item: { id: chosenMat, quantity: 1 } })
+        });
+        const matName = chosenMat.replace('material-', '').replace('-', ' ');
+        rewardText = `1 ${matName}`;
+      }
+
+      // Record bracket as salvaged so it doesn't trigger again for this milestone
+      const updatedBrackets = [...(activeVoyage.salvagedBrackets || []), skyCacheState.bracket];
+      const updatedVoyage = { ...activeVoyage, salvagedBrackets: updatedBrackets };
+      await setUserPreference('active_expeditions', updatedVoyage);
+      setActiveVoyage(updatedVoyage);
+
+      toast({
+        title: "Sky cache winched aboard! 🪝📦",
+        description: `Salvaged ${rewardText} from the celestial cloud strata!`
+      });
+
+      window.dispatchEvent(new Event('character-inventory-update'));
+      await loadVoyageData();
+    } catch (err) {
+      toast({ title: "Salvage failed", description: "Failed to winch sky cache.", variant: "destructive" });
+    } finally {
+      setIsSalvaging(false);
+    }
+  };
+
+  // Shipwright Vessel Upgrade Action (Suggestion 3)
+  const handleUpgradeVessel = async (targetTier: VesselTierConfig) => {
+    if (!user?.id || isUpgradingVessel) return;
+
+    // Check prerequisites
+    const stats = getCharacterStats();
+    const currentGold = stats.gold || 0;
+    if (currentGold < targetTier.costs.gold) {
+      toast({ title: "Insufficient gold", description: `You need ${targetTier.costs.gold} gold to commission this upgrade.`, variant: "destructive" });
+      return;
+    }
+    if (inventoryItemCounts.wood < targetTier.costs.wood) {
+      toast({ title: "Insufficient wooden logs", description: `You need ${targetTier.costs.wood} wooden logs.`, variant: "destructive" });
+      return;
+    }
+    if (inventoryItemCounts.steel < targetTier.costs.steel) {
+      toast({ title: "Insufficient steel ingots", description: `You need ${targetTier.costs.steel} steel ingots.`, variant: "destructive" });
+      return;
+    }
+    if (inventoryItemCounts.crystals < targetTier.costs.crystals) {
+      toast({ title: "Insufficient essence crystals", description: `You need ${targetTier.costs.crystals} essence crystals.`, variant: "destructive" });
+      return;
+    }
+
+    try {
+      setIsUpgradingVessel(true);
+      skydockAudio.playChestUnlock();
+      skydockAudio.playSteamHorn();
+
+      // Deduct gold
+      if (targetTier.costs.gold > 0) {
+        await addToCharacterStat('gold', -targetTier.costs.gold, 'airship-vessel-upgrade');
+      }
+
+      // Deduct materials from inventory
+      if (targetTier.costs.wood > 0) {
+        await fetch('/api/inventory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item: { id: 'material-logs', quantity: -targetTier.costs.wood } })
+        });
+      }
+      if (targetTier.costs.steel > 0) {
+        await fetch('/api/inventory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item: { id: 'material-steel', quantity: -targetTier.costs.steel } })
+        });
+      }
+      if (targetTier.costs.crystals > 0) {
+        await fetch('/api/inventory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item: { id: 'material-crystal', quantity: -targetTier.costs.crystals } })
+        });
+      }
+
+      // Save new vessel rank
+      await setUserPreference('airship_vessel_rank', targetTier.rank);
+      setVesselRank(targetTier.rank);
+
+      toast({
+        title: "Vessel upgraded! ⚓✨",
+        description: `Your airship is now a ${targetTier.name} (${targetTier.badge})! Cargo hold and engine power permanently boosted.`
+      });
+
+      setShowDrydockModal(false);
+      window.dispatchEvent(new Event('character-inventory-update'));
+      await loadVoyageData();
+    } catch (err) {
+      toast({ title: "Upgrade failed", description: "Failed to upgrade vessel hull.", variant: "destructive" });
+    } finally {
+      setIsUpgradingVessel(false);
     }
   };
 
@@ -647,9 +895,13 @@ export function AirshipHarborTab() {
       const hasBonusExp = chargedTubes.some(c => voyageRegion.tubes.some(t => t.category === c && t.perkType === 'crew_exp'));
       const hasBonusGold = chargedTubes.some(c => voyageRegion.tubes.some(t => t.category === c && t.perkType === 'gold'));
 
-      // 1. Add base rewards to inventory
+      // Vessel tier perks: +1/+2/+3 to all cargo quantities + EXP bonus
+      const vesselCargoBonus = currentVessel.cargoBonus || 0;
+      const vesselExpBonus = currentVessel.expBonus || 0;
+
+      // 1. Add base rewards + tube bonus + vessel tier bonus to inventory
       for (const item of voyageRegion.rewards) {
-        const extraQty = hasBonusCargo ? 1 : 0;
+        const extraQty = (hasBonusCargo ? 1 : 0) + vesselCargoBonus;
         await fetch('/api/inventory', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -668,7 +920,7 @@ export function AirshipHarborTab() {
       }
 
       // 3. Unlock 3 citizens & grant expedition XP + affection
-      const expEarned = hasBonusExp ? 200 : 150;
+      const expEarned = (hasBonusExp ? 200 : 150) + vesselExpBonus;
       const savedPrefs: any = await getUserPreference('citizens_state') || {};
       activeVoyage.crew.forEach((cId: string) => {
         if (savedPrefs[cId]) {
@@ -694,7 +946,7 @@ export function AirshipHarborTab() {
 
       toast({
         title: "Cargo chests claimed! 🪙📦",
-        description: `Your 3 crew members returned safely! Each earned +${expEarned} XP and +15 affection.${hasBonusCargo ? " (Includes +1 bonus material from pressurized tube!)" : ""}`
+        description: `Your 3 crew members returned safely! Each earned +${expEarned} XP and +15 affection.${vesselCargoBonus > 0 ? ` (+${vesselCargoBonus} cargo from ${currentVessel.name})` : ""}`
       });
 
       window.dispatchEvent(new Event('character-inventory-update'));
@@ -713,7 +965,7 @@ export function AirshipHarborTab() {
   return (
     <div className="space-y-6 font-serif select-none">
 
-      {/* TOP AIRSHIP HARBOR HERO HEADER (Requested Image: /images/headers/airship-harbor.webp) */}
+      {/* TOP AIRSHIP HARBOR HERO HEADER (Image: /images/headers/airship-harbor.webp) */}
       <div className="relative rounded-3xl overflow-hidden border-2 border-amber-900/40 shadow-2xl bg-zinc-950">
         
         <div className="relative h-64 sm:h-72 w-full">
@@ -736,17 +988,25 @@ export function AirshipHarborTab() {
             </div>
           )}
 
-          {/* Top Audio Toggle & Skydock Badge */}
+          {/* Top Audio Toggle & Vessel Drydock CTA Badge */}
           <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Badge className="bg-amber-950/80 border border-amber-500/50 text-amber-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-md shadow-lg flex items-center gap-1.5">
                 <Anchor className="w-3.5 h-3.5 text-amber-400" />
                 <span>Skydock flight deck</span>
               </Badge>
-              <Badge className="bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-[10px] font-mono px-2 py-0.5 backdrop-blur-md hidden sm:flex items-center gap-1">
-                <Radio className="w-3 h-3 text-cyan-400 animate-pulse" />
-                <span>Channel: 142.8 Mhz</span>
-              </Badge>
+
+              {/* Vessel Rank Badge with Shipwright Dialog Trigger */}
+              <button
+                onClick={() => setShowDrydockModal(true)}
+                className="bg-black/75 hover:bg-amber-950/80 border border-amber-500/40 text-amber-300 text-[10px] font-mono px-2.5 py-1 rounded-full backdrop-blur-md transition-all shadow-md flex items-center gap-1.5 group"
+                title="Open shipwright drydock to upgrade airship hull"
+              >
+                <Hammer className="w-3 h-3 text-amber-400 group-hover:rotate-12 transition-transform" />
+                <span className="font-bold">{currentVessel.name}</span>
+                <span className="text-zinc-400 text-[9px]">({currentVessel.badge})</span>
+                <span className="text-[9px] text-amber-400 underline ml-0.5 hidden sm:inline">Drydock</span>
+              </button>
             </div>
 
             <Button
@@ -953,6 +1213,9 @@ export function AirshipHarborTab() {
                           Active voyage
                         </Badge>
                         <span className="text-xs text-zinc-400 font-mono">Heading: {region.coordinates}</span>
+                        <Badge className="bg-zinc-900 border border-amber-500/30 text-amber-300 text-[9px] font-mono">
+                          {currentVessel.name}
+                        </Badge>
                       </div>
                       <h3 className="font-cardo font-bold text-xl sm:text-2xl text-white mt-1">
                         {region.name}
@@ -1002,6 +1265,27 @@ export function AirshipHarborTab() {
                       </Badge>
                     </div>
 
+                    {/* SUGGESTION 2: FLOATING SKY CACHE MINI-EVENT BUTTON */}
+                    {skyCacheState.available && (
+                      <div
+                        onClick={handleSalvageSkyCache}
+                        className="relative z-30 self-center cursor-pointer group animate-bounce"
+                        title="Click to winch floating sky cache aboard!"
+                      >
+                        <div className="p-2.5 rounded-2xl bg-amber-950/90 border-2 border-amber-400 text-amber-200 shadow-[0_0_30px_#f59e0b] backdrop-blur-md flex items-center gap-2.5 group-hover:scale-105 active:scale-95 transition-transform">
+                          <span className="text-xl animate-pulse">📦</span>
+                          <div className="text-left pr-1">
+                            <span className="text-[10px] font-mono font-bold uppercase text-amber-300 block">
+                              Sky cache adrift!
+                            </span>
+                            <span className="text-[9px] text-zinc-200 font-sans">
+                              Tap to winch aboard
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Center Spinning Brass Gyro-Compass */}
                     <div className="relative z-20 flex items-center justify-center pointer-events-none">
                       <div className="px-4 py-1.5 rounded-full bg-black/70 border border-amber-500/40 backdrop-blur-md shadow-xl flex items-center gap-2">
@@ -1016,7 +1300,7 @@ export function AirshipHarborTab() {
                     <div className="relative z-20 flex items-end justify-between">
                       <div>
                         <p className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
-                          Navigation helm
+                          Navigation helm &bull; {currentVessel.name}
                         </p>
                         <p className="text-xs text-zinc-200 font-serif font-semibold">
                           {isFinished ? "Safe arrival — cargo ready to unload" : `Propelling toward ${region.name}`}
@@ -1061,50 +1345,56 @@ export function AirshipHarborTab() {
                       <h4 className="text-[10px] font-bold text-amber-400 tracking-wider uppercase font-mono">
                         📦 Guaranteed cargo hold:
                       </h4>
-                      <span className="text-[10px] text-zinc-500 font-mono">Secured in hold</span>
+                      <span className="text-[10px] text-zinc-400 font-mono">
+                        {currentVessel.cargoBonus > 0 ? `+${currentVessel.cargoBonus} extra from ${currentVessel.name}` : "Secured in hold"}
+                      </span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {region.rewards.map(reward => (
-                        <div
-                          key={reward.id}
-                          className="p-3.5 bg-gradient-to-r from-amber-950/20 via-zinc-950/80 to-zinc-900/60 border border-amber-500/20 hover:border-amber-500/40 rounded-2xl flex items-center justify-between gap-3 shadow-md transition-all group"
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-amber-500/30 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform shadow-inner overflow-hidden relative p-1">
-                              {reward.image ? (
-                                <Image
-                                  src={reward.image}
-                                  alt={reward.name}
-                                  width={32}
-                                  height={32}
-                                  className="object-contain drop-shadow"
-                                  onError={(e) => {
-                                    (e.currentTarget as HTMLElement).style.display = 'none';
-                                    const fallback = e.currentTarget.parentElement?.querySelector('.cargo-emoji-fallback');
-                                    if (fallback) (fallback as HTMLElement).style.display = 'inline';
-                                  }}
-                                />
-                              ) : null}
-                              <span className={cn("cargo-emoji-fallback", reward.image ? "hidden" : "inline")}>
-                                {reward.emoji}
-                              </span>
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-bold text-white text-xs font-serif truncate group-hover:text-amber-200 transition-colors">
-                                {reward.name}
-                              </p>
-                              <p className="text-[10px] text-zinc-400 font-sans">
-                                Kingdom crafting material
-                              </p>
-                            </div>
-                          </div>
+                      {region.rewards.map(reward => {
+                        const totalQty = reward.quantity + (currentVessel.cargoBonus || 0);
 
-                          <Badge className="bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold px-2 py-0.5 shrink-0">
-                            x{reward.quantity}
-                          </Badge>
-                        </div>
-                      ))}
+                        return (
+                          <div
+                            key={reward.id}
+                            className="p-3.5 bg-gradient-to-r from-amber-950/20 via-zinc-950/80 to-zinc-900/60 border border-amber-500/20 hover:border-amber-500/40 rounded-2xl flex items-center justify-between gap-3 shadow-md transition-all group"
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-amber-500/30 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform shadow-inner overflow-hidden relative p-1">
+                                {reward.image ? (
+                                  <Image
+                                    src={reward.image}
+                                    alt={reward.name}
+                                    width={32}
+                                    height={32}
+                                    className="object-contain drop-shadow"
+                                    onError={(e) => {
+                                      (e.currentTarget as HTMLElement).style.display = 'none';
+                                      const fallback = e.currentTarget.parentElement?.querySelector('.cargo-emoji-fallback');
+                                      if (fallback) (fallback as HTMLElement).style.display = 'inline';
+                                    }}
+                                  />
+                                ) : null}
+                                <span className={cn("cargo-emoji-fallback", reward.image ? "hidden" : "inline")}>
+                                  {reward.emoji}
+                                </span>
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-white text-xs font-serif truncate group-hover:text-amber-200 transition-colors">
+                                  {reward.name}
+                                </p>
+                                <p className="text-[10px] text-zinc-400 font-sans">
+                                  Kingdom crafting material
+                                </p>
+                              </div>
+                            </div>
+
+                            <Badge className="bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold px-2 py-0.5 shrink-0">
+                              x{totalQty}
+                            </Badge>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -1216,7 +1506,7 @@ export function AirshipHarborTab() {
 
                     <div className="pt-1.5 border-t border-white/5 flex items-center justify-between text-[9px] font-mono text-zinc-400 mt-1.5">
                       <span>Arrival bonus:</span>
-                      <span className="text-emerald-400 font-bold">+150 XP & +15 Affection</span>
+                      <span className="text-emerald-400 font-bold">+{150 + (currentVessel.expBonus || 0)} XP & +15 Affection</span>
                     </div>
                   </Card>
                 );
@@ -1238,7 +1528,17 @@ export function AirshipHarborTab() {
               <h3 className="text-lg font-cardo font-bold text-amber-100 flex items-center gap-2">
                 <Compass className="w-5 h-5 text-amber-500" /> Celestial sky chart & trade routes
               </h3>
-              <span className="text-xs text-zinc-400 font-mono">Select route heading</span>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowDrydockModal(true)}
+                  className="h-7 text-[10px] font-mono border-amber-500/30 text-amber-300 bg-amber-950/40 hover:bg-amber-950/80 gap-1.5"
+                >
+                  <Hammer className="w-3 h-3 text-amber-400" />
+                  <span>Shipwright drydock</span>
+                </Button>
+              </div>
             </div>
 
             {/* Antique Navigation Table Map Frame */}
@@ -1589,6 +1889,142 @@ export function AirshipHarborTab() {
         </div>
 
       )}
+
+      {/* SHIPWRIGHT DRYDOCK MODAL (Suggestion 3: Vessel Hull Upgrades) */}
+      <Dialog open={showDrydockModal} onOpenChange={setShowDrydockModal}>
+        <DialogContent className="max-w-xl w-full bg-zinc-950 border-2 border-amber-900/50 text-white rounded-3xl p-6 shadow-2xl font-serif max-h-[85dvh] flex flex-col overflow-y-auto">
+          <DialogHeader className="text-center flex flex-col items-center pb-2">
+            <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 mb-1.5 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+              <Hammer className="w-6 h-6 animate-pulse" />
+            </div>
+            <DialogTitle className="text-xl font-bold font-cardo text-amber-200 tracking-wide">
+              Shipwright drydock &amp; vessel upgrades
+            </DialogTitle>
+            <DialogDescription className="text-xs text-zinc-400">
+              Forge reinforced hulls and ether turbines to boost voyage cargo yields and flight velocity.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Current Player Inventory Summary */}
+          <div className="grid grid-cols-4 gap-2 bg-black/60 p-3 rounded-2xl border border-white/5 text-[11px] font-mono text-center my-2">
+            <div>
+              <span className="text-zinc-500 block text-[9px]">Gold</span>
+              <span className="text-amber-300 font-bold">🪙 {goldBalance}</span>
+            </div>
+            <div>
+              <span className="text-zinc-500 block text-[9px]">Logs</span>
+              <span className="text-amber-200 font-bold">🪵 {inventoryItemCounts.wood}</span>
+            </div>
+            <div>
+              <span className="text-zinc-500 block text-[9px]">Steel</span>
+              <span className="text-zinc-200 font-bold">⚔️ {inventoryItemCounts.steel}</span>
+            </div>
+            <div>
+              <span className="text-zinc-500 block text-[9px]">Crystals</span>
+              <span className="text-cyan-300 font-bold">💎 {inventoryItemCounts.crystals}</span>
+            </div>
+          </div>
+
+          {/* Vessel Tier List */}
+          <div className="space-y-3 pt-2">
+            {VESSEL_TIERS.map(tier => {
+              const isCurrent = tier.rank === vesselRank;
+              const isUnlocked = tier.rank <= vesselRank;
+              const isNext = tier.rank === vesselRank + 1;
+
+              const canAfford = 
+                goldBalance >= tier.costs.gold &&
+                inventoryItemCounts.wood >= tier.costs.wood &&
+                inventoryItemCounts.steel >= tier.costs.steel &&
+                inventoryItemCounts.crystals >= tier.costs.crystals;
+
+              return (
+                <div
+                  key={tier.rank}
+                  className={cn(
+                    "p-4 rounded-2xl border transition-all relative overflow-hidden",
+                    isCurrent
+                      ? "bg-amber-950/40 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                      : isNext
+                      ? "bg-zinc-900/80 border-amber-500/40 hover:border-amber-400"
+                      : "bg-zinc-950/40 border-zinc-800 opacity-60"
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-3 pb-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-cardo font-bold text-sm text-white">{tier.name}</h4>
+                        <Badge className={cn(
+                          "text-[9px] font-mono",
+                          isCurrent ? "bg-amber-500 text-black font-extrabold" : "bg-zinc-800 text-zinc-400"
+                        )}>
+                          {tier.badge}
+                        </Badge>
+                        {isCurrent && (
+                          <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-[8px] font-mono">
+                            Active vessel
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-zinc-400 font-sans mt-0.5 leading-relaxed">
+                        {tier.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Perks */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 py-2 text-[10px] font-mono text-zinc-300">
+                    {tier.perks.map((p, i) => (
+                      <div key={i} className="flex items-center gap-1.5">
+                        <span className="text-amber-400">✦</span>
+                        <span>{p}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Upgrade CTA for the next tier */}
+                  {isNext && (
+                    <div className="pt-3 mt-2 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 text-[10px] font-mono">
+                        <span className={cn(goldBalance >= tier.costs.gold ? "text-emerald-400" : "text-red-400")}>
+                          🪙 {tier.costs.gold}
+                        </span>
+                        <span className={cn(inventoryItemCounts.wood >= tier.costs.wood ? "text-emerald-400" : "text-red-400")}>
+                          🪵 {tier.costs.wood}
+                        </span>
+                        <span className={cn(inventoryItemCounts.steel >= tier.costs.steel ? "text-emerald-400" : "text-red-400")}>
+                          ⚔️ {tier.costs.steel}
+                        </span>
+                        {tier.costs.crystals > 0 && (
+                          <span className={cn(inventoryItemCounts.crystals >= tier.costs.crystals ? "text-emerald-400" : "text-red-400")}>
+                            💎 {tier.costs.crystals}
+                          </span>
+                        )}
+                      </div>
+
+                      <Button
+                        size="sm"
+                        disabled={!canAfford || isUpgradingVessel}
+                        onClick={() => handleUpgradeVessel(tier)}
+                        className={cn(
+                          "text-xs font-bold px-4 py-2 rounded-xl transition-all",
+                          canAfford
+                            ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-extrabold shadow-md hover:brightness-110"
+                            : "bg-zinc-800 text-zinc-500 cursor-not-allowed"
+                        )}
+                      >
+                        {isUpgradingVessel ? "Commissioning hull..." : `Upgrade to ${tier.name}`}
+                      </Button>
+                    </div>
+                  )}
+
+                </div>
+              );
+            })}
+          </div>
+
+        </DialogContent>
+      </Dialog>
 
     </div>
   );
