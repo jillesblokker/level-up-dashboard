@@ -13,7 +13,7 @@ import { getCharacterStats } from "@/lib/character-stats-service"
 import { HeaderSection } from "@/components/HeaderSection"
 import { PageGuide } from "@/components/page-guide"
 import Image from "next/image"
-import { useInventory, useCharacterStats, useUpdateCharacterStats, useAddInventoryItem } from "@/lib/queries"
+import { useInventory, useCharacterStats, useUpdateCharacterStats, useAddInventoryItem, useRemoveInventoryItem } from "@/lib/queries"
 import { getUserPreference } from "@/lib/user-preferences-manager"
 
 interface LocationItem {
@@ -56,32 +56,32 @@ const locationData: Record<string, {
 }> = {
   "the-dragons-rest": {
     name: "The Dragon's Rest",
-    description: "A tavern where you can buy potions.",
+    description: "A tavern where you can rest by the warm hearth and purchase restorative draughts.",
     icon: Home,
     items: [
-      { id: "health-potion", name: "Health Potion", description: "Restores 50 HP", price: 50, type: "consumable", emoji: "🧪" },
-      { id: "mana-potion", name: "Mana Potion", description: "Restores 50 MP", price: 50, type: "consumable", emoji: "🔮" },
+      { id: "health-potion", name: "Health potion", description: "Restores 50 HP", price: 50, type: "consumable", emoji: "🧪" },
+      { id: "mana-potion", name: "Mana potion", description: "Restores 50 MP", price: 50, type: "consumable", emoji: "🔮" },
       { id: "antidote", name: "Antidote", description: "Cures poison", price: 75, type: "consumable", emoji: "💊" }
     ]
   },
   "kingdom-marketplace": {
     name: "Kingdom Marketplace",
-    description: "Trade/sell your artifacts for gold and buy artifacts, scrolls, or books.",
+    description: "Trade and sell your artifacts for gold and buy rare scrolls and tomes.",
     icon: ShoppingBag,
     items: [
-      { id: "ancient-artifact", name: "Ancient Artifact", description: "A mysterious artifact.", price: 300, type: "artifact", emoji: "🏺" },
-      { id: "magic-scroll", name: "Magic Scroll", description: "A scroll containing a spell.", price: 200, type: "scroll", emoji: "📜" },
-      { id: "tome-of-knowledge", name: "Tome of Knowledge", description: "A book of wisdom.", price: 400, type: "book", emoji: "📚" }
+      { id: "ancient-artifact", name: "Ancient artifact", description: "A mysterious ancient relic.", price: 300, type: "artifact", emoji: "🏺" },
+      { id: "magic-scroll", name: "Magic scroll", description: "A scroll inscribed with focus magic.", price: 200, type: "scroll", emoji: "📜" },
+      { id: "tome-of-knowledge", name: "Tome of knowledge", description: "An ancient book of wisdom.", price: 400, type: "book", emoji: "📚" }
     ]
   },
   "royal-stables": {
     name: "Royal Stables",
-    description: "Buy horses with unique movement stats.",
+    description: "Acquire trusty mounts with travel speed bonuses.",
     icon: Footprints,
     horses: [
-      { id: "swift-horse", name: "Sally Swift Horse", description: "Fast and agile.", price: 500, movement: 6, emoji: "🐎", type: "creature" },
-      { id: "endurance-horse", name: "Buster Endurance Horse", description: "Can travel long distances.", price: 600, movement: 8, emoji: "🐴", type: "creature" },
-      { id: "war-horse", name: "Shadow War Horse", description: "Strong and brave.", price: 800, movement: 10, emoji: "🦄", type: "creature" }
+      { id: "swift-horse", name: "Swift horse", description: "Fast and agile courier steed.", price: 500, movement: 6, emoji: "🐎", type: "creature" },
+      { id: "endurance-horse", name: "Endurance horse", description: "Bred for long journeys across the realm.", price: 600, movement: 8, emoji: "🐴", type: "creature" },
+      { id: "war-horse", name: "Shadow war horse", description: "Battle-hardened and courageous.", price: 800, movement: 10, emoji: "🦄", type: "creature" }
     ]
   },
   "embers-forge": {
@@ -89,9 +89,9 @@ const locationData: Record<string, {
     description: "Master blacksmith crafting weapons and armor.",
     icon: Swords,
     items: [
-      { id: "iron-sword", name: "Iron Sword", description: "A sturdy blade", price: 200, type: "weapon", emoji: "🗡️" },
-      { id: "iron-armor", name: "Iron Armor", description: "Protective plate armor", price: 350, type: "equipment", emoji: "🛡️" },
-      { id: "steel-shield", name: "Steel Shield", description: "A heavy steel shield", price: 250, type: "equipment", emoji: "🛡️" }
+      { id: "iron-sword", name: "Iron sword", description: "A sturdy tempered blade", price: 200, type: "weapon", emoji: "🗡️" },
+      { id: "iron-armor", name: "Iron armor", description: "Protective plate armor", price: 350, type: "equipment", emoji: "🛡️" },
+      { id: "steel-shield", name: "Steel shield", description: "A heavy steel shield", price: 250, type: "equipment", emoji: "🛡️" }
     ]
   }
 }
@@ -106,6 +106,7 @@ export default function LocationClient({ slug, locationId }: Props) {
   const { data: statsData } = useCharacterStats()
   const updateStatsMutation = useUpdateCharacterStats()
   const addItemMutation = useAddInventoryItem()
+  const removeItemMutation = useRemoveInventoryItem()
 
   // Derive gold from server data, falling back to local storage
   const gold: number =
@@ -172,7 +173,11 @@ export default function LocationClient({ slug, locationId }: Props) {
     ? "/images/locations/the-dragons-rest-tavern.webp"
     : locationId === "royal-stables"
       ? "/images/locations/royal-stables.webp"
-      : `/images/locations/${location.name.toLowerCase().replace(/\s+/g, '-').replace(/'/g, '')}.png`;
+      : locationId === "kingdom-marketplace"
+        ? "/images/locations/kingdom-marketplace.webp"
+        : locationId === "embers-forge"
+          ? "/images/locations/embers-anvil.webp"
+          : "/images/locations/town.webp";
 
   const handlePurchase = async (item: LocationItem) => {
     if (gold < item.price) {
@@ -211,6 +216,55 @@ export default function LocationClient({ slug, locationId }: Props) {
       })
     }
   }
+
+  const handleSell = async (item: LocationItem) => {
+    const invItem = inventory.find(inv => inv.id === item.id || inv.name?.toLowerCase() === item.name.toLowerCase());
+    if (!invItem || (invItem.quantity ?? 1) <= 0) {
+      toast({
+        title: "Item not in inventory",
+        description: `You do not have any ${item.name} to sell.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newGold = gold + item.price;
+
+    try {
+      await Promise.all([
+        updateStatsMutation.mutateAsync({ gold: newGold }),
+        removeItemMutation.mutateAsync({ itemId: invItem.id || item.id, quantity: 1 }),
+      ]);
+
+      toast({
+        title: "Item sold! 💰",
+        description: `You sold ${item.name} for ${item.price} gold.`
+      });
+    } catch (error) {
+      logger.error("Sell failed:", error);
+      toast({
+        title: "Sale failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRestAtHearth = async () => {
+    try {
+      await updateStatsMutation.mutateAsync({ health: 100 });
+      toast({
+        title: "Rested by the hearth 🔥",
+        description: "The warmth of the tavern fire restores your vitality. HP fully replenished!"
+      });
+    } catch (err) {
+      toast({
+        title: "Rest failed",
+        description: "Could not rest right now. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <>
@@ -268,9 +322,10 @@ export default function LocationClient({ slug, locationId }: Props) {
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {location.horses?.map((horse) => {
                       let imagePath = "/images/items/placeholder.webp";
-                      if (horse.name === "Sally Swift Horse") imagePath = "/images/items/horse/horse-stelony.webp";
-                      if (horse.name === "Buster Endurance Horse") imagePath = "/images/items/horse/horse-perony.webp";
-                      if (horse.name === "Shadow War Horse") imagePath = "/images/items/horse/horse-felony.webp";
+                      const hName = horse.name.toLowerCase();
+                      if (hName.includes("swift")) imagePath = "/images/items/horse/horse-stelony.webp";
+                      else if (hName.includes("endurance")) imagePath = "/images/items/horse/horse-perony.webp";
+                      else if (hName.includes("war")) imagePath = "/images/items/horse/horse-felony.webp";
                       return (
                         <Card key={horse.id} className="flex flex-col">
                           <div className="w-full aspect-[4/3] relative bg-black">
@@ -350,11 +405,11 @@ export default function LocationClient({ slug, locationId }: Props) {
                           </CardContent>
                           <CardContent className="pt-0">
                             <Button
-                              className="w-full"
-                              onClick={() => handlePurchase(artifact)}
-                              disabled={gold < artifact.price}
+                              className="w-full bg-amber-600 hover:bg-amber-500 text-black font-bold"
+                              onClick={() => handleSell(artifact)}
+                              disabled={!inventory.some(inv => (inv.id === artifact.id || inv.name?.toLowerCase() === artifact.name.toLowerCase()) && (inv.quantity ?? 1) > 0)}
                             >
-                              Sell
+                              Sell (+{artifact.price} gold)
                             </Button>
                           </CardContent>
                         </Card>
@@ -365,10 +420,10 @@ export default function LocationClient({ slug, locationId }: Props) {
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {location.items?.map((item) => {
                       let imagePath = "/images/items/placeholder.webp";
-                      if (item.name === "Ancient Artifact") imagePath = "/images/items/artifact/crown/artifact-crowny.webp";
-                      if (item.name === "Magic Scroll") imagePath = "/images/items/scroll/scroll-scrolly.webp";
-                      if (item.name === "Tome of Knowledge") imagePath = "/images/items/scroll/scroll-perkamento.webp";
-                      // Add more mappings as needed
+                      const iName = item.name.toLowerCase();
+                      if (iName.includes("artifact")) imagePath = "/images/items/artifact/crown/artifact-crowny.webp";
+                      else if (iName.includes("scroll")) imagePath = "/images/items/scroll/scroll-scrolly.webp";
+                      else if (iName.includes("tome") || iName.includes("knowledge")) imagePath = "/images/items/scroll/scroll-perkamento.webp";
                       return (
                         <Card key={item.id} className="flex flex-col">
                           <div className="w-full aspect-[4/3] relative bg-black">
@@ -407,14 +462,33 @@ export default function LocationClient({ slug, locationId }: Props) {
               )}
               {locationId === "the-dragons-rest" && (
                 <>
+                  {/* Rest by the Hearth Feature */}
+                  <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-950/40 via-zinc-900 to-zinc-950 border border-amber-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-2xl shrink-0">
+                        🔥
+                      </div>
+                      <div>
+                        <h3 className="font-serif font-bold text-amber-200 text-base">Rest by the tavern hearth</h3>
+                        <p className="text-xs text-zinc-400">Warm yourself by the fire, rest weary legs, and recover full health.</p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={handleRestAtHearth}
+                      className="bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs h-10 px-4 rounded-xl shrink-0"
+                    >
+                      Rest & restore HP
+                    </Button>
+                  </div>
+
                   <h2 className="text-xl font-bold mb-4">Potions for Sale</h2>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {location.items?.map((item) => {
                       let imagePath = "/images/items/placeholder.webp";
-                      if (item.name === "Health Potion") imagePath = "/images/items/potion/potion-health.webp";
-                      if (item.name === "Mana Potion") imagePath = "/images/items/potion/potion-gold.webp";
-                      if (item.name === "Antidote") imagePath = "/images/items/potion/potion-exp.webp";
-                      // Add more mappings as needed
+                      const iName = item.name.toLowerCase();
+                      if (iName.includes("health")) imagePath = "/images/items/potion/potion-health.webp";
+                      else if (iName.includes("mana")) imagePath = "/images/items/potion/potion-gold.webp";
+                      else if (iName.includes("antidote")) imagePath = "/images/items/potion/potion-exp.webp";
                       return (
                         <Card key={item.id} className="flex flex-col">
                           <div className="w-full aspect-[4/3] relative bg-black">
@@ -457,9 +531,10 @@ export default function LocationClient({ slug, locationId }: Props) {
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {location.items?.map((item) => {
                       let imagePath = "/images/items/placeholder.webp";
-                      if (item.name === "Iron Sword") imagePath = "/images/items/sword/sword-irony.webp";
-                      if (item.name === "Iron Armor") imagePath = "/images/items/armor/armor-normalo.webp";
-                      if (item.name === "Steel Shield") imagePath = "/images/items/shield/shield-blockado.webp";
+                      const iName = item.name.toLowerCase();
+                      if (iName.includes("sword")) imagePath = "/images/items/sword/sword-irony.webp";
+                      else if (iName.includes("armor")) imagePath = "/images/items/armor/armor-normalo.webp";
+                      else if (iName.includes("shield")) imagePath = "/images/items/shield/shield-blockado.webp";
                       
                       return (
                         <Card key={item.id} className="flex flex-col">

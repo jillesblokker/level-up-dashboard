@@ -491,42 +491,52 @@ export function MapGrid({
 
         {isHorsePresent && horsePos && !horseCaught && (
           <div
-            className="absolute z-20 pointer-events-none"
+            onClick={(e) => {
+              e.stopPropagation();
+              window.dispatchEvent(new CustomEvent('open-animal-interaction', { detail: { animalType: 'horse', animalName: 'Horse' } }));
+            }}
+            className="absolute z-20 pointer-events-auto cursor-pointer hover:scale-110 active:scale-95 transition-transform group"
             style={{
               left: `${horsePos.x * tileSize + tileSize / 2}px`,
               top: `${horsePos.y * tileSize + tileSize / 2}px`,
-              width: `${tileSize * 3.2}px`,
-              height: `${tileSize * 3.2}px`,
+              width: `${tileSize * 0.72}px`,
+              height: `${tileSize * 0.72}px`,
               transform: 'translate(-50%, -50%)'
             }}
+            title="Horse"
           >
             <Image 
               src="/images/Animals/horse.webp" 
               alt="Horse" 
               fill
-              sizes={`${tileSize * 3.2}px`}
-              className="object-contain" 
+              sizes={`${tileSize * 0.72}px`}
+              className="object-contain drop-shadow-md" 
             />
           </div>
         )}
 
         {isSheepPresent && sheepPos && !sheepCaught && (
           <div
-            className="absolute z-20 pointer-events-none"
+            onClick={(e) => {
+              e.stopPropagation();
+              window.dispatchEvent(new CustomEvent('open-animal-interaction', { detail: { animalType: 'sheep', animalName: 'Sheep' } }));
+            }}
+            className="absolute z-20 pointer-events-auto cursor-pointer hover:scale-110 active:scale-95 transition-transform group"
             style={{
               left: `${sheepPos.x * tileSize + tileSize / 2}px`,
               top: `${sheepPos.y * tileSize + tileSize / 2}px`,
-              width: `${tileSize * 3.2}px`,
-              height: `${tileSize * 3.2}px`,
+              width: `${tileSize * 0.68}px`,
+              height: `${tileSize * 0.68}px`,
               transform: 'translate(-50%, -50%)'
             }}
+            title="Sheep"
           >
             <Image 
               src="/images/Animals/sheep.webp" 
               alt="Sheep" 
               fill
-              sizes={`${tileSize * 3.2}px`}
-              className="object-contain" 
+              sizes={`${tileSize * 0.68}px`}
+              className="object-contain drop-shadow-md" 
             />
           </div>
         )}

@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { format } from 'date-fns'
 import { formatGold } from '@/lib/utils'
+import { unwrapApiResponse } from '@/lib/api-response-unwrapper'
 
 interface EconomyTransaction {
   type: 'earned' | 'spent'
@@ -63,15 +64,17 @@ export function EconomyTransparency() {
         ])
 
         if (statsRes.ok && transRes.ok) {
-          const statsData = await statsRes.json()
-          const transData = await transRes.json()
-          const transactions = transData.data || []
+          const rawStats = await statsRes.json()
+          const statsData = unwrapApiResponse<any>(rawStats) || rawStats
+          const rawTrans = await transRes.json()
+          const transData = unwrapApiResponse<any>(rawTrans) || rawTrans
+          const transactions = Array.isArray(transData) ? transData : (transData?.data || rawTrans?.data || [])
 
           const earned = transactions.filter((t: any) => t.transaction_type === 'gain').reduce((sum: number, t: any) => sum + t.amount, 0)
           const spent = transactions.filter((t: any) => t.transaction_type === 'spend').reduce((sum: number, t: any) => sum + t.amount, 0)
 
           setStats({
-            gold: statsData.gold || 0,
+            gold: statsData?.gold ?? statsData?.stats?.gold ?? 0,
             totalEarned: earned,
             totalSpent: spent,
             netFlow: earned - spent

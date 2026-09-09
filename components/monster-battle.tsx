@@ -19,6 +19,7 @@ import { useCitizensStore } from "@/stores/citizensStore"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager"
 import { fetchWithAuth } from "@/lib/fetchWithAuth"
 import { recordDungeonBattleWin } from "@/lib/tile-quest-service"
+import { unwrapApiResponse } from "@/lib/api-response-unwrapper"
 
 interface MonsterBattleProps {
   isOpen: boolean
@@ -135,23 +136,28 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
         ]);
 
         if (invRes.ok) {
-          const items = await invRes.json();
+          const invJson = await invRes.json();
+          const items = unwrapApiResponse<any[]>(invJson) || [];
           let attack = 0;
           let defense = 0;
           if (Array.isArray(items)) {
             items.forEach((item: any) => {
               const itemStats = item.stats || {};
               if (itemStats.attack) attack += itemStats.attack;
+              if (itemStats.atk) attack += itemStats.atk;
               if (itemStats.defense) defense += itemStats.defense;
+              if (itemStats.def) defense += itemStats.def;
             });
           }
           setStats({ attack, defense });
         }
 
         if (statsRes.ok) {
-          const charStats = await statsRes.json();
-          if (charStats && charStats.level) {
-            setPlayerLevel(charStats.level);
+          const statsJson = await statsRes.json();
+          const charStats = unwrapApiResponse<any>(statsJson);
+          const lvl = charStats?.level ?? charStats?.stats?.level;
+          if (lvl) {
+            setPlayerLevel(lvl);
           }
         }
       } catch (err) {

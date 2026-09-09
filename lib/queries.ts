@@ -5,6 +5,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { unwrapApiResponse } from "@/lib/api-response-unwrapper"
 
 // ─── Query keys ────────────────────────────────────────────────────────────────
 export const QUERY_KEYS = {
@@ -17,7 +18,8 @@ export const QUERY_KEYS = {
 async function fetchInventory() {
   const res = await fetch("/api/inventory", { credentials: "include" })
   if (!res.ok) throw new Error(`Inventory fetch failed: ${res.status}`)
-  return res.json()
+  const json = await res.json()
+  return unwrapApiResponse(json) ?? json
 }
 
 export function useInventory() {
@@ -34,7 +36,8 @@ export function useInventory() {
 async function fetchCharacterStats() {
   const res = await fetch("/api/character-stats", { credentials: "include" })
   if (!res.ok) throw new Error(`Stats fetch failed: ${res.status}`)
-  return res.json()
+  const json = await res.json()
+  return unwrapApiResponse(json) ?? json
 }
 
 export function useCharacterStats() {
@@ -79,6 +82,26 @@ export function useAddInventoryItem() {
         credentials: "include",
       })
       if (!res.ok) throw new Error(`Inventory add failed: ${res.status}`)
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.inventory })
+    },
+  })
+}
+
+/** Remove/sell an item from inventory and refresh the cache. */
+export function useRemoveInventoryItem() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ itemId, quantity = 1 }: { itemId: string; quantity?: number }) => {
+      const res = await fetch("/api/inventory", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId, quantity }),
+        credentials: "include",
+      })
+      if (!res.ok) throw new Error(`Inventory remove failed: ${res.status}`)
       return res.json()
     },
     onSuccess: () => {

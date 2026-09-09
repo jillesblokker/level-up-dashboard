@@ -168,11 +168,14 @@ export default function MarketPage() {
     const lastClaimed = claimedTimestamps[pack.id]
     if (!lastClaimed) return false
 
+    if (pack.cooldownType === 'daily' || pack.cooldownType === 'mystery') {
+      const lastDate = new Date(lastClaimed).toLocaleDateString('en-CA')
+      const todayDate = new Date(currentTime).toLocaleDateString('en-CA')
+      return lastDate === todayDate
+    }
+
     const diff = currentTime - lastClaimed
 
-    if (pack.cooldownType === 'daily' || pack.cooldownType === 'mystery') {
-      return diff < 24 * 60 * 60 * 1000
-    }
     if (pack.cooldownType === 'weekly') {
       return diff < 7 * 24 * 60 * 60 * 1000
     }
@@ -187,15 +190,22 @@ export default function MarketPage() {
     const lastClaimed = claimedTimestamps[pack.id]
     if (!lastClaimed) return ""
 
-    const diff = currentTime - lastClaimed
     let remaining = 0
 
     if (pack.cooldownType === 'daily' || pack.cooldownType === 'mystery') {
-      remaining = 24 * 60 * 60 * 1000 - diff
-    } else if (pack.cooldownType === 'weekly') {
-      remaining = 7 * 24 * 60 * 60 * 1000 - diff
-    } else if (pack.cooldownType === 'monthly') {
-      remaining = 30 * 24 * 60 * 60 * 1000 - diff
+      const lastDate = new Date(lastClaimed).toLocaleDateString('en-CA')
+      const todayDate = new Date(currentTime).toLocaleDateString('en-CA')
+      if (lastDate !== todayDate) return ""
+      const tomorrow = new Date(currentTime)
+      tomorrow.setHours(24, 0, 0, 0)
+      remaining = tomorrow.getTime() - currentTime
+    } else {
+      const diff = currentTime - lastClaimed
+      if (pack.cooldownType === 'weekly') {
+        remaining = 7 * 24 * 60 * 60 * 1000 - diff
+      } else if (pack.cooldownType === 'monthly') {
+        remaining = 30 * 24 * 60 * 60 * 1000 - diff
+      }
     }
 
     if (remaining <= 0) return ""
