@@ -171,7 +171,7 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="max-w-md w-full bg-zinc-950 border border-amber-900/40 text-white rounded-2xl p-6 shadow-2xl overflow-hidden font-serif">
+      <DialogContent className="max-w-md w-full bg-zinc-950 border border-amber-900/40 text-white rounded-2xl p-6 shadow-2xl overflow-y-auto max-h-[88dvh] font-serif">
         {/* Decorative background glow */}
         <div className="absolute inset-0 pointer-events-none -z-10 opacity-30">
           <div className={cn(

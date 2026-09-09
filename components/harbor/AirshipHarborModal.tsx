@@ -81,7 +81,7 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg bg-zinc-950 border border-cyan-900/50 text-white rounded-2xl p-6 shadow-2xl overflow-hidden font-serif">
+      <DialogContent className="max-w-lg bg-zinc-950 border border-cyan-900/50 text-white rounded-2xl p-6 shadow-2xl overflow-y-auto max-h-[88dvh] font-serif">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-cyan-400">

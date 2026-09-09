@@ -775,7 +775,7 @@ export default function AlliesPage() {
 
             {/* SEND QUEST MODAL */}
             <Dialog open={questModalOpen} onOpenChange={setQuestModalOpen}>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-md max-h-[88dvh] overflow-y-auto custom-scrollbar">
                     <DialogHeader>
                         <DialogTitle>{TEXT_CONTENT.social.modals.quest.title.replace('{username}', selectedFriend?.username || '')}</DialogTitle>
                         <DialogDescription>{TEXT_CONTENT.social.modals.quest.description}</DialogDescription>
@@ -873,7 +873,7 @@ export default function AlliesPage() {
 
             {/* SEND CHALLENGE MODAL */}
             <Dialog open={challengeModalOpen} onOpenChange={setChallengeModalOpen}>
-                <DialogContent className="max-w-md bg-zinc-950 border border-amber-950/20 text-white rounded-3xl p-6 shadow-2xl">
+                <DialogContent className="max-w-md bg-zinc-950 border border-amber-950/20 text-white rounded-3xl p-6 shadow-2xl max-h-[88dvh] overflow-y-auto custom-scrollbar">
                     <DialogHeader>
                         <DialogTitle className="font-serif text-lg text-white">Challenge {selectedFriend?.username || ''}</DialogTitle>
                         <DialogDescription className="text-zinc-400 text-xs mt-1">Send a fitness or habit challenge with a stretch milestone goal!</DialogDescription>

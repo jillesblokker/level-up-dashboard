@@ -48,7 +48,7 @@ export function HouseCupSettlementModal() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="bg-zinc-950 border-amber-500/50 text-zinc-100 max-w-lg text-center p-6 space-y-4">
+      <DialogContent className="bg-zinc-950 border-amber-500/50 text-zinc-100 max-w-lg text-center p-6 space-y-4 max-h-[88dvh] overflow-y-auto custom-scrollbar">
         <DialogHeader>
           <div className="w-16 h-16 rounded-full bg-amber-500/10 border-2 border-amber-400 flex items-center justify-center mx-auto mb-2 shadow-[0_0_25px_rgba(245,158,11,0.3)]">
             <Trophy className="w-8 h-8 text-amber-400 animate-pulse" />

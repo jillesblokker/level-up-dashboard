@@ -146,7 +146,7 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
       </div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-black border border-amber-800/30 text-white max-w-sm rounded-2xl p-6 shadow-2xl" role="dialog" aria-label="seasonal-hunt-item-found">
+        <DialogContent className="bg-black border border-amber-800/30 text-white max-w-sm rounded-2xl p-6 shadow-2xl max-h-[88dvh] overflow-y-auto custom-scrollbar" role="dialog" aria-label="seasonal-hunt-item-found">
           <DialogHeader className="text-center space-y-2">
             <DialogTitle className="flex items-center justify-center gap-2 text-xl font-bold text-amber-400 font-serif">
               {getIcon()}

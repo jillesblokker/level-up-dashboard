@@ -2068,7 +2068,7 @@ export function KingdomClient() {
 
       {/* Selling Confirmation Modal */}
       <Dialog open={sellingModalOpen} onOpenChange={setSellingModalOpen}>
-        <DialogContent className="bg-zinc-900 border-amber-800/20" role="dialog" aria-label="selling-confirmation-modal">
+        <DialogContent className="bg-zinc-900 border-amber-800/20 max-h-[88dvh] overflow-y-auto custom-scrollbar" role="dialog" aria-label="selling-confirmation-modal">
           <DialogDescription id="selling-confirmation-modal-desc">Item sold confirmation</DialogDescription>
           <DialogHeader>
             <DialogTitle className="text-2xl font-cardo text-amber-500">

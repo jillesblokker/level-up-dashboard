@@ -175,7 +175,7 @@ export function AnimalInteractionModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className={cn(
-          "w-[min(90vw,400px)] max-w-none p-0 overflow-hidden shadow-2xl rounded-2xl",
+          "w-[min(92vw,400px)] max-w-none p-0 overflow-y-auto max-h-[88dvh] shadow-2xl rounded-2xl",
           `bg-gradient-to-b ${style.gradient} ${style.border} ${style.shadow}`
         )}
         role="dialog"

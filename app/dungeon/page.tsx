@@ -1964,7 +1964,7 @@ export default function DungeonPage() {
         {/* 🏆 Boss Keep Dual-Loot Victory Showcase Dialog */}
         <Dialog open={!!bossDualDrop} onOpenChange={() => setBossDualDrop(null)}>
           {bossDualDrop && (
-            <DialogContent className="max-w-md bg-zinc-950 border-2 border-amber-500/50 text-white rounded-2xl p-6 shadow-2xl font-serif">
+            <DialogContent className="max-w-md bg-zinc-950 border-2 border-amber-500/50 text-white rounded-2xl p-6 shadow-2xl font-serif max-h-[88dvh] overflow-y-auto custom-scrollbar">
               <DialogHeader className="text-center items-center pb-2">
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(245,158,11,0.5)] mb-2 animate-bounce">
                   🏆

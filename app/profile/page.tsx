@@ -843,7 +843,7 @@ export default function ProfilePage() {
 
       {/* Avatar Cropper Modal */}
       <Dialog open={showCropper} onOpenChange={setShowCropper}>
-        <DialogContent role="dialog" aria-label="profile-modal" className="sm:max-w-4xl">
+        <DialogContent role="dialog" aria-label="profile-modal" className="sm:max-w-4xl max-h-[90dvh] overflow-y-auto custom-scrollbar">
           <DialogDescription id="profile-modal-desc">{TEXT_CONTENT.profile.avatar.cropper.description}</DialogDescription>
           <DialogTitle className="text-xl text-amber-400 mb-4">{TEXT_CONTENT.profile.avatar.cropper.title}</DialogTitle>
           {selectedImage && (
@@ -887,7 +887,7 @@ export default function ProfilePage() {
 
       {/* Delete Account Confirmation Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="sm:max-w-md bg-zinc-900 border-red-800/30">
+        <DialogContent className="sm:max-w-md bg-zinc-900 border-red-800/30 max-h-[88dvh] overflow-y-auto custom-scrollbar">
           <DialogHeader>
             <DialogTitle className="text-2xl text-red-500 flex items-center gap-2">
               <AlertTriangle className="w-6 h-6" />

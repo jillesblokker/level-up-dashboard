@@ -27,7 +27,7 @@ export function MedievalModal({
 }: MedievalModalProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className={cn("sm:max-w-[425px] bg-gradient-to-b from-amber-950/90 via-zinc-950 to-zinc-950 border-amber-700/30 shadow-2xl shadow-amber-500/10 overflow-hidden", className)}>
+            <DialogContent className={cn("sm:max-w-[425px] bg-gradient-to-b from-amber-950/90 via-zinc-950 to-zinc-950 border-amber-700/30 shadow-2xl shadow-amber-500/10 max-h-[88dvh] overflow-y-auto custom-scrollbar", className)}>
                 {/* Background Glow */}
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-amber-400/5 rounded-full blur-3xl" />

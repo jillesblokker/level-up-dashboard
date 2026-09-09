@@ -41,7 +41,7 @@ export function PageGuide({ title, subtitle, sections }: PageGuideProps) {
             </Button>
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="sm:max-w-[500px] bg-black/95 border-amber-800/50 text-amber-50 ">
+                <DialogContent className="sm:max-w-[500px] bg-black/95 border-amber-800/50 text-amber-50 max-h-[88dvh] overflow-y-auto custom-scrollbar">
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-bold text-amber-500 font-serif">{title} Guide</DialogTitle>
                         <DialogDescription className="text-amber-200/80 italic">

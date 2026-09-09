@@ -96,7 +96,7 @@ export function JoustingTournamentModal() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="bg-zinc-950 border border-amber-500/30 text-white max-w-lg p-6 rounded-2xl shadow-2xl space-y-4">
+      <DialogContent className="bg-zinc-950 border border-amber-500/30 text-white max-w-lg p-6 rounded-2xl shadow-2xl space-y-4 max-h-[88dvh] overflow-y-auto custom-scrollbar">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-serif text-amber-300 text-xl">
             <Trophy className="w-5 h-5 text-amber-400" />
@@ -149,7 +149,7 @@ export function JoustingTournamentModal() {
               disabled={selectedCategories.length !== 3}
               className="w-full h-12 bg-amber-600 hover:bg-amber-500 disabled:bg-zinc-800 text-black font-black uppercase text-xs tracking-wider rounded-xl cursor-pointer"
             >
-              🏇 Charge Lance & Begin Jousting Match
+              🏇 Charge lance & begin jousting match
             </Button>
           </div>
         )}

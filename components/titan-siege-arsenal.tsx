@@ -345,7 +345,7 @@ export function TitanSiegeArsenal({ onOpenWorkshop, className = "" }: TitanSiege
       {/* Mobile Slot Detail Modal */}
       <Dialog open={!!selectedMobileEngine} onOpenChange={(open) => !open && setSelectedMobileEngine(null)}>
         {selectedMobileEngine && (
-          <DialogContent className="max-w-xs bg-zinc-950 border border-amber-800/60 text-white rounded-2xl p-5 shadow-2xl">
+          <DialogContent className="max-w-xs bg-zinc-950 border border-amber-800/60 text-white rounded-2xl p-5 shadow-2xl max-h-[85dvh] overflow-y-auto">
             <DialogHeader className="flex flex-col items-center text-center">
               {/* Slot Preview */}
               <div

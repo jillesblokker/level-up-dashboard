@@ -94,7 +94,7 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
 
   return (
     <Dialog open={isOpen} onOpenChange={(op) => { if (!op) onClose(); }}>
-      <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border border-amber-500/50 text-amber-100 p-6 rounded-2xl shadow-2xl overflow-hidden font-serif">
+      <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border border-amber-500/50 text-amber-100 p-6 rounded-2xl shadow-2xl overflow-y-auto max-h-[88dvh] font-serif">
         {/* Header */}
         <DialogHeader className="text-center space-y-1">
           <div className="mx-auto w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/40 flex items-center justify-center mb-1 shadow-[0_0_20px_rgba(245,158,11,0.3)]">

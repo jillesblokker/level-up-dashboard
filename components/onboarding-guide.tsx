@@ -67,7 +67,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
   if (isGatewayVisible) {
     return (
       <Dialog open={open} onOpenChange={() => handleSkipGateway()}>
-        <DialogContent className="sm:max-w-md bg-zinc-950 text-white border-amber-800/40 p-0 overflow-hidden shadow-2xl">
+        <DialogContent className="sm:max-w-md bg-zinc-950 text-white border-amber-800/40 p-0 shadow-2xl max-h-[88dvh] overflow-y-auto custom-scrollbar">
           <div className="relative p-6 pt-10">
             {/* Background Ornate Pattern */}
             <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]" />

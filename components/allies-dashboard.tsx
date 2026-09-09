@@ -654,7 +654,7 @@ export function AlliesDashboard() {
 
       {/* QUEST MODAL */}
       <Dialog open={questModalOpen} onOpenChange={setQuestModalOpen}>
-          <DialogContent className="medieval-card border-amber-500/30 text-white max-w-lg">
+          <DialogContent className="medieval-card border-amber-500/30 text-white max-w-lg max-h-[88dvh] overflow-y-auto custom-scrollbar">
               <DialogHeader>
                   <DialogTitle className="text-2xl font-medieval text-amber-500 flex items-center gap-2">
                       <Scroll className="w-6 h-6" />
@@ -730,7 +730,7 @@ export function AlliesDashboard() {
 
       {/* COMPARISON MODAL */}
       <Dialog open={compareModalOpen} onOpenChange={setCompareModalOpen}>
-          <DialogContent className="medieval-card border-amber-500/30 text-white max-w-2xl">
+          <DialogContent className="medieval-card border-amber-500/30 text-white max-w-2xl max-h-[88dvh] overflow-y-auto custom-scrollbar">
               <DialogHeader>
                   <DialogTitle className="text-2xl font-medieval text-amber-500 text-center tracking-widest uppercase">Chronicle Comparison</DialogTitle>
                   <DialogDescription className="text-center font-serif italic text-amber-900/40">Sizing up the legends of {selectedFriend?.username}.</DialogDescription>

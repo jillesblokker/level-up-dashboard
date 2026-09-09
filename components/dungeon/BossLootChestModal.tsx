@@ -18,7 +18,7 @@ export function BossLootChestModal({ isOpen, onClose, roomLevel, blueprintName =
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
-      <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border-2 border-amber-500/60 text-amber-100 p-6 rounded-2xl shadow-2xl font-serif text-center relative overflow-hidden">
+      <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border-2 border-amber-500/60 text-amber-100 p-6 rounded-2xl shadow-2xl font-serif text-center relative max-h-[88dvh] overflow-y-auto custom-scrollbar">
         <DialogHeader className="sr-only">
           <DialogTitle>Boss Victory Chest Unlocked</DialogTitle>
         </DialogHeader>

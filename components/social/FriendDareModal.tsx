@@ -30,12 +30,12 @@ export function FriendDareModal({ isOpen, onClose, friendName = 'Friend' }: Frie
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-zinc-950 border border-amber-900/50 text-white rounded-2xl p-6 shadow-2xl">
+      <DialogContent className="max-w-md bg-zinc-950 border border-amber-900/50 text-white rounded-2xl p-6 shadow-2xl max-h-[88dvh] overflow-y-auto custom-scrollbar">
         <DialogHeader>
           <div className="flex items-center gap-2 text-amber-400">
             <Sword className="w-6 h-6" />
             <DialogTitle className="text-lg font-bold text-amber-100">
-              1v1 Daily Habit Race Dare
+              1v1 daily habit race dare
             </DialogTitle>
           </div>
           <DialogDescription className="text-zinc-400 text-xs mt-1">
@@ -102,7 +102,7 @@ export function FriendDareModal({ isOpen, onClose, friendName = 'Friend' }: Frie
             disabled={isSending}
             className="w-1/2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold text-xs h-9 gap-1.5"
           >
-            <Sword className="w-3.5 h-3.5" /> Issue Dare
+            <Sword className="w-3.5 h-3.5" /> Issue dare
           </Button>
         </DialogFooter>
       </DialogContent>

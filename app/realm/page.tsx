@@ -2640,7 +2640,7 @@ function RealmPageContent() {
                 {/* Cave Event Modal */}
                 {caveEvent?.open && (
                     <Dialog open={caveEvent.open} onOpenChange={() => setCaveEvent(null)}>
-                        <DialogContent className="sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-0">
+                        <DialogContent className="sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 max-h-[88dvh] overflow-y-auto custom-scrollbar p-0">
                             <div className="absolute inset-0 bg-blue-500/5 opacity-40 pointer-events-none blur-[100px]" />
 
                             <div className="relative z-10 p-6 flex flex-col items-center">
@@ -2772,7 +2772,7 @@ function RealmPageContent() {
                 {/* Monolith of Devotion (Pyramid) Modal */}
                 {pyramidEvent?.open && (
                     <Dialog open={pyramidEvent.open} onOpenChange={() => setPyramidEvent(null)}>
-                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-6 rounded-2xl h-auto max-h-[85vh]">
+                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 max-h-[88dvh] overflow-y-auto custom-scrollbar p-6 rounded-2xl">
                             <div className="absolute inset-0 bg-amber-500/5 opacity-40 pointer-events-none blur-[100px]" />
                             <DialogHeader className="text-center items-center">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-amber-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-amber-400">
@@ -2870,7 +2870,7 @@ function RealmPageContent() {
                 {/* Whispering Well of Focus Modal */}
                 {wellEvent?.open && (
                     <Dialog open={wellEvent.open} onOpenChange={() => setWellEvent(null)}>
-                        <DialogContent className="w-[92%] sm:max-w-[440px] bg-zinc-950 border-zinc-800 text-zinc-100 p-6 rounded-2xl h-auto max-h-[88vh] flex flex-col overflow-hidden">
+                        <DialogContent className="w-[92%] sm:max-w-[440px] bg-zinc-950 border-zinc-800 text-zinc-100 p-6 rounded-2xl max-h-[88dvh] flex flex-col overflow-y-auto custom-scrollbar">
                             <div className="absolute inset-0 bg-blue-500/5 opacity-40 pointer-events-none blur-[100px]" />
                             <DialogHeader className="text-center items-center shrink-0">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-blue-500/30 text-xs font-semibold mb-3 text-blue-400">
@@ -3084,7 +3084,7 @@ function RealmPageContent() {
                 {/* Sphinx's Gates Modal */}
                 {sphinxEvent?.open && (
                     <Dialog open={sphinxEvent.open} onOpenChange={() => setSphinxEvent(null)}>
-                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-900 text-zinc-100 overflow-hidden p-6 rounded-2xl h-auto max-h-[85vh]">
+                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-900 text-zinc-100 max-h-[88dvh] overflow-y-auto custom-scrollbar p-6 rounded-2xl">
                             <div className="absolute inset-0 bg-red-950/10 opacity-30 pointer-events-none blur-[100px]" />
                             <DialogHeader className="text-center items-center">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-red-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-red-400">
@@ -3121,7 +3121,7 @@ function RealmPageContent() {
                 {/* Whispering Canopy Modal */}
                 {canopyEvent?.open && (
                     <Dialog open={canopyEvent.open} onOpenChange={() => setCanopyEvent(null)}>
-                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-6 rounded-2xl h-auto max-h-[85vh]">
+                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 max-h-[88dvh] overflow-y-auto custom-scrollbar p-6 rounded-2xl">
                             <div className="absolute inset-0 bg-emerald-950/10 opacity-30 pointer-events-none blur-[100px]" />
                             <DialogHeader className="text-center items-center">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-emerald-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-emerald-400">
@@ -3218,7 +3218,7 @@ function RealmPageContent() {
                                     <p className="text-sm text-zinc-400 leading-relaxed text-center">
                                         Select an active habit. Complete it to unlock rare fey herbs at the canopy!
                                     </p>
-                                    <div className="max-h-[160px] overflow-y-auto space-y-1.5 custom-scrollbar pr-1">
+                                    <div className="max-h-[220px] overflow-y-auto space-y-1.5 custom-scrollbar pr-1">
                                         {canopyEvent.availableHabits.map((q: any) => (
                                             <button
                                                 key={q.id}
@@ -3264,7 +3264,7 @@ function RealmPageContent() {
                 {/* Frostfire Obelisk Modal */}
                 {obeliskEvent?.open && (
                     <Dialog open={obeliskEvent.open} onOpenChange={() => setObeliskEvent(null)}>
-                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-6 rounded-2xl h-auto max-h-[85vh]">
+                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 max-h-[88dvh] overflow-y-auto custom-scrollbar p-6 rounded-2xl">
                             <div className="absolute inset-0 bg-blue-950/10 opacity-30 pointer-events-none blur-[100px]" />
                             <DialogHeader className="text-center items-center">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-blue-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-blue-400">
@@ -3423,7 +3423,7 @@ function RealmPageContent() {
                 {/* Fairy Ring Modal */}
                 {fairyRingEvent?.open && (
                     <Dialog open={fairyRingEvent.open} onOpenChange={() => setFairyRingEvent(null)}>
-                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-6 rounded-2xl h-auto max-h-[85vh]">
+                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 max-h-[88dvh] overflow-y-auto custom-scrollbar p-6 rounded-2xl">
                             <div className="absolute inset-0 bg-amber-950/10 opacity-30 pointer-events-none blur-[100px]" />
                             <DialogHeader className="text-center items-center">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-amber-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-amber-400">

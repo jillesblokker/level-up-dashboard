@@ -33,7 +33,7 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className={cn(
-          "max-w-xs sm:max-w-sm w-full border-amber-600/30 overflow-hidden shadow-2xl p-5 bg-zinc-950 flex flex-col rounded-2xl font-serif max-h-[85dvh]",
+          "max-w-xs sm:max-w-sm w-full border-amber-600/30 overflow-y-auto custom-scrollbar shadow-2xl p-5 bg-zinc-950 flex flex-col rounded-2xl font-serif max-h-[85dvh]",
           reward.isLucky && "bg-gradient-to-b from-amber-950/70 via-zinc-950 to-zinc-950 shadow-amber-500/10"
         )}
         aria-describedby="kingdom-tile-modal-description"

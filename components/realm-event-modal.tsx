@@ -590,7 +590,7 @@ export function RealmEventModal({ isOpen, onClose, tileType, onWeatherChange }: 
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-0">
+            <DialogContent className="sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 max-h-[88dvh] overflow-y-auto custom-scrollbar p-0">
                 <div className="absolute inset-0 bg-amber-500/5 opacity-40 pointer-events-none blur-[100px]" />
 
                 <div className="relative z-10 p-6 flex flex-col items-center">

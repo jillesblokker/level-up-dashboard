@@ -1040,10 +1040,10 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
             {/* Citizen Interaction Modal */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent 
-                    className="w-[min(90vw,420px)] max-w-none p-0 overflow-hidden shadow-2xl rounded-2xl bg-gradient-to-b from-zinc-900 via-zinc-950 to-zinc-950 border border-zinc-800 shadow-amber-500/5 text-white"
+                    className="w-[min(92vw,420px)] max-w-none p-0 overflow-hidden shadow-2xl rounded-2xl bg-gradient-to-b from-zinc-900 via-zinc-950 to-zinc-950 border border-zinc-800 shadow-amber-500/5 text-white max-h-[88dvh] flex flex-col"
                 >
                     <DialogHeader className="sr-only">
-                        <DialogTitle>{selectedCitizen?.name || "Citizen Interaction"}</DialogTitle>
+                        <DialogTitle>{selectedCitizen?.name || "Citizen interaction"}</DialogTitle>
                         <DialogDescription>Interact with your realm citizen</DialogDescription>
                     </DialogHeader>
 
@@ -1059,7 +1059,13 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                         }`} />
                     </div>
 
-                    <div className="relative z-10 flex flex-col items-center pt-8 pb-4 px-6">
+                    <div 
+                        className="overflow-y-auto flex-1 min-h-0 [scrollbar-width:thin] [scrollbar-color:rgba(245,158,11,0.3)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-amber-500/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-amber-400/60"
+                        tabIndex={0}
+                        role="region"
+                        aria-label="Citizen interaction details"
+                    >
+                        <div className="relative z-10 flex flex-col items-center pt-8 pb-4 px-6">
                         {/* Portrait */}
                         <div className="relative w-32 h-32 flex items-center justify-center bg-zinc-900 rounded-full border-2 border-zinc-800 shadow-xl overflow-hidden p-4">
                             {selectedCitizen && (() => {
@@ -1097,19 +1103,19 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                         </h2>
                         
                         <div className="mt-1 flex items-center gap-1.5">
-                            <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${
+                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border capitalize ${
                                 selectedCitizen?.type === 'fire' ? 'bg-red-950/40 text-red-400 border-red-900/50' :
                                 selectedCitizen?.type === 'water' ? 'bg-blue-950/40 text-blue-400 border-blue-900/50' :
                                 selectedCitizen?.type === 'earth' ? 'bg-amber-950/40 text-amber-600 border-amber-900/50' :
                                 selectedCitizen?.type === 'nature' ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/50' :
-                                selectedCitizen?.type === 'ice' ? 'bg-cyan-950/40 text-cyan-400 border-cyan-900/50' :
+                                selectedCitizen?.type === 'ice' ? 'bg-cyan-400/20 text-cyan-300 border-cyan-800/50' :
                                 selectedCitizen?.type === 'monster' ? 'bg-purple-950/40 text-purple-400 border-purple-900/50' :
                                 'bg-yellow-950/40 text-yellow-400 border-yellow-900/50'
                             }`}>
-                                {selectedCitizen?.type} Citizen
+                                {selectedCitizen?.type} citizen
                             </span>
                             {selectedCitizen?.isMythic && (
-                                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-purple-900/40 text-purple-300 border border-purple-800/50 flex items-center gap-0.5">
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-900/40 text-purple-300 border border-purple-800/50 flex items-center gap-0.5">
                                     <Sparkles className="w-2.5 h-2.5" /> Mythic
                                 </span>
                             )}
@@ -1292,7 +1298,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                 disabled={isInteracting}
                                 className="w-full h-11 bg-amber-500 hover:bg-amber-600 text-black font-serif font-bold rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.5)] hover:shadow-[0_0_25px_rgba(245,158,11,0.7)] transition-all hover:-translate-y-0.5"
                             >
-                                <Coins className="w-4 h-4" /> Collect Gold 💰
+                                <Coins className="w-4 h-4" /> Collect gold 💰
                             </Button>
                         ) : selectedCitizen && !isCitizenHungry(selectedCitizen) ? (
                             <div className="bg-zinc-950 border border-zinc-800/40 rounded-xl p-3 flex flex-col items-center justify-center gap-1">
@@ -1317,11 +1323,11 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                         {selectedCitizen && isCitizenHungry(selectedCitizen) && (
                             <div className="flex flex-col gap-2">
                                 <div className="text-center text-xs text-red-400 font-semibold mb-1 flex items-center justify-center gap-1">
-                                    😋 Needs Fish Food to wander map & produce gold!
+                                    😋 Needs fish food to wander map & produce gold!
                                 </div>
                                 {inventoryFoods.length === 0 ? (
                                     <Button disabled className="w-full h-11 bg-zinc-800 text-zinc-500 rounded-xl border border-zinc-700">
-                                        No Fish Food in Inventory 🐟
+                                        No fish food in inventory 🐟
                                     </Button>
                                 ) : (
                                     <div className="flex flex-col gap-1.5">
@@ -1334,10 +1340,10 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                             >
                                                 <div className="flex items-center gap-2">
                                                     <span>{food.emoji}</span>
-                                                    <span className="text-xs font-semibold">{food.name} (x{food.quantity})</span>
+                                                    <span className="text-xs font-semibold capitalize">{food.name.toLowerCase()} (x{food.quantity})</span>
                                                 </div>
                                                 <span className="text-[10px] bg-zinc-950 text-orange-200 px-2 py-0.5 rounded-md font-mono">
-                                                    +{FOOD_DAYS_MAP[food.id]} Day{FOOD_DAYS_MAP[food.id] !== 1 ? 's' : ''} Active
+                                                    +{FOOD_DAYS_MAP[food.id]} day{FOOD_DAYS_MAP[food.id] !== 1 ? 's' : ''} active
                                                 </span>
                                             </Button>
                                         ))}
@@ -1354,6 +1360,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                             Close
                         </Button>
                     </div>
+                </div>
                 </DialogContent>
             </Dialog>
 

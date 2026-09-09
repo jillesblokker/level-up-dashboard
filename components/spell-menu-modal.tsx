@@ -49,7 +49,7 @@ export function SpellMenuModal({ isOpen, onClose }: SpellMenuModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="border-2 border-cyan-500/50 bg-[#0b1329]/95 text-white max-w-md backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.3)] rounded-2xl font-serif">
+      <DialogContent className="border-2 border-cyan-500/50 bg-[#0b1329]/95 text-white max-w-md backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.3)] rounded-2xl font-serif max-h-[88dvh] overflow-y-auto custom-scrollbar">
         <DialogHeader className="text-center items-center pb-2">
           <div className="w-12 h-12 rounded-full border-2 border-cyan-400 bg-radial from-cyan-500 via-cyan-900 to-[#041a24] flex items-center justify-center text-xl shadow-[0_0_20px_rgba(6,182,212,0.8)] mb-2">
             🔮

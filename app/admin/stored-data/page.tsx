@@ -730,7 +730,7 @@ export default function AdminStoredDataPage() {
 
       {/* Sync to Highest Count Pop-Up Modal */}
       <Dialog open={conflictModalOpen} onOpenChange={setConflictModalOpen}>
-        <DialogContent className="max-w-md border-amber-500/40 bg-zinc-950 text-amber-50 shadow-2xl rounded-2xl p-6 font-serif">
+        <DialogContent className="max-w-md border-amber-500/40 bg-zinc-950 text-amber-50 shadow-2xl rounded-2xl p-6 font-serif max-h-[88dvh] overflow-y-auto custom-scrollbar">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-amber-400 flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-400 animate-pulse" />

@@ -54,7 +54,7 @@ export function EnterLocationModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="sm:max-w-md bg-gradient-to-b from-amber-950/90 via-zinc-950 to-zinc-950 border-amber-700/30 shadow-2xl shadow-amber-500/10 overflow-hidden p-0"
+        className="sm:max-w-md bg-gradient-to-b from-amber-950/90 via-zinc-950 to-zinc-950 border-amber-700/30 shadow-2xl shadow-amber-500/10 max-h-[88dvh] overflow-y-auto custom-scrollbar p-0"
         role="dialog"
         aria-label="enter-location-modal"
       >

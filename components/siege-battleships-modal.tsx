@@ -82,7 +82,7 @@ export function SiegeBattleshipModal() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="bg-zinc-950 border border-red-500/30 text-white max-w-md p-6 rounded-2xl shadow-2xl space-y-4">
+      <DialogContent className="bg-zinc-950 border border-red-500/30 text-white max-w-md p-6 rounded-2xl shadow-2xl space-y-4 max-h-[88dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between font-serif text-red-300 text-xl">
             <div className="flex items-center gap-2">

@@ -92,11 +92,11 @@ export function SigilCrestEditor({ userId }: { userId?: string | undefined }) {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="bg-zinc-950 border border-amber-500/30 text-white max-w-md p-6 rounded-2xl shadow-2xl">
+      <DialogContent className="bg-zinc-950 border border-amber-500/30 text-white max-w-md p-6 rounded-2xl shadow-2xl max-h-[88dvh] overflow-y-auto custom-scrollbar">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-serif text-amber-300 text-lg">
             <Shield className="w-5 h-5 text-amber-400" />
-            Forge House Sigil Crest
+            Forge house sigil crest
           </DialogTitle>
         </DialogHeader>
 

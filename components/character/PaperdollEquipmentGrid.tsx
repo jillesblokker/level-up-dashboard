@@ -409,7 +409,7 @@ export function PaperdollEquipmentGrid({
           {selectedItem && (() => {
             const rarityStyle = getItemRarityStyles(selectedItem.rarity);
             return (
-              <DialogContent className={cn("max-w-sm bg-zinc-950 border-2 text-white rounded-2xl p-6 shadow-2xl font-serif", rarityStyle.modalBorder)}>
+              <DialogContent className={cn("max-w-sm bg-zinc-950 border-2 text-white rounded-2xl p-6 shadow-2xl font-serif max-h-[88dvh] overflow-y-auto custom-scrollbar", rarityStyle.modalBorder)}>
                 <DialogHeader>
                   <div className="flex items-center gap-4">
                     <div className={cn("relative w-16 h-16 rounded-2xl bg-gradient-to-b border-2 p-2 shrink-0 shadow-lg flex items-center justify-center", rarityStyle.thumbnailBg, rarityStyle.border)}>

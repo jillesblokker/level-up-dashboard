@@ -444,7 +444,7 @@ export function HouseCupPanel() {
       {/* Detail Modal (§6 On tap) */}
       <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
         {selectedUser && (
-          <DialogContent className="bg-zinc-950 border-amber-900/50 text-zinc-100 max-w-md">
+          <DialogContent className="bg-zinc-950 border-amber-900/50 text-zinc-100 max-w-md max-h-[88dvh] overflow-y-auto custom-scrollbar">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-amber-300">
                 <Trophy className="w-5 h-5 text-amber-400" />
