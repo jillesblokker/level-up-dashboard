@@ -98,6 +98,12 @@ const MysteryEventModal = dynamic(() => import('@/components/mystery-event-modal
 const AnimalInteractionModal = dynamic(() => import('@/components/animal-interaction-modal').then(mod => ({ default: mod.AnimalInteractionModal })), {
     ssr: false
 });
+const SewerPipesModal = dynamic(() => import('@/components/minigames/SewerPipesModal').then(mod => ({ default: mod.SewerPipesModal })), {
+    ssr: false
+});
+const PenguinIceSlideModal = dynamic(() => import('@/components/minigames/PenguinIceSlideModal').then(mod => ({ default: mod.PenguinIceSlideModal })), {
+    ssr: false
+});
 
 // Utilities and constants (GRID_COLS, INITIAL_ROWS, defaultTile, etc.) moved to realm-utils.ts
 
@@ -203,6 +209,21 @@ function RealmPageContent() {
         animalType: 'horse' | 'sheep' | 'penguin' | 'eagle';
         animalName: string;
     } | null>(null);
+
+    // Minigame modal states
+    const [sewerModalOpen, setSewerModalOpen] = useState(false);
+    const [penguinSlideModalOpen, setPenguinSlideModalOpen] = useState(false);
+
+    useEffect(() => {
+        const handleOpenSewer = () => setSewerModalOpen(true);
+        const handleOpenPenguin = () => setPenguinSlideModalOpen(true);
+        window.addEventListener('open-sewer-minigame', handleOpenSewer);
+        window.addEventListener('open-penguin-minigame', handleOpenPenguin);
+        return () => {
+            window.removeEventListener('open-sewer-minigame', handleOpenSewer);
+            window.removeEventListener('open-penguin-minigame', handleOpenPenguin);
+        };
+    }, []);
 
     // Realm Tax Collection State
     const [showRealmSummaryModal, setShowRealmSummaryModal] = useState(false);
@@ -883,7 +904,10 @@ function RealmPageContent() {
         }
 
         if (currentGameMode !== 'build' || !currentSelectedTile) {
-            // Removed debugging log
+            if (clickedTile?.type === 'well' || (clickedTile?.type as string)?.toLowerCase().includes('well')) {
+                setSewerModalOpen(true);
+                return;
+            }
             return;
         }
 
@@ -2322,6 +2346,18 @@ function RealmPageContent() {
                         availableFood={availableFood}
                         onFeed={(itemId) => handleAnimalFeed(animalInteractionModal.animalType, itemId)}
                         onInteract={() => handleAnimalInteraction(animalInteractionModal.animalType)}
+                    />
+                )}
+                {sewerModalOpen && (
+                    <SewerPipesModal
+                        isOpen={sewerModalOpen}
+                        onClose={() => setSewerModalOpen(false)}
+                    />
+                )}
+                {penguinSlideModalOpen && (
+                    <PenguinIceSlideModal
+                        isOpen={penguinSlideModalOpen}
+                        onClose={() => setPenguinSlideModalOpen(false)}
                     />
                 )}
                 {/* Map Area - Restored to fixed to ensure original rendering logic works */}

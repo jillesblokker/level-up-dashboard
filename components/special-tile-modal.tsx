@@ -281,14 +281,27 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
           </div>
 
           {/* Action Buttons */}
-          <div className="w-full flex gap-3 mt-1">
+          <div className="w-full flex flex-col sm:flex-row gap-2 sm:gap-3 mt-1">
             <Button
               variant="outline"
               onClick={onClose}
-              className="flex-1 bg-zinc-900 hover:bg-zinc-800 border-zinc-700 text-white rounded-xl py-5 font-serif font-semibold"
+              className="flex-1 bg-zinc-900 hover:bg-zinc-800 border-zinc-700 text-white rounded-xl py-4 sm:py-5 font-serif font-semibold"
             >
               Close
             </Button>
+
+            {(tile?.id === 'well' || tile?.type === 'well' || String(tile?.id || '').includes('well')) && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  onClose();
+                  window.dispatchEvent(new CustomEvent('open-sewer-minigame'));
+                }}
+                className="flex-1 bg-cyan-950/80 hover:bg-cyan-900/80 border-cyan-500/40 text-cyan-200 rounded-xl py-4 sm:py-5 font-serif font-semibold shadow-lg shadow-cyan-950/40"
+              >
+                Enter sewers
+              </Button>
+            )}
 
             {isReady && (
               <Button
@@ -300,7 +313,7 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
                   onClose();
                 }}
                 className={cn(
-                  "flex-1 text-white font-bold rounded-xl py-5 shadow-lg border",
+                  "flex-1 text-white font-bold rounded-xl py-4 sm:py-5 shadow-lg border",
                   isAstral
                     ? "bg-gradient-to-br from-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 border-purple-400/30 shadow-purple-500/20"
                     : "bg-gradient-to-br from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 border-amber-400/20 shadow-amber-500/10"

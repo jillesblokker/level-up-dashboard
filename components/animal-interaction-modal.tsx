@@ -257,6 +257,18 @@ export function AnimalInteractionModal({
             )}
           </Button>
 
+          {animalType === 'penguin' && (
+            <Button
+              onClick={() => {
+                onClose();
+                window.dispatchEvent(new CustomEvent('open-penguin-minigame'));
+              }}
+              className="w-full h-11 text-white rounded-xl gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shadow-lg shadow-cyan-950 font-serif"
+            >
+              <Sparkles className="w-4 h-4" /> Glide on the ice maze
+            </Button>
+          )}
+
           {firstFood && foodLabel && (
             <Button
               onClick={() => handleFeed(firstFood.id)}

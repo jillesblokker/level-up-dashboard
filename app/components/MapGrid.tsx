@@ -465,7 +465,11 @@ export function MapGrid({
         {/* Animal Overlays */}
         {isPenguinPresent && penguinPos && !penguinCaught && (
           <div
-            className="absolute z-20 pointer-events-none"
+            onClick={(e) => {
+              e.stopPropagation();
+              window.dispatchEvent(new CustomEvent('open-penguin-minigame'));
+            }}
+            className="absolute z-20 pointer-events-auto cursor-pointer hover:scale-110 active:scale-95 transition-transform group"
             style={{
               left: `${penguinPos.x * tileSize + tileSize / 2}px`,
               top: `${penguinPos.y * tileSize + tileSize / 2}px`,
@@ -473,14 +477,18 @@ export function MapGrid({
               height: `${tileSize * 3.2}px`,
               transform: 'translate(-50%, -50%)'
             }}
+            title="Click to play Penguin's Glacial Slide"
           >
             <Image 
               src="/images/Animals/penguin.webp" 
               alt="Penguin" 
               fill
               sizes={`${tileSize * 3.2}px`}
-              className="object-contain" 
+              className="object-contain drop-shadow-md" 
             />
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-cyan-950/90 border border-cyan-400/60 text-cyan-200 text-[9px] font-mono px-1.5 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md pointer-events-none">
+              Glide on ice
+            </div>
           </div>
         )}
 

@@ -38,6 +38,8 @@ import { AbbeyModal } from '@/components/kingdom/abbey-modal'
 import { useGameStore } from '@/stores/game-store'
 import { PlankPuzzleModal } from './plank-puzzle-modal'
 import { SpecialTileModal } from './special-tile-modal'
+import { SewerPipesModal } from '@/components/minigames/SewerPipesModal'
+import { PenguinIceSlideModal } from '@/components/minigames/PenguinIceSlideModal'
 import { WaypointPreviewModal } from '@/components/kingdom/waypoint-preview-modal'
 import { getActiveEvent } from '@/lib/seasonal-events'
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage'
@@ -615,13 +617,28 @@ export function KingdomGridWithTimers({
   const [waypointModalOpen, setWaypointModalOpen] = useState(false);
   const [selectedWaypointTileType, setSelectedWaypointTileType] = useState<string | null>(null);
 
-  // Listen for external labyrinth open requests (e.g. from reset toast action)
+  const [sewerModalOpen, setSewerModalOpen] = useState(false);
+  const [penguinModalOpen, setPenguinModalOpen] = useState(false);
+
+  // Listen for external minigame open requests
   useEffect(() => {
     const handleOpenPlank = () => {
       setPlankModalOpen(true);
     };
+    const handleOpenSewer = () => {
+      setSewerModalOpen(true);
+    };
+    const handleOpenPenguin = () => {
+      setPenguinModalOpen(true);
+    };
     window.addEventListener('open-plank-labyrinth', handleOpenPlank);
-    return () => window.removeEventListener('open-plank-labyrinth', handleOpenPlank);
+    window.addEventListener('open-sewer-minigame', handleOpenSewer);
+    window.addEventListener('open-penguin-minigame', handleOpenPenguin);
+    return () => {
+      window.removeEventListener('open-plank-labyrinth', handleOpenPlank);
+      window.removeEventListener('open-sewer-minigame', handleOpenSewer);
+      window.removeEventListener('open-penguin-minigame', handleOpenPenguin);
+    };
   }, []);
 
   // Batch collection state
@@ -1826,6 +1843,11 @@ export function KingdomGridWithTimers({
       setPlankModalOpen(true);
       return;
     }
+    // Well tile: Triggers Castle Sewers Connect the Pipes minigame
+    if (tile.type === 'well' || (tile.type as string)?.toLowerCase().includes('well')) {
+      setSewerModalOpen(true);
+      return;
+    }
     // Flavor 4: Production Properties Modal (Stable, Blacksmith, Sawmill, Bakery, Quarry, etc.)
     const kingdomTileForTimer = KINGDOM_TILES.find(kt => kt.id === tile.type?.toLowerCase());
     if (kingdomTileForTimer && kingdomTileForTimer.timerMinutes > 0) {
@@ -1871,7 +1893,7 @@ export function KingdomGridWithTimers({
     // Note: archery, jousting, market, dungeon are navigation tiles handled above
     if (tile.type && (tile.type === 'blacksmith' || tile.type === 'sawmill' ||
       tile.type === 'fisherman' || tile.type === 'grocery' || tile.type === 'foodcourt' ||
-      tile.type === 'well' || tile.type === 'windmill' ||
+      tile.type === 'windmill' ||
       tile.type === 'fountain' ||
       tile.type === 'mansion' || tile.type === 'mayor' || tile.type === 'archery' || tile.type === 'jousting' || tile.type === 'watchtower')) {
 
@@ -3380,6 +3402,18 @@ export function KingdomGridWithTimers({
             setSpecialModalOpen(false);
             setSpecialTileData(null);
           }}
+        />
+      )}
+      {sewerModalOpen && (
+        <SewerPipesModal
+          isOpen={sewerModalOpen}
+          onClose={() => setSewerModalOpen(false)}
+        />
+      )}
+      {penguinModalOpen && (
+        <PenguinIceSlideModal
+          isOpen={penguinModalOpen}
+          onClose={() => setPenguinModalOpen(false)}
         />
       )}
       {waypointModalOpen && selectedWaypointTileType && (
