@@ -905,7 +905,7 @@ export default function Page() {
                             <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
                               {unlocked ? (
                                 <>
-                                  <Badge className="mb-3 bg-amber-500 text-black hover:bg-amber-400 font-bold border-none shadow-lg px-3 py-1">UNLOCKED</Badge>
+                                  <Badge className="mb-3 bg-amber-500 text-black hover:bg-amber-400 font-bold border-none shadow-lg px-3 py-1">Unlocked</Badge>
                                   <h3 className="text-3xl font-black text-white uppercase tracking-wider mb-2 drop-shadow-md">{creature.name}</h3>
                                   <div className="flex items-center justify-center gap-4 text-xs font-mono text-amber-200/90 mt-1">
                                     <span className="flex items-center gap-1.5"><Star className="w-3.5 h-3.5" /> {creature.stats.type}</span>
@@ -917,7 +917,7 @@ export default function Page() {
                                 <>
                                   <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Crosshair className="w-8 h-8 text-zinc-500" /></div>
                                   <h3 className="text-xl font-bold text-zinc-500 uppercase tracking-widest mb-1">{creature.name}</h3>
-                                  <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-[0.2em]">LOCKED CONTENT</p>
+                                  <p className="text-[10px] text-zinc-600 font-mono tracking-wider">Locked discovery</p>
                                 </>
                               )}
                             </div>
@@ -1117,7 +1117,7 @@ export default function Page() {
                               <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
                                 {unlocked ? (
                                   <>
-                                    <Badge className="mb-3 bg-blue-500 text-white font-bold border-none shadow-lg px-3 py-1">UNLOCKED</Badge>
+                                    <Badge className="mb-3 bg-blue-500 text-white font-bold border-none shadow-lg px-3 py-1">Unlocked</Badge>
                                     <h3 className="text-2xl font-black text-white uppercase tracking-wider mb-3 drop-shadow-md">{achievement.name}</h3>
                                     <div className="flex items-center gap-3 mt-1">
                                       <Badge variant="secondary" className="bg-zinc-950 border border-amber-500/30 text-amber-400 flex items-center gap-1.5 px-2">
@@ -1132,8 +1132,8 @@ export default function Page() {
                                   <>
                                     <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Users className="w-8 h-8 text-zinc-500" /></div>
                                     <h3 className="text-xl font-bold text-zinc-500 uppercase tracking-widest mb-1">{achievement.name}</h3>
-                                    <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-[0.2em]">{achievement.unlock_condition}</p>
-                                    <p className="text-[10px] text-red-900/40 font-mono uppercase tracking-[0.2em] mt-1">LOCKED</p>
+                                    <p className="text-[10px] text-zinc-600 font-mono tracking-wider">{achievement.unlock_condition}</p>
+                                    <p className="text-[10px] text-zinc-600 font-mono tracking-wider mt-1">Locked</p>
                                   </>
                                 )}
                               </div>
@@ -1246,7 +1246,7 @@ export default function Page() {
                               <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
                                 {unlocked ? (
                                   <>
-                                    <Badge className="mb-3 bg-red-500 text-white font-bold border-none shadow-lg px-3 py-1">UNLOCKED</Badge>
+                                    <Badge className="mb-3 bg-red-500 text-white font-bold border-none shadow-lg px-3 py-1">Unlocked</Badge>
                                     <h3 className="text-2xl font-black text-white uppercase tracking-wider mb-3 drop-shadow-md">{monsterName}</h3>
                                     <div className="flex items-center gap-3 mt-1">
                                       <Badge variant="secondary" className="bg-zinc-950 border border-amber-500/30 text-amber-400 flex items-center gap-1.5 px-2">
@@ -1261,8 +1261,8 @@ export default function Page() {
                                   <>
                                     <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Sword className="w-8 h-8 text-zinc-500" /></div>
                                     <h3 className="text-xl font-bold text-zinc-500 uppercase tracking-widest mb-1">{monsterName}</h3>
-                                    <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-[0.2em]">DEFEAT TO UNLOCK</p>
-                                    <p className="text-[10px] text-red-900/40 font-mono uppercase tracking-[0.2em] mt-1">LOCKED</p>
+                                    <p className="text-[10px] text-zinc-600 font-mono tracking-wider">{achievement.unlock_condition}</p>
+                                    <p className="text-[10px] text-zinc-600 font-mono tracking-wider mt-1">Locked</p>
                                   </>
                                 )}
                               </div>
@@ -1358,7 +1358,7 @@ export default function Page() {
                             <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pt-32 text-center flex flex-col items-center transition-all duration-500 ${unlocked ? 'opacity-0 group-hover:opacity-100' : ''}`}>
                               {unlocked ? (
                                 <>
-                                  <Badge className="mb-3 bg-emerald-500 text-white font-bold border-none shadow-lg px-3 py-1">UNLOCKED</Badge>
+                                  <Badge className="mb-3 bg-emerald-500 text-white font-bold border-none shadow-lg px-3 py-1">Unlocked</Badge>
                                   <h3 className="text-2xl font-black text-white uppercase tracking-wider mb-3 drop-shadow-md">{achievement.name}</h3>
                                   <div className="flex items-center gap-3 mt-1">
                                     <Badge variant="secondary" className="bg-zinc-950 border border-amber-500/30 text-amber-400 flex items-center gap-1.5 px-2">
@@ -1373,8 +1373,8 @@ export default function Page() {
                                 <>
                                   <div className="mb-4 p-4 rounded-full bg-white/5 border border-white/10"><Trophy className="w-8 h-8 text-zinc-500" /></div>
                                   <h3 className="text-xl font-bold text-zinc-500 uppercase tracking-widest mb-1">{achievement.name}</h3>
-                                  <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-[0.2em]">{achievement.unlock_condition}</p>
-                                  <p className="text-[10px] text-red-900/40 font-mono uppercase tracking-[0.2em] mt-1">LOCKED</p>
+                                  <p className="text-[10px] text-zinc-600 font-mono tracking-wider">{achievement.unlock_condition}</p>
+                                  <p className="text-[10px] text-zinc-600 font-mono tracking-wider mt-1">Locked</p>
                                 </>
                               )}
                             </div>

@@ -55,28 +55,34 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
             return
         }
         setIsSubmitting(true)
+        const entryDate = initialData?.entry_date || new Date().toISOString().split('T')[0];
+        const payload = {
+            content,
+            mood_score: mood,
+            entry_date: entryDate,
+            is_update: !!initialData
+        };
+
+        // Offline local backup so thoughts are never lost
+        try {
+            localStorage.setItem(`pref:journal-backup-${entryDate}`, JSON.stringify(payload));
+        } catch {}
+
         try {
             const token = await getToken({ template: 'supabase' })
 
             const response = await fetch('/api/chronicle/entries', {
-                method: 'POST', // We will update API to handle upsert on POST or add PUT
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    content,
-                    mood_score: mood,
-                    entry_date: initialData?.entry_date || new Date().toISOString().split('T')[0],
-                    is_update: !!initialData // Signal to API (optional, or API handles conflict)
-                })
+                body: JSON.stringify(payload)
             })
 
             if (!response.ok) {
-                // If 409 and not updating, it's an error. If updating, it should work.
-                // We'll fix API to upsert.
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Failed to save")
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || "Failed to save to server")
             }
 
             if (!initialData) {
@@ -88,7 +94,17 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
             onClose()
         } catch (e: any) {
             logger.error(e)
-            toast.error(e.message || "Failed to save journal.")
+            // Queue locally for retry
+            try {
+                const rawQueue = localStorage.getItem('pref:offline-journal-queue');
+                const queue = rawQueue ? JSON.parse(rawQueue) : [];
+                queue.push(payload);
+                localStorage.setItem('pref:offline-journal-queue', JSON.stringify(queue));
+                toast.success("Sage Owl saved your reflection to your local parchment. It will sync to the archive when reconnected.")
+                onClose()
+            } catch {
+                toast.error(e.message || "Failed to save journal.")
+            }
         } finally {
             setIsSubmitting(false)
         }
