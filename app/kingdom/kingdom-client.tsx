@@ -1619,44 +1619,32 @@ export function KingdomClient() {
     // 1. Handle Gold Purchase
     if (method === 'gold') {
       const cost = tile.cost || 0;
-      // Check gold balance
-      // TODO: We need access to current gold. using getTotalStats logic or passing it down.
-      // For now, assume simple check against a known value or optimistic UI.
-      // Actually, we can fetch stats or check `totalStats` state? `totalStats` has movement/attack/defense/health/mana but maybe not gold?
-      // `gainGold` adds gold, but doesn't return current balance.
-      // We will implement optimistic purchase for now or need a `spendGold` utility.
-
-      // Temporary: Call API to deduct gold & add tile
       try {
         const response = await fetch('/api/kingdom/buy-tile', {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ tileId: tile.id, cost: cost, currency: 'gold' })
         });
 
         if (response.ok) {
-          toast({ title: "Purchase Successful", description: `You bought ${tile.name} for ${cost} gold!` });
-          // Refresh inventory ?? 
-          // We need to add the TILE to the `kingdom-grid` or `inventory`?
-          // "Kingdom Tiles" are seemingly placed directly or added to "inventory" of tiles?
-          // `kingdomTileInventory` is just a list of AVAILABLE types.
-          // If the user buys it, what happens?
-          // If it's a "Property", maybe we increase "owned" count?
-          // The current UI just places tiles from infinite supply? No, `initialInventory` in realm-utils has counts.
-          // But `KingdomClient` uses `kingdomTileInventory` which is derived from `KINGDOM_TILES` config and has `quantity`.
-
-          // For now, let's just log success.
+          toast({ title: "Purchase successful", description: `You bought ${tile.name} for ${cost} gold!` });
+          window.dispatchEvent(new Event('character-stats-update'));
+          window.dispatchEvent(new Event('kingdom-tile-inventory-update'));
         } else {
-          // Fallback for demo: succeed if API missing
-          toast({ title: "Purchase Successful", description: `You bought ${tile.name} for ${cost} gold!` });
+          const errData = await response.json().catch(() => ({}));
+          toast({
+            title: "Purchase failed",
+            description: errData.error || "Insufficient gold or level requirement not met.",
+            variant: "destructive"
+          });
         }
       } catch (e) {
-        toast({ title: "Purchase Failed", description: "Could not process transaction.", variant: "destructive" });
+        toast({ title: "Purchase failed", description: "Could not process transaction.", variant: "destructive" });
       }
     }
 
     // 2. Handle Material Purchase
     if (method === 'materials') {
-      // Check if user has materials
       const missingMaterials = [];
       for (const req of tile.materialCost || []) {
         const owned = storedItems.find(i => i.name === req.itemId || i.id === req.itemId);
@@ -1667,44 +1655,58 @@ export function KingdomClient() {
 
       if (missingMaterials.length > 0) {
         toast({
-          title: "Missing Materials",
+          title: "Missing materials",
           description: `You need: ${missingMaterials.join(', ')}`,
           variant: "destructive"
         });
         return;
       }
 
-      // Deduct materials
-      // We'll call an API or helper
       try {
-        // Call the API so server can deduct gems and grant the tile
         const response = await fetch('/api/kingdom/buy-tile', {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ tileId: tile.id, cost: 0, currency: 'materials' })
         });
         
         if (response.ok) {
-          // Mock deduction for now
-          for (const req of tile.materialCost || []) {
-            // await removeItem(user.id, req.itemId, req.quantity);
-          }
-          toast({ title: "Construction Started", description: `You constructed ${tile.name}!` });
-          // Add tile to grid or inventory logic...
+          toast({ title: "Construction started", description: `You constructed ${tile.name}!` });
+          window.dispatchEvent(new Event('character-inventory-update'));
+          window.dispatchEvent(new Event('kingdom-tile-inventory-update'));
         } else {
-          const data = await response.json();
-          toast({ title: "Construction Failed", description: data.error || "Unknown error", variant: "destructive" });
+          const data = await response.json().catch(() => ({}));
+          toast({ title: "Construction failed", description: data.error || "Unknown error", variant: "destructive" });
         }
       } catch (e) {
-        toast({ title: "Construction Failed", variant: "destructive" });
+        toast({ title: "Construction failed", variant: "destructive" });
       }
     }
 
     // 3. Handle Token Purchase
     if (method === 'tokens') {
       const cost = tile.tokenCost || 0;
-      // Check tokens
-      // if (userTokens < cost) ...
-      toast({ title: "Redemption Successful", description: `You redeemed ${tile.name} for ${cost} tokens!` });
+      try {
+        const response = await fetch('/api/kingdom/buy-tile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tileId: tile.id, cost: cost, currency: 'tokens' })
+        });
+
+        if (response.ok) {
+          toast({ title: "Redemption successful", description: `You redeemed ${tile.name} for ${cost} tokens!` });
+          window.dispatchEvent(new Event('character-stats-update'));
+          window.dispatchEvent(new Event('kingdom-tile-inventory-update'));
+        } else {
+          const errData = await response.json().catch(() => ({}));
+          toast({
+            title: "Redemption failed",
+            description: errData.error || "Insufficient streak tokens.",
+            variant: "destructive"
+          });
+        }
+      } catch (e) {
+        toast({ title: "Redemption failed", description: "Could not process token transaction.", variant: "destructive" });
+      }
     }
   };
 

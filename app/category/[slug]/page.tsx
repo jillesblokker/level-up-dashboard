@@ -42,10 +42,10 @@ export default function CategoryPage() {
     return (
       <div className="container py-10" role="main" aria-label="category-not-found-section">
         <div className="mb-6">
-          <Link href="/categories">
-            <Button variant="outline" size="sm" aria-label="Back to Categories">
+          <Link href="/quests">
+            <Button variant="outline" size="sm" aria-label="Back to Quests">
               <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-              Back to Categories
+              Back to Quests
             </Button>
           </Link>
         </div>
@@ -67,10 +67,10 @@ export default function CategoryPage() {
   return (
     <div className="container py-10" role="main" aria-label="category-content-section">
       <div className="mb-6">
-        <Link href="/categories">
-          <Button variant="outline" size="sm" aria-label="Back to Categories">
+        <Link href="/quests">
+          <Button variant="outline" size="sm" aria-label="Back to Quests">
             <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-            Back to Categories
+            Back to Quests
           </Button>
         </Link>
       </div>

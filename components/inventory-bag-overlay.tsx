@@ -21,6 +21,7 @@ import { KINGDOM_TILES } from "@/lib/kingdom-tiles";
 import { useToast } from "@/components/ui/use-toast";
 import { TEXT_CONTENT } from "@/lib/text-content";
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
+import { unwrapApiResponse } from "@/lib/api-response-unwrapper";
 
 // --- Types ---
 
@@ -411,9 +412,10 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
             try {
               const statsRes = await fetchWithAuth('/api/character-stats');
               if (statsRes.ok) {
-                const statsData = await statsRes.json();
-                maxHealth = statsData.maxHealth || statsData.max_health || 100;
-                currentHealth = statsData.health || 100;
+                const rawJson = await statsRes.json();
+                const statsData: any = unwrapApiResponse(rawJson) || rawJson;
+                maxHealth = statsData.maxHealth || statsData.max_health || statsData.stats?.max_health || 100;
+                currentHealth = statsData.health ?? statsData.stats?.health ?? 100;
               }
             } catch (e) {
               logger.warn('[Bag] Failed to fetch stats for health potion', e);
@@ -434,9 +436,10 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
             try {
               const statsRes = await fetchWithAuth('/api/character-stats');
               if (statsRes.ok) {
-                const statsData = await statsRes.json();
-                maxMana = statsData.maxMana || statsData.max_mana || 100;
-                currentMana = statsData.mana || 100;
+                const rawJson = await statsRes.json();
+                const statsData: any = unwrapApiResponse(rawJson) || rawJson;
+                maxMana = statsData.maxMana || statsData.max_mana || statsData.stats?.max_mana || 100;
+                currentMana = statsData.mana ?? statsData.stats?.mana ?? 100;
               }
             } catch (e) {
               logger.warn('[Bag] Failed to fetch stats for mana potion', e);
@@ -457,9 +460,10 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
             try {
               const statsRes = await fetchWithAuth('/api/character-stats');
               if (statsRes.ok) {
-                const statsData = await statsRes.json();
-                maxStamina = statsData.maxStamina || 100;
-                currentStamina = statsData.stamina || 100;
+                const rawJson = await statsRes.json();
+                const statsData: any = unwrapApiResponse(rawJson) || rawJson;
+                maxStamina = statsData.maxStamina || statsData.stats?.max_stamina || 100;
+                currentStamina = statsData.stamina ?? statsData.stats?.stamina ?? 100;
               }
             } catch (e) {
               logger.warn('[Bag] Failed to fetch stats for stamina potion', e);
@@ -502,6 +506,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
           }
 
           window.dispatchEvent(new Event('character-inventory-update'));
+          window.dispatchEvent(new Event('character-stats-update'));
           // Dispatch custom event to update active buffs state in UI tabs
           window.dispatchEvent(new Event('alchemy-buffs-update'));
         } catch (e) {

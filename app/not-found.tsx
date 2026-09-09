@@ -4,7 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Sword } from "lucide-react";
 import { TEXT_CONTENT } from "@/lib/text-content";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 export default function NotFound() {
+  const router = useRouter();
+
+  const handleRetrace = () => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/kingdom');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-zinc-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-black border-2 border-amber-800/50 rounded-lg p-8 text-center">
@@ -28,14 +41,17 @@ export default function NotFound() {
         </p>
 
         <div className="space-y-3">
-          <Button
-            className="w-full bg-amber-700 hover:bg-amber-600"
-          >
-            {TEXT_CONTENT.errorPage.notFound.return}
-          </Button>
+          <Link href="/kingdom" className="block w-full">
+            <Button
+              className="w-full bg-amber-700 hover:bg-amber-600"
+            >
+              {TEXT_CONTENT.errorPage.notFound.return}
+            </Button>
+          </Link>
 
           <Button
             variant="outline"
+            onClick={handleRetrace}
             className="w-full border-amber-800/20 text-amber-500 hover:bg-amber-900/30"
           >
             {TEXT_CONTENT.errorPage.notFound.retrace}

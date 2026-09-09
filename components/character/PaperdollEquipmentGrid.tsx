@@ -162,7 +162,7 @@ export function PaperdollEquipmentGrid({
 
   const handleEquipmentChange = () => {
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new Event('open-inventory-bag'))
+      window.dispatchEvent(new CustomEvent('open-inventory-bag', { detail: { tab: 'stored', filter: 'equipment' } }))
     }
     if (onOpenInventory) {
       onOpenInventory()
@@ -516,7 +516,7 @@ function EquipmentSlotButton({
       onClick();
     } else {
       if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('open-inventory-bag'));
+        window.dispatchEvent(new CustomEvent('open-inventory-bag', { detail: { tab: 'stored', filter: 'equipment' } }));
       }
     }
   };

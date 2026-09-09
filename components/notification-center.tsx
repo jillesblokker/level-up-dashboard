@@ -681,7 +681,16 @@ function GoldGroup({ notification, handleMarkAsRead, handleDelete }: { notificat
           >
             🗑️
           </button>
-          <Button variant="ghost" size="sm" className="text-zinc-400 p-0 w-8 h-8">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+            aria-label={isExpanded ? "Collapse group" : "Expand group"}
+            className="text-zinc-400 p-0 w-8 h-8"
+          >
             {isExpanded ? '▲' : '▼'}
           </Button>
         </div>
@@ -781,7 +790,16 @@ function ItemGroup({ notification, handleMarkAsRead, handleDelete }: { notificat
           >
             🗑️
           </button>
-          <Button variant="ghost" size="sm" className="text-zinc-400 p-0 w-8 h-8">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+            aria-label={isExpanded ? "Collapse group" : "Expand group"}
+            className="text-zinc-400 p-0 w-8 h-8"
+          >
             {isExpanded ? '▲' : '▼'}
           </Button>
         </div>
@@ -849,7 +867,16 @@ function AchievementGroup({ notification, handleDelete }: { notification: any, h
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="sm" className="text-zinc-400">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded(!isExpanded);
+          }}
+          aria-label={isExpanded ? "Collapse group" : "Expand group"}
+          className="text-zinc-400"
+        >
           {isExpanded ? 'Collapse' : 'Expand'}
         </Button>
       </div>
