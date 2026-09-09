@@ -401,7 +401,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
             "No hurry, no fuss. Munching grass and weaving banners one thread at a time.",
             "Gentle meadows breed gentle hearts. Take a deep breath with me... baaa."
         ],
-        scale: 0.65
+        scale: 0.85
     },
     '902': {
         id: '902',
@@ -415,7 +415,7 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
             "Snort! Free spirit, wild wind, and unstoppable momentum! Ready to ride?",
             "I can carry your message across the widest valley in the blink of an eye."
         ],
-        scale: 1.15
+        scale: 1.25
     },
     '903': {
         id: '903',
@@ -429,6 +429,6 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
             "Waddle, waddle, zooooom! Turn obstacles into clean ice glides!",
             "Why walk when you can slide at top speed? Come race me across the pond!"
         ],
-        scale: 0.55
+        scale: 0.70
     }
 };
