@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 
-import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, Citizen } from '@/stores/citizensStore';
+import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, isFoodItem, getFoodActiveDays, Citizen } from '@/stores/citizensStore';
 import { CitizenSpecializationModal, CitizenClass } from '@/components/character/CitizenSpecializationModal';
 import { getInventory } from '@/lib/inventory-manager';
 import { loadTileInventory } from '@/lib/data-loaders';
