@@ -318,12 +318,6 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
           </div>
         </div>
 
-          <div className="flex items-center gap-3 font-mono text-[11px] text-zinc-300 ml-auto">
-            <span>Moves: <strong className="text-cyan-400">{moves}</strong></span>
-            <span>Time: <strong className="text-amber-400">{formatTime(seconds)}</strong></span>
-          </div>
-        </div>
-
         {/* Daily Status Banner */}
         <div className="flex items-center justify-between bg-zinc-900/50 px-3 py-1.5 rounded-lg border border-cyan-900/30 text-[11px]">
           <div className="flex items-center gap-2">
