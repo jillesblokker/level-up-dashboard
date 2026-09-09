@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 
-import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, isFoodItem, getFoodActiveDays, Citizen } from '@/stores/citizensStore';
+import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, isFoodItem, getFoodActiveDays, formatFoodDisplayName, Citizen } from '@/stores/citizensStore';
 import { CitizenSpecializationModal, CitizenClass } from '@/components/character/CitizenSpecializationModal';
 import { getInventory } from '@/lib/inventory-manager';
 import { loadTileInventory } from '@/lib/data-loaders';
@@ -172,11 +172,12 @@ export function CitizensTab() {
           const cleanId = (item.id || '').toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '');
           if (!seen.has(cleanId)) {
             seen.add(cleanId);
+            const { name, emoji } = formatFoodDisplayName(item.id, item.name, item.emoji);
             foodItems.push({
               id: item.id,
-              name: item.name || (cleanId.includes('fish') ? 'Fish' : item.id),
+              name,
               quantity: item.quantity,
-              emoji: item.emoji || (cleanId.includes('water') ? '💧' : '🐟')
+              emoji
             });
           }
         });
@@ -190,8 +191,9 @@ export function CitizensTab() {
           if (isFoodItem({ id: key, name: typeof value === 'object' ? value?.name : undefined }) && qty > 0) {
             if (!seen.has(cleanKey)) {
               seen.add(cleanKey);
-              const name = key === 'material-water' ? 'Water' : (typeof value === 'object' && value?.name ? value.name : key);
-              const emoji = key === 'material-water' ? '💧' : (typeof value === 'object' && value?.emoji ? value.emoji : '📦');
+              const rawName = typeof value === 'object' && value?.name ? value.name : key;
+              const rawEmoji = typeof value === 'object' && value?.emoji ? value.emoji : undefined;
+              const { name, emoji } = formatFoodDisplayName(key, rawName, rawEmoji);
               foodItems.push({
                 id: key,
                 name,
@@ -660,7 +662,7 @@ export function CitizensTab() {
                                           if (success) {
                                             toast({
                                               title: "Citizen fed! 🍖",
-                                              description: `${citizen.name} is now fed for ${getFoodActiveDays(f.id, f)} day(s) and will produce gold!`,
+                                              description: `${citizen.name} is now fed with ${f.name.toLowerCase()} for ${getFoodActiveDays(f.id, f)} day(s) and will produce gold!`,
                                             });
                                             await loadInventoryFood();
                                           }
@@ -668,7 +670,7 @@ export function CitizensTab() {
                                       >
                                         <span className="flex items-center gap-2 text-sm text-white">
                                           <span className="text-base">{f.emoji}</span>
-                                          <span className="font-medium capitalize">{f.name.toLowerCase()}</span>
+                                          <span className="font-medium">{f.name}</span>
                                         </span>
                                         <span className="text-xs text-amber-400 font-semibold bg-amber-950/50 px-1.5 py-0.5 rounded">
                                           ×{f.quantity}
@@ -1002,7 +1004,7 @@ export function CitizensTab() {
                                     if (success) {
                                       toast({
                                         title: "Citizen fed! 🍖",
-                                        description: `${citizen.name} is now fed for ${getFoodActiveDays(f.id, f)} day(s) and will produce gold!`,
+                                        description: `${citizen.name} is now fed with ${f.name.toLowerCase()} for ${getFoodActiveDays(f.id, f)} day(s) and will produce gold!`,
                                       });
                                       await loadInventoryFood();
                                     }
@@ -1010,7 +1012,7 @@ export function CitizensTab() {
                                 >
                                   <span className="flex items-center gap-2 text-sm text-white">
                                     <span className="text-base">{f.emoji}</span>
-                                    <span className="font-medium capitalize">{f.name.toLowerCase()}</span>
+                                    <span className="font-medium">{f.name}</span>
                                   </span>
                                   <span className="text-xs text-amber-400 font-semibold bg-amber-950/50 px-1.5 py-0.5 rounded">
                                     ×{f.quantity}

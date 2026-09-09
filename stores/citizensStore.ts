@@ -235,6 +235,106 @@ export function getFoodActiveDays(itemId: string, item?: { name?: string }): num
   return 1;
 }
 
+export function formatFoodDisplayName(
+  id: string,
+  rawName?: string,
+  fallbackEmoji?: string
+): { name: string; emoji: string } {
+  // Strip file extension (.webp, .png, .jpg, etc.)
+  let clean = (rawName || id || '')
+    .replace(/\.[a-zA-Z0-9]+$/, '')
+    .trim();
+
+  const lower = clean.toLowerCase();
+
+  // 1. Water
+  if (lower === 'water' || lower === 'material-water' || lower === 'material water') {
+    return { name: 'Water', emoji: '💧' };
+  }
+
+  // 2. Potions
+  if (lower.includes('potion')) {
+    if (lower.includes('health')) return { name: 'Health potion', emoji: '🧪' };
+    if (lower.includes('mana')) return { name: 'Mana potion', emoji: '🧪' };
+    if (lower.includes('stamina')) return { name: 'Stamina potion', emoji: '🧪' };
+    if (lower.includes('gold')) return { name: 'Gold potion', emoji: '🧪' };
+    if (lower.includes('exp')) return { name: 'Exp potion', emoji: '🧪' };
+    return { name: 'Potion', emoji: '🧪' };
+  }
+
+  // 3. Fish (e.g. 'fish-silver', 'Fish Silver', 'silver-fish')
+  if (lower.includes('silver') && lower.includes('fish')) {
+    return { name: 'Silver fish', emoji: '🐟' };
+  }
+  if (lower.includes('golden') && lower.includes('fish')) {
+    return { name: 'Golden fish', emoji: '🐟' };
+  }
+  if (lower.includes('gold') && lower.includes('fish')) {
+    return { name: 'Golden fish', emoji: '🐟' };
+  }
+  if (lower.includes('red') && lower.includes('fish')) {
+    return { name: 'Red fish', emoji: '🐟' };
+  }
+  if (lower.includes('blue') && lower.includes('fish')) {
+    return { name: 'Blue fish', emoji: '🐟' };
+  }
+  if (lower.includes('rainbow') && lower.includes('fish')) {
+    return { name: 'Rainbow fish', emoji: '🐟' };
+  }
+  if (lower.includes('bass')) {
+    return { name: 'Bass', emoji: '🐟' };
+  }
+  if (lower === 'fish' || lower === 'fish-food' || lower === 'food-fish') {
+    return { name: 'Fish', emoji: '🐟' };
+  }
+
+  // 4. Materials
+  if (lower.includes('log')) {
+    return { name: 'Logs', emoji: '🪵' };
+  }
+  if (lower.includes('plank')) {
+    return { name: 'Planks', emoji: '🪵' };
+  }
+  if (lower.includes('stone') || lower.includes('rock')) {
+    return { name: 'Stone', emoji: '🪨' };
+  }
+  if (lower.includes('crystal')) {
+    return { name: 'Crystal', emoji: '💎' };
+  }
+  if (lower.includes('steel') || lower.includes('iron')) {
+    return { name: 'Iron ore', emoji: '🪙' };
+  }
+  if (lower.includes('grain') || lower.includes('wheat')) {
+    return { name: 'Grain', emoji: '🌾' };
+  }
+
+  // 5. Fallback cleanup: remove prefixes like 'material-', 'food-', 'item-'
+  clean = clean
+    .replace(/^(material|food|item)[-_ ]+/i, '')
+    .replace(/[-_]+/g, ' ')
+    .trim();
+
+  // Invert "fish <color>" -> "<color> fish" if present
+  const fishMatch = clean.match(/^fish\s+([a-zA-Z]+)$/i);
+  if (fishMatch) {
+    clean = `${fishMatch[1]} fish`;
+  }
+
+  // Sentence case: Capitalize only the first letter
+  const formattedName = clean.length > 0
+    ? clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase()
+    : 'Food';
+
+  let emoji = fallbackEmoji && fallbackEmoji !== '📦' ? fallbackEmoji : '🍖';
+  if (lower.includes('fish')) emoji = '🐟';
+  else if (lower.includes('potion')) emoji = '🧪';
+  else if (lower.includes('water')) emoji = '💧';
+  else if (lower.includes('log') || lower.includes('wood')) emoji = '🪵';
+  else if (lower.includes('stone')) emoji = '🪨';
+
+  return { name: formattedName, emoji };
+}
+
 export const useCitizensStore = create<CitizensStore>((set, get) => ({
   citizens: [],
   combatSupporters: [],

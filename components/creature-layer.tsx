@@ -4,7 +4,7 @@ import { CreatureDefinition, CREATURE_DEFINITIONS } from '@/lib/creature-mapping
 import { CreatureSprite } from './creature-sprite';
 import { Tile } from '@/types/tiles';
 import { useUser } from '@clerk/nextjs';
-import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, isFoodItem, getFoodActiveDays, Citizen } from '@/stores/citizensStore';
+import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, isFoodItem, getFoodActiveDays, formatFoodDisplayName, Citizen } from '@/stores/citizensStore';
 import { getInventory, removeFromInventory } from '@/lib/inventory-manager';
 import { useGameStore } from '@/stores/game-store';
 import { loadTileInventory } from '@/lib/data-loaders';
@@ -698,11 +698,12 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                 const cleanId = (item.id || '').toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '');
                 if (!seen.has(cleanId)) {
                     seen.add(cleanId);
+                    const { name, emoji } = formatFoodDisplayName(item.id, item.name, item.emoji);
                     foodItems.push({
                         id: item.id,
-                        name: item.name || (cleanId.includes('fish') ? 'Fish' : item.id),
+                        name,
                         quantity: item.quantity,
-                        emoji: item.emoji || (cleanId.includes('water') ? '💧' : '🐟')
+                        emoji
                     });
                 }
             });
@@ -716,8 +717,9 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                 if (isFoodItem({ id: key, name: typeof value === 'object' ? value?.name : undefined }) && qty > 0) {
                     if (!seen.has(cleanKey)) {
                         seen.add(cleanKey);
-                        const name = key === 'material-water' ? 'Water' : (typeof value === 'object' && value?.name ? value.name : key);
-                        const emoji = key === 'material-water' ? '💧' : (typeof value === 'object' && value?.emoji ? value.emoji : '📦');
+                        const rawName = typeof value === 'object' && value?.name ? value.name : key;
+                        const rawEmoji = typeof value === 'object' && value?.emoji ? value.emoji : undefined;
+                        const { name, emoji } = formatFoodDisplayName(key, rawName, rawEmoji);
                         foodItems.push({
                             id: key,
                             name,
@@ -1384,7 +1386,7 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                             >
                                                 <div className="flex items-center gap-2">
                                                     <span>{food.emoji}</span>
-                                                    <span className="text-xs font-semibold capitalize">{food.name.toLowerCase()} (x{food.quantity})</span>
+                                                    <span className="text-xs font-semibold">{food.name} (x{food.quantity})</span>
                                                 </div>
                                                 <span className="text-[10px] bg-zinc-950 text-orange-200 px-2 py-0.5 rounded-md font-mono">
                                                     +{getFoodActiveDays(food.id, food)} day{getFoodActiveDays(food.id, food) !== 1 ? 's' : ''} active

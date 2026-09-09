@@ -23,6 +23,7 @@ import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { CreatureLayer } from '@/components/creature-layer'
 import { useWeather } from '@/hooks/use-weather'
 import { TEXT_CONTENT } from '@/lib/text-content'
+import { formatFoodDisplayName } from '@/stores/citizensStore'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LuckyCelebration } from '@/components/lucky-celebration'
 import { checkAndUnlockTileQuests } from '@/lib/tile-quest-service'
@@ -2107,12 +2108,15 @@ export function KingdomGridWithTimers({
       }
 
       // Show modal with rewards
+      const rawItemName = itemFound ? (itemFound.split('/').pop()?.replace(/\.[^/.]+$/, '') || 'Unknown Item') : 'Unknown Item';
+      const cleanItemName = formatFoodDisplayName(rawItemName, rawItemName).name;
+
       setModalData({
         tileName: kingdomTile.name,
         goldEarned,
         itemFound: itemFound ? {
           image: itemFound,
-          name: itemFound.split('/').pop()?.replace(/\.[^/.]+$/, '') || 'Unknown Item',
+          name: cleanItemName,
           type: kingdomTile.itemType
         } : undefined,
         isLucky: wasLucky,
@@ -2131,7 +2135,7 @@ export function KingdomGridWithTimers({
       if (onItemFound && itemFound) {
         onItemFound({
           image: itemFound,
-          name: itemFound.split('/').pop()?.replace(/\.[^/.]+$/, '') || 'Unknown Item',
+          name: cleanItemName,
           type: kingdomTile.itemType
         })
       }
@@ -2241,13 +2245,16 @@ export function KingdomGridWithTimers({
     // Trigger callbacks
     if (onGoldEarned) onGoldEarned(goldEarned)
     if (onItemFound && itemFound) {
+      const rawItemName = itemFound.split('/').pop()?.replace(/\.[^/.]+$/, '') || 'Unknown Item';
+      const cleanItemName = formatFoodDisplayName(rawItemName, rawItemName).name;
+
       (async () => {
         try {
           const { invManager } = await loadManagers();
           if (userId) {
             await invManager.addToKingdomInventory(userId, {
               image: itemFound,
-              name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+              name: cleanItemName,
               type: kingdomTile.itemType,
               quantity: 1,
               category: 'material'
@@ -2260,7 +2267,7 @@ export function KingdomGridWithTimers({
 
       onItemFound({
         image: itemFound,
-        name: itemFound.split('/').pop()?.replace('.png', '') || 'Unknown Item',
+        name: cleanItemName,
         type: kingdomTile.itemType
       })
     }

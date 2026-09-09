@@ -49,6 +49,7 @@ import { gainExperience } from '@/lib/experience-manager';
 import { updateCharacterStats, getCharacterStats, fetchFreshCharacterStats } from '@/lib/character-stats-service';
 import { MedievalErrorBoundary } from '@/components/medieval-error-boundary';
 import { KINGDOM_TILES } from '@/lib/kingdom-tiles';
+import { formatFoodDisplayName } from '@/stores/citizensStore';
 import {
   saveKingdomGrid,
   saveKingdomTimers,
@@ -1563,36 +1564,16 @@ export function KingdomClient() {
 
   const handleKingdomTileItemFound = (item: { image: string; name: string; type: string }) => {
     const cleanId = (item.name || '').toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '');
-    let itemName = item.name;
-    let emoji = '📦';
+    const { name: itemName, emoji } = formatFoodDisplayName(cleanId, item.name, '📦');
     let type: any = 'resource';
     let category = item.type || 'resource';
 
-    if (cleanId === 'fish-red' || item.image.includes('fish-red')) {
-      itemName = 'Red fish';
-      emoji = '🐟';
+    if (cleanId.includes('fish') || item.image.includes('fish')) {
       type = 'consumable';
       category = 'food';
-    } else if (cleanId === 'fish-blue' || item.image.includes('fish-blue')) {
-      itemName = 'Blue fish';
-      emoji = '🐟';
+    } else if (cleanId.includes('potion') || item.image.includes('potion')) {
       type = 'consumable';
-      category = 'food';
-    } else if (cleanId === 'fish-silver' || item.image.includes('fish-silver')) {
-      itemName = 'Silver fish';
-      emoji = '🐟';
-      type = 'consumable';
-      category = 'food';
-    } else if (cleanId === 'fish-golden' || item.image.includes('fish-golden')) {
-      itemName = 'Golden fish';
-      emoji = '🐟';
-      type = 'consumable';
-      category = 'food';
-    } else if (cleanId === 'fish-rainbow' || item.image.includes('fish-rainbow')) {
-      itemName = 'Rainbow fish';
-      emoji = '🐟';
-      type = 'consumable';
-      category = 'food';
+      category = 'potion';
     }
 
     // Add item to inventory
