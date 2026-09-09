@@ -16,7 +16,6 @@ import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { FortuneTellerModal } from "@/components/fortune-teller-modal"
 import { TownRiddleModal } from "@/components/minigames/TownRiddleModal"
 import { PlankPuzzleModal } from "@/components/plank-puzzle-modal"
-import { PerimeterFuseBorder } from "@/components/ui/perimeter-fuse-border"
 import { playSFX, SOUNDS } from "@/lib/sound-manager"
 import { hapticSuccess } from "@/lib/haptics"
 
@@ -52,23 +51,11 @@ const MONUMENT_TYPES = [
   { id: 'monument-vitality', name: 'Garden of Vitality', category: 'vitality', rewardDesc: 'A magical potion & herb supply.' }
 ];
 
-const formatLocationTitle = (name: string, type: string) => {
-  if (!name || name.toLowerCase() === 'city-tile' || name.toLowerCase() === 'city tile' || name.toLowerCase().includes('tile')) {
-    return 'Grand Citadel';
-  }
-  const decoded = decodeURIComponent(name);
-  
-  const coordMatch = decoded.match(/^(settlement|town|city|megapolis)-(\d+)-(\d+)$/i);
-  if (coordMatch && coordMatch[1]) {
-    const locType = coordMatch[1].toLowerCase();
-    if (locType === 'city') return 'Grand Citadel';
-    if (locType === 'town') return 'Greenhaven Market Town';
-    if (locType === 'settlement') return 'Sovereign Outpost';
-    return `${locType.charAt(0).toUpperCase() + locType.slice(1)} District`;
-  }
+import { getResolvedLocationName } from "@/lib/location-names"
 
-  const cleaned = decoded.replace(/-/g, ' ');
-  return cleaned.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+const formatLocationTitle = (name: string, type: string) => {
+  const locType = (type === 'settlement' || type === 'town' || type === 'city') ? type : 'settlement';
+  return getResolvedLocationName(locType, name);
 };
 
 export function HabitFocusCard({ locationName, locationType }: HabitFocusCardProps) {
@@ -422,9 +409,7 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
   );
 
   return (
-    <Card className="bg-[#0f1115] border border-amber-950/20 rounded-3xl p-6 shadow-2xl relative overflow-hidden mb-6">
-      <PerimeterFuseBorder color="emerald" borderRadius={24} animated={true} />
-      
+    <Card className="bg-[#0f1115] border border-amber-950/30 rounded-3xl p-6 shadow-2xl relative overflow-hidden mb-6">
       {/* Background Lighting Flare */}
       <div className="absolute -top-12 -right-12 w-32 h-32 bg-amber-500/5 blur-3xl rounded-full pointer-events-none" />
 
@@ -438,8 +423,8 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
                 <Compass className="w-5 h-5 text-amber-500" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-amber-500 tracking-wider">
-                  {locationType.charAt(0).toUpperCase() + locationType.slice(1)} Focus Altar
+                <span className="text-[11px] font-medium text-amber-400/90">
+                  {locationType.charAt(0).toUpperCase() + locationType.slice(1)} focus altar
                 </span>
                 <h3 className="font-cardo font-bold text-base text-[#e5c158] mt-0.5">
                   {formatLocationTitle(locationName, locationType)}
@@ -649,7 +634,7 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
             </div>
             <div>
               <h3 className="font-cardo font-bold text-white text-sm">Configure habit focus district</h3>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-1">
+              <p className="text-xs text-amber-400/90 font-medium mt-0.5">
                 {locationType.charAt(0).toUpperCase() + locationType.slice(1)}: {formatLocationTitle(locationName, locationType)}
               </p>
             </div>
@@ -659,12 +644,12 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
             /* Settlement Streak Shrine Configuration */
             <div className="space-y-4">
               <p className="text-xs text-zinc-400 leading-relaxed font-medium bg-zinc-950/60 p-3.5 rounded-xl border border-white/5">
-                <strong>Streak Shrine:</strong> Bind a daily habit quest to this settlement. Keep the streak alive by checking it off every day. Generates daily gold and resources as taxes!
+                <strong>Streak shrine:</strong> Bind a daily habit quest to this settlement. Keep the streak alive by checking it off every day. Generates daily gold and resources as taxes!
               </p>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">1. Select Habit Category:</label>
+                  <label className="text-[10px] font-bold text-zinc-400">1. Select habit category:</label>
                   <select
                     value={selectedCategory}
                     onChange={(e) => {
@@ -674,19 +659,19 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
                     className="w-full bg-zinc-950 border border-zinc-850 text-zinc-300 rounded-lg p-2.5 text-xs font-bold"
                   >
                     {CATEGORY_NAMES.map(cat => (
-                      <option key={cat} value={cat} className="capitalize">{cat}</option>
+                      <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
                     ))}
                   </select>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">2. Select Active Quest:</label>
+                  <label className="text-[10px] font-bold text-zinc-400">2. Select active quest:</label>
                   <select
                     value={selectedHabitId}
                     onChange={(e) => setSelectedHabitId(e.target.value)}
                     className="w-full bg-zinc-950 border border-zinc-850 text-zinc-300 rounded-lg p-2.5 text-xs font-bold"
                   >
-                    <option value="">-- Choose Quest --</option>
+                    <option value="">-- Choose quest --</option>
                     {categoryQuests.map(q => (
                       <option key={q.id} value={q.id}>{q.title || q.name}</option>
                     ))}
@@ -708,8 +693,8 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
               </p>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-                  Select {locationType === 'town' ? '2' : '3'} Habit Categories:
+                <label className="text-[10px] font-bold text-zinc-400">
+                  Select {locationType === 'town' ? '2' : '3'} habit categories:
                 </label>
                 <div className="flex gap-2.5">
                   {CATEGORY_NAMES.map(cat => {
@@ -738,11 +723,11 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
             /* Megapolis Grand Monument Commissioning */
             <div className="space-y-4">
               <p className="text-xs text-zinc-400 leading-relaxed font-medium bg-zinc-950/60 p-3.5 rounded-xl border border-white/5">
-                <strong>Grand Monument:</strong> Select a majestic monument project. Complete 10 habits of the matching category to construct the monument, unlocking massive gold & material rewards.
+                <strong>Grand monument:</strong> Select a majestic monument project. Complete 10 habits of the matching category to construct the monument, unlocking massive gold & material rewards.
               </p>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Select Monument Project:</label>
+                <label className="text-[10px] font-bold text-zinc-400">Select monument project:</label>
                 <div className="grid grid-cols-2 gap-2.5">
                   {MONUMENT_TYPES.map(m => {
                     const isSelected = selectedMonumentId === m.id;
@@ -768,13 +753,13 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
           )}
 
           {/* Action Trigger */}
-          <div className="pt-4 border-t border-white/5 mt-4">
+          <div className="flex justify-center pt-4 border-t border-white/5 mt-4">
             <Button
               disabled={isUpdating}
               onClick={handleSetup}
-              className="w-full text-xs font-bold py-5 rounded-xl uppercase tracking-wider bg-gradient-to-r from-amber-600 to-amber-500 text-black font-extrabold shadow-lg hover:brightness-110 active:scale-[0.98]"
+              className="w-full sm:w-auto min-w-[260px] max-w-sm py-3.5 px-8 rounded-xl font-serif font-bold text-xs bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-zinc-950 shadow-lg shadow-amber-950/40 hover:brightness-110 active:scale-[0.98]"
             >
-              {isUpdating ? '⏳ Activating Altar...' : '✨ Activate Focus District'}
+              {isUpdating ? '⏳ Activating altar...' : '✨ Activate focus district'}
             </Button>
           </div>
         </div>

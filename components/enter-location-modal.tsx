@@ -48,7 +48,7 @@ export function EnterLocationModal({
   };
 
   const displayName = locationName && locationName !== 'unknown' ? locationName : 'this location';
-  const buttonText = locationType === 'city' ? 'Enter City' : 'Enter Town';
+  const buttonText = locationType === 'city' ? 'Enter city' : 'Enter town';
   const LocationIcon = locationType === 'city' ? Building : Home;
 
   return (
@@ -91,7 +91,7 @@ export function EnterLocationModal({
 
           {/* What you can do */}
           <div className="mt-4 p-3 bg-zinc-900 rounded-lg border border-amber-800/20">
-            <p className="text-xs text-amber-300/60 uppercase tracking-wide mb-2">Available Activities</p>
+            <p className="text-xs text-amber-300/60 font-medium mb-2">Available activities</p>
             <div className="flex flex-wrap gap-2">
               {locationType === 'city' ? (
                 <>
@@ -117,7 +117,7 @@ export function EnterLocationModal({
               onClick={handleCancel}
               className="flex-1 h-12 text-amber-200/60 hover:text-amber-100 hover:bg-amber-900/20 rounded-xl"
             >
-              Not Yet
+              Not yet
             </Button>
             <Button
               onClick={handleEnter}

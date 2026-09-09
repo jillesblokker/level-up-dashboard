@@ -473,8 +473,8 @@ export function MapGrid({
             style={{
               left: `${penguinPos.x * tileSize + tileSize / 2}px`,
               top: `${penguinPos.y * tileSize + tileSize / 2}px`,
-              width: `${tileSize * 3.2}px`,
-              height: `${tileSize * 3.2}px`,
+              width: `${tileSize * 0.55}px`,
+              height: `${tileSize * 0.55}px`,
               transform: 'translate(-50%, -50%)'
             }}
             title="Penguino"
@@ -483,7 +483,7 @@ export function MapGrid({
               src="/images/Animals/penguin.webp" 
               alt="Penguino" 
               fill
-              sizes={`${tileSize * 3.2}px`}
+              sizes={`${tileSize * 0.55}px`}
               className="object-contain drop-shadow-md" 
             />
           </div>

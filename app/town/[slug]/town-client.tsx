@@ -11,6 +11,7 @@ import { setUserPreference } from '@/lib/user-preferences-manager'
 import { TEXT_CONTENT } from '@/lib/text-content'
 import { HeaderSection } from "@/components/HeaderSection"
 import { HabitFocusCard } from "@/components/kingdom/habit-focus-card"
+import { getResolvedLocationName } from "@/lib/location-names"
 
 interface TownData {
   name: string
@@ -64,23 +65,44 @@ export default function TownClient({ slug }: Props) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (slug && slug.toLowerCase().includes('settlement')) {
+    const decodedSlug = decodeURIComponent(slug || '').trim();
+    const isSettlement = decodedSlug.toLowerCase().includes('settlement') || decodedSlug.toLowerCase() === 'akercity';
+    const resolvedName = getResolvedLocationName(isSettlement ? 'settlement' : 'town', decodedSlug);
+
+    if (isSettlement) {
       setTownData({
-        name: slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+        name: resolvedName,
         type: 'town',
-        description: 'A small settlement with just a single shop to trade.',
+        description: 'A cozy frontier settlement equipped with trading stalls, a welcoming hearth tavern, and resting quarters for weary adventurers.',
         locations: [
           {
             id: 'kingdom-marketplace',
-            name: TEXT_CONTENT.town.locations.marketplace.name,
-            description: TEXT_CONTENT.town.locations.marketplace.description,
+            name: 'Settlement Trading Post',
+            description: 'Buy, sell, and barter goods with local frontier merchants.',
             icon: 'ShoppingBag',
             image: '/images/locations/kingdom-marketplace.webp'
+          },
+          {
+            id: 'the-dragons-rest',
+            name: "The Wayfarer's Hearth",
+            description: 'Rest by the hearth, recover stamina, and listen to frontier tales.',
+            icon: 'Home',
+            image: '/images/locations/the-dragons-rest-tavern.webp'
+          },
+          {
+            id: 'royal-stables',
+            name: 'Frontier Stables',
+            description: 'Stabling, mounts, and provisions for your long journey.',
+            icon: 'Swords',
+            image: '/images/locations/royal-stables.webp'
           }
         ]
       });
     } else {
-      setTownData(defaultTownData);
+      setTownData({
+        ...defaultTownData,
+        name: resolvedName,
+      });
     }
     setIsLoading(false);
 
@@ -125,28 +147,27 @@ export default function TownClient({ slug }: Props) {
         subtitle={townData.description}
         imageSrc="/images/locations/town.webp"
         shouldRevealImage={true}
-        className="mb-8"
+        className="mb-6"
+        guideComponent={
+          <Button
+            onClick={() => router.push('/realm')}
+            variant="outline"
+            className="bg-black/60 backdrop-blur-md border border-amber-500/30 text-amber-300 hover:bg-black/80 hover:text-amber-200 text-xs font-serif shadow-lg"
+            aria-label="Back to realm"
+          >
+            <ArrowLeft className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
+            Back to realm
+          </Button>
+        }
       />
-
-      <div className="flex justify-end mb-6">
-        <Button
-          onClick={() => window.location.href = '/realm'}
-          variant="outline"
-          className="border-amber-800/20 text-amber-500"
-          aria-label="Back to Realm"
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          {TEXT_CONTENT.town.backToRealm}
-        </Button>
-      </div>
 
       <main className="flex-1 p-4 md:p-6 space-y-6">
         <HabitFocusCard
-          locationName={slug}
-          locationType={slug.toLowerCase().includes('settlement') ? 'settlement' : 'town'}
+          locationName={townData.name}
+          locationType={townData.name.toLowerCase().includes('settlement') || townData.name.toLowerCase().includes('outpost') || townData.name.toLowerCase() === 'akercity' ? 'settlement' : 'town'}
         />
 
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-3" aria-label="town-locations-grid">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" aria-label="town-locations-grid">
           {townData.locations.map((location) => (
             <Link
               key={location.id}

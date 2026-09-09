@@ -66,6 +66,7 @@ import { useRealmAnimals } from '@/hooks/use-realm-animals';
 import { useRealmPassiveRewards } from '@/hooks/use-realm-passive-rewards';
 import { useRealmGridManager } from '@/hooks/use-realm-grid-manager';
 import { useRealmInventory } from '@/hooks/use-realm-inventory';
+import { getResolvedLocationName } from '@/lib/location-names';
 
 // Import new data loaders hook
 
@@ -1641,16 +1642,16 @@ function RealmPageContent() {
                     break;
                 }
                 case 'city':
-                    setModalState({ isOpen: true, locationType: 'city', locationName: currentTile?.name ?? 'Bravos' });
+                    setModalState({ isOpen: true, locationType: 'city', locationName: getResolvedLocationName('city', currentTile?.name, characterPosition) });
                     break;
                 case 'town':
-                    setModalState({ isOpen: true, locationType: 'town', locationName: currentTile?.name ?? 'Riverwood' });
+                    setModalState({ isOpen: true, locationType: 'town', locationName: getResolvedLocationName('town', currentTile?.name, characterPosition) });
                     break;
                 case 'settlement':
-                    setModalState({ isOpen: true, locationType: 'town', locationName: currentTile?.name ?? 'settlement' });
+                    setModalState({ isOpen: true, locationType: 'town', locationName: getResolvedLocationName('settlement', currentTile?.name, characterPosition) });
                     break;
                 case 'megapolis':
-                    setModalState({ isOpen: true, locationType: 'city', locationName: currentTile?.name ?? 'megapolis' });
+                    setModalState({ isOpen: true, locationType: 'city', locationName: getResolvedLocationName('city', currentTile?.name, characterPosition) });
                     break;
                 case 'mystery':
                     setLastMysteryTile({ x: characterPosition.x, y: characterPosition.y });
