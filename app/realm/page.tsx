@@ -691,6 +691,7 @@ function RealmPageContent() {
     const [pyramidEvent, setPyramidEvent] = useState<{ open: boolean; success: boolean } | null>(null);
     const [abbeyEventOpen, setAbbeyEventOpen] = useState(false);
     const [wellEvent, setWellEvent] = useState<{ open: boolean; pact: any; availableHabits: any[]; loading: boolean } | null>(null);
+    const [selectedWellCategory, setSelectedWellCategory] = useState<string>('all');
     const [sphinxEvent, setSphinxEvent] = useState<{ open: boolean; blocked: boolean; completedCount: number } | null>(null);
     const prevPositionRef = useRef({ x: INITIAL_POS.x, y: INITIAL_POS.y });
 
@@ -2869,35 +2870,35 @@ function RealmPageContent() {
                 {/* Whispering Well of Focus Modal */}
                 {wellEvent?.open && (
                     <Dialog open={wellEvent.open} onOpenChange={() => setWellEvent(null)}>
-                        <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden p-6 rounded-2xl h-auto max-h-[85vh]">
+                        <DialogContent className="w-[92%] sm:max-w-[440px] bg-zinc-950 border-zinc-800 text-zinc-100 p-6 rounded-2xl h-auto max-h-[88vh] flex flex-col overflow-hidden">
                             <div className="absolute inset-0 bg-blue-500/5 opacity-40 pointer-events-none blur-[100px]" />
-                            <DialogHeader className="text-center items-center">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-blue-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-blue-400">
-                                    <Compass className="w-3 h-3" />
-                                    Whispering Well
+                            <DialogHeader className="text-center items-center shrink-0">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-blue-500/30 text-xs font-semibold mb-3 text-blue-400">
+                                    <Compass className="w-3.5 h-3.5" />
+                                    Whispering well
                                 </div>
-                                <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
-                                    Well of Focus
+                                <DialogTitle className="text-2xl sm:text-3xl font-serif text-white tracking-tight mb-2">
+                                    Well of focus
                                 </DialogTitle>
-                                <DialogDescription className="text-zinc-400 text-center leading-relaxed">
+                                <DialogDescription className="text-zinc-400 text-center leading-relaxed text-xs">
                                     Peer into the ancient waters. Seal a focus pact on a single daily task to summon a treasure chest.
                                 </DialogDescription>
                             </DialogHeader>
 
                             {wellEvent.loading ? (
-                                <div className="h-40 flex items-center justify-center text-amber-500/50 animate-pulse">
+                                <div className="h-40 flex items-center justify-center text-amber-500/50 animate-pulse text-sm">
                                     Consulting the water spirits...
                                 </div>
                             ) : wellEvent.pact ? (
                                 <div className="space-y-4 my-4">
                                     <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 text-center">
-                                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-1">Active Pact</p>
+                                        <p className="text-[10px] text-zinc-500 font-bold mb-1">Active pact</p>
                                         <p className="text-lg font-bold text-amber-400 font-serif">&quot;{wellEvent.pact.habitName}&quot;</p>
                                         <p className="text-xs text-zinc-400 mt-2">
                                             {wellEvent.pact.completed ? (
-                                                <span className="text-green-400 font-bold">✨ TASK COMPLETED! ✨</span>
+                                                <span className="text-green-400 font-bold">✨ Task completed! ✨</span>
                                             ) : (
-                                                <span>Status: Incomplete in Quest Log</span>
+                                                <span>Status: Incomplete in quest log</span>
                                             )}
                                         </p>
                                     </div>
@@ -2930,9 +2931,9 @@ function RealmPageContent() {
                                                     
                                                     localStorage.removeItem('well-focus-pact');
                                                     toast({
-                                                        title: "Focus Pact Fulfilled! 📦",
+                                                        title: "Focus pact fulfilled! 📦",
                                                         description: `You obtained 30 Gold, ${rand1?.quantity}x ${rand1?.name}, and ${rand2?.quantity}x ${rand2?.name}!`,
-                                                     });
+                                                    });
                                                 } catch (err) {
                                                     console.error("Failed to claim focus chest:", err);
                                                 } finally {
@@ -2944,66 +2945,122 @@ function RealmPageContent() {
                                             {isChestClaiming ? (
                                                 <span className="flex items-center justify-center gap-2">
                                                     <Loader2 className="w-4 h-4 animate-spin" />
-                                                    Opening Chest...
+                                                    Opening chest...
                                                 </span>
                                             ) : (
-                                                "Open Focus Chest 🎁"
+                                                "Open focus chest 🎁"
                                             )}
                                         </Button>
                                     ) : (
                                         <>
                                             <p className="text-xs text-zinc-400 text-center">
-                                                Complete this task in your daily Quest board to unlock the well&apos;s floating chest!
+                                                Complete this task in your daily quest board to unlock the well&apos;s floating chest!
                                             </p>
                                             <Button
                                                 className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 py-3 rounded-xl"
                                                 onClick={() => setWellEvent(null)}
                                             >
-                                                Return to Map
+                                                Return to map
                                             </Button>
                                         </>
                                     )}
                                 </div>
                             ) : (
-                                <div className="space-y-4 my-4">
-                                    <p className="text-xs text-zinc-400 text-center leading-relaxed">
-                                        Choose one uncompleted task from your Quest board. Pledging to focus on it will seal a pact. Complete it to claim your reward chest!
+                                <div className="space-y-3.5 my-3 flex-1 min-h-0 flex flex-col">
+                                    <p className="text-xs text-zinc-400 text-center leading-relaxed shrink-0">
+                                        Choose one uncompleted task from your quest board. Pledging to focus on it will seal a pact. Complete it to claim your reward chest!
                                     </p>
                                     {wellEvent.availableHabits.length === 0 ? (
                                         <p className="text-sm text-center text-green-400 font-bold py-4">
                                             All habits are complete today! Return tomorrow to seal a new pact.
                                         </p>
                                     ) : (
-                                        <ScrollArea className="max-h-[160px] border border-zinc-850 rounded-lg p-2 bg-zinc-900/40">
-                                            <div className="space-y-2">
-                                                {wellEvent.availableHabits.map((habit: any) => (
-                                                    <div 
-                                                        key={habit.id}
-                                                        onClick={() => {
-                                                            const today = new Date().toDateString();
-                                                            localStorage.setItem('well-focus-pact', JSON.stringify({
-                                                                habitId: habit.id,
-                                                                habitName: habit.name || habit.title,
-                                                                targetDate: today,
-                                                                completed: false
-                                                            }));
-                                                            toast({
-                                                                title: "Pact Sealed 📜",
-                                                                description: `You have sworn a pact of focus on "${habit.name || habit.title}"!`,
-                                                            });
-                                                            setWellEvent(null);
-                                                        }}
-                                                        className="p-2 border border-zinc-800 hover:border-blue-500/50 hover:bg-blue-500/5 rounded-lg text-xs cursor-pointer transition-all flex items-center justify-between"
-                                                    >
-                                                        <span className="font-medium text-zinc-200">{habit.name || habit.title}</span>
-                                                        <span className="text-[10px] text-blue-400 uppercase font-bold tracking-wider">{habit.category}</span>
+                                        <>
+                                            {(() => {
+                                                const availableCategories = Array.from(new Set(wellEvent.availableHabits.map((h: any) => (h.category || 'other').toLowerCase())));
+                                                const filteredHabits = selectedWellCategory === 'all'
+                                                    ? wellEvent.availableHabits
+                                                    : wellEvent.availableHabits.filter((h: any) => (h.category || '').toLowerCase() === selectedWellCategory.toLowerCase());
+
+                                                return (
+                                                    <div className="space-y-2 flex-1 min-h-0 flex flex-col">
+                                                        {availableCategories.length > 1 && (
+                                                            <div className="flex flex-wrap gap-1.5 justify-center py-0.5 shrink-0">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setSelectedWellCategory('all')}
+                                                                    className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${
+                                                                        selectedWellCategory === 'all'
+                                                                            ? 'bg-blue-600 text-white shadow-sm'
+                                                                            : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800'
+                                                                    }`}
+                                                                >
+                                                                    All ({wellEvent.availableHabits.length})
+                                                                </button>
+                                                                {availableCategories.map(cat => {
+                                                                    const count = wellEvent.availableHabits.filter((h: any) => (h.category || '').toLowerCase() === cat).length;
+                                                                    return (
+                                                                        <button
+                                                                            key={cat}
+                                                                            type="button"
+                                                                            onClick={() => setSelectedWellCategory(cat)}
+                                                                            className={`px-2.5 py-1 rounded-full text-[11px] font-medium capitalize transition-all ${
+                                                                                selectedWellCategory === cat
+                                                                                    ? 'bg-blue-600 text-white shadow-sm'
+                                                                                    : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800'
+                                                                            }`}
+                                                                        >
+                                                                            {cat} ({count})
+                                                                        </button>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        )}
+
+                                                        {/* Scrollable Habit List with guaranteed visible, smooth inside scroll */}
+                                                        <div 
+                                                            className="overflow-y-auto max-h-[200px] sm:max-h-[240px] pr-1.5 space-y-2 border border-zinc-850 rounded-xl p-2.5 bg-zinc-900/50 [scrollbar-width:thin] [scrollbar-color:rgba(59,130,246,0.45)_rgba(24,24,27,0.6)] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-zinc-950/60 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-blue-500/40 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-blue-400/80"
+                                                            tabIndex={0}
+                                                            role="region"
+                                                            aria-label="Available focus habits list"
+                                                        >
+                                                            {filteredHabits.length === 0 ? (
+                                                                <p className="text-xs text-center text-zinc-500 py-3">No habits in this category.</p>
+                                                            ) : (
+                                                                filteredHabits.map((habit: any) => (
+                                                                    <div 
+                                                                        key={habit.id}
+                                                                        onClick={() => {
+                                                                            const today = new Date().toDateString();
+                                                                            localStorage.setItem('well-focus-pact', JSON.stringify({
+                                                                                habitId: habit.id,
+                                                                                habitName: habit.name || habit.title,
+                                                                                targetDate: today,
+                                                                                completed: false
+                                                                            }));
+                                                                            toast({
+                                                                                title: "Pact sealed 📜",
+                                                                                description: `You have sworn a pact of focus on "${habit.name || habit.title}"!`,
+                                                                            });
+                                                                            setWellEvent(null);
+                                                                        }}
+                                                                        className="p-2.5 border border-zinc-800/80 hover:border-blue-500/60 hover:bg-blue-500/10 rounded-lg text-xs cursor-pointer transition-all flex items-center justify-between gap-2 group"
+                                                                    >
+                                                                        <span className="font-medium text-zinc-200 group-hover:text-white truncate">{habit.name || habit.title}</span>
+                                                                        <span className="text-[10px] text-blue-400 font-semibold px-2 py-0.5 rounded-md bg-blue-950/40 border border-blue-500/20 capitalize shrink-0">
+                                                                            {habit.category || 'Quest'}
+                                                                        </span>
+                                                                    </div>
+                                                                ))
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                ))}
-                                            </div>
-                                        </ScrollArea>
+                                                );
+                                            })()}
+                                        </>
                                     )}
                                     <Button
-                                        className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold font-serif py-3 rounded-xl shadow-lg border border-cyan-400/40 flex items-center justify-center gap-2"
+                                        className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold font-serif py-3 rounded-xl shadow-lg border border-cyan-400/40 flex items-center justify-center gap-2 shrink-0"
                                         onClick={() => {
                                             setWellEvent(null);
                                             setSewerModalOpen(true);
@@ -3013,7 +3070,7 @@ function RealmPageContent() {
                                         <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                                     </Button>
                                     <Button
-                                        className="w-full bg-zinc-900 border border-zinc-800 text-zinc-400 py-2.5 rounded-xl text-xs"
+                                        className="w-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200 py-2.5 rounded-xl text-xs shrink-0"
                                         onClick={() => setWellEvent(null)}
                                     >
                                         Cancel
