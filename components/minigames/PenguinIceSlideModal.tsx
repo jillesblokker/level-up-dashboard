@@ -504,12 +504,12 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
                   facing === 'left' ? 'scale-x-[-1]' : ''
                 } ${isSliding ? 'scale-105' : ''}`}
               >
-                <div className="w-14 h-14 sm:w-18 sm:h-18 relative drop-shadow-[0_6px_12px_rgba(0,0,0,0.75)] shrink-0">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 relative drop-shadow-[0_6px_12px_rgba(0,0,0,0.75)] shrink-0">
                   <Image
                     src="/images/Animals/penguin.webp"
                     alt="Penguino"
                     fill
-                    sizes="(max-width: 640px) 56px, 72px"
+                    sizes="(max-width: 640px) 48px, 64px"
                     className="object-contain"
                   />
                 </div>
