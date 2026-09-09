@@ -115,17 +115,60 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
     loadState();
   }, [loadState]);
 
-  // Set up speech lines cycle
+  // Set up speech lines cycle with dynamic category habit reactions
   useEffect(() => {
     if (!activeGuardian) return;
     const updateSpeech = () => {
+      const completed = favoritedQuests.filter(q => q.completed);
+      const completedCount = completed.length;
+
+      // Special reaction when hitting 5+ habits
+      if (completedCount >= 5 && Math.random() < 0.35) {
+        setSpeechBubble("🌟 5 habits mastered today! You reached the golden sweet spot of discipline!");
+        return;
+      }
+
+      // Check if a favorite category habit was completed
+      const mightCompleted = completed.some(q => q.category?.toLowerCase().includes('might') || q.category?.toLowerCase().includes('vitality'));
+      const knowledgeCompleted = completed.some(q => q.category?.toLowerCase().includes('knowledge') || q.category?.toLowerCase().includes('mind') || q.category?.toLowerCase().includes('honor'));
+      const craftCompleted = completed.some(q => q.category?.toLowerCase().includes('craft') || q.category?.toLowerCase().includes('castle'));
+
+      if (mightCompleted && (activeGuardian.id === 'ember-drake' || Math.random() < 0.4)) {
+        const mightLines = [
+          "🔥 I felt that strength habit! Your physical momentum stokes the town's furnaces!",
+          "Rawr! Powerful workout today! The castle walls are fortified by your discipline!",
+          "Iron muscles, iron kingdom! That strength habit is making us both stronger!"
+        ];
+        setSpeechBubble(mightLines[Math.floor(Math.random() * mightLines.length)]!);
+        return;
+      }
+
+      if (knowledgeCompleted && (activeGuardian.id === 'sage-owl' || Math.random() < 0.4)) {
+        const knowLines = [
+          "📖 Knowledge absorbed! I recorded your study chapter into the library archives with pride.",
+          "Hoot! A disciplined mind dispels Necrion's haze. Well done on your reading!",
+          "Wisdom turns to action. That knowledge habit makes our town wiser every day."
+        ];
+        setSpeechBubble(knowLines[Math.floor(Math.random() * knowLines.length)]!);
+        return;
+      }
+
+      if (craftCompleted && Math.random() < 0.4) {
+        const craftLines = [
+          "🔨 Solid craftwork! Every organized routine lays another paving stone in Thrivehaven.",
+          "Sparkle! Your creative discipline makes the whole kingdom gleam brighter!",
+        ];
+        setSpeechBubble(craftLines[Math.floor(Math.random() * craftLines.length)]!);
+        return;
+      }
+
       const randomLine = activeGuardian.lines[Math.floor(Math.random() * activeGuardian.lines.length)]!;
       setSpeechBubble(randomLine);
     };
     updateSpeech();
     const interval = setInterval(updateSpeech, 15000);
     return () => clearInterval(interval);
-  }, [activeGuardian]);
+  }, [activeGuardian, favoritedQuests]);
 
   const selectGuardian = async (id: string) => {
     try {

@@ -499,8 +499,8 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
                 const gold = 500
                 const xp = 200
                 toast({
-                  title: "Labyrinth Solved! 🎉",
-                  description: `You cleared the planks in ${moves + 1} moves! Earned ${gold} Gold and ${xp} XP.`,
+                  title: "Labyrinth solved! 🎉",
+                  description: `You cleared the planks in ${moves + 1} moves! Earned ${gold} gold, ${xp} XP, and 3x crafting blocks.`,
                 })
                 setTimeout(() => {
                   onComplete(true, gold, xp)
@@ -626,8 +626,8 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
       const xp = 200
       
       toast({
-        title: "Labyrinth Solved! 🎉",
-        description: `You cleared the planks in ${moves + 1} moves! Earned ${gold} Gold and ${xp} XP.`,
+        title: "Labyrinth solved! 🎉",
+        description: `You cleared the planks in ${moves + 1} moves! Earned ${gold} gold, ${xp} XP, and 3x crafting blocks.`,
       })
       
       setTimeout(() => {

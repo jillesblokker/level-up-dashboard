@@ -3394,7 +3394,7 @@ export function KingdomGridWithTimers({
                 expManager.gainExperience(xp, 'tile-collect:plank-labyrinth', 'general');
 
                 const currentStats = statsService.getCharacterStats();
-                const newTokens = (currentStats.build_tokens || 0) + 1;
+                const newTokens = (currentStats.build_tokens || 0) + 3;
                 await statsService.updateCharacterStats({ build_tokens: newTokens }, 'plank-labyrinth-solve');
                 setBuildTokens(newTokens);
               } catch (err) {

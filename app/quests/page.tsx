@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { cn, renderSafeNode } from '@/lib/utils'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame, Star, CheckCircle2, Zap, Scroll, RefreshCw } from 'lucide-react'
@@ -2933,7 +2934,10 @@ export default function QuestsPage() {
                   className="flex-shrink-0 whitespace-nowrap rounded-xl text-xs sm:text-sm font-bold font-serif py-2.5 px-4 sm:px-6 flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/40 data-[state=active]:to-amber-800/50 data-[state=active]:text-amber-300 data-[state=active]:border data-[state=active]:border-amber-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
                 >
                   <Sword className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Daily Quests</span>
+                  <span>Daily quests</span>
+                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-amber-500/30 text-amber-400/80 font-mono hidden sm:inline-block">
+                    Midnight reset
+                  </Badge>
                 </TabsTrigger>
                 <TabsTrigger
                   value="challenges"
@@ -2941,6 +2945,9 @@ export default function QuestsPage() {
                 >
                   <Zap className="w-4 h-4 text-amber-400 shrink-0" />
                   <span>Challenges</span>
+                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-cyan-500/30 text-cyan-400/80 font-mono hidden sm:inline-block">
+                    Weekly focus
+                  </Badge>
                 </TabsTrigger>
                 <TabsTrigger
                   value="milestones"
@@ -2948,6 +2955,9 @@ export default function QuestsPage() {
                 >
                   <Trophy className="w-4 h-4 text-green-400 shrink-0" />
                   <span>Milestones</span>
+                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-emerald-500/30 text-emerald-400/80 font-mono hidden sm:inline-block">
+                    Lifetime
+                  </Badge>
                 </TabsTrigger>
                 <TabsTrigger
                   value="petitions"
@@ -2955,6 +2965,9 @@ export default function QuestsPage() {
                 >
                   <Scroll className="w-4 h-4 text-blue-400 shrink-0" />
                   <span>Petitions</span>
+                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-purple-500/30 text-purple-400/80 font-mono hidden sm:inline-block">
+                    Court decrees
+                  </Badge>
                 </TabsTrigger>
               </TabsList>
             </Tabs>

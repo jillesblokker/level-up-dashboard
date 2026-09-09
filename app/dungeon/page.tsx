@@ -233,6 +233,12 @@ export default function DungeonPage() {
   const { getToken } = useAuth();
   const [elementBuffs, setElementBuffs] = useState<Record<string, number>>({});
   const [buildingBuffs, setBuildingBuffs] = useState<{ atkBuff: number, healingBuff: number }>({ atkBuff: 0, healingBuff: 0 });
+  const [activePet, setActivePet] = useState<{ id: string; name: string; emoji: string; skill: string }>({
+    id: 'ember-drake',
+    name: 'Ember Drake',
+    emoji: '🐉',
+    skill: 'Flame breath (45 AOE fire DMG)'
+  });
 
   useEffect(() => {
     async function loadBuffs() {
@@ -279,6 +285,18 @@ export default function DungeonPage() {
             setBuildingBuffs({ atkBuff: atk, healingBuff: heal });
           }
         }
+
+        try {
+          const { getUserPreference } = await import('@/lib/user-preferences-manager');
+          const guardianPref: any = await getUserPreference('habit_guardian_state');
+          if (guardianPref?.selectedId === 'sage-owl') {
+            setActivePet({ id: 'sage-owl', name: 'Sage Owl', emoji: '🦉', skill: 'Arcane gust (+35 team heal)' });
+          } else if (guardianPref?.selectedId === 'spirit-sprite') {
+            setActivePet({ id: 'spirit-sprite', name: 'Spirit Sprite', emoji: '🧚', skill: 'Floral blessing (+40 defense shield)' });
+          } else {
+            setActivePet({ id: 'ember-drake', name: 'Ember Drake', emoji: '🐉', skill: 'Flame breath (45 AOE fire DMG)' });
+          }
+        } catch {}
       } catch (e) {
         logger.error('[Dungeon] Error loading buffs:', e);
       }
@@ -1311,23 +1329,32 @@ export default function DungeonPage() {
         <div className="bg-gradient-to-r from-amber-950/80 via-zinc-950 to-amber-950/80 border border-amber-500/40 p-3.5 rounded-2xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg shadow-md shrink-0">
-              🐉
+              {activePet.emoji}
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-amber-300">Guardian Pet Striker: Ember Drake</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold text-amber-300">Guardian pet striker: {activePet.name}</span>
                 <Badge variant="outline" className="text-[9px] border-amber-500/40 text-amber-400 bg-amber-950/50 font-mono">
-                  🔥 Flame Breath Ready
+                  {petStrikerUsed ? '⏳ Recharging' : `✨ ${activePet.skill}`}
                 </Badge>
               </div>
               <p className="text-[11px] text-zinc-400 mt-0.5">Executes active support strikes alongside your squad in dungeon turns.</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-emerald-400 font-bold flex items-center gap-1.5">
-              <span>⚡ Today&apos;s Habits:</span>
-              <span className="text-amber-400">+15% ATK / +10% DEF Multiplier</span>
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            <div className="px-3 py-1.5 rounded-xl bg-zinc-900/90 border border-amber-500/30 text-[11px] font-mono text-emerald-400 font-bold flex items-center gap-1.5">
+              <span>⚡ Today&apos;s habit buffs:</span>
+              {Object.entries(elementBuffs).filter(([, count]) => count > 0).length > 0 ? (
+                <span className="text-amber-300">
+                  {Object.entries(elementBuffs)
+                    .filter(([, count]) => count > 0)
+                    .map(([el, count]) => `${getTypeEmoji(el as any)} +${count * 2} ATK`)
+                    .join(' · ')}
+                </span>
+              ) : (
+                <span className="text-zinc-400">Complete daily habits to empower squad</span>
+              )}
             </div>
           </div>
         </div>

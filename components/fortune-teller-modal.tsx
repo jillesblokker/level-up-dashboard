@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react"
 import Image from "next/image"
 import { toast } from "@/components/ui/use-toast"
 import { fetchFreshCharacterStats, addToCharacterStat } from "@/lib/character-stats-service"
+import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager"
 
 import { motion } from "framer-motion"
 import { playSFX } from "@/lib/sound-manager"
@@ -87,9 +88,27 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
           await addToCharacterStat('gems', 5, 'town-tarot-ace');
         }
 
+        try {
+          const currentBuffs = ((await getUserPreference('active_alchemy_buffs')) as any) || {};
+          const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+          const updatedBuffs = {
+            ...currentBuffs,
+            tarotCardName: card?.name || 'Daily Fortune',
+            tarotExpiresAt: expiresAt,
+            activeSpell: selectedCard === 'king' ? 'greed' : selectedCard === 'ace' ? 'swiftness' : 'combat_strength',
+            spellExpiresAt: expiresAt,
+            bonusAtkPercent: selectedCard === 'joker' ? 15 : currentBuffs.bonusAtkPercent || 0,
+            streakProtection: selectedCard === 'ace' ? true : currentBuffs.streakProtection || false,
+          };
+          await setUserPreference('active_alchemy_buffs', updatedBuffs);
+          window.dispatchEvent(new CustomEvent('tarot-buff-activated', { detail: updatedBuffs }));
+        } catch (e) {
+          console.error('Failed to save tarot buff:', e);
+        }
+
         toast({
-          title: `🔮 Fortune Claimed: ${card?.name || 'Tarot Card'}!`,
-          description: `You received: ${card?.reward || 'Daily Blessing'}!`,
+          title: `🔮 Fortune claimed: ${card?.name || 'Tarot Card'}!`,
+          description: `You received: ${card?.reward || 'Daily blessing'}!`,
         });
 
         if (onComplete) onComplete();

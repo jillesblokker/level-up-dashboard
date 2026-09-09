@@ -12,49 +12,42 @@ import { cn } from "@/lib/utils"
 import { playSFX, SOUNDS } from "@/lib/sound-manager"
 import { addToCharacterStat } from "@/lib/character-stats-service"
 
-// Medieval-themed riddles with answers
+// Thrivehaven medieval lore riddles with answers
 const riddles = [
   {
-    question:
-      "I'm the beginning of eternity, the end of time and space, the beginning of every end, and the end of every place. What am I?",
-    options: ["Death", "The letter E", "Infinity", "God"],
-    answer: "The letter E",
+    question: "I rise when you check in, reset at local midnight, and decay if you miss a day. What am I?",
+    options: ["A Habit Streak", "A Dungeon Timer", "A Tax Harvest", "A Spell Cooldown"],
+    answer: "A Habit Streak",
   },
   {
-    question: "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?",
-    options: ["Echo", "Ghost", "Thought", "Shadow"],
-    answer: "Echo",
+    question: "I glow with purple crystal magic atop the Astral Citadel, crowning the realm treasury. What am I?",
+    options: ["An Astral Crystal Orb", "A Sunburst Shard", "A Mana Potion", "A Magic Lamp"],
+    answer: "An Astral Crystal Orb",
   },
   {
-    question: "The more you take, the more you leave behind. What am I?",
-    options: ["Footsteps", "Memories", "Time", "Breath"],
-    answer: "Footsteps",
+    question: "I turn botanical herbs and spring water into gold, exp, and health potions in the glasshouse. What am I?",
+    options: ["The Grand Apotheca", "The Town Bakery", "The Blacksmith Forge", "The Royal Stables"],
+    answer: "The Grand Apotheca",
   },
   {
     question: "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?",
-    options: ["A dream", "A map", "A painting", "A story"],
-    answer: "A map",
+    options: ["A Realm Map", "A Magic Globe", "A Tapestry", "A Mirror"],
+    answer: "A Realm Map",
   },
   {
-    question: "What has keys but no locks, space but no room, and you can enter but not go in?",
-    options: ["A keyboard", "A dream", "A puzzle", "A book"],
-    answer: "A keyboard",
+    question: "I am built with 84 placeable tiles, from serene lakes to floating islands. What am I?",
+    options: ["The Realm Sandbox Grid", "The Dungeon Labyrinth", "The Airship Deck", "The City Gate"],
+    answer: "The Realm Sandbox Grid",
   },
   {
-    question:
-      "I am taken from a mine, and shut up in a wooden case, from which I am never released, and yet I am used by almost every person. What am I?",
-    options: ["Gold", "Diamond", "Pencil lead", "Coal"],
-    answer: "Pencil lead",
+    question: "I propel airships across the skies when you complete daily habits, burning discipline into flight speed. What am I?",
+    options: ["Ether Fuel", "Coal", "Steam Vapor", "Gunpowder"],
+    answer: "Ether Fuel",
   },
   {
-    question: "What comes once in a minute, twice in a moment, but never in a thousand years?",
-    options: ["The letter M", "Time", "Death", "Breath"],
-    answer: "The letter M",
-  },
-  {
-    question: "I'm light as a feather, yet the strongest hero cannot hold me for much more than a minute. What am I?",
-    options: ["Breath", "Thought", "Time", "Hope"],
-    answer: "Breath",
+    question: "I am forged in dragonfire and wielded by Round Table champions to slay keep monsters. What am I?",
+    options: ["A King's Blade", "An Oak Shield", "A Blacksmith Hammer", "A Magic Wand"],
+    answer: "A King's Blade",
   },
   {
     question: "I'm tall when I'm young, and I'm short when I'm old. What am I?",
