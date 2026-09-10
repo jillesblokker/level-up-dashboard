@@ -12,6 +12,7 @@ import { TEXT_CONTENT } from '@/lib/text-content'
 import { HeaderSection } from "@/components/HeaderSection"
 import { HabitFocusCard } from "@/components/kingdom/habit-focus-card"
 import { getResolvedLocationName } from "@/lib/location-names"
+import { SwordLoader } from '@/components/ui/sword-loader'
 
 interface TownData {
   name: string
@@ -117,7 +118,11 @@ export default function TownClient({ slug }: Props) {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-amber-500"></div>
+        <SwordLoader 
+          size="lg" 
+          label={`Approaching ${townData?.name || 'Settlement'}...`}
+          sublabel="Stoking tavern hearth fires and preparing merchant stalls"
+        />
       </div>
     )
   }

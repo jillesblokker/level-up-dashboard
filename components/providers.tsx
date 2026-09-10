@@ -60,6 +60,8 @@ import { QuickAddProvider } from "@/components/quick-add-provider"
 import { ReactQueryProvider } from "@/app/providers/react-query-provider"
 import { GlobalSyncProvider } from "@/components/global-sync-provider"
 
+import { NavigationTransitionProvider } from "@/components/providers/navigation-transition-provider"
+
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ReactQueryProvider>
@@ -73,7 +75,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
           >
             <TooltipProvider>
               <QuickAddProvider>
-                {children}
+                <NavigationTransitionProvider>
+                  {children}
+                </NavigationTransitionProvider>
               </QuickAddProvider>
             </TooltipProvider>
           </ThemeProvider>

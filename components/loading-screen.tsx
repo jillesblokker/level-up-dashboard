@@ -2,7 +2,8 @@
 
 import React, { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
+import { SwordLoader } from '@/components/ui/sword-loader';
 
 interface LoadingScreenProps {
     title: React.ReactNode;
@@ -70,7 +71,7 @@ export function LoadingScreen({ title, content, icon, className, variant = 'blue
                             {icon ? (
                                 icon
                             ) : (
-                                <Loader2 className="w-10 h-10 animate-spin" />
+                                <SwordLoader size="sm" variant={variant} />
                             )}
                         </div>
                     </div>

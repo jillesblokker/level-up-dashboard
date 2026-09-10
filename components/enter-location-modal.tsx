@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
@@ -13,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { MapPin, ArrowRight, Building, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SwordLoader } from '@/components/ui/sword-loader';
 
 interface EnterLocationModalProps {
   isOpen: boolean;
@@ -28,14 +30,16 @@ export function EnterLocationModal({
   locationName,
 }: EnterLocationModalProps) {
   const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const handleEnter = () => {
+    setIsNavigating(true);
     const route = locationType === 'city' ? '/city' : '/town';
     router.push(`${route}/${locationName}`);
-    onClose();
   };
 
   const handleCancel = () => {
+    setIsNavigating(false);
     onClose();
   };
 
@@ -129,6 +133,15 @@ export function EnterLocationModal({
           </DialogFooter>
         </div>
       </DialogContent>
+
+      {/* Immediate sweeping sword loader during route navigation */}
+      {isNavigating && (
+        <SwordLoader
+          size="fullscreen"
+          label={`Entering ${displayName}...`}
+          sublabel="Venturing forth to market stalls, tavern hearth, and guild halls"
+        />
+      )}
     </Dialog>
   );
 }
