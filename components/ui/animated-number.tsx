@@ -15,8 +15,13 @@ export function AnimatedNumber({ value, formatFn, className, title }: AnimatedNu
   const prevValueRef = useRef(value);
 
   useEffect(() => {
+    if (prevValueRef.current === value) {
+      setDisplayValue(value);
+      return;
+    }
+
     const controls = animate(prevValueRef.current, value, {
-      duration: 4.0,
+      duration: 0.7,
       ease: [0.22, 1, 0.36, 1],
       onUpdate(v) {
         setDisplayValue(Math.round(v));

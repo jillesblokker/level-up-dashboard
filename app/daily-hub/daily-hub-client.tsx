@@ -16,7 +16,6 @@ import { toast } from "sonner"
 import { HeaderSection } from "@/components/HeaderSection"
 import { ArrowLeft, ArrowRight, Loader2, TrendingUp, Sparkles, ScrollText, Flame, Map, Plus, Clock, Wind, Star } from "lucide-react"
 import { useGameStore } from "@/stores/game-store"
-import { ConsistencyChart } from "@/components/consistency-chart"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { formatGold } from "@/lib/utils"
@@ -36,12 +35,19 @@ const ChroniclesCard = dynamic(
   () => import('@/components/chronicles-card').then((mod) => mod.ChroniclesCard),
   { ssr: false }
 )
+const ConsistencyChart = dynamic(
+  () => import('@/components/consistency-chart').then((mod) => mod.ConsistencyChart),
+  { ssr: false, loading: () => <div className="animate-pulse h-40 bg-zinc-900 rounded-xl border border-zinc-800" /> }
+)
+const DailyRoutineModal = dynamic(
+  () => import('@/components/daily-routine-modal').then((mod) => mod.DailyRoutineModal),
+  { ssr: false }
+)
 import NextImage from "next/image"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { getCurrentChapter, getNextChapter } from "@/lib/chronicles-data"
 import { HabitGuardian } from "@/components/kingdom/habit-guardian"
 import { ActiveTimersLedger } from "@/components/active-timers-ledger"
-import { DailyRoutineModal } from "@/components/daily-routine-modal"
 import { StreakRecoveryCard } from "@/components/streaks/streak-recovery-card"
 import { getUserAlliances, checkInToAlliance, Alliance } from "@/lib/alliance-manager"
 import { useToast } from "@/components/ui/use-toast"

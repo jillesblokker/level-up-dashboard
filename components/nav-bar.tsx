@@ -17,15 +17,26 @@ import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperien
 import { getCharacterStats, fetchFreshCharacterStats } from "@/lib/character-stats-service"
 import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
+import dynamic from 'next/dynamic'
 import { Plus } from "lucide-react"
 import { useQuickAdd } from "@/components/quick-add-provider"
 import { formatGold } from "@/lib/utils"
 import { audioManager } from "@/lib/audio-manager"
-import { InventoryBagOverlay } from "@/components/inventory-bag-overlay"
-import { RandomEncounterModal } from "@/components/kingdom/random-encounter-modal"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { FocusPointsModal } from "@/components/focus-points-modal"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+
+const InventoryBagOverlay = dynamic(
+  () => import("@/components/inventory-bag-overlay").then(m => m.InventoryBagOverlay),
+  { ssr: false }
+);
+const RandomEncounterModal = dynamic(
+  () => import("@/components/kingdom/random-encounter-modal").then(m => m.RandomEncounterModal),
+  { ssr: false }
+);
+const FocusPointsModal = dynamic(
+  () => import("@/components/focus-points-modal").then(m => m.FocusPointsModal),
+  { ssr: false }
+);
 
 interface CustomSession {
   user?: {

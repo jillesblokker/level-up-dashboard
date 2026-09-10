@@ -118,7 +118,7 @@ export function DayNightCycle() {
             {isNight ? (
                 <Moon className="w-5 h-5 animate-pulse" />
             ) : (
-                <Sun className="w-5 h-5 animate-[spin_10s_linear_infinite]" />
+                <Sun className="w-5 h-5 animate-[spin_10s_linear_infinite] will-change-transform transform-gpu" />
             )}
         </div>
     )

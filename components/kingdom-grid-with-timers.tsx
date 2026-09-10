@@ -12,9 +12,8 @@ import { ArrowRightLeft, Clock, RotateCw, Sparkles, Trash2, Check } from 'lucide
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useRouter } from "next/navigation"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import dynamic from 'next/dynamic'
 import { KINGDOM_TILES, getRandomItem, getRandomGold, isLucky as isLuckyTile, getRarityColor } from '@/lib/kingdom-tiles'
-import { KingdomTileModal } from './kingdom-tile-modal'
-import { ZenMeditateModal } from './kingdom/ZenMeditateModal'
 import { useToast, toast } from '@/components/ui/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { notificationService } from '@/lib/notification-service';
@@ -28,22 +27,26 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { LuckyCelebration } from '@/components/lucky-celebration'
 import { checkAndUnlockTileQuests } from '@/lib/tile-quest-service'
 import { TileActionSheet } from '@/components/tile-action-sheet'
-import { KingdomSummaryModal } from './kingdom-summary-modal'
-import { FortuneTellerModal } from './fortune-teller-modal'
 import { checkMonthlySiegeReset } from '@/lib/siege-engine-utils'
-import { PrisonModal } from '@/components/kingdom/prison-modal'
-import { ApothecaModal } from '@/components/kingdom/apotheca-modal'
-import { SiegeWorkshopModal } from '@/components/kingdom/siege-workshop-modal'
 import { getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service'
-import { AbbeyModal } from '@/components/kingdom/abbey-modal'
 import { useGameStore } from '@/stores/game-store'
-import { PlankPuzzleModal } from './plank-puzzle-modal'
-import { SpecialTileModal } from './special-tile-modal'
-import { SewerPipesModal } from '@/components/minigames/SewerPipesModal'
-import { PenguinIceSlideModal } from '@/components/minigames/PenguinIceSlideModal'
-import { JoustingTournamentModal } from '@/components/jousting-modal'
-import { SiegeBattleshipModal } from '@/components/siege-battleships-modal'
-import { WaypointPreviewModal } from '@/components/kingdom/waypoint-preview-modal'
+
+// Dynamic lazy-loaded modals to eliminate hundreds of KB from initial page chunk
+const KingdomTileModal = dynamic(() => import('./kingdom-tile-modal').then(m => m.KingdomTileModal), { ssr: false });
+const ZenMeditateModal = dynamic(() => import('./kingdom/ZenMeditateModal').then(m => m.ZenMeditateModal), { ssr: false });
+const KingdomSummaryModal = dynamic(() => import('./kingdom-summary-modal').then(m => m.KingdomSummaryModal), { ssr: false });
+const FortuneTellerModal = dynamic(() => import('./fortune-teller-modal').then(m => m.FortuneTellerModal), { ssr: false });
+const PrisonModal = dynamic(() => import('@/components/kingdom/prison-modal').then(m => m.PrisonModal), { ssr: false });
+const ApothecaModal = dynamic(() => import('@/components/kingdom/apotheca-modal').then(m => m.ApothecaModal), { ssr: false });
+const SiegeWorkshopModal = dynamic(() => import('@/components/kingdom/siege-workshop-modal').then(m => m.SiegeWorkshopModal), { ssr: false });
+const AbbeyModal = dynamic(() => import('@/components/kingdom/abbey-modal').then(m => m.AbbeyModal), { ssr: false });
+const PlankPuzzleModal = dynamic(() => import('./plank-puzzle-modal').then(m => m.PlankPuzzleModal), { ssr: false });
+const SpecialTileModal = dynamic(() => import('./special-tile-modal').then(m => m.SpecialTileModal), { ssr: false });
+const SewerPipesModal = dynamic(() => import('@/components/minigames/SewerPipesModal').then(m => m.SewerPipesModal), { ssr: false });
+const PenguinIceSlideModal = dynamic(() => import('@/components/minigames/PenguinIceSlideModal').then(m => m.PenguinIceSlideModal), { ssr: false });
+const JoustingTournamentModal = dynamic(() => import('@/components/jousting-modal').then(m => m.JoustingTournamentModal), { ssr: false });
+const SiegeBattleshipModal = dynamic(() => import('@/components/siege-battleships-modal').then(m => m.SiegeBattleshipModal), { ssr: false });
+const WaypointPreviewModal = dynamic(() => import('@/components/kingdom/waypoint-preview-modal').then(m => m.WaypointPreviewModal), { ssr: false });
 import { getActiveEvent } from '@/lib/seasonal-events'
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage'
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager'

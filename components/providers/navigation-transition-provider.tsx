@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef, Suspense } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, Suspense, useMemo } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { SwordLoader } from '@/components/ui/sword-loader'
 
@@ -148,8 +148,13 @@ export function NavigationTransitionProvider({ children }: { children: React.Rea
     }
   }, [endTransition, startTransition])
 
+  const contextValue = useMemo(
+    () => ({ isTransitioning, startTransition, endTransition }),
+    [isTransitioning, startTransition, endTransition]
+  );
+
   return (
-    <NavigationTransitionContext.Provider value={{ isTransitioning, startTransition, endTransition }}>
+    <NavigationTransitionContext.Provider value={contextValue}>
       <Suspense fallback={null}>
         <SearchParamsListener onChange={endTransition} />
       </Suspense>

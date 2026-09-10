@@ -61,7 +61,7 @@ const fontCinzel = Cinzel({
   variable: "--font-cinzel",
   display: "swap",
   preload: false,
-  weight: ["400", "600", "700", "900"],
+  weight: ["600", "700"],
 })
 
 export const viewport: Viewport = {

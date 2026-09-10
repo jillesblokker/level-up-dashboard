@@ -25,6 +25,10 @@ const supabase = supabaseServer;
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+// Fast in-memory cache for Clerk user profiles (10-minute TTL)
+const senderProfileCache = new Map<string, { name: string; cachedAt: number }>();
+const SENDER_CACHE_TTL_MS = 10 * 60 * 1000;
+
 // Define schemas for request validation
 const questCompletionSchema = z.object({
   title: z.string().min(1),
@@ -196,22 +200,44 @@ export async function GET(request: Request) {
       }
     }
 
-    // Fetch sender names for friend quests
+    // Fetch sender names for friend quests with in-memory caching
     if (quests) {
-      const senderIds = [...new Set(quests.filter(q => q.sender_id).map(q => q.sender_id))];
+      const senderIds = [...new Set(quests.filter(q => q.sender_id).map(q => q.sender_id))] as string[];
       if (senderIds.length > 0) {
-        try {
-          const client = await clerkClient();
-          const senders = await client.users.getUserList({ userId: senderIds });
-          const senderMap = new Map(senders.data.map(u => [u.id, u.username || u.firstName || 'Unknown']));
+        const now = Date.now();
+        const missingIds: string[] = [];
 
-          quests.forEach((q: any) => {
-            if (q.sender_id) {
-              q.senderName = senderMap.get(q.sender_id);
+        // Check cache first
+        quests.forEach((q: any) => {
+          if (q.sender_id) {
+            const cached = senderProfileCache.get(q.sender_id);
+            if (cached && now - cached.cachedAt < SENDER_CACHE_TTL_MS) {
+              q.senderName = cached.name;
+            } else if (!missingIds.includes(q.sender_id)) {
+              missingIds.push(q.sender_id);
             }
-          });
-        } catch (e) {
-          logger.error("Error fetching sender names:", e);
+          }
+        });
+
+        // Only query Clerk for missing or expired IDs
+        if (missingIds.length > 0) {
+          try {
+            const client = await clerkClient();
+            const senders = await client.users.getUserList({ userId: missingIds });
+            senders.data.forEach(u => {
+              const name = u.username || u.firstName || 'Unknown';
+              senderProfileCache.set(u.id, { name, cachedAt: now });
+            });
+
+            quests.forEach((q: any) => {
+              if (q.sender_id && !q.senderName) {
+                const cached = senderProfileCache.get(q.sender_id);
+                if (cached) q.senderName = cached.name;
+              }
+            });
+          } catch (e) {
+            logger.error("Error fetching sender names:", e);
+          }
         }
       }
     }

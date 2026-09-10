@@ -7,7 +7,6 @@ import confetti from 'canvas-confetti'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { AddMilestoneForm } from "@/components/add-milestone-form"
 import { AddChallengeForm } from "@/components/add-challenge-form"
-import { MasteryLedger } from "@/components/mastery-ledger"
 import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
@@ -21,13 +20,11 @@ import { PageGuide } from '@/components/page-guide'
 import { useUser, useAuth } from '@clerk/nextjs'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { reconcileQuestList } from '@/lib/quests-persistence'
-import { Milestones } from '@/components/milestones'
 import { updateCharacterStats, getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service'
 import { recordCompletion } from '@/lib/daily-activity-summary-service'
 import { useCharacterStats } from '@/hooks/use-character-stats'
 import { toast, useToast } from '@/components/ui/use-toast'
 import { ToastAction } from "@/components/ui/toast";
-import { FriendDareModal } from '@/components/quests/FriendDareModal'
 import { MedievalErrorBoundary } from '@/components/medieval-error-boundary'
 import React from 'react'
 import { SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
@@ -67,12 +64,15 @@ const TarotCardDisplay = dynamic(() => import('@/components/tarot-card').then(m 
   loading: () => <div className="animate-pulse min-h-[180px] max-h-[250px] bg-zinc-900 rounded-xl border border-zinc-800" />,
   ssr: false,
 });
+const FriendDareModal = dynamic(() => import('@/components/quests/FriendDareModal').then(m => m.FriendDareModal), { ssr: false });
+const MasteryLedger = dynamic(() => import('@/components/mastery-ledger').then(m => m.MasteryLedger), { ssr: false });
+const Milestones = dynamic(() => import('@/components/milestones').then(m => m.Milestones), { ssr: false });
+const PetitionsTab = dynamic(() => import('@/components/quests/petitions-tab').then(m => m.PetitionsTab), { ssr: false });
 import { StreakIndicator } from "@/components/streak-indicator"
 import { ResponsiveModal } from "@/components/ui/responsive-modal"
 import { useQuickAdd } from "@/components/quick-add-provider"
 import { LoadingScreen } from "@/components/loading-screen"
 import { TEXT_CONTENT } from '@/lib/text-content'
-import { PetitionsTab } from '@/components/quests/petitions-tab'
 
 import { useCitizensStore } from '@/stores/citizensStore'
 import { useGameStore } from '@/stores/game-store'

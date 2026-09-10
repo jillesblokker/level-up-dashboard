@@ -43,8 +43,15 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
     } catch {}
   };
 
+  const lastSyncTimeRef = React.useRef<number>(0);
+
   const handleSync = async () => {
     if (!userId) return;
+    const now = Date.now();
+    // Guard: Prevent sync storms if last sync completed less than 20 seconds ago
+    if (now - lastSyncTimeRef.current < 20000) return;
+    lastSyncTimeRef.current = now;
+
     try {
       // 1. Re-fetch and merge character stats (level, gold, exp) from Supabase
       await characterStatsService.fetchAndMerge();
@@ -176,10 +183,10 @@ export function GlobalSyncProvider({ children }: { children: React.ReactNode }) 
     }
   };
 
-  // Setup periodic background revalidation (30 seconds) & tab focus revalidation
+  // Setup periodic background revalidation (90 seconds) & tab focus revalidation
   useRealtimeSync(
     { onSync: handleSync },
-    { enabled: !!userId, intervalMs: 30000, onVisibilityChange: true, onFocus: true }
+    { enabled: !!userId, intervalMs: 90000, onVisibilityChange: true, onFocus: true }
   );
 
   const debounceTimerRef = React.useRef<NodeJS.Timeout | null>(null);
