@@ -5,15 +5,13 @@ import { logger } from "@/lib/logger";
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Shield, Sword, Zap, Heart, Shield as Armor, Users, Trophy, Sparkles, Play, Skull } from 'lucide-react'
+import { Shield, Sword, Zap, Heart, ShieldCheck, Users, Trophy, Play, Skull, CheckCircle2, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { gainGold } from '@/lib/gold-manager'
 import { addToCharacterStat } from '@/lib/character-stats-service'
 import { toast } from '@/components/ui/use-toast'
 import Image from 'next/image'
-import { TEXT_CONTENT } from '@/lib/text-content'
 import { useUser } from "@clerk/nextjs"
 import { useCitizensStore } from "@/stores/citizensStore"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager"
@@ -33,14 +31,15 @@ interface Weapon {
   name: string
   icon: React.ReactNode
   color: string
+  border: string
 }
 
 const weapons: Weapon[] = [
-  { id: 'shield', name: 'Shield', icon: <Shield className="w-7 h-7" />, color: 'bg-blue-500 hover:bg-blue-600' },
-  { id: 'sword', name: 'Sword', icon: <Sword className="w-7 h-7" />, color: 'bg-red-500 hover:bg-red-600' },
-  { id: 'armor', name: 'Armor', icon: <Armor className="w-7 h-7" />, color: 'bg-zinc-500 hover:bg-zinc-600' },
-  { id: 'artifact', name: 'Artifact', icon: <Zap className="w-7 h-7" />, color: 'bg-purple-500 hover:bg-purple-600' },
-  { id: 'potion', name: 'Potion', icon: <Heart className="w-7 h-7" />, color: 'bg-green-500 hover:bg-green-600' },
+  { id: 'shield', name: 'Shield', icon: <Shield className="w-7 h-7" />, color: 'bg-blue-600 hover:bg-blue-500 text-white', border: 'border-blue-400' },
+  { id: 'sword', name: 'Sword', icon: <Sword className="w-7 h-7" />, color: 'bg-red-600 hover:bg-red-500 text-white', border: 'border-red-400' },
+  { id: 'armor', name: 'Armor', icon: <ShieldCheck className="w-7 h-7" />, color: 'bg-slate-600 hover:bg-slate-500 text-white', border: 'border-slate-300' },
+  { id: 'artifact', name: 'Artifact', icon: <Zap className="w-7 h-7" />, color: 'bg-purple-600 hover:bg-purple-500 text-white', border: 'border-purple-400' },
+  { id: 'potion', name: 'Potion', icon: <Heart className="w-7 h-7" />, color: 'bg-emerald-600 hover:bg-emerald-500 text-white', border: 'border-emerald-400' },
 ]
 
 const monsterData = {
@@ -107,14 +106,15 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   const [isShowingSequence, setIsShowingSequence] = useState(false)
   const [isPlayerTurn, setIsPlayerTurn] = useState(false)
   const [highlightedWeapon, setHighlightedWeapon] = useState<string | null>(null)
+  const [tappedWeapon, setTappedWeapon] = useState<string | null>(null)
+  const [showingStep, setShowingStep] = useState<{ step: number; total: number; weapon: Weapon } | null>(null)
   const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing')
   const [goldLost, setGoldLost] = useState(0)
-  const [currentSequenceIndex, setCurrentSequenceIndex] = useState(0)
   const [stats, setStats] = useState({ attack: 0, defense: 0 })
   const [playerLevel, setPlayerLevel] = useState<number>(1)
   const [protectionCharges, setProtectionCharges] = useState<number>(0)
 
-  // Health System: 100 HP each
+  // Health System
   const [playerHp, setPlayerHp] = useState(100)
   const [monsterHp, setMonsterHp] = useState(100)
 
@@ -132,6 +132,9 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   // Combat Log Feed
   const [combatLog, setCombatLog] = useState<string[]>([])
 
+  // SYNCHRONOUS REFS to eliminate any React state race conditions or stale closures
+  const currentSequenceRef = useRef<string[]>([])
+  const playerInputsRef = useRef<string[]>([])
   const battleAreaRef = useRef<HTMLDivElement>(null)
 
   const { user } = useUser()
@@ -217,127 +220,155 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     return newSequence
   }, [])
 
-  // Show sequence to player
+  // Show sequence to player with distinct timing and clear step display
   const showSequence = useCallback(async (sequenceToShow: string[]) => {
     setIsShowingSequence(true)
     setIsPlayerTurn(false)
-    setCurrentSequenceIndex(0)
+    setShowingStep(null)
+    setHighlightedWeapon(null)
 
     const natureLvl = natureSupporter ? natureSupporter.level || 1 : 0
-    const showDuration = 900 + (natureLvl * 300)
+    const stepDuration = 850 + (natureLvl * 250) // Duration each weapon is lit
+    const pauseDuration = 350 // Explicit gap so consecutive identical weapons are clearly distinct
 
     for (let i = 0; i < sequenceToShow.length; i++) {
       const weaponId = sequenceToShow[i]
-      if (weaponId) {
+      if (!weaponId) continue
+      const weaponObj = weapons.find(w => w.id === weaponId)
+      if (weaponObj) {
+        // Light up weapon with active step banner
+        setShowingStep({ step: i + 1, total: sequenceToShow.length, weapon: weaponObj })
         setHighlightedWeapon(weaponId)
-        setCurrentSequenceIndex(i + 1)
-        await new Promise(resolve => setTimeout(resolve, showDuration))
+        await new Promise(resolve => setTimeout(resolve, stepDuration))
+
+        // Blank pause between steps
         setHighlightedWeapon(null)
-        await new Promise(resolve => setTimeout(resolve, 250))
+        setShowingStep(null)
+        await new Promise(resolve => setTimeout(resolve, pauseDuration))
       }
     }
 
+    // Sequence playback finished
     setIsShowingSequence(false)
     setIsPlayerTurn(true)
-    setCurrentSequenceIndex(0)
+    playerInputsRef.current = []
+    setPlayerSequence([])
   }, [natureSupporter])
 
-  // Initialize game on open — waits for player to click "Start battle"
+  // Initialize game on open — generates Round 1 sequence and waits for player to click "Start battle"
   useEffect(() => {
     if (isOpen) {
+      const initialSequence = generateSequence(1)
+      currentSequenceRef.current = initialSequence
+      playerInputsRef.current = []
+
       setCurrentRound(1)
+      setSequence(initialSequence)
+      setPlayerSequence([])
       setGameState('playing')
       setGoldLost(0)
-      setPlayerSequence([])
-      setCurrentSequenceIndex(0)
       setPlayerHp(100)
       setMonsterHp(100)
       setRoundReady(false)
+      setIsPlayerTurn(false)
+      setIsShowingSequence(false)
+      setShowingStep(null)
       setFinalRewards(null)
       setCombatLog([
         `⚔️ Encountered ${monster.name}! Health: 100 HP vs 100 HP.`,
-        `Click "Start battle" below when ready to observe the sequence.`
+        `Click "Start battle" below when you are ready to observe the sequence.`
       ])
-
-      const initialSequence = generateSequence(1)
-      setSequence(initialSequence)
     }
   }, [isOpen, generateSequence, monster.name])
 
   // Player explicitly presses "Start battle" / "Start round"
   const handleStartRound = () => {
+    // Make sure we have a valid sequence
+    let currentSeq = currentSequenceRef.current
+    if (!currentSeq || currentSeq.length === 0) {
+      currentSeq = generateSequence(currentRound)
+      currentSequenceRef.current = currentSeq
+      setSequence(currentSeq)
+    }
+
+    playerInputsRef.current = []
+    setPlayerSequence([])
     setRoundReady(true)
-    // Smoothly ensure battle area is scrolled into view
+
+    // Smoothly scroll battle controls into view
     setTimeout(() => {
       battleAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }, 100)
-    showSequence(sequence)
+
+    showSequence(currentSeq)
   }
 
-  // Handle weapon click
+  // Handle weapon click using synchronous refs to eliminate race conditions
   const handleWeaponClick = (weaponId: string) => {
-    if (!isPlayerTurn || isShowingSequence || gameState !== 'playing') return
+    if (!isPlayerTurn || isShowingSequence || gameState !== 'playing' || !roundReady) return
 
-    const newPlayerSequence = [...playerSequence, weaponId]
-    setPlayerSequence(newPlayerSequence)
+    const currentIndex = playerInputsRef.current.length
+    const expectedWeaponId = currentSequenceRef.current[currentIndex]
 
-    // Check if sequence is correct so far
-    const isCorrect = newPlayerSequence.every((item, index) => item === sequence[index])
+    // Visual button tap feedback
+    setTappedWeapon(weaponId)
+    setTimeout(() => setTappedWeapon(null), 180)
 
-    if (!isCorrect) {
-      handleRoundLoss()
+    // Check correctness against expected item at this exact index
+    if (weaponId !== expectedWeaponId) {
+      // Record the wrong click so player sees what they clicked
+      playerInputsRef.current.push(weaponId)
+      setPlayerSequence([...playerInputsRef.current])
+      handleRoundLoss(weaponId, expectedWeaponId, currentIndex + 1)
       return
     }
 
-    // Check if round is complete
-    if (newPlayerSequence.length === sequence.length) {
+    // Correct tap!
+    playerInputsRef.current.push(weaponId)
+    const updatedInputs = [...playerInputsRef.current]
+    setPlayerSequence(updatedInputs)
+
+    // Check if entire sequence for this round is completed
+    if (updatedInputs.length === currentSequenceRef.current.length) {
       setIsPlayerTurn(false)
-      
-      // Damage monster: 20 HP per successful round (100 -> 80 -> 60 -> 40 -> 20 -> 0)
-      const nextMonsterHp = Math.max(0, 100 - (currentRound * 20))
-      setMonsterHp(nextMonsterHp)
-
-      setCombatLog(prev => [
-        `⚔️ Round ${currentRound} triumph: Struck ${monster.name} for 20 DMG! (${nextMonsterHp}/100 HP left)`,
-        ...prev.slice(0, 4)
-      ])
-
-      if (currentRound === 5 || nextMonsterHp === 0) {
-        handleGameWin()
-      } else {
-        const nextRound = currentRound + 1
-        setCurrentRound(nextRound)
-        setPlayerSequence([])
-        setRoundReady(false) // Wait for user to click "Start round X"
-
-        const nextSequence = generateSequence(nextRound)
-        setSequence(nextSequence)
-      }
-    } else {
-      // Tactical Supporter Strike chance
-      const tacticalSupporter = activeSupporters.find(s => !['nature', 'fire', 'water', 'earth', 'ice'].includes(s.type))
-      if (tacticalSupporter) {
-        const lvl = tacticalSupporter.level || 1
-        const chance = lvl * 0.05
-        if (Math.random() < chance) {
-          const nextCorrectWeaponId = sequence[newPlayerSequence.length]
-          if (nextCorrectWeaponId) {
-            setIsPlayerTurn(false)
-            setTimeout(() => {
-              toast({
-                title: "🎯 Supporter strike!",
-                description: `${tacticalSupporter.name} auto-inputs the next weapon!`,
-              })
-              setIsPlayerTurn(true)
-              handleWeaponClick(nextCorrectWeaponId)
-            }, 600)
-          }
-        }
-      }
+      handleRoundSuccess()
     }
   }
 
-  const handleRoundLoss = () => {
+  const handleRoundSuccess = () => {
+    // Damage monster: 20 HP per successful round (100 -> 80 -> 60 -> 40 -> 20 -> 0)
+    const nextMonsterHp = Math.max(0, 100 - (currentRound * 20))
+    setMonsterHp(nextMonsterHp)
+
+    setCombatLog(prev => [
+      `⚔️ Round ${currentRound} triumph: Struck ${monster.name} for 20 DMG! (${nextMonsterHp}/100 HP left)`,
+      ...prev.slice(0, 4)
+    ])
+
+    toast({
+      title: `⚔️ Round ${currentRound} cleared!`,
+      description: `Dealt 20 DMG to ${monster.name}!`,
+    })
+
+    if (currentRound === 5 || nextMonsterHp === 0) {
+      handleGameWin()
+    } else {
+      const nextRound = currentRound + 1
+      setCurrentRound(nextRound)
+      playerInputsRef.current = []
+      setPlayerSequence([])
+      setRoundReady(false) // Wait for user to click "Start round X"
+
+      const nextSequence = generateSequence(nextRound)
+      currentSequenceRef.current = nextSequence
+      setSequence(nextSequence)
+    }
+  }
+
+  const handleRoundLoss = (enteredId: string, expectedId: string | undefined, stepNumber: number) => {
+    const enteredName = weapons.find(w => w.id === enteredId)?.name || enteredId
+    const expectedName = expectedId ? (weapons.find(w => w.id === expectedId)?.name || expectedId) : "Unknown"
+
     const basePenalty = 10 * (1 + playerLevel / 10)
     let lostGold = Math.max(5, Math.floor(basePenalty / (1 + effectiveDefense * 0.05)))
     
@@ -359,28 +390,27 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
 
       toast({
         title: "🛡️ Barrier protected!",
-        description: "Your potion absorbed the blow and penalty!",
+        description: `Step ${stepNumber} mistake (clicked ${enteredName}, expected ${expectedName}), but potion absorbed all damage!`,
       })
       setCombatLog(prev => [
-        `🛡️ Round ${currentRound} mishap: Alchemy barrier absorbed ${monster.name}'s counterattack!`,
+        `🛡️ Round ${currentRound} mistake on step ${stepNumber}: Barrier absorbed ${monster.name}'s strike!`,
         ...prev.slice(0, 4)
       ])
     } else {
       setGoldLost(prev => prev + lostGold)
       gainGold(-lostGold, 'monster-battle-loss')
 
-      // Player takes 20 HP damage
       const nextPlayerHp = Math.max(0, playerHp - dmgTaken)
       setPlayerHp(nextPlayerHp)
 
       setCombatLog(prev => [
-        `💥 Round ${currentRound} mistake: ${monster.name} strikes back for 20 DMG! (${nextPlayerHp}/100 HP left)`,
+        `💥 Round ${currentRound} mistake: Pressed ${enteredName} instead of ${expectedName} on step ${stepNumber}! (${nextPlayerHp}/100 HP left)`,
         ...prev.slice(0, 4)
       ])
 
       toast({
-        title: "Round failed!",
-        description: `Lost ${dmgTaken} HP and ${lostGold} gold. Watch the next pattern carefully!`,
+        title: "Round sequence failed!",
+        description: `Step ${stepNumber}: Pressed ${enteredName}, but needed ${expectedName}. Took ${dmgTaken} DMG!`,
         variant: "destructive",
       })
 
@@ -390,17 +420,10 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
       }
     }
 
-    if (currentRound === 5) {
-      handleGameLoss()
-    } else {
-      const nextRound = currentRound + 1
-      setCurrentRound(nextRound)
-      setPlayerSequence([])
-      setRoundReady(false)
-
-      const nextSequence = generateSequence(nextRound)
-      setSequence(nextSequence)
-    }
+    // Reset player inputs for retry / next round
+    playerInputsRef.current = []
+    setPlayerSequence([])
+    setRoundReady(false) // Give player a chance to catch their breath and press "Start round"
   }
 
   const handleGameWin = () => {
@@ -622,9 +645,9 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
           {activeSupporters.length > 0 && (
             <div className="bg-zinc-900/60 border border-amber-900/20 rounded-xl p-2.5 flex items-center justify-between gap-2 text-xs">
               <span className="text-amber-400 text-[11px] font-bold flex items-center gap-1">
-                <Users className="w-3.5 h-3.5" /> Guardian pet striker ready
+                <Users className="w-3.5 h-3.5" /> Guardian pet supporters active
               </span>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 {activeSupporters.map(c => (
                   <Badge key={c.id} variant="outline" className="text-[9px] border-cyan-500/40 text-cyan-300 bg-cyan-950/50 py-0.5">
                     {c.name}: {getPassiveShortLabel(c)}
@@ -641,10 +664,10 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
               <div className="p-4 rounded-2xl bg-gradient-to-b from-amber-950/60 to-zinc-950 border border-amber-500/40 text-center space-y-3 shadow-xl">
                 <div className="space-y-1">
                   <h4 className="font-serif font-bold text-amber-300 text-sm sm:text-base">
-                    {currentRound === 1 ? "Ready to begin monster battle?" : `Ready for Round ${currentRound}?`}
+                    {currentRound === 1 ? `Ready to battle ${monster.name}?` : `Ready for Round ${currentRound}?`}
                   </h4>
                   <p className="text-xs text-zinc-400 max-w-md mx-auto">
-                    Memorize the <strong>5-block sequence</strong> that flashes and repeat it using the buttons below!
+                    Memorize the <strong>{sequence.length || 3}-block sequence</strong> that will flash, then repeat it in exact order!
                   </p>
                 </div>
                 <Button
@@ -657,61 +680,93 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
               </div>
             )}
 
-            {/* SEQUENCE STATUS INDICATOR */}
-            {roundReady && gameState === 'playing' && (
-              <div className="text-center py-1">
-                {isShowingSequence && (
-                  <div className="text-amber-300 font-serif font-bold text-base sm:text-lg animate-pulse">
-                    👀 Watch the sequence... ({currentSequenceIndex}/{sequence.length})
-                  </div>
-                )}
-                {isPlayerTurn && !isShowingSequence && (
-                  <div className="text-emerald-400 font-serif font-bold text-sm sm:text-base">
-                    ⚔️ Your turn! Repeat the 5 blocks ({playerSequence.length}/{sequence.length})
-                  </div>
-                )}
+            {/* SEQUENCE PLAYBACK BANNER */}
+            {roundReady && gameState === 'playing' && isShowingSequence && showingStep && (
+              <div className="p-3 bg-amber-950/50 border border-amber-500/50 rounded-xl text-center space-y-1 shadow-[0_0_20px_rgba(245,158,11,0.3)] animate-in fade-in zoom-in-95 duration-200">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-amber-400 font-bold">
+                  Step {showingStep.step} of {showingStep.total}
+                </span>
+                <div className="flex items-center justify-center gap-2 font-serif font-bold text-base sm:text-lg text-white">
+                  <span>{showingStep.weapon.icon}</span>
+                  <span className="text-amber-200">{showingStep.weapon.name}</span>
+                </div>
+              </div>
+            )}
+
+            {/* PLAYER TURN STATUS BANNER */}
+            {roundReady && gameState === 'playing' && isPlayerTurn && !isShowingSequence && (
+              <div className="p-3 bg-emerald-950/40 border border-emerald-500/40 rounded-xl text-center space-y-1 animate-in fade-in">
+                <div className="text-emerald-300 font-serif font-bold text-sm sm:text-base flex items-center justify-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>Your turn! Enter the {sequence.length} blocks ({playerSequence.length}/{sequence.length})</span>
+                </div>
+                <p className="text-[11px] text-zinc-400 font-mono">
+                  {playerSequence.length === 0
+                    ? "Click the first weapon block to begin."
+                    : playerSequence.length < sequence.length
+                    ? `Next: tap step ${playerSequence.length + 1} of ${sequence.length}`
+                    : "Validating sequence..."}
+                </p>
               </div>
             )}
 
             {/* 5 WEAPON BLOCKS (MAX 5 BLOCKS) */}
             <div className="grid grid-cols-5 gap-1.5 sm:gap-3 w-full">
-              {weapons.map((weapon) => (
-                <Button
-                  key={weapon.id}
-                  onClick={() => handleWeaponClick(weapon.id)}
-                  disabled={!isPlayerTurn || isShowingSequence || gameState !== 'playing' || !roundReady}
-                  className={cn(
-                    "h-16 sm:h-20 p-1 sm:p-2 flex flex-col items-center justify-center gap-1 sm:gap-2 transition-all duration-150 active:scale-95 transform-gpu shadow-md min-w-0 rounded-xl",
-                    highlightedWeapon === weapon.id && "ring-4 ring-amber-400 scale-110 shadow-2xl animate-pulse z-10",
-                    isPlayerTurn && !isShowingSequence && "hover:scale-102 cursor-pointer",
-                    weapon.color
-                  )}
-                  aria-label={`Select ${weapon.name}`}
-                >
-                  {weapon.icon}
-                  <span className="text-[10px] sm:text-xs font-bold truncate max-w-full font-serif">{weapon.name}</span>
-                </Button>
-              ))}
+              {weapons.map((weapon) => {
+                const isLit = highlightedWeapon === weapon.id
+                const isJustTapped = tappedWeapon === weapon.id
+                return (
+                  <Button
+                    key={weapon.id}
+                    onClick={() => handleWeaponClick(weapon.id)}
+                    disabled={!isPlayerTurn || isShowingSequence || gameState !== 'playing' || !roundReady}
+                    className={cn(
+                      "relative h-18 sm:h-22 p-1 sm:p-2 flex flex-col items-center justify-center gap-1 sm:gap-2 transition-all duration-150 active:scale-95 transform-gpu shadow-md min-w-0 rounded-xl border-2",
+                      weapon.color,
+                      weapon.border,
+                      isLit && "ring-4 ring-amber-300 scale-110 shadow-[0_0_25px_rgba(251,191,36,0.9)] z-20 brightness-125",
+                      isJustTapped && "ring-4 ring-white scale-95 brightness-150",
+                      isPlayerTurn && !isShowingSequence && "hover:scale-105 cursor-pointer shadow-lg",
+                      (!isPlayerTurn || isShowingSequence) && !isLit && "opacity-75"
+                    )}
+                    aria-label={`Select ${weapon.name}`}
+                  >
+                    {isLit && showingStep && (
+                      <span className="absolute -top-2.5 -right-2 bg-amber-400 text-black font-black text-[10px] px-1.5 py-0.5 rounded-full shadow-lg border border-white">
+                        #{showingStep.step}
+                      </span>
+                    )}
+                    {weapon.icon}
+                    <span className="text-[10px] sm:text-xs font-bold truncate max-w-full font-serif">{weapon.name}</span>
+                  </Button>
+                )
+              })}
             </div>
 
-            {/* SEQUENCE DOTS */}
+            {/* ENTERED SEQUENCE INDICATOR */}
             {roundReady && isPlayerTurn && (
-              <div className="flex flex-col items-center gap-1.5">
-                <span className="text-xs text-zinc-400 font-mono">
-                  Input: {playerSequence.length} / {sequence.length}
-                </span>
-                <div className="flex justify-center gap-2">
-                  {playerSequence.map((_, index) => (
-                    <div
-                      key={index}
-                      className="w-3.5 h-3.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]"
-                    />
-                  ))}
+              <div className="flex flex-col items-center gap-2 pt-1">
+                <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                  {playerSequence.map((weaponId, index) => {
+                    const w = weapons.find(item => item.id === weaponId)
+                    return (
+                      <div
+                        key={index}
+                        className="px-2 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-serif font-bold flex items-center gap-1 shadow-sm"
+                      >
+                        <span className="text-[10px] text-emerald-400/80">#{index + 1}</span>
+                        <span>{w?.name || weaponId}</span>
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                      </div>
+                    )
+                  })}
                   {Array.from({ length: Math.max(0, sequence.length - playerSequence.length) }).map((_, index) => (
                     <div
                       key={`empty-${index}`}
-                      className="w-3.5 h-3.5 rounded-full bg-zinc-700 border border-zinc-600"
-                    />
+                      className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-700/80 text-zinc-500 text-xs font-mono"
+                    >
+                      #{playerSequence.length + index + 1} ?
+                    </div>
                   ))}
                 </div>
               </div>
