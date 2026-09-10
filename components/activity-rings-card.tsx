@@ -2,6 +2,7 @@
 
 import React from "react"
 import { cn } from "@/lib/utils"
+import { CollectibleRune } from "@/components/runes/collectible-rune"
 
 // ── Astrolabe Math Constants (viewBox 0 0 280 280) ───────────────────────────
 const CX = 140
@@ -593,10 +594,21 @@ export function ActivityRingsCard({
                 Amazing &gt;66%
               </span>
             </div>
-            <div className="flex items-center gap-2 text-[11px] text-[#8c6d48] font-mono select-none">
-              <span className="cursor-help hover:text-amber-300 transition-colors" title="ᚱ (Raidho): The cyclic rhythm and momentum of your daily journey">ᚱ</span>
-              <span className="text-[#453322]">·</span>
-              <span className="cursor-help hover:text-amber-300 transition-colors" title="ᛞ (Dagaz): The dawn and renewal of each day">ᛞ</span>
+            <div className="flex items-center gap-2 text-[11px] font-mono select-none">
+              <CollectibleRune
+                id="raidho_momentum"
+                runeId="raidho"
+                symbol="ᚱ"
+                name="Raidho"
+                meaning="The cyclic rhythm and momentum of your daily journey"
+              />
+              <CollectibleRune
+                id="dagaz_momentum"
+                runeId="dagaz"
+                symbol="ᛞ"
+                name="Dagaz"
+                meaning="The dawn and renewal of each day"
+              />
             </div>
           </div>
 

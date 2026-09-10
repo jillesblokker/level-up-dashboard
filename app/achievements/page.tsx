@@ -16,6 +16,14 @@ import { CARD_TYPES } from '@/lib/pack-generator'
 
 import LoadingAchievements from './loading'
 import { logger } from '@/lib/logger'
+import {
+  hasCollectedAnyRune,
+  getCollectedRuneIds,
+  ALL_RUNES,
+  RUNE_COLLECTED_EVENT,
+  syncRunesFromCloud,
+} from '@/lib/runes-service'
+import { CodexOfRunesTab } from '@/components/runes/codex-of-runes-tab'
 
 interface AchievementDefinition {
   id: string;
@@ -52,15 +60,35 @@ export default function Page() {
   const [flippedCardId, setFlippedCardId] = useState<string | null>(null);
   const { getToken, isLoaded: isClerkLoaded } = useAuth();
   const [mythics, setMythics] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'creatures' | 'mythic' | 'alliance' | 'monsters' | 'progress'>('creatures');
+  const [activeTab, setActiveTab] = useState<'creatures' | 'mythic' | 'alliance' | 'monsters' | 'progress' | 'runes'>('creatures');
+  const [hasRunes, setHasRunes] = useState<boolean>(false);
+  const [unlockedRunesCount, setUnlockedRunesCount] = useState<number>(0);
 
-  // Handle URL deep-linking (e.g. /achievements?tab=mystery-cards)
+  // Sync and listen for Elder Futhark runes discovery
+  useEffect(() => {
+    const updateRuneState = () => {
+      setHasRunes(hasCollectedAnyRune());
+      setUnlockedRunesCount(getCollectedRuneIds().length);
+    };
+
+    updateRuneState();
+    syncRunesFromCloud();
+
+    window.addEventListener(RUNE_COLLECTED_EVENT, updateRuneState);
+    return () => {
+      window.removeEventListener(RUNE_COLLECTED_EVENT, updateRuneState);
+    };
+  }, []);
+
+  // Handle URL deep-linking (e.g. /achievements?tab=mystery-cards or ?tab=runes)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get('tab');
       if (tab === 'mystery-cards' || tab === 'mystery' || tab === 'mythic') {
         setActiveTab('mythic');
+      } else if (tab === 'runes' || tab === 'codex') {
+        setActiveTab('runes');
       } else if (tab === 'creatures' || tab === 'alliance' || tab === 'monsters' || tab === 'progress') {
         setActiveTab(tab);
       }
@@ -841,6 +869,15 @@ export default function Page() {
               <TabsTrigger value="progress">
                 <Trophy className="w-4 h-4" /><span>Progress</span>
               </TabsTrigger>
+              {hasRunes && (
+                <TabsTrigger
+                  value="runes"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:text-black text-amber-300 border border-amber-500/40 font-bold animate-in fade-in zoom-in-95 duration-500"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <span>Codex of runes ({unlockedRunesCount}/{ALL_RUNES.length})</span>
+                </TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="creatures">
@@ -1418,6 +1455,11 @@ export default function Page() {
             </div>
           )}
             </TabsContent>
+            {hasRunes && (
+              <TabsContent value="runes">
+                <CodexOfRunesTab />
+              </TabsContent>
+            )}
           </Tabs>
         </main>
         {/* Bottom spacing */}

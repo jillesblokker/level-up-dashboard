@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { GiftModal } from "@/components/gift-modal"
+import { CollectibleRune } from "@/components/runes/collectible-rune"
 import { getCharacterStats } from "@/lib/character-stats-service"
 import { Hourglass } from '@/components/house-cup/hourglass'
 
@@ -475,7 +476,14 @@ export function AlliesDashboard() {
           <TabsTrigger value="allies" className="py-3 font-semibold transition-all">
             <Users className="w-4 h-4" />
             <span>My allies</span>
-            <span className="cursor-help text-xs text-amber-500/80 ml-1 font-mono select-none" title="ᚷ (Gebo): The ancient rune of friendship, alliance, and mutual gifts">ᚷ</span>
+            <CollectibleRune
+              id="gebo_allies"
+              runeId="gebo"
+              symbol="ᚷ"
+              name="Gebo"
+              meaning="Friendship, alliance, and mutual gifts"
+              className="ml-1"
+            />
             {friends.length > 0 && (
               <span className="ml-2 px-2 py-0.5 bg-amber-900/40 text-amber-500 text-[10px] rounded-full border border-amber-900/30 font-bold">
                 {friends.length}
@@ -485,7 +493,14 @@ export function AlliesDashboard() {
           <TabsTrigger value="add" className="py-3 font-semibold transition-all">
             <UserPlus className="w-4 h-4" />
             <span>Recruit</span>
-            <span className="cursor-help text-xs text-amber-500/80 ml-1 font-mono select-none" title="ᚹ (Wunjo): The ancient rune of fellowship, harmony, and shared joy">ᚹ</span>
+            <CollectibleRune
+              id="wunjo_recruit"
+              runeId="wunjo"
+              symbol="ᚹ"
+              name="Wunjo"
+              meaning="Fellowship, harmony, and shared joy"
+              className="ml-1"
+            />
           </TabsTrigger>
           <TabsTrigger value="requests" className="py-3 font-semibold transition-all relative">
             <Mail className="w-4 h-4" />

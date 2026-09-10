@@ -43,6 +43,7 @@ import { MobileLayoutWrapper, MobileScrollContainer, MobileContentWrapper } from
 
 import { QuestOrganization } from '@/components/quest-organization'
 import { GameplayLoopIndicator } from '@/components/gameplay-loop-indicator'
+import { CollectibleRune } from '@/components/runes/collectible-rune'
 import { removeTileFromInventory } from '@/lib/tile-inventory-manager'
 
 import { KeyboardShortcutsProvider } from '@/components/keyboard-shortcuts'
@@ -2941,7 +2942,14 @@ export default function QuestsPage() {
                 >
                   <Sword className="w-4 h-4 text-amber-400 shrink-0" />
                   <span>Daily quests</span>
-                  <span className="cursor-help text-xs text-amber-500/80 ml-0.5 font-mono select-none" title="ᛞ (Dagaz): The dawn and renewal of everyday habits">ᛞ</span>
+                  <CollectibleRune
+                    id="dagaz_quests"
+                    runeId="dagaz"
+                    symbol="ᛞ"
+                    name="Dagaz"
+                    meaning="The dawn and renewal of everyday habits"
+                    className="ml-0.5"
+                  />
                 </TabsTrigger>
                 <TabsTrigger
                   value="challenges"
@@ -2949,7 +2957,14 @@ export default function QuestsPage() {
                 >
                   <Zap className="w-4 h-4 text-amber-400 shrink-0" />
                   <span>Challenges</span>
-                  <span className="cursor-help text-xs text-amber-500/80 ml-0.5 font-mono select-none" title="ᚢ (Uruz): Physical endurance, vitality, and overcoming difficulty">ᚢ</span>
+                  <CollectibleRune
+                    id="uruz_challenges"
+                    runeId="uruz"
+                    symbol="ᚢ"
+                    name="Uruz"
+                    meaning="Physical endurance, vitality, and overcoming difficulty"
+                    className="ml-0.5"
+                  />
                 </TabsTrigger>
                 <TabsTrigger
                   value="milestones"
@@ -2957,7 +2972,14 @@ export default function QuestsPage() {
                 >
                   <Trophy className="w-4 h-4 text-green-400 shrink-0" />
                   <span>Milestones</span>
-                  <span className="cursor-help text-xs text-amber-500/80 ml-0.5 font-mono select-none" title="ᛏ (Tiwaz): Steadfast discipline and victory earned through long-term persistency">ᛏ</span>
+                  <CollectibleRune
+                    id="tiwaz_milestones"
+                    runeId="tiwaz"
+                    symbol="ᛏ"
+                    name="Tiwaz"
+                    meaning="Steadfast discipline and victory earned through long-term persistency"
+                    className="ml-0.5"
+                  />
                 </TabsTrigger>
                 <TabsTrigger
                   value="petitions"
@@ -2965,7 +2987,14 @@ export default function QuestsPage() {
                 >
                   <Scroll className="w-4 h-4 text-blue-400 shrink-0" />
                   <span>Petitions</span>
-                  <span className="cursor-help text-xs text-amber-500/80 ml-0.5 font-mono select-none" title="ᚨ (Ansuz): Wisdom, sovereign counsel, and ancestral voice">ᚨ</span>
+                  <CollectibleRune
+                    id="ansuz_petitions"
+                    runeId="ansuz"
+                    symbol="ᚨ"
+                    name="Ansuz"
+                    meaning="Wisdom, sovereign counsel, and ancestral voice"
+                    className="ml-0.5"
+                  />
                 </TabsTrigger>
               </TabsList>
             </Tabs>

@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { useRouter } from 'next/navigation';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { PerimeterFuseBorder } from "@/components/ui/perimeter-fuse-border";
+import { CollectibleRune } from "@/components/runes/collectible-rune";
 import { comprehensiveItems } from '@/app/lib/comprehensive-items';
 import {
   CREATURE_DATA,
@@ -1266,12 +1267,13 @@ export default function DungeonPage() {
             <div>
               <h2 className="font-serif font-bold text-amber-300 text-sm flex items-center gap-2">
                 Dungeon Keep Expedition — Room {run.currentRoom} of {run.maxRooms}
-                <span
-                  className="cursor-help text-xs text-amber-500/70 font-mono select-none"
-                  title="ᛇ (Eihwaz): The ancient rune of endurance, resilience, and inner protection"
-                >
-                  ᛇ
-                </span>
+                <CollectibleRune
+                  id="eihwaz_dungeon"
+                  runeId="eihwaz"
+                  symbol="ᛇ"
+                  name="Eihwaz"
+                  meaning="Endurance, resilience, and inner protection"
+                />
               </h2>
               <p className="text-[11px] text-zinc-400">
                 Expeditions yield raw ores & crystals. Habit Buffs: {' '}

@@ -16,6 +16,7 @@ import { TalesShelfCard } from '@/components/storybook/tales-shelf-card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ReflectionsBookcase } from '@/components/chronicle/ReflectionsBookcase'
 import { cn } from '@/lib/utils'
+import { CollectibleRune } from '@/components/runes/collectible-rune'
 
 export default function ChroniclePage() {
     const [entries, setEntries] = useState<any[]>([])
@@ -106,12 +107,13 @@ export default function ChroniclePage() {
                         <div>
                             <h1 className="text-2xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500 flex items-center gap-2">
                                 Tales of the realm
-                                <span
-                                    className="cursor-help text-xs text-amber-500/70 font-mono select-none"
-                                    title="ᚨ (Ansuz): The ancient rune of wisdom, contemplation, and ancestral voice"
-                                >
-                                    ᚨ
-                                </span>
+                                <CollectibleRune
+                                    id="ansuz_chronicle"
+                                    runeId="ansuz"
+                                    symbol="ᚨ"
+                                    name="Ansuz"
+                                    meaning="Wisdom, contemplation, and ancestral voice"
+                                />
                             </h1>
                             <p className="text-xs text-zinc-400">Interactive creature stories, habit lessons & reflection journal</p>
                         </div>
