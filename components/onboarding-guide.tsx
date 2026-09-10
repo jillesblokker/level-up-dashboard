@@ -134,12 +134,12 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
 
   return (
     <Dialog open={open} onOpenChange={() => handleClose()}>
-      <DialogContent className="sm:max-w-md bg-zinc-950 text-white border-amber-800/40 shadow-2xl overflow-y-auto max-h-[90vh]" role="dialog" aria-label="onboarding-guide-modal">
+      <DialogContent className="sm:max-w-md bg-zinc-950 text-white border-amber-800/40 shadow-2xl overflow-y-auto max-h-[85dvh] sm:max-h-[88dvh] p-5 sm:p-6" role="dialog" aria-label="onboarding-guide-modal">
         <DialogDescription className="sr-only" id="onboarding-guide-modal-desc">Onboarding guide and instructions</DialogDescription>
-        <DialogHeader>
+        <DialogHeader className="pr-8">
           <DialogTitle className="font-serif text-2xl flex items-center text-amber-100 uppercase tracking-tighter">
             <HelpCircle className="mr-3 h-6 w-6 text-amber-500" />
-            Kingdom Guide
+            Kingdom guide
           </DialogTitle>
           <DialogDescription className="text-amber-200/60 font-medium">Your path to legendary self-improvement</DialogDescription>
         </DialogHeader>

@@ -77,7 +77,7 @@ const MobileSheetDragHandle = () => {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="w-full py-2 flex items-center justify-center cursor-grab active:cursor-grabbing sm:hidden shrink-0 touch-none"
+      className="w-full py-1.5 flex items-center justify-center cursor-grab active:cursor-grabbing sm:hidden shrink-0 touch-none -mt-1 mb-1"
     >
       <div className="w-12 h-1.5 bg-amber-500/40 rounded-full hover:bg-amber-400/60 transition-colors" />
     </div>
@@ -97,8 +97,8 @@ const DialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         "fixed z-[100] grid w-full gap-4 border border-amber-900/50 bg-zinc-950/95 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 font-serif",
-        "max-sm:bottom-0 max-sm:top-auto max-sm:left-0 max-sm:right-0 max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-t-3xl max-sm:rounded-b-none max-sm:max-h-[85vh] max-sm:p-5 max-sm:pb-safe overflow-y-auto",
-        "sm:left-1/2 sm:top-1/2 sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg sm:max-h-[90vh] sm:p-6 sm:rounded-2xl",
+        "max-sm:bottom-0 max-sm:top-auto max-sm:left-0 max-sm:right-0 max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-t-3xl max-sm:rounded-b-none max-sm:max-h-[88dvh] max-sm:p-5 max-sm:pb-8 max-sm:pb-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1.5rem))] overflow-y-auto",
+        "sm:left-1/2 sm:top-1/2 sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg sm:max-h-[88dvh] sm:p-6 sm:rounded-2xl",
         className
       )}
       aria-modal="true"
@@ -112,7 +112,7 @@ const DialogContent = React.forwardRef<
         Dialog content
       </DialogPrimitive.Description>
       {children}
-      <DialogPrimitive.Close className="absolute right-3 top-[max(0.75rem,env(safe-area-inset-top))] sm:right-4 sm:top-4 z-[60] rounded-full opacity-90 transition-all hover:opacity-100 bg-zinc-950/90 border border-amber-500/30 hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 h-10 w-10 min-w-[44px] min-h-[44px] flex items-center justify-center text-white hover:text-amber-400 shadow-md">
+      <DialogPrimitive.Close className="absolute right-3.5 top-3.5 sm:right-4 sm:top-4 z-[60] rounded-full opacity-90 transition-all hover:opacity-100 bg-zinc-950/90 border border-amber-500/30 hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 h-9 w-9 sm:h-10 sm:w-10 min-w-[36px] min-h-[36px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center text-white hover:text-amber-400 shadow-md">
         <X className="h-5 w-5" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
