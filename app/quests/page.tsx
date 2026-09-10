@@ -2937,31 +2937,35 @@ export default function QuestsPage() {
               <TabsList className="flex w-full items-center justify-start gap-2 bg-black/90 border border-amber-800/30 rounded-2xl p-1.5 shadow-inner overflow-x-auto overflow-y-hidden no-scrollbar flex-nowrap scroll-smooth">
                 <TabsTrigger
                   value="quests"
-                  className="flex-shrink-0 whitespace-nowrap rounded-xl text-xs sm:text-sm font-bold font-serif py-2.5 px-4 sm:px-6 flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/40 data-[state=active]:to-amber-800/50 data-[state=active]:text-amber-300 data-[state=active]:border data-[state=active]:border-amber-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
+                  className="flex-shrink-0 whitespace-nowrap rounded-xl text-xs sm:text-sm font-bold font-serif py-2.5 px-4 sm:px-6 flex items-center justify-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/40 data-[state=active]:to-amber-800/50 data-[state=active]:text-amber-300 data-[state=active]:border data-[state=active]:border-amber-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
                 >
                   <Sword className="w-4 h-4 text-amber-400 shrink-0" />
                   <span>Daily quests</span>
+                  <span className="cursor-help text-xs text-amber-500/80 ml-0.5 font-mono select-none" title="ᛞ (Dagaz): The dawn and renewal of everyday habits">ᛞ</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="challenges"
-                  className="flex-shrink-0 whitespace-nowrap rounded-xl text-xs sm:text-sm font-bold font-serif py-2.5 px-4 sm:px-6 flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/40 data-[state=active]:to-amber-800/50 data-[state=active]:text-amber-300 data-[state=active]:border data-[state=active]:border-amber-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
+                  className="flex-shrink-0 whitespace-nowrap rounded-xl text-xs sm:text-sm font-bold font-serif py-2.5 px-4 sm:px-6 flex items-center justify-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/40 data-[state=active]:to-amber-800/50 data-[state=active]:text-amber-300 data-[state=active]:border data-[state=active]:border-amber-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
                 >
                   <Zap className="w-4 h-4 text-amber-400 shrink-0" />
                   <span>Challenges</span>
+                  <span className="cursor-help text-xs text-amber-500/80 ml-0.5 font-mono select-none" title="ᚢ (Uruz): Physical endurance, vitality, and overcoming difficulty">ᚢ</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="milestones"
-                  className="flex-shrink-0 whitespace-nowrap rounded-xl text-xs sm:text-sm font-bold font-serif py-2.5 px-4 sm:px-6 flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/40 data-[state=active]:to-amber-800/50 data-[state=active]:text-amber-300 data-[state=active]:border data-[state=active]:border-amber-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
+                  className="flex-shrink-0 whitespace-nowrap rounded-xl text-xs sm:text-sm font-bold font-serif py-2.5 px-4 sm:px-6 flex items-center justify-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/40 data-[state=active]:to-amber-800/50 data-[state=active]:text-amber-300 data-[state=active]:border data-[state=active]:border-amber-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
                 >
                   <Trophy className="w-4 h-4 text-green-400 shrink-0" />
                   <span>Milestones</span>
+                  <span className="cursor-help text-xs text-amber-500/80 ml-0.5 font-mono select-none" title="ᛏ (Tiwaz): Steadfast discipline and victory earned through long-term persistency">ᛏ</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="petitions"
-                  className="flex-shrink-0 whitespace-nowrap rounded-xl text-xs sm:text-sm font-bold font-serif py-2.5 px-4 sm:px-6 flex items-center justify-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/40 data-[state=active]:to-amber-800/50 data-[state=active]:text-amber-300 data-[state=active]:border data-[state=active]:border-amber-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
+                  className="flex-shrink-0 whitespace-nowrap rounded-xl text-xs sm:text-sm font-bold font-serif py-2.5 px-4 sm:px-6 flex items-center justify-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600/40 data-[state=active]:to-amber-800/50 data-[state=active]:text-amber-300 data-[state=active]:border data-[state=active]:border-amber-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
                 >
                   <Scroll className="w-4 h-4 text-blue-400 shrink-0" />
                   <span>Petitions</span>
+                  <span className="cursor-help text-xs text-amber-500/80 ml-0.5 font-mono select-none" title="ᚨ (Ansuz): Wisdom, sovereign counsel, and ancestral voice">ᚨ</span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>

@@ -474,7 +474,8 @@ export function AlliesDashboard() {
         <TabsList className="grid w-full grid-cols-3 bg-amber-950/20 border border-amber-900/40 p-1 rounded-2xl mb-8">
           <TabsTrigger value="allies" className="py-3 font-semibold transition-all">
             <Users className="w-4 h-4" />
-            My Allies
+            <span>My allies</span>
+            <span className="cursor-help text-xs text-amber-500/80 ml-1 font-mono select-none" title="ᚷ (Gebo): The ancient rune of friendship, alliance, and mutual gifts">ᚷ</span>
             {friends.length > 0 && (
               <span className="ml-2 px-2 py-0.5 bg-amber-900/40 text-amber-500 text-[10px] rounded-full border border-amber-900/30 font-bold">
                 {friends.length}
@@ -483,7 +484,8 @@ export function AlliesDashboard() {
           </TabsTrigger>
           <TabsTrigger value="add" className="py-3 font-semibold transition-all">
             <UserPlus className="w-4 h-4" />
-            Recruit
+            <span>Recruit</span>
+            <span className="cursor-help text-xs text-amber-500/80 ml-1 font-mono select-none" title="ᚹ (Wunjo): The ancient rune of fellowship, harmony, and shared joy">ᚹ</span>
           </TabsTrigger>
           <TabsTrigger value="requests" className="py-3 font-semibold transition-all relative">
             <Mail className="w-4 h-4" />

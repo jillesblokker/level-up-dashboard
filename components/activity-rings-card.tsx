@@ -577,7 +577,7 @@ export function ActivityRingsCard({
             </div>
           </div>
 
-          {/* Heraldic Legend */}
+          {/* Heraldic Legend with Authentic Elder Futhark Runes */}
           <div className="flex flex-wrap items-center justify-between pt-2.5 border-t border-[#2d2115] text-[11px] font-serif text-[#a8957c]">
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1.5">
@@ -592,6 +592,11 @@ export function ActivityRingsCard({
                 <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_4px_rgba(245,158,11,0.8)] inline-block" />
                 Amazing &gt;66%
               </span>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] text-[#8c6d48] font-mono select-none">
+              <span className="cursor-help hover:text-amber-300 transition-colors" title="ᚱ (Raidho): The cyclic rhythm and momentum of your daily journey">ᚱ</span>
+              <span className="text-[#453322]">·</span>
+              <span className="cursor-help hover:text-amber-300 transition-colors" title="ᛞ (Dagaz): The dawn and renewal of each day">ᛞ</span>
             </div>
           </div>
 

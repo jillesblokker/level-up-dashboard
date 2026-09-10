@@ -649,12 +649,15 @@ export default function MarketPage() {
           <TabsList className="mb-8 bg-zinc-950 border border-amber-900/40 p-1 rounded-xl">
             <TabsTrigger value="buy" className="rounded-lg text-xs font-bold font-serif py-2.5">
               <ShoppingBag className="w-4 h-4 mr-1.5 text-amber-400" /> Buy Materials
+              <span className="cursor-help text-xs text-amber-500/80 ml-1.5 font-mono select-none" title="ᚠ (Fehu): The ancient rune of wealth, mobile property, and abundance">ᚠ</span>
             </TabsTrigger>
             <TabsTrigger value="sell" className="rounded-lg text-xs font-bold font-serif py-2.5">
               <Coins className="w-4 h-4 mr-1.5 text-green-400" /> Sell Resources
+              <span className="cursor-help text-xs text-amber-500/80 ml-1.5 font-mono select-none" title="ᛃ (Jera): The ancient rune of fruitful harvest and reward for labor">ᛃ</span>
             </TabsTrigger>
             <TabsTrigger value="mystic-shop" className="rounded-lg text-xs font-bold font-serif py-2.5">
               <Package className="w-4 h-4 mr-1.5 text-pink-400" /> Mystic Bazaar
+              <span className="cursor-help text-xs text-amber-500/80 ml-1.5 font-mono select-none" title="ᛈ (Perthro): The ancient rune of mystery, fate, and occult chance">ᛈ</span>
             </TabsTrigger>
           </TabsList>
 

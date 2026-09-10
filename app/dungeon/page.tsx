@@ -1266,6 +1266,12 @@ export default function DungeonPage() {
             <div>
               <h2 className="font-serif font-bold text-amber-300 text-sm flex items-center gap-2">
                 Dungeon Keep Expedition — Room {run.currentRoom} of {run.maxRooms}
+                <span
+                  className="cursor-help text-xs text-amber-500/70 font-mono select-none"
+                  title="ᛇ (Eihwaz): The ancient rune of endurance, resilience, and inner protection"
+                >
+                  ᛇ
+                </span>
               </h2>
               <p className="text-[11px] text-zinc-400">
                 Expeditions yield raw ores & crystals. Habit Buffs: {' '}

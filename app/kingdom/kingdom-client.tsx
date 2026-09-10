@@ -1791,9 +1791,10 @@ export function KingdomClient() {
                   window.dispatchEvent(new Event('collect-all-kingdom-taxes'));
                 }
               }}
-              className="btn-primary-cta shadow-lg shadow-amber-500/20 animate-in fade-in zoom-in duration-300"
+              className="btn-primary-cta shadow-lg shadow-amber-500/20 animate-in fade-in zoom-in duration-300 flex items-center gap-1.5"
             >
-              💰 Collect taxes ({collectableTaxesCount})
+              <span>💰 Collect taxes ({collectableTaxesCount})</span>
+              <span className="cursor-help text-xs text-amber-200/90 ml-1 font-mono select-none" title="ᛃ (Jera): The ancient rune of harvest, rewards earned from continuous daily work">ᛃ</span>
             </Button>
           )
         }
@@ -1840,18 +1841,22 @@ export function KingdomClient() {
               <TabsTrigger value="thrivehaven" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
                 <LayoutGrid className="w-4 h-4" />
                 <span>{TEXT_CONTENT.kingdom.ui.tabs.thrivehaven}</span>
+                <span className="cursor-help text-[11px] text-amber-500/70 ml-1 font-mono select-none" title="ᛟ (Othala): Sovereign domain, ancestral estate, and sanctuary">ᛟ</span>
               </TabsTrigger>
               <TabsTrigger value="journey" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
                 <Compass className="w-4 h-4" />
                 <span>{TEXT_CONTENT.kingdom.ui.tabs.journey}</span>
+                <span className="cursor-help text-[11px] text-amber-500/70 ml-1 font-mono select-none" title="ᚱ (Raidho): The rhythm of the journey and travel">ᚱ</span>
               </TabsTrigger>
               <TabsTrigger value="citizens" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
                 <Users className="w-4 h-4" />
                 <span>Citizens</span>
+                <span className="cursor-help text-[11px] text-amber-500/70 ml-1 font-mono select-none" title="ᛗ (Mannaz): Human potential, community, and social order">ᛗ</span>
               </TabsTrigger>
               <TabsTrigger value="barracks" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
                 <Sword className="w-4 h-4" />
                 <span>Barracks</span>
+                <span className="cursor-help text-[11px] text-amber-500/70 ml-1 font-mono select-none" title="ᛏ (Tiwaz): Honor, martial courage, and steadfast discipline">ᛏ</span>
               </TabsTrigger>
               <TabsTrigger value="alchemy" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
                 <FlaskConical className="w-4 h-4" />

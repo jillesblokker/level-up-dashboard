@@ -104,8 +104,14 @@ export default function ChroniclePage() {
                             </Button>
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500">
+                            <h1 className="text-2xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500 flex items-center gap-2">
                                 Tales of the realm
+                                <span
+                                    className="cursor-help text-xs text-amber-500/70 font-mono select-none"
+                                    title="ᚨ (Ansuz): The ancient rune of wisdom, contemplation, and ancestral voice"
+                                >
+                                    ᚨ
+                                </span>
                             </h1>
                             <p className="text-xs text-zinc-400">Interactive creature stories, habit lessons & reflection journal</p>
                         </div>
