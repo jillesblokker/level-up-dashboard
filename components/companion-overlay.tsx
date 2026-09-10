@@ -34,6 +34,7 @@ const CRYPTIC_ACHIEVEMENT_HINTS: Record<string, string> = {
   '016': "🔮 The hum of a city draws a tiny spark from the ether.",
   '017': "🔮 Five cities built... the lightning grows restless.",
   '018': "🔮 Master of the grid, lord of ten cities — the storm answers your call.",
+  '019': "🔮 Carve all eight word lengths into Necrion's codex, and the ancient crocodile guardian Crypto awakens.",
 
   // Dragon legends — quest volume
   '101': "🔮 A hundred conquered habits echo through the caves. Something ancient stirs.",

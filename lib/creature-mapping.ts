@@ -273,6 +273,20 @@ export const CREATURE_DEFINITIONS: Record<string, CreatureDefinition> = {
         ],
         scale: 1.2
     },
+    '019': {
+        id: '019',
+        name: 'Crypto',
+        filename: 'Crypto.webp',
+        type: 'special',
+        loreTitle: 'Cipher guardian',
+        defaultClass: 'Tank',
+        greetings: [
+            "Snap! You cracked Necrion's codex, didn't you? My armor is humming with ancient power!",
+            "Patience and thick scales, traveler. That's how we conquer daily habits.",
+            "Every habit is an unyielding stone in your fortress. Let's carve today's victories!"
+        ],
+        scale: 1.0
+    },
 
     // Dragon Achievements (101-103)
     '101': {

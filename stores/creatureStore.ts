@@ -354,6 +354,23 @@ const initialCreatures: Creature[] = [
     requirement: 'Visit 10 cities'
   },
   {
+    id: '019',
+    number: '#019',
+    name: 'Crypto',
+    description: 'An ancient crocodile warrior awakened by inscripting all 8 word lengths into the sacred runic codex.',
+    image: '/images/creatures/019.webp',
+    category: 'runic',
+    discovered: false,
+    stats: {
+      hp: 96,
+      attack: 28,
+      defense: 26,
+      speed: 18,
+      type: 'Runic'
+    },
+    requirement: 'Inscribe all 8 word tiers in the codex of runes'
+  },
+  {
     id: '101',
     number: '#101',
     name: 'Drakon',

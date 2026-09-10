@@ -701,3 +701,227 @@ export function getCipherProgress(unlockedRuneIds: string[]): {
     percent: totalLetters > 0 ? Math.round((unlockedLetters / totalLetters) * 100) : 0,
   };
 }
+
+// ─── WORD HUNT & LONG CODEX INSCRIBER (Crypto Crocodile Hunt) ──────────────────
+
+export interface WordHuntTier {
+  length: number;
+  label: string;
+  acceptedWords: string[];
+  canonicalWord: string;
+  hint: string;
+}
+
+export const WORD_HUNT_TIERS: WordHuntTier[] = [
+  {
+    length: 3,
+    label: "Shortest word (3 letters)",
+    acceptedWords: ["AND"],
+    canonicalWord: "AND",
+    hint: "Connects virtues together in the prophecy",
+  },
+  {
+    length: 4,
+    label: "4-letter word",
+    acceptedWords: ["MIND", "TRUE"],
+    canonicalWord: "MIND",
+    hint: "The seat of human thought, or the authentic nature of wisdom",
+  },
+  {
+    length: 5,
+    label: "5-letter word",
+    acceptedWords: ["BRAVE", "DAILY", "FORGE"],
+    canonicalWord: "BRAVE",
+    hint: "Heroic courage, morning habit cadence, or shaping metal",
+  },
+  {
+    length: 6,
+    label: "6-letter word",
+    acceptedWords: ["WISDOM"],
+    canonicalWord: "WISDOM",
+    hint: "Insight gained through persistent daily action",
+  },
+  {
+    length: 7,
+    label: "7-letter word",
+    acceptedWords: ["ETERNAL"],
+    canonicalWord: "ETERNAL",
+    hint: "Everlasting strength that withstands all trials",
+  },
+  {
+    length: 8,
+    label: "8-letter word",
+    acceptedWords: ["STRENGTH"],
+    canonicalWord: "STRENGTH",
+    hint: "Enduring fortitude built rep by rep, day by day",
+  },
+  {
+    length: 9,
+    label: "9-letter word",
+    acceptedWords: ["CURIOSITY"],
+    canonicalWord: "CURIOSITY",
+    hint: "The burning desire to explore and learn new secrets",
+  },
+  {
+    length: 10,
+    label: "Longest word (10 letters)",
+    acceptedWords: ["DISCIPLINE"],
+    canonicalWord: "DISCIPLINE",
+    hint: "The master pillar of daily habit persistency",
+  },
+];
+
+export const INSCRIBED_WORDS_STORAGE_KEY = 'thrivehaven_runic_inscribed_words';
+export const CRYPTO_UNLOCKED_STORAGE_KEY = 'thrivehaven_crypto_unlocked';
+export const RUNE_WORD_INSCRIBED_EVENT = 'thrivehaven-rune-word-inscribed';
+
+export function letterToRuneSymbol(letter: string): string {
+  const upper = letter.toUpperCase();
+  const map: Record<string, string> = {
+    A: 'ᚨ',
+    B: 'ᛒ',
+    C: 'ᚲ',
+    D: 'ᛞ',
+    E: 'ᛖ',
+    F: 'ᚠ',
+    G: 'ᚷ',
+    H: 'ᚺ',
+    I: 'ᛁ',
+    J: 'ᛃ',
+    K: 'ᚲ',
+    L: 'ᛚ',
+    M: 'ᛗ',
+    N: 'ᚾ',
+    O: 'ᛟ',
+    P: 'ᛈ',
+    Q: 'ᚲ',
+    R: 'ᚱ',
+    S: 'ᛊ',
+    T: 'ᛏ',
+    U: 'ᚢ',
+    V: 'ᚠ',
+    W: 'ᚹ',
+    X: 'ᛉ',
+    Y: 'ᛃ',
+    Z: 'ᛉ',
+  };
+  return map[upper] || '᛬';
+}
+
+export function wordToRunesString(word: string): string {
+  return word
+    .toUpperCase()
+    .split('')
+    .map(letterToRuneSymbol)
+    .join(' ');
+}
+
+export function getInscribedWords(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(INSCRIBED_WORDS_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function getInscribedTiersProgress(): {
+  inscribedWords: string[];
+  completedTiers: Record<number, string>;
+  completedCount: number;
+  totalCount: number;
+  percent: number;
+  isAllComplete: boolean;
+} {
+  const words = getInscribedWords();
+  const completedTiers: Record<number, string> = {};
+
+  WORD_HUNT_TIERS.forEach((tier) => {
+    const foundWord = words.find((w) => tier.acceptedWords.includes(w.toUpperCase()));
+    if (foundWord) {
+      completedTiers[tier.length] = foundWord.toUpperCase();
+    }
+  });
+
+  const completedCount = Object.keys(completedTiers).length;
+  const totalCount = WORD_HUNT_TIERS.length;
+
+  return {
+    inscribedWords: words,
+    completedTiers,
+    completedCount,
+    totalCount,
+    percent: Math.round((completedCount / totalCount) * 100),
+    isAllComplete: completedCount === totalCount,
+  };
+}
+
+export async function inscribeWord(inputWord: string): Promise<{
+  success: boolean;
+  tier?: WordHuntTier;
+  word?: string;
+  alreadyInscribed?: boolean;
+  allTiersComplete?: boolean;
+  totalTiers: number;
+  completedTiersCount: number;
+}> {
+  const cleanWord = inputWord.trim().toUpperCase();
+  if (!cleanWord) {
+    return {
+      success: false,
+      totalTiers: WORD_HUNT_TIERS.length,
+      completedTiersCount: getInscribedTiersProgress().completedCount,
+    };
+  }
+
+  const matchingTier = WORD_HUNT_TIERS.find((t) => t.acceptedWords.includes(cleanWord));
+  if (!matchingTier) {
+    return {
+      success: false,
+      totalTiers: WORD_HUNT_TIERS.length,
+      completedTiersCount: getInscribedTiersProgress().completedCount,
+    };
+  }
+
+  const currentWords = getInscribedWords();
+  if (currentWords.includes(cleanWord)) {
+    return {
+      success: false,
+      alreadyInscribed: true,
+      tier: matchingTier,
+      word: cleanWord,
+      totalTiers: WORD_HUNT_TIERS.length,
+      completedTiersCount: getInscribedTiersProgress().completedCount,
+    };
+  }
+
+  const updated = Array.from(new Set([...currentWords, cleanWord]));
+  try {
+    localStorage.setItem(INSCRIBED_WORDS_STORAGE_KEY, JSON.stringify(updated));
+  } catch {}
+
+  setUserPreference(INSCRIBED_WORDS_STORAGE_KEY, updated).catch(() => {});
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(
+      new CustomEvent(RUNE_WORD_INSCRIBED_EVENT, {
+        detail: { word: cleanWord, tierLength: matchingTier.length },
+      })
+    );
+  }
+
+  const progress = getInscribedTiersProgress();
+
+  return {
+    success: true,
+    tier: matchingTier,
+    word: cleanWord,
+    alreadyInscribed: false,
+    allTiersComplete: progress.isAllComplete,
+    totalTiers: progress.totalCount,
+    completedTiersCount: progress.completedCount,
+  };
+}
