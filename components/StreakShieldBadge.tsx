@@ -5,6 +5,7 @@ import { Shield, ShieldAlert, Sparkles } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
+import { CollectibleRune } from '@/components/runes/collectible-rune'
 
 interface StreakShieldBadgeProps {
   userId?: string
@@ -49,6 +50,14 @@ export function StreakShieldBadge({ userId, streakDays = 0, className = '' }: St
             <span>No Streak Freeze (0)</span>
           </>
         )}
+        <CollectibleRune
+          id="isa_freeze"
+          runeId="isa"
+          symbol="ᛁ"
+          name="Isa"
+          meaning="Ice, stillness, and patience that freezes time to guard streaks"
+          className="text-cyan-300 ml-0.5 text-xs"
+        />
       </Badge>
     </div>
   )

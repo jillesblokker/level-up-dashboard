@@ -11,7 +11,7 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Trophy, Compass, Lock, RotateCcw, Volume2 } from 'lucide-react';
+import { Sparkles, Trophy, Compass, Lock, RotateCcw, Volume2, Shield } from 'lucide-react';
 import { playSFX } from '@/lib/sound-manager';
 import { hapticSuccess } from '@/lib/haptics';
 import { toast } from '@/components/ui/use-toast';
@@ -21,6 +21,7 @@ export function CodexOfRunesTab() {
   const [unlockedRuneIds, setUnlockedRuneIds] = useState<string[]>([]);
   const [collectedPlacements, setCollectedPlacements] = useState<string[]>([]);
   const [activeRuneModal, setActiveRuneModal] = useState<RuneDefinition | null>(null);
+  const [selectedAett, setSelectedAett] = useState<'all' | 'freyr' | 'heimdall' | 'tyr'>('all');
 
   const refreshState = () => {
     setUnlockedRuneIds(getCollectedRuneIds());
@@ -45,6 +46,10 @@ export function CodexOfRunesTab() {
   const progressPercent = (unlockedCount / totalRunes) * 100;
   const isMaster = unlockedCount === totalRunes;
 
+  const filteredRunes = selectedAett === 'all'
+    ? ALL_RUNES
+    : ALL_RUNES.filter((r) => r.aett === selectedAett);
+
   const handleRuneClick = (rune: RuneDefinition, isUnlocked: boolean) => {
     if (isUnlocked) {
       playSFX('achievement');
@@ -52,7 +57,7 @@ export function CodexOfRunesTab() {
       setActiveRuneModal(rune);
     } else {
       toast({
-        title: `Undiscovered Rune`,
+        title: `Undiscovered Rune (${rune.aettLabel})`,
         description: rune.hint,
       });
     }
@@ -67,7 +72,7 @@ export function CodexOfRunesTab() {
         refreshState();
         toast({
           title: 'Runes dispersed',
-          description: 'All 13 Elder Runes have returned to their hiding places across the realm.',
+          description: 'All 24 Elder Runes have returned to their hiding places across the realm.',
         });
       } catch (e) {
         console.error(e);
@@ -84,7 +89,7 @@ export function CodexOfRunesTab() {
           <div className="space-y-2 max-w-2xl">
             <div className="flex items-center gap-2">
               <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono text-xs px-2.5 py-0.5">
-                ✦ Secret achievement unlocked
+                ✦ Sacred Elder Futhark unlocked
               </Badge>
               {isMaster && (
                 <Badge className="bg-gradient-to-r from-amber-500 to-amber-300 text-zinc-950 font-bold text-xs px-2.5 py-0.5 shadow-md">
@@ -93,11 +98,11 @@ export function CodexOfRunesTab() {
               )}
             </div>
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 flex items-center gap-3">
-              <span>Codex of Elder Runes</span>
-              <span className="font-mono text-amber-400 text-lg">ᚱ ᛞ ᚷ</span>
+              <span>Codex of the 24 Elder Runes</span>
+              <span className="font-mono text-amber-400 text-base sm:text-lg">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ</span>
             </h2>
             <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-              Whispers of the authentic Elder Futhark hidden across the realm. Tap any discovered rune 3 times in its native location to bind it to your codex.
+              The complete historical 24-rune Elder Futhark, divided into the three sacred ættir. Tap any discovered rune 3 times in its native location across the realm to bind it to your codex.
             </p>
           </div>
 
@@ -108,7 +113,7 @@ export function CodexOfRunesTab() {
             </div>
             <Progress value={progressPercent} className="h-2 bg-zinc-950" />
             <p className="text-[11px] text-zinc-400 italic text-right">
-              {isMaster ? 'All sacred runes awakened' : `${totalRunes - unlockedCount} runes remaining`}
+              {isMaster ? 'All 24 sacred runes awakened' : `${totalRunes - unlockedCount} runes remaining`}
             </p>
           </div>
         </div>
@@ -120,7 +125,7 @@ export function CodexOfRunesTab() {
               <Trophy className="w-6 h-6 text-amber-400 animate-bounce" />
               <div>
                 <p className="text-sm font-bold text-amber-200 font-serif">Elder Runic Master of Thrivehaven</p>
-                <p className="text-xs text-zinc-300">You have bound every ancient Elder Futhark rune to your codex.</p>
+                <p className="text-xs text-zinc-300">You have bound all 24 ancient Elder Futhark runes to your codex.</p>
               </div>
             </div>
             <Button
@@ -135,9 +140,34 @@ export function CodexOfRunesTab() {
         )}
       </div>
 
+      {/* ÆTT SELECTION PILLS */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
+        {[
+          { id: 'all', label: 'All 24 runes', count: totalRunes },
+          { id: 'freyr', label: "Freyr's ætt (1–8)", count: 8 },
+          { id: 'heimdall', label: "Heimdall's ætt (9–16)", count: 8 },
+          { id: 'tyr', label: "Tyr's ætt (17–24)", count: 8 },
+        ].map((tab) => {
+          const isActive = selectedAett === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setSelectedAett(tab.id as any)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-serif font-bold transition-all whitespace-nowrap border ${
+                isActive
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm'
+                  : 'bg-zinc-950 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-zinc-200'
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
       {/* RUNE TILES GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {ALL_RUNES.map((rune) => {
+        {filteredRunes.map((rune) => {
           const isUnlocked = unlockedRuneIds.includes(rune.id);
           const foundPlacements = rune.placements.filter((p) =>
             collectedPlacements.includes(p.id)
@@ -180,7 +210,7 @@ export function CodexOfRunesTab() {
                       )}
                     </div>
                     <p className="text-xs text-zinc-400 font-medium line-clamp-1">
-                      {isUnlocked ? rune.meaning : 'Mystery rune'}
+                      {isUnlocked ? rune.meaning : rune.aettLabel}
                     </p>
                   </div>
                 </div>
@@ -257,6 +287,9 @@ export function CodexOfRunesTab() {
             </div>
 
             <div className="space-y-3 text-xs text-zinc-300 leading-relaxed">
+              <Badge className="bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[10px] font-mono">
+                {activeRuneModal.aettLabel}
+              </Badge>
               <p>{activeRuneModal.description}</p>
               <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-1">
                 <span className="font-bold text-amber-300 block font-serif text-[11px]">

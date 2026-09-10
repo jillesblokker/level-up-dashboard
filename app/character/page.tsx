@@ -23,6 +23,7 @@ const ApothecaModal = dynamic(
   () => import('@/components/kingdom/apotheca-modal').then((mod) => mod.ApothecaModal),
   { ssr: false }
 );
+import { CollectibleRune } from '@/components/runes/collectible-rune';
 import { Progress } from "@/components/ui/progress"
 import {
   AlertDialog,
@@ -926,7 +927,17 @@ export default function CharacterPage() {
           {/* Combined Character Overview & Active Bonuses */}
           <Card className="medieval-card">
             <CardHeader>
-              <CardTitle className="font-serif">{TEXT_CONTENT.character.ui.overview.title}</CardTitle>
+              <CardTitle className="font-serif flex items-center gap-2">
+                <span>{TEXT_CONTENT.character.ui.overview.title}</span>
+                <CollectibleRune
+                  id="ingwaz_vault"
+                  runeId="ingwaz"
+                  symbol="ᛜ"
+                  name="Ingwaz"
+                  meaning="The sacred seed, inner potential, and fruition of character growth"
+                  className="ml-1"
+                />
+              </CardTitle>
               <CardDescription>{TEXT_CONTENT.character.ui.overview.description}</CardDescription>
             </CardHeader>
             <CardContent>

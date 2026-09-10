@@ -28,6 +28,7 @@ import { gainGold } from '@/lib/gold-manager'
 import { gainExperience } from '@/lib/experience-manager'
 import { useCreatureStore } from '@/stores/creatureStore'
 import { useCitizensStore } from '@/stores/citizensStore'
+import { CollectibleRune } from '@/components/runes/collectible-rune'
 import { generateMysteryEvent, handleEventOutcome } from '@/lib/mystery-events'
 import { cn } from "@/lib/utils"
 import Image from 'next/image'
@@ -2198,9 +2199,17 @@ function RealmPageContent() {
                     !isVisiting && (
                         <Button
                             onClick={handleCollectRealmTaxes}
-                            className="btn-primary-cta shadow-lg shadow-amber-500/20 animate-in fade-in zoom-in duration-300 font-serif font-bold text-sm px-5 py-2.5"
+                            className="btn-primary-cta shadow-lg shadow-amber-500/20 animate-in fade-in zoom-in duration-300 font-serif font-bold text-sm px-5 py-2.5 flex items-center gap-1.5"
                         >
-                            💰 Collect realm taxes ({realmSettlementTiles.length || 2})
+                            <span>💰 Collect realm taxes ({realmSettlementTiles.length || 2})</span>
+                            <CollectibleRune
+                                id="laguz_realm"
+                                runeId="laguz"
+                                symbol="ᛚ"
+                                name="Laguz"
+                                meaning="Living water, creative flow, and intuitive depth"
+                                className="text-amber-200 ml-1"
+                            />
                         </Button>
                     )
                 }

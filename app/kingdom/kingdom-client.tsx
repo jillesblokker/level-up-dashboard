@@ -1897,6 +1897,14 @@ export function KingdomClient() {
               <TabsTrigger value="alchemy" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
                 <FlaskConical className="w-4 h-4" />
                 <span>Enhanced</span>
+                <CollectibleRune
+                  id="kenaz_alchemy"
+                  runeId="kenaz"
+                  symbol="ᚲ"
+                  name="Kenaz"
+                  meaning="The torch of knowledge, illumination, and alchemical craft"
+                  className="ml-1"
+                />
               </TabsTrigger>
               <TabsTrigger value="airship" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
                 <Wind className="w-4 h-4" />

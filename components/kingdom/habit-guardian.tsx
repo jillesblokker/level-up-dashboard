@@ -14,6 +14,7 @@ import { TreasureChestVisual } from "@/components/ui/treasure-chest-visual"
 import Image from "next/image"
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { cn } from "@/lib/utils";
+import { CollectibleRune } from "@/components/runes/collectible-rune";
 
 interface Quest {
   id: string
@@ -448,7 +449,15 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-3">
               <div>
                 <h3 className="font-cardo font-bold text-lg text-white flex items-center gap-2">
-                  {activeGuardian?.name}
+                  <span>{activeGuardian?.name}</span>
+                  <CollectibleRune
+                    id="algiz_guardian"
+                    runeId="algiz"
+                    symbol="ᛉ"
+                    name="Algiz"
+                    meaning="Divine protection, guardian sanctuary, and spirit companionship"
+                    className="ml-0.5 text-sm"
+                  />
                   <span className="text-[10px] font-bold tracking-widest px-2 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full">
                     Lvl {guardianState.level}
                   </span>

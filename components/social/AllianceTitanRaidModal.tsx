@@ -11,6 +11,7 @@ import { TitanSiegeArsenal } from '@/components/titan-siege-arsenal'
 import { TreasureChestVisual } from '@/components/ui/treasure-chest-visual'
 import { playSFX, SOUNDS } from '@/lib/sound-manager'
 import { getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service'
+import { CollectibleRune } from '@/components/runes/collectible-rune'
 
 interface AllianceTitanRaidModalProps {
   isOpen: boolean
@@ -126,8 +127,16 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-red-400">
               <ShieldAlert className="w-6 h-6 animate-pulse" />
-              <DialogTitle className="text-xl font-bold tracking-wide text-red-100">
-                Fellowship Titan Wyrm raid
+              <DialogTitle className="text-xl font-bold tracking-wide text-red-100 flex items-center gap-2">
+                <span>Fellowship Titan Wyrm raid</span>
+                <CollectibleRune
+                  id="thurisaz_raid"
+                  runeId="thurisaz"
+                  symbol="ᚦ"
+                  name="Thurisaz"
+                  meaning="Thor's hammer, giant-slayer, and primal force against monsters"
+                  className="text-red-400 ml-1"
+                />
               </DialogTitle>
             </div>
             <Badge variant="outline" className="border-red-500/40 text-red-400 bg-red-950/30 text-xs">

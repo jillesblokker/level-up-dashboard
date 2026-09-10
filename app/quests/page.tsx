@@ -3284,6 +3284,14 @@ export default function QuestsPage() {
                 <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
                   <span>⚡</span>
                   <span>Evolve routine without breaking streak</span>
+                  <CollectibleRune
+                    id="nauthiz_evolve"
+                    runeId="nauthiz"
+                    symbol="ᚾ"
+                    name="Nauthiz"
+                    meaning="Need, necessity, and the friction that builds enduring strength"
+                    className="ml-1"
+                  />
                 </div>
                 <p className="text-[11px] text-zinc-300 leading-relaxed">
                   Real life shifts—switch from running to swimming, change reading focus, or update your schedule. Evolving this routine updates its title and category while keeping 100% of your historical completions and streak stats intact!

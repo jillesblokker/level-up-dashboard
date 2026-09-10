@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { FlaskConical, Sparkles, RefreshCw, Loader2 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { fetchFreshCharacterStats, getCharacterStats } from "@/lib/character-stats-service"
+import { CollectibleRune } from "@/components/runes/collectible-rune"
 
 interface ApothecaModalProps {
   open: boolean
@@ -133,8 +134,16 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
           <div className="p-2.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mb-1.5 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
             <FlaskConical className="w-5 h-5" />
           </div>
-          <DialogTitle className="text-xl font-medieval text-emerald-200 tracking-tight font-bold">
-            Grand apotheca
+          <DialogTitle className="text-xl font-medieval text-emerald-200 tracking-tight font-bold flex items-center justify-center gap-2">
+            <span>Grand apotheca</span>
+            <CollectibleRune
+              id="berkano_apotheca"
+              runeId="berkano"
+              symbol="ᛒ"
+              name="Berkano"
+              meaning="The birch goddess, botanical vitality, and healing growth"
+              className="text-emerald-400 ml-1"
+            />
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
             Botanical glasshouse & daily decoction sanctuary

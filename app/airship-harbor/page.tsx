@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Anchor, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AirshipHarborTab } from "@/components/kingdom/airship-harbor-tab";
+import { CollectibleRune } from "@/components/runes/collectible-rune";
 
 export default function AirshipHarborPage() {
   return (
@@ -27,8 +28,16 @@ export default function AirshipHarborPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-950/60 text-amber-400">
                 <Anchor className="h-4 w-4" />
               </div>
-              <h1 className="text-lg font-bold tracking-wide text-amber-300 sm:text-xl font-serif">
-                Airship Harbor
+              <h1 className="text-lg font-bold tracking-wide text-amber-300 sm:text-xl font-serif flex items-center gap-2">
+                <span>Airship Harbor</span>
+                <CollectibleRune
+                  id="ehwaz_airship"
+                  runeId="ehwaz"
+                  symbol="ᛖ"
+                  name="Ehwaz"
+                  meaning="The noble horse, trusted mount, and swift voyage"
+                  className="ml-1"
+                />
               </h1>
             </div>
           </div>

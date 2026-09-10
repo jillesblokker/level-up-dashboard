@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Moon, Sun } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { CollectibleRune } from "@/components/runes/collectible-rune"
 
 export function DayNightCycle() {
     const [isNight, setIsNight] = useState(false)
@@ -142,6 +143,14 @@ export function DayNightCycle() {
             ) : (
                 <Sun className="w-5 h-5 animate-[spin_10s_linear_infinite] will-change-transform transform-gpu" />
             )}
+            <CollectibleRune
+                id="hagalaz_weather"
+                runeId="hagalaz"
+                symbol="ᚺ"
+                name="Hagalaz"
+                meaning="Atmospheric upheaval, hail, and elemental transformation"
+                className="ml-1 text-xs"
+            />
         </div>
     )
 }

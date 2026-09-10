@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal } from "lucide-react"
 import { getCharacterStats } from "@/lib/character-stats-service"
+import { CollectibleRune } from "@/components/runes/collectible-rune"
 import { calculateLevelFromExperience } from "@/types/character"
 import dynamic from 'next/dynamic'
 import { AllianceTitanRaidModal } from "@/components/social/AllianceTitanRaidModal";
@@ -496,7 +497,15 @@ export default function AlliesPage() {
                     >
                         <TabsTrigger value="house-cup" className="flex items-center gap-2 py-2.5 h-full px-5 rounded-xl text-xs font-bold font-serif transition-all whitespace-nowrap min-h-[40px]">
                             <Trophy className="w-4 h-4 text-amber-400" />
-                            House cup
+                            <span>House cup</span>
+                            <CollectibleRune
+                                id="sowilo_housecup"
+                                runeId="sowilo"
+                                symbol="ᛊ"
+                                name="Sowilo"
+                                meaning="The radiant sun, triumph, and vitality of victory"
+                                className="ml-1"
+                            />
                         </TabsTrigger>
                         <TabsTrigger value="alliances" className="flex items-center gap-2 py-2.5 h-full px-5 rounded-xl text-xs font-bold font-serif transition-all whitespace-nowrap min-h-[40px]">
                             <Shield className="w-4 h-4 text-amber-500" />
