@@ -74,6 +74,7 @@ interface CitizensStore {
   triggerAutopilotHarvest: (userId: string, activePartnerId: string | undefined) => Promise<{ gold: number; items: Record<string, { quantity: number; name: string; emoji: string }>; partnerName: string; count: number } | null>;
   mergeDuplicateCitizens: (userId: string) => Promise<{ success: boolean; count: number; mergedNames: string[] }>;
   specializeCitizen: (userId: string, citizenId: string, chosenClass: 'Tank' | 'Mage' | 'Alchemist' | 'Scout') => Promise<void>;
+  addCitizenById: (citizenId: string) => Promise<void>;
 }
 
 // Map card types/rarity to habitat types
@@ -391,6 +392,21 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
           }
         });
       }
+
+      // Check if Crypto (019) is discovered in local preferences or creature store
+      try {
+        const cryptoUnlocked = (await getUserPreference('thrivehaven_crypto_unlocked')) === true ||
+          (typeof window !== 'undefined' && localStorage.getItem('thrivehaven_crypto_unlocked') === 'true');
+        if (cryptoUnlocked) {
+          unlockedAchievementIds.add('019');
+        }
+      } catch {}
+
+      try {
+        const { useCreatureStore } = await import('./creatureStore');
+        const discovered = useCreatureStore.getState().discoveredCreatures || [];
+        discovered.forEach((id) => unlockedAchievementIds.add(id));
+      } catch {}
 
       // 2. Get unlocked mythic cards
       let unlockedMythics: any[] = [];
@@ -1361,6 +1377,49 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         specialization: chosenClass
       }
     });
+  },
+
+  addCitizenById: async (citizenId: string) => {
+    const { citizens } = get();
+    if (citizens.some((c) => c.id === citizenId)) return;
+    const def = CREATURE_DEFINITIONS[citizenId];
+    if (!def) return;
+    const defaultClass = def.defaultClass || (def.type === 'special' ? 'Mage' : def.type === 'ice' ? 'Scout' : 'Tank');
+    const newCitizen: Citizen = {
+      id: citizenId,
+      name: def.name,
+      filename: def.filename,
+      type: def.type,
+      greetings: def.greetings,
+      scale: def.scale,
+      isMythic: false,
+      loreTitle: def.loreTitle,
+      active: true,
+      favorite: false,
+      lastFedAt: null,
+      activeDays: 1,
+      lastHarvestedAt: null,
+      affection: 50,
+      level: 1,
+      experience: 0,
+      specialization: defaultClass,
+    };
+    set({ citizens: [...citizens, newCitizen] });
+    try {
+      const currentPrefs = ((await getUserPreference('citizens_state')) as any) || {};
+      currentPrefs[citizenId] = {
+        active: true,
+        favorite: false,
+        lastFedAt: null,
+        activeDays: 1,
+        lastHarvestedAt: null,
+        affection: 50,
+        level: 1,
+        experience: 0,
+        specialization: defaultClass,
+      };
+      await setUserPreference('citizens_state', currentPrefs);
+    } catch {}
   }
 }));
 

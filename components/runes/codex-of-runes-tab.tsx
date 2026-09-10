@@ -55,6 +55,7 @@ import { toast } from '@/components/ui/use-toast';
 import { setUserPreference, getUserPreference } from '@/lib/user-preferences-manager';
 import { updateCharacterStats, getCharacterStats } from '@/lib/character-stats-service';
 import { useCreatureStore } from '@/stores/creatureStore';
+import { useCitizensStore } from '@/stores/citizensStore';
 
 const CIPHER_CLAIMED_KEY = 'thrivehaven_runic_cipher_claimed';
 
@@ -125,11 +126,12 @@ export function CodexOfRunesTab() {
   const wordHuntProgress = getInscribedTiersProgress();
   const allWordTiersComplete = wordHuntProgress.isAllComplete;
 
-  // If all tiers complete, automatically ensure Crypto is unlocked in creature store
+  // If all tiers complete, automatically ensure Crypto is unlocked in creature store & citizens
   useEffect(() => {
     if (allWordTiersComplete) {
       try {
         useCreatureStore.getState().discoverCreature('019');
+        useCitizensStore.getState().addCitizenById('019');
       } catch (e) {
         console.error(e);
       }
@@ -223,9 +225,10 @@ export function CodexOfRunesTab() {
 
       if (res.allTiersComplete) {
         useCreatureStore.getState().discoverCreature('019');
+        useCitizensStore.getState().addCitizenById('019');
         toast({
           title: '✦ The long codex is complete! ✦',
-          description: `All eight tiers from shortest to longest have been carved! The ancient crocodile guardian Crypto awakens!`,
+          description: `All eight tiers from shortest to longest have been carved! Crypto the crocodile guardian awakens and joins your citizens!`,
         });
       } else {
         toast({
@@ -283,10 +286,11 @@ export function CodexOfRunesTab() {
       }, 'crypto_creature_unlocked');
 
       useCreatureStore.getState().discoverCreature('019');
+      useCitizensStore.getState().addCitizenById('019');
 
       toast({
         title: '✦ Crocodile guardian Crypto awakened! ✦',
-        description: 'Crypto has joined your creature collection! You received +500 gold, +1000 exp, and the title "Keeper of Crypto".',
+        description: 'Crypto has joined your citizens and creature collection! You received +500 gold, +1000 exp, and the title "Keeper of Crypto".',
       });
     } catch (e) {
       console.error(e);
@@ -327,7 +331,7 @@ export function CodexOfRunesTab() {
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="flex items-center gap-2">
-              <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono text-xs px-2.5 py-0.5">
+              <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs px-2.5 py-0.5 font-medium">
                 ✦ Sacred elder futhark
               </Badge>
               {isMaster && (
@@ -338,7 +342,7 @@ export function CodexOfRunesTab() {
             </div>
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 flex items-center gap-3">
               <span>Codex of the 24 elder runes</span>
-              <span className="font-mono text-amber-400 text-base sm:text-lg">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ</span>
+              <span className="font-serif text-amber-400 text-base sm:text-lg">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ</span>
             </h2>
             <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
               The 24 historical Elder Futhark runes lie scattered across Thrivehaven. Seek their subtle resonance throughout the realm to awaken their ancient power into your codex.
@@ -346,7 +350,7 @@ export function CodexOfRunesTab() {
           </div>
 
           <div className="w-full md:w-64 bg-zinc-900/80 border border-amber-500/30 p-4 rounded-2xl flex flex-col gap-2 shadow-inner">
-            <div className="flex justify-between items-center text-xs font-mono">
+            <div className="flex justify-between items-center text-xs font-medium text-zinc-300">
               <span className="text-zinc-400">Codex completion</span>
               <span className="text-amber-300 font-bold">{unlockedCount} / {totalRunes}</span>
             </div>
@@ -371,7 +375,7 @@ export function CodexOfRunesTab() {
               variant="outline"
               size="sm"
               onClick={handleResetRunes}
-              className="border-amber-500/40 text-amber-300 hover:bg-amber-950 text-xs rounded-xl h-8 gap-1.5 w-full sm:w-auto"
+              className="border-amber-500/40 text-amber-300 hover:bg-amber-950 text-xs rounded-xl h-8 gap-1.5 w-full sm:w-auto font-medium"
             >
               <RotateCcw className="w-3.5 h-3.5" /> Re-hide for hunt
             </Button>
@@ -383,16 +387,15 @@ export function CodexOfRunesTab() {
       <div className="relative rounded-3xl overflow-hidden border border-emerald-500/30 bg-gradient-to-br from-zinc-950 via-[#0a120c] to-zinc-950 p-6 sm:p-8 shadow-2xl">
         <div className="absolute top-0 right-0 -mt-16 -mr-16 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6">
-          {/* Necrion Avatar */}
-          <div className="relative shrink-0 group">
-            <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 opacity-30 blur group-hover:opacity-60 transition duration-500" />
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-emerald-500/50 shadow-xl bg-zinc-950">
+          {/* Necrion Avatar (Portrait frame fitting full 2:3 aspect ratio perfectly) */}
+          <div className="relative shrink-0 group self-center sm:self-auto">
+            <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-b from-emerald-500/40 to-teal-500/20 blur-md group-hover:opacity-75 transition duration-500" />
+            <div className="relative w-20 h-28 sm:w-24 sm:h-36 rounded-2xl overflow-hidden border-2 border-emerald-500/60 shadow-2xl bg-gradient-to-b from-emerald-950/40 via-zinc-950 to-zinc-950 flex items-center justify-center">
               <Image
                 src="/images/creatures/Necrion.webp"
                 alt="Necrion, speaker of ancient echoes"
-                width={96}
-                height={96}
-                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                fill
+                className="object-contain p-1 drop-shadow-[0_0_12px_rgba(16,185,129,0.5)] group-hover:scale-105 transition-transform duration-300"
                 priority
               />
             </div>
@@ -401,7 +404,7 @@ export function CodexOfRunesTab() {
           {/* Dialogue & Lore */}
           <div className="space-y-2.5 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge className="bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-mono text-[11px] px-2.5 py-0.5 flex items-center gap-1.5">
+              <Badge className="bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[11px] px-2.5 py-0.5 flex items-center gap-1.5 font-medium">
                 <Feather className="w-3 h-3 text-emerald-400" />
                 Lorekeeper of the shadows
               </Badge>
@@ -411,10 +414,10 @@ export function CodexOfRunesTab() {
             </div>
 
             <div className="relative p-4 rounded-2xl bg-zinc-950/70 border border-emerald-500/20 shadow-inner">
-              <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed font-sans italic">
+              <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed font-serif italic">
                 &ldquo;Mortal traveler... you walk through Thrivehaven seeing busy markets and stone towers, yet beneath every cobblestone whispers the Elder Futhark. The ancients did not carve these glyphs for simple ornament—they etched them as mirrors to human perseverance. They will never reveal themselves to the hurried or the idle. Only those with patient curiosity, unbroken daily discipline, and quiet bravery will sense where the runes sleep.
               </p>
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed mt-2 font-sans">
+              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed mt-2 font-serif">
                 Long ago, we sealed our sacred creed into the stone cipher below. Each rune represents both an ancient concept and a living letter of your tongue. Learn the runes, connect their glyphs to letters, and inscribe every word length—from the shortest to the longest—into the codex to summon Crypto, the ancient crocodile guardian.&rdquo;
               </p>
             </div>
@@ -427,7 +430,7 @@ export function CodexOfRunesTab() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-amber-500/20">
           <div>
             <div className="flex items-center gap-2">
-              <Badge className="bg-amber-500/15 text-amber-300 border border-amber-500/30 font-mono text-xs px-2.5 py-0.5">
+              <Badge className="bg-amber-500/15 text-amber-300 border border-amber-500/30 text-xs px-2.5 py-0.5 font-medium">
                 ✦ Inscribed prophecy
               </Badge>
               {cipherSolved && (
@@ -451,7 +454,7 @@ export function CodexOfRunesTab() {
               variant="outline"
               size="sm"
               onClick={() => setShowAlphabetKey(!showAlphabetKey)}
-              className="border-amber-500/30 text-amber-300 hover:bg-amber-950 text-xs rounded-xl h-8 gap-1.5"
+              className="border-amber-500/30 text-amber-300 hover:bg-amber-950 text-xs rounded-xl h-8 gap-1.5 font-medium"
             >
               <KeyRound className="w-3.5 h-3.5" />
               {showAlphabetKey ? 'Hide alphabet key' : 'Show alphabet key'}
@@ -461,7 +464,7 @@ export function CodexOfRunesTab() {
               variant="outline"
               size="sm"
               onClick={() => setShowFullDecryption(!showFullDecryption)}
-              className="border-amber-500/30 text-amber-300 hover:bg-amber-950 text-xs rounded-xl h-8 gap-1.5"
+              className="border-amber-500/30 text-amber-300 hover:bg-amber-950 text-xs rounded-xl h-8 gap-1.5 font-medium"
             >
               {showFullDecryption ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
               {showFullDecryption ? 'Hide deciphered text' : 'Decode all letters'}
@@ -471,7 +474,7 @@ export function CodexOfRunesTab() {
 
         {/* Real-time Decipher Progress Bar */}
         <div className="p-4 rounded-2xl bg-zinc-900/80 border border-amber-500/20 space-y-2">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono gap-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-medium gap-1">
             <span className="text-zinc-400">
               Decipher progress: <strong className="text-amber-300">{cipherProgress.percent}%</strong> ({cipherProgress.unlockedUniqueRunes} of {cipherProgress.totalUniqueRunes} cipher runes awakened)
             </span>
@@ -506,7 +509,7 @@ export function CodexOfRunesTab() {
                     >
                       {/* Runic glyph */}
                       <span
-                        className={`font-mono text-base sm:text-xl font-bold leading-none transition-colors ${
+                        className={`font-serif text-base sm:text-xl font-bold leading-none transition-colors ${
                           isUnlocked
                             ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.7)]'
                             : 'text-zinc-600'
@@ -521,7 +524,7 @@ export function CodexOfRunesTab() {
                           isUnlocked
                             ? 'text-amber-100'
                             : isRevealed
-                            ? 'text-zinc-400 font-mono text-[11px]'
+                            ? 'text-zinc-400 text-xs'
                             : 'text-zinc-700'
                         }`}
                       >
@@ -544,7 +547,7 @@ export function CodexOfRunesTab() {
         {/* Translation Banner / Solved Message Reveal */}
         {(showFullDecryption || cipherSolved) && (
           <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/40 text-center space-y-1 animate-in fade-in zoom-in-95 duration-300">
-            <span className="text-[11px] font-mono text-amber-400 uppercase tracking-wider block">
+            <span className="text-[11px] font-serif text-amber-400 uppercase tracking-wider block">
               Decoded ancient inscription
             </span>
             <p className="text-base sm:text-lg font-serif font-bold text-amber-200">
@@ -588,7 +591,7 @@ export function CodexOfRunesTab() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-emerald-500/20">
           <div>
             <div className="flex items-center gap-2">
-              <Badge className="bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 font-mono text-xs px-2.5 py-0.5">
+              <Badge className="bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 text-xs px-2.5 py-0.5 font-medium">
                 ✦ Grand achievement hunt
               </Badge>
               {allWordTiersComplete && (
@@ -607,7 +610,7 @@ export function CodexOfRunesTab() {
           </div>
 
           <div className="w-full sm:w-60 bg-zinc-900/80 border border-emerald-500/30 p-3.5 rounded-2xl flex flex-col gap-1.5 shadow-inner">
-            <div className="flex justify-between items-center text-xs font-mono">
+            <div className="flex justify-between items-center text-xs font-medium text-zinc-300">
               <span className="text-zinc-400">Codex word tiers</span>
               <span className="text-emerald-300 font-bold">{wordHuntProgress.completedCount} / {wordHuntProgress.totalCount}</span>
             </div>
@@ -620,12 +623,12 @@ export function CodexOfRunesTab() {
 
         {/* ─── 10-SLOT STONE INSCRIPTION CONSOLE ─── */}
         <div className="p-5 sm:p-6 rounded-2xl bg-black/60 border border-emerald-500/30 space-y-4 shadow-inner">
-          <div className="flex items-center justify-between text-xs font-mono">
-            <span className="text-emerald-300 flex items-center gap-1.5">
+          <div className="flex items-center justify-between text-xs font-medium">
+            <span className="text-emerald-300 flex items-center gap-1.5 font-serif">
               <Sparkles className="w-3.5 h-3.5" />
               10-slot runic inscriber (longest word capacity)
             </span>
-            <span className="text-zinc-500">
+            <span className="text-zinc-400 font-medium">
               {inputWord.length} / 10 letters entered
             </span>
           </div>
@@ -648,7 +651,7 @@ export function CodexOfRunesTab() {
                       : 'bg-zinc-950/70 border-zinc-800 text-zinc-700'
                   }`}
                 >
-                  <span className="font-mono text-base sm:text-xl font-bold leading-none">
+                  <span className="font-serif text-base sm:text-xl font-bold leading-none">
                     {runeSym}
                   </span>
                   <span className="mt-1 font-serif text-xs sm:text-sm font-bold leading-none text-zinc-300">
@@ -669,7 +672,7 @@ export function CodexOfRunesTab() {
                 value={inputWord}
                 onChange={(e) => setInputWord(e.target.value.toUpperCase().slice(0, 10))}
                 placeholder="Type word (e.g. BRAVE, AND, DISCIPLINE)..."
-                className="w-full bg-zinc-900/90 border border-emerald-500/30 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono tracking-widest text-emerald-200 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+                className="w-full bg-zinc-900/90 border border-emerald-500/30 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-serif tracking-wider text-emerald-200 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
               />
               {inputWord && (
                 <button
@@ -694,7 +697,7 @@ export function CodexOfRunesTab() {
 
           {/* Quick Runic Letter Keyboard (for mobile / fast input) */}
           <div className="pt-2 border-t border-zinc-800/80">
-            <p className="text-[11px] text-zinc-400 font-mono mb-2 flex items-center justify-between">
+            <p className="text-[11px] text-zinc-400 font-serif mb-2 flex items-center justify-between">
               <span>Tap letters to inscribe into slots:</span>
               <button
                 type="button"
@@ -712,7 +715,7 @@ export function CodexOfRunesTab() {
                   onClick={() => handleAppendLetter(char)}
                   className="w-7 h-8 sm:w-8 sm:h-9 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-emerald-500/50 hover:bg-emerald-950/40 text-zinc-300 hover:text-emerald-200 text-xs font-serif font-bold transition-all flex flex-col items-center justify-center"
                 >
-                  <span className="text-[9px] font-mono text-emerald-400/70 leading-none">
+                  <span className="text-[10px] font-serif text-emerald-400/70 leading-none">
                     {letterToRuneSymbol(char)}
                   </span>
                   <span className="text-xs leading-none mt-0.5">
@@ -731,7 +734,7 @@ export function CodexOfRunesTab() {
               <BookOpen className="w-4 h-4 text-emerald-400" />
               The eight word shelves of the long codex
             </h4>
-            <span className="text-xs font-mono text-zinc-400">
+            <span className="text-xs font-serif text-zinc-400">
               Lengths 3 to 10
             </span>
           </div>
@@ -756,21 +759,21 @@ export function CodexOfRunesTab() {
                         <span className="font-serif font-bold text-sm text-emerald-300">
                           {tier.label}
                         </span>
-                        <span className="text-[10px] font-mono text-zinc-500">
+                        <span className="text-[10px] font-medium text-zinc-500">
                           ({tier.length} letters)
                         </span>
                       </div>
-                      <p className="text-[11px] text-zinc-400 italic mt-0.5">
+                      <p className="text-[11px] text-zinc-400 italic mt-0.5 font-serif">
                         {tier.hint}
                       </p>
                     </div>
 
                     {isTierComplete ? (
-                      <Badge className="bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono flex items-center gap-1 shrink-0">
+                      <Badge className="bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 text-[10px] font-medium flex items-center gap-1 shrink-0">
                         <CheckCircle2 className="w-3 h-3" /> Inscribed
                       </Badge>
                     ) : (
-                      <Badge className="bg-zinc-900 text-zinc-500 border-zinc-800 text-[10px] flex items-center gap-1 shrink-0">
+                      <Badge className="bg-zinc-900 text-zinc-500 border-zinc-800 text-[10px] flex items-center gap-1 shrink-0 font-medium">
                         <Lock className="w-2.5 h-2.5" /> Empty shelf
                       </Badge>
                     )}
@@ -791,7 +794,7 @@ export function CodexOfRunesTab() {
                               : 'bg-zinc-900/60 border-zinc-800/80 text-zinc-700'
                           }`}
                         >
-                          <span className="font-mono text-xs sm:text-sm font-bold leading-none">
+                          <span className="font-serif text-xs sm:text-sm font-bold leading-none">
                             {runeSym}
                           </span>
                           <span className="font-serif text-[10px] sm:text-xs font-bold leading-none mt-0.5 text-zinc-300">
@@ -824,7 +827,7 @@ export function CodexOfRunesTab() {
                 Crypto, the runic crocodile guardian
               </h3>
               <p className="text-xs sm:text-sm text-zinc-300">
-                You have carved every word tier from length 3 to 10 into the long codex. Slumbering beneath the stone archives, Crypto has awakened!
+                You have carved every word tier from length 3 to 10 into the long codex. Slumbering beneath the stone archives, Crypto has awakened and joined your citizens!
               </p>
             </div>
 
@@ -847,7 +850,7 @@ export function CodexOfRunesTab() {
                         <Badge className="bg-emerald-500 text-black font-bold text-[10px] px-2.5 py-0.5">
                           #019 • Special
                         </Badge>
-                        <span className="text-[10px] font-mono text-emerald-400">
+                        <span className="text-[10px] font-serif text-emerald-400">
                           (Tap to flip)
                         </span>
                       </div>
@@ -871,7 +874,7 @@ export function CodexOfRunesTab() {
                         <p className="text-xs text-zinc-400 font-serif">
                           Cipher guardian • Crocodile warrior
                         </p>
-                        <div className="flex items-center justify-center gap-3 text-xs font-mono text-emerald-200/90 pt-1">
+                        <div className="flex items-center justify-center gap-3 text-xs font-serif text-emerald-200/90 pt-1">
                           <span className="flex items-center gap-1">
                             <Star className="w-3 h-3 text-emerald-400" /> Runic
                           </span>
@@ -898,11 +901,11 @@ export function CodexOfRunesTab() {
                           <h4 className="text-2xl font-black text-emerald-400 uppercase font-serif">
                             Crypto
                           </h4>
-                          <span className="text-[11px] font-mono text-zinc-400">
+                          <span className="text-[11px] font-serif text-zinc-400">
                             The runic crocodile
                           </span>
                         </div>
-                        <Badge variant="outline" className="text-emerald-300 border-emerald-500/40 text-xs">
+                        <Badge variant="outline" className="text-emerald-300 border-emerald-500/40 text-xs font-medium">
                           Runic tank
                         </Badge>
                       </div>
@@ -910,32 +913,32 @@ export function CodexOfRunesTab() {
                       {/* Combat Stats Grid */}
                       <div className="grid grid-cols-2 gap-2.5">
                         <div className="bg-white/5 p-2.5 rounded-xl border border-white/5">
-                          <span className="text-[10px] text-zinc-400 uppercase tracking-widest block">HP</span>
-                          <div className="text-lg font-mono text-white flex items-center gap-1.5">
+                          <span className="text-[10px] text-zinc-400 uppercase tracking-widest block font-serif">HP</span>
+                          <div className="text-lg font-bold font-serif text-white flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
                             96
                           </div>
                         </div>
 
                         <div className="bg-white/5 p-2.5 rounded-xl border border-white/5">
-                          <span className="text-[10px] text-zinc-400 uppercase tracking-widest block">Attack</span>
-                          <div className="text-lg font-mono text-white flex items-center gap-1.5">
+                          <span className="text-[10px] text-zinc-400 uppercase tracking-widest block font-serif">Attack</span>
+                          <div className="text-lg font-bold font-serif text-white flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
                             28
                           </div>
                         </div>
 
                         <div className="bg-white/5 p-2.5 rounded-xl border border-white/5">
-                          <span className="text-[10px] text-zinc-400 uppercase tracking-widest block">Defense</span>
-                          <div className="text-lg font-mono text-white flex items-center gap-1.5">
+                          <span className="text-[10px] text-zinc-400 uppercase tracking-widest block font-serif">Defense</span>
+                          <div className="text-lg font-bold font-serif text-white flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
                             26
                           </div>
                         </div>
 
                         <div className="bg-white/5 p-2.5 rounded-xl border border-white/5">
-                          <span className="text-[10px] text-zinc-400 uppercase tracking-widest block">Speed</span>
-                          <div className="text-lg font-mono text-white flex items-center gap-1.5">
+                          <span className="text-[10px] text-zinc-400 uppercase tracking-widest block font-serif">Speed</span>
+                          <div className="text-lg font-bold font-serif text-white flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
                             18
                           </div>
@@ -947,14 +950,14 @@ export function CodexOfRunesTab() {
                         <p className="italic text-emerald-200/90 font-serif">
                           &ldquo;Snap! You cracked Necrion&apos;s codex, didn&apos;t you? My armor is humming with ancient power!&rdquo;
                         </p>
-                        <p className="text-[11px] text-zinc-400">
+                        <p className="text-[11px] text-zinc-400 font-serif">
                           Slumbers beneath the stone archives. Awakens only when all eight tiers of the Elder Futhark prophecy—from the shortest whisper to the longest decree—are carved into the long codex.
                         </p>
                       </div>
                     </div>
 
                     <div className="relative z-10 pt-2 border-t border-zinc-900 text-center">
-                      <span className="text-[10px] font-mono text-zinc-500">
+                      <span className="text-[10px] font-serif text-zinc-500">
                         (Tap to view front face)
                       </span>
                     </div>
@@ -993,11 +996,11 @@ export function CodexOfRunesTab() {
                 Elder futhark alphabet key (A–Z)
               </h4>
             </div>
-            <span className="text-xs font-mono text-zinc-400">
+            <span className="text-xs font-medium text-zinc-400">
               {unlockedCount} of 24 deciphered
             </span>
           </div>
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-zinc-400 font-serif">
             Each historical rune connects directly to a sound and letter. Golden glyphs represent runes bound to your codex.
           </p>
 
@@ -1019,11 +1022,11 @@ export function CodexOfRunesTab() {
                     <span className="font-serif font-bold text-xs text-amber-300 w-5">
                       {rune.letter}
                     </span>
-                    <span className="font-mono text-lg font-bold">
+                    <span className="font-serif text-lg font-bold">
                       {isUnlocked ? rune.symbol : '᛬'}
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono text-zinc-400 truncate max-w-[65px]">
+                  <span className="text-[10px] font-serif text-zinc-400 truncate max-w-[65px]">
                     {isUnlocked ? rune.name : 'hidden'}
                   </span>
                 </div>
@@ -1079,7 +1082,7 @@ export function CodexOfRunesTab() {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3.5">
                   <div
-                    className={`w-14 h-14 rounded-2xl flex items-center justify-center font-mono text-3xl font-bold transition-transform group-hover:scale-105 ${
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center font-serif text-3xl font-bold transition-transform group-hover:scale-105 ${
                       isUnlocked
                         ? 'bg-amber-500/10 border border-amber-500/40 text-amber-300 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]'
                         : 'bg-zinc-900/80 border border-zinc-800 text-zinc-600'
@@ -1097,7 +1100,7 @@ export function CodexOfRunesTab() {
                         {isUnlocked ? rune.name : 'Undiscovered'}
                       </h3>
                       {isUnlocked && (
-                        <span className="text-[11px] font-mono text-amber-500/70">
+                        <span className="text-[11px] text-amber-500/70 font-medium">
                           {rune.letter} • {rune.phonetic}
                         </span>
                       )}
@@ -1109,11 +1112,11 @@ export function CodexOfRunesTab() {
                 </div>
 
                 {isUnlocked ? (
-                  <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px] uppercase font-mono">
+                  <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px] uppercase font-medium">
                     Bound
                   </Badge>
                 ) : (
-                  <Badge className="bg-zinc-900 text-zinc-500 border-zinc-800 text-[10px] flex items-center gap-1">
+                  <Badge className="bg-zinc-900 text-zinc-500 border-zinc-800 text-[10px] flex items-center gap-1 font-medium">
                     <Lock className="w-2.5 h-2.5" /> Hidden
                   </Badge>
                 )}
@@ -1122,10 +1125,10 @@ export function CodexOfRunesTab() {
               <div className="mt-4 pt-3 border-t border-zinc-900 text-xs">
                 {isUnlocked ? (
                   <div className="space-y-1">
-                    <p className="text-zinc-300 text-[11px] line-clamp-2 leading-relaxed">
+                    <p className="text-zinc-300 text-[11px] line-clamp-2 leading-relaxed font-serif">
                       {rune.description}
                     </p>
-                    <div className="flex items-center gap-1 text-[10px] text-amber-500/80 pt-1 font-mono">
+                    <div className="flex items-center gap-1 text-[10px] text-amber-500/80 pt-1 font-serif">
                       <Compass className="w-3 h-3" />
                       <span>
                         Found in {foundPlacements.map((p) => p.label).join(', ') || 'the realm'}
@@ -1133,7 +1136,7 @@ export function CodexOfRunesTab() {
                     </div>
                   </div>
                 ) : (
-                  <p className="text-zinc-400 text-[11px] italic line-clamp-2 leading-relaxed">
+                  <p className="text-zinc-400 text-[11px] italic line-clamp-2 leading-relaxed font-serif">
                     💡 &ldquo;{rune.hint}&rdquo;
                   </p>
                 )}
@@ -1155,14 +1158,14 @@ export function CodexOfRunesTab() {
           >
             <div className="flex items-center justify-between pb-3 border-b border-amber-900/30">
               <div className="flex items-center gap-3">
-                <span className="text-5xl font-mono text-amber-300 drop-shadow-[0_0_15px_rgba(245,158,11,0.6)]">
+                <span className="text-5xl font-serif text-amber-300 drop-shadow-[0_0_15px_rgba(245,158,11,0.6)]">
                   {activeRuneModal.symbol}
                 </span>
                 <div>
                   <h3 className="font-serif font-bold text-xl text-amber-200">
                     {activeRuneModal.name}
                   </h3>
-                  <p className="text-xs text-amber-400/80 font-mono">
+                  <p className="text-xs text-amber-400/80 font-medium">
                     Letter: {activeRuneModal.letter} • Sound: {activeRuneModal.phonetic}
                   </p>
                 </div>
@@ -1181,22 +1184,22 @@ export function CodexOfRunesTab() {
 
             <div className="space-y-3 text-xs text-zinc-300 leading-relaxed">
               <div className="flex items-center gap-2">
-                <Badge className="bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[10px] font-mono">
+                <Badge className="bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[10px] font-medium">
                   {activeRuneModal.aettLabel}
                 </Badge>
-                <Badge className="bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono">
+                <Badge className="bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-[10px] font-medium">
                   Letter &ldquo;{activeRuneModal.letter}&rdquo;
                 </Badge>
               </div>
-              <p>{activeRuneModal.description}</p>
+              <p className="font-serif">{activeRuneModal.description}</p>
               <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-1">
                 <span className="font-bold text-amber-300 block font-serif text-[11px]">
                   Where to locate in Thrivehaven:
                 </span>
-                <ul className="list-disc list-inside text-zinc-400 space-y-0.5">
+                <ul className="list-disc list-inside text-zinc-400 space-y-0.5 font-serif">
                   {activeRuneModal.placements.map((p) => (
                     <li key={p.id}>
-                      {p.label} (<span className="text-zinc-500 font-mono">{p.page}</span>)
+                      {p.label} (<span className="text-zinc-500 font-serif">{p.page}</span>)
                     </li>
                   ))}
                 </ul>

@@ -747,7 +747,13 @@ export default function Page() {
 
   const isCreatureUnlocked = (creatureId: string) => {
     if (showAllUnlocked) return true;
-    return unlockedAchievements.has(creatureId);
+    if (creatureId === '019') {
+      const isDiscovered = useCreatureStore.getState().isCreatureDiscovered('019');
+      const localUnlocked = typeof window !== 'undefined' && localStorage.getItem('thrivehaven_crypto_unlocked') === 'true';
+      return isDiscovered || localUnlocked || unlockedAchievements.has('019');
+    }
+    const isDiscovered = useCreatureStore.getState().isCreatureDiscovered(creatureId);
+    return unlockedAchievements.has(creatureId) || isDiscovered;
   }
 
   if (!isClerkLoaded || !isAuthLoaded) {
@@ -773,7 +779,7 @@ export default function Page() {
   const hasAnyUnlocked = creatures.some(c => unlockedAchievements.has(c.id)) || achievementDefinitions.some(a => unlockedAchievements.has(a.id));
 
   // Stats Calculations
-  const creatureAchievements = creatures.filter(c => parseInt(c.id) < 107);
+  const creatureAchievements = creatures.filter(c => parseInt(c.id) < 107 || c.id === '019');
   const totalCreatures = creatureAchievements.length;
   const unlockedCreaturesCount = creatureAchievements.filter(c => isCreatureUnlocked(c.id)).length;
   const creatureProgress = totalCreatures > 0 ? (unlockedCreaturesCount / totalCreatures) * 100 : 0;
@@ -911,7 +917,7 @@ export default function Page() {
 
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3" role="list" aria-label="creature-cards-grid">
               {creatures
-                .filter(creature => parseInt(creature.id) < 107) // Exclude alliance achievements from creature grid
+                .filter(creature => parseInt(creature.id) < 107 || creature.id === '019') // Exclude alliance achievements, include Crypto
                 .map((creature, idx) => {
                   if (!creature) return null;
                   const unlocked = isCreatureUnlocked(creature.id);
