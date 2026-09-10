@@ -400,7 +400,7 @@ export function CompanionOverlay() {
       const gPref = (await getUserPreference('habit_guardian_state')) as any;
       const current = typeof gPref?.affection === 'number' ? gPref.affection : partnerAffection;
       if (current >= 100) {
-        toast({ title: "❤️ Max Affection Reached!", description: "Companion is already at 100% affection and completely full!" });
+        toast({ title: "❤️ Max affection reached", description: "Companion is already at 100% affection and completely full!" });
         return;
       }
       const updatedAffection = Math.min(100, current + 5);
@@ -413,9 +413,16 @@ export function CompanionOverlay() {
       await setUserPreference('habit_guardian_state', updated);
       setPartnerAffection(updatedAffection);
       playSFX('petFeed');
+      const treatToasts = [
+        `Increased affection to ${updatedAffection}% (+5% boost)! Passive yields boosted.`,
+        `Yummy treat! Affection reached ${updatedAffection}%. Your companion sparkles with energy.`,
+        `Crisp orchard snack enjoyed! Affection is now ${updatedAffection}%.`,
+        `Companion happily ate the treat! Affection is now ${updatedAffection}%.`,
+        `Delightful botanical treat! Affection rose to ${updatedAffection}%.`
+      ];
       toast({
-        title: "🍎 Fed Companion!",
-        description: `Increased affection to ${updatedAffection}% (+5% boost)! Passive yields boosted.`,
+        title: "🍎 Fed companion",
+        description: treatToasts[Math.floor(Math.random() * treatToasts.length)]!,
       });
       window.dispatchEvent(new CustomEvent('pet-affection-update', { detail: { petId: guardianId, affection: updatedAffection } }));
       window.dispatchEvent(new Event('character-stats-update'));

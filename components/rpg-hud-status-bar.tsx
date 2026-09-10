@@ -32,6 +32,35 @@ export function RpgHudStatusBar() {
   const [drawerTouchStartY, setDrawerTouchStartY] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(true);
   const [charStats, setCharStats] = useState({ level: 1, experience: 0, gold: 0, focus_points: 102 });
+  const [etherFuel, setEtherFuel] = useState(60);
+
+  // Calculate live Ether Voyage Fuel from completed habits
+  useEffect(() => {
+    const calculateFuel = () => {
+      try {
+        const { getUserScopedItem } = require('@/lib/user-scoped-storage');
+        const questsRaw = getUserScopedItem('quests-cache');
+        if (questsRaw) {
+          const quests = JSON.parse(questsRaw);
+          const completedCount = quests.filter((q: any) => q.completed).length;
+          const fuel = Math.min(100, Math.max(20, completedCount * 15));
+          setEtherFuel(fuel);
+          return;
+        }
+      } catch {}
+      setEtherFuel(60);
+    };
+
+    calculateFuel();
+    window.addEventListener('global-sync-tick', calculateFuel);
+    window.addEventListener('character-stats-update', calculateFuel);
+    window.addEventListener('quest-added', calculateFuel);
+    return () => {
+      window.removeEventListener('global-sync-tick', calculateFuel);
+      window.removeEventListener('character-stats-update', calculateFuel);
+      window.removeEventListener('quest-added', calculateFuel);
+    };
+  }, []);
 
   // Seasonal Hunt live state
   const [seasonalEventKey, setSeasonalEventKey] = useState<string>('');
@@ -465,7 +494,7 @@ export function RpgHudStatusBar() {
                       <span>✨</span> <span>12 Essences</span>
                     </div>
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-950/60 border border-blue-500/40 text-blue-300 cursor-pointer hover:bg-blue-900/60 transition-colors" onClick={() => openDrawer('fuel')}>
-                      <span>⚡</span> <span>85% Fuel</span>
+                      <span>⚡</span> <span>{etherFuel}% Fuel</span>
                     </div>
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 cursor-pointer hover:bg-cyan-900/60 transition-colors" onClick={() => openDrawer('freeze')}>
                       <span>❄️</span> <span>1 Freeze</span>
@@ -651,7 +680,7 @@ export function RpgHudStatusBar() {
                       <span>✨</span> <span>12</span>
                     </div>
                     <div className="flex items-center gap-1 text-blue-300 cursor-pointer active:scale-95 transition-transform" onClick={() => openDrawer('fuel')}>
-                      <span>⚡</span> <span>85%</span>
+                      <span>⚡</span> <span>{etherFuel}%</span>
                     </div>
                     <div className="flex items-center gap-1 text-cyan-300 cursor-pointer active:scale-95 transition-transform" onClick={() => openDrawer('freeze')}>
                       <span>❄️</span> <span>1</span>
@@ -929,7 +958,7 @@ export function RpgHudStatusBar() {
               {activeDrawer === 'fuel' && (
                 <div className="space-y-3">
                   <div className="p-3 bg-blue-950/40 border border-blue-500/40 rounded-xl space-y-1">
-                    <h4 className="font-bold text-blue-300">⚡ 85% Ether Voyage Fuel</h4>
+                    <h4 className="font-bold text-blue-300">⚡ {etherFuel}% Ether voyage fuel</h4>
                     <p className="text-zinc-400 text-[11px]">Propelled by real-world habit completion. Knowledge habits increase flight speed and 7+ day streaks double voyage speed!</p>
                   </div>
                   <Button

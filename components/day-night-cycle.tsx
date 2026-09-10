@@ -8,6 +8,27 @@ export function DayNightCycle() {
     const [isNight, setIsNight] = useState(false)
     const [mounted, setMounted] = useState(false)
     const [isEnabled, setIsEnabled] = useState(true)
+    const [isScrolledDown, setIsScrolledDown] = useState(false)
+
+    useEffect(() => {
+        let lastScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
+        const handleScroll = () => {
+            if (typeof window === 'undefined' || window.innerWidth >= 640) {
+                setIsScrolledDown(false);
+                return;
+            }
+            const currentScrollY = window.scrollY;
+            if (currentScrollY > 80 && currentScrollY > lastScrollY) {
+                setIsScrolledDown(true);
+            } else if (currentScrollY < lastScrollY || currentScrollY <= 40) {
+                setIsScrolledDown(false);
+            }
+            lastScrollY = currentScrollY;
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     useEffect(() => {
         // Only run on client
@@ -110,7 +131,8 @@ export function DayNightCycle() {
 
     return (
         <div className={cn(
-            "fixed top-4 right-4 lg:landscape:bottom-4 lg:landscape:left-4 lg:landscape:top-auto lg:landscape:right-auto z-50 p-2 rounded-full border transition-all duration-1000",
+            "fixed top-4 right-4 lg:landscape:bottom-4 lg:landscape:left-4 lg:landscape:top-auto lg:landscape:right-auto z-50 p-2 rounded-full border transition-all duration-300",
+            isScrolledDown ? "opacity-0 -translate-y-12 pointer-events-none sm:opacity-100 sm:translate-y-0 sm:pointer-events-auto" : "opacity-100 translate-y-0",
             isNight
                 ? "bg-zinc-900 border-zinc-700 text-blue-200 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
                 : "bg-amber-100/80 border-amber-300 text-amber-600 shadow-[0_0_15px_rgba(245,158,11,0.5)]"

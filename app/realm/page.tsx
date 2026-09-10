@@ -688,6 +688,7 @@ function RealmPageContent() {
 
     const [showInventory, setShowInventory] = useState(false);
     const [selectedTile, setSelectedTile] = useState<TileInventoryItem | null>(null);
+    const [mobileNudgeCoord, setMobileNudgeCoord] = useState<{ x: number; y: number } | null>(null);
     const [gameMode, setGameMode] = useState<'build' | 'move' | 'destroy'>('move');
     const [hasVisitedRealm, setHasVisitedRealm] = useState(false);
     const [modalState, setModalState] = useState<{ isOpen: boolean; locationType: 'city' | 'town'; locationName: string } | null>(null);
@@ -704,6 +705,15 @@ function RealmPageContent() {
 
     const [activeEvent, setActiveEvent] = useState<string | null>(null);
     const [pyramidEvent, setPyramidEvent] = useState<{ open: boolean; success: boolean } | null>(null);
+    // Keep mobile placement nudge coord aligned when a tile is selected
+    useEffect(() => {
+        if (selectedTile) {
+            setMobileNudgeCoord(prev => prev ?? { x: characterPosition.x, y: characterPosition.y });
+        } else {
+            setMobileNudgeCoord(null);
+        }
+    }, [selectedTile, characterPosition.x, characterPosition.y]);
+
     const [abbeyEventOpen, setAbbeyEventOpen] = useState(false);
     const [wellEvent, setWellEvent] = useState<{ open: boolean; pact: any; availableHabits: any[]; loading: boolean } | null>(null);
     const [selectedWellCategory, setSelectedWellCategory] = useState<string>('all');
@@ -3657,6 +3667,87 @@ function RealmPageContent() {
                     title="Realm Tax Receipt 📜"
                     description="Taxes and resources harvested from cities, towns, abbeys, and settlements across your sandbox realm."
                 />
+
+                {/* Mobile Precision Nudge D-Pad for Sandbox Tile Placement */}
+                {selectedTile && mobileNudgeCoord && (
+                    <div className="sm:hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-40 bg-zinc-950/95 border border-amber-500/40 rounded-2xl p-3 shadow-2xl backdrop-blur-md flex flex-col items-center gap-2 max-w-[260px] w-[90%] animate-in fade-in slide-in-from-bottom-4">
+                        <div className="flex items-center justify-between w-full text-xs font-serif">
+                            <span className="text-amber-300 font-bold truncate max-w-[140px]">
+                                {selectedTile.name}
+                            </span>
+                            <span className="font-mono text-[10px] text-zinc-400 bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800">
+                                ({mobileNudgeCoord.x}, {mobileNudgeCoord.y})
+                            </span>
+                            <button
+                                onClick={() => setSelectedTile(null)}
+                                className="text-zinc-400 hover:text-zinc-200 text-xs px-1"
+                                aria-label="Cancel selection"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Directional Nudge D-Pad */}
+                        <div className="grid grid-cols-3 gap-1.5 w-28 h-28 my-0.5 items-center justify-items-center">
+                            <div />
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-8 h-8 p-0 bg-zinc-900 border-zinc-700 hover:bg-zinc-800 text-amber-300 text-xs"
+                                onClick={() => setMobileNudgeCoord(prev => prev ? ({ ...prev, y: Math.max(0, prev.y - 1) }) : prev)}
+                                aria-label="Nudge up"
+                            >
+                                ▲
+                            </Button>
+                            <div />
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-8 h-8 p-0 bg-zinc-900 border-zinc-700 hover:bg-zinc-800 text-amber-300 text-xs"
+                                onClick={() => setMobileNudgeCoord(prev => prev ? ({ ...prev, x: Math.max(0, prev.x - 1) }) : prev)}
+                                aria-label="Nudge left"
+                            >
+                                ◀
+                            </Button>
+                            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-[10px] text-amber-400 font-mono">
+                                📍
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-8 h-8 p-0 bg-zinc-900 border-zinc-700 hover:bg-zinc-800 text-amber-300 text-xs"
+                                onClick={() => setMobileNudgeCoord(prev => prev ? ({ ...prev, x: Math.min((grid[0]?.length || 1) - 1, prev.x + 1) }) : prev)}
+                                aria-label="Nudge right"
+                            >
+                                ▶
+                            </Button>
+                            <div />
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-8 h-8 p-0 bg-zinc-900 border-zinc-700 hover:bg-zinc-800 text-amber-300 text-xs"
+                                onClick={() => setMobileNudgeCoord(prev => prev ? ({ ...prev, y: Math.min(grid.length - 1, prev.y + 1) }) : prev)}
+                                aria-label="Nudge down"
+                            >
+                                ▼
+                            </Button>
+                            <div />
+                        </div>
+
+                        {/* Place Confirmation Button */}
+                        <Button
+                            size="sm"
+                            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-bold text-xs h-8 shadow-md"
+                            onClick={() => {
+                                if (mobileNudgeCoord) {
+                                    handlePlaceTile(mobileNudgeCoord.x, mobileNudgeCoord.y);
+                                }
+                            }}
+                        >
+                            Place tile ({mobileNudgeCoord.x}, {mobileNudgeCoord.y})
+                        </Button>
+                    </div>
+                )}
             </RealmAnimationWrapper>
         </div >
     );

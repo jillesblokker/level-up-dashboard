@@ -50,7 +50,14 @@ const GUARDIANS = [
       "I want to see the fire of your strength habits rebuild our castle walls!",
       "Temple fires burn bright when you complete your daily habits!",
       "Mmm, victory smells like fresh iron and clean stone in Thrivehaven!",
-      "Rawr! Keep going, our kingdom's fire grows stronger every day!"
+      "Rawr! Keep going, our kingdom's fire grows stronger every day!",
+      "A little spark of effort every morning keeps the forge ablaze all afternoon.",
+      "Look at that smoke rising from the barracks chimney. That is the proof of your work.",
+      "Do not worry about moving mountains today. Just lift the first stone.",
+      "When the night settles, we can rest easy knowing we forged something real.",
+      "Stretching your wings after hard work is the best feeling in the realm.",
+      "Every push-up or walk fuels my dragon flame. Feel the warmth!",
+      "Rain or shine, the hearth never goes cold while you stay determined."
     ]
   },
   {
@@ -68,7 +75,14 @@ const GUARDIANS = [
       "A focused mind repairs what was lost. I record your daily progress!",
       "Have you studied your books and finished your routines today?",
       "Wisdom lies not in thinking, but in daily action.",
-      "With every habit finished, ancient secrets return to Thrivehaven!"
+      "With every habit finished, ancient secrets return to Thrivehaven!",
+      "Quiet moments of study build empires that no storm can wash away.",
+      "The library shelves are filling with journals of your consistency.",
+      "Even ten minutes of deep focus clears the fog from our northern towers.",
+      "A curious mind is the greatest shield against doubt and confusion.",
+      "Patience, dear scholar. Great trees grow from small seeds one day at a time.",
+      "I have bookmarked your progress. Today is another chapter in your tale.",
+      "Look upon the stars tonight; each one mirrors a small habit completed."
     ]
   },
   {
@@ -86,6 +100,14 @@ const GUARDIANS = [
       "Take a deep breath. You dusted off the dungeon floor and fixed up the town!",
       "Let's make today full of life and clean energy!",
       "Every step you take brings green trees back to our woodlands!",
+      "Fresh breezes dance through the town square whenever you drink water!",
+      "The moss on the ancient archways glows softer when you feel calm.",
+      "Do you hear the stream whispering? It celebrates every habit checked off.",
+      "Resting is part of growing, just like flowers closing gently under starlight.",
+      "A clean space creates room for joyful thoughts to flutter about.",
+      "Tiny seeds planted with care always turn into blooming meadows.",
+      "Sunlight filters through the leaves. Take a long breath and smile.",
+      "Your steady steps weave pure magic into every corner of the sanctuary."
     ]
   }
 ];
@@ -129,15 +151,18 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
       }
 
       // Check if a favorite category habit was completed
-      const mightCompleted = completed.some(q => q.category?.toLowerCase().includes('might') || q.category?.toLowerCase().includes('vitality'));
+      const mightCompleted = completed.some(q => q.category?.toLowerCase().includes('might') || q.category?.toLowerCase().includes('agility'));
       const knowledgeCompleted = completed.some(q => q.category?.toLowerCase().includes('knowledge') || q.category?.toLowerCase().includes('mind') || q.category?.toLowerCase().includes('honor'));
       const craftCompleted = completed.some(q => q.category?.toLowerCase().includes('craft') || q.category?.toLowerCase().includes('castle'));
+      const vitalityCompleted = completed.some(q => q.category?.toLowerCase().includes('vitality') || q.category?.toLowerCase().includes('wellness') || q.category?.toLowerCase().includes('spiritual'));
 
       if (mightCompleted && (activeGuardian.id === 'ember-drake' || Math.random() < 0.4)) {
         const mightLines = [
           "🔥 I felt that strength habit! Your physical momentum stokes the town's furnaces!",
           "Rawr! Powerful workout today! The castle walls are fortified by your discipline!",
-          "Iron muscles, iron kingdom! That strength habit is making us both stronger!"
+          "Iron muscles, iron kingdom! That strength habit is making us both stronger!",
+          "Feel the pulse of energy! Your physical effort shields our gates from shadows.",
+          "That rep was felt across the realm! Even the dungeon golems paused."
         ];
         setSpeechBubble(mightLines[Math.floor(Math.random() * mightLines.length)]!);
         return;
@@ -147,7 +172,9 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
         const knowLines = [
           "📖 Knowledge absorbed! I recorded your study chapter into the library archives with pride.",
           "Hoot! A disciplined mind dispels Necrion's haze. Well done on your reading!",
-          "Wisdom turns to action. That knowledge habit makes our town wiser every day."
+          "Wisdom turns to action. That knowledge habit makes our town wiser every day.",
+          "Pages turned and insights gained. Our council of scholars salutes you.",
+          "A sharp mind cuts through obstacles faster than any enchanted blade."
         ];
         setSpeechBubble(knowLines[Math.floor(Math.random() * knowLines.length)]!);
         return;
@@ -157,8 +184,21 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
         const craftLines = [
           "🔨 Solid craftwork! Every organized routine lays another paving stone in Thrivehaven.",
           "Sparkle! Your creative discipline makes the whole kingdom gleam brighter!",
+          "Meticulous work! Order and creativity build homes that outlast centuries.",
+          "The workshops hum with gratitude for your steady focus."
         ];
         setSpeechBubble(craftLines[Math.floor(Math.random() * craftLines.length)]!);
+        return;
+      }
+
+      if (vitalityCompleted && (activeGuardian.id === 'spirit-sprite' || Math.random() < 0.4)) {
+        const vitalityLines = [
+          "🌿 Pure vitality! Nourishing your body and mind keeps the sanctuary blooming.",
+          "A moment of stillness or fresh air gives our realm boundless vitality.",
+          "Hydrated and centered! That wellness habit ripples warmth through our kingdom.",
+          "Deep breaths and steady habits make the forest blossoms glow with joy."
+        ];
+        setSpeechBubble(vitalityLines[Math.floor(Math.random() * vitalityLines.length)]!);
         return;
       }
 
@@ -283,7 +323,7 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
     const currentAffection = (guardianState as any).affection || 50;
     if (currentAffection >= 100) {
       toast({
-        title: "❤️ Max Affection Reached!",
+        title: "❤️ Max affection reached",
         description: `${activeGuardian?.name || 'Your companion'} is already at 100% affection and completely full!`,
       });
       return;
@@ -299,11 +339,19 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
       setGuardianState(updatedState as any);
 
       toast({
-        title: "🍎 Botanical Treat Fed!",
-        description: `${activeGuardian?.name} loved the treat! Affection +10% (Now ${updatedAffection}%) & +25 Companion EXP!`,
+        title: "🍎 Botanical treat fed",
+        description: `${activeGuardian?.name} loved the treat! Affection +10% (Now ${updatedAffection}%) & +25 companion exp!`,
       });
 
-      setSpeechBubble("Mmm! Yummy botanical treat! My passive daily resource yields are boosted!");
+      const treatQuips = [
+        "Mmm! Yummy botanical treat! My passive daily resource yields are boosted!",
+        "Delicious! The crisp flavor sends warm sparkles right to my wings!",
+        "Crunch crunch! Thank you, sovereign! I feel extra energetic today!",
+        "A golden delicacy! My heart is full and our kingdom's fortune grows!",
+        "Such a sweet treat! I will guard our realm with double devotion today!",
+        "Tasty! Nothing beats fresh botanical fruit from Thrivehaven's orchards!"
+      ];
+      setSpeechBubble(treatQuips[Math.floor(Math.random() * treatQuips.length)]!);
     } catch {}
   };
 

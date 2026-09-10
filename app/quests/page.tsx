@@ -2902,6 +2902,11 @@ export default function QuestsPage() {
                     title: TEXT_CONTENT.questBoard.header.guide.sections.habits.title,
                     icon: CheckCircle2,
                     content: TEXT_CONTENT.questBoard.header.guide.sections.habits.content
+                  },
+                  {
+                    title: (TEXT_CONTENT.questBoard.header.guide.sections as any).categories.title,
+                    icon: Sword,
+                    content: (TEXT_CONTENT.questBoard.header.guide.sections as any).categories.content
                   }
                 ]}
               />
@@ -3241,6 +3246,17 @@ export default function QuestsPage() {
         >
           {editingQuest && (
             <div className="space-y-6 py-4">
+              {/* Habit Evolution Guidance Banner */}
+              <div className="p-3.5 bg-gradient-to-r from-amber-950/40 via-amber-900/20 to-zinc-950 border border-amber-500/30 rounded-xl space-y-1">
+                <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
+                  <span>⚡</span>
+                  <span>Evolve routine without breaking streak</span>
+                </div>
+                <p className="text-[11px] text-zinc-300 leading-relaxed">
+                  Real life shifts—switch from running to swimming, change reading focus, or update your schedule. Evolving this routine updates its title and category while keeping 100% of your historical completions and streak stats intact!
+                </p>
+              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-bold uppercase tracking-wider text-amber-500/80 ml-1">Name</label>
                 <input

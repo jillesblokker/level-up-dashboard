@@ -1150,7 +1150,8 @@ export const TEXT_CONTENT = {
                     daily: { title: "Daily tasks", content: "Short, repeatable tasks that maintain your discipline. Complete these to earn consistent gold and keep your 'Thrivehaven' buildings active." },
                     epic: { title: "Epic challenges", content: "Difficult feats with major rewards. These require focus and often grant rare items or large chunks of experience for your character." },
                     milestones: { title: "Life milestones", content: "Long-term goals that define your journey. Reaching these milestones unlocks permanent perks and prestigious titles for your profile." },
-                    habits: { title: "Habit tracking", content: "Build streaks for daily habits to shield your kingdom from dark forces like Necrion. Good habits shape the weather and power up your companion!" }
+                    habits: { title: "Habit tracking", content: "Build streaks for daily habits to shield your kingdom from dark forces like Necrion. Good habits shape the weather and power up your companion!" },
+                    categories: { title: "Habit categories & virtues", content: "Every habit channels energy into one of the 7 Virtues of Thrivehaven:\n• ⚔️ Might: Strength training, gym workouts, push-ups, sports.\n• 📜 Knowledge: Reading books, studying, language practice, courses.\n• 🌿 Vitality: Hydration, sleep schedule, healthy meals, outdoor walks.\n• 🧘 Wellness: Meditation, mindfulness, journaling, stretching.\n• 🔨 Craft: Coding, writing, art, music, creative projects.\n• 🏰 Castle: Tidying home, chores, meal prep, financial budgeting.\n• 👑 Honor: Social connection, calling family, helping a friend.\n\nTechnically there is no wrong place to put a habit—putting weight lifting in Might makes sense, but choose whichever category inspires you most!" }
                 }
             }
         },
@@ -1238,8 +1239,8 @@ export const TEXT_CONTENT = {
                 placeholder: "Challenge type name"
             },
             editQuest: {
-                title: "Edit Quest",
-                save: "Save",
+                title: "Evolve habit",
+                save: "Evolve habit",
                 cancel: "Cancel"
             },
             editChallenge: {

@@ -10,6 +10,7 @@ import { toast } from '@/components/ui/use-toast'
 import { TitanSiegeArsenal } from '@/components/titan-siege-arsenal'
 import { TreasureChestVisual } from '@/components/ui/treasure-chest-visual'
 import { playSFX, SOUNDS } from '@/lib/sound-manager'
+import { getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service'
 
 interface AllianceTitanRaidModalProps {
   isOpen: boolean
@@ -21,14 +22,17 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
   const maxHp = 10000
   const [userDamageToday, setUserDamageToday] = useState(14)
   const [claimedTiers, setClaimedTiers] = useState<number[]>([1])
+  const [heroLevel, setHeroLevel] = useState(1)
 
-  // Load titan raid progress from localStorage
+  // Load titan raid progress from localStorage and character stats
   useEffect(() => {
     try {
       const savedHp = localStorage.getItem('thrivehaven_titan_hp')
       if (savedHp) setTitanHp(parseInt(savedHp, 10))
       const savedDmg = localStorage.getItem('thrivehaven_user_titan_dmg')
       if (savedDmg) setUserDamageToday(parseInt(savedDmg, 10))
+      const stats = getCharacterStats()
+      if (stats?.level) setHeroLevel(stats.level)
     } catch (err) {
       console.error('Error loading titan data:', err)
     }
@@ -36,13 +40,21 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
 
   const hpPercent = Math.max(0, Math.min(100, Math.round((titanHp / maxHp) * 100)))
 
+  // Scale chest gold reward by player level (+15% gold bonus per 10 levels)
+  const goldBonusMult = 1 + Math.floor(heroLevel / 10) * 0.15
+  const baseGoldAmounts = [150, 350, 600, 1000, 2000]
+  const getGoldReward = (tier: number) => Math.round((baseGoldAmounts[tier - 1] || 150) * goldBonusMult)
+
+  // Damage bonus multiplier based on hero level (+10% dmg every 5 levels)
+  const levelDmgMultiplier = 1 + Math.floor(heroLevel / 5) * 0.1
+
   const CHESTS = [
     { 
       tier: 1, 
       rarity: 'common' as const,
       reqHpDamage: 2000, 
       label: 'Common alliance chest', 
-      reward: '+150 Gold & 2 Essences', 
+      reward: `+${getGoldReward(1)} Gold & 2 Essences`, 
       claimed: claimedTiers.includes(1) 
     },
     { 
@@ -50,7 +62,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
       rarity: 'uncommon' as const,
       reqHpDamage: 4000, 
       label: 'Verdant alliance chest', 
-      reward: '+350 Gold, 4 Essences & 1 Gold potion', 
+      reward: `+${getGoldReward(2)} Gold, 4 Essences & 1 Gold potion`, 
       claimed: claimedTiers.includes(2) 
     },
     { 
@@ -58,7 +70,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
       rarity: 'rare' as const,
       reqHpDamage: 6000, 
       label: 'Sapphire alliance chest', 
-      reward: '+600 Gold, 6 Essences & 1 Exp potion', 
+      reward: `+${getGoldReward(3)} Gold, 6 Essences & 1 Exp potion`, 
       claimed: claimedTiers.includes(3) 
     },
     { 
@@ -66,7 +78,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
       rarity: 'epic' as const,
       reqHpDamage: 8000, 
       label: 'Amethyst alliance chest', 
-      reward: '+1,000 Gold, 10 Essences & Mythic Blueprint', 
+      reward: `+${getGoldReward(4).toLocaleString()} Gold, 10 Essences & Mythic Blueprint`, 
       claimed: claimedTiers.includes(4) 
     },
     { 
@@ -74,7 +86,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
       rarity: 'legendary' as const,
       reqHpDamage: 10000, 
       label: 'Celestial titan chest', 
-      reward: '+2,000 Gold, 20 Essences, 10 Gems & Astral Blueprint', 
+      reward: `+${getGoldReward(5).toLocaleString()} Gold, 20 Essences, 10 Gems & Astral Blueprint`, 
       claimed: claimedTiers.includes(5) 
     }
   ]
@@ -89,11 +101,9 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
 
       const chestObj = CHESTS.find(c => c.tier === tier)
 
-      // Grant character stats & gold based on rarity tier
+      // Grant character stats & gold based on rarity tier with level bonus
       try {
-        const { addToCharacterStat } = await import('@/lib/character-stats-service')
-        const goldAmounts = [150, 350, 600, 1000, 2000]
-        const goldToGrant = goldAmounts[tier - 1] || 150
+        const goldToGrant = getGoldReward(tier)
         await addToCharacterStat('gold', goldToGrant, 'alliance-raid-chest')
         if (tier >= 4) {
           await addToCharacterStat('gems', tier === 5 ? 10 : 3, 'alliance-raid-chest')
@@ -117,7 +127,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
             <div className="flex items-center gap-2 text-red-400">
               <ShieldAlert className="w-6 h-6 animate-pulse" />
               <DialogTitle className="text-xl font-bold tracking-wide text-red-100">
-                Fellowship Titan Wyrm Raid
+                Fellowship Titan Wyrm raid
               </DialogTitle>
             </div>
             <Badge variant="outline" className="border-red-500/40 text-red-400 bg-red-950/30 text-xs">
@@ -150,9 +160,16 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
               </div>
               <div className="flex items-center justify-between text-[11px] text-zinc-300 pt-1.5 flex-wrap gap-1">
                 <Badge className="bg-amber-950/80 border-amber-500/50 text-amber-300 text-[10px] font-mono font-bold shadow-sm">
-                  ⚔️ Your Habits Dealt {userDamageToday} DMG Today!
+                  ⚔️ Your habits dealt {Math.round(userDamageToday * levelDmgMultiplier)} dmg today!
+                  {levelDmgMultiplier > 1 && <span className="ml-1 text-emerald-400">({levelDmgMultiplier.toFixed(1)}x level {heroLevel} bonus)</span>}
                 </Badge>
-                <span className="text-emerald-400 font-mono font-bold text-[10px]">⚡ Active Fellowship Raid</span>
+                {goldBonusMult > 1 ? (
+                  <Badge variant="outline" className="text-[10px] font-mono border-emerald-500/40 text-emerald-400 bg-emerald-950/30">
+                    🎁 Level {heroLevel} loot bonus: +{Math.round((goldBonusMult - 1) * 100)}% gold
+                  </Badge>
+                ) : (
+                  <span className="text-emerald-400 font-mono font-bold text-[10px]">⚡ Active fellowship raid</span>
+                )}
               </div>
             </div>
           </div>
@@ -161,9 +178,9 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
           <div className="space-y-2">
             <div className="p-2.5 bg-gradient-to-r from-red-950 via-zinc-950 to-red-950 rounded-xl border border-red-500/40 flex items-center justify-between text-xs font-serif shadow-md">
               <span className="text-red-300 font-bold flex items-center gap-1.5">
-                🔥 5-Hit Fellowship Raid Combo Active!
+                🔥 5-hit fellowship raid combo active!
               </span>
-              <span className="text-[10px] font-mono font-bold text-amber-300">1.5x Boss Damage Multiplier</span>
+              <span className="text-[10px] font-mono font-bold text-amber-300">1.5x boss damage multiplier</span>
             </div>
 
             {/* 10 Siege Engine Slots Arsenal */}
@@ -206,7 +223,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-bold text-zinc-300 flex items-center gap-1.5 font-serif">
-                <Trophy className="w-4 h-4 text-amber-400" /> Fellowship Raid Victory Tier Chests
+                <Trophy className="w-4 h-4 text-amber-400" /> Fellowship raid victory tier chests
               </h4>
               <span className="text-[10px] font-mono text-zinc-400 flex items-center gap-1">
                 ⏱️ Reset: <strong className="text-amber-300">4d 18h</strong>
