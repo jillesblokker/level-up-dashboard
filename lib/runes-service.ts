@@ -10,8 +10,159 @@ export interface RuneDefinition {
   meaning: string;
   description: string;
   hint: string;
+  letter: string; // Latin letter / phonemic equivalent e.g. "B", "R", "A"
   placements: { id: string; label: string; page: string }[];
 }
+
+export interface CipherLetter {
+  char: string;
+  runeId: string;
+  symbol: string;
+  letter: string;
+  name: string;
+}
+
+export interface CipherWord {
+  word: string;
+  punctuation?: string;
+  letters: CipherLetter[];
+}
+
+export const CIPHER_SENTENCE = "Brave mind, curiosity, and daily discipline forge true wisdom and eternal strength";
+
+export const CIPHER_WORDS: CipherWord[] = [
+  {
+    word: "Brave",
+    letters: [
+      { char: "B", runeId: "berkano", symbol: "ᛒ", letter: "B", name: "Berkano" },
+      { char: "R", runeId: "raidho", symbol: "ᚱ", letter: "R", name: "Raidho" },
+      { char: "A", runeId: "ansuz", symbol: "ᚨ", letter: "A", name: "Ansuz" },
+      { char: "V", runeId: "fehu", symbol: "ᚠ", letter: "V", name: "Fehu" },
+      { char: "E", runeId: "ehwaz", symbol: "ᛖ", letter: "E", name: "Ehwaz" },
+    ],
+  },
+  {
+    word: "mind",
+    punctuation: ",",
+    letters: [
+      { char: "M", runeId: "mannaz", symbol: "ᛗ", letter: "M", name: "Mannaz" },
+      { char: "I", runeId: "isa", symbol: "ᛁ", letter: "I", name: "Isa" },
+      { char: "N", runeId: "nauthiz", symbol: "ᚾ", letter: "N", name: "Nauthiz" },
+      { char: "D", runeId: "dagaz", symbol: "ᛞ", letter: "D", name: "Dagaz" },
+    ],
+  },
+  {
+    word: "curiosity",
+    punctuation: ",",
+    letters: [
+      { char: "C", runeId: "kenaz", symbol: "ᚲ", letter: "C", name: "Kenaz" },
+      { char: "U", runeId: "uruz", symbol: "ᚢ", letter: "U", name: "Uruz" },
+      { char: "R", runeId: "raidho", symbol: "ᚱ", letter: "R", name: "Raidho" },
+      { char: "I", runeId: "isa", symbol: "ᛁ", letter: "I", name: "Isa" },
+      { char: "O", runeId: "othala", symbol: "ᛟ", letter: "O", name: "Othala" },
+      { char: "S", runeId: "sowilo", symbol: "ᛊ", letter: "S", name: "Sowilo" },
+      { char: "I", runeId: "isa", symbol: "ᛁ", letter: "I", name: "Isa" },
+      { char: "T", runeId: "tiwaz", symbol: "ᛏ", letter: "T", name: "Tiwaz" },
+      { char: "Y", runeId: "jera", symbol: "ᛃ", letter: "Y", name: "Jera" },
+    ],
+  },
+  {
+    word: "and",
+    letters: [
+      { char: "A", runeId: "ansuz", symbol: "ᚨ", letter: "A", name: "Ansuz" },
+      { char: "N", runeId: "nauthiz", symbol: "ᚾ", letter: "N", name: "Nauthiz" },
+      { char: "D", runeId: "dagaz", symbol: "ᛞ", letter: "D", name: "Dagaz" },
+    ],
+  },
+  {
+    word: "daily",
+    letters: [
+      { char: "D", runeId: "dagaz", symbol: "ᛞ", letter: "D", name: "Dagaz" },
+      { char: "A", runeId: "ansuz", symbol: "ᚨ", letter: "A", name: "Ansuz" },
+      { char: "I", runeId: "isa", symbol: "ᛁ", letter: "I", name: "Isa" },
+      { char: "L", runeId: "laguz", symbol: "ᛚ", letter: "L", name: "Laguz" },
+      { char: "Y", runeId: "jera", symbol: "ᛃ", letter: "Y", name: "Jera" },
+    ],
+  },
+  {
+    word: "discipline",
+    letters: [
+      { char: "D", runeId: "dagaz", symbol: "ᛞ", letter: "D", name: "Dagaz" },
+      { char: "I", runeId: "isa", symbol: "ᛁ", letter: "I", name: "Isa" },
+      { char: "S", runeId: "sowilo", symbol: "ᛊ", letter: "S", name: "Sowilo" },
+      { char: "C", runeId: "kenaz", symbol: "ᚲ", letter: "C", name: "Kenaz" },
+      { char: "I", runeId: "isa", symbol: "ᛁ", letter: "I", name: "Isa" },
+      { char: "P", runeId: "perthro", symbol: "ᛈ", letter: "P", name: "Perthro" },
+      { char: "L", runeId: "laguz", symbol: "ᛚ", letter: "L", name: "Laguz" },
+      { char: "I", runeId: "isa", symbol: "ᛁ", letter: "I", name: "Isa" },
+      { char: "N", runeId: "nauthiz", symbol: "ᚾ", letter: "N", name: "Nauthiz" },
+      { char: "E", runeId: "ehwaz", symbol: "ᛖ", letter: "E", name: "Ehwaz" },
+    ],
+  },
+  {
+    word: "forge",
+    letters: [
+      { char: "F", runeId: "fehu", symbol: "ᚠ", letter: "F", name: "Fehu" },
+      { char: "O", runeId: "othala", symbol: "ᛟ", letter: "O", name: "Othala" },
+      { char: "R", runeId: "raidho", symbol: "ᚱ", letter: "R", name: "Raidho" },
+      { char: "G", runeId: "gebo", symbol: "ᚷ", letter: "G", name: "Gebo" },
+      { char: "E", runeId: "ehwaz", symbol: "ᛖ", letter: "E", name: "Ehwaz" },
+    ],
+  },
+  {
+    word: "true",
+    letters: [
+      { char: "T", runeId: "tiwaz", symbol: "ᛏ", letter: "T", name: "Tiwaz" },
+      { char: "R", runeId: "raidho", symbol: "ᚱ", letter: "R", name: "Raidho" },
+      { char: "U", runeId: "uruz", symbol: "ᚢ", letter: "U", name: "Uruz" },
+      { char: "E", runeId: "ehwaz", symbol: "ᛖ", letter: "E", name: "Ehwaz" },
+    ],
+  },
+  {
+    word: "wisdom",
+    letters: [
+      { char: "W", runeId: "wunjo", symbol: "ᚹ", letter: "W", name: "Wunjo" },
+      { char: "I", runeId: "isa", symbol: "ᛁ", letter: "I", name: "Isa" },
+      { char: "S", runeId: "sowilo", symbol: "ᛊ", letter: "S", name: "Sowilo" },
+      { char: "D", runeId: "dagaz", symbol: "ᛞ", letter: "D", name: "Dagaz" },
+      { char: "O", runeId: "othala", symbol: "ᛟ", letter: "O", name: "Othala" },
+      { char: "M", runeId: "mannaz", symbol: "ᛗ", letter: "M", name: "Mannaz" },
+    ],
+  },
+  {
+    word: "and",
+    letters: [
+      { char: "A", runeId: "ansuz", symbol: "ᚨ", letter: "A", name: "Ansuz" },
+      { char: "N", runeId: "nauthiz", symbol: "ᚾ", letter: "N", name: "Nauthiz" },
+      { char: "D", runeId: "dagaz", symbol: "ᛞ", letter: "D", name: "Dagaz" },
+    ],
+  },
+  {
+    word: "eternal",
+    letters: [
+      { char: "E", runeId: "ehwaz", symbol: "ᛖ", letter: "E", name: "Ehwaz" },
+      { char: "T", runeId: "tiwaz", symbol: "ᛏ", letter: "T", name: "Tiwaz" },
+      { char: "E", runeId: "ehwaz", symbol: "ᛖ", letter: "E", name: "Ehwaz" },
+      { char: "R", runeId: "raidho", symbol: "ᚱ", letter: "R", name: "Raidho" },
+      { char: "N", runeId: "nauthiz", symbol: "ᚾ", letter: "N", name: "Nauthiz" },
+      { char: "A", runeId: "ansuz", symbol: "ᚨ", letter: "A", name: "Ansuz" },
+      { char: "L", runeId: "laguz", symbol: "ᛚ", letter: "L", name: "Laguz" },
+    ],
+  },
+  {
+    word: "strength",
+    letters: [
+      { char: "S", runeId: "sowilo", symbol: "ᛊ", letter: "S", name: "Sowilo" },
+      { char: "T", runeId: "tiwaz", symbol: "ᛏ", letter: "T", name: "Tiwaz" },
+      { char: "R", runeId: "raidho", symbol: "ᚱ", letter: "R", name: "Raidho" },
+      { char: "E", runeId: "ehwaz", symbol: "ᛖ", letter: "E", name: "Ehwaz" },
+      { char: "N", runeId: "nauthiz", symbol: "ᚾ", letter: "N", name: "Nauthiz" },
+      { char: "G", runeId: "gebo", symbol: "ᚷ", letter: "G", name: "Gebo" },
+      { char: "T", runeId: "tiwaz", symbol: "ᛏ", letter: "T", name: "Tiwaz" },
+      { char: "H", runeId: "hagalaz", symbol: "ᚺ", letter: "H", name: "Hagalaz" },
+    ],
+  },
+];
 
 export const ALL_RUNES: RuneDefinition[] = [
   // ─── 1. FREYR'S ÆTT (Creation, Vitality, Social Order) ──────────────────────
@@ -19,6 +170,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'fehu',
     symbol: 'ᚠ',
     name: 'Fehu',
+    letter: 'F',
     phonetic: '[f]',
     aett: 'freyr',
     aettLabel: "Freyr's ætt (Creation & wealth)",
@@ -33,6 +185,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'uruz',
     symbol: 'ᚢ',
     name: 'Uruz',
+    letter: 'U',
     phonetic: '[u]',
     aett: 'freyr',
     aettLabel: "Freyr's ætt (Creation & wealth)",
@@ -47,6 +200,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'thurisaz',
     symbol: 'ᚦ',
     name: 'Thurisaz',
+    letter: 'TH',
     phonetic: '[th]',
     aett: 'freyr',
     aettLabel: "Freyr's ætt (Creation & wealth)",
@@ -61,6 +215,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'ansuz',
     symbol: 'ᚨ',
     name: 'Ansuz',
+    letter: 'A',
     phonetic: '[a]',
     aett: 'freyr',
     aettLabel: "Freyr's ætt (Creation & wealth)",
@@ -76,6 +231,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'raidho',
     symbol: 'ᚱ',
     name: 'Raidho',
+    letter: 'R',
     phonetic: '[r]',
     aett: 'freyr',
     aettLabel: "Freyr's ætt (Creation & wealth)",
@@ -91,6 +247,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'kenaz',
     symbol: 'ᚲ',
     name: 'Kenaz',
+    letter: 'C',
     phonetic: '[k]',
     aett: 'freyr',
     aettLabel: "Freyr's ætt (Creation & wealth)",
@@ -105,6 +262,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'gebo',
     symbol: 'ᚷ',
     name: 'Gebo',
+    letter: 'G',
     phonetic: '[g]',
     aett: 'freyr',
     aettLabel: "Freyr's ætt (Creation & wealth)",
@@ -119,6 +277,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'wunjo',
     symbol: 'ᚹ',
     name: 'Wunjo',
+    letter: 'W',
     phonetic: '[w]',
     aett: 'freyr',
     aettLabel: "Freyr's ætt (Creation & wealth)",
@@ -135,6 +294,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'hagalaz',
     symbol: 'ᚺ',
     name: 'Hagalaz',
+    letter: 'H',
     phonetic: '[h]',
     aett: 'heimdall',
     aettLabel: "Heimdall's ætt (Adversity & transformation)",
@@ -149,6 +309,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'nauthiz',
     symbol: 'ᚾ',
     name: 'Nauthiz',
+    letter: 'N',
     phonetic: '[n]',
     aett: 'heimdall',
     aettLabel: "Heimdall's ætt (Adversity & transformation)",
@@ -163,6 +324,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'isa',
     symbol: 'ᛁ',
     name: 'Isa',
+    letter: 'I',
     phonetic: '[i]',
     aett: 'heimdall',
     aettLabel: "Heimdall's ætt (Adversity & transformation)",
@@ -177,6 +339,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'jera',
     symbol: 'ᛃ',
     name: 'Jera',
+    letter: 'Y',
     phonetic: '[j]',
     aett: 'heimdall',
     aettLabel: "Heimdall's ætt (Adversity & transformation)",
@@ -192,6 +355,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'eihwaz',
     symbol: 'ᛇ',
     name: 'Eihwaz',
+    letter: 'EI',
     phonetic: '[ei]',
     aett: 'heimdall',
     aettLabel: "Heimdall's ætt (Adversity & transformation)",
@@ -206,6 +370,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'perthro',
     symbol: 'ᛈ',
     name: 'Perthro',
+    letter: 'P',
     phonetic: '[p]',
     aett: 'heimdall',
     aettLabel: "Heimdall's ætt (Adversity & transformation)",
@@ -220,6 +385,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'algiz',
     symbol: 'ᛉ',
     name: 'Algiz',
+    letter: 'Z',
     phonetic: '[z]',
     aett: 'heimdall',
     aettLabel: "Heimdall's ætt (Adversity & transformation)",
@@ -234,6 +400,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'sowilo',
     symbol: 'ᛊ',
     name: 'Sowilo',
+    letter: 'S',
     phonetic: '[s]',
     aett: 'heimdall',
     aettLabel: "Heimdall's ætt (Adversity & transformation)",
@@ -250,6 +417,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'tiwaz',
     symbol: 'ᛏ',
     name: 'Tiwaz',
+    letter: 'T',
     phonetic: '[t]',
     aett: 'tyr',
     aettLabel: "Tyr's ætt (Honor & transcendence)",
@@ -265,6 +433,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'berkano',
     symbol: 'ᛒ',
     name: 'Berkano',
+    letter: 'B',
     phonetic: '[b]',
     aett: 'tyr',
     aettLabel: "Tyr's ætt (Honor & transcendence)",
@@ -279,6 +448,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'ehwaz',
     symbol: 'ᛖ',
     name: 'Ehwaz',
+    letter: 'E',
     phonetic: '[e]',
     aett: 'tyr',
     aettLabel: "Tyr's ætt (Honor & transcendence)",
@@ -293,6 +463,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'mannaz',
     symbol: 'ᛗ',
     name: 'Mannaz',
+    letter: 'M',
     phonetic: '[m]',
     aett: 'tyr',
     aettLabel: "Tyr's ætt (Honor & transcendence)",
@@ -307,6 +478,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'laguz',
     symbol: 'ᛚ',
     name: 'Laguz',
+    letter: 'L',
     phonetic: '[l]',
     aett: 'tyr',
     aettLabel: "Tyr's ætt (Honor & transcendence)",
@@ -321,6 +493,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'ingwaz',
     symbol: 'ᛜ',
     name: 'Ingwaz',
+    letter: 'NG',
     phonetic: '[ng]',
     aett: 'tyr',
     aettLabel: "Tyr's ætt (Honor & transcendence)",
@@ -335,6 +508,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'dagaz',
     symbol: 'ᛞ',
     name: 'Dagaz',
+    letter: 'D',
     phonetic: '[d]',
     aett: 'tyr',
     aettLabel: "Tyr's ætt (Honor & transcendence)",
@@ -350,6 +524,7 @@ export const ALL_RUNES: RuneDefinition[] = [
     id: 'othala',
     symbol: 'ᛟ',
     name: 'Othala',
+    letter: 'O',
     phonetic: '[o]',
     aett: 'tyr',
     aettLabel: "Tyr's ætt (Honor & transcendence)",
@@ -484,4 +659,45 @@ export async function syncRunesFromCloud(): Promise<void> {
       window.dispatchEvent(new CustomEvent(RUNE_COLLECTED_EVENT, { detail: { synced: true } }));
     }
   } catch {}
+}
+
+export function getRequiredCipherRuneIds(): string[] {
+  const ids = new Set<string>();
+  CIPHER_WORDS.forEach((w) => {
+    w.letters.forEach((l) => ids.add(l.runeId));
+  });
+  return Array.from(ids);
+}
+
+export function isCipherSolved(unlockedRuneIds: string[]): boolean {
+  const required = getRequiredCipherRuneIds();
+  return required.length > 0 && required.every((id) => unlockedRuneIds.includes(id));
+}
+
+export function getCipherProgress(unlockedRuneIds: string[]): {
+  unlockedLettersCount: number;
+  totalLettersCount: number;
+  unlockedUniqueRunes: number;
+  totalUniqueRunes: number;
+  percent: number;
+} {
+  const required = getRequiredCipherRuneIds();
+  const unlockedUnique = required.filter((id) => unlockedRuneIds.includes(id)).length;
+  let totalLetters = 0;
+  let unlockedLetters = 0;
+  CIPHER_WORDS.forEach((w) => {
+    w.letters.forEach((l) => {
+      totalLetters++;
+      if (unlockedRuneIds.includes(l.runeId)) {
+        unlockedLetters++;
+      }
+    });
+  });
+  return {
+    unlockedLettersCount: unlockedLetters,
+    totalLettersCount: totalLetters,
+    unlockedUniqueRunes: unlockedUnique,
+    totalUniqueRunes: required.length,
+    percent: totalLetters > 0 ? Math.round((unlockedLetters / totalLetters) * 100) : 0,
+  };
 }

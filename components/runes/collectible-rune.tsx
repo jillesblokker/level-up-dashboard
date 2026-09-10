@@ -83,18 +83,18 @@ export function CollectibleRune({
 
       if (res.isFirstRune) {
         toast({
-          title: `Secret uncovered! ${symbol} ${name} collected`,
-          description: `A secret Codex of Runes tab has appeared in your Achievements!`,
+          title: `Ancient resonance awakened: ${symbol} ${name}`,
+          description: `The whisper of an Elder Rune stirs within your soul. Seek the Codex under Achievements.`,
         });
       } else if (res.unlockedRunesCount === res.totalRunes) {
         toast({
           title: `✦ Elder Runic Master! ✦`,
-          description: `You have gathered all ${res.totalRunes} sacred Elder Runes of Thrivehaven!`,
+          description: `All ${res.totalRunes} sacred Elder Runes have answered your call!`,
         });
       } else {
         toast({
-          title: `Rune bound! ${symbol} ${name}`,
-          description: `${symbol} ${meaning}. Codex progress: ${res.unlockedRunesCount}/${res.totalRunes}.`,
+          title: `Rune awakened: ${symbol} ${name}`,
+          description: `${meaning}. Bound to your codex (${res.unlockedRunesCount}/${res.totalRunes}).`,
         });
       }
 
@@ -111,7 +111,7 @@ export function CollectibleRune({
       tabIndex={0}
       onClick={handleClick}
       onTouchStart={handleClick}
-      title={`${symbol} (${name}): ${meaning} • Tap 3 times to gather into your Codex of Runes`}
+      title={`${symbol} (${name}): ${meaning}`}
       className={cn(
         'cursor-pointer select-none font-mono transition-all duration-300 inline-flex items-center justify-center',
         clicks === 0 && 'text-amber-500/80 hover:text-amber-300 hover:scale-110 active:scale-95',
