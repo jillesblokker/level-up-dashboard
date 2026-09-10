@@ -58,7 +58,7 @@ export function SwordLoader({
       <div className={cn("relative z-10 flex items-center justify-center", sizeClasses)}>
         <div className="sword-sweeping w-full h-full relative flex items-center justify-center">
           <Image
-            src="/images/sword-spinner-upright.png?v=cartoony"
+            src="/images/sword-spinner-upright.webp?v=cartoony"
             alt="Cartoony fantasy sword loading indicator"
             width={320}
             height={320}
