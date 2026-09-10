@@ -11,6 +11,7 @@ import {
   getActivePetitions,
   resolvePetition,
   refreshAllPetitions,
+  syncPetitionsFromCloud,
   Petition,
   PetitionOutcome,
 } from '@/lib/petitions-service';
@@ -32,7 +33,12 @@ export function PetitionsTab() {
   } | null>(null);
 
   useEffect(() => {
+    // 1. Instant local read (auto-refreshes if new calendar day)
     setPetitions(getActivePetitions());
+    // 2. Cloud sync to ensure cross-device consistency
+    syncPetitionsFromCloud().then((p) => {
+      if (p && p.length === 4) setPetitions(p);
+    });
   }, []);
 
   const handleChoice = (petitionId: string, choice: 'A' | 'B') => {
@@ -126,6 +132,22 @@ export function PetitionsTab() {
             </Button>
           </div>
         </div>
+
+        {petitions.length > 0 && petitions.every((p) => p.completed) && (
+          <div className="p-3 sm:p-4 rounded-xl bg-amber-950/40 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-amber-200">
+            <span className="flex items-center gap-2 font-medium">
+              <span className="text-amber-400 text-sm">✦</span> All realm decrees enacted for today! Fresh daily petitions arrive tomorrow at midnight.
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleRefreshPetitions}
+              className="h-7 text-[11px] border-amber-500/40 text-amber-300 hover:bg-amber-900/40 shrink-0 font-bold font-mono"
+            >
+              Summon 4 now
+            </Button>
+          </div>
+        )}
 
         {/* Mobile Carousel (< 768px), Desktop 2-Column Grid (>= 768px) */}
         <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible custom-scrollbar mobile-scroll-hide">

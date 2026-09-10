@@ -757,9 +757,29 @@ function generateProceduralPool(): Petition[] {
 
 const ALL_100_PETITIONS = generateProceduralPool();
 
+/**
+ * Strict calendar date in user's local timezone (YYYY-MM-DD).
+ * Conforms to AGENTS.md Strict Reset Anti-Regression Rule.
+ */
+export function getLocalTodayDate(): string {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function getActivePetitions(): Petition[] {
+  const today = getLocalTodayDate();
   try {
+    const storedDate = localStorage.getItem('pref:petitions-date');
     const local = localStorage.getItem('pref:active-petitions-list');
+
+    // 1. Strict calendar date reset: if date changed, automatically refresh a fresh batch!
+    if (storedDate && storedDate !== today) {
+      return refreshAllPetitions();
+    }
+
     if (local) {
       const parsed = JSON.parse(local);
       // Validate that parsed items have the new outcomes array, requesterImage, and no legacy brackets
@@ -768,6 +788,15 @@ export function getActivePetitions(): Petition[] {
         parsed.length === 4 &&
         parsed.every(p => p && p.optionA && Array.isArray(p.optionA.outcomes) && p.requesterImage && !p.title.includes('('))
       ) {
+        // 2. Migration guard for existing sessions without a date saved:
+        // If no stored date existed yet and any petition was already completed (from yesterday),
+        // refresh immediately with fresh petitions for today!
+        if (!storedDate) {
+          if (parsed.some(p => p.completed)) {
+            return refreshAllPetitions();
+          }
+          setUserPreference('petitions-date', today);
+        }
         return parsed;
       }
     }
@@ -775,6 +804,28 @@ export function getActivePetitions(): Petition[] {
 
   // Pick 4 random distinct petitions from 100 pool
   return refreshAllPetitions();
+}
+
+/**
+ * Background cloud sync to ensure multi-device continuity and daily reset
+ */
+export async function syncPetitionsFromCloud(): Promise<Petition[]> {
+  const today = getLocalTodayDate();
+  try {
+    const cloudDate = (await getUserPreference('petitions-date')) as string | null;
+    if (cloudDate && cloudDate !== today) {
+      return refreshAllPetitions();
+    }
+    const cloudList = (await getUserPreference('active-petitions-list')) as Petition[] | null;
+    if (
+      Array.isArray(cloudList) &&
+      cloudList.length === 4 &&
+      cloudList.every(p => p && p.optionA && Array.isArray(p.optionA.outcomes) && p.requesterImage && !p.title.includes('('))
+    ) {
+      return cloudList;
+    }
+  } catch {}
+  return getActivePetitions();
 }
 
 export function resolvePetition(petitionId: string, choice: 'A' | 'B'): {
@@ -838,7 +889,9 @@ export function resolvePetition(petitionId: string, choice: 'A' | 'B'): {
     return p;
   });
 
+  const today = getLocalTodayDate();
   setUserPreference('active-petitions-list', updatedPetitions);
+  setUserPreference('petitions-date', today);
 
   return {
     happiness: newHappiness,
@@ -851,8 +904,11 @@ export function resolvePetition(petitionId: string, choice: 'A' | 'B'): {
 }
 
 export function refreshAllPetitions(): Petition[] {
+  const today = getLocalTodayDate();
   const shuffled = [...ALL_100_PETITIONS].sort(() => Math.random() - 0.5);
   const selected = shuffled.slice(0, 4);
   setUserPreference('active-petitions-list', selected);
+  setUserPreference('petitions-date', today);
   return selected;
 }
+
