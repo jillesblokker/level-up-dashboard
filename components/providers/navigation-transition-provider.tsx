@@ -133,12 +133,20 @@ export function NavigationTransitionProvider({ children }: { children: React.Rea
     }
 
     document.addEventListener('click', handleDocumentClick, { capture: true })
+
+    const handleCustomNavigate = (e: Event) => {
+      const customEvent = e as CustomEvent<{ label?: string; sublabel?: string }>
+      startTransition(customEvent.detail?.label, customEvent.detail?.sublabel)
+    }
+    window.addEventListener('thrivehaven:navigate', handleCustomNavigate)
+
     return () => {
       document.removeEventListener('click', handleDocumentClick, { capture: true })
+      window.removeEventListener('thrivehaven:navigate', handleCustomNavigate)
       if (debounceRef.current) clearTimeout(debounceRef.current)
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
-  }, [endTransition])
+  }, [endTransition, startTransition])
 
   return (
     <NavigationTransitionContext.Provider value={{ isTransitioning, startTransition, endTransition }}>

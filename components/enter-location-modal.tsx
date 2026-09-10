@@ -34,6 +34,18 @@ export function EnterLocationModal({
 
   const handleEnter = () => {
     setIsNavigating(true);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('thrivehaven:navigate', {
+          detail: {
+            label: `Entering ${displayName}...`,
+            sublabel: locationType === 'city' 
+              ? "Passing through the grand stone gates" 
+              : "Approaching the village gates and market stalls"
+          }
+        })
+      );
+    }
     const route = locationType === 'city' ? '/city' : '/town';
     router.push(`${route}/${locationName}`);
   };
@@ -54,6 +66,16 @@ export function EnterLocationModal({
   const displayName = locationName && locationName !== 'unknown' ? locationName : 'this location';
   const buttonText = locationType === 'city' ? 'Enter city' : 'Enter town';
   const LocationIcon = locationType === 'city' ? Building : Home;
+
+  if (isNavigating) {
+    return (
+      <SwordLoader
+        size="fullscreen"
+        label={`Entering ${displayName}...`}
+        sublabel="Venturing forth to market stalls, tavern hearth, and guild halls"
+      />
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -133,15 +155,6 @@ export function EnterLocationModal({
           </DialogFooter>
         </div>
       </DialogContent>
-
-      {/* Immediate sweeping sword loader during route navigation */}
-      {isNavigating && (
-        <SwordLoader
-          size="fullscreen"
-          label={`Entering ${displayName}...`}
-          sublabel="Venturing forth to market stalls, tavern hearth, and guild halls"
-        />
-      )}
     </Dialog>
   );
 }

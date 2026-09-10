@@ -1,11 +1,12 @@
 "use client"
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { Sparkles } from 'lucide-react'
 
-interface SwordLoaderProps {
+export interface SwordLoaderProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'fullscreen' | undefined
   label?: string | undefined
   sublabel?: string | undefined
@@ -20,24 +21,29 @@ export function SwordLoader({
   className,
   variant = 'amber'
 }: SwordLoaderProps) {
+  const [mounted, setMounted] = useState(false)
   const isFullscreen = size === 'fullscreen'
 
-  // Dimensions based on size prop
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Dimensions based on size prop - enlarged and prominent
   const sizeClasses = {
-    sm: 'w-14 h-14',
+    sm: 'w-16 h-16',
     md: 'w-24 h-24',
     lg: 'w-36 h-36',
     xl: 'w-48 h-48',
-    fullscreen: 'w-44 h-44 sm:w-52 sm:h-52'
+    fullscreen: 'w-48 h-48 sm:w-56 sm:h-56'
   }[size]
 
   const glowColor = variant === 'blue' 
-    ? 'drop-shadow-[0_0_18px_rgba(59,130,246,0.6)] drop-shadow-[0_0_35px_rgba(37,99,235,0.3)]'
-    : 'drop-shadow-[0_0_18px_rgba(245,158,11,0.6)] drop-shadow-[0_0_35px_rgba(217,119,6,0.3)]'
+    ? 'drop-shadow-[0_0_20px_rgba(59,130,246,0.7)] drop-shadow-[0_0_40px_rgba(37,99,235,0.4)]'
+    : 'drop-shadow-[0_0_20px_rgba(245,158,11,0.7)] drop-shadow-[0_0_40px_rgba(217,119,6,0.4)]'
 
   const haloBg = variant === 'blue'
-    ? 'bg-blue-500/15'
-    : 'bg-amber-500/15'
+    ? 'bg-blue-500/20'
+    : 'bg-amber-500/20'
 
   const titleColor = variant === 'blue'
     ? 'text-blue-300'
@@ -46,64 +52,64 @@ export function SwordLoader({
   const content = (
     <div className={cn("flex flex-col items-center justify-center relative select-none", className)}>
       {/* Mystical glowing halo behind the sword */}
-      <div className={cn("absolute rounded-full blur-2xl animate-pulse pointer-events-none", haloBg, sizeClasses)} />
+      <div className={cn("absolute rounded-full blur-3xl animate-pulse pointer-events-none", haloBg, sizeClasses)} />
 
-      {/* Sweeping Medieval Sword */}
+      {/* Sweeping Cartoony Medieval Sword */}
       <div className={cn("relative z-10 flex items-center justify-center", sizeClasses)}>
         <div className="sword-sweeping w-full h-full relative flex items-center justify-center">
           <Image
-            src="/images/sword-spinner-upright.png"
-            alt="Medieval sword loading indicator"
-            width={256}
-            height={256}
+            src="/images/sword-spinner-upright.png?v=cartoony"
+            alt="Cartoony fantasy sword loading indicator"
+            width={320}
+            height={320}
             priority
             className={cn(
-              "object-contain w-full h-full transform-gpu transition-all",
+              "object-contain w-full h-full transform-gpu transition-all select-none pointer-events-none",
               glowColor
             )}
           />
         </div>
       </div>
 
-      {/* Decorative sparkles */}
+      {/* Decorative sparkles for magic feel */}
       {(size === 'lg' || size === 'xl' || isFullscreen) && (
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <Sparkles className="w-5 h-5 text-amber-400/50 absolute -top-2 -right-4 animate-bounce" style={{ animationDuration: '2s' }} />
-          <Sparkles className="w-4 h-4 text-amber-300/40 absolute -bottom-2 -left-3 animate-pulse" style={{ animationDuration: '2.5s' }} />
+          <Sparkles className="w-6 h-6 text-amber-300/60 absolute -top-3 -right-5 animate-bounce" style={{ animationDuration: '1.8s' }} />
+          <Sparkles className="w-5 h-5 text-amber-200/50 absolute -bottom-3 -left-4 animate-pulse" style={{ animationDuration: '2.2s' }} />
         </div>
       )}
 
       {/* Informative labels */}
       {(label || sublabel) && (
-        <div className="mt-5 text-center space-y-1.5 relative z-10 max-w-sm px-4 animate-in fade-in duration-300">
+        <div className="mt-6 text-center space-y-2 relative z-10 max-w-sm px-4 animate-in fade-in duration-300">
           {label && (
-            <h3 className={cn("font-serif font-bold text-base sm:text-lg tracking-wide", titleColor)}>
+            <h3 className={cn("font-serif font-bold text-lg sm:text-xl tracking-wide", titleColor)}>
               {label}
             </h3>
           )}
           {sublabel && (
-            <p className="text-xs text-zinc-400 font-serif italic leading-relaxed">
+            <p className="text-xs sm:text-sm text-zinc-300/80 font-serif italic leading-relaxed">
               {sublabel}
             </p>
           )}
         </div>
       )}
 
-      {/* Global CSS for the sweeping sword pendulum rotation */}
+      {/* Global CSS for the sweeping cartoony sword pendulum rotation */}
       <style jsx global>{`
         @keyframes sword-sweep-anim {
           0% {
-            transform: rotate(-30deg);
+            transform: rotate(-32deg);
           }
           50% {
-            transform: rotate(30deg);
+            transform: rotate(32deg);
           }
           100% {
-            transform: rotate(-30deg);
+            transform: rotate(-32deg);
           }
         }
         .sword-sweeping {
-          transform-origin: 50% 80%;
+          transform-origin: 50% 79%;
           animation: sword-sweep-anim 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
           will-change: transform;
         }
@@ -111,16 +117,21 @@ export function SwordLoader({
     </div>
   )
 
+  // When fullscreen, ALWAYS portal to document.body with maximum z-index (z-[9999999])
+  // so it is NEVER behind any modal, backdrop, sheet, or layout element!
   if (isFullscreen) {
-    return (
+    if (!mounted || typeof document === 'undefined') return null
+
+    return createPortal(
       <div 
-        className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-in fade-in duration-200"
+        className="fixed inset-0 z-[9999999] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-in fade-in duration-150 select-none pointer-events-auto"
         role="status"
         aria-live="polite"
         aria-label={label || "Loading page"}
       >
         {content}
-      </div>
+      </div>,
+      document.body
     )
   }
 

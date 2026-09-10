@@ -33,7 +33,7 @@ export function LoadingScreen({ title, content, icon, className, variant = 'blue
         radialFrom: isAmber ? 'from-amber-900/10' : 'from-blue-900/10',
     };
     return (
-        <div className={cn("fixed inset-0 z-[9998] flex items-center justify-center p-6 overflow-hidden", className)}>
+        <div className={cn("fixed inset-0 z-[99999] flex flex-col items-center justify-center p-4 bg-zinc-950/95 backdrop-blur-xl", className)}>
             {/* Cinematic Radial Background */}
             <div 
                 className={cn("fixed inset-0 bg-[#020617] bg-radial-gradient via-black to-black", themeColors.radialFrom)} 
@@ -47,34 +47,24 @@ export function LoadingScreen({ title, content, icon, className, variant = 'blue
                  }} />
             
             <div className="w-full max-w-xl flex flex-col items-center justify-center relative z-10 text-center scale-up-center">
-                {/* Advanced icon container with mystical ring */}
-                <div className="mb-12 relative">
+                {/* Prominent Sweeping Medieval Sword Container */}
+                <div className="mb-10 relative flex flex-col items-center justify-center">
                     {/* Pulsing Outer Glow */}
-                    <div className={cn("absolute inset-0 rounded-full blur-3xl animate-pulse", themeColors.glow)} />
+                    <div className={cn("absolute inset-0 rounded-full blur-3xl animate-pulse -z-10", themeColors.glow)} />
                     
-                    {/* Rotating Dashed Ring */}
-                    <div className={cn("absolute -inset-10 border border-dashed rounded-full animate-spin-slow", themeColors.ring1)} style={{ animationDuration: '15s' }} />
-                    <div className={cn("absolute -inset-10 border border-dashed rounded-full animate-spin-reverse-slow", themeColors.ring2)} style={{ animationDuration: '25s' }} />
-                    
-                    {/* Floating Sparkles */}
-                    <div className={cn("absolute -top-6 -right-6 animate-bounce", themeColors.sparkle1)} style={{ animationDelay: '0s' }}>
-                        <Sparkles className="w-6 h-6" />
+                    {/* Central Sweeping Cartoony Sword */}
+                    <div className="relative z-10 flex items-center justify-center p-4">
+                        <SwordLoader size="lg" variant={variant} />
                     </div>
-                    <div className={cn("absolute -bottom-8 -left-4 animate-pulse", themeColors.sparkle2)} style={{ animationDelay: '1s' }}>
-                        <Sparkles className="w-4 h-4" />
-                    </div>
-                    
-                    {/* Central Icon Orb */}
-                    <div className={cn("relative w-32 h-32 md:w-36 md:h-36 rounded-full border flex items-center justify-center bg-zinc-950  shadow-[0_0_50px_rgba(0,0,0,0.3)] group overflow-hidden", themeColors.orbBorder)}>
-                        <div className={cn("absolute inset-0 bg-gradient-to-tr to-transparent opacity-50", themeColors.orbGradient)} />
-                        <div className={cn("relative z-10 scale-125 md:scale-150 transition-all duration-700", themeColors.iconColor, themeColors.iconGlow)}>
-                            {icon ? (
-                                icon
-                            ) : (
-                                <SwordLoader size="sm" variant={variant} />
-                            )}
+
+                    {/* Optional Location/District Icon Badge */}
+                    {icon && (
+                        <div className={cn("absolute -bottom-3 px-3 py-1 rounded-full border bg-zinc-950/90 backdrop-blur-sm shadow-lg flex items-center gap-1.5 text-xs font-serif z-20", themeColors.orbBorder, themeColors.iconColor)}>
+                            <div className="w-4 h-4 flex items-center justify-center">
+                                {icon}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Typography with enhanced hierarchy */}
