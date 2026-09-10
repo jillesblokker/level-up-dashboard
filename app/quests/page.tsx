@@ -316,11 +316,11 @@ export default function QuestsPage() {
     xpToNextLevel: 100
   });
 
-  // User preferences for gamification
-  const [dailyGoal, setDailyGoal] = useState<number>(3);
+  // User preferences for gamification (standard 10 quests/day)
+  const [dailyGoal, setDailyGoal] = useState<number>(10);
   const [prDailyQuests, setPrDailyQuests] = useState<number>(0);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
-  const [tempGoal, setTempGoal] = useState<number>(3);
+  const [tempGoal, setTempGoal] = useState<number>(10);
 
 
   // --- Realtime Sync ---
@@ -629,8 +629,9 @@ export default function QuestsPage() {
           if (data.preferences) {
             if (data.preferences['daily_goal']) {
               const g = Number(data.preferences['daily_goal']);
-              setDailyGoal(g);
-              setTempGoal(g);
+              const finalGoal = Math.max(g || 10, 10);
+              setDailyGoal(finalGoal);
+              setTempGoal(finalGoal);
             }
             if (data.preferences['pr_daily_quests']) {
               setPrDailyQuests(Number(data.preferences['pr_daily_quests']));
@@ -2914,9 +2915,9 @@ export default function QuestsPage() {
               <div className="w-full h-full">
                 <ActivityRingsCard
                   completedCount={quests.filter(q => q.completed).length}
-                  dailyGoal={dailyGoal}
+                  dailyGoal={Math.max(dailyGoal || 10, 10)}
                   xpEarnedToday={quests.filter(q => q.completed).reduce((sum, q) => sum + (q.xp || 25), 0)}
-                  xpDailyTarget={dailyGoal * 25}
+                  xpDailyTarget={Math.max(dailyGoal || 10, 10) * 25}
                   categoriesTouched={new Set(quests.filter(q => q.completed).map(q => q.category)).size}
                   totalCategories={8}
                 />

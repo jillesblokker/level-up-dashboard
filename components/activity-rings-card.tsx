@@ -52,8 +52,12 @@ export function ActivityRingsCard({
   categoriesTouched,
   totalCategories = 8,
 }: ActivityRingsCardProps) {
-  const questPct = dailyGoal > 0 ? completedCount / dailyGoal : 0
-  const xpPct = xpDailyTarget > 0 ? xpEarnedToday / xpDailyTarget : 0
+  // Enforce standard target of 10 quests, scaling XP target with it (25 XP/quest => 250 XP)
+  const targetGoal = Math.max(dailyGoal || 10, 10)
+  const targetXp = Math.max(xpDailyTarget || targetGoal * 25, targetGoal * 25)
+
+  const questPct = targetGoal > 0 ? completedCount / targetGoal : 0
+  const xpPct = targetXp > 0 ? xpEarnedToday / targetXp : 0
   const categoryPct = totalCategories > 0 ? categoriesTouched / totalCategories : 0
 
   // Clamped percentages for ring filling and progress bars
@@ -85,7 +89,7 @@ export function ActivityRingsCard({
           </h2>
         </div>
         <div className="text-xs font-serif text-amber-300/80 tracking-wide font-medium">
-          <span className="text-amber-400 font-bold">{completedCount}</span> / {dailyGoal} completed
+          <span className="text-amber-400 font-bold">{completedCount}</span> / {targetGoal} completed
         </div>
       </div>
 
@@ -463,7 +467,7 @@ export function ActivityRingsCard({
               <div className="flex justify-between items-baseline mb-1">
                 <span className="text-xs font-serif font-bold text-amber-200/90 tracking-wide">Quests</span>
                 <span className="text-xs font-serif font-bold text-amber-300">
-                  {completedCount} <span className="text-[#8c6d48] font-normal">/</span> {dailyGoal}
+                  {completedCount} <span className="text-[#8c6d48] font-normal">/</span> {targetGoal}
                 </span>
               </div>
               {/* Carved stone progress trough */}
@@ -508,7 +512,7 @@ export function ActivityRingsCard({
               <div className="flex justify-between items-baseline mb-1">
                 <span className="text-xs font-serif font-bold text-blue-200/90 tracking-wide">XP Today</span>
                 <span className="text-xs font-serif font-bold text-blue-300">
-                  {xpEarnedToday} <span className="text-[#8c6d48] font-normal">/</span> {xpDailyTarget}
+                  {xpEarnedToday} <span className="text-[#8c6d48] font-normal">/</span> {targetXp}
                 </span>
               </div>
               {/* Carved stone progress trough */}
