@@ -56,15 +56,6 @@ export function LoadingScreen({ title, content, icon, className, variant = 'blue
                     <div className="relative z-10 flex items-center justify-center p-4">
                         <SwordLoader size="lg" variant={variant} />
                     </div>
-
-                    {/* Optional Location/District Icon Badge */}
-                    {icon && (
-                        <div className={cn("absolute -bottom-3 px-3 py-1 rounded-full border bg-zinc-950/90 backdrop-blur-sm shadow-lg flex items-center gap-1.5 text-xs font-serif z-20", themeColors.orbBorder, themeColors.iconColor)}>
-                            <div className="w-4 h-4 flex items-center justify-center">
-                                {icon}
-                            </div>
-                        </div>
-                    )}
                 </div>
 
                 {/* Typography with enhanced hierarchy */}

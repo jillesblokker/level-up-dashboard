@@ -577,7 +577,7 @@ export function ActivityRingsCard({
             </div>
           </div>
 
-          {/* Runic Heraldic Legend */}
+          {/* Heraldic Legend */}
           <div className="flex flex-wrap items-center justify-between pt-2.5 border-t border-[#2d2115] text-[11px] font-serif text-[#a8957c]">
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1.5">
@@ -593,9 +593,6 @@ export function ActivityRingsCard({
                 Amazing &gt;66%
               </span>
             </div>
-            <span className="text-[10px] text-[#785934] font-mono hidden sm:inline select-none">
-              ᚲ ᛟ ᚱ ᛖ
-            </span>
           </div>
 
         </div>
