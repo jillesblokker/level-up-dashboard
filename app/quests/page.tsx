@@ -2936,9 +2936,6 @@ export default function QuestsPage() {
                 >
                   <Sword className="w-4 h-4 text-amber-400 shrink-0" />
                   <span>Daily quests</span>
-                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-amber-500/30 text-amber-400/80 font-mono hidden sm:inline-block">
-                    Midnight reset
-                  </Badge>
                 </TabsTrigger>
                 <TabsTrigger
                   value="challenges"
@@ -2946,9 +2943,6 @@ export default function QuestsPage() {
                 >
                   <Zap className="w-4 h-4 text-amber-400 shrink-0" />
                   <span>Challenges</span>
-                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-cyan-500/30 text-cyan-400/80 font-mono hidden sm:inline-block">
-                    Weekly focus
-                  </Badge>
                 </TabsTrigger>
                 <TabsTrigger
                   value="milestones"
@@ -2956,9 +2950,6 @@ export default function QuestsPage() {
                 >
                   <Trophy className="w-4 h-4 text-green-400 shrink-0" />
                   <span>Milestones</span>
-                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-emerald-500/30 text-emerald-400/80 font-mono hidden sm:inline-block">
-                    Lifetime
-                  </Badge>
                 </TabsTrigger>
                 <TabsTrigger
                   value="petitions"
@@ -2966,9 +2957,6 @@ export default function QuestsPage() {
                 >
                   <Scroll className="w-4 h-4 text-blue-400 shrink-0" />
                   <span>Petitions</span>
-                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-purple-500/30 text-purple-400/80 font-mono hidden sm:inline-block">
-                    Court decrees
-                  </Badge>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
