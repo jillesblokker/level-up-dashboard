@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Crown, Compass, MapIcon, User, Users, LayoutGrid, X, Trophy, Shield, Sword, ShoppingBag, Sun, Ship, BookOpen, Globe, Bell, Settings } from "lucide-react"
+import { Crown, Compass, MapIcon, User, Users, LayoutGrid, X, Trophy, Shield, Sword, ShoppingBag, Sun, Ship, BookOpen, Globe, Bell, Settings, Backpack, Scroll, Puzzle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { notificationService } from "@/lib/notification-service"
 import { useState, useEffect } from "react"
@@ -51,7 +51,15 @@ export function BottomNav() {
         { href: "/profile", label: "Profile", icon: User },
     ]
 
-    const secondaryDestinations = [
+    const secondaryDestinations: Array<{
+        href?: string | undefined
+        action?: (() => void) | undefined
+        label: string
+        desc: string
+        icon: any
+        color: string
+        badge?: number | string | undefined
+    }> = [
         { href: "/achievements", label: "Achievements & runes", desc: "Codex, trophies & cards", icon: Trophy, color: "text-yellow-400 border-yellow-500/30 bg-yellow-950/40" },
         { href: "/character", label: "Hero character vault", desc: "Equipment, pets & stats", icon: Shield, color: "text-amber-400 border-amber-500/30 bg-amber-950/40" },
         { href: "/dungeon", label: "Dungeon keep", desc: "3v3 elemental battles", icon: Sword, color: "text-purple-400 border-purple-500/30 bg-purple-950/40" },
@@ -60,12 +68,17 @@ export function BottomNav() {
         { href: "/kingdom?tab=airship", label: "Airship harbor", desc: "Habit ether voyages", icon: Ship, color: "text-cyan-400 border-cyan-500/30 bg-cyan-950/40" },
         { href: "/tales", label: "Tales & chronicle", desc: "Stories, archives & journal", icon: BookOpen, color: "text-blue-400 border-blue-500/30 bg-blue-950/40" },
         { href: "/worldmap", label: "World map", desc: "Observatory & provinces", icon: Globe, color: "text-indigo-400 border-indigo-500/30 bg-indigo-950/40" },
+        { action: () => window.dispatchEvent(new CustomEvent('open-inventory-bag')), label: "Inventory backpack", desc: "Potions, runes & items", icon: Backpack, color: "text-amber-400 border-amber-500/30 bg-amber-950/40" },
         { href: "/notifications", label: "Action notifications", desc: "Dares, raids & alerts", icon: Bell, color: "text-red-400 border-red-500/30 bg-red-950/40", badge: unreadCount > 0 ? unreadCount : undefined },
         { href: "/quests?tab=recovery", label: "Streak save & recovery", desc: "Freeze shields & streak repair", icon: Shield, color: "text-cyan-400 border-cyan-500/30 bg-cyan-950/40" },
+        { href: "/requirements", label: "Adventurer's guide", desc: "Chapters, lore & tome", icon: Scroll, color: "text-emerald-300 border-emerald-500/30 bg-emerald-950/40" },
+        { href: "/riddles", label: "Sphinx riddles", desc: "Mind puzzles & labyrinth", icon: Puzzle, color: "text-pink-400 border-pink-500/30 bg-pink-950/40" },
         { href: "/settings", label: "Settings & audio", desc: "Preferences & controls", icon: Settings, color: "text-zinc-400 border-zinc-500/30 bg-zinc-900/60" },
     ]
 
-    const secondaryPaths: string[] = secondaryDestinations.map(d => d.href.split('?')[0] || '')
+    const secondaryPaths: string[] = secondaryDestinations
+        .map(d => d.href ? (d.href.split('?')[0] || '') : '')
+        .filter(Boolean)
     const isSecondaryActive = !!pathname && secondaryPaths.some(path => path !== '' && pathname.startsWith(path))
 
     const handleTouchStart = (e: React.TouchEvent) => {
@@ -140,16 +153,20 @@ export function BottomNav() {
                         <div className="grid grid-cols-2 gap-2.5 pt-1">
                             {secondaryDestinations.map((dest) => {
                                 const Icon = dest.icon
-                                const active = !!pathname && pathname.startsWith(dest.href.split('?')[0] || '')
+                                const active = !!dest.href && !!pathname && pathname.startsWith(dest.href.split('?')[0] || '')
                                 return (
                                     <button
-                                        key={dest.href}
+                                        key={dest.label}
                                         type="button"
                                         onClick={() => {
                                             onPageChange()
                                             trigger(HapticPatterns.tabSwitch)
                                             setIsMoreOpen(false)
-                                            router.push(dest.href)
+                                            if (dest.action) {
+                                                dest.action()
+                                            } else if (dest.href) {
+                                                router.push(dest.href)
+                                            }
                                         }}
                                         className={cn(
                                             "flex items-start gap-2.5 p-2.5 rounded-xl border text-left transition-all active:scale-95 touch-manipulation relative group",
