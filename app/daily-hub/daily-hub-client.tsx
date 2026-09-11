@@ -487,415 +487,446 @@ export function DailyHubClient() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 md:-mt-20 relative z-10 space-y-6 md:space-y-8">
                 <StreakRecoveryCard />
 
-                {/* Free Daily Mystery Chest Quick Claim / Status */}
-                <DailyChestStatusWidget />
+                {/* BENTO ROW 1 — Expedition command & core momentum */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+                    {/* Bento Tile 1A: Hero companion & morning focus */}
+                    <div className="lg:col-span-5 flex flex-col justify-between rounded-2xl bg-gradient-to-b from-zinc-950 via-zinc-950/95 to-amber-950/20 border border-amber-900/40 p-5 shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
-                {/* Habit Milestone Escalation Banner & Morning Focus Ring */}
-                {(() => {
-                    const count = completedQuestIds.size;
-                    const targetProgress = Math.min(100, Math.round((count / 5) * 100));
+                        {/* Top banner: Streak badge */}
+                        <div className="flex items-center justify-between gap-3 mb-4 relative z-10">
+                            <div className="flex items-center gap-2">
+                                <span className="text-xl">🔥</span>
+                                <div>
+                                    <h3 className="text-sm font-bold font-serif text-amber-300">Expedition companion</h3>
+                                    <p className="text-[11px] text-zinc-400">Daily synergy & focus</p>
+                                </div>
+                            </div>
+                            {stats.streakDays > 0 && (() => {
+                                const days = stats.streakDays;
+                                let badgeClass = "bg-orange-950/40 border-orange-500/30 text-orange-400 shadow-[0_0_8px_rgba(249,115,22,0.25)]";
+                                let flameClass = "text-orange-500";
+                                let streakTitle = "Streak";
+                                
+                                if (days >= 10) {
+                                  badgeClass = "bg-cyan-950/60 border-cyan-400/40 text-cyan-300 shadow-[0_0_12px_rgba(34,211,238,0.5)] animate-pulse";
+                                  flameClass = "text-cyan-400 drop-shadow-[0_0_4px_rgba(34,211,238,0.6)]";
+                                  streakTitle = "Celestial streak";
+                                } else if (days >= 4) {
+                                  badgeClass = "bg-amber-950/50 border-amber-400/40 text-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.4)]";
+                                  flameClass = "text-amber-400 drop-shadow-[0_0_3px_rgba(251,191,36,0.5)]";
+                                  streakTitle = "Golden streak";
+                                }
+                                
+                                return (
+                                  <div className={cn("flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-bold font-mono transition-all", badgeClass)} title={`${streakTitle}: ${days} days`}>
+                                      <Flame className={cn("w-3.5 h-3.5 animate-bounce", flameClass)} style={{ animationDuration: '2s' }} />
+                                      <span>Day {days} streak</span>
+                                  </div>
+                                );
+                            })()}
+                        </div>
 
-                    let tier = null;
-                    if (count >= 20) tier = { title: "dedication", badge: "👑", desc: "Turtoisy slowly nods with deep respect: 20 habits mastered. Even mountains bow to such patience.", style: "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 font-black border-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.5)]" };
-                    else if (count >= 15) tier = { title: "supercharged progress", badge: "⚡", desc: "Sparky zaps with excitement: 15 habits finished! Electric momentum across the realm.", style: "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.5)]" };
-                    else if (count >= 10) tier = { title: "awesome momentum", badge: "🔥", desc: "Flamio tosses firecrackers in the air: 10 habits glowing hot! You're on a roll.", style: "bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-500 text-zinc-950 font-bold border-amber-300 shadow-[0_0_20px_rgba(217,119,6,0.5)]" };
-                    else if (count >= 5) tier = { title: "great start (5/5 target!)", badge: "🎯", desc: "Spirit Sprite bursts into golden sparkles: 5 habits done! Today's sweet spot achieved.", style: "bg-gradient-to-r from-emerald-700 via-teal-600 to-emerald-800 text-white font-semibold border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]" };
-
-                    return (
-                        <div className="space-y-3">
-                            {/* Morning Focus 5 Target Progress Ring (3-Tier Hierarchy) */}
-                            <div className="rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-950/80 via-zinc-900 to-zinc-950 p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xl relative overflow-hidden">
-                                {count >= 5 && (
-                                    <>
-                                        <div className="absolute -left-6 -top-6 w-32 h-32 bg-amber-500/30 rounded-full blur-2xl pointer-events-none animate-pulse" />
-                                        <div className="absolute top-0 right-0 px-3 py-0.5 bg-gradient-to-r from-amber-400 to-yellow-300 text-zinc-950 text-[9px] font-bold font-mono rounded-bl-xl shadow-md z-20">
-                                            🎉 5/5 sweet spot achieved! (+50 gold & virtue)
-                                        </div>
-                                    </>
-                                )}
-                                <div className="flex items-center gap-3 relative z-10">
-                                    <MedievalOrbIcon color={count >= 5 ? "gold" : "green"} size="md" className={count >= 5 ? "scale-105" : ""}>
-                                        🎯
-                                    </MedievalOrbIcon>
+                        {/* Streak Warning if at risk */}
+                        {isAtRisk && (
+                            <div className="mb-4 border border-red-500/30 bg-red-950/30 rounded-xl p-3 flex items-center justify-between gap-3 relative z-10">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xl animate-bounce">⚠️</span>
                                     <div>
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="font-bold text-sm text-white font-serif">Morning focus target</h4>
-                                            <span className="text-[10px] bg-amber-500/20 border border-amber-400/50 text-amber-300 px-2 py-0.5 rounded-full font-mono font-bold">
+                                        <h4 className="font-bold text-red-400 text-xs">Streak shield cracking!</h4>
+                                        <p className="text-[10px] text-zinc-300">Complete 1 quest before midnight to keep it burning.</p>
+                                    </div>
+                                </div>
+                                <Button
+                                    size="sm"
+                                    onClick={() => {
+                                        const element = document.getElementById('favorites-section');
+                                        if (element) element.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                    className="bg-red-700 hover:bg-red-600 text-white font-bold text-[10px] px-2.5 py-1 rounded-lg shrink-0"
+                                >
+                                    Do a quest
+                                </Button>
+                            </div>
+                        )}
+
+                        {/* Active Partner Creature */}
+                        {(() => {
+                            const activePartner = citizens.find(c => c.id === activePartnerId);
+                            if (!activePartner) {
+                                return (
+                                    <div className="p-4 rounded-xl bg-zinc-900/60 border border-amber-900/30 flex items-center gap-3 relative z-10 my-2">
+                                        <div className="w-12 h-12 rounded-full bg-zinc-950 border border-amber-500/30 flex items-center justify-center text-xl shrink-0">
+                                            🐾
+                                        </div>
+                                        <div className="flex-1">
+                                            <h4 className="text-xs font-bold text-zinc-300">No companion assigned</h4>
+                                            <p className="text-[10px] text-zinc-500">Visit kingdom citizens to set an active companion.</p>
+                                        </div>
+                                        <Link href="/kingdom">
+                                            <Button size="sm" variant="ghost" className="text-amber-400 text-xs hover:bg-amber-950/30">
+                                                Assign
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                );
+                            }
+
+                            const bondLevel = Math.floor(activePartner.affection / 100) + 1;
+                            const bondProgress = activePartner.affection % 100;
+
+                            const elementGlowClasses: Record<string, string> = {
+                              fire: 'border-red-900/60 shadow-[0_0_20px_rgba(239,68,68,0.15)]',
+                              water: 'border-blue-900/60 shadow-[0_0_20px_rgba(59,130,246,0.15)]',
+                              earth: 'border-amber-900/60 shadow-[0_0_20px_rgba(217,119,6,0.15)]',
+                              nature: 'border-emerald-900/60 shadow-[0_0_20px_rgba(16,185,129,0.15)]',
+                              ice: 'border-cyan-900/60 shadow-[0_0_20px_rgba(34,211,238,0.15)]',
+                              monster: 'border-purple-900/60 shadow-[0_0_20px_rgba(147,51,234,0.15)]'
+                            };
+                            const glowClass = elementGlowClasses[activePartner.type] || 'border-amber-700/50 shadow-md';
+
+                            return (
+                                <div className={`p-3.5 rounded-xl bg-zinc-950/90 border flex flex-col gap-3 my-2 relative z-10 transition-all ${glowClass}`}>
+                                    <div className="flex items-center gap-3">
+                                        <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-amber-500/50 bg-black shrink-0">
+                                            <NextImage src={`/images/creatures/${activePartner.filename}`} alt={activePartner.name} fill className="object-contain p-1" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between">
+                                                <h4 className="font-bold text-xs text-amber-300 truncate">{activePartner.name}</h4>
+                                                <span className="flex text-yellow-400">
+                                                    {Array.from({ length: Math.min(5, bondLevel) }).map((_, i) => (
+                                                        <Star key={i} className="w-3 h-3 fill-current" />
+                                                    ))}
+                                                </span>
+                                            </div>
+                                            <p className="text-[10px] text-zinc-400">Level {bondLevel} companion</p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-zinc-900/80 rounded-lg p-2 border border-white/5">
+                                        <div className="flex justify-between text-[10px] font-bold mb-1">
+                                          <span className="text-zinc-400 font-serif">Bond progress</span>
+                                          <span className="text-amber-400 font-mono">{bondProgress} / 100</span>
+                                        </div>
+                                        <div className="h-1.5 w-full bg-zinc-950 rounded-full overflow-hidden">
+                                          <div className="h-full bg-gradient-to-r from-amber-600 to-yellow-400 transition-all duration-700" style={{ width: `${bondProgress}%` }} />
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {/* Morning Focus Target Ring & Progress */}
+                        {(() => {
+                            const count = completedQuestIds.size;
+                            const targetProgress = Math.min(100, Math.round((count / 5) * 100));
+
+                            let tier = null;
+                            if (count >= 20) tier = { title: "dedication", badge: "👑", desc: "Turtoisy slowly nods with deep respect: 20 habits mastered. Even mountains bow to such patience." };
+                            else if (count >= 15) tier = { title: "supercharged progress", badge: "⚡", desc: "Sparky zaps with excitement: 15 habits finished! Electric momentum across the realm." };
+                            else if (count >= 10) tier = { title: "awesome momentum", badge: "🔥", desc: "Flamio tosses firecrackers in the air: 10 habits glowing hot! You're on a roll." };
+                            else if (count >= 5) tier = { title: "great start (5/5 target!)", badge: "🎯", desc: "Spirit Sprite bursts into golden sparkles: 5 habits done! Today's sweet spot achieved." };
+
+                            return (
+                                <div className="mt-2 space-y-2 relative z-10">
+                                    <div className="rounded-xl border border-amber-500/30 bg-zinc-900/80 p-3 flex flex-col gap-2.5">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <MedievalOrbIcon color={count >= 5 ? "gold" : "green"} size="sm">
+                                                    🎯
+                                                </MedievalOrbIcon>
+                                                <span className="font-bold text-xs text-white font-serif">Morning focus target</span>
+                                            </div>
+                                            <span className="text-[10px] bg-amber-500/20 border border-amber-400/40 text-amber-300 px-2 py-0.5 rounded-full font-mono font-bold">
                                                 {count >= 5 ? '🎯 Target achieved!' : `${count}/5 habits`}
                                             </span>
                                         </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3 w-full sm:w-auto">
-                                    <div className="flex-1 sm:w-32 bg-zinc-950 rounded-full h-2.5 overflow-hidden border border-zinc-800">
-                                         <div className="h-full bg-gradient-to-r from-amber-500 via-emerald-400 to-amber-300 transition-all duration-700 ease-out shadow-[0_0_12px_rgba(245,158,11,0.6)]" style={{ width: `${targetProgress}%` }} />
-                                    </div>
-                                    <span className="font-mono text-xs font-bold text-amber-400">{targetProgress}%</span>
-                                </div>
-                            </div>
-
-                            {tier && (
-                                <motion.div
-                                    initial={{ scale: 0.95, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    className={`p-4 rounded-xl shadow-xl border flex items-center justify-between ${tier.style}`}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-3xl">{tier.badge}</span>
-                                        <div>
-                                            <h4 className="text-lg capitalize font-serif tracking-wide">{tier.title}!</h4>
-                                            <p className="text-xs opacity-90">{tier.desc}</p>
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex-1 bg-zinc-950 rounded-full h-2 overflow-hidden border border-zinc-800">
+                                                <div className="h-full bg-gradient-to-r from-amber-500 via-emerald-400 to-amber-300 transition-all duration-700 ease-out" style={{ width: `${targetProgress}%` }} />
+                                            </div>
+                                            <span className="font-mono text-xs font-bold text-amber-400 shrink-0">{targetProgress}%</span>
                                         </div>
                                     </div>
-                                    <span className="px-3 py-1 bg-black/20 backdrop-blur-sm rounded-full text-xs font-mono">
-                                        {count} habits completed today
+
+                                    {tier && (
+                                        <div className="p-2.5 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-950/60 to-zinc-900 text-amber-200 flex items-center justify-between text-xs">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xl">{tier.badge}</span>
+                                                <div>
+                                                    <h5 className="font-bold text-xs capitalize text-white">{tier.title}</h5>
+                                                    <p className="text-[10px] text-zinc-300 line-clamp-1">{tier.desc}</p>
+                                                </div>
+                                            </div>
+                                            <span className="px-2 py-0.5 bg-black/40 rounded-full text-[10px] font-mono shrink-0">
+                                                {count} done
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })()}
+                    </div>
+
+                    {/* Bento Tile 1B: Core realm momentum & stats */}
+                    <div className="lg:col-span-7 flex flex-col justify-between gap-4">
+                        {/* 3 Balanced Metric Tiles */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 h-full">
+                            {/* Habits today card */}
+                            <Card className="bg-zinc-950 border-amber-900/40 shadow-xl overflow-hidden relative group hover:border-purple-500/40 transition-all flex flex-col justify-between">
+                                <div className="absolute inset-0 bg-gradient-to-br from-purple-900/15 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
+                                <CardContent className="p-5 relative z-10 flex flex-col justify-between h-full">
+                                    <div>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <p className="text-xs text-purple-200/70 font-medium uppercase tracking-wider">Habits today</p>
+                                            <span className="text-xl">⚔️</span>
+                                        </div>
+                                        <div className="flex items-baseline gap-2 mt-2">
+                                            <span className="text-4xl font-bold text-white font-mono">{completedQuestIds.size}</span>
+                                            <span className="text-xs text-purple-400">done today</span>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 pt-3 border-t border-purple-900/30 flex items-center justify-between text-[11px] text-zinc-400">
+                                        <span>Daily target</span>
+                                        <span className="text-amber-400 font-mono font-bold">5 habits</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Level card */}
+                            <Card className="bg-zinc-950 border-amber-900/40 shadow-xl overflow-hidden relative group hover:border-blue-500/40 transition-all flex flex-col justify-between">
+                                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/15 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
+                                <CardContent className="p-5 relative z-10 flex flex-col justify-between h-full">
+                                    <div>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <p className="text-xs text-blue-200/70 font-medium uppercase tracking-wider">Level {stats.level}</p>
+                                            {/* Avatar with circular ring */}
+                                            <div className="relative h-10 w-10 flex items-center justify-center shrink-0">
+                                                <svg className="absolute inset-0 w-full h-full transform -rotate-90">
+                                                    <circle cx="20" cy="20" r="16" className="stroke-zinc-900" strokeWidth="2.5" fill="transparent" />
+                                                    <circle
+                                                        cx="20"
+                                                        cy="20"
+                                                        r="16"
+                                                        className="stroke-blue-500 drop-shadow-[0_0_4px_rgba(59,130,246,0.5)]"
+                                                        strokeWidth="2.5"
+                                                        fill="transparent"
+                                                        strokeDasharray={2 * Math.PI * 16}
+                                                        strokeDashoffset={2 * Math.PI * 16 * (1 - Math.min(1, stats.experience / stats.experienceToNextLevel))}
+                                                        strokeLinecap="round"
+                                                    />
+                                                </svg>
+                                                <div className="h-7 w-7 rounded-full overflow-hidden border border-blue-900/40 bg-zinc-900 relative flex items-center justify-center">
+                                                    {user?.imageUrl ? (
+                                                        <NextImage src={user.imageUrl} alt="Avatar" fill sizes="28px" className="object-cover" />
+                                                    ) : (
+                                                        <span className="text-[9px] font-bold text-blue-400">Lvl</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-baseline gap-1.5 mt-2">
+                                            <AnimatedNumber value={stats.experience} className="text-2xl font-bold text-white font-mono" />
+                                            <span className="text-xs text-blue-400">/ {stats.experienceToNextLevel} xp</span>
+                                        </div>
+                                        <div className="mt-2 h-1.5 bg-zinc-950 rounded-full overflow-hidden">
+                                            <div className="h-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-500" style={{ width: `${(stats.experience / stats.experienceToNextLevel) * 100}%` }} />
+                                        </div>
+                                    </div>
+
+                                    {/* Chronicles Chapter */}
+                                    {(() => {
+                                        const nextChapter = getNextChapter(stats.level);
+                                        if (!nextChapter) return null;
+                                        const currentChapterData = getCurrentChapter(stats.level);
+                                        const totalLevelsInChapter = nextChapter.levelRequirement - currentChapterData.levelRequirement;
+                                        const levelsCompletedInChapter = stats.level - currentChapterData.levelRequirement;
+                                        const chapterProgress = (levelsCompletedInChapter / totalLevelsInChapter) * 100;
+                                        const levelsRemaining = nextChapter.levelRequirement - stats.level;
+                                        return (
+                                            <div className="mt-3 pt-2.5 border-t border-zinc-900/60 space-y-1">
+                                                <div className="flex items-center justify-between text-[10px] text-zinc-400">
+                                                    <span className="truncate">{nextChapter.title}</span>
+                                                    <span className="font-mono text-[9px] text-amber-400 shrink-0">{levelsRemaining} lvl</span>
+                                                </div>
+                                                <div className="h-1 bg-zinc-950 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-amber-500 transition-all duration-700" style={{ width: `${chapterProgress}%` }} />
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
+                                </CardContent>
+                            </Card>
+
+                            {/* Treasury card */}
+                            <Card className="bg-zinc-950 border-amber-900/40 shadow-xl overflow-hidden relative group hover:border-yellow-500/40 transition-all flex flex-col justify-between">
+                                <div className="absolute inset-0 bg-gradient-to-br from-yellow-900/15 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
+                                <CardContent className="p-5 relative z-10 flex flex-col justify-between h-full">
+                                    <div>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <p className="text-xs text-yellow-200/70 font-medium uppercase tracking-wider">Treasury</p>
+                                            <div className="w-8 h-8 rounded-full bg-yellow-950 border border-yellow-700/50 flex items-center justify-center text-sm shadow-inner">
+                                                🪙
+                                            </div>
+                                        </div>
+                                        <div className="flex items-baseline gap-2 mt-2">
+                                            <AnimatedNumber value={stats.gold} formatFn={formatGold} className="text-3xl font-bold text-white font-mono" title={`${stats.gold} gold`} />
+                                            <span className="text-xs text-yellow-500 font-semibold">gold</span>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 pt-3 border-t border-yellow-900/30 flex items-center gap-1.5">
+                                        <TrendingUp className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                        <span className="text-[11px] text-emerald-400 font-medium">
+                                            +{weeklyGoldEarned} gold this week
+                                        </span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Free Daily Mystery Chest Quick Claim Widget embedded in Row 1 */}
+                        <DailyChestStatusWidget />
+                    </div>
+                </div>
+
+                {/* BENTO ROW 2 — Habit execution & active perks */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+                    {/* Bento Tile 2A: Morning Habit Focus */}
+                    <div id="favorites-section" className="lg:col-span-7 flex flex-col justify-between rounded-2xl bg-zinc-950/95 border border-amber-900/40 p-5 shadow-2xl">
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2.5">
+                                    <span className="text-2xl">⚡</span>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-amber-400 font-medieval tracking-wide">Morning habit focus</h3>
+                                        <p className="text-xs text-zinc-400">Your core daily priority quests</p>
+                                    </div>
+                                </div>
+                                <Link href="/quests">
+                                    <Button variant="ghost" size="sm" className="text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 text-xs gap-1">
+                                        View all <ArrowRight className="w-3.5 h-3.5" />
+                                    </Button>
+                                </Link>
+                            </div>
+
+                            {rival && (
+                                <div className="mb-4 bg-zinc-900/60 border border-purple-900/40 rounded-xl p-3 flex items-center justify-between text-xs">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-base">👑</span>
+                                        <span className="text-zinc-300">
+                                            Your rival <strong className="text-purple-400">{rival.displayName}</strong> is only <strong className="text-yellow-400">{rival.xpDifference} XP</strong> ahead.
+                                        </span>
+                                    </div>
+                                    <span className="text-[10px] text-purple-300/80 font-bold uppercase tracking-wider bg-purple-950/40 px-2 py-0.5 rounded border border-purple-900/30 shrink-0">
+                                        Close the gap!
                                     </span>
-                                </motion.div>
+                                </div>
+                            )}
+
+                            {favoritedQuests.length === 0 ? (
+                                <div className="rounded-xl border border-dashed border-amber-900/30 p-8 flex flex-col items-center justify-center text-center">
+                                    <ScrollText className="w-10 h-10 text-amber-700/60 mb-3" />
+                                    <h4 className="text-sm font-bold text-amber-400 mb-1">No favorited habits yet</h4>
+                                    <p className="text-xs text-zinc-400 max-w-sm mb-4">
+                                        Favorite habits on your quest board to track and complete them here every morning.
+                                    </p>
+                                    <Link href="/quests">
+                                        <Button size="sm" className="bg-amber-600 hover:bg-amber-500 text-zinc-950 font-bold text-xs rounded-xl">
+                                            Pick favorite quests
+                                        </Button>
+                                    </Link>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                                    {favoritedQuests.map((quest, index) => (
+                                        <motion.div
+                                            key={quest.id}
+                                            initial={{ opacity: 0, y: 15 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.05 * index }}
+                                        >
+                                            <QuestCard
+                                                title={quest.name}
+                                                description={quest.description}
+                                                category={quest.category}
+                                                difficulty={quest.difficulty}
+                                                progress={quest.completed ? 1 : 0}
+                                                maxProgress={1}
+                                                reward={{
+                                                    experience: quest.xpReward || 0,
+                                                    gold: quest.goldReward || 0
+                                                }}
+                                                status={quest.completed ? 'completed' : 'not-started'}
+                                                onComplete={() => handleCompleteQuest(quest)}
+                                                onClick={() => router.push('/quests')}
+                                            />
+                                        </motion.div>
+                                    ))}
+                                </div>
                             )}
                         </div>
-                    );
-                })()}
-
-                <AllianceDailyOathWidget />
-
-                <HabitGuardian favoritedQuests={favoritedQuests} />
-
-                {/* Active Partner Widget (Fixed Bottom Left) */}
-                {(() => {
-                    const activePartner = citizens.find(c => c.id === activePartnerId);
-                    if (!activePartner) return null;
-                    const bondLevel = Math.floor(activePartner.affection / 100) + 1;
-                    const bondProgress = activePartner.affection % 100;
-
-                    const elementGlowClasses: Record<string, string> = {
-                      fire: 'border-red-900/60 shadow-[0_0_30px_rgba(239,68,68,0.15)] hover:border-red-500/80 hover:shadow-[0_0_40px_rgba(239,68,68,0.25)]',
-                      water: 'border-blue-900/60 shadow-[0_0_30px_rgba(59,130,246,0.15)] hover:border-blue-500/80 hover:shadow-[0_0_40px_rgba(59,130,246,0.25)]',
-                      earth: 'border-amber-900/60 shadow-[0_0_30px_rgba(217,119,6,0.15)] hover:border-amber-500/80 hover:shadow-[0_0_40px_rgba(217,119,6,0.25)]',
-                      nature: 'border-emerald-900/60 shadow-[0_0_30px_rgba(16,185,129,0.15)] hover:border-emerald-500/80 hover:shadow-[0_0_40px_rgba(16,185,129,0.25)]',
-                      ice: 'border-cyan-900/60 shadow-[0_0_30px_rgba(34,211,238,0.15)] hover:border-cyan-400/80 hover:shadow-[0_0_40px_rgba(34,211,238,0.25)]',
-                      monster: 'border-purple-900/60 shadow-[0_0_30px_rgba(147,51,234,0.15)] hover:border-purple-500/80 hover:shadow-[0_0_40px_rgba(147,51,234,0.25)]'
-                    };
-                    const glowClass = elementGlowClasses[activePartner.type] || 'border-amber-700/50 shadow-[0_0_40px_rgba(0,0,0,0.8)] hover:border-amber-500/80';
-
-                    const elementInnerBorderClasses: Record<string, string> = {
-                      fire: 'border-red-500/50 group-hover:border-red-400',
-                      water: 'border-blue-500/50 group-hover:border-blue-400',
-                      earth: 'border-amber-500/50 group-hover:border-amber-400',
-                      nature: 'border-emerald-500/50 group-hover:border-emerald-400',
-                      ice: 'border-cyan-400/50 group-hover:border-cyan-300',
-                      monster: 'border-purple-500/50 group-hover:border-purple-400'
-                    };
-                    const innerBorderClass = elementInnerBorderClasses[activePartner.type] || 'border-amber-500/50 group-hover:border-amber-400';
-
-                    return (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className={`w-full bg-zinc-950/95 border rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-300 group ${glowClass}`}
-                        >
-                            <div className="flex items-center gap-3 w-full">
-                                <div className={`relative w-14 h-14 rounded-full overflow-hidden border-2 bg-black flex-shrink-0 transition-colors shadow-inner ${innerBorderClass}`}>
-                                    <div className="absolute inset-0 bg-gradient-to-tr from-amber-900/40 to-transparent opacity-50 pointer-events-none" />
-                                    <NextImage src={`/images/creatures/${activePartner.filename}`} alt={activePartner.name} fill className="object-contain p-1 relative z-10" />
-                                    <div className="absolute inset-0 bg-amber-500/20 animate-pulse opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none" />
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="text-amber-400 font-bold text-sm flex items-center justify-between">
-                                        {activePartner.name}
-                                        <span className="flex text-yellow-400 drop-shadow-md">
-                                            {Array.from({ length: Math.min(5, bondLevel) }).map((_, i) => (
-                                                <Star key={i} className="w-3 h-3 fill-current" />
-                                            ))}
-                                        </span>
-                                    </h3>
-                                    <p className="text-[10px] text-zinc-400 font-serif font-semibold mt-0.5">Active partner</p>
-                                </div>
-                            </div>
-                            <div className="w-full bg-zinc-950 rounded-xl p-2 border border-white/5">
-                                <div className="flex justify-between text-[10px] mb-1 font-bold">
-                                    <span className="text-amber-500/90 font-serif text-xs font-semibold">Bond progress</span>
-                                    <span className="text-amber-400">{bondProgress} <span className="text-amber-600/70">/ 100</span></span>
-                                </div>
-                                <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden shadow-inner relative">
-                                    <div 
-                                        className="h-full bg-gradient-to-r from-amber-600 to-yellow-400 transition-all duration-1000 ease-out relative"
-                                        style={{ width: `${bondProgress}%` }}
-                                    >
-                                        <div className="absolute inset-0 bg-white/20 animate-pulse" />
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    );
-                })()}
-
-                {isAtRisk && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="mb-6 border border-red-500/30 bg-gradient-to-br from-red-950/40 via-zinc-950 to-zinc-950 rounded-2xl p-5 relative overflow-hidden shadow-xl"
-                    >
-                        <div className="absolute top-0 right-0 p-6 text-red-500/10 pointer-events-none">
-                            <Flame className="w-24 h-24 animate-pulse" />
-                        </div>
-                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
-                            <div className="flex items-center gap-3">
-                                <span className="text-3xl animate-bounce">⚠️</span>
-                                <div>
-                                    <h4 className="font-bold text-red-400 font-medieval tracking-wide text-lg">Streak shield cracking!</h4>
-                                    <p className="text-xs text-zinc-300 max-w-xl font-serif mt-0.5 leading-relaxed">
-                                        Your Day {stats.streakDays} expedition streak is at risk. Complete at least one quest before midnight to keep the fire burning, or it will cost 5 Build Tokens or 20 Resilience Points to restore!
-                                    </p>
-                                </div>
-                            </div>
-                            <Button
-                                onClick={() => {
-                                    const element = document.getElementById('favorites-section');
-                                    if (element) {
-                                        element.scrollIntoView({ behavior: 'smooth' });
-                                    }
-                                }}
-                                className="bg-red-700 hover:bg-red-600 text-white font-bold text-xs font-serif px-4 py-2 shrink-0 rounded-xl shadow-lg"
-                            >
-                                Do a quest now
-                            </Button>
-                        </div>
-                    </motion.div>
-                )}
-
-                {/* Stats Overview */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"
-                >
-                    {/* Total Quests Card */}
-                    <Card className="bg-zinc-950 border-amber-900/50  shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-purple-500/10 transition-all">
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
-                        <CardContent className="p-5 md:p-6 flex items-center justify-between relative z-10">
-                            <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                    <p className="text-sm text-purple-200/70 font-medium uppercase tracking-wider">Total Quests</p>
-                                    {stats.streakDays > 0 && (() => {
-                                      const days = stats.streakDays;
-                                      let badgeClass = "bg-orange-950/40 border-orange-500/30 text-orange-400 shadow-[0_0_8px_rgba(249,115,22,0.25)]";
-                                      let flameClass = "text-orange-500";
-                                      let streakTitle = "Streak";
-                                      
-                                      if (days >= 10) {
-                                        badgeClass = "bg-cyan-950/60 border-cyan-400/40 text-cyan-300 shadow-[0_0_12px_rgba(34,211,238,0.5)] animate-pulse";
-                                        flameClass = "text-cyan-400 drop-shadow-[0_0_4px_rgba(34,211,238,0.6)]";
-                                        streakTitle = "Celestial Streak";
-                                      } else if (days >= 4) {
-                                        badgeClass = "bg-amber-950/50 border-amber-400/40 text-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.4)]";
-                                        flameClass = "text-amber-400 drop-shadow-[0_0_3px_rgba(251,191,36,0.5)]";
-                                        streakTitle = "Golden Streak";
-                                      }
-                                      
-                                      return (
-                                        <div className={cn("flex items-center gap-1 px-2 py-0.5 rounded-full border transition-all duration-300", badgeClass)} title={`${streakTitle}: ${days} Days`}>
-                                            <Flame className={cn("w-3 h-3 animate-bounce", flameClass)} style={{ animationDuration: '2s' }} />
-                                            <span className="text-[10px] font-black uppercase tracking-wider">{days} Day{days > 1 ? 's' : ''}</span>
-                                        </div>
-                                      );
-                                    })()}
-                                </div>
-                                <div className="flex items-baseline gap-2 mt-1">
-                                    <span className="text-4xl font-bold text-white">{completedQuestIds.size}</span>
-                                    <span className="text-sm text-purple-400">Completed Today</span>
-                                </div>
-                            </div>
-                            <div className="h-16 w-16 flex items-center justify-center bg-purple-950/30 rounded-full border border-purple-900/50 text-2xl">
-                                ⚔️
-                            </div>
-                        </CardContent>
-                    </Card>
- 
-                    {/* Level Card */}
-                    <Card className="bg-zinc-950 border-amber-900/50  shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-blue-500/10 transition-all">
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
-                        <CardContent className="p-5 md:p-6 relative z-10">
-                            <div className="flex items-center justify-between mb-2">
-                                <div>
-                                    <p className="text-sm text-blue-200/70 font-medium uppercase tracking-wider">{TEXT_CONTENT.dailyHub.stats.level.label.replace('{level}', String(stats.level))}</p>
-                                    <div className="flex items-baseline gap-2">
-                                        <AnimatedNumber value={stats.experience} className="text-2xl font-bold text-white" />
-                                        <span className="text-sm text-blue-400">{TEXT_CONTENT.dailyHub.stats.level.xp.replace('{max}', String(stats.experienceToNextLevel))}</span>
-                                    </div>
-                                </div>
-                                <div className="relative h-14 w-14 flex items-center justify-center shrink-0">
-                                  {/* SVG Circular Progress Ring */}
-                                  <svg className="absolute inset-0 w-full h-full transform -rotate-90">
-                                    <circle
-                                      cx="28"
-                                      cy="28"
-                                      r="24"
-                                      className="stroke-zinc-900"
-                                      strokeWidth="2.5"
-                                      fill="transparent"
-                                    />
-                                    <circle
-                                      cx="28"
-                                      cy="28"
-                                      r="24"
-                                      className="stroke-blue-500 drop-shadow-[0_0_4px_rgba(59,130,246,0.5)]"
-                                      strokeWidth="2.5"
-                                      fill="transparent"
-                                      strokeDasharray={2 * Math.PI * 24}
-                                      strokeDashoffset={2 * Math.PI * 24 * (1 - Math.min(1, stats.experience / stats.experienceToNextLevel))}
-                                      strokeLinecap="round"
-                                    />
-                                  </svg>
-                                  {/* Avatar Image */}
-                                  <div className="h-9 w-9 rounded-full overflow-hidden border border-blue-900/40 bg-zinc-900 z-10 relative flex items-center justify-center">
-                                    {user?.imageUrl ? (
-                                      <NextImage 
-                                        src={user.imageUrl} 
-                                        alt="Avatar" 
-                                        fill 
-                                        sizes="36px"
-                                        className="object-cover" 
-                                      />
-                                    ) : (
-                                      <span className="text-[10px] font-bold text-blue-400 select-none">
-                                        Lvl
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                            </div>
-                            <div className="mt-2 h-2 bg-zinc-950 rounded-full overflow-hidden">
-                                <div
-                                    className="h-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-500"
-                                    style={{ width: `${(stats.experience / stats.experienceToNextLevel) * 100}%` }}
-                                />
-                            </div>
-
-                            {/* Chronicles Chapter Progress */}
-                            {(() => {
-                                const nextChapter = getNextChapter(stats.level);
-                                if (!nextChapter) return null;
-                                const currentChapterData = getCurrentChapter(stats.level);
-                                const totalLevelsInChapter = nextChapter.levelRequirement - currentChapterData.levelRequirement;
-                                const levelsCompletedInChapter = stats.level - currentChapterData.levelRequirement;
-                                const chapterProgress = (levelsCompletedInChapter / totalLevelsInChapter) * 100;
-                                const levelsRemaining = nextChapter.levelRequirement - stats.level;
-                                return (
-                                    <div className="mt-4 pt-3 border-t border-zinc-900/60 space-y-1.5">
-                                        <div className="flex items-center justify-between text-[10px] text-zinc-400">
-                                            <span className="font-serif">Next Chapter: <strong className="text-amber-400/90">{nextChapter.title}</strong></span>
-                                            <span className="font-mono text-[9px]">{levelsRemaining} lvl to go</span>
-                                        </div>
-                                        <div className="relative h-1.5 bg-zinc-950 rounded-full overflow-hidden border border-amber-900/20">
-                                            <div
-                                                className="absolute top-0 left-0 h-full bg-gradient-to-r from-amber-700 to-amber-500 transition-all duration-1000 ease-out"
-                                                style={{ width: `${chapterProgress}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                );
-                            })()}
-                        </CardContent>
-                    </Card>
-
-                    {/* Gold Card with Weekly Stats */}
-                    <Card className="bg-zinc-950 border-amber-900/50  shadow-xl overflow-hidden relative group hover:shadow-2xl hover:shadow-yellow-500/10 transition-all">
-                        <div className="absolute inset-0 bg-gradient-to-br from-yellow-900/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
-                        <CardContent className="p-5 md:p-6 relative z-10">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="flex-1">
-                                    <p className="text-sm text-yellow-200/70 font-medium uppercase tracking-wider">{TEXT_CONTENT.dailyHub.stats.treasury.title}</p>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-yellow-950 border border-yellow-700/50 flex items-center justify-center text-xl shadow-inner shadow-yellow-900/50">
-                                            🪙
-                                        </div>
-                                        <AnimatedNumber value={stats.gold} formatFn={formatGold} className="text-3xl font-bold text-white" title={`${stats.gold} Gold`} />
-                                        <span className="text-sm text-yellow-500">{TEXT_CONTENT.dailyHub.stats.treasury.unit}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="mt-3 pt-3 border-t border-yellow-900/30 flex items-center gap-2">
-                                <TrendingUp className="w-4 h-4 text-green-400" />
-                                <span className="text-xs text-green-400 font-medium">
-                                    {TEXT_CONTENT.dailyHub.stats.treasury.weekly.replace('{amount}', String(weeklyGoldEarned))}
-                                </span>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </motion.div>
-
-                {/* Challenges & Active Perks Section (Grid Layout) */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-                >
-                    <div className="lg:col-span-2 h-full">
-                        <WeeklyChallengesCard quests={favoritedQuests} weeklyGoldEarned={weeklyGoldEarned} />
                     </div>
-                    
-                    {/* ACTIVE PERKS WIDGET */}
-                    <div className="lg:col-span-1">
-                        <Card className="bg-zinc-950 border-amber-900/40  h-full flex flex-col justify-between">
-                            <CardHeader className="pb-4">
-                                <CardTitle className="text-xl font-medieval text-amber-500 flex items-center gap-2">
-                                    <Sparkles className="w-5 h-5 text-amber-400" />
-                                    <span>Active Buffs</span>
-                                </CardTitle>
+
+                    {/* Bento Tile 2B: Active buffs & Alliance daily oath */}
+                    <div className="lg:col-span-5 flex flex-col justify-between gap-4">
+                        {/* Active Buffs Card */}
+                        <Card className="bg-zinc-950 border-amber-900/40 shadow-xl flex-1 flex flex-col justify-between">
+                            <CardHeader className="pb-3 pt-4 px-5">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-base font-medieval text-amber-400 flex items-center gap-2">
+                                        <Sparkles className="w-4 h-4 text-amber-400" />
+                                        <span>Active buffs</span>
+                                    </CardTitle>
+                                    <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-400">
+                                        {activePerks.length} active
+                                    </Badge>
+                                </div>
                                 <CardDescription className="text-zinc-400 text-xs">
                                     Temporary passive bonuses currently active
                                 </CardDescription>
                             </CardHeader>
-                            <CardContent className="flex-1 space-y-4">
+                            <CardContent className="px-5 pb-5 pt-0 flex-1 flex flex-col justify-center">
                                 {activePerks.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center text-center py-8 h-full space-y-4">
-                                        <div className="w-12 h-12 rounded-full bg-zinc-900 border border-amber-900/20 flex items-center justify-center text-xl">
+                                    <div className="flex flex-col items-center justify-center text-center py-6 space-y-3">
+                                        <div className="w-10 h-10 rounded-full bg-zinc-900 border border-amber-900/20 flex items-center justify-center text-lg">
                                             🧪
                                         </div>
                                         <div>
-                                            <p className="text-sm text-zinc-300 font-semibold">No active buffs</p>
-                                            <p className="text-xs text-zinc-500 mt-1 max-w-[200px] mx-auto">
-                                                Drink potions from your inventory or unlock milestones to get buffs.
+                                            <p className="text-xs text-zinc-300 font-semibold">No active buffs</p>
+                                            <p className="text-[11px] text-zinc-500 mt-0.5 max-w-[200px] mx-auto">
+                                                Drink potions or unlock milestones to activate perks.
                                             </p>
                                         </div>
                                         <Link href="/inventory">
-                                          <Button size="sm" variant="outline" className="border-amber-900/40 hover:bg-amber-950/20 text-xs text-amber-400 font-bold">
-                                              Open Backpack
-                                          </Button>
+                                            <Button size="sm" variant="outline" className="border-amber-900/40 hover:bg-amber-950/20 text-xs text-amber-400 font-bold rounded-lg">
+                                                Open backpack
+                                            </Button>
                                         </Link>
                                     </div>
                                 ) : (
-                                    <div className="space-y-3">
+                                    <div className="space-y-2.5">
                                         {Array.isArray(activePerks) && activePerks.map((perk, index) => {
                                             const totalDuration = perk.created_at ? (new Date(perk.expires_at).getTime() - new Date(perk.created_at).getTime()) : (24 * 60 * 60 * 1000);
                                             const remaining = new Date(perk.expires_at).getTime() - Date.now();
                                             const progress = Math.max(0, Math.min(100, (remaining / totalDuration) * 100));
 
                                             return (
-                                                <div key={perk.id || index} className="p-3 bg-zinc-900 rounded-xl border border-zinc-800/80 flex flex-col gap-2.5">
+                                                <div key={perk.id || index} className="p-2.5 bg-zinc-900 rounded-xl border border-zinc-800/80 flex flex-col gap-2">
                                                     <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="text-2xl">🧪</span>
+                                                        <div className="flex items-center gap-2.5">
+                                                            <span className="text-xl">🧪</span>
                                                             <div>
                                                                 <h5 className="font-bold text-xs text-amber-100">{perk.perk_name}</h5>
-                                                                <p className="text-[10px] text-zinc-400 mt-0.5">{perk.effect}</p>
+                                                                <p className="text-[10px] text-zinc-400">{perk.effect}</p>
                                                             </div>
                                                         </div>
-                                                        <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-amber-400 bg-amber-950/40 border border-amber-900/30 px-2 py-1 rounded-full shrink-0">
+                                                        <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-amber-400 bg-amber-950/40 border border-amber-900/30 px-2 py-0.5 rounded-full shrink-0">
                                                             <Clock className="w-3 h-3 animate-spin duration-3000" />
                                                             <span>{getPerkTimeRemaining(perk.expires_at)}</span>
                                                         </div>
                                                     </div>
-                                                    
-                                                    {/* Progress bar */}
                                                     <div className="h-1 w-full bg-zinc-950 rounded-full overflow-hidden border border-white/5">
-                                                        <div 
-                                                            className="h-full bg-gradient-to-r from-amber-600 to-amber-400 transition-all duration-1000"
-                                                            style={{ width: `${progress}%` }}
-                                                        />
+                                                        <div className="h-full bg-gradient-to-r from-amber-600 to-amber-400 transition-all duration-1000" style={{ width: `${progress}%` }} />
                                                     </div>
                                                 </div>
                                             );
@@ -904,216 +935,139 @@ export function DailyHubClient() {
                                 )}
                             </CardContent>
                         </Card>
+
+                        {/* Alliance Daily Oath Widget */}
+                        <AllianceDailyOathWidget />
                     </div>
-                </motion.div>
+                </div>
 
-                {/* New Player Progress */}
-                <NewPlayerProgress />
+                {/* BENTO ROW 3 — Growth, consistency & challenges */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+                    {/* Bento Tile 3A: Weekly Challenges */}
+                    <div className="lg:col-span-7 h-full">
+                        <WeeklyChallengesCard quests={favoritedQuests} weeklyGoldEarned={weeklyGoldEarned} />
+                    </div>
 
-                {/* Gameplay Loop Section */}
+                    {/* Bento Tile 3B: Consistency Chart & Active Timers */}
+                    <div className="lg:col-span-5 flex flex-col justify-between gap-4">
+                        <div className="flex-1">
+                            <ConsistencyChart />
+                        </div>
+                        <div>
+                            <ActiveTimersLedger />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Quick actions */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.05 }}
-                    className="relative"
-                >
-                    <Card className="bg-zinc-950 border-amber-900/40  overflow-hidden">
-                        <CardContent className="p-6 md:p-8">
-                            <h2 className="text-xl md:text-2xl font-bold text-amber-500 font-medieval tracking-wide mb-6">How to Build Habits</h2>
-
-                            <div className="flex flex-col md:flex-row gap-8 items-center">
-                                {/* Left Side: Steps List */}
-                                <div className="flex-1 space-y-6">
-                                    <div className="flex gap-4">
-                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">1</div>
-                                        <div>
-                                            <h3 className="text-amber-400 font-bold text-lg mb-1">Daily Habits</h3>
-                                            <p className="text-sm text-zinc-300 leading-relaxed">Completing tasks to earn resources.</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-4">
-                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">2</div>
-                                        <div>
-                                            <h3 className="text-amber-400 font-bold text-lg mb-1">Expanding Realm</h3>
-                                            <p className="text-sm text-zinc-300 leading-relaxed">Using resources to grow your map.</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-4">
-                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">3</div>
-                                        <div>
-                                            <h3 className="text-amber-400 font-bold text-lg mb-1">Daily Kingdom</h3>
-                                            <p className="text-sm text-zinc-300 leading-relaxed">Managing and maintaining your new territory.</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-4">
-                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">4</div>
-                                        <div>
-                                            <h3 className="text-amber-400 font-bold text-lg mb-1">Competitive friends</h3>
-                                            <p className="text-sm text-zinc-300 leading-relaxed">Engaging with friends and rivals.</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-4">
-                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">5</div>
-                                        <div>
-                                            <h3 className="text-amber-400 font-bold text-lg mb-1">Building Character</h3>
-                                            <p className="text-sm text-zinc-300 leading-relaxed">Leveling up your personal stats based on progress.</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Right Side: Image */}
-                                <div className="flex-1 w-full max-w-md">
-                                    <div className="relative aspect-square rounded-xl overflow-hidden border border-amber-900/30 shadow-2xl bg-zinc-950">
-                                        <NextImage
-                                            src="/images/placeholders/gameplay-loop.webp"
-                                            alt="Level Up Gameplay Loop"
-                                            fill
-                                            priority
-                                            className="object-contain p-2"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent pointer-events-none mix-blend-overlay" />
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </motion.div>
-
-                {/* Chronicles Section */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                >
-                    <ChroniclesCard currentLevel={stats.level} />
-                </motion.div>
-
-                {/* Quick Actions */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.15 }}
+                    transition={{ duration: 0.4 }}
                     className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4"
                 >
                     <Link href="/quests" className="block">
                         <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-zinc-950 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <ScrollText className="w-6 h-6 text-amber-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-amber-200 group-hover:text-white">{TEXT_CONTENT.dailyHub.actions.questBoard}</span>
+                            <span className="text-amber-200 group-hover:text-white font-serif">{TEXT_CONTENT.dailyHub.actions.questBoard}</span>
                         </Button>
                     </Link>
                     <Link href="/kingdom" className="block">
                         <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-zinc-950 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <span className="text-2xl group-hover:scale-110 transition-transform">👑</span>
-                            <span className="text-green-200 group-hover:text-white">{TEXT_CONTENT.dailyHub.actions.kingdom}</span>
+                            <span className="text-green-200 group-hover:text-white font-serif">{TEXT_CONTENT.dailyHub.actions.kingdom}</span>
                         </Button>
                     </Link>
                     <Link href="/realm" className="block">
                         <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-zinc-950 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <Map className="w-6 h-6 text-blue-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-blue-200 group-hover:text-white">{TEXT_CONTENT.dailyHub.actions.realm}</span>
+                            <span className="text-blue-200 group-hover:text-white font-serif">{TEXT_CONTENT.dailyHub.actions.realm}</span>
                         </Button>
                     </Link>
                     <Link href="/quests?new=true" className="block">
                         <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-zinc-950 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
                             <Plus className="w-6 h-6 text-purple-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-purple-200 group-hover:text-white">{TEXT_CONTENT.dailyHub.actions.newQuest}</span>
+                            <span className="text-purple-200 group-hover:text-white font-serif">{TEXT_CONTENT.dailyHub.actions.newQuest}</span>
                         </Button>
                     </Link>
                 </motion.div>
 
-                {/* Data Visualizations */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.18 }}
-                >
-                    <ConsistencyChart />
-                </motion.div>
+                {/* Chronicles */}
+                <div>
+                    <ChroniclesCard currentLevel={stats.level} />
+                </div>
 
-                {/* Favorited Quests */}
-                <motion.div
-                    id="favorites-section"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                >
-                    <div className="flex items-center justify-between mb-4 md:mb-6">
-                        <h2 className="text-xl md:text-2xl font-bold text-amber-500 font-medieval tracking-wide">{TEXT_CONTENT.dailyHub.favorites.title}</h2>
-                        <Link href="/quests">
-                            <Button variant="ghost" className="text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 gap-1 md:gap-2 text-sm md:text-base">
-                                {TEXT_CONTENT.dailyHub.favorites.viewAll} <ArrowRight className="w-4 h-4" />
-                            </Button>
-                        </Link>
-                    </div>
+                {/* Habit Guardian */}
+                <HabitGuardian favoritedQuests={favoritedQuests} />
 
-                    {rival && (
-                        <div className="mb-4 bg-zinc-900/40 border border-purple-900/40 rounded-xl p-3 flex items-center justify-between text-xs backdrop-blur-sm">
-                            <div className="flex items-center gap-2">
-                                <span className="text-base">👑</span>
-                                <span className="text-zinc-300">
-                                    Your rival <strong className="text-purple-400">{rival.displayName}</strong> is only <strong className="text-yellow-400">{rival.xpDifference} XP</strong> ahead of you.
-                                </span>
-                            </div>
-                            <span className="text-[10px] text-purple-300/80 font-bold uppercase tracking-wider bg-purple-950/40 px-2 py-0.5 rounded border border-purple-900/30 shrink-0">
-                                Close the gap!
-                            </span>
-                        </div>
-                    )}
+                {/* New Player Progress */}
+                <NewPlayerProgress />
 
-                    <div className="mb-6">
-                        <ActiveTimersLedger />
-                    </div>
+                {/* How to build habits guide */}
+                <Card className="bg-zinc-950 border-amber-900/40 overflow-hidden">
+                    <CardContent className="p-6 md:p-8">
+                        <h2 className="text-xl md:text-2xl font-bold text-amber-500 font-medieval tracking-wide mb-6">How to build habits</h2>
 
-                    {favoritedQuests.length === 0 ? (
-                        <Card className="bg-zinc-950 border-amber-900/30 border-dashed">
-                            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                                <div className="w-16 h-16 bg-amber-950/30 rounded-full flex items-center justify-center mb-4">
-                                    <ScrollText className="w-8 h-8 text-amber-700" />
+                        <div className="flex flex-col md:flex-row gap-8 items-center">
+                            {/* Left Side: Steps List */}
+                            <div className="flex-1 space-y-5">
+                                <div className="flex gap-4">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">1</div>
+                                    <div>
+                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Daily habits</h3>
+                                        <p className="text-xs text-zinc-300 leading-relaxed">Completing tasks to earn resources.</p>
+                                    </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-amber-500 mb-2">{TEXT_CONTENT.dailyHub.favorites.empty.title}</h3>
-                                <p className="text-zinc-400 max-w-md mb-6">
-                                    {TEXT_CONTENT.dailyHub.favorites.empty.description}
-                                </p>
-                                <Link href="/quests">
-                                    <Button className="bg-amber-600 hover:bg-amber-700 text-white">
-                                        {TEXT_CONTENT.dailyHub.favorites.empty.button}
-                                    </Button>
-                                </Link>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                            {favoritedQuests.map((quest, index) => (
-                                <motion.div
-                                    key={quest.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 * index }}
-                                >
-                                    <QuestCard
-                                        title={quest.name}
-                                        description={quest.description}
-                                        category={quest.category}
-                                        difficulty={quest.difficulty}
-                                        progress={quest.completed ? 1 : 0}
-                                        maxProgress={1}
-                                        reward={{
-                                            experience: quest.xpReward || 0,
-                                            gold: quest.goldReward || 0
-                                        }}
-                                        status={quest.completed ? 'completed' : 'not-started'}
-                                        onComplete={() => handleCompleteQuest(quest)}
-                                        onClick={() => router.push('/quests')}
+
+                                <div className="flex gap-4">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">2</div>
+                                    <div>
+                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Expanding realm</h3>
+                                        <p className="text-xs text-zinc-300 leading-relaxed">Using resources to grow your map.</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">3</div>
+                                    <div>
+                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Daily kingdom</h3>
+                                        <p className="text-xs text-zinc-300 leading-relaxed">Managing and maintaining your new territory.</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">4</div>
+                                    <div>
+                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Competitive friends</h3>
+                                        <p className="text-xs text-zinc-300 leading-relaxed">Engaging with friends and rivals.</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">5</div>
+                                    <div>
+                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Building character</h3>
+                                        <p className="text-xs text-zinc-300 leading-relaxed">Leveling up your personal stats based on progress.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right Side: Image */}
+                            <div className="flex-1 w-full max-w-md">
+                                <div className="relative aspect-square rounded-xl overflow-hidden border border-amber-900/30 shadow-2xl bg-zinc-950">
+                                    <NextImage
+                                        src="/images/placeholders/gameplay-loop.webp"
+                                        alt="Level up gameplay loop"
+                                        fill
+                                        priority
+                                        className="object-contain p-2"
                                     />
-                                </motion.div>
-                            ))}
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent pointer-events-none mix-blend-overlay" />
+                                </div>
+                            </div>
                         </div>
-                    )}
-                </motion.div>
+                    </CardContent>
+                </Card>
             </div>
 
             {/* Daily Opening Routine Sequence & Overnight Chronicle Modal (Unified) */}
