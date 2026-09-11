@@ -83,6 +83,37 @@ interface GoldTransaction {
     created_at: string
 }
 
+const POSSIBLE_BUFFS = [
+    {
+        id: 'potion-exp',
+        name: 'Exp draught',
+        effect: '+25% quest EXP',
+        durationHours: 2,
+        icon: '🧪'
+    },
+    {
+        id: 'potion-gold',
+        name: 'Gold surge',
+        effect: '+20% habit gold',
+        durationHours: 4,
+        icon: '🍯'
+    },
+    {
+        id: 'potion-focus',
+        name: 'Focus tonic',
+        effect: '+15% dungeon attack',
+        durationHours: 2,
+        icon: '⚡'
+    },
+    {
+        id: 'potion-sage',
+        name: 'Sage brew',
+        effect: '+10% expedition essences',
+        durationHours: 6,
+        icon: '🍵'
+    }
+]
+
 export function DailyHubClient() {
     const { user } = useUser()
     const router = useRouter()
@@ -242,6 +273,66 @@ export function DailyHubClient() {
             }
         } catch (error) {
             logger.error('Failed to load active perks on daily hub:', error)
+        }
+    }
+
+    const [activatingBuffId, setActivatingBuffId] = useState<string | null>(null)
+
+    const handleActivateBuff = async (buff: typeof POSSIBLE_BUFFS[0]) => {
+        setActivatingBuffId(buff.id)
+        try {
+            // Check and consume item from inventory if available
+            try {
+                const invRes = await fetch('/api/inventory')
+                if (invRes.ok) {
+                    const invJson = await invRes.json()
+                    const invData: any = unwrapApiResponse(invJson) || []
+                    const items = Array.isArray(invData) ? invData : (invData.items || [])
+                    const match = items.find((i: any) => 
+                        i.id === buff.id || 
+                        i.name?.toLowerCase().includes(buff.name.toLowerCase())
+                    )
+                    if (match && (match.quantity || 1) > 0) {
+                        await fetch('/api/inventory', {
+                            method: 'DELETE',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ itemId: match.id, quantity: 1 })
+                        })
+                    }
+                }
+            } catch (err) {
+                logger.warn('Inventory check during buff activation:', err)
+            }
+
+            // Post to active perks
+            const expiresAt = new Date(Date.now() + buff.durationHours * 60 * 60 * 1000).toISOString()
+            const res = await fetch('/api/active-perks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    perk_name: buff.name,
+                    effect: buff.effect,
+                    expires_at: expiresAt
+                })
+            })
+
+            // Sync to localStorage as reliable fallback
+            try {
+                const stored = localStorage.getItem('active-potion-perks') || '{}'
+                const perks = JSON.parse(stored)
+                perks[buff.name] = { effect: buff.effect, expiresAt }
+                localStorage.setItem('active-potion-perks', JSON.stringify(perks))
+            } catch (err) {
+                logger.warn('Error saving active perk to localStorage:', err)
+            }
+
+            toast.success(`${buff.name} activated! ${buff.effect} for ${buff.durationHours} hours.`)
+            await loadActivePerks()
+        } catch (error) {
+            logger.error('Failed to activate buff:', error)
+            toast.error('Failed to activate buff. Please try again.')
+        } finally {
+            setActivatingBuffId(null)
         }
     }
 
@@ -789,16 +880,82 @@ export function DailyHubClient() {
                     </div>
                 </div>
 
+                {/* How to build habits guide */}
+                <Card className="bg-zinc-950 border-amber-900/40 overflow-hidden">
+                    <CardContent className="p-6 md:p-8">
+                        <h2 className="text-xl md:text-2xl font-bold text-amber-500 font-medieval tracking-wide mb-6">How to build habits</h2>
+
+                        <div className="flex flex-col md:flex-row gap-8 items-center">
+                            {/* Left Side: Steps List */}
+                            <div className="flex-1 space-y-5">
+                                <div className="flex gap-4">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">1</div>
+                                    <div>
+                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Daily habits</h3>
+                                        <p className="text-xs text-zinc-300 leading-relaxed">Completing tasks to earn resources.</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">2</div>
+                                    <div>
+                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Expanding realm</h3>
+                                        <p className="text-xs text-zinc-300 leading-relaxed">Using resources to grow your map.</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">3</div>
+                                    <div>
+                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Daily kingdom</h3>
+                                        <p className="text-xs text-zinc-300 leading-relaxed">Managing and maintaining your new territory.</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">4</div>
+                                    <div>
+                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Competitive friends</h3>
+                                        <p className="text-xs text-zinc-300 leading-relaxed">Engaging with friends and rivals.</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">5</div>
+                                    <div>
+                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Building character</h3>
+                                        <p className="text-xs text-zinc-300 leading-relaxed">Leveling up your personal stats based on progress.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right Side: Image */}
+                            <div className="flex-1 w-full max-w-md">
+                                <div className="relative aspect-square rounded-xl overflow-hidden border border-amber-900/30 shadow-2xl bg-zinc-950">
+                                    <NextImage
+                                        src="/images/placeholders/gameplay-loop.webp"
+                                        alt="Level up gameplay loop"
+                                        fill
+                                        priority
+                                        className="object-contain p-2"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent pointer-events-none mix-blend-overlay" />
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
                 {/* BENTO ROW 2 — Habit execution & active perks */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-                    {/* Bento Tile 2A: Morning Habit Focus */}
+                    {/* Bento Tile 2A: Favorite quests */}
                     <div id="favorites-section" className="lg:col-span-7 flex flex-col justify-between rounded-2xl bg-zinc-950/95 border border-amber-900/40 p-5 shadow-2xl">
                         <div>
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2.5">
                                     <span className="text-2xl">⚡</span>
                                     <div>
-                                        <h3 className="text-lg font-bold text-amber-400 font-medieval tracking-wide">Morning habit focus</h3>
+                                        <h3 className="text-lg font-bold text-amber-400 font-medieval tracking-wide">Favorite quests</h3>
                                         <p className="text-xs text-zinc-400">Your core daily priority quests</p>
                                     </div>
                                 </div>
@@ -887,21 +1044,47 @@ export function DailyHubClient() {
                             </CardHeader>
                             <CardContent className="px-5 pb-5 pt-0 flex-1 flex flex-col justify-center">
                                 {activePerks.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center text-center py-6 space-y-3">
-                                        <div className="w-10 h-10 rounded-full bg-zinc-900 border border-amber-900/20 flex items-center justify-center text-lg">
-                                            🧪
+                                    <div className="space-y-3 flex-1 flex flex-col justify-between py-1">
+                                        <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                                            <span className="font-medium text-amber-300/90">Possible enhancements</span>
+                                            <span className="text-[10px] text-zinc-500">Tap to activate</span>
                                         </div>
-                                        <div>
-                                            <p className="text-xs text-zinc-300 font-semibold">No active buffs</p>
-                                            <p className="text-[11px] text-zinc-500 mt-0.5 max-w-[200px] mx-auto">
-                                                Drink potions or unlock milestones to activate perks.
-                                            </p>
+
+                                        <div className="space-y-2">
+                                            {POSSIBLE_BUFFS.map(buff => (
+                                                <div
+                                                    key={buff.id}
+                                                    className="p-2.5 bg-zinc-900/80 rounded-xl border border-zinc-800/80 hover:border-amber-500/30 flex items-center justify-between gap-3 transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-2.5 min-w-0">
+                                                        <div className="w-8 h-8 rounded-lg bg-amber-950/40 border border-amber-900/30 flex items-center justify-center text-base shrink-0">
+                                                            {buff.icon}
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <h5 className="font-bold text-xs text-amber-100 truncate">{buff.name}</h5>
+                                                            <p className="text-[10px] text-zinc-400 truncate">
+                                                                {buff.effect} • {buff.durationHours}h
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() => handleActivateBuff(buff)}
+                                                        disabled={activatingBuffId === buff.id}
+                                                        className="h-7 px-3 text-[11px] font-bold rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 active:scale-95 shrink-0 transition-all"
+                                                    >
+                                                        {activatingBuffId === buff.id ? "Activating..." : "Activate"}
+                                                    </Button>
+                                                </div>
+                                            ))}
                                         </div>
-                                        <Link href="/inventory">
-                                            <Button size="sm" variant="outline" className="border-amber-900/40 hover:bg-amber-950/20 text-xs text-amber-400 font-bold rounded-lg">
-                                                Open backpack
-                                            </Button>
-                                        </Link>
+
+                                        <div className="pt-2 border-t border-zinc-900/80 flex items-center justify-between text-[11px]">
+                                            <span className="text-zinc-500">Need more reagents?</span>
+                                            <Link href="/inventory" className="text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1">
+                                                Open backpack <ArrowRight className="w-3 h-3" />
+                                            </Link>
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className="space-y-2.5">
@@ -1002,72 +1185,6 @@ export function DailyHubClient() {
 
                 {/* New Player Progress */}
                 <NewPlayerProgress />
-
-                {/* How to build habits guide */}
-                <Card className="bg-zinc-950 border-amber-900/40 overflow-hidden">
-                    <CardContent className="p-6 md:p-8">
-                        <h2 className="text-xl md:text-2xl font-bold text-amber-500 font-medieval tracking-wide mb-6">How to build habits</h2>
-
-                        <div className="flex flex-col md:flex-row gap-8 items-center">
-                            {/* Left Side: Steps List */}
-                            <div className="flex-1 space-y-5">
-                                <div className="flex gap-4">
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">1</div>
-                                    <div>
-                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Daily habits</h3>
-                                        <p className="text-xs text-zinc-300 leading-relaxed">Completing tasks to earn resources.</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-4">
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">2</div>
-                                    <div>
-                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Expanding realm</h3>
-                                        <p className="text-xs text-zinc-300 leading-relaxed">Using resources to grow your map.</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-4">
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">3</div>
-                                    <div>
-                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Daily kingdom</h3>
-                                        <p className="text-xs text-zinc-300 leading-relaxed">Managing and maintaining your new territory.</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-4">
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">4</div>
-                                    <div>
-                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Competitive friends</h3>
-                                        <p className="text-xs text-zinc-300 leading-relaxed">Engaging with friends and rivals.</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-4">
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">5</div>
-                                    <div>
-                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Building character</h3>
-                                        <p className="text-xs text-zinc-300 leading-relaxed">Leveling up your personal stats based on progress.</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Right Side: Image */}
-                            <div className="flex-1 w-full max-w-md">
-                                <div className="relative aspect-square rounded-xl overflow-hidden border border-amber-900/30 shadow-2xl bg-zinc-950">
-                                    <NextImage
-                                        src="/images/placeholders/gameplay-loop.webp"
-                                        alt="Level up gameplay loop"
-                                        fill
-                                        priority
-                                        className="object-contain p-2"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent pointer-events-none mix-blend-overlay" />
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
 
             {/* Daily Opening Routine Sequence & Overnight Chronicle Modal (Unified) */}
@@ -1331,21 +1448,9 @@ function DailyChestStatusWidget() {
           {isReady ? "🎁" : "✓"}
         </MedievalOrbIcon>
         <div>
-          <div className="flex items-center gap-2">
-            <h4 className="font-bold text-sm text-white font-serif">
-              {isReady ? "Free daily chest ready" : "Daily chest claimed"}
-            </h4>
-            <Badge
-              className={cn(
-                "text-[9px] font-mono font-bold px-2 py-0.5",
-                isReady
-                  ? "bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse"
-                  : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
-              )}
-            >
-              {isReady ? "Ready to open" : "Claimed today"}
-            </Badge>
-          </div>
+          <h4 className="font-bold text-sm text-white font-serif">
+            Free daily chest
+          </h4>
           <p className="text-[11px] text-zinc-400 font-sans mt-0.5">
             {isReady
               ? "Claim today's free daily gift to unlock mystery creature cards & rare alchemy essences."
@@ -1355,26 +1460,19 @@ function DailyChestStatusWidget() {
       </div>
 
       <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center gap-2 shrink-0">
-        {isReady ? (
-          <Button
-            size="sm"
-            onClick={handleClaim}
-            disabled={isClaiming}
-            className="w-full sm:w-auto text-xs font-bold tracking-wide rounded-xl px-4 py-2 flex items-center justify-center gap-1.5 btn-primary-cta shadow-[0_0_15px_rgba(245,158,11,0.4)]"
-          >
-            {isClaiming ? "Claiming..." : "Claim free chest 🎁"}
-          </Button>
-        ) : (
-          <Link href="/market?tab=mystic-shop" className="w-full sm:w-auto">
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-full sm:w-auto text-xs font-semibold rounded-xl px-3.5 py-2 border-amber-500/30 text-amber-300 bg-amber-950/20 hover:bg-amber-950/40 flex items-center justify-center gap-1.5"
-            >
-              Open owned packs 🃏 →
-            </Button>
-          </Link>
-        )}
+        <Button
+          size="sm"
+          onClick={handleClaim}
+          disabled={!isReady || isClaiming}
+          className={cn(
+            "w-full sm:w-auto text-xs font-bold tracking-wide rounded-xl px-4 py-2 flex items-center justify-center gap-1.5 transition-all",
+            isReady
+              ? "btn-primary-cta shadow-[0_0_15px_rgba(245,158,11,0.4)] cursor-pointer"
+              : "bg-zinc-900 border border-zinc-800 text-zinc-500 cursor-not-allowed opacity-60 hover:bg-zinc-900"
+          )}
+        >
+          {isClaiming ? "Claiming..." : "Claim free chest 🎁"}
+        </Button>
 
         <Link href="/market?tab=mystic-shop" className="w-full sm:w-auto">
           <Button
