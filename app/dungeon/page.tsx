@@ -1069,7 +1069,7 @@ export default function DungeonPage() {
               {gameResult.success ? '🏆' : '💀'}
             </div>
             <h1 className={`text-3xl sm:text-5xl font-black uppercase tracking-tight ${gameResult.success ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,0.5)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]'}`}>
-              {gameResult.success ? 'VICTORY!' : 'DEFEATED'}
+              {gameResult.success ? 'Victory!' : 'Defeated'}
             </h1>
             <p className="text-xs sm:text-sm text-zinc-300 font-medium">
               {gameResult.success ? 'Valerion dips his winged head in honor: you fought with pure persistency. The deeper rooms are opening.' : "Turtlo tucks you behind his heavy shell: 'Rest now, hero. Build your strength with today\'s habits and try again.'"}
@@ -1078,7 +1078,7 @@ export default function DungeonPage() {
 
           {gameResult.success && gameResult.rewards && (
             <div className="bg-zinc-950/90 rounded-2xl p-4 sm:p-6 border border-white/10 space-y-4 shadow-xl">
-              <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">REWARDS COLLECTED</h3>
+              <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Rewards collected</h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
                 <div className="bg-yellow-500/10 p-3 sm:p-4 rounded-xl border border-yellow-500/20">
                   <div className="text-xl sm:text-2xl font-black text-yellow-400">{gameResult.rewards.gold}</div>
@@ -1102,7 +1102,7 @@ export default function DungeonPage() {
                 <div className="mt-3 p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl flex items-center gap-3 text-left">
                   <span className="text-3xl select-none animate-bounce">{gameResult.rewards.discoveredRecipe.emoji}</span>
                   <div>
-                    <h4 className="text-xs font-extrabold text-purple-400">Recipe Discovered!</h4>
+                    <h4 className="text-xs font-extrabold text-purple-400">Recipe discovered!</h4>
                     <p className="text-[11px] text-zinc-300 leading-tight mt-0.5">
                       You discovered the formula for the <strong>{gameResult.rewards.discoveredRecipe.name}</strong>!
                     </p>
@@ -1112,7 +1112,7 @@ export default function DungeonPage() {
 
               {gameResult.loot && gameResult.loot.length > 0 && (
                 <div className="pt-3 border-t border-white/5">
-                  <h4 className="text-[11px] text-zinc-500 mb-2 text-left font-bold uppercase tracking-wider">Detailed Loot Log</h4>
+                  <h4 className="text-[11px] text-zinc-500 mb-2 text-left font-bold uppercase tracking-wider">Detailed loot log</h4>
                   <ScrollArea className="h-28 min-h-[76px] w-full pr-2">
                     <div className="space-y-1.5 text-left">
                       {gameResult.loot.map((item, idx) => (
@@ -1130,11 +1130,11 @@ export default function DungeonPage() {
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
             <Button onClick={() => router.push('/kingdom')} size="lg" className="w-full sm:flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold min-h-[44px]">
-              Return to Kingdom
+              Return to kingdom
             </Button>
             {!gameResult.success && (
               <Button onClick={startRun} size="lg" className="w-full sm:flex-1 bg-red-600 hover:bg-red-500 text-white font-bold min-h-[44px]">
-                Try Again
+                Try again
               </Button>
             )}
           </div>
@@ -1146,106 +1146,280 @@ export default function DungeonPage() {
   // 2. START SCREEN
   if (!run) {
     return (
-      <div className="min-h-dvh bg-gradient-to-b from-red-950 via-black to-black p-4 sm:p-8 text-white flex items-center justify-center pb-safe pt-safe">
-        <div className="max-w-md w-full text-center space-y-6 my-auto">
-          <div className="space-y-2">
-            <h1 className="text-5xl sm:text-6xl font-black text-red-600 tracking-tighter drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]">DUNGEON</h1>
-            <p className="text-zinc-400 text-sm sm:text-base">Brave the depths, fight creatures, earn loot.</p>
-          </div>
+      <div className="min-h-screen bg-gradient-to-b from-zinc-950 via-[#0b0d10] to-black p-4 sm:p-6 lg:p-8 text-white font-sans">
+        <div className="max-w-6xl mx-auto space-y-6">
 
-          {/* Habit Combat Buff Header */}
-          <div className="bg-gradient-to-r from-red-950/60 via-purple-950/40 to-zinc-950 p-4 rounded-2xl border border-red-500/30 shadow-xl text-left space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-                <span>🔥</span> Active Habit Combat Multipliers
-              </span>
-              <span className="text-[10px] font-mono text-zinc-400 bg-black/50 px-2 py-0.5 rounded border border-white/10">
-                Today&apos;s Boosts
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="bg-black/40 p-2 rounded-xl border border-red-500/20 flex items-center justify-between">
-                <span className="text-zinc-300">⚔️ Might</span>
-                <span className="font-mono font-bold text-red-400">+15% ATK</span>
-              </div>
-              <div className="bg-black/40 p-2 rounded-xl border border-blue-500/20 flex items-center justify-between">
-                <span className="text-zinc-300">🔮 Knowledge</span>
-                <span className="font-mono font-bold text-blue-400">+10% Spell</span>
-              </div>
-              <div className="bg-black/40 p-2 rounded-xl border border-emerald-500/20 flex items-center justify-between">
-                <span className="text-zinc-300">🧘 Wellness</span>
-                <span className="font-mono font-bold text-emerald-400">+10% HP</span>
-              </div>
-              <div className="bg-black/40 p-2 rounded-xl border border-yellow-500/20 flex items-center justify-between">
-                <span className="text-zinc-300">👑 Honor</span>
-                <span className="font-mono font-bold text-amber-300">+5% Def</span>
+          {/* TOP BENTO HEADER */}
+          <div className="bg-[#0e1217]/90 border border-white/10 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push('/kingdom')}
+                className="text-zinc-400 hover:text-white h-9 px-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-semibold"
+              >
+                &larr; Kingdom
+              </Button>
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                  <span>⚔️</span> Dungeon keep
+                </h1>
+                <p className="text-xs text-zinc-400">Brave the elemental depths, fight creatures, and earn rare blueprints.</p>
               </div>
             </div>
-          </div>
 
-          <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 shadow-xl">
-            <div className="text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wider">DAILY ENTRIES</div>
-            <div className={`text-3xl font-bold ${dailyCount >= 3 ? 'text-red-500' : 'text-green-400'}`}>
-              {Math.max(0, 3 - dailyCount)} / 3 LEFT
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <Badge variant="outline" className="px-3 py-1 text-xs border-amber-500/30 text-amber-300 bg-amber-950/40 font-mono">
+                Daily entries: {Math.max(0, 3 - dailyCount)} / 3 left
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/kingdom?tab=barracks')}
+                className="border-amber-500/40 text-amber-300 hover:bg-amber-950/40 h-9 px-3 rounded-xl text-xs font-bold flex items-center gap-1.5"
+              >
+                <span>🛡️</span> Squad management
+              </Button>
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 w-full max-w-md mx-auto">
-            <Button
-              onClick={() => router.push('/kingdom?tab=barracks')}
-              variant="outline"
-              size="lg"
-              className="w-full h-12 sm:h-14 px-6 border-amber-500/40 text-amber-300 hover:bg-amber-950/40 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shrink-0 min-h-[44px] rounded-xl shadow-lg"
-            >
-              <span>🛡️ Squad management</span>
-              <span className="text-[10px] text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/30 font-mono">(Barracks)</span>
-            </Button>
-            <Button
-              onClick={startRun}
-              disabled={dailyCount >= 3}
-              size="lg"
-              className={`w-full h-14 sm:h-16 text-base sm:text-lg font-bold tracking-wide transition-all rounded-xl ${dailyCount >= 3 ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 border border-red-500/30 shadow-xl shadow-red-900/20 active:scale-95'}`}
-            >
-              {dailyCount >= 3 ? '🔒 LOCKED' : '⚔️ ENTER DUNGEON'}
-            </Button>
+          {/* ROW 1: Habit Combat Multipliers (7 cols) + Expedition Command & Deploy (5 cols) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            
+            {/* Card 1: Habit Combat Multipliers */}
+            <div className="lg:col-span-7 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🔥</span>
+                    <h2 className="text-sm sm:text-base font-bold text-white">Active habit combat multipliers</h2>
+                  </div>
+                  <span className="text-[10px] font-mono text-amber-300 bg-amber-950/50 border border-amber-500/30 px-2 py-0.5 rounded-md">
+                    Today&apos;s boosts
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Completing your daily real-world habits activates elemental resonances and combat multipliers that directly empower your squad in dungeon turns.
+                </p>
+
+                {/* 4 Multiplier stat cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                  <div className="bg-zinc-950/80 p-3 rounded-xl border border-red-500/20 text-center space-y-1">
+                    <div className="text-base">⚔️</div>
+                    <div className="text-[11px] font-semibold text-zinc-300">Might</div>
+                    <div className="font-mono text-xs font-bold text-red-400">+15% ATK</div>
+                  </div>
+                  <div className="bg-zinc-950/80 p-3 rounded-xl border border-blue-500/20 text-center space-y-1">
+                    <div className="text-base">🔮</div>
+                    <div className="text-[11px] font-semibold text-zinc-300">Knowledge</div>
+                    <div className="font-mono text-xs font-bold text-blue-400">+10% Spell</div>
+                  </div>
+                  <div className="bg-zinc-950/80 p-3 rounded-xl border border-emerald-500/20 text-center space-y-1">
+                    <div className="text-base">🧘</div>
+                    <div className="text-[11px] font-semibold text-zinc-300">Wellness</div>
+                    <div className="font-mono text-xs font-bold text-emerald-400">+10% HP</div>
+                  </div>
+                  <div className="bg-zinc-950/80 p-3 rounded-xl border border-yellow-500/20 text-center space-y-1">
+                    <div className="text-base">👑</div>
+                    <div className="text-[11px] font-semibold text-zinc-300">Honor</div>
+                    <div className="font-mono text-xs font-bold text-amber-300">+5% Def</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Elemental Resonance status bar */}
+              <div className="bg-zinc-950/90 border border-white/5 rounded-xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-1.5 text-zinc-300 font-medium">
+                  <span className="text-amber-400">⚡ Elemental resonance:</span>
+                  {Object.entries(elementBuffs).filter(([, count]) => count > 0).length > 0 ? (
+                    <span className="text-emerald-400 font-mono font-bold">
+                      {Object.entries(elementBuffs)
+                        .filter(([, count]) => count > 0)
+                        .map(([el, count]) => `${getTypeEmoji(el as any)} +${count * 2} ATK`)
+                        .join(' · ')}
+                    </span>
+                  ) : (
+                    <span className="text-zinc-500 italic">Complete today&apos;s quests to unlock extra ATK</span>
+                  )}
+                </div>
+                <Button
+                  variant="link"
+                  size="sm"
+                  onClick={() => router.push('/quests')}
+                  className="text-amber-400 hover:text-amber-300 text-xs p-0 h-auto font-medium"
+                >
+                  View quests &rarr;
+                </Button>
+              </div>
+            </div>
+
+            {/* Card 2: Expedition Command & Entry */}
+            <div className="lg:col-span-5 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🎯</span>
+                    <h2 className="text-sm sm:text-base font-bold text-white">Expedition command</h2>
+                  </div>
+                  <Badge variant="outline" className={`text-xs font-mono font-bold px-2 py-0.5 ${dailyCount >= 3 ? 'border-red-500/40 text-red-400 bg-red-950/40' : 'border-emerald-500/40 text-emerald-400 bg-emerald-950/40'}`}>
+                    {dailyCount >= 3 ? 'Daily limit reached' : 'Ready to deploy'}
+                  </Badge>
+                </div>
+
+                <div className="bg-zinc-950/90 rounded-xl p-4 border border-white/5 space-y-2">
+                  <div className="flex items-center justify-between text-xs text-zinc-400">
+                    <span>Daily attempts remaining</span>
+                    <span className="font-mono text-zinc-200">{Math.max(0, 3 - dailyCount)} of 3</span>
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-black tracking-tight">
+                    <span className={dailyCount >= 3 ? 'text-red-400' : 'text-emerald-400'}>
+                      {Math.max(0, 3 - dailyCount)} / 3
+                    </span>
+                    <span className="text-xs font-normal text-zinc-400 ml-2 font-sans">entries left</span>
+                  </div>
+                  <div className="text-[11px] text-zinc-400 pt-1 border-t border-white/5 flex items-center justify-between">
+                    <span>Draft squad roster:</span>
+                    <span className="font-mono font-semibold text-amber-300">{unlockedCreatures.length} heroes ready</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-2.5 pt-2">
+                <Button
+                  onClick={startRun}
+                  disabled={dailyCount >= 3}
+                  size="lg"
+                  className={`w-full h-12 text-sm font-bold tracking-wide transition-all rounded-xl ${
+                    dailyCount >= 3
+                      ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed border border-white/5'
+                      : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white border border-red-500/30 shadow-lg shadow-red-900/20 active:scale-95'
+                  }`}
+                >
+                  {dailyCount >= 3 ? '🔒 Locked' : '⚔️ Enter dungeon'}
+                </Button>
+
+                {dailyCount >= 3 && (
+                  <Button
+                    onClick={async () => {
+                      const stats = getCharacterStats();
+                      if ((stats.focus_points || 0) < 5) {
+                        toast({
+                          title: "Insufficient focus points 🧠",
+                          description: "You need 5 focus points. Complete daily habits to earn more!",
+                          variant: "destructive"
+                        });
+                        return;
+                      }
+
+                      await addToCharacterStat('focus_points', -5, 'buy-extra-dungeon-run');
+                      const todayStr = new Date().toISOString().slice(0, 10);
+                      const newCount = Math.max(0, dailyCount - 1);
+                      setDailyCount(newCount);
+                      localStorage.setItem(`dungeon_daily_runs_${todayStr}`, String(newCount));
+
+                      toast({
+                        title: "🧠 Extra attempt unlocked!",
+                        description: "Spent 5 focus points. You gained +1 dungeon entry today!"
+                      });
+                    }}
+                    size="sm"
+                    className="w-full h-10 text-xs font-bold bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-500/40 rounded-xl"
+                  >
+                    🧠 Spend 5 focus points for +1 extra attempt
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
 
-          {dailyCount >= 3 && (
-            <Button
-              onClick={async () => {
-                const stats = getCharacterStats();
-                if ((stats.focus_points || 0) < 5) {
-                  toast({
-                    title: "Insufficient Focus Points 🧠",
-                    description: "You need 5 Focus Points. Complete daily habits to earn more!",
-                    variant: "destructive"
-                  });
-                  return;
-                }
+          {/* ROW 2: Active Daily Bounties (6 cols) + Guardian Pet Striker (6 cols) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            
+            {/* Card 3: Active Daily Bounties */}
+            <div className="lg:col-span-6 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🎯</span>
+                    <h2 className="text-sm sm:text-base font-bold text-white">Active daily bounties</h2>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] font-mono border-purple-500/40 text-purple-300 bg-purple-950/40">
+                    3 active
+                  </Badge>
+                </div>
+                <p className="text-xs text-zinc-400">
+                  Defeating dungeon monsters aligned with daily bounties awards bonus gems and gold.
+                </p>
 
-                await addToCharacterStat('focus_points', -5, 'buy-extra-dungeon-run');
-                const todayStr = new Date().toISOString().slice(0, 10);
-                const newCount = Math.max(0, dailyCount - 1);
-                setDailyCount(newCount);
-                localStorage.setItem(`dungeon_daily_runs_${todayStr}`, String(newCount));
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                  {getDailyDungeonBounties().map(bounty => (
+                    <div key={bounty.id} className="bg-zinc-950/90 p-3 rounded-xl border border-purple-900/40 flex flex-col justify-between text-xs space-y-2">
+                      <div>
+                        <div className="flex items-center justify-between font-bold text-amber-300">
+                          <span className="truncate">{bounty.title}</span>
+                          <span className="text-[10px] bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30 font-mono shrink-0 ml-1">
+                            {getTypeEmoji(bounty.targetType)} {bounty.targetType}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-zinc-400 mt-1 leading-snug line-clamp-2">{bounty.description}</p>
+                      </div>
+                      <div className="flex items-center justify-between pt-1.5 border-t border-white/5 font-mono text-[11px]">
+                        <span className="text-purple-300 font-bold">💎 +{bounty.rewardGems}</span>
+                        <span className="text-amber-400 font-bold">🪙 +{bounty.rewardGold}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
 
-                toast({
-                  title: "🧠 Extra Attempt Unlocked!",
-                  description: "Spent 5 Focus Points. You gained +1 Dungeon Entry today!"
-                });
-              }}
-              size="lg"
-              className="w-full h-14 text-base font-bold bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-500/40 shadow-xl mt-3"
-            >
-              🧠 Spend 5 Focus Points for +1 Extra Attempt
-            </Button>
-          )}
+            {/* Card 4: Guardian Pet Striker Support */}
+            <div className="lg:col-span-6 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🐾</span>
+                    <h2 className="text-sm sm:text-base font-bold text-white">Guardian pet striker support</h2>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] font-mono border-amber-500/40 text-amber-300 bg-amber-950/40">
+                    Active companion
+                  </Badge>
+                </div>
 
-          <div className="text-zinc-500 text-sm">
-            <Button variant="link" onClick={() => router.push('/kingdom')} className="text-zinc-500 hover:text-zinc-300">
-              &larr; Back to Kingdom
-            </Button>
+                <div className="bg-zinc-950/90 rounded-xl p-4 border border-white/5 flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-3xl shrink-0 shadow-lg">
+                    {activePet.emoji}
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-white text-sm">{activePet.name}</span>
+                      <Badge variant="outline" className="text-[9px] border-amber-500/30 text-amber-400 bg-amber-950/30 font-mono">
+                        {activePet.skill}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      Your guardian pet joins your 6-member squad in dungeon rooms, unleashing signature elemental striker skills to turn the tide of battle.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-zinc-950/60 rounded-xl p-3 border border-white/5 flex items-center justify-between text-xs">
+                  <span className="text-zinc-400">Want to switch guardian pets?</span>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => router.push('/kingdom?tab=pets')}
+                    className="text-amber-400 hover:text-amber-300 text-xs p-0 h-auto font-medium"
+                  >
+                    Manage pets &rarr;
+                  </Button>
+                </div>
+              </div>
+            </div>
+
           </div>
+
         </div>
       </div>
     );
@@ -1266,7 +1440,7 @@ export default function DungeonPage() {
             <span className="text-xl">🛡️</span>
             <div>
               <h2 className="font-serif font-bold text-amber-300 text-sm flex items-center gap-2">
-                Dungeon Keep Expedition — Room {run.currentRoom} of {run.maxRooms}
+                Dungeon keep expedition — room {run.currentRoom} of {run.maxRooms}
                 <CollectibleRune
                   id="eihwaz_dungeon"
                   runeId="eihwaz"
@@ -1276,9 +1450,9 @@ export default function DungeonPage() {
                 />
               </h2>
               <p className="text-[11px] text-zinc-400">
-                Expeditions yield raw ores & crystals. Habit Buffs: {' '}
+                Expeditions yield raw ores & crystals. Habit buffs: {' '}
                 <span className="font-bold text-emerald-400">
-                  {Object.entries(elementBuffs).filter(([, count]) => count > 0).map(([el, count]) => `${getTypeEmoji(el as any)} +${count * 2} ATK`).join(' ') || '0 Completed Today'}
+                  {Object.entries(elementBuffs).filter(([, count]) => count > 0).map(([el, count]) => `${getTypeEmoji(el as any)} +${count * 2} ATK`).join(' ') || '0 completed today'}
                 </span>
               </p>
             </div>
@@ -1291,7 +1465,7 @@ export default function DungeonPage() {
               onClick={() => setShowBounties(!showBounties)}
               className="text-xs font-bold border-purple-500/40 text-purple-300 bg-purple-950/30 hover:bg-purple-900/50 h-8 rounded-xl"
             >
-              🎯 Daily Bounties (3 Active) {showBounties ? '▲' : '▼'}
+              🎯 Daily bounties (3 active) {showBounties ? '▲' : '▼'}
             </Button>
             <Button
               variant="ghost"
@@ -1308,8 +1482,8 @@ export default function DungeonPage() {
         {showBounties && (
           <div className="bg-gradient-to-r from-purple-950/60 via-zinc-950 to-purple-950/60 border border-purple-500/30 p-4 rounded-2xl shadow-xl space-y-3 animate-in slide-in-from-top-3 duration-300">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-serif font-bold text-purple-300 uppercase tracking-wider">Active Daily Bounties</h3>
-              <span className="text-[10px] text-zinc-400">Vanquish monsters for bonus Gems & Gold</span>
+              <h3 className="text-xs font-serif font-bold text-purple-300 uppercase tracking-wider">Active daily bounties</h3>
+              <span className="text-[10px] text-zinc-400">Vanquish monsters for bonus gems & gold</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {getDailyDungeonBounties().map(bounty => (
@@ -1324,8 +1498,8 @@ export default function DungeonPage() {
                     <p className="text-[11px] text-zinc-400 mt-1 leading-snug">{bounty.description}</p>
                   </div>
                   <div className="flex items-center justify-between pt-1 border-t border-white/5 font-mono text-[11px]">
-                    <span className="text-purple-300 font-bold">💎 +{bounty.rewardGems} Gems</span>
-                    <span className="text-amber-400 font-bold">🪙 +{bounty.rewardGold} Gold</span>
+                    <span className="text-purple-300 font-bold">💎 +{bounty.rewardGems} gems</span>
+                    <span className="text-amber-400 font-bold">🪙 +{bounty.rewardGold} gold</span>
                   </div>
                 </div>
               ))}
@@ -1391,7 +1565,7 @@ export default function DungeonPage() {
                 <div className="flex items-center justify-between w-full border-b border-white/5 pb-3">
                   <div className="flex items-center gap-2">
                     <Badge className="bg-red-950/90 text-red-300 border border-red-500/40 text-xs font-extrabold px-3 py-1 uppercase tracking-wider">
-                      Lv. {enemyLevel} Monster
+                      Lv. {enemyLevel} monster
                     </Badge>
                     <span className="text-sm font-bold text-zinc-200">{enemyDef.name}</span>
                   </div>
@@ -1495,16 +1669,16 @@ export default function DungeonPage() {
                 </div>
 
                 <div className="text-xs font-bold text-zinc-400 uppercase tracking-widest pt-1 flex items-center gap-1.5">
-                  <span>⚔️ TARGET ENEMY (Room {run.currentRoom})</span>
+                  <span>⚔️ Target enemy (room {run.currentRoom})</span>
                 </div>
               </div>
             ) : (
               <div className="text-center my-auto space-y-4 py-8">
                 <div className="text-7xl animate-bounce">📦</div>
-                <h3 className="text-2xl font-bold text-amber-400">Treasure Vault Room!</h3>
+                <h3 className="text-2xl font-bold text-amber-400">Treasure vault room!</h3>
                 <p className="text-xs text-zinc-400 max-w-xs">A chest filled with gold and rare dungeon materials!</p>
                 <Button onClick={openTreasure} size="lg" className="bg-amber-500 hover:bg-amber-400 text-black font-bold px-8 py-5 rounded-xl shadow-lg">
-                  Open Chest
+                  Open chest
                 </Button>
               </div>
             )}
@@ -1520,10 +1694,10 @@ export default function DungeonPage() {
                   <div className="w-full space-y-4">
                     <div className="flex justify-between items-center border-b border-white/5 pb-3">
                       <h4 className="text-xs font-bold text-white flex items-center gap-2 uppercase tracking-wider">
-                        <span>🛡️ Deploy Fighter</span>
+                        <span>🛡️ Deploy fighter</span>
                       </h4>
                       <Badge variant="outline" className="text-xs font-mono text-emerald-400 border-emerald-500/30 bg-emerald-950/30 font-bold px-2.5 py-0.5">
-                        {run.party ? run.party.filter(c => c.hp > 0).length : 0} / 6 Ready
+                        {run.party ? run.party.filter(c => c.hp > 0).length : 0} / 6 ready
                       </Badge>
                     </div>
 
@@ -1762,7 +1936,7 @@ export default function DungeonPage() {
 
                               <div className="flex items-center justify-between w-full bg-zinc-950/80 px-3.5 py-1.5 rounded-xl border border-white/10 text-xs">
                                 <div className="flex items-center gap-2">
-                                  <span className="text-zinc-400 font-medium">Element Matchup:</span>
+                                  <span className="text-zinc-400 font-medium">Element matchup:</span>
                                   <Badge className={`text-[10px] px-2 py-0.5 border ${matchupBadgeColor}`}>
                                     {matchupLabel}
                                   </Badge>
@@ -1773,7 +1947,7 @@ export default function DungeonPage() {
                                   onClick={() => setBattlePhase('select')}
                                   className={`text-xs text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 h-6 px-2 ${telegraphWarning ? 'border border-amber-400/80 font-bold bg-amber-950/50' : ''}`}
                                 >
-                                  🔄 Swap Fighter
+                                  🔄 Swap fighter
                                 </Button>
                               </div>
                             </div>
@@ -1795,8 +1969,8 @@ export default function DungeonPage() {
                           {/* Tactical Combat Action Grid (Strict 2x2 Grid Layout with 4 Choices) */}
                           <div className="space-y-3 w-full max-w-md mx-auto pt-1">
                             <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest text-center flex items-center justify-center gap-2">
-                              <span>Choose Action</span>
-                              {telegraphWarning && <span className="text-amber-400 text-[10px] font-bold">⚠️ Incoming Heavy Attack! Guard or Swap!</span>}
+                              <span>Choose action</span>
+                              {telegraphWarning && <span className="text-amber-400 text-[10px] font-bold">⚠️ Incoming heavy attack! Guard or swap!</span>}
                             </div>
                             
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
@@ -1922,7 +2096,7 @@ export default function DungeonPage() {
                                     : 'bg-gradient-to-r from-zinc-900 via-amber-950/40 to-zinc-900 border-amber-500/40 hover:border-amber-400 text-amber-200 active:scale-95'
                                 }`}
                               >
-                                🐾 Pet Attack
+                                🐾 Pet attack
                               </Button>
                             </div>
 
@@ -1933,7 +2107,7 @@ export default function DungeonPage() {
                                 variant="ghost"
                                 className="text-[11px] text-zinc-400 hover:text-amber-300 hover:bg-zinc-900/60 h-7 px-3 rounded-lg"
                               >
-                                🏃 Safe Retreat (Preserves Daily Entry Attempt)
+                                🏃 Safe retreat (preserves daily entry attempt)
                               </Button>
                             </div>
                           </div>
@@ -1968,10 +2142,10 @@ export default function DungeonPage() {
 
           {/* Team Health Progress */}
           <div className="flex items-center gap-3 min-w-[240px]">
-            <span className="text-zinc-400 font-bold shrink-0">Squad Health:</span>
+            <span className="text-zinc-400 font-bold shrink-0">Squad health:</span>
             <div className="flex-1 space-y-1">
               <div className="flex justify-between text-[10px] font-mono">
-                <span className="text-emerald-400 font-bold">{run.party ? run.party.filter(c => c.hp > 0).length : 0}/6 Ready</span>
+                <span className="text-emerald-400 font-bold">{run.party ? run.party.filter(c => c.hp > 0).length : 0}/6 ready</span>
                 <span className="text-zinc-300">{totalTeamHp}/{totalTeamMaxHp}</span>
               </div>
               <Progress value={totalTeamMaxHp > 0 ? (totalTeamHp / totalTeamMaxHp) * 100 : 0} className="h-2 bg-zinc-950 border border-white/10" indicatorClassName={totalTeamHp < (totalTeamMaxHp * 0.3) ? 'bg-red-500' : 'bg-emerald-500'} />
