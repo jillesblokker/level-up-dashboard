@@ -94,18 +94,18 @@ export default function ChroniclePage() {
 
     return (
         <div className="min-h-screen bg-black text-amber-50 relative overflow-hidden font-sans p-4 md:p-8">
-            <div className="max-w-5xl mx-auto relative z-10 space-y-6">
+            <div className="max-w-6xl mx-auto relative z-10 space-y-6">
                 
-                {/* PRIMARY TIER: Header Bar with Clear Title & Direct Actions */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-amber-900/20 pb-4">
+                {/* BENTO HEADER: Header Bar with Clear Title & Direct Actions */}
+                <div className="bg-[#0e1217]/90 border border-white/10 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                        <Link href="/profile">
-                            <Button variant="ghost" size="icon" className="text-amber-500/60 hover:text-amber-400 hover:bg-amber-900/20 rounded-full h-9 w-9">
+                        <Link href="/kingdom">
+                            <Button variant="ghost" size="icon" className="text-amber-500/60 hover:text-amber-400 hover:bg-amber-900/20 rounded-xl h-9 w-9 border border-white/10">
                                 <ArrowLeft className="w-5 h-5" />
                             </Button>
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500 flex items-center gap-2">
+                            <h1 className="text-xl sm:text-2xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500 flex items-center gap-2">
                                 Tales of the realm
                                 <CollectibleRune
                                     id="ansuz_chronicle"
@@ -119,18 +119,21 @@ export default function ChroniclePage() {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                        <Badge variant="outline" className="text-xs font-mono text-amber-400 border-amber-500/30 bg-amber-950/40 px-3 py-1">
+                            {entries.length} {entries.length === 1 ? 'reflection archived' : 'reflections archived'}
+                        </Badge>
                         <Button
                             onClick={() => setIsArchivalOpen(true)}
                             variant="outline"
-                            className="border-amber-500/30 text-amber-300 hover:bg-amber-950/40 text-xs font-bold rounded-xl px-3 h-10 flex items-center gap-1.5"
+                            className="border-amber-500/30 text-amber-300 hover:bg-amber-950/40 text-xs font-bold rounded-xl px-3 h-9 flex items-center gap-1.5"
                         >
                             <Crown className="w-3.5 h-3.5 text-amber-400" />
                             Past champions
                         </Button>
                         <Button
                             onClick={handleCreate}
-                            className="btn-primary-cta text-xs px-4 h-10 flex items-center gap-1.5 shadow-md font-serif font-bold"
+                            className="btn-primary-cta text-xs px-4 h-9 flex items-center gap-1.5 shadow-md font-serif font-bold rounded-xl"
                         >
                             <PenTool className="w-3.5 h-3.5" />
                             Scribe reflection
@@ -140,175 +143,199 @@ export default function ChroniclePage() {
 
                 <SeasonArchivalModal isOpen={isArchivalOpen} onClose={() => setIsArchivalOpen(false)} />
 
-                {/* 🪶 Book of Adventures / Tales of the Realm Shelf */}
-                <TalesShelfCard />
-
-                {/* TERTIARY TIER: Collapsible Insights & Mood Radar (Progressive Disclosure) */}
-                <div className="border border-amber-900/30 rounded-2xl bg-zinc-950/60 overflow-hidden">
-                    <button
-                        onClick={() => setShowInsights(!showInsights)}
-                        className="w-full p-4 flex items-center justify-between text-xs font-bold text-amber-300 font-serif hover:bg-amber-950/20 transition-colors"
-                    >
-                        <span className="flex items-center gap-2">
-                            <Sparkles className="w-4 h-4 text-amber-400" />
-                            Monthly growth insights & mood radar
-                        </span>
-                        <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-400 bg-emerald-950/40">
-                                Optimal balance
-                            </Badge>
-                            {showInsights ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                        </div>
-                    </button>
-
-                    {showInsights && (
-                        <div className="p-4 border-t border-amber-900/20 space-y-4 bg-zinc-900/40">
-                            <WeeklyGrowthInsightsCard />
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                                <div className="p-3 rounded-xl bg-zinc-900 border border-amber-500/30 text-center space-y-1">
-                                    <span className="text-lg">⚡</span>
-                                    <h4 className="font-bold text-xs text-amber-300">Energized (65%)</h4>
-                                    <p className="text-[10px] text-zinc-400">Habit momentum active</p>
-                                </div>
-                                <div className="p-3 rounded-xl bg-zinc-900 border border-blue-500/30 text-center space-y-1">
-                                    <span className="text-lg">🎯</span>
-                                    <h4 className="font-bold text-xs text-blue-300">Focused (25%)</h4>
-                                    <p className="text-[10px] text-zinc-400">Deep learning sessions</p>
-                                </div>
-                                <div className="p-3 rounded-xl bg-zinc-900 border border-emerald-500/30 text-center space-y-1">
-                                    <span className="text-lg">🌿</span>
-                                    <h4 className="font-bold text-xs text-emerald-300">Calm (10%)</h4>
-                                    <p className="text-[10px] text-zinc-400">Restful recovery</p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* SECONDARY TIER: View Switcher (Bookcase vs List) */}
-                <div className="flex items-center justify-between gap-3 bg-zinc-900/60 p-2.5 sm:p-3 rounded-xl border border-zinc-800">
-                    <div className="flex items-center gap-1.5 bg-black/60 p-1 rounded-lg border border-zinc-800">
-                        <button
-                            type="button"
-                            onClick={() => setViewMode('bookcase')}
-                            className={cn(
-                                "flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer",
-                                viewMode === 'bookcase'
-                                    ? "bg-amber-950/80 text-amber-300 border border-amber-500/40 shadow-sm"
-                                    : "text-zinc-400 hover:text-zinc-200"
-                            )}
-                        >
-                            <BookOpen className="w-3.5 h-3.5" />
-                            <span>Bookcase</span>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setViewMode('list')}
-                            className={cn(
-                                "flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer",
-                                viewMode === 'list'
-                                    ? "bg-amber-950/80 text-amber-300 border border-amber-500/40 shadow-sm"
-                                    : "text-zinc-400 hover:text-zinc-200"
-                            )}
-                        >
-                            <Filter className="w-3.5 h-3.5" />
-                            <span>List</span>
-                        </button>
+                {/* ROW 1: Tales of the Realm (7 cols) + Growth Insights & Mood Radar (5 cols) */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                    
+                    {/* Card 1: Tales Shelf */}
+                    <div className="lg:col-span-7 flex flex-col">
+                        <TalesShelfCard className="h-full flex flex-col justify-between" />
                     </div>
 
-                    <span className="text-xs font-mono text-amber-400/90 font-bold">
-                        {entries.length} {entries.length === 1 ? 'reflection archived' : 'reflections archived'}
-                    </span>
+                    {/* Card 2: Growth Insights & Mood Radar */}
+                    <div className="lg:col-span-5 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between space-y-4">
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                                <div className="flex items-center gap-2 text-amber-400">
+                                    <Sparkles className="w-5 h-5 text-amber-400" />
+                                    <h2 className="text-base font-bold font-serif text-amber-200">
+                                        Growth insights & mood radar
+                                    </h2>
+                                </div>
+                                <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-400 bg-emerald-950/40 font-mono">
+                                    Optimal balance
+                                </Badge>
+                            </div>
+                            <p className="text-xs text-zinc-400 font-sans leading-relaxed">
+                                Review your reflection rhythm and emotional balance synthesized from your private reflections.
+                            </p>
+
+                            <WeeklyGrowthInsightsCard />
+
+                            {/* 3 Mood distribution tiles */}
+                            <div className="grid grid-cols-3 gap-2.5 pt-1">
+                                <div className="p-2.5 rounded-xl bg-zinc-950/80 border border-amber-500/20 text-center space-y-0.5">
+                                    <span className="text-base">⚡</span>
+                                    <h4 className="font-bold text-xs text-amber-300">Energized</h4>
+                                    <p className="text-[10px] text-zinc-400 font-mono">65%</p>
+                                </div>
+                                <div className="p-2.5 rounded-xl bg-zinc-950/80 border border-blue-500/20 text-center space-y-0.5">
+                                    <span className="text-base">🎯</span>
+                                    <h4 className="font-bold text-xs text-blue-300">Focused</h4>
+                                    <p className="text-[10px] text-zinc-400 font-mono">25%</p>
+                                </div>
+                                <div className="p-2.5 rounded-xl bg-zinc-950/80 border border-emerald-500/20 text-center space-y-0.5">
+                                    <span className="text-base">🌿</span>
+                                    <h4 className="font-bold text-xs text-emerald-300">Calm</h4>
+                                    <p className="text-[10px] text-zinc-400 font-mono">10%</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="pt-2">
+                            <Button
+                                onClick={handleCreate}
+                                className="w-full h-11 text-xs font-serif font-bold bg-amber-950/40 hover:bg-amber-900/50 text-amber-200 border border-amber-500/30 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all active:scale-95"
+                            >
+                                <PenTool className="w-3.5 h-3.5 text-amber-400" />
+                                <span>Scribe today&apos;s reflection</span>
+                            </Button>
+                        </div>
+                    </div>
+
                 </div>
 
-                {/* Reflections Content: Bookcase or List */}
-                {viewMode === 'bookcase' ? (
-                    isLoading ? (
-                        <div className="p-12 rounded-2xl border-4 border-[#3a2012] bg-[#0c0805] flex flex-col gap-4 items-center justify-center min-h-[320px]">
-                            <div className="w-8 h-8 rounded-full border-2 border-amber-500/30 border-t-amber-400 animate-spin" />
-                            <p className="text-xs font-serif text-amber-400/60">Opening the royal library shelves...</p>
-                        </div>
-                    ) : (
-                        <ReflectionsBookcase
-                            entries={entries}
-                            onSelectEntry={handleEdit}
-                            onCreateEntry={handleCreate}
-                        />
-                    )
-                ) : (
-                    <div className="space-y-4">
-                        {/* List View Month Filter Bar */}
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-zinc-900/40 p-3 rounded-xl border border-zinc-800/80">
-                            <div className="flex items-center gap-2">
-                                <Filter className="w-3.5 h-3.5 text-zinc-400" />
-                                <span className="text-xs font-bold text-zinc-400">Filter month:</span>
-                                <input
-                                    type="month"
-                                    value={filterDate}
-                                    onChange={(e) => setFilterDate(e.target.value)}
-                                    className="bg-black border border-zinc-700 rounded-lg px-2.5 py-1 text-xs text-amber-100 focus:outline-none focus:border-amber-500 font-mono"
-                                />
-                                {filterDate && (
-                                    <Button variant="ghost" size="sm" onClick={() => setFilterDate('')} className="h-6 px-2 text-zinc-400 text-xs">
-                                        Clear
-                                    </Button>
-                                )}
+                {/* ROW 2: Royal Library & Reflection Archives (Full-width 12 cols) */}
+                <div className="bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+                    
+                    {/* Header Bar with View Switcher & Month Filter */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/5 pb-3">
+                        <div className="flex items-center gap-2 text-amber-400">
+                            <BookOpen className="w-5 h-5 text-amber-400" />
+                            <div>
+                                <h2 className="text-base font-bold font-serif text-amber-200">Royal library archives</h2>
+                                <p className="text-xs text-zinc-400">Private journal entries chronicling your real-world habit journey</p>
                             </div>
-                            <span className="text-xs font-mono text-zinc-400">
-                                Showing {filteredEntries.length} entries
-                            </span>
                         </div>
 
-                        {isLoading ? (
-                            <div className="space-y-3">
-                                {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full bg-zinc-900 rounded-xl" />)}
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                            {/* View Switcher buttons */}
+                            <div className="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-zinc-800">
+                                <button
+                                    type="button"
+                                    onClick={() => setViewMode('bookcase')}
+                                    className={cn(
+                                        "flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer",
+                                        viewMode === 'bookcase'
+                                            ? "bg-amber-950/80 text-amber-300 border border-amber-500/40 shadow-sm"
+                                            : "text-zinc-400 hover:text-zinc-200"
+                                    )}
+                                >
+                                    <BookOpen className="w-3.5 h-3.5" />
+                                    <span>Bookcase</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setViewMode('list')}
+                                    className={cn(
+                                        "flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer",
+                                        viewMode === 'list'
+                                            ? "bg-amber-950/80 text-amber-300 border border-amber-500/40 shadow-sm"
+                                            : "text-zinc-400 hover:text-zinc-200"
+                                    )}
+                                >
+                                    <Filter className="w-3.5 h-3.5" />
+                                    <span>List</span>
+                                </button>
                             </div>
-                        ) : filteredEntries.length > 0 ? (
-                            <div className="space-y-3">
-                                {filteredEntries.map(entry => (
-                                    <Card
-                                        key={entry.id}
-                                        onClick={() => handleEdit(entry)}
-                                        className="bg-zinc-900/40 border-zinc-800 hover:border-amber-500/40 hover:bg-zinc-900/80 transition-all duration-200 cursor-pointer group rounded-xl"
-                                    >
-                                        <CardContent className="p-4 flex items-center justify-between gap-4">
-                                            <div className="space-y-1 flex-1">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-sm font-serif font-bold text-amber-300">
-                                                        {formatDate(entry.entry_date)}
-                                                    </span>
-                                                    {getMoodIcon(entry.mood_score)}
-                                                    {entry.mood_tag && (
-                                                        <Badge className="bg-amber-950/80 border-amber-500/30 text-amber-300 text-[9px] font-mono">
-                                                            {entry.mood_tag}
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                                <p className="text-xs text-zinc-300 line-clamp-1 italic font-serif">
-                                                    {entry.content}
-                                                </p>
-                                            </div>
-                                            <span className="text-xs text-amber-500/60 font-bold group-hover:text-amber-400 transition-colors">
-                                                Edit ✎
-                                            </span>
-                                        </CardContent>
-                                    </Card>
-                                ))}
+
+                            {viewMode === 'list' && (
+                                <div className="flex items-center gap-1.5 bg-black/60 px-2.5 py-1 rounded-xl border border-zinc-800 text-xs">
+                                    <span className="text-zinc-400">Month:</span>
+                                    <input
+                                        type="month"
+                                        value={filterDate}
+                                        onChange={(e) => setFilterDate(e.target.value)}
+                                        className="bg-transparent border-0 text-xs text-amber-100 focus:outline-none font-mono"
+                                    />
+                                    {filterDate && (
+                                        <button onClick={() => setFilterDate('')} className="text-zinc-400 hover:text-white text-xs ml-1">
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Reflections Content */}
+                    {viewMode === 'bookcase' ? (
+                        isLoading ? (
+                            <div className="p-12 rounded-2xl border-4 border-[#3a2012] bg-[#0c0805] flex flex-col gap-4 items-center justify-center min-h-[320px]">
+                                <div className="w-8 h-8 rounded-full border-2 border-amber-500/30 border-t-amber-400 animate-spin" />
+                                <p className="text-xs font-serif text-amber-400/60">Opening the royal library shelves...</p>
                             </div>
                         ) : (
-                            <div className="py-6">
-                                <EmptyState
-                                    title="No journal entries yet"
-                                    description="Sage Owl dips a quill in golden ink: 'Scribe your first private reflection to begin chronicling your thoughts and nurturing your inner wisdom.'"
-                                    creatureImage="/images/creatures/Sage_owl.webp"
-                                    creatureName="Sage Owl"
-                                    actionLabel="Scribe first reflection"
-                                    onAction={handleCreate}
-                                />
-                            </div>
-                        )}
-                    </div>
-                )}
+                            <ReflectionsBookcase
+                                entries={entries}
+                                onSelectEntry={handleEdit}
+                                onCreateEntry={handleCreate}
+                            />
+                        )
+                    ) : (
+                        <div className="space-y-4">
+                            {isLoading ? (
+                                <div className="space-y-3">
+                                    {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full bg-zinc-900 rounded-xl" />)}
+                                </div>
+                            ) : filteredEntries.length > 0 ? (
+                                <div className="space-y-3">
+                                    {filteredEntries.map(entry => (
+                                        <Card
+                                            key={entry.id}
+                                            onClick={() => handleEdit(entry)}
+                                            className="bg-zinc-900/40 border-zinc-800 hover:border-amber-500/40 hover:bg-zinc-900/80 transition-all duration-200 cursor-pointer group rounded-xl"
+                                        >
+                                            <CardContent className="p-4 flex items-center justify-between gap-4">
+                                                <div className="space-y-1 flex-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm font-serif font-bold text-amber-300">
+                                                            {formatDate(entry.entry_date)}
+                                                        </span>
+                                                        {getMoodIcon(entry.mood_score)}
+                                                        {entry.mood_tag && (
+                                                            <Badge className="bg-amber-950/80 border-amber-500/30 text-amber-300 text-[9px] font-mono">
+                                                                {entry.mood_tag}
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-xs text-zinc-300 line-clamp-1 italic font-serif">
+                                                        {entry.content}
+                                                    </p>
+                                                </div>
+                                                <span className="text-xs text-amber-500/60 font-bold group-hover:text-amber-400 transition-colors">
+                                                    Edit ✎
+                                                </span>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="py-6">
+                                    <EmptyState
+                                        title="No journal entries yet"
+                                        description="Sage Owl dips a quill in golden ink: 'Scribe your first private reflection to begin chronicling your thoughts and nurturing your inner wisdom.'"
+                                        creatureImage="/images/creatures/Sage_owl.webp"
+                                        creatureName="Sage Owl"
+                                        actionLabel="Scribe first reflection"
+                                        onAction={handleCreate}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                </div>
+
             </div>
 
             <JournalModal

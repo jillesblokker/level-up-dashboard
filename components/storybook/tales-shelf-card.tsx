@@ -8,8 +8,9 @@ import { BookOpen, Compass, CheckCircle2 } from 'lucide-react';
 import { STORY_ADVENTURES } from './stories-data';
 import { StoryAdventure, getCompletedStories, CompletedStoryRecord } from '@/lib/storybook-manager';
 import { StorybookModal } from './storybook-modal';
+import { cn } from '@/lib/utils';
 
-export function TalesShelfCard() {
+export function TalesShelfCard({ className }: { className?: string } = {}) {
   const [completedRecords, setCompletedRecords] = useState<CompletedStoryRecord[]>([]);
   const [activeStory, setActiveStory] = useState<StoryAdventure | null>(null);
 
@@ -28,7 +29,7 @@ export function TalesShelfCard() {
   const completedIds = completedRecords.map(r => r.storyId);
 
   return (
-    <Card className="bg-gradient-to-br from-[#120d09] via-zinc-950 to-zinc-950 border-amber-900/40 shadow-xl overflow-hidden font-serif">
+    <Card className={cn("bg-gradient-to-br from-[#120d09] via-zinc-950 to-zinc-950 border-amber-900/40 shadow-xl overflow-hidden font-serif", className)}>
       <CardHeader className="p-5 pb-3 border-b border-amber-900/30">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-amber-400">
