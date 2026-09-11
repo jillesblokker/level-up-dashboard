@@ -657,7 +657,15 @@ export default function MarketPage() {
               onClick={() => setApothecaOpen(true)}
               className="bg-purple-950/90 border border-purple-500/60 text-purple-200 hover:bg-purple-900 text-xs px-3.5 py-2 rounded-xl font-serif flex items-center gap-2 shadow-lg shadow-purple-950/40 font-bold shrink-0"
             >
-              🧪 Apotheca glasshouse
+              <span>🧪 Apotheca glasshouse</span>
+              <CollectibleRune
+                id="berkano_apotheca"
+                runeId="berkano"
+                symbol="ᛒ"
+                name="Berkano"
+                meaning="The birch goddess, botanical vitality & gentle healing"
+                className="text-emerald-400"
+              />
               <Badge className="bg-purple-500/30 text-purple-200 text-[9px] font-mono border-purple-400/40 ml-0.5">
                 Brew ready ✨
               </Badge>

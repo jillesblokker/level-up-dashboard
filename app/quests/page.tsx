@@ -3214,6 +3214,26 @@ export default function QuestsPage() {
                   </Button>
                 </div>
 
+                {/* Routine Evolution Guidance Banner */}
+                <div className="p-3.5 bg-gradient-to-r from-amber-950/30 via-zinc-950 to-amber-950/30 border border-amber-500/20 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-inner">
+                  <div className="flex items-center gap-2.5 text-xs text-zinc-300">
+                    <span className="text-base select-none">⚡</span>
+                    <span className="font-serif">
+                      <strong className="text-amber-300 font-bold">Routine evolution:</strong> Click edit on any habit to pivot routines while preserving 100% of your historical completions and streak stats.
+                    </span>
+                  </div>
+                  <div className="shrink-0 flex items-center gap-2 self-end sm:self-center">
+                    <CollectibleRune
+                      id="nauthiz_evolve"
+                      runeId="nauthiz"
+                      symbol="ᚾ"
+                      name="Nauthiz"
+                      meaning="Need, necessity, and habit evolution without breaking streaks"
+                      className="text-amber-400"
+                    />
+                  </div>
+                </div>
+
                 <QuestOrganization
                   quests={quests}
                   onQuestToggle={handleQuestToggle}

@@ -13,6 +13,7 @@ import { getCurrentMonthlyTitan, MonthlyTitan, MONTHLY_TITANS, MONTH_NAMES } fro
 import { motion } from "framer-motion";
 import { TitanSiegeArsenal } from "@/components/titan-siege-arsenal";
 import { TreasureChestVisual } from "@/components/ui/treasure-chest-visual";
+import { CollectibleRune } from "@/components/runes/collectible-rune";
 import { cn } from "@/lib/utils";
 
 export function TitanRaidCard() {
@@ -133,6 +134,14 @@ export function TitanRaidCard() {
             <Badge className="bg-purple-900/60 text-purple-300 border border-purple-500/40 px-2.5 py-1 uppercase text-[10px] tracking-widest font-bold">
               ⚔️ Monthly raid
             </Badge>
+            <CollectibleRune
+              id="thurisaz_raid"
+              runeId="thurisaz"
+              symbol="ᚦ"
+              name="Thurisaz"
+              meaning="Thor's hammer, giant-slayer & primal force"
+              className="text-red-400"
+            />
             <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-300/90 bg-amber-950/30 font-medium">
               {MONTH_NAMES[titan.monthIndex]}
             </Badge>

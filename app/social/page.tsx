@@ -8,7 +8,7 @@ import { useUser } from "@clerk/nextjs"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Users, UserPlus, Mail, Shield, Sword, Scroll, Trophy, Target, Star, Crown, Zap, Heart, Book, Hammer, Coins, Gift, HelpCircle, UserCheck, Flame, Dices } from "lucide-react"
+import { Users, UserPlus, Mail, Shield, Sword, Swords, Scroll, Trophy, Target, Star, Crown, Zap, Heart, Book, Hammer, Coins, Gift, HelpCircle, UserCheck, Flame, Dices } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
@@ -509,7 +509,15 @@ export default function AlliesPage() {
                         </TabsTrigger>
                         <TabsTrigger value="alliances" className="flex items-center gap-2 py-2.5 h-full px-5 rounded-xl text-xs font-bold font-serif transition-all whitespace-nowrap min-h-[40px]">
                             <Shield className="w-4 h-4 text-amber-500" />
-                            Titan raid & fellowships
+                            <span>Titan raid & fellowships</span>
+                            <CollectibleRune
+                                id="thurisaz_raid"
+                                runeId="thurisaz"
+                                symbol="ᚦ"
+                                name="Thurisaz"
+                                meaning="Thor's hammer, giant-slayer & primal force"
+                                className="ml-1 text-red-400"
+                            />
                         </TabsTrigger>
                         <TabsTrigger value="allies" className="flex items-center gap-2 py-2.5 h-full px-5 rounded-xl text-xs font-bold font-serif transition-all whitespace-nowrap min-h-[40px]">
                             <Users className="w-4 h-4 text-amber-400" />
@@ -550,6 +558,43 @@ export default function AlliesPage() {
 
                     {/* FELLOWSHIPS TAB */}
                     <TabsContent value="alliances" className="space-y-6">
+                        {/* Live Fellowship Titan Wyrm Weekly Raid Banner */}
+                        <div className="relative rounded-2xl border border-red-500/40 bg-gradient-to-r from-red-950/70 via-zinc-950/90 to-amber-950/40 p-4 sm:p-5 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3.5">
+                                <div className="w-12 h-12 rounded-2xl bg-red-950/90 border border-red-500/60 flex items-center justify-center text-2xl shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+                                    🐉
+                                </div>
+                                <div>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <h3 className="font-medieval text-base sm:text-lg font-bold text-red-200">
+                                            Fellowship Titan Wyrm raid
+                                        </h3>
+                                        <CollectibleRune
+                                            id="thurisaz_raid"
+                                            runeId="thurisaz"
+                                            symbol="ᚦ"
+                                            name="Thurisaz"
+                                            meaning="Thor's hammer, giant-slayer & primal force"
+                                            className="text-red-400"
+                                        />
+                                        <Badge className="bg-red-900/60 text-red-300 border border-red-500/40 text-[10px] font-bold px-2 py-0.5">
+                                            Weekly boss
+                                        </Badge>
+                                    </div>
+                                    <p className="text-xs text-zinc-300 mt-1 max-w-xl">
+                                        Assemble with your fellowship to strike down the colossal weekly raid boss. Daily habits deal real damage and unlock shared victory chests!
+                                    </p>
+                                </div>
+                            </div>
+                            <Button
+                                onClick={() => setTitanModalOpen(true)}
+                                className="w-full sm:w-auto bg-gradient-to-r from-red-700 to-amber-700 hover:from-red-600 hover:to-amber-600 text-white font-serif font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg border border-red-400/40 shrink-0 flex items-center justify-center gap-2"
+                            >
+                                <Swords className="w-4 h-4" />
+                                <span>Enter raid chamber</span>
+                            </Button>
+                        </div>
+
                         <AllianceComboBanner />
                         <AllianceDashboard />
                     </TabsContent>
@@ -1335,6 +1380,12 @@ export default function AlliesPage() {
                     )}
                 </DialogContent>
             </Dialog>
+
+            {/* Alliance Titan Wyrm Weekly Raid Modal */}
+            <AllianceTitanRaidModal
+                isOpen={titanModalOpen}
+                onClose={() => setTitanModalOpen(false)}
+            />
         </div>
     );
 }
