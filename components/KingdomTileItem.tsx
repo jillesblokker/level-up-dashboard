@@ -560,13 +560,14 @@ export const KingdomTileItem = React.memo(({
             return { badge: '1/1', isClosed: false };
           };
 
-          // If ready: show the glowing Collect badge on both mobile and desktop
+          // If ready: show the glowing Collect badge on both mobile and desktop (short 'Get' on mobile)
           if (isReady) {
             return (
               <div className="transition-all duration-200 absolute bottom-1 left-1/2 -translate-x-1/2 w-max max-w-[90%] pointer-events-none z-30">
-                <div className="text-[9px] md:text-xs px-2 py-0.5 rounded text-center font-mono shadow-md min-h-[16px] md:min-h-[20px] flex items-center justify-center shrink-0 border w-auto inline-flex gap-1 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 font-black border-yellow-300 shadow-[0_0_12px_rgba(245,158,11,0.6)]">
-                  <span className="whitespace-nowrap font-black text-[10px] md:text-xs text-zinc-950 tracking-wide uppercase">
-                    Collect
+                <div className="text-[9px] md:text-xs px-1.5 md:px-2 py-0.5 rounded text-center font-mono shadow-md min-h-[16px] md:min-h-[20px] flex items-center justify-center shrink-0 border w-auto inline-flex gap-1 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 font-black border-yellow-300 shadow-[0_0_12px_rgba(245,158,11,0.6)]">
+                  <span className="whitespace-nowrap font-black text-[9px] md:text-xs text-zinc-950 tracking-tight md:tracking-wide">
+                    <span className="md:hidden">Get</span>
+                    <span className="hidden md:inline">Collect</span>
                   </span>
                 </div>
               </div>
