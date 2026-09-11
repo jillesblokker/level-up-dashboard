@@ -519,9 +519,9 @@ export const useCreatureStore = create<CreatureStore>()(
       discoverCreature: (creatureId: string) => {
         const creature = get().getCreature(creatureId);
         if (creature && !get().isCreatureDiscovered(creatureId)) {
-          set((state) => ({
+          set((state: CreatureStore) => ({
             discoveredCreatures: [...state.discoveredCreatures, creatureId],
-            creatures: state.creatures.map((c) =>
+            creatures: state.creatures.map((c: Creature) =>
               c.id === creatureId ? { ...c, discovered: true } : c
             ),
           }));
@@ -531,7 +531,7 @@ export const useCreatureStore = create<CreatureStore>()(
         }
       },
       getCreature: (creatureId: string) => {
-        return get().creatures.find((creature) => creature.id === creatureId);
+        return get().creatures.find((creature: Creature) => creature.id === creatureId);
       },
       isCreatureDiscovered: (creatureId: string) => {
         return get().discoveredCreatures.includes(creatureId);
@@ -542,6 +542,21 @@ export const useCreatureStore = create<CreatureStore>()(
         const userId = getCurrentUserId();
         return userId ? `user_${userId}_creature-store` : 'creature-store';
       })(),
+      partialize: (state) => ({
+        discoveredCreatures: state.discoveredCreatures,
+      }),
+      merge: (persistedState: any, currentState: any) => {
+        const discovered = (persistedState as any)?.discoveredCreatures || [];
+        const mergedCreatures = initialCreatures.map((c) => ({
+          ...c,
+          discovered: discovered.includes(c.id) || c.discovered || false,
+        }));
+        return {
+          ...currentState,
+          creatures: mergedCreatures,
+          discoveredCreatures: discovered,
+        };
+      },
     }
   )
 ); 

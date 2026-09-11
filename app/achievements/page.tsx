@@ -49,7 +49,7 @@ interface DbAchievement {
 }
 
 export default function Page() {
-  const { creatures } = useCreatureStore()
+  const { creatures, discoveredCreatures } = useCreatureStore()
   const [achievementDefinitions, setAchievementDefinitions] = useState<AchievementDefinition[]>([]);
   const [unlockedAchievements, setUnlockedAchievements] = useState<Map<string, DbAchievement>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
@@ -747,12 +747,11 @@ export default function Page() {
 
   const isCreatureUnlocked = (creatureId: string) => {
     if (showAllUnlocked) return true;
+    const isDiscovered = (discoveredCreatures || []).includes(creatureId);
     if (creatureId === '019') {
-      const isDiscovered = useCreatureStore.getState().isCreatureDiscovered('019');
       const localUnlocked = typeof window !== 'undefined' && localStorage.getItem('thrivehaven_crypto_unlocked') === 'true';
       return isDiscovered || localUnlocked || unlockedAchievements.has('019');
     }
-    const isDiscovered = useCreatureStore.getState().isCreatureDiscovered(creatureId);
     return unlockedAchievements.has(creatureId) || isDiscovered;
   }
 
