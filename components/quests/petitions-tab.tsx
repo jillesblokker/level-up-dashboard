@@ -45,8 +45,8 @@ export function PetitionsTab() {
     const target = petitions.find(p => p.id === petitionId);
     if (!target) return;
 
-    const res = resolvePetition(petitionId, choice);
-    setPetitions(getActivePetitions());
+    const res = resolvePetition(petitionId, choice, petitions);
+    setPetitions(res.updatedPetitions);
 
     if (res.goldChange !== 0) {
       addToCharacterStat('gold', res.goldChange, `petition-${petitionId}`);

@@ -757,6 +757,56 @@ function generateProceduralPool(): Petition[] {
 
 const ALL_100_PETITIONS = generateProceduralPool();
 
+function parseStoredDate(raw: unknown): string | null {
+  if (!raw) return null;
+  if (typeof raw !== 'string') return String(raw);
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === 'string') return parsed;
+  } catch {}
+  return raw.replace(/^"|"$/g, '').trim();
+}
+
+/**
+ * Heals any completed petition that previously ended up with the generic fallback
+ * "Decree enacted peacefully." outcome so players always get their funny story outcome!
+ */
+function healPetitionOutcomes(petitions: Petition[]): Petition[] {
+  return petitions.map(p => {
+    if (
+      p.completed &&
+      (!p.chosenOutcome ||
+        p.chosenOutcome.storyText === "Decree enacted peacefully." ||
+        p.chosenOptionLabel === "Decree")
+    ) {
+      const match =
+        ALL_100_PETITIONS.find(tpl => tpl.id === p.id) ||
+        STORY_PETITIONS_TEMPLATES.find(tpl => tpl.requesterRole === p.requesterRole) ||
+        ALL_100_PETITIONS.find(tpl => tpl.requesterRole === p.requesterRole);
+
+      if (match) {
+        const option = match.optionA;
+        const rolled =
+          option.outcomes[Math.floor(Math.random() * option.outcomes.length)] ||
+          option.outcomes[0];
+        if (rolled) {
+          const isFunny = rolled.isFunnyTwist;
+          return {
+            ...p,
+            chosenOptionLabel: option.label,
+            chosenOutcome: {
+              ...rolled,
+              xpReward: rolled.xpReward ?? (isFunny ? 10 : 35),
+              raidBossDamage: rolled.raidBossDamage ?? (isFunny ? 10 : 15),
+            }
+          };
+        }
+      }
+    }
+    return p;
+  });
+}
+
 /**
  * Strict calendar date in user's local timezone (YYYY-MM-DD).
  * Conforms to AGENTS.md Strict Reset Anti-Regression Rule.
@@ -772,7 +822,8 @@ export function getLocalTodayDate(): string {
 export function getActivePetitions(): Petition[] {
   const today = getLocalTodayDate();
   try {
-    const storedDate = localStorage.getItem('pref:petitions-date');
+    const rawStoredDate = localStorage.getItem('pref:petitions-date');
+    const storedDate = parseStoredDate(rawStoredDate);
     const local = localStorage.getItem('pref:active-petitions-list');
 
     // 1. Strict calendar date reset: if date changed, automatically refresh a fresh batch!
@@ -781,23 +832,25 @@ export function getActivePetitions(): Petition[] {
     }
 
     if (local) {
-      const parsed = JSON.parse(local);
+      let parsed: unknown;
+      try { parsed = JSON.parse(local); } catch { parsed = null; }
+
       // Validate that parsed items have the new outcomes array, requesterImage, and no legacy brackets
       if (
         Array.isArray(parsed) &&
         parsed.length === 4 &&
-        parsed.every(p => p && p.optionA && Array.isArray(p.optionA.outcomes) && p.requesterImage && !p.title.includes('('))
+        parsed.every(p => p && p.optionA && Array.isArray(p.optionA.outcomes) && p.requesterImage && !p.title?.includes('('))
       ) {
+        const healed = healPetitionOutcomes(parsed as Petition[]);
         // 2. Migration guard for existing sessions without a date saved:
-        // If no stored date existed yet and any petition was already completed (from yesterday),
-        // refresh immediately with fresh petitions for today!
         if (!storedDate) {
-          if (parsed.some(p => p.completed)) {
+          if (healed.some(p => p.completed)) {
             return refreshAllPetitions();
           }
+          try { localStorage.setItem('pref:petitions-date', JSON.stringify(today)); } catch {}
           setUserPreference('petitions-date', today);
         }
-        return parsed;
+        return healed;
       }
     }
   } catch {}
@@ -812,7 +865,8 @@ export function getActivePetitions(): Petition[] {
 export async function syncPetitionsFromCloud(): Promise<Petition[]> {
   const today = getLocalTodayDate();
   try {
-    const cloudDate = (await getUserPreference('petitions-date')) as string | null;
+    const rawCloudDate = await getUserPreference('petitions-date');
+    const cloudDate = parseStoredDate(rawCloudDate);
     if (cloudDate && cloudDate !== today) {
       return refreshAllPetitions();
     }
@@ -820,54 +874,67 @@ export async function syncPetitionsFromCloud(): Promise<Petition[]> {
     if (
       Array.isArray(cloudList) &&
       cloudList.length === 4 &&
-      cloudList.every(p => p && p.optionA && Array.isArray(p.optionA.outcomes) && p.requesterImage && !p.title.includes('('))
+      cloudList.every(p => p && p.optionA && Array.isArray(p.optionA.outcomes) && p.requesterImage && !p.title?.includes('('))
     ) {
-      return cloudList;
+      const healed = healPetitionOutcomes(cloudList);
+      try {
+        localStorage.setItem('pref:active-petitions-list', JSON.stringify(healed));
+        localStorage.setItem('pref:petitions-date', JSON.stringify(today));
+      } catch {}
+      return healed;
     }
   } catch {}
   return getActivePetitions();
 }
 
-export function resolvePetition(petitionId: string, choice: 'A' | 'B'): {
+export function resolvePetition(
+  petitionId: string,
+  choice: 'A' | 'B',
+  currentPetitions?: Petition[]
+): {
   happiness: CitizenHappinessState;
   goldChange: number;
   xpReward: number;
   raidBossDamage: number;
   outcome: PetitionOutcome;
   chosenOptionLabel: string;
+  updatedPetitions: Petition[];
 } {
-  const petitions = getActivePetitions();
-  const target = petitions.find(p => p.id === petitionId);
-  
-  const fallbackOutcome: PetitionOutcome = {
-    storyText: "Decree enacted peacefully.",
-    goldChange: 0,
-    loyaltyChange: 0,
-    xpReward: 20,
-    raidBossDamage: 15,
-    isFunnyTwist: false
-  };
+  const activeList = (currentPetitions && currentPetitions.length > 0)
+    ? currentPetitions
+    : getActivePetitions();
 
+  // Find target in current list, or search ALL_100_PETITIONS / STORY_PETITIONS_TEMPLATES so we NEVER lose story outcomes!
+  let target = activeList.find(p => p.id === petitionId);
   if (!target) {
-    return {
-      happiness: getCitizenHappiness(),
-      goldChange: 0,
-      xpReward: 20,
+    target = ALL_100_PETITIONS.find(p => p.id === petitionId) ||
+             STORY_PETITIONS_TEMPLATES.find(p => p.id === petitionId) ||
+             ALL_100_PETITIONS.find(p => p.requesterRole?.toLowerCase() === petitionId.toLowerCase()) ||
+             STORY_PETITIONS_TEMPLATES.find(p => p.requesterRole?.toLowerCase() === petitionId.toLowerCase());
+  }
+
+  const option = choice === 'A' ? target?.optionA : target?.optionB;
+  const outcomes = option?.outcomes || [];
+  
+  // Pick 50/50 randomized outcome roll between funny twist and favorable triumph
+  let rolledOutcome: PetitionOutcome;
+  if (outcomes.length > 0) {
+    rolledOutcome = outcomes[Math.floor(Math.random() * outcomes.length)] || outcomes[0]!;
+  } else {
+    rolledOutcome = {
+      storyText: choice === 'A'
+        ? "The court declared your royal decree across the square! Citizens celebrated with cheers and spiced cider."
+        : "A quiet decree was sealed into law. The town council nodded solemnly in agreement.",
+      goldChange: choice === 'A' ? 140 : -35,
+      loyaltyChange: choice === 'A' ? 8 : -3,
+      xpReward: 35,
       raidBossDamage: 15,
-      outcome: fallbackOutcome,
-      chosenOptionLabel: "Decree"
+      isFunnyTwist: choice === 'B'
     };
   }
 
-  const option = choice === 'A' ? target.optionA : target.optionB;
-  const outcomes = option?.outcomes || [fallbackOutcome];
-  // 50/50 randomized outcome roll
-  const rolledOutcome = outcomes[Math.floor(Math.random() * outcomes.length)] || outcomes[0] || fallbackOutcome;
-
   // Calculate real XP reward (+35 XP for favorable triumph, +10 XP for chaotic mishap)
   const xpReward = rolledOutcome.xpReward ?? (rolledOutcome.isFunnyTwist ? 10 : 35);
-
-  // Calculate raid boss strike damage if needed for compatibility
   const raidBossDamage = rolledOutcome.raidBossDamage ?? (rolledOutcome.isFunnyTwist ? 10 : 15);
   const resolvedOutcome: PetitionOutcome = {
     ...rolledOutcome,
@@ -877,8 +944,14 @@ export function resolvePetition(petitionId: string, choice: 'A' | 'B'): {
 
   const newHappiness = updateCitizenHappiness(rolledOutcome.loyaltyChange || 0);
 
-  const updatedPetitions = petitions.map(p => {
-    if (p.id === petitionId) {
+  // Update petitions in list
+  const hasTargetInList = activeList.some(p => p.id === petitionId);
+  const baseList = hasTargetInList
+    ? activeList
+    : (target ? [...activeList.slice(0, 3), target] : activeList);
+
+  const updatedPetitions = baseList.map(p => {
+    if (p.id === petitionId || (target && p.id === target.id)) {
       return {
         ...p,
         completed: true,
@@ -890,6 +963,10 @@ export function resolvePetition(petitionId: string, choice: 'A' | 'B'): {
   });
 
   const today = getLocalTodayDate();
+  try {
+    localStorage.setItem('pref:active-petitions-list', JSON.stringify(updatedPetitions));
+    localStorage.setItem('pref:petitions-date', JSON.stringify(today));
+  } catch {}
   setUserPreference('active-petitions-list', updatedPetitions);
   setUserPreference('petitions-date', today);
 
@@ -899,7 +976,8 @@ export function resolvePetition(petitionId: string, choice: 'A' | 'B'): {
     xpReward,
     raidBossDamage,
     outcome: resolvedOutcome,
-    chosenOptionLabel: option?.label || "Decree"
+    chosenOptionLabel: option?.label || "Decree",
+    updatedPetitions
   };
 }
 
@@ -907,6 +985,10 @@ export function refreshAllPetitions(): Petition[] {
   const today = getLocalTodayDate();
   const shuffled = [...ALL_100_PETITIONS].sort(() => Math.random() - 0.5);
   const selected = shuffled.slice(0, 4);
+  try {
+    localStorage.setItem('pref:active-petitions-list', JSON.stringify(selected));
+    localStorage.setItem('pref:petitions-date', JSON.stringify(today));
+  } catch {}
   setUserPreference('active-petitions-list', selected);
   setUserPreference('petitions-date', today);
   return selected;
