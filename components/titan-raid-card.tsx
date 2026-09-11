@@ -189,16 +189,16 @@ export function TitanRaidCard() {
       </CardHeader>
 
       <CardContent className="p-5 pt-0">
-        <div className="flex flex-col md:grid md:grid-cols-12 md:gap-6 md:items-start space-y-4 md:space-y-0">
-          {/* Left Column (Desktop): Boss Image Banner, Health Section & Vertical Stats */}
-          <div className="md:col-span-5 space-y-4">
-            {/* Dynamic Elemental Biome Arena Backdrop */}
+        {/* 2x2 Bento Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+          {/* Bento Card 1: Titan Image & Elemental Arena (Top Left, col-span-5) */}
+          <div className="lg:col-span-5 flex flex-col">
             <motion.div 
               initial={{ scale: 0.98, opacity: 0.9 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5 }}
               className={cn(
-                "relative w-full rounded-2xl overflow-hidden border-2 shadow-2xl p-3 flex items-center justify-center group bg-gradient-to-b",
+                "relative w-full h-full min-h-[320px] sm:min-h-[360px] rounded-2xl overflow-hidden border-2 shadow-2xl p-6 sm:p-8 flex flex-col items-center justify-center group bg-gradient-to-b",
                 biome.gradient,
                 biome.border,
                 biome.glow
@@ -208,8 +208,8 @@ export function TitanRaidCard() {
               <div className={cn("absolute inset-0 rounded-2xl blur-2xl opacity-40 pointer-events-none animate-pulse", biome.auraDot)} />
               
               {/* Elemental Realm Badge */}
-              <div className="absolute top-2 right-3 z-20">
-                <Badge variant="outline" className={cn("text-[9px] font-mono uppercase font-bold border", biome.border, biome.accentText, "bg-zinc-950/80")}>
+              <div className="absolute top-3 right-3 z-20">
+                <Badge variant="outline" className={cn("text-[10px] font-mono uppercase font-bold border", biome.border, biome.accentText, "bg-zinc-950/80")}>
                   {titan.element} realm
                 </Badge>
               </div>
@@ -219,7 +219,7 @@ export function TitanRaidCard() {
                 alt={titan.name}
                 width={500}
                 height={500}
-                className={`relative z-10 w-full max-h-[220px] md:max-h-[260px] object-contain rounded-xl transition-all duration-700 drop-shadow-[0_10px_25px_rgba(0,0,0,0.85)] ${isDefeated ? 'opacity-70 filter drop-shadow-[0_0_25px_rgba(245,158,11,0.6)]' : 'group-hover:scale-105'}`}
+                className={`relative z-10 w-auto max-h-[240px] sm:max-h-[270px] object-contain rounded-xl transition-all duration-700 drop-shadow-[0_12px_28px_rgba(0,0,0,0.85)] my-auto ${isDefeated ? 'opacity-70 filter drop-shadow-[0_0_25px_rgba(245,158,11,0.6)]' : 'group-hover:scale-105'}`}
                 unoptimized
               />
 
@@ -228,7 +228,7 @@ export function TitanRaidCard() {
                 <div className="absolute inset-0 z-30 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-amber-950/40 flex flex-col items-center justify-center text-center p-4 rounded-xl space-y-2 border-2 border-amber-500/50">
                   <Trophy className="w-10 h-10 text-amber-400 animate-bounce drop-shadow-[0_0_15px_rgba(245,158,11,0.8)]" />
                   <h3 className="text-lg font-serif font-extrabold text-amber-300 drop-shadow-md">
-                    🏆 Titan Defeated!
+                    🏆 Titan defeated!
                   </h3>
                   <p className="text-xs text-zinc-300 max-w-md font-medium">
                     Victory achieved through team habit momentum!
@@ -236,9 +236,16 @@ export function TitanRaidCard() {
                 </div>
               )}
             </motion.div>
+          </div>
 
-            {/* Boss HP Progress & Vertically Stacked Stats Section (Below Boss Image) */}
-            <div className="bg-zinc-900/60 p-4 rounded-xl border border-purple-900/40 space-y-3.5 shadow-md">
+          {/* Bento Card 2: Siege Weapons (Top Right, col-span-7) */}
+          <div className="lg:col-span-7 flex flex-col">
+            <TitanSiegeArsenal className="h-full flex flex-col justify-between" />
+          </div>
+
+          {/* Bento Card 3: Boss Health, Habit Contributions & Raid Guide (Bottom Left, col-span-5) */}
+          <div className="lg:col-span-5 flex flex-col justify-between p-5 sm:p-6 rounded-2xl bg-zinc-900/60 border border-purple-900/40 shadow-lg space-y-4">
+            <div className="space-y-3.5">
               <div className="flex justify-between items-center text-xs font-bold">
                 <span className="text-zinc-300 uppercase tracking-widest flex items-center gap-1.5">
                   <Shield className="w-4 h-4 text-purple-400" /> Boss health
@@ -271,66 +278,77 @@ export function TitanRaidCard() {
               </div>
             </div>
 
-            {/* Habit Building Guidance Banner (Placed below Boss Health section for visual balance) */}
-            <div className="bg-purple-950/40 p-3 rounded-xl border border-purple-500/30 text-xs text-purple-200 flex items-start gap-2.5">
+            {/* Habit Building Guidance Banner */}
+            <div className="bg-purple-950/40 p-3 rounded-xl border border-purple-500/30 text-xs text-purple-200 flex items-start gap-2.5 mt-auto">
               <Zap className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold text-amber-300">Raid Strikes:</span> Completing habits and decrees damages the boss! Quests (+1 HP), Challenges (+5 HP), Milestones (+10 HP), and Royal Petitions (+15 HP).
+                <span className="font-bold text-amber-300">Raid strikes:</span> Completing habits and decrees damages the boss! Quests (+1 HP), challenges (+5 HP), milestones (+10 HP), and royal petitions (+15 HP).
               </div>
             </div>
           </div>
 
-          {/* Right Column (Desktop): Arsenal & Loot Claiming */}
-          <div className="md:col-span-7 space-y-4">
-            {/* 10 Siege Engine Slots Arsenal */}
-            <TitanSiegeArsenal />
+          {/* Bento Card 4: Titan Raid Victory Loot (Bottom Right, col-span-7) */}
+          <div className="lg:col-span-7 flex flex-col justify-between p-6 sm:p-8 rounded-2xl bg-gradient-to-b from-purple-950/40 via-zinc-950 to-zinc-950 border border-purple-800/40 shadow-xl text-center space-y-6">
+            <div className="space-y-1">
+              <div className="font-serif font-bold text-base sm:text-lg text-amber-300">
+                Titan raid victory loot
+              </div>
+              <p className="text-xs text-zinc-400 font-sans">
+                Defeat the monthly titan with your fellowship to claim this bounty
+              </p>
+            </div>
 
-            {/* Claim Rewards Footer with Animated Treasure Chest */}
-            <div className="flex flex-col items-center p-4 rounded-2xl bg-gradient-to-b from-purple-950/40 via-zinc-950 to-zinc-950 border border-purple-800/40 shadow-lg text-center">
+            {/* Spacious Animated Treasure Chest Visual */}
+            <div className="w-full flex justify-center py-2">
               <TreasureChestVisual
                 state={claimed ? 'claimed' : (isDefeated ? 'ready' : 'locked')}
                 rarity="legendary"
                 tierLabel="Titan victory chest"
-                className="w-full max-w-xs h-32 mb-2"
+                className="w-full max-w-sm py-6 px-8 min-h-[210px] sm:min-h-[230px]"
                 onClick={() => isDefeated && !claimed && handleClaim()}
               />
+            </div>
 
-              <div className="w-full space-y-2">
-                <div className="font-serif font-bold text-sm text-amber-300">Titan raid victory loot</div>
-                <div className="flex items-center justify-center gap-3 text-xs font-mono font-bold">
-                  <span className="text-amber-400 bg-amber-950/60 border border-amber-500/40 px-2.5 py-1 rounded-full">
-                    🪙 +{titan.rewardGold} Gold
-                  </span>
-                  <span className="text-purple-300 bg-purple-950/60 border border-purple-500/40 px-2.5 py-1 rounded-full">
-                    💎 +{titan.rewardGems} Gems
-                  </span>
-                </div>
+            {/* Reward Badges */}
+            <div className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
+              <span className="text-amber-400 bg-amber-950/70 border border-amber-500/40 px-4 py-1.5 rounded-full text-xs sm:text-sm font-mono font-bold flex items-center gap-1.5 shadow-sm">
+                🪙 +{titan.rewardGold} gold
+              </span>
+              <span className="text-purple-300 bg-purple-950/70 border border-purple-500/40 px-4 py-1.5 rounded-full text-xs sm:text-sm font-mono font-bold flex items-center gap-1.5 shadow-sm">
+                💎 +{titan.rewardGems} gems
+              </span>
+            </div>
 
-                <div className="pt-2">
-                  <Button
-                    disabled={!isDefeated || claimed || claiming}
-                    onClick={handleClaim}
-                    className={claimed 
-                      ? "w-full bg-zinc-900 text-zinc-400 border border-zinc-800 py-3 rounded-xl min-h-[44px]" 
-                      : isDefeated 
-                        ? "w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-black shadow-[0_0_25px_rgba(245,158,11,0.4)] py-3 rounded-xl min-h-[44px] animate-bounce" 
-                        : "w-full bg-zinc-900 text-zinc-500 border border-zinc-800 py-3 rounded-xl min-h-[44px]"
-                    }
-                  >
-                    {claimed ? (
-                      <span className="flex items-center justify-center gap-1.5 font-bold"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Monthly reward claimed</span>
-                    ) : isDefeated ? (
-                      <span className="flex items-center justify-center gap-1.5 font-extrabold text-base"><Trophy className="w-5 h-5" /> Claim victory loot</span>
-                    ) : (
-                      <span className="flex items-center justify-center gap-1.5 font-bold font-mono text-xs"><Lock className="w-4 h-4" /> Defeat Titan Wyrm to unlock</span>
-                    )}
-                  </Button>
-              </div>
+            {/* Action Button */}
+            <div className="w-full pt-1">
+              <Button
+                disabled={!isDefeated || claimed || claiming}
+                onClick={handleClaim}
+                className={claimed 
+                  ? "w-full bg-zinc-900 text-zinc-400 border border-zinc-800 py-3.5 rounded-xl min-h-[48px]" 
+                  : isDefeated 
+                    ? "w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-black shadow-[0_0_25px_rgba(245,158,11,0.4)] py-3.5 rounded-xl min-h-[48px] animate-bounce" 
+                    : "w-full bg-zinc-900/90 text-zinc-400 border border-zinc-800 py-3.5 rounded-xl min-h-[48px] hover:bg-zinc-900"
+                }
+              >
+                {claimed ? (
+                  <span className="flex items-center justify-center gap-2 font-bold text-sm">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Monthly reward claimed
+                  </span>
+                ) : isDefeated ? (
+                  <span className="flex items-center justify-center gap-2 font-extrabold text-base">
+                    <Trophy className="w-5 h-5" /> Claim victory loot
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2 font-bold text-xs sm:text-sm text-zinc-400">
+                    <Lock className="w-4 h-4 text-amber-500/70" /> Defeat Titan Wyrm to unlock
+                  </span>
+                )}
+              </Button>
             </div>
           </div>
         </div>
-      </div>
-    </CardContent>
+      </CardContent>
     </Card>
 
     {/* 12 Monthly Titans Threat Lore Modal */}
@@ -403,8 +421,8 @@ export function TitanRaidCard() {
                   <div className="flex items-center justify-between pt-0.5 text-[10px] text-zinc-400 font-mono flex-wrap gap-2">
                     <span className="text-zinc-500">HP: {t.totalHp.toLocaleString()}</span>
                     <div className="flex items-center gap-2 font-bold">
-                      <span className="text-amber-400">🪙 +{t.rewardGold} Gold</span>
-                      <span className="text-purple-400">💎 +{t.rewardGems} Gems</span>
+                      <span className="text-amber-400">🪙 +{t.rewardGold} gold</span>
+                      <span className="text-purple-400">💎 +{t.rewardGems} gems</span>
                     </div>
                   </div>
                 </div>

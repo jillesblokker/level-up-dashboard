@@ -185,16 +185,16 @@ export function TitanSiegeArsenal({ onOpenWorkshop, className = "" }: TitanSiege
           </div>
           <div>
             <h3 className="text-sm font-bold font-serif text-amber-300">
-              Titan Raid siege arsenal (10 slots)
+              Siege weapons (10 slots)
             </h3>
             <p className="text-[11px] text-zinc-400">
-              {unlockedCount}/10 Siege engines unlocked for Titan Wyrm battles
+              {unlockedCount}/10 siege engines unlocked for Titan Wyrm battles
             </p>
           </div>
         </div>
         <div className="inline-flex items-center gap-1.5 bg-amber-950/80 border border-amber-500/40 text-amber-300 px-3 py-1 rounded-full text-xs font-mono font-bold">
           <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-          <span>Total Siege Power: +{totalPowerBoost}%</span>
+          <span>Total siege power: +{totalPowerBoost}%</span>
         </div>
       </div>
 
@@ -265,14 +265,14 @@ export function TitanSiegeArsenal({ onOpenWorkshop, className = "" }: TitanSiege
                   {isUnlocked ? (
                     <div className="space-y-1">
                       <p className="text-xs text-emerald-400 font-bold flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Unlocked & active in Titan Raids!
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Unlocked & active in Titan raids!
                       </p>
                       <p className="text-xs text-zinc-300 leading-snug">{weapon.perk}</p>
                     </div>
                   ) : (
                     <div className="space-y-1">
                       <p className="text-xs text-amber-400 font-bold flex items-center gap-1">
-                        <Lock className="w-3.5 h-3.5" /> Locked Siege Engine
+                        <Lock className="w-3.5 h-3.5" /> Locked siege engine
                       </p>
                       <p className="text-xs text-zinc-300 leading-snug">
                         Complete {weapon.threshold} {weapon.category} daily quests with your alliance members in the Siege Engine Workshop to unlock {weapon.name}!
@@ -385,7 +385,7 @@ export function TitanSiegeArsenal({ onOpenWorkshop, className = "" }: TitanSiege
               {unlockedEngineIds.includes(selectedMobileEngine.id) ? (
                 <div className="p-3 bg-emerald-950/60 border border-emerald-500/30 rounded-xl space-y-1">
                   <p className="font-bold text-emerald-400 flex items-center justify-center gap-1">
-                    <CheckCircle2 className="w-4 h-4" /> Unlocked & active in Titan Raids!
+                    <CheckCircle2 className="w-4 h-4" /> Unlocked & active in Titan raids!
                   </p>
                   <p className="text-zinc-300 text-[11px] leading-relaxed">
                     {selectedMobileEngine.perk}
@@ -394,7 +394,7 @@ export function TitanSiegeArsenal({ onOpenWorkshop, className = "" }: TitanSiege
               ) : (
                 <div className="p-3 bg-amber-950/40 border border-amber-800/40 rounded-xl space-y-1.5">
                   <p className="font-bold text-amber-400 flex items-center justify-center gap-1">
-                    <Lock className="w-4 h-4" /> Locked Siege Engine
+                    <Lock className="w-4 h-4" /> Locked siege engine
                   </p>
                   <p className="text-zinc-300 text-[11px] leading-relaxed">
                     Complete <strong className="text-amber-300">{selectedMobileEngine.threshold} {selectedMobileEngine.category}</strong> daily habits with your alliance members in the Siege Engine Workshop to unlock this weapon!
@@ -413,7 +413,7 @@ export function TitanSiegeArsenal({ onOpenWorkshop, className = "" }: TitanSiege
                   className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-zinc-950 font-bold text-xs rounded-xl"
                 >
                   <Sparkles className="w-4 h-4 mr-1.5" />
-                  Open Siege Engine Workshop
+                  Open siege engine workshop
                 </Button>
               ) : (
                 <Button

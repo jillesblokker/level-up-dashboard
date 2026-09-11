@@ -379,7 +379,7 @@ export function TreasureChestVisual({
       {!hideLabels && (
         <div className="mt-2 text-center space-y-1 z-10">
           <span className={cn(
-            "px-3 py-1 rounded-full font-serif text-xs font-bold tracking-wider capitalize shadow-md border",
+            "px-3 py-1 rounded-full font-serif text-xs font-bold tracking-wider shadow-md border",
             theme.badgeBg,
             theme.badgeText,
             theme.badgeBorder

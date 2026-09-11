@@ -55,18 +55,18 @@ export function AllianceComboBanner() {
               {data.activeCombo && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 font-bold border border-orange-500/40 flex items-center gap-1">
                   <Zap className="w-3 h-3 fill-orange-300" />
-                  1.5x Active
+                  1.5x active
                 </span>
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
               {data.activeCombo ? (
                 <span>
-                  <strong className="text-orange-300">{data.activeMemberCount} friends</strong> completed habits within 2 hours! <strong className="text-amber-200">+50% Titan Wyrm Damage</strong> active.
+                  <strong className="text-orange-300">{data.activeMemberCount} friends</strong> completed habits within 2 hours! <strong className="text-amber-200">+50% Titan Wyrm damage</strong> active.
                 </span>
               ) : (
                 <span>
-                  Complete habits within 2 hours of your friends to trigger a <strong className="text-foreground font-medium">1.5x Titan Raid Combo</strong>.
+                  Complete habits within 2 hours of your friends to trigger a <strong className="text-foreground font-medium">1.5x Titan raid combo</strong>.
                 </span>
               )}
             </p>

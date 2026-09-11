@@ -55,7 +55,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
       rarity: 'common' as const,
       reqHpDamage: 2000, 
       label: 'Common alliance chest', 
-      reward: `+${getGoldReward(1)} Gold & 2 Essences`, 
+      reward: `+${getGoldReward(1)} gold & 2 essences`, 
       claimed: claimedTiers.includes(1) 
     },
     { 
@@ -63,7 +63,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
       rarity: 'uncommon' as const,
       reqHpDamage: 4000, 
       label: 'Verdant alliance chest', 
-      reward: `+${getGoldReward(2)} Gold, 4 Essences & 1 Gold potion`, 
+      reward: `+${getGoldReward(2)} gold, 4 essences & 1 Gold potion`, 
       claimed: claimedTiers.includes(2) 
     },
     { 
@@ -71,7 +71,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
       rarity: 'rare' as const,
       reqHpDamage: 6000, 
       label: 'Sapphire alliance chest', 
-      reward: `+${getGoldReward(3)} Gold, 6 Essences & 1 Exp potion`, 
+      reward: `+${getGoldReward(3)} gold, 6 essences & 1 Exp potion`, 
       claimed: claimedTiers.includes(3) 
     },
     { 
@@ -79,7 +79,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
       rarity: 'epic' as const,
       reqHpDamage: 8000, 
       label: 'Amethyst alliance chest', 
-      reward: `+${getGoldReward(4).toLocaleString()} Gold, 10 Essences & Mythic Blueprint`, 
+      reward: `+${getGoldReward(4).toLocaleString()} gold, 10 essences & mythic blueprint`, 
       claimed: claimedTiers.includes(4) 
     },
     { 
@@ -87,7 +87,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
       rarity: 'legendary' as const,
       reqHpDamage: 10000, 
       label: 'Celestial titan chest', 
-      reward: `+${getGoldReward(5).toLocaleString()} Gold, 20 Essences, 10 Gems & Astral Blueprint`, 
+      reward: `+${getGoldReward(5).toLocaleString()} gold, 20 essences, 10 gems & astral blueprint`, 
       claimed: claimedTiers.includes(5) 
     }
   ]
@@ -242,8 +242,8 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
             {/* Fellowship Raid Victory Co-op Damage Progress Bar */}
             <div className="bg-zinc-950/80 border border-amber-500/30 rounded-xl p-3 space-y-1.5 shadow-md">
               <div className="flex justify-between items-center text-[10px] font-mono font-bold">
-                <span className="text-amber-300">⚔️ Total Raid Damage: {maxHp - titanHp} / 10,000 DMG</span>
-                <span className="text-amber-400 font-bold">{Math.round(((maxHp - titanHp) / 10000) * 100)}% to Celestial Titan Chest</span>
+                <span className="text-amber-300">⚔️ Total raid damage: {maxHp - titanHp} / 10,000 DMG</span>
+                <span className="text-amber-400 font-bold">{Math.round(((maxHp - titanHp) / 10000) * 100)}% to celestial titan chest</span>
               </div>
               <Progress value={Math.min(100, Math.round(((maxHp - titanHp) / 10000) * 100))} className="h-2 bg-zinc-900" />
             </div>
@@ -306,8 +306,8 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
             </h4>
             <div className="bg-zinc-900/90 rounded-xl border border-zinc-800 p-3 space-y-2">
               {[
-                { rank: 1, name: 'You (Sovereign)', damage: Math.max(120, userDamageToday * 15), badge: '🥇 Raid Vanguard' },
-                { rank: 2, name: 'Fellowship Allies', damage: 340, badge: '🥈 Support Squad' }
+                { rank: 1, name: 'You (Sovereign)', damage: Math.max(120, userDamageToday * 15), badge: '🥇 Raid vanguard' },
+                { rank: 2, name: 'Fellowship Allies', damage: 340, badge: '🥈 Support squad' }
               ].map(contributor => (
                 <div key={contributor.rank} className="flex items-center justify-between text-xs p-2 rounded-lg bg-zinc-950/80 border border-zinc-800">
                   <div className="flex items-center gap-2.5">

@@ -93,7 +93,7 @@ export function AllianceDashboard() {
         } else {
             playSound(SOUNDS.ERROR);
             toast({
-                title: "Oath Already Sworn",
+                title: "Oath already sworn",
                 description: result.message,
                 variant: (result.message?.includes('already') ? "default" : "destructive")
             });
@@ -333,7 +333,7 @@ export function AllianceDashboard() {
                                 : "bg-zinc-900 text-zinc-500 border border-zinc-800 cursor-not-allowed"
                             }`}
                         >
-                            {isOpening ? "Opening Chest..." : checkedInToday ? "Open Daily Chest" : "Swear Oath to Unlock"}
+                            {isOpening ? "Opening chest..." : checkedInToday ? "Open daily chest" : "Swear oath to unlock"}
                         </Button>
                     )}
                 </div>
@@ -429,7 +429,7 @@ export function AllianceDashboard() {
                                         </CardDescription>
                                     </div>
                                     <div className="text-xs bg-amber-950/50 px-2 py-1 rounded text-amber-300 border border-amber-900">
-                                        {alliance.members.length} Members
+                                        {alliance.members.length} members
                                     </div>
                                 </div>
                             </CardHeader>
@@ -448,7 +448,7 @@ export function AllianceDashboard() {
                                         className="text-amber-500 hover:bg-amber-900/20"
                                     >
                                         <UserPlus className="w-4 h-4 mr-1.5" />
-                                        Invite Ally
+                                        Invite ally
                                     </Button>
 
                                     {alliance.myStreak?.checkedInToday ? (
@@ -458,7 +458,7 @@ export function AllianceDashboard() {
                                             className="bg-green-900/40 text-green-400 border border-green-900/50 cursor-not-allowed opacity-90"
                                         >
                                             <CheckCircle className="w-3 h-3" />
-                                            Oath Sworn ✓
+                                            Oath sworn ✓
                                         </Button>
                                     ) : (
                                         <Button
@@ -467,7 +467,7 @@ export function AllianceDashboard() {
                                             className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-amber-100 border border-amber-600 shadow-md shadow-amber-900/30 font-semibold px-4"
                                         >
                                             <Flame className="w-3.5 h-3.5 text-orange-400" />
-                                            Swear Today&apos;s Oath
+                                            Swear today&apos;s oath
                                         </Button>
                                     )}
                                 </div>
@@ -528,7 +528,7 @@ export function AllianceDashboard() {
             <Sheet open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
                 <SheetContent className="bg-black/95 border-amber-900/50 text-amber-100">
                     <SheetHeader>
-                        <SheetTitle>Invite New Member</SheetTitle>
+                        <SheetTitle>Invite new member</SheetTitle>
                         <SheetDescription>
                             Select an ally to join your ranks.
                         </SheetDescription>
@@ -547,7 +547,7 @@ export function AllianceDashboard() {
                                     </SelectTrigger>
                                     <SelectContent className="bg-zinc-900 border-amber-900/30 text-amber-100">
                                         {friends.map(f => (
-                                            <SelectItem key={f.friendId} value={f.friendId}>
+                                             <SelectItem key={f.friendId} value={f.friendId}>
                                                 {f.username}
                                             </SelectItem>
                                         ))}
@@ -571,7 +571,7 @@ export function AllianceDashboard() {
                     onClose={() => setOpeningPack(null)} 
                     onClaimed={(isNew) => {
                         toast({
-                            title: isNew ? "NEW Mythic Discovered! 🎉" : "Card Claimed!",
+                            title: isNew ? "New mythic discovered! 🎉" : "Card claimed!",
                             description: isNew ? "A new creature has been unlocked in your collection." : "The reward has been added to your collection.",
                             action: (
                                 <ToastAction altText="Show" onClick={() => window.location.href = "/kingdom"}>

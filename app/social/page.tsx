@@ -48,19 +48,19 @@ const AllianceDashboard = dynamic(() => import("@/components/alliance-dashboard"
 })
 const Leaderboard = dynamic(() => import("@/components/leaderboard"), { 
     ssr: false,
-    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading Leaderboards...</div>
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading leaderboards...</div>
 })
 const ActivityFeed = dynamic(() => import("@/components/activity-feed"), { 
     ssr: false,
-    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading Activity Record...</div>
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading activity record...</div>
 })
 const HouseCupPanel = dynamic(() => import("@/components/house-cup/house-cup-panel").then(m => m.HouseCupPanel), { 
     ssr: false,
-    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading House Cup...</div>
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading house cup...</div>
 })
 const TavernDiceGame = dynamic(() => import("@/components/tavern-dice-game").then(m => m.TavernDiceGame), { 
     ssr: false,
-    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading Tavern Dice Game...</div>
+    loading: () => <div className="h-48 flex items-center justify-center text-amber-500/50 animate-pulse bg-zinc-950 rounded-xl">Loading tavern dice game...</div>
 })
 import { GiftModal } from "@/components/gift-modal"
 import { TEXT_CONTENT } from '@/lib/text-content'
@@ -470,7 +470,7 @@ export default function AlliesPage() {
                                 content: TEXT_CONTENT.social.header.guide.sections.alliances
                             },
                             {
-                                title: "Sending Quests",
+                                title: "Sending quests",
                                 icon: Scroll,
                                 content: TEXT_CONTENT.social.header.guide.sections.sendingQuests
                             },
