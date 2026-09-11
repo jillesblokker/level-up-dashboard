@@ -50,7 +50,7 @@ import { TEXT_CONTENT } from '@/lib/text-content'
 import { gainGold } from '@/lib/gold-manager'
 import { FocusPointsModal } from '@/components/focus-points-modal'
 import { SigilCrestEditor } from '@/components/character/sigil-crest'
-import { PaperdollEquipmentGrid } from '@/components/character/PaperdollEquipmentGrid'
+import { PaperdollEquipmentGrid, getEquippedGearStats } from '@/components/character/PaperdollEquipmentGrid'
 import { SwordStaffOrbCard, SwordStaffSectionHeader } from '@/components/ui/sword-staff-orb-card'
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager'
 
@@ -132,6 +132,7 @@ export default function CharacterPage() {
   });
 
   const [titlesList, setTitlesList] = useState<any[]>([]);
+  const [gearStats, setGearStats] = useState(() => getEquippedGearStats());
 
 
   const [isHovering, setIsHovering] = useState(false)
@@ -927,15 +928,19 @@ export default function CharacterPage() {
         <div className="grid gap-6">
           {/* BENTO ROW 1 — Hero Identity & Paperdoll Equipment Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            {/* Bento Tile 1A: Hero Identity Card */}
-            <div className="lg:col-span-5 flex flex-col gap-4 medieval-card p-6 rounded-2xl shadow-xl">
+            {/* Bento Tile 1A: Hero Identity & Progression */}
+            <div className="lg:col-span-5 flex flex-col justify-between gap-5 medieval-card p-6 rounded-2xl shadow-xl">
               <div className="space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-xl font-bold font-medieval text-amber-400">
-                        {TEXT_CONTENT.character.ui.overview.level.replace("{level}", String(characterStats.level))}
+                {/* Hero Title, Level & Description */}
+                <div>
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-2xl sm:text-3xl font-serif font-bold text-amber-300 tracking-tight">
+                        {(characterStats as any).title || 'Count'}
                       </h3>
+                      <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/50 text-xs px-2.5 py-0.5 font-mono font-bold">
+                        Level {characterStats.level}
+                      </Badge>
                       <SigilCrestEditor userId={user?.id} />
                       <CollectibleRune
                         id="ingwaz_vault"
@@ -946,91 +951,146 @@ export default function CharacterPage() {
                         className="ml-1"
                       />
                     </div>
-                    <p className="text-xs text-zinc-400 font-serif mt-0.5">Hero progression & alchemy</p>
+                    {(characterStats.ascension_level || 0) > 0 && (
+                      <Badge variant="outline" className="text-amber-400 border-amber-400 flex items-center gap-1 text-xs">
+                        <Sparkles className="w-3 h-3" />
+                        Ascension {characterStats.ascension_level}
+                      </Badge>
+                    )}
                   </div>
-                  {(characterStats.ascension_level || 0) > 0 && (
-                    <Badge variant="outline" className="text-amber-400 border-amber-400 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" />
-                      Ascension {characterStats.ascension_level}
-                    </Badge>
-                  )}
+                  <p className="text-xs text-zinc-400 font-serif mt-1">
+                    A powerful noble, ruling over a large county in Thrivehaven.
+                  </p>
                 </div>
 
-                {/* Glowing Paragon Avatar Ring */}
-                <div className="relative inline-block my-1">
+                {/* Glowing Paragon Champion Rank */}
+                <div className="relative inline-block my-0.5">
                   <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-amber-500 via-purple-500 to-amber-500 blur-md opacity-75 animate-pulse" />
-                  <Badge className="relative bg-gradient-to-r from-amber-950 via-zinc-950 to-amber-950 border border-amber-400 text-amber-300 px-4 py-1.5 rounded-full font-medieval text-xs tracking-wider shadow-xl">
+                  <Badge className="relative bg-gradient-to-r from-amber-950 via-zinc-950 to-amber-950 border border-amber-400 text-amber-300 px-4 py-1.5 rounded-full font-serif text-xs tracking-wider shadow-xl">
                     👑 Paragon champion rank: Level {characterStats.level} King
                   </Badge>
                 </div>
 
-                <div className="space-y-1.5">
-                  <Progress value={calculateLevelProgress(characterStats.experience)} className="h-2" />
-                  <div className="flex justify-between items-center text-xs text-muted-foreground">
-                    {(() => {
-                      const expForPreviousLevels = Array.from({ length: characterStats.level - 1 }, (_, i) => calculateExperienceForLevel(i + 1)).reduce((sum, exp) => sum + exp, 0);
-                      const expInCurrentLevel = Math.max(0, Math.floor(characterStats.experience - expForPreviousLevels));
-                      const expForCurrentLevel = calculateExperienceForLevel(characterStats.level);
-                      return (
-                        <p>
-                          <AnimatedCounter value={expInCurrentLevel} duration={800} /> / {expForCurrentLevel.toLocaleString()} XP to Level {characterStats.level + 1}
-                        </p>
-                      );
-                    })()}
+                {/* Dual Progression Tracks: Level XP & Title Ascension */}
+                <div className="space-y-3 p-3.5 bg-zinc-950/70 rounded-xl border border-amber-500/20 shadow-inner">
+                  {/* Track 1: Level Experience */}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center text-xs font-mono">
+                      <span className="text-zinc-300 font-serif">Level progression</span>
+                      {(() => {
+                        const expForPreviousLevels = Array.from({ length: characterStats.level - 1 }, (_, i) => calculateExperienceForLevel(i + 1)).reduce((sum, exp) => sum + exp, 0);
+                        const expInCurrentLevel = Math.max(0, Math.floor(characterStats.experience - expForPreviousLevels));
+                        const expForCurrentLevel = calculateExperienceForLevel(characterStats.level);
+                        return (
+                          <span className="text-amber-300 font-bold">
+                            <AnimatedCounter value={expInCurrentLevel} duration={800} /> / {expForCurrentLevel.toLocaleString()} XP
+                          </span>
+                        );
+                      })()}
+                    </div>
+                    <Progress value={calculateLevelProgress(characterStats.experience)} className="h-2" />
+                  </div>
 
-                    {characterStats.level >= 100 && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size="sm" variant="destructive" className="h-6 text-xs bg-amber-600 hover:bg-amber-700 text-white border-amber-800">
-                            <Sparkles className="w-3 h-3 mr-1" />
-                            Ascend
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="bg-zinc-900 border-amber-700 text-white">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle className="text-amber-500 font-serif text-xl flex items-center gap-2">
-                              <AlertTriangle className="w-5 h-5" />
-                              Perform ascension?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription className="text-zinc-300">
-                              This action will reset your Level to 1 and Experience to 0.
-                              You will keep your items, gold, and titles.
-                              <br /><br />
-                              Ascending grants you a permanent <strong>Ascension Level</strong> which boosts your prestige.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel className="bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-600">Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleAscension} className="bg-amber-600 text-white hover:bg-amber-700 border-amber-800">
-                              Confirm ascension
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    )}
+                  {/* Track 2: Title Ascension */}
+                  <div className="space-y-1.5 pt-2 border-t border-amber-900/30">
+                    <div className="flex justify-between items-center text-xs font-mono">
+                      <span className="text-zinc-300 font-serif flex items-center gap-1">
+                        📜 Ascension: Marquis (Level 50)
+                      </span>
+                      <span className="text-amber-400 font-bold">
+                        {Math.round(calculateLevelProgress(characterStats.experience))}%
+                      </span>
+                    </div>
+                    <div className="relative h-2 w-full overflow-hidden rounded-full bg-black/60 p-0.5 border border-amber-900/50 shadow-inner">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-300 shadow-[0_0_10px_rgba(245,158,11,0.6)] transition-all duration-500"
+                        style={{ width: `${Math.min(100, Math.max(0, calculateLevelProgress(characterStats.experience)))}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {/* Hero combat rating overview */}
-                <div className="p-3 bg-zinc-950/80 rounded-xl border border-amber-500/20 flex items-center justify-between gap-3 text-xs font-serif shadow-inner">
-                  <div className="flex items-center gap-2">
-                    <span className="text-base">🛡️</span>
-                    <div>
-                      <span className="text-zinc-200 font-bold block">Combat prowess</span>
-                      <span className="text-[10px] text-zinc-400">Habits empower all hero attributes</span>
+                {/* Hero Combat Rating & Attributes Console */}
+                <div className="p-3.5 bg-zinc-950/80 rounded-xl border border-amber-500/30 space-y-2.5 shadow-inner">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-base">🛡️</span>
+                      <span className="text-zinc-200 font-bold text-xs font-serif">Combat prowess</span>
+                    </div>
+                    <Badge variant="outline" className="border-amber-500/40 text-amber-300 bg-amber-950/40 text-[10px] font-mono font-bold">
+                      ⚡ Gear score: {gearStats.gearScore} (sovereign knight)
+                    </Badge>
+                  </div>
+
+                  {/* 3 Unified RPG Attribute Tiles */}
+                  <div className="grid grid-cols-3 gap-2 font-serif text-center">
+                    <div className="p-2.5 rounded-lg bg-zinc-900/90 border border-red-500/30 flex flex-col items-center">
+                      <span className="text-red-400 text-xs font-bold flex items-center gap-1">⚔️ Might</span>
+                      <span className="text-red-200 text-base sm:text-lg font-bold font-mono mt-0.5">
+                        {25 + (characterStats.level || 1) * 2 + (gearStats.atk || 0)}
+                      </span>
+                      <span className="text-[10px] text-zinc-400 font-mono">
+                        {25 + (characterStats.level || 1) * 2} + {gearStats.atk || 0} gear
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-lg bg-zinc-900/90 border border-blue-500/30 flex flex-col items-center">
+                      <span className="text-blue-400 text-xs font-bold flex items-center gap-1">🛡️ Defense</span>
+                      <span className="text-blue-200 text-base sm:text-lg font-bold font-mono mt-0.5">
+                        {20 + (characterStats.level || 1) * 2 + (gearStats.def || 0)}
+                      </span>
+                      <span className="text-[10px] text-zinc-400 font-mono">
+                        {20 + (characterStats.level || 1) * 2} + {gearStats.def || 0} gear
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-lg bg-zinc-900/90 border border-emerald-500/30 flex flex-col items-center">
+                      <span className="text-emerald-400 text-xs font-bold flex items-center gap-1">💨 Speed</span>
+                      <span className="text-emerald-200 text-base sm:text-lg font-bold font-mono mt-0.5">
+                        {15 + (characterStats.level || 1) + (gearStats.spd || 0)}
+                      </span>
+                      <span className="text-[10px] text-zinc-400 font-mono">
+                        {15 + (characterStats.level || 1)} + {gearStats.spd || 0} gear
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 font-mono text-xs">
-                    <span className="text-red-400 font-bold bg-red-950/50 border border-red-500/30 px-2 py-0.5 rounded">⚔️ {25 + (characterStats.level || 1) * 2}</span>
-                    <span className="text-blue-400 font-bold bg-blue-950/50 border border-blue-500/30 px-2 py-0.5 rounded">🛡️ {20 + (characterStats.level || 1) * 2}</span>
-                    <span className="text-emerald-400 font-bold bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.5 rounded">💨 {15 + (characterStats.level || 1)}</span>
-                  </div>
+
+                  {characterStats.level >= 100 && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="destructive" className="w-full h-7 text-xs bg-amber-600 hover:bg-amber-700 text-white border-amber-800 mt-1">
+                          <Sparkles className="w-3 h-3 mr-1" />
+                          Ascend
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="bg-zinc-900 border-amber-700 text-white">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="text-amber-500 font-serif text-xl flex items-center gap-2">
+                            <AlertTriangle className="w-5 h-5" />
+                            Perform ascension?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className="text-zinc-300">
+                            This action will reset your Level to 1 and Experience to 0.
+                            You will keep your items, gold, and titles.
+                            <br /><br />
+                            Ascending grants you a permanent <strong>Ascension Level</strong> which boosts your prestige.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-600">Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleAscension} className="bg-amber-600 text-white hover:bg-amber-700 border-amber-800">
+                            Confirm ascension
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
                 </div>
               </div>
 
               {/* Essence Inventory */}
-              <div className="mt-auto pt-4 border-t border-amber-900/30">
-                <h4 className="text-xs font-serif font-bold text-amber-300 normal-case tracking-wide mb-3 flex items-center gap-1.5">
+              <div className="pt-4 border-t border-amber-900/30">
+                <h4 className="text-xs font-serif font-bold text-amber-300 normal-case tracking-wide mb-2.5 flex items-center gap-1.5">
                   <span>🧪</span> Alchemy essences vault
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-2.5 text-xs font-serif">
@@ -1063,9 +1123,7 @@ export default function CharacterPage() {
               <PaperdollEquipmentGrid
                 avatarImage={`/images/character/${((characterStats as any).title || 'count').toLowerCase()}.webp`}
                 heroName={(characterStats as any).title || 'Count'}
-                heroDescription="A powerful noble, ruling over a large county in Thrivehaven."
-                nextTitle="Marquis (Level 50)"
-                titleProgress={Math.round(calculateLevelProgress(characterStats.experience))}
+                onStatsCalculated={setGearStats}
               />
             </div>
           </div>

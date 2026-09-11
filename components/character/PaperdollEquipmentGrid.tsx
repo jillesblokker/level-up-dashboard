@@ -114,26 +114,40 @@ export const getItemRarityStyles = (rarity: string) => {
   }
 }
 
-interface PaperdollEquipmentGridProps {
+export interface PaperdollEquipmentGridProps {
   avatarImage?: string
   heroName?: string
-  heroDescription?: string
-  nextTitle?: string
-  titleProgress?: number
   onOpenInventory?: () => void
+  onStatsCalculated?: (stats: { atk: number; def: number; spd: number; gearScore: number }) => void
+}
+
+export function getEquippedGear(): Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'relic', EquippedItem | null> {
+  if (typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem('pref:equipped_gear')
+      if (saved) return JSON.parse(saved)
+    } catch {}
+  }
+  return DEFAULT_EQUIPMENT
+}
+
+export function getEquippedGearStats(): { atk: number; def: number; spd: number; gearScore: number } {
+  const gear = getEquippedGear()
+  const atk = Object.values(gear).reduce((acc, item) => acc + (item?.stats.atk || 0), 0)
+  const def = Object.values(gear).reduce((acc, item) => acc + (item?.stats.def || 0), 0)
+  const spd = Object.values(gear).reduce((acc, item) => acc + (item?.stats.spd || 0), 0)
+  const gearScore = Math.round(atk * 2 + def * 1.5 + spd * 3)
+  return { atk, def, spd, gearScore }
 }
 
 export function PaperdollEquipmentGrid({
   avatarImage = '/images/character/count.webp',
   heroName = 'Count',
-  heroDescription = 'A powerful noble, ruling over a large county.',
-  nextTitle = 'Marquis (Level 50)',
-  titleProgress = 42,
-  onOpenInventory
+  onOpenInventory,
+  onStatsCalculated
 }: PaperdollEquipmentGridProps) {
   const [equipment, setEquipment] = useState<Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'relic', EquippedItem | null>>(DEFAULT_EQUIPMENT)
   const [selectedItem, setSelectedItem] = useState<EquippedItem | null>(null)
-  const router = useRouter()
 
   React.useEffect(() => {
     try {
@@ -150,12 +164,18 @@ export function PaperdollEquipmentGrid({
   const totalSpd = Object.values(equipment).reduce((acc, item) => acc + (item?.stats.spd || 0), 0)
   const gearScore = totalAtk * 2 + totalDef * 1.5 + totalSpd * 3
 
+  React.useEffect(() => {
+    if (onStatsCalculated) {
+      onStatsCalculated({ atk: totalAtk, def: totalDef, spd: totalSpd, gearScore: Math.round(gearScore) })
+    }
+  }, [totalAtk, totalDef, totalSpd, gearScore, onStatsCalculated])
+
   const SLOT_CONFIGS: { slot: 'weapon' | 'offhand' | 'armor' | 'mount' | 'relic'; label: string; icon: React.ReactNode }[] = [
-    { slot: 'weapon', label: 'Weapon', icon: <Sword className="w-7 h-7 text-amber-400" /> },
-    { slot: 'offhand', label: 'Shield', icon: <Shield className="w-7 h-7 text-blue-400" /> },
-    { slot: 'armor', label: 'Armor', icon: <Shirt className="w-7 h-7 text-emerald-400" /> },
+    { slot: 'weapon', label: 'Weapon', icon: <Sword className="w-6 h-6 text-amber-400" /> },
+    { slot: 'offhand', label: 'Shield', icon: <Shield className="w-6 h-6 text-blue-400" /> },
+    { slot: 'armor', label: 'Armor', icon: <Shirt className="w-6 h-6 text-emerald-400" /> },
     { slot: 'mount', label: 'Mount', icon: <span className="text-xl">🐎</span> },
-    { slot: 'relic', label: 'Artifact', icon: <Gem className="w-7 h-7 text-purple-400" /> }
+    { slot: 'relic', label: 'Artifact', icon: <Gem className="w-6 h-6 text-purple-400" /> }
   ]
 
   const getRarityBadge = (rarity: string) => getItemRarityStyles(rarity).badge
@@ -171,267 +191,185 @@ export function PaperdollEquipmentGrid({
   }
 
   return (
-    <Card className="bg-zinc-950 border border-amber-900/40 text-white rounded-2xl overflow-hidden shadow-2xl">
-      <CardContent className="p-4 sm:p-6 space-y-6">
-        {/* Integrated Title & Progress Header Banner */}
-        <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/50 via-zinc-900 to-zinc-950 p-4 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4 w-full md:w-auto">
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-amber-500/50 bg-zinc-900 shrink-0 overflow-hidden shadow-md">
-              <Image
-                src={avatarImage}
-                alt={heroName}
-                fill
-                className="object-contain p-1"
-                unoptimized
-              />
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-xl sm:text-2xl font-serif font-bold text-amber-300">{heroName}</h2>
-                <Badge variant="outline" className="text-[10px] border-amber-600/50 text-amber-200 bg-amber-950/60 font-serif font-semibold shadow-inner px-2.5 py-0.5 rounded-lg">
-                  🛡️ Gear score: {(gearScore + 1000).toLocaleString()} (sovereign knight)
-                </Badge>
-              </div>
-              <p className="text-xs text-amber-200/70 mt-1 leading-snug font-sans">{heroDescription}</p>
-            </div>
+    <div className="flex flex-col justify-between h-full space-y-6">
+      {/* Stage Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-amber-900/30">
+        <div>
+          <h3 className="text-lg font-serif font-bold text-amber-300 flex items-center gap-2">
+            <Award className="w-5 h-5 text-amber-400" /> Equipped gear & relics
+          </h3>
+          <p className="text-xs text-zinc-400 font-serif">
+            Interactive paperdoll • Tap any slot to inspect or change gear
+          </p>
+        </div>
+        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
+          <Badge variant="outline" className="border-amber-500/40 text-amber-300 bg-amber-950/40 text-xs font-mono font-bold px-3 py-1">
+            ⚡ Gear score: {Math.round(gearScore)}
+          </Badge>
+          <Button
+            type="button"
+            onClick={handleEquipmentChange}
+            size="sm"
+            className="btn-primary-cta text-xs h-8 px-3.5 font-serif"
+          >
+            <ArrowRightLeft className="w-3.5 h-3.5 mr-1" /> Open bag
+          </Button>
+        </div>
+      </div>
+
+      {/* Spacious 2D Paperdoll Stage */}
+      <div className="relative w-full bg-gradient-to-b from-zinc-900/90 via-zinc-950 to-zinc-900/90 border border-zinc-800/90 rounded-2xl p-6 sm:p-10 flex flex-col items-center justify-center shadow-inner overflow-hidden flex-1 min-h-[360px]">
+        {/* Ambient Radial Aura Glow */}
+        <div className="absolute inset-0 bg-radial from-amber-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
+
+        <div className="relative w-full max-w-sm flex items-center justify-center py-6 px-4">
+          {/* Central Hero Character Avatar Showcase */}
+          <div className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-52 md:h-52 rounded-3xl border-2 border-amber-500/50 bg-gradient-to-b from-amber-500/10 via-zinc-900/90 to-zinc-950 p-2 shadow-[0_0_35px_rgba(245,158,11,0.2)] flex items-center justify-center overflow-hidden group">
+            <Image
+              src={avatarImage}
+              alt={heroName}
+              fill
+              className="object-contain p-2 filter drop-shadow-[0_0_20px_rgba(245,158,11,0.3)] group-hover:scale-105 transition-transform duration-300"
+              unoptimized
+            />
           </div>
 
-          {/* Hero Attribute Astrolabe & Title Ascension Scroll */}
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto shrink-0">
-            {/* Alchemical Stone Astrolabe */}
-            <div className="flex items-center gap-3 bg-gradient-to-b from-[#1c1611] to-[#0d0a07] p-2.5 px-3.5 rounded-2xl border border-amber-600/40 text-xs shadow-xl relative overflow-hidden group">
-              <div className="absolute inset-0 bg-radial from-amber-500/10 via-transparent to-transparent pointer-events-none" />
-              <svg className="w-14 h-14 shrink-0 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" viewBox="0 0 100 100">
-                {/* Outer Astrolabe Rune Ring */}
-                <circle cx="50" cy="50" r="42" fill="none" stroke="#78350f" strokeWidth="1" strokeDasharray="2 3" opacity="0.6" />
-                <circle cx="50" cy="50" r="34" fill="none" stroke="#92400e" strokeWidth="0.8" opacity="0.4" />
-                {/* Background Concentric Polygon Web */}
-                <polygon points="50,12 88,40 73,88 27,88 12,40" fill="none" stroke="#451a03" strokeWidth="1" opacity="0.6" />
-                <polygon points="50,26 76,46 66,78 34,78 24,46" fill="none" stroke="#78350f" strokeWidth="0.8" opacity="0.5" />
-                {/* Active Attribute Constellation */}
-                <polygon points="50,20 80,44 67,82 33,82 20,44" fill="rgba(245, 158, 11, 0.25)" stroke="#f59e0b" strokeWidth="1.8" />
-                {/* Glowing Astrolabe Gem Nodes */}
-                <circle cx="50" cy="20" r="3.5" fill="#ef4444" stroke="#fca5a5" strokeWidth="1" />
-                <circle cx="80" cy="44" r="3.5" fill="#3b82f6" stroke="#93c5fd" strokeWidth="1" />
-                <circle cx="67" cy="82" r="3.5" fill="#10b981" stroke="#6ee7b7" strokeWidth="1" />
-                <circle cx="33" cy="82" r="3" fill="#a855f7" stroke="#d8b4fe" strokeWidth="0.8" />
-                <circle cx="20" cy="44" r="3" fill="#f59e0b" stroke="#fde68a" strokeWidth="0.8" />
-              </svg>
-              <div className="space-y-1 text-[10px] font-serif leading-tight">
-                <div className="text-amber-200 font-bold flex justify-between gap-3"><span>⚔️ Might</span><span className="font-mono text-amber-300">{totalAtk + 35}</span></div>
-                <div className="text-blue-200 font-bold flex justify-between gap-3"><span>🛡️ Defense</span><span className="font-mono text-blue-300">{totalDef + 25}</span></div>
-                <div className="text-emerald-200 font-bold flex justify-between gap-3"><span>⚡ Speed</span><span className="font-mono text-emerald-300">{totalSpd + 30}</span></div>
-              </div>
-            </div>
+          {/* 4 Corner Equipment Slots with Generous Breathing Room */}
+          {/* Top-Left: Weapon */}
+          <div className="absolute -top-3 -left-3 sm:-left-6 md:-left-8 z-20">
+            <EquipmentSlotButton
+              item={equipment.weapon}
+              slotConfig={SLOT_CONFIGS[0]}
+              onClick={() => equipment.weapon && setSelectedItem(equipment.weapon)}
+            />
+          </div>
 
-            {/* Embossed Golden Title Ascension Scroll */}
-            <div className="w-full md:w-56 space-y-1.5 shrink-0 bg-gradient-to-b from-[#1c1611] to-[#0d0a07] p-3 rounded-2xl border border-amber-600/40 shadow-xl relative overflow-hidden">
-              <div className="flex justify-between items-center text-xs font-serif">
-                <span className="text-amber-200/90 font-bold flex items-center gap-1">
-                  <span>📜</span> Ascension: {nextTitle}
-                </span>
-                <span className="text-amber-400 font-mono font-bold text-[11px]">{titleProgress}%</span>
-              </div>
-              <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-black/60 p-0.5 border border-amber-900/50 shadow-inner">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-300 shadow-[0_0_10px_rgba(245,158,11,0.6)] transition-all duration-500"
-                  style={{ width: `${Math.min(100, Math.max(0, titleProgress))}%` }}
-                />
-              </div>
-            </div>
+          {/* Top-Right: Shield */}
+          <div className="absolute -top-3 -right-3 sm:-right-6 md:-right-8 z-20">
+            <EquipmentSlotButton
+              item={equipment.offhand}
+              slotConfig={SLOT_CONFIGS[1]}
+              onClick={() => equipment.offhand && setSelectedItem(equipment.offhand)}
+            />
+          </div>
+
+          {/* Bottom-Left: Armor */}
+          <div className="absolute -bottom-3 -left-3 sm:-left-6 md:-left-8 z-20">
+            <EquipmentSlotButton
+              item={equipment.armor}
+              slotConfig={SLOT_CONFIGS[2]}
+              onClick={() => equipment.armor && setSelectedItem(equipment.armor)}
+            />
+          </div>
+
+          {/* Bottom-Right: Mount */}
+          <div className="absolute -bottom-3 -right-3 sm:-right-6 md:-right-8 z-20">
+            <EquipmentSlotButton
+              item={equipment.mount}
+              slotConfig={SLOT_CONFIGS[3]}
+              onClick={() => equipment.mount && setSelectedItem(equipment.mount)}
+            />
           </div>
         </div>
 
-        {/* 2-Column Responsive Layout - Full Height Alignment */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          {/* Left Column: 2D Paperdoll Stage (7 Cols on LG) */}
-          <div className="lg:col-span-7 relative bg-gradient-to-b from-zinc-900/80 via-zinc-950 to-zinc-900 border border-zinc-800/90 rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-between shadow-inner overflow-hidden h-full min-h-[440px] flex-1">
-            {/* Background Ambient Glow */}
-            <div className="absolute inset-0 bg-radial from-amber-500/10 via-transparent to-transparent blur-2xl pointer-events-none" />
-
-            {/* Stage Title Header */}
-            <div className="w-full flex items-center justify-between z-10 mb-2">
-              <span className="text-xs font-bold text-amber-400 font-serif flex items-center gap-1.5">
-                <Award className="w-3.5 h-3.5" /> Equipped gear
-              </span>
-            </div>
-
-            {/* Central Stage Container */}
-            <div className="relative w-full max-w-md flex flex-col items-center justify-center my-4 flex-1">
-              <div className="relative w-full max-w-sm flex items-center justify-center py-6 px-8">
-                {/* Central Character Avatar Frame (Scaled with generous padding) */}
-                <div className="relative w-36 h-36 sm:w-40 sm:h-40 rounded-2xl border-2 border-amber-500/50 bg-zinc-900/90 p-2 shadow-2xl flex items-center justify-center overflow-hidden group">
-                  <Image
-                    src={avatarImage}
-                    alt={heroName}
-                    fill
-                    className="object-contain p-2 filter drop-shadow-[0_0_20px_rgba(245,158,11,0.25)] group-hover:scale-105 transition-transform duration-300"
-                    unoptimized
-                  />
-                </div>
-
-                {/* 4 Interactive Corner Equipment Slots with Generous Padding */}
-                {/* Top-Left: Weapon */}
-                <div className="absolute -top-4 -left-4 sm:-left-8 z-20">
-                  <EquipmentSlotButton
-                    item={equipment.weapon}
-                    slotConfig={SLOT_CONFIGS[0]}
-                    onClick={() => equipment.weapon && setSelectedItem(equipment.weapon)}
-                  />
-                </div>
-
-                {/* Top-Right: Shield */}
-                <div className="absolute -top-4 -right-4 sm:-right-8 z-20">
-                  <EquipmentSlotButton
-                    item={equipment.offhand}
-                    slotConfig={SLOT_CONFIGS[1]}
-                    onClick={() => equipment.offhand && setSelectedItem(equipment.offhand)}
-                  />
-                </div>
-
-                {/* Bottom-Left: Armor */}
-                <div className="absolute -bottom-4 -left-4 sm:-left-8 z-20">
-                  <EquipmentSlotButton
-                    item={equipment.armor}
-                    slotConfig={SLOT_CONFIGS[2]}
-                    onClick={() => equipment.armor && setSelectedItem(equipment.armor)}
-                  />
-                </div>
-
-                {/* Bottom-Right: Mount */}
-                <div className="absolute -bottom-4 -right-4 sm:-right-8 z-20">
-                  <EquipmentSlotButton
-                    item={equipment.mount}
-                    slotConfig={SLOT_CONFIGS[3]}
-                    onClick={() => equipment.mount && setSelectedItem(equipment.mount)}
-                  />
-                </div>
-              </div>
-
-              {/* Centered Artifact / Relic Slot directly below Avatar */}
-              <div className="mt-8 flex flex-col items-center justify-center z-20">
-                <EquipmentSlotButton
-                  item={equipment.relic}
-                  slotConfig={SLOT_CONFIGS[4]}
-                  onClick={() => equipment.relic && setSelectedItem(equipment.relic)}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Hero Combat Stats Summary Panel (5 Cols on LG) - 3-Tier Hierarchy */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold text-zinc-200 font-serif flex items-center gap-1.5">
-                  <Flame className="w-4 h-4 text-amber-400" /> Attributes
-                </h4>
-                <Badge variant="outline" className="border-amber-500/40 text-amber-400 bg-amber-950/30 text-[10px] font-mono font-bold">
-                  ⚡ Gear score: {Math.round(gearScore)}
-                </Badge>
-              </div>
-
-              {/* SECONDARY TIER: Compact Horizontal Ribbon */}
-              <div className="flex items-center justify-between gap-2 p-2 bg-zinc-950 rounded-lg border border-zinc-800 text-xs font-mono font-bold">
-                <span className="text-red-400 flex items-center gap-1">⚔️ +{totalAtk} <span className="text-[9px] text-zinc-500 font-normal">atk</span></span>
-                <span className="text-zinc-700">|</span>
-                <span className="text-blue-400 flex items-center gap-1">🛡️ +{totalDef} <span className="text-[9px] text-zinc-500 font-normal">def</span></span>
-                <span className="text-zinc-700">|</span>
-                <span className="text-emerald-400 flex items-center gap-1">💨 +{totalSpd} <span className="text-[9px] text-zinc-500 font-normal">spd</span></span>
-              </div>
-            </div>
-
-            {/* Equipped Gear List */}
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 space-y-2">
-              <h4 className="text-xs font-bold text-zinc-300 font-serif">Equipped gear list</h4>
-              <div className="space-y-1.5">
-                {SLOT_CONFIGS.map(({ slot, label, icon }) => {
-                  const item = equipment[slot]
-                  return (
-                    <div
-                      key={slot}
-                      onClick={() => item && setSelectedItem(item)}
-                      className={`p-2.5 rounded-xl border flex items-center justify-between text-xs cursor-pointer transition-all relative overflow-hidden group ${
-                        item
-                          ? 'border-zinc-800 bg-zinc-950/80 hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]'
-                          : 'border-zinc-900 bg-zinc-950/40 opacity-60 hover:opacity-80'
-                      }`}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-                      <div className="flex items-center gap-2.5">
-                        {item ? (
-                          <div className="relative w-8 h-8 shrink-0">
-                            <Image src={item.image} alt={item.name} fill className="object-contain" unoptimized />
-                          </div>
-                        ) : (
-                          <div className="w-8 h-8 rounded-lg bg-zinc-900/80 border border-zinc-800 flex items-center justify-center text-zinc-500 text-xs">
-                            {icon}
-                          </div>
-                        )}
-                        <div>
-                          <span className="font-bold text-zinc-200 block text-xs">{item ? item.name : `Empty ${label.toLowerCase()}`}</span>
-                          <span className="text-[9px] text-zinc-500 font-mono capitalize">{slot}</span>
-                        </div>
-                      </div>
-
-                      {item && (
-                        <div className="flex items-center gap-1.5">
-                          {item.stats.atk && (
-                            <span className="text-[9px] font-mono font-bold text-red-400 bg-red-950/60 border border-red-500/30 px-1.5 py-0.5 rounded">
-                              +{item.stats.atk} atk ▲
-                            </span>
-                          )}
-                          {item.stats.def && (
-                            <span className="text-[9px] font-mono font-bold text-blue-400 bg-blue-950/60 border border-blue-500/30 px-1.5 py-0.5 rounded">
-                              +{item.stats.def} def ▲
-                            </span>
-                          )}
-                          {item.stats.spd && !item.stats.atk && (
-                            <span className="text-[9px] font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-1.5 py-0.5 rounded">
-                              +{item.stats.spd} spd ▲
-                            </span>
-                          )}
-                          <Badge variant="outline" className={`text-[9px] capitalize ${getRarityBadge(item.rarity)}`}>
-                            {item.rarity}
-                          </Badge>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
+        {/* Centered Relic Slot Directly Under Avatar */}
+        <div className="mt-6 z-20">
+          <EquipmentSlotButton
+            item={equipment.relic}
+            slotConfig={SLOT_CONFIGS[4]}
+            onClick={() => equipment.relic && setSelectedItem(equipment.relic)}
+          />
         </div>
+      </div>
 
-        {/* Visually Enhanced Item Inspect Dialog with RPG Stat Deltas */}
-        <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-          {selectedItem && (() => {
-            const rarityStyle = getItemRarityStyles(selectedItem.rarity);
+      {/* Equipped Gear Overview Horizontal Tray */}
+      <div className="pt-2">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-serif font-bold text-amber-300/90">
+            Equipped gear overview
+          </span>
+          <span className="text-[10px] font-mono text-zinc-400">
+            5 / 5 active sockets
+          </span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+          {SLOT_CONFIGS.map(({ slot, label, icon }) => {
+            const item = equipment[slot]
+            const rarityStyle = item ? getItemRarityStyles(item.rarity) : null
             return (
-              <DialogContent className={cn("max-w-sm bg-zinc-950 border-2 text-white rounded-2xl p-6 shadow-2xl font-serif max-h-[88dvh] overflow-y-auto custom-scrollbar", rarityStyle.modalBorder)}>
-                <DialogHeader>
-                  <div className="flex items-center gap-4">
-                    <div className={cn("relative w-16 h-16 rounded-2xl bg-gradient-to-b border-2 p-2 shrink-0 shadow-lg flex items-center justify-center", rarityStyle.thumbnailBg, rarityStyle.border)}>
-                      <Image
-                        src={selectedItem.image}
-                        alt={selectedItem.name}
-                        fill
-                        className="object-contain p-1 filter drop-shadow-md"
-                        unoptimized
-                      />
+              <div
+                key={slot}
+                onClick={() => item && setSelectedItem(item)}
+                className={`p-2.5 rounded-xl border flex flex-col justify-between gap-1.5 text-xs cursor-pointer transition-all relative overflow-hidden group ${
+                  item
+                    ? 'border-zinc-800 bg-zinc-950/80 hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]'
+                    : 'border-zinc-900 bg-zinc-950/40 opacity-60 hover:opacity-80'
+                }`}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  {item ? (
+                    <div className={cn("relative w-7 h-7 rounded-lg border shrink-0 overflow-hidden bg-zinc-900 p-0.5", rarityStyle?.border)}>
+                      <Image src={item.image} alt={item.name} fill className="object-contain" unoptimized />
                     </div>
-                    <div>
-                      <DialogTitle className="text-base font-bold text-zinc-100">{selectedItem.name}</DialogTitle>
-                      <Badge variant="outline" className={`text-[10px] mt-1 font-semibold capitalize ${rarityStyle.badge}`}>
-                        {selectedItem.rarity} • {selectedItem.slot}
-                      </Badge>
+                  ) : (
+                    <div className="w-7 h-7 rounded-lg bg-zinc-900/80 border border-zinc-800 flex items-center justify-center text-zinc-500 text-xs shrink-0">
+                      {icon}
                     </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <span className="text-[9px] text-zinc-400 font-mono capitalize block leading-none">
+                      {slot}
+                    </span>
+                    <span className="font-bold text-zinc-200 block text-[11px] truncate leading-tight mt-0.5">
+                      {item ? item.name : `Empty`}
+                    </span>
                   </div>
-                  <DialogDescription className="text-zinc-300 text-xs mt-3 leading-relaxed font-sans">
-                    {selectedItem.description}
-                  </DialogDescription>
-                </DialogHeader>
+                </div>
+
+                {item && (
+                  <div className="flex items-center justify-between gap-1 pt-1 border-t border-zinc-800/80">
+                    <span className="text-[9px] font-mono font-bold text-amber-300">
+                      {item.stats.atk ? `+${item.stats.atk} atk` : item.stats.def ? `+${item.stats.def} def` : `+${item.stats.spd} spd`}
+                    </span>
+                    <Badge variant="outline" className={`text-[8px] capitalize px-1 py-0 ${getRarityBadge(item.rarity)}`}>
+                      {item.rarity}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Item Inspect Dialog with RPG Stat Deltas */}
+      <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
+        {selectedItem && (() => {
+          const rarityStyle = getItemRarityStyles(selectedItem.rarity);
+          return (
+            <DialogContent className={cn("max-w-sm bg-zinc-950 border-2 text-white rounded-2xl p-6 shadow-2xl font-serif max-h-[88dvh] overflow-y-auto custom-scrollbar", rarityStyle.modalBorder)}>
+              <DialogHeader>
+                <div className="flex items-center gap-4">
+                  <div className={cn("relative w-16 h-16 rounded-2xl bg-gradient-to-b border-2 p-2 shrink-0 shadow-lg flex items-center justify-center", rarityStyle.thumbnailBg, rarityStyle.border)}>
+                    <Image
+                      src={selectedItem.image}
+                      alt={selectedItem.name}
+                      fill
+                      className="object-contain p-1 filter drop-shadow-md"
+                      unoptimized
+                    />
+                  </div>
+                  <div>
+                    <DialogTitle className="text-base font-bold text-zinc-100">{selectedItem.name}</DialogTitle>
+                    <Badge variant="outline" className={`text-[10px] mt-1 font-semibold capitalize ${rarityStyle.badge}`}>
+                      {selectedItem.rarity} • {selectedItem.slot}
+                    </Badge>
+                  </div>
+                </div>
+                <DialogDescription className="text-zinc-300 text-xs mt-3 leading-relaxed font-sans">
+                  {selectedItem.description}
+                </DialogDescription>
+              </DialogHeader>
 
               <div className="my-4 p-3.5 bg-zinc-900/90 rounded-xl border border-zinc-800 space-y-2 text-xs font-sans">
                 <span className="text-[10px] font-bold text-amber-400 block font-serif tracking-wide">
@@ -492,9 +430,8 @@ export function PaperdollEquipmentGrid({
               </DialogFooter>
             </DialogContent>
           ); })()}
-        </Dialog>
-      </CardContent>
-    </Card>
+      </Dialog>
+    </div>
   )
 }
 
