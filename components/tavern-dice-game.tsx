@@ -2,14 +2,14 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Dices, Shield, Volume2, VolumeX, RotateCcw, Trophy, Skull, Swords, Sparkles } from "lucide-react";
+import { Dices, Shield, RotateCcw, Trophy, Skull, Swords, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
 import { getCharacterStats, addToCharacterStat } from "@/lib/character-stats-service";
 import { formatGold, cn } from "@/lib/utils";
-import { playSFX } from "@/lib/sound-manager";
+import { playSFX, isAudioGloballyEnabled } from "@/lib/sound-manager";
 
 // --- TYPES ---
 export type AIDifficulty = 'easy' | 'normal' | 'hard' | 'master';
@@ -62,9 +62,9 @@ function getCreatureImage(id?: string, filename?: string, isMythic?: boolean): s
 // --- WEB AUDIO SYNTHESIZER ---
 class TavernAudio {
   private ctx: AudioContext | null = null;
-  public enabled: boolean = true;
 
   private getContext() {
+    if (!isAudioGloballyEnabled()) return null;
     if (!this.ctx && typeof window !== 'undefined') {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (AudioCtx) this.ctx = new AudioCtx();
@@ -76,7 +76,7 @@ class TavernAudio {
   }
 
   playDiceRoll() {
-    if (!this.enabled) return;
+    if (!isAudioGloballyEnabled()) return;
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -100,7 +100,7 @@ class TavernAudio {
   }
 
   playChallengeSound() {
-    if (!this.enabled) return;
+    if (!isAudioGloballyEnabled()) return;
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -121,7 +121,7 @@ class TavernAudio {
   }
 
   playWinSound() {
-    if (!this.enabled) return;
+    if (!isAudioGloballyEnabled()) return;
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -146,7 +146,7 @@ class TavernAudio {
   }
 
   playLossSound() {
-    if (!this.enabled) return;
+    if (!isAudioGloballyEnabled()) return;
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -382,7 +382,6 @@ function Die3D({
 export function TavernDiceGame() {
   const [playerLevel, setPlayerLevel] = useState(1);
   const [goldBalance, setGoldBalance] = useState(0);
-  const [soundEnabled, setSoundEnabled] = useState(true);
 
   // Selected Wager Tier
   const [selectedTier, setSelectedTier] = useState<WagerTier>(WAGER_TIERS[0]!);
@@ -438,9 +437,7 @@ export function TavernDiceGame() {
     return () => window.removeEventListener('character-stats-update', handleStatsUpdate);
   }, []);
 
-  useEffect(() => {
-    tavernAudio.enabled = soundEnabled;
-  }, [soundEnabled]);
+
 
   // --- START NEW GAME WITH WAGER DEDUCTION ---
   const startNewGame = async (tier: WagerTier) => {
@@ -666,18 +663,9 @@ export function TavernDiceGame() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-1.5 bg-zinc-900/90 border border-amber-500/30 px-3 py-1.5 rounded-xl text-xs font-mono text-amber-300">
+            <div className="flex items-center gap-1.5 bg-zinc-900/90 border border-amber-500/30 px-3 py-1.5 rounded-xl text-xs font-mono text-amber-300">
               <span>🪙</span> {formatGold(goldBalance)} Gold
             </div>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSoundEnabled(!soundEnabled)}
-              className="text-zinc-400 hover:text-amber-300 hover:bg-amber-950/40 h-9 w-9 rounded-xl"
-            >
-              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-zinc-600" />}
-            </Button>
           </div>
         </div>
       </CardHeader>

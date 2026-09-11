@@ -20,6 +20,7 @@ import { CharacterStats } from "@/types/character"
 
 
 import { getAppThemeSync, setAppTheme, AppTheme } from "@/lib/theme-manager"
+import { soundManager } from "@/lib/sound-manager"
 
 export default function SettingsPage() {
   const { user } = useUser()
@@ -746,9 +747,20 @@ export default function SettingsPage() {
                       setSoundsEnabled(checked);
                       localStorage.setItem("medieval-sounds-enabled", checked.toString());
                       setUserPreference("medieval-sounds-enabled", checked);
+                      soundManager.setEnabled(checked);
+                      try {
+                        const saved = localStorage.getItem('audio-settings');
+                        const parsed = saved ? JSON.parse(saved) : {};
+                        localStorage.setItem('audio-settings', JSON.stringify({
+                          ...parsed,
+                          sfxEnabled: checked,
+                          musicEnabled: checked ? (parsed.musicEnabled ?? true) : false,
+                        }));
+                      } catch {}
+                      window.dispatchEvent(new CustomEvent('sound-settings-changed', { detail: { enabled: checked } }));
                       toast({
-                        title: checked ? "🔊 Sound Effects Enabled" : "🔇 Sound Effects Muted",
-                        description: checked ? "Web Audio SFX will play during kingdom actions." : "All sound effects are now muted.",
+                        title: checked ? "🔊 Sound effects enabled" : "🔇 Sound effects muted",
+                        description: checked ? "Web Audio SFX and audio will play during kingdom actions." : "All sound effects and audio are now muted.",
                       });
                     }}
                   />

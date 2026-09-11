@@ -21,6 +21,7 @@ import { KeyboardShortcutsHelp } from "@/components/keyboard-shortcuts"
 import type { Session } from '@supabase/supabase-js'
 import { useClerk, useUser } from "@clerk/nextjs";
 import { useAudioContext } from "@/components/audio-provider";
+import { soundManager } from "@/lib/sound-manager";
 
 
 
@@ -217,7 +218,16 @@ export function UserNav() {
             <DropdownMenuItem
               className="cursor-pointer rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation"
               onClick={() => {
+                const nextState = !settings.musicEnabled;
                 toggleMusic();
+                setSettings((prev: any) => ({
+                  ...prev,
+                  musicEnabled: nextState,
+                  sfxEnabled: nextState,
+                }));
+                localStorage.setItem('medieval-sounds-enabled', nextState.toString());
+                soundManager.setEnabled(nextState);
+                window.dispatchEvent(new CustomEvent('sound-settings-changed', { detail: { enabled: nextState } }));
               }}
             >
               {settings.musicEnabled ? (
@@ -227,7 +237,7 @@ export function UserNav() {
               )}
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">
-                  {settings.musicEnabled ? 'Disable Audio' : 'Enable Audio'}
+                  {settings.musicEnabled ? 'Disable audio' : 'Enable audio'}
                 </span>
                 <p className="text-xs text-zinc-400">
                   {settings.musicEnabled ? 'Turn off background music and sounds' : 'Turn on background music and sounds'}
@@ -240,19 +250,21 @@ export function UserNav() {
               className="cursor-pointer rounded-lg hover:bg-red-500/10 focus:bg-red-500/10 min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation"
               onClick={() => {
                 // Disable both music and SFX
-                setSettings(prev => ({
+                setSettings((prev: any) => ({
                   ...prev,
                   musicEnabled: false,
                   sfxEnabled: false
                 }));
-                // Stop any playing music
+                localStorage.setItem('medieval-sounds-enabled', 'false');
+                soundManager.setEnabled(false);
                 stopMusic();
+                window.dispatchEvent(new CustomEvent('sound-settings-changed', { detail: { enabled: false } }));
               }}
             >
               <VolumeX className="h-5 w-5 text-red-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">
-                  Disable All Audio
+                  Disable all audio
                 </span>
                 <p className="text-xs text-zinc-400">
                   Turn off all music and sound effects completely

@@ -2,7 +2,7 @@
 
 import { logger } from "@/lib/logger";
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { Wind, Sparkles, Check, Flame, Shield, Users, Clock, Trophy, Trash2, ArrowRight, Compass, Anchor, MapPin, Gauge, Radio, Volume2, VolumeX, MessageSquare, ChevronRight, Zap, Coins, Hammer, Wrench } from "lucide-react"
+import { Wind, Sparkles, Check, Flame, Shield, Users, Clock, Trophy, Trash2, ArrowRight, Compass, Anchor, MapPin, Gauge, Radio, MessageSquare, ChevronRight, Zap, Coins, Hammer, Wrench } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
@@ -18,16 +18,16 @@ import { useCitizensStore } from "@/stores/citizensStore"
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
 import { getCharacterStats, addToCharacterStat } from "@/lib/character-stats-service";
 import { getInventory } from "@/lib/inventory-manager";
-import { playSFX } from "@/lib/sound-manager";
+import { playSFX, isAudioGloballyEnabled } from "@/lib/sound-manager";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { unwrapApiResponse } from "@/lib/api-response-unwrapper";
 
 // --- SKYDOCK WEB AUDIO SYNTHESIZER ---
 class SkydockAudioEngine {
   private ctx: AudioContext | null = null;
-  public enabled: boolean = true;
 
   private getContext() {
+    if (!isAudioGloballyEnabled()) return null;
     if (!this.ctx && typeof window !== 'undefined') {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (AudioCtx) this.ctx = new AudioCtx();
@@ -39,7 +39,7 @@ class SkydockAudioEngine {
   }
 
   playBellChime() {
-    if (!this.enabled) return;
+    if (!isAudioGloballyEnabled()) return;
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -71,7 +71,7 @@ class SkydockAudioEngine {
   }
 
   playSteamHorn() {
-    if (!this.enabled) return;
+    if (!isAudioGloballyEnabled()) return;
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -98,7 +98,7 @@ class SkydockAudioEngine {
   }
 
   playTelegraphClick() {
-    if (!this.enabled) return;
+    if (!isAudioGloballyEnabled()) return;
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -119,7 +119,7 @@ class SkydockAudioEngine {
   }
 
   playChestUnlock() {
-    if (!this.enabled) return;
+    if (!isAudioGloballyEnabled()) return;
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -418,7 +418,6 @@ export function AirshipHarborTab() {
   const [isLaunching, setIsLaunching] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
   const [guardianPet, setGuardianPet] = useState<{ id: string; name: string; image: string } | null>(null);
-  const [audioEnabled, setAudioEnabled] = useState(true);
   const [steamPuff, setSteamPuff] = useState(false);
   const [isSalvaging, setIsSalvaging] = useState(false);
 
@@ -549,9 +548,7 @@ export function AirshipHarborTab() {
     }
   }, [user?.id, loadVoyageData]);
 
-  useEffect(() => {
-    skydockAudio.enabled = audioEnabled;
-  }, [audioEnabled]);
+
 
   // Current Journey definition
   const currentJourney = useMemo(() => {
@@ -1008,16 +1005,6 @@ export function AirshipHarborTab() {
                 <span className="text-[9px] text-amber-400 underline ml-0.5 hidden sm:inline">Drydock</span>
               </button>
             </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAudioEnabled(!audioEnabled)}
-              className="h-8 w-8 p-0 rounded-full border-amber-500/30 bg-black/60 text-amber-400 hover:bg-amber-950/40 hover:text-amber-300 backdrop-blur-md shadow-md"
-              title={audioEnabled ? "Mute audio synthesizer" : "Enable skydock audio synthesizer"}
-            >
-              {audioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-zinc-500" />}
-            </Button>
           </div>
 
           {/* Living Quartermaster Mascot & Speech Bubble Overlay */}

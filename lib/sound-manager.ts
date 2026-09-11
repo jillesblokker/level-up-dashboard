@@ -438,7 +438,7 @@ class SoundManager {
 
   // Play a sound
   async play(soundName: string): Promise<void> {
-    if (!this.isEnabled || !this.audioContext || !this.sounds.has(soundName)) {
+    if (!this.isEnabled || !this.audioContext || !this.sounds.has(soundName) || !isAudioGloballyEnabled()) {
       return;
     }
 
@@ -551,11 +551,29 @@ export function useSound() {
   };
 }
 
-// Helper function that strictly checks medieval-sounds-enabled setting before playing
+// Helper function that strictly checks whether audio/SFX is enabled across settings and avatar menu
+export function isAudioGloballyEnabled(): boolean {
+  if (typeof window === 'undefined') return false;
+  // 1. Check medieval-sounds-enabled setting (Settings page)
+  const medievalSetting = localStorage.getItem('medieval-sounds-enabled');
+  if (medievalSetting === 'false') return false;
+
+  // 2. Check audio-settings (Avatar menu & AudioProvider)
+  try {
+    const audioSettings = localStorage.getItem('audio-settings');
+    if (audioSettings) {
+      const parsed = JSON.parse(audioSettings);
+      if (parsed.sfxEnabled === false && parsed.musicEnabled === false) return false;
+      if (parsed.sfxEnabled === false) return false;
+    }
+  } catch {}
+
+  return true;
+}
+
+// Helper function that strictly checks global audio setting before playing
 export function playSFX(soundName: string) {
-  if (typeof window === 'undefined') return;
-  const setting = localStorage.getItem('medieval-sounds-enabled');
-  if (setting === 'false') return;
+  if (!isAudioGloballyEnabled()) return;
   soundManager.loadSettings();
   soundManager.play(soundName);
 }
