@@ -131,7 +131,7 @@ export function TitanRaidCard() {
       <CardHeader className="p-5 pb-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge className="bg-purple-900/60 text-purple-300 border border-purple-500/40 px-2.5 py-1 uppercase text-[10px] tracking-widest font-bold">
+            <Badge className="bg-purple-900/60 text-purple-300 border border-purple-500/40 px-2.5 py-1 text-xs font-medium">
               ⚔️ Monthly raid
             </Badge>
             <CollectibleRune
@@ -184,7 +184,7 @@ export function TitanRaidCard() {
           <div className="flex items-start gap-2.5">
             <span className="text-base sm:text-lg select-none shrink-0 mt-0.5">📜</span>
             <div className="space-y-1">
-              <div className="text-[10px] uppercase font-bold tracking-wider text-amber-400/90 flex items-center gap-1.5">
+              <div className="text-xs font-medium text-amber-400/90 flex items-center gap-1.5">
                 <span>Realm threat dispatch</span>
                 <span className="text-zinc-500">•</span>
                 <span className="font-normal text-zinc-400 font-sans capitalize">{titan.element} elemental threat</span>
@@ -218,7 +218,7 @@ export function TitanRaidCard() {
               
               {/* Elemental Realm Badge */}
               <div className="absolute top-3 right-3 z-20">
-                <Badge variant="outline" className={cn("text-[10px] font-mono uppercase font-bold border", biome.border, biome.accentText, "bg-zinc-950/80")}>
+                <Badge variant="outline" className={cn("text-xs font-mono font-medium border", biome.border, biome.accentText, "bg-zinc-950/80")}>
                   {titan.element} realm
                 </Badge>
               </div>
@@ -255,8 +255,8 @@ export function TitanRaidCard() {
           {/* Bento Card 3: Boss Health, Habit Contributions & Raid Guide (Bottom Left, col-span-5) */}
           <div className="lg:col-span-5 flex flex-col justify-between p-5 sm:p-6 rounded-2xl bg-zinc-900/60 border border-purple-900/40 shadow-lg space-y-4">
             <div className="space-y-3.5">
-              <div className="flex justify-between items-center text-xs font-bold">
-                <span className="text-zinc-300 uppercase tracking-widest flex items-center gap-1.5">
+              <div className="flex justify-between items-center text-xs font-medium">
+                <span className="text-zinc-300 flex items-center gap-1.5">
                   <Shield className="w-4 h-4 text-purple-400" /> Boss health
                 </span>
                 <span className="text-purple-300 font-mono">
@@ -398,7 +398,7 @@ export function TitanRaidCard() {
                     unoptimized
                   />
                   {isCurrent && (
-                    <span className="absolute top-1 right-1 bg-amber-500 text-zinc-950 text-[8px] font-bold px-1.5 py-0.5 rounded-full font-mono uppercase">
+                    <span className="absolute top-1 right-1 bg-amber-500 text-zinc-950 text-[9px] font-bold px-1.5 py-0.5 rounded-full font-mono">
                       Current
                     </span>
                   )}

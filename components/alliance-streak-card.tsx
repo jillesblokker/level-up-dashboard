@@ -121,7 +121,7 @@ export function AllianceStreakCard({ userId }: AllianceStreakProps) {
                                 <Trophy className="w-5 h-5 text-amber-500" />
                                 <div className="text-center">
                                     <div className="text-2xl font-bold text-amber-400">{streak.longest}</div>
-                                    <div className="text-[10px] text-zinc-400 uppercase tracking-wider">Best</div>
+                                    <div className="text-xs text-zinc-400 font-medium">Best</div>
                                 </div>
                             </div>
                         )}

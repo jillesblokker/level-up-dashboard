@@ -89,7 +89,7 @@ export function TarotCardDisplay() {
             <div className="px-5 py-3.5 border-b border-[#2d2115] bg-gradient-to-r from-[#140e09] via-[#1a130c] to-[#140e09] flex items-center justify-between z-20">
                 <div className="flex items-center gap-2.5">
                     <span className="text-amber-500 font-serif text-base select-none">✢</span>
-                    <h2 className="text-sm sm:text-base font-serif font-bold text-amber-100 tracking-wider uppercase drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                    <h2 className="text-sm sm:text-base font-serif font-bold text-amber-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                         Daily fate
                     </h2>
                 </div>
@@ -146,7 +146,7 @@ export function TarotCardDisplay() {
                                         />
                                         <div className="absolute top-3 right-3 z-20">
                                             <span className={cn(
-                                                "text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border shadow-md tracking-wider font-mono",
+                                                "text-[10px] font-bold capitalize px-2.5 py-0.5 rounded-full border shadow-md font-mono",
                                                 activeCard.rarity === 'common' && "bg-zinc-800 text-zinc-200 border-zinc-700",
                                                 activeCard.rarity === 'rare' && "bg-blue-950 text-blue-300 border-blue-500/50",
                                                 activeCard.rarity === 'epic' && "bg-purple-950 text-purple-300 border-purple-500/50"

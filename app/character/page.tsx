@@ -924,7 +924,7 @@ export default function CharacterPage() {
       )}
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 py-8">
+      <div className="container mx-auto px-4 sm:px-6 pt-8 pb-28 pb-safe md:pb-12">
         <div className="grid gap-6">
           {/* BENTO ROW 1 — Hero Identity & Paperdoll Equipment Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">

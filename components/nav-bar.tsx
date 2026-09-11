@@ -4,12 +4,13 @@ import { logger } from "@/lib/logger";
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { MainNav } from "@/components/main-nav"
 import { Session } from '@supabase/supabase-js'
-import { Castle, Coins, Star, Brain } from "lucide-react"
+import { Castle, Coins, Star, Brain, Bell } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Progress } from "@/components/ui/progress"
-import { NotificationCenter } from "@/components/notification-center"
+import { notificationService } from "@/lib/notification-service"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { UserNav } from "@/components/user-nav"
@@ -76,8 +77,22 @@ export function NavBar({ session }: NavBarProps) {
   const [goldHighlight, setGoldHighlight] = useState(false);
   const [levelHighlight, setLevelHighlight] = useState(false);
   const [airshipCargoReady, setAirshipCargoReady] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const goldRef = useRef(characterStats.gold);
   const levelRef = useRef(characterStats.level);
+
+  useEffect(() => {
+    setUnreadCount(notificationService.getUnreadCount());
+    const handleNewNotification = () => {
+      setUnreadCount(notificationService.getUnreadCount());
+    };
+    window.addEventListener('newNotification', handleNewNotification);
+    window.addEventListener('storage', handleNewNotification);
+    return () => {
+      window.removeEventListener('newNotification', handleNewNotification);
+      window.removeEventListener('storage', handleNewNotification);
+    };
+  }, []);
 
   useEffect(() => {
     const handleAirshipStatus = (e: Event) => {
@@ -263,7 +278,7 @@ export function NavBar({ session }: NavBarProps) {
                 }}
                 className="bg-amber-950/90 border border-amber-500/60 text-amber-300 hover:bg-amber-900 text-xs px-3 py-1 rounded-full font-serif flex items-center gap-1.5 shadow-md shadow-amber-950/40 animate-pulse transition-all"
               >
-                ⛵ Claim Airship Cargo
+                ⛵ Claim airship cargo
               </Button>
             )}
 
@@ -292,7 +307,18 @@ export function NavBar({ session }: NavBarProps) {
 
           </div>
           <div className="relative">
-            <NotificationCenter />
+            <Link
+              href="/notifications"
+              className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-amber-500/10 text-zinc-400 hover:text-white transition-transform hover:scale-105 active:scale-95 border border-transparent hover:border-amber-500/30"
+              title="Notifications"
+            >
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center shadow-md">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </Link>
           </div>
           <UserNav />
         </div>

@@ -301,7 +301,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                                 type="number"
                                 min="1"
                                 max={newQuest.mandatePeriod === 'weekly' ? 7 : 31}
-                                className="h-12 w-full bg-zinc-900 border border-amber-900/30 rounded-xl px-4 focus:border-amber-500/50 outline-none transition-all"
+                                className="h-12 w-full bg-zinc-900 border border-amber-900/30 rounded-xl px-4 focus:border-amber-500/50 outline-none transition-all text-base md:text-sm"
                                 value={newQuest.mandateCount}
                                 onChange={(e) => setNewQuest({ ...newQuest, mandateCount: parseInt(e.target.value) || 1 })}
                             />

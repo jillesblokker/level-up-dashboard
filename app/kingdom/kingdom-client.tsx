@@ -1846,7 +1846,7 @@ export function KingdomClient() {
         <Tabs value={kingdomTab} onValueChange={setKingdomTab} className="w-full">
           <div className="flex w-full mb-6 items-center justify-between gap-3 overflow-x-auto snap-x snap-mandatory py-1 custom-scrollbar mobile-scroll-hide">
             <TabsList className="flex shrink-0 snap-start space-x-1.5 p-0.5 bg-transparent border-none font-serif text-sm">
-              <TabsTrigger value="thrivehaven" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
+              <TabsTrigger value="thrivehaven" className="snap-start shrink-0 font-serif font-bold text-xs">
                 <LayoutGrid className="w-4 h-4" />
                 <span>{TEXT_CONTENT.kingdom.ui.tabs.thrivehaven}</span>
                 <CollectibleRune
@@ -1858,7 +1858,7 @@ export function KingdomClient() {
                   className="ml-1"
                 />
               </TabsTrigger>
-              <TabsTrigger value="journey" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
+              <TabsTrigger value="journey" className="snap-start shrink-0 font-serif font-bold text-xs">
                 <Compass className="w-4 h-4" />
                 <span>{TEXT_CONTENT.kingdom.ui.tabs.journey}</span>
                 <CollectibleRune
@@ -1870,7 +1870,7 @@ export function KingdomClient() {
                   className="ml-1"
                 />
               </TabsTrigger>
-              <TabsTrigger value="citizens" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
+              <TabsTrigger value="citizens" className="snap-start shrink-0 font-serif font-bold text-xs">
                 <Users className="w-4 h-4" />
                 <span>Citizens</span>
                 <CollectibleRune
@@ -1882,7 +1882,7 @@ export function KingdomClient() {
                   className="ml-1"
                 />
               </TabsTrigger>
-              <TabsTrigger value="barracks" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
+              <TabsTrigger value="barracks" className="snap-start shrink-0 font-serif font-bold text-xs">
                 <Sword className="w-4 h-4" />
                 <span>Barracks</span>
                 <CollectibleRune
@@ -1894,7 +1894,7 @@ export function KingdomClient() {
                   className="ml-1"
                 />
               </TabsTrigger>
-              <TabsTrigger value="alchemy" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
+              <TabsTrigger value="alchemy" className="snap-start shrink-0 font-serif font-bold text-xs">
                 <FlaskConical className="w-4 h-4" />
                 <span>Enhanced</span>
                 <CollectibleRune
@@ -1906,16 +1906,16 @@ export function KingdomClient() {
                   className="ml-1"
                 />
               </TabsTrigger>
-              <TabsTrigger value="airship" className="snap-start shrink-0 font-serif font-bold text-xs uppercase tracking-wider">
+              <TabsTrigger value="airship" className="snap-start shrink-0 font-serif font-bold text-xs">
                 <Wind className="w-4 h-4" />
-                <span>Airship Harbor</span>
+                <span>Airship harbor</span>
               </TabsTrigger>
             </TabsList>
             
             <Link href="/kingdom/archive" className="snap-start shrink-0">
               <Button variant="outline" className="border-amber-900/40 text-amber-400 hover:bg-amber-950/40 hover:text-amber-300 min-h-[44px]">
                 <Trophy className="w-4 h-4" />
-                <span>Archive of Triumphs</span>
+                <span>Archive of triumphs</span>
               </Button>
             </Link>
           </div>

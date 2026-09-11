@@ -113,7 +113,7 @@ export function FocusPointsModal({
           <div className="flex items-center gap-2.5">
             <span className="text-xl">🧠</span>
             <div>
-              <p className="text-[10px] text-purple-300 font-mono font-bold uppercase tracking-wider">Focus balance</p>
+              <p className="text-xs text-purple-300 font-mono font-bold">Focus balance</p>
               <p className="text-base font-black text-white font-mono leading-none mt-0.5">
                 {currentFocusPoints} <span className="text-xs text-purple-300/80 font-normal">points</span>
               </p>

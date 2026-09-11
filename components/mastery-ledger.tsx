@@ -610,7 +610,7 @@ export function MasteryLedger() {
                     <span className="flex items-center gap-1">
                         📜 {filteredHabits.length} {selectedFilter === 'all' ? 'Ledger Items' : selectedFilter.replace('type:', '').replace('quest:', '').replace('challenge:', '')}
                     </span>
-                    <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider">Swipe 👉</span>
+                    <span className="text-xs text-zinc-400 font-mono">Swipe 👉</span>
                 </div>
 
                 {filteredHabits.length === 0 ? (
@@ -643,7 +643,7 @@ export function MasteryLedger() {
                                             {habit.name}
                                         </h3>
                                         <div className="flex items-center gap-2 mt-1">
-                                            <span className="text-[11px] text-amber-400 font-bold uppercase tracking-wider bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">{normalizeCategory(habit.category) || 'General'}</span>
+                                            <span className="text-[11px] text-amber-400 font-medium capitalize bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">{normalizeCategory(habit.category) || 'General'}</span>
                                             <span className="text-[11px] text-zinc-400">{habit.mandate.count}× {habit.mandate.period}</span>
                                         </div>
                                     </div>
@@ -651,8 +651,8 @@ export function MasteryLedger() {
 
                                 {/* Weekly Activity */}
                                 <div className="space-y-1.5 pt-2 border-t border-zinc-800/60">
-                                    <div className="flex justify-between items-center text-[10px] uppercase font-bold text-zinc-500">
-                                        <span>Weekly Progress</span>
+                                    <div className="flex justify-between items-center text-xs font-medium text-zinc-400">
+                                        <span>Weekly progress</span>
                                         <span className="text-zinc-400">{habit.stats.monthly} completions</span>
                                     </div>
                                     <div className="grid grid-cols-7 gap-1">
@@ -751,7 +751,7 @@ export function MasteryLedger() {
 
                             {/* 2. Trend Section (Selected Week) */}
                             <div className="flex-1 flex flex-col justify-center">
-                                <span className="text-[9px] uppercase tracking-wider text-zinc-600 font-bold mb-1.5 md:hidden">Weekly Activity</span>
+                                <span className="text-xs text-zinc-400 font-medium mb-1.5 md:hidden">Weekly activity</span>
                                 <div className="grid grid-cols-7 gap-1 max-w-[280px]">
                                     {weekDays.map((d, i) => {
                                         const dateStr = d.toISOString().slice(0, 10);
@@ -797,7 +797,7 @@ export function MasteryLedger() {
                             <div className="flex items-center gap-6 md:w-[180px] md:justify-end border-t md:border-t-0 border-zinc-800/50 pt-3 md:pt-0 mt-1 md:mt-0">
                                 <div className="flex flex-col items-center">
                                     <span className="text-xl font-bold text-zinc-200">{habit.stats.monthly}</span>
-                                    <span className="text-[9px] uppercase text-zinc-600 font-bold">Month</span>
+                                    <span className="text-xs text-zinc-400 font-medium">Month</span>
                                 </div>
                                 <div className="flex flex-col items-end min-w-[60px]">
                                     <span className={cn(

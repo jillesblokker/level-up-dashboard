@@ -288,8 +288,8 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                       <CardTitle className="text-white text-lg font-serif">
                         {getCategoryName(category)}
                       </CardTitle>
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">
-                        {tasksByCategory[category]?.filter((t) => t.completed).length || 0} / {tasksByCategory[category]?.length || 0} Complete
+                      <p className="text-xs text-zinc-400 font-medium mt-0.5">
+                        {tasksByCategory[category]?.filter((t) => t.completed).length || 0} / {tasksByCategory[category]?.length || 0} complete
                       </p>
                     </div>
                   </div>
@@ -383,8 +383,8 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                         <CardTitle className="text-xl font-serif text-white tracking-wide">
                           {getCategoryName(category)}
                         </CardTitle>
-                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] mt-1">
-                          The Path of the {getCategoryName(category)}
+                        <p className="text-xs text-zinc-400 font-medium mt-1">
+                          The path of the {getCategoryName(category).toLowerCase()}
                         </p>
                       </div>
                     </div>
@@ -426,11 +426,11 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
                           <div className="flex items-center gap-3 mt-1.5">
                             <div className="flex items-center gap-1">
                               <div className="w-1 h-1 rounded-full bg-amber-500" />
-                              <span className="text-[10px] text-amber-500/80 font-bold uppercase">{task.gold} Gold</span>
+                              <span className="text-[11px] text-amber-400/90 font-medium">{task.gold} gold</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <div className="w-1 h-1 rounded-full bg-blue-500" />
-                              <span className="text-[10px] text-blue-400/80 font-bold uppercase">{task.xp} XP</span>
+                              <span className="text-[11px] text-blue-400/90 font-medium">{task.xp} exp</span>
                             </div>
                           </div>
                         </div>

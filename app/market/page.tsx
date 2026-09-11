@@ -619,7 +619,7 @@ export default function MarketPage() {
   }, [ownedPacksList]);
 
   return (
-    <div className="min-h-screen thrivehaven-page-bg text-zinc-100 p-4 sm:p-6 lg:p-8 font-serif">
+    <div className="min-h-screen thrivehaven-page-bg text-zinc-100 p-4 sm:p-6 lg:p-8 pb-28 pb-safe md:pb-12 font-serif">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Top Bento Header Bar: Back, Balances & Apotheca Glasshouse */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-950/90 border border-amber-900/40 shadow-xl">

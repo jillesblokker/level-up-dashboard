@@ -2875,7 +2875,7 @@ export default function QuestsPage() {
 
   return (
     <EnhancedErrorBoundary>
-    <div className="min-h-screen quests-page-container pb-8 pb-safe">
+    <div className="min-h-screen quests-page-container pb-28 pb-safe md:pb-12">
 
 
         <MobileLayoutWrapper className="quests-page-container" enableScroll={true}>

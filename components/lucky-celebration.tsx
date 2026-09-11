@@ -56,13 +56,13 @@ export function LuckyCelebration({ onComplete, amount }: LuckyCelebrationProps) 
                 >
                     <div className="flex items-center gap-2 mb-2">
                         <Crown className="w-12 h-12 text-amber-300 drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]" strokeWidth={1.5} />
-                        <span className="text-amber-200 font-bold uppercase tracking-widest text-sm drop-shadow-md">Kingdom Fortune</span>
+                        <span className="text-amber-200 font-bold text-sm drop-shadow-md">Kingdom fortune</span>
                         <Crown className="w-12 h-12 text-amber-300 drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]" strokeWidth={1.5} />
                     </div>
 
-                    <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-300 to-amber-600 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] tracking-tighter filter"
+                    <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-300 to-amber-600 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] tracking-tight filter"
                         style={{ textShadow: '0 0 30px rgba(245, 158, 11, 0.5)' }}>
-                        LUCKY FIND!
+                        Lucky find!
                     </h1>
 
                     <motion.div

@@ -101,14 +101,14 @@ export function KingdomSummaryModal({
             <div className="bg-gradient-to-br from-amber-950/40 to-zinc-900 border border-amber-500/30 rounded-xl p-3 flex flex-col items-center shadow-xs">
               <div className="flex items-center gap-1.5 text-amber-400 mb-0.5">
                 <Coins className="h-4 w-4" />
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400/80">Total gold</span>
+                <span className="text-[11px] font-mono font-bold text-amber-400/90">Total gold</span>
               </div>
               <span className="text-2xl font-black font-mono text-amber-200">+{totalGold.toLocaleString()}</span>
             </div>
             <div className="bg-gradient-to-br from-blue-950/40 to-zinc-900 border border-blue-500/30 rounded-xl p-3 flex flex-col items-center shadow-xs">
               <div className="flex items-center gap-1.5 text-blue-400 mb-0.5">
                 <Star className="h-4 w-4" />
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-400/80">Total exp</span>
+                <span className="text-[11px] font-mono font-bold text-blue-400/90">Total exp</span>
               </div>
               <span className="text-2xl font-black font-mono text-blue-200">+{totalExp.toLocaleString()}</span>
             </div>
@@ -126,7 +126,7 @@ export function KingdomSummaryModal({
           {aggregatedItems.length > 0 ? (
             <div className="pt-1">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono font-bold text-amber-400/90 uppercase tracking-wider">
+                <span className="text-xs font-mono font-bold text-amber-400/90">
                   Discovered goods ({totalItemCount})
                 </span>
                 <span className="text-[10px] font-mono text-zinc-400">
