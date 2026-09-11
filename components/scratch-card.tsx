@@ -17,21 +17,58 @@ interface ScratchCardProps {
     variantLabel: string;
     variantIndex: number;
   };
+  isRevealed?: boolean;
   onReveal?: (cardId: string) => void;
   isWinner?: boolean;
   fullscreen?: boolean;
 }
 
-const AUTO_CLEAR_THRESHOLD = 0.6;
+// Exactly 90% threshold: user must scratch away 90% of the foil,
+// leaving 10% tolerance for missed edge or corner pixels
+const AUTO_CLEAR_THRESHOLD = 0.90;
 
-export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: ScratchCardProps) {
+const calculateScratchedPercentage = (ctx: CanvasRenderingContext2D, width: number, height: number): number => {
+  try {
+    const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+    const w = Math.floor(width * dpr);
+    const h = Math.floor(height * dpr);
+    if (w <= 0 || h <= 0) return 0;
+    
+    // Sample a uniform grid of 24x36 (864 points) across the canvas for instant execution (<0.2ms)
+    const sampleStepX = Math.max(2, Math.floor(w / 24));
+    const sampleStepY = Math.max(2, Math.floor(h / 36));
+    
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+    
+    let totalSamples = 0;
+    let clearedSamples = 0;
+    
+    for (let y = Math.floor(sampleStepY / 2); y < h; y += sampleStepY) {
+      const rowOffset = y * w * 4;
+      for (let x = Math.floor(sampleStepX / 2); x < w; x += sampleStepX) {
+        const index = rowOffset + x * 4 + 3; // Alpha channel
+        if (index < data.length) {
+          totalSamples++;
+          if (data[index]! < 64) { // Transparent / cleared pixel
+            clearedSamples++;
+          }
+        }
+      }
+    }
+    
+    return totalSamples > 0 ? clearedSamples / totalSamples : 0;
+  } catch (err) {
+    return 0;
+  }
+};
+
+export function ScratchCard({ cardData, isRevealed, onReveal, isWinner, fullscreen }: ScratchCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [revealed, setRevealed] = useState(false);
+  const [revealed, setRevealed] = useState(isRevealed ?? false);
   const isPointerDown = useRef(false);
   const lastPoint = useRef<{ x: number, y: number } | null>(null);
-  const pixelsScratched = useRef(0);
-  const totalPixels = useRef(0);
 
   const onRevealRef = useRef(onReveal);
   const isWinnerRef = useRef(isWinner);
@@ -43,7 +80,13 @@ export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: Scratc
     cardDataRef.current = cardData;
   }, [onReveal, isWinner, cardData]);
 
-  // Vibrate helper
+  useEffect(() => {
+    if (isRevealed && !revealed) {
+      setRevealed(true);
+    }
+  }, [isRevealed, revealed]);
+
+  // Vibrate helpers
   const hapticScratch = () => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(5);
@@ -67,19 +110,24 @@ export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: Scratc
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
     
-    // Add some noise/texture pattern if desired
+    // Add fine metallic texture
     ctx.fillStyle = "rgba(0,0,0,0.05)";
-    for (let i = 0; i < 100; i++) {
-        ctx.fillRect(Math.random() * width, Math.random() * height, 2, 2);
+    for (let i = 0; i < 120; i++) {
+      ctx.fillRect(Math.random() * width, Math.random() * height, 2, 2);
     }
     
-    // Write text
-    ctx.fillStyle = "#888";
-    const fontSize = Math.max(12, Math.floor(width * 0.1));
+    // Subtle border stamp
+    ctx.strokeStyle = "rgba(255,255,255,0.4)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(6, 6, width - 12, height - 12);
+
+    // Write centered sentence case text
+    ctx.fillStyle = "#6b7280";
+    const fontSize = Math.max(12, Math.floor(width * 0.11));
     ctx.font = `bold ${fontSize}px sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("SCRATCH", width / 2, height / 2);
+    ctx.fillText("Scratch", width / 2, height / 2);
   };
 
   useEffect(() => {
@@ -91,21 +139,27 @@ export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: Scratc
     if (!ctx) return;
 
     let { width, height } = container.getBoundingClientRect();
+    if (width <= 0 || height <= 0) {
+      width = fullscreen ? 320 : 180;
+      height = fullscreen ? 440 : 270;
+    }
+
     const dpr = window.devicePixelRatio || 1;
-    
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     ctx.scale(dpr, dpr);
 
-    fillCoating(ctx, width, height);
-    
-    // Calculate pixels for threshold
-    totalPixels.current = width * height;
-    pixelsScratched.current = 0;
+    if (revealed || isRevealed) {
+      ctx.clearRect(0, 0, width, height);
+      return;
+    }
 
-    const brushRadius = Math.max(20, Math.min(width, height) * 0.12);
+    fillCoating(ctx, width, height);
+
+    // Sizing brush for satisfying scratching
+    const brushRadius = Math.max(14, Math.min(width, height) * (fullscreen ? 0.09 : 0.12));
 
     const getPointerPos = (e: MouseEvent | TouchEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -117,23 +171,13 @@ export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: Scratc
       };
     };
 
-    const handlePointerDown = (e: MouseEvent | TouchEvent) => {
-      if (revealed) return;
-      isPointerDown.current = true;
-      lastPoint.current = getPointerPos(e);
-      scratch(e);
-    };
+    let moveCounter = 0;
 
-    const handlePointerMove = (e: MouseEvent | TouchEvent) => {
-      if (!isPointerDown.current || revealed) return;
-      e.preventDefault(); // prevent scrolling while scratching
-      scratch(e);
-    };
-
-    const handlePointerUp = () => {
-      isPointerDown.current = false;
-      lastPoint.current = null;
-      checkReveal();
+    const checkRevealProgress = () => {
+      const ratio = calculateScratchedPercentage(ctx, width, height);
+      if (ratio >= AUTO_CLEAR_THRESHOLD) {
+        setRevealed(true);
+      }
     };
 
     const scratch = (e: MouseEvent | TouchEvent) => {
@@ -146,10 +190,11 @@ export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: Scratc
       ctx.arc(currentPoint.x, currentPoint.y, brushRadius, 0, Math.PI * 2);
       ctx.fill();
 
-      // Draw line between points for smooth scratching
+      // Smooth line between consecutive pointer points
       ctx.beginPath();
       ctx.lineWidth = brushRadius * 2;
       ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
       ctx.moveTo(lastPoint.current.x, lastPoint.current.y);
       ctx.lineTo(currentPoint.x, currentPoint.y);
       ctx.stroke();
@@ -157,49 +202,70 @@ export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: Scratc
 
       lastPoint.current = currentPoint;
 
-      // Haptic feedback every few pixels
-      if (Math.random() > 0.8) hapticScratch();
+      // Haptic feedback during active scratching
+      if (Math.random() > 0.75) hapticScratch();
       
-      // Count transparent pixels periodically
-      pixelsScratched.current += brushRadius * brushRadius * Math.PI * 0.4;
-      if (pixelsScratched.current > totalPixels.current * AUTO_CLEAR_THRESHOLD) {
-        setRevealed(true);
+      moveCounter++;
+      // Check true scratched percentage every 4 strokes
+      if (moveCounter % 4 === 0) {
+        checkRevealProgress();
       }
     };
 
-    const checkReveal = () => {
-      if (pixelsScratched.current > totalPixels.current * AUTO_CLEAR_THRESHOLD) {
-        setRevealed(true);
-      }
+    const handlePointerDown = (e: MouseEvent | TouchEvent) => {
+      if (revealed || isRevealed) return;
+      isPointerDown.current = true;
+      lastPoint.current = getPointerPos(e);
+      scratch(e);
     };
 
-    // Handle resize
+    const handlePointerMove = (e: MouseEvent | TouchEvent) => {
+      if (!isPointerDown.current || revealed || isRevealed) return;
+      if (e.cancelable) e.preventDefault();
+      scratch(e);
+    };
+
+    const handlePointerUp = () => {
+      if (!isPointerDown.current) return;
+      isPointerDown.current = false;
+      lastPoint.current = null;
+      checkRevealProgress();
+    };
+
+    // Handle container resize
     const handleResize = () => {
       if (!container || !canvas) return;
       const rect = container.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) {
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-        canvas.style.width = `${rect.width}px`;
-        canvas.style.height = `${rect.height}px`;
+        width = rect.width;
+        height = rect.height;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
         const newCtx = canvas.getContext('2d', { willReadFrequently: true });
         if (newCtx) {
           newCtx.scale(dpr, dpr);
-          if (!revealed) fillCoating(newCtx, rect.width, rect.height);
+          if (!revealed && !isRevealed) {
+            fillCoating(newCtx, width, height);
+          } else {
+            newCtx.clearRect(0, 0, width, height);
+          }
         }
       }
     };
 
     window.addEventListener('resize', handleResize);
 
-    // Events
+    // Mouse Events
     canvas.addEventListener('mousedown', handlePointerDown);
     canvas.addEventListener('mousemove', handlePointerMove, { passive: false });
     window.addEventListener('mouseup', handlePointerUp);
 
+    // Touch Events
     canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
     canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
-    canvas.addEventListener('touchend', handlePointerUp);
+    window.addEventListener('touchend', handlePointerUp);
 
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -211,7 +277,7 @@ export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: Scratc
       canvas.removeEventListener('touchmove', handlePointerMove);
       window.removeEventListener('touchend', handlePointerUp);
     };
-  }, [revealed]);
+  }, [revealed, isRevealed, fullscreen]);
 
   useEffect(() => {
     if (revealed) {
@@ -263,10 +329,10 @@ export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: Scratc
       role="region"
       aria-label={`Scratch card #${cardData.number}: ${cardData.variantLabel} (${cardData.rarity}). ${revealed ? 'Revealed reward' : 'Scratch to reveal'}`}
       className={cn(
-        "relative rounded-2xl overflow-hidden shadow-2xl select-none touch-none transition-all duration-300 border-2 border-amber-800/40",
+        "relative rounded-2xl overflow-hidden shadow-2xl select-none touch-none transition-all duration-300 border-2 border-amber-800/40 bg-zinc-950",
         fullscreen
           ? "w-full h-full min-h-[340px] sm:min-h-[420px] max-w-none"
-          : "w-full aspect-[2/3] max-w-[125px] min-[390px]:max-w-[130px] sm:max-w-[160px] md:max-w-[200px] hover:scale-[1.02] active:scale-95",
+          : "w-full aspect-[2/3] max-w-[125px] min-[390px]:max-w-[140px] sm:max-w-[170px] md:max-w-[210px] min-h-[160px] sm:min-h-[220px] md:min-h-[280px] hover:scale-[1.02] active:scale-95",
         getRarityGlowClass()
       )}
     >
@@ -274,12 +340,14 @@ export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: Scratc
       {isWinner && (
         <div className="absolute inset-0 bg-radial from-amber-400/30 via-transparent to-transparent blur-xl animate-pulse pointer-events-none z-20" />
       )}
+
       {/* Layout-Safe Winner Banner Overlay */}
       {revealed && isWinner && (
-        <div className="absolute top-2 inset-x-2 z-30 bg-amber-950/90 border border-amber-400 text-amber-300 text-[9px] font-mono font-bold py-1 px-1.5 rounded-lg text-center shadow-lg animate-in zoom-in-95 pointer-events-none truncate">
-          🎉 Winner Uncovered!
+        <div className="absolute top-2 inset-x-2 z-30 bg-amber-950/90 border border-amber-400 text-amber-300 text-[9px] font-medium py-1 px-1.5 rounded-lg text-center shadow-lg animate-in zoom-in-95 pointer-events-none truncate">
+          🎉 Winner uncovered!
         </div>
       )}
+
       {/* Background Reward Face */}
       {hasImage && imagePath ? (
         <div className="absolute inset-0 w-full h-full overflow-hidden bg-gradient-to-b from-zinc-900 via-zinc-950 to-amber-950/40">
@@ -287,7 +355,7 @@ export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: Scratc
           <div className="absolute inset-0 z-0 opacity-40 mix-blend-luminosity pointer-events-none">
             <Image
               src="/images/headers/undiscovered.webp"
-              alt="Card Frame Texture"
+              alt="Card frame texture"
               fill
               className="object-cover"
               unoptimized
@@ -295,7 +363,7 @@ export function ScratchCard({ cardData, onReveal, isWinner, fullscreen }: Scratc
           </div>
           <Image
             src={imagePath}
-            alt={`Mythic Card #${cardData.number}`}
+            alt={`Mythic card #${cardData.number}`}
             fill
             className="object-contain p-1.5 sm:p-2 relative z-10 drop-shadow-md"
           />
