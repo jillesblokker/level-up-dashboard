@@ -25,6 +25,7 @@ export default function ChroniclePage() {
     const [isArchivalOpen, setIsArchivalOpen] = useState(false)
     const [journalEntry, setJournalEntry] = useState<any | null>(null)
     const [filterDate, setFilterDate] = useState<string>('')
+    const [selectedMoodFilter, setSelectedMoodFilter] = useState<'energized' | 'focused' | 'calm' | null>(null)
     const [showInsights, setShowInsights] = useState(false)
     const [viewMode, setViewMode] = useState<'bookcase' | 'list'>('bookcase')
 
@@ -88,9 +89,29 @@ export default function ChroniclePage() {
         return new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).format(date);
     }
 
-    const filteredEntries = filterDate
-        ? entries.filter(e => e.entry_date.startsWith(filterDate))
-        : entries;
+    const isEntryMatchingMood = (entry: any, mood: 'energized' | 'focused' | 'calm') => {
+        const tag = (entry.mood_tag || '').toLowerCase();
+        if (tag.includes(mood)) return true;
+        if (mood === 'energized' && (entry.mood_score >= 4 || tag.includes('radiant') || tag.includes('great'))) return true;
+        if (mood === 'focused' && (entry.mood_score === 3 || tag.includes('good') || tag.includes('focus'))) return true;
+        if (mood === 'calm' && (entry.mood_score <= 2 || tag.includes('quiet') || tag.includes('calm') || tag.includes('gloomy'))) return true;
+        return false;
+    };
+
+    const energizedCount = entries.filter(e => isEntryMatchingMood(e, 'energized')).length;
+    const focusedCount = entries.filter(e => isEntryMatchingMood(e, 'focused')).length;
+    const calmCount = entries.filter(e => isEntryMatchingMood(e, 'calm')).length;
+    const totalWithMood = energizedCount + focusedCount + calmCount;
+
+    const energizedPct = totalWithMood > 0 ? Math.round((energizedCount / totalWithMood) * 100) : 65;
+    const focusedPct = totalWithMood > 0 ? Math.round((focusedCount / totalWithMood) * 100) : 25;
+    const calmPct = totalWithMood > 0 ? Math.max(0, 100 - energizedPct - focusedPct) : 10;
+
+    const filteredEntries = entries.filter(e => {
+        if (filterDate && !e.entry_date.startsWith(filterDate)) return false;
+        if (selectedMoodFilter && !isEntryMatchingMood(e, selectedMoodFilter)) return false;
+        return true;
+    });
 
     return (
         <div className="min-h-screen bg-black text-amber-50 relative overflow-hidden font-sans p-4 md:p-8">
@@ -161,33 +182,128 @@ export default function ChroniclePage() {
                                         Growth insights & mood radar
                                     </h2>
                                 </div>
-                                <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-400 bg-emerald-950/40 font-mono">
-                                    Optimal balance
-                                </Badge>
+                                {selectedMoodFilter ? (
+                                    <Badge
+                                        onClick={() => setSelectedMoodFilter(null)}
+                                        variant="outline"
+                                        className="text-[10px] border-amber-500/40 text-amber-300 bg-amber-950/60 font-mono cursor-pointer hover:bg-amber-900/60 transition-colors"
+                                    >
+                                        Filtering: {selectedMoodFilter} ✕
+                                    </Badge>
+                                ) : (
+                                    <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-400 bg-emerald-950/40 font-mono">
+                                        Optimal balance
+                                    </Badge>
+                                )}
                             </div>
                             <p className="text-xs text-zinc-400 font-sans leading-relaxed">
-                                Review your reflection rhythm and emotional balance synthesized from your private reflections.
+                                Review your reflection rhythm and emotional balance synthesized from your private reflections. Tap any mood to filter the royal archives.
                             </p>
 
                             <WeeklyGrowthInsightsCard />
 
-                            {/* 3 Mood distribution tiles */}
-                            <div className="grid grid-cols-3 gap-2.5 pt-1">
-                                <div className="p-2.5 rounded-xl bg-zinc-950/80 border border-amber-500/20 text-center space-y-0.5">
-                                    <span className="text-base">⚡</span>
-                                    <h4 className="font-bold text-xs text-amber-300">Energized</h4>
-                                    <p className="text-[10px] text-zinc-400 font-mono">65%</p>
-                                </div>
-                                <div className="p-2.5 rounded-xl bg-zinc-950/80 border border-blue-500/20 text-center space-y-0.5">
-                                    <span className="text-base">🎯</span>
-                                    <h4 className="font-bold text-xs text-blue-300">Focused</h4>
-                                    <p className="text-[10px] text-zinc-400 font-mono">25%</p>
-                                </div>
-                                <div className="p-2.5 rounded-xl bg-zinc-950/80 border border-emerald-500/20 text-center space-y-0.5">
-                                    <span className="text-base">🌿</span>
-                                    <h4 className="font-bold text-xs text-emerald-300">Calm</h4>
-                                    <p className="text-[10px] text-zinc-400 font-mono">10%</p>
-                                </div>
+                            {/* 3 Mood distribution tiles - Vertically stacked with tangible purpose & active filter controls */}
+                            <div className="flex flex-col gap-2.5 pt-1">
+                                {[
+                                    {
+                                        id: 'energized' as const,
+                                        emoji: '⚡',
+                                        name: 'Energized',
+                                        color: 'text-amber-300',
+                                        borderDefault: 'border-amber-500/20 bg-zinc-950/80 hover:border-amber-500/40',
+                                        borderActive: 'border-amber-400 bg-amber-950/40 shadow-[0_0_15px_rgba(245,158,11,0.25)]',
+                                        pillBg: 'bg-amber-500/10 border-amber-500/30 text-amber-300',
+                                        barColor: 'bg-gradient-to-r from-amber-600 to-amber-400',
+                                        pct: energizedPct,
+                                        count: energizedCount,
+                                        purpose: 'Might & Vitality habits &bull; +15% ether voyage boost'
+                                    },
+                                    {
+                                        id: 'focused' as const,
+                                        emoji: '🎯',
+                                        name: 'Focused',
+                                        color: 'text-blue-300',
+                                        borderDefault: 'border-blue-500/20 bg-zinc-950/80 hover:border-blue-500/40',
+                                        borderActive: 'border-blue-400 bg-blue-950/40 shadow-[0_0_15px_rgba(59,130,246,0.25)]',
+                                        pillBg: 'bg-blue-500/10 border-blue-500/30 text-blue-300',
+                                        barColor: 'bg-gradient-to-r from-blue-600 to-blue-400',
+                                        pct: focusedPct,
+                                        count: focusedCount,
+                                        purpose: 'Knowledge & Craft rituals &bull; +10% dungeon spell power'
+                                    },
+                                    {
+                                        id: 'calm' as const,
+                                        emoji: '🌿',
+                                        name: 'Calm',
+                                        color: 'text-emerald-300',
+                                        borderDefault: 'border-emerald-500/20 bg-zinc-950/80 hover:border-emerald-500/40',
+                                        borderActive: 'border-emerald-400 bg-emerald-950/40 shadow-[0_0_15px_rgba(16,185,129,0.25)]',
+                                        pillBg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300',
+                                        barColor: 'bg-gradient-to-r from-emerald-600 to-emerald-400',
+                                        pct: calmPct,
+                                        count: calmCount,
+                                        purpose: 'Wellness & Honor rhythm &bull; streak resilience shield'
+                                    }
+                                ].map(m => {
+                                    const isSelected = selectedMoodFilter === m.id;
+
+                                    return (
+                                        <div
+                                            key={m.id}
+                                            onClick={() => setSelectedMoodFilter(isSelected ? null : m.id)}
+                                            className={cn(
+                                                "p-3 rounded-xl border transition-all cursor-pointer select-none group",
+                                                isSelected ? m.borderActive : m.borderDefault
+                                            )}
+                                        >
+                                            <div className="flex items-center justify-between gap-3">
+                                                <div className="flex items-center gap-2.5 min-w-0">
+                                                    <div className={cn(
+                                                        "w-8 h-8 rounded-lg flex items-center justify-center text-base shrink-0 border shadow-sm",
+                                                        m.pillBg
+                                                    )}>
+                                                        <span>{m.emoji}</span>
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <div className="flex items-center gap-2">
+                                                            <h4 className={cn("font-bold text-xs", m.color)}>{m.name}</h4>
+                                                            {isSelected ? (
+                                                                <Badge className="text-[9px] font-mono px-1.5 py-0 bg-amber-500 text-black font-bold">
+                                                                    Filtering
+                                                                </Badge>
+                                                            ) : (
+                                                                <span className="text-[9px] text-zinc-500 font-mono group-hover:text-zinc-400">
+                                                                    {entries.length > 0 ? `${m.count} logs` : 'Filter'}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <p 
+                                                            className="text-[10px] text-zinc-400 truncate"
+                                                            dangerouslySetInnerHTML={{ __html: m.purpose }}
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="text-right shrink-0">
+                                                    <span className={cn("text-xs font-mono font-bold block", m.color)}>
+                                                        {m.pct}%
+                                                    </span>
+                                                    <span className="text-[9px] text-zinc-500 font-mono">
+                                                        {isSelected ? "Tap to clear" : "Tap to filter"}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Progress bar */}
+                                            <div className="w-full bg-zinc-900 rounded-full h-1 mt-2.5 overflow-hidden">
+                                                <div
+                                                    style={{ width: `${m.pct}%` }}
+                                                    className={cn("h-full rounded-full transition-all duration-500", m.barColor)}
+                                                />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
 
@@ -267,6 +383,30 @@ export default function ChroniclePage() {
                         </div>
                     </div>
 
+                    {/* Active Mood Filter Banner */}
+                    {selectedMoodFilter && (
+                        <div className="flex items-center justify-between p-3 rounded-xl bg-amber-950/40 border border-amber-500/30 text-xs text-amber-200 shadow-sm animate-in fade-in duration-200">
+                            <div className="flex items-center gap-2">
+                                <span className="text-base">
+                                    {selectedMoodFilter === 'energized' ? '⚡' : selectedMoodFilter === 'focused' ? '🎯' : '🌿'}
+                                </span>
+                                <div>
+                                    <span className="font-serif">Filtering archives by</span>{' '}
+                                    <strong className="capitalize text-amber-300 font-mono font-bold">{selectedMoodFilter}</strong>{' '}
+                                    <span className="text-zinc-400">({filteredEntries.length} {filteredEntries.length === 1 ? 'entry' : 'entries'} found)</span>
+                                </div>
+                            </div>
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setSelectedMoodFilter(null)}
+                                className="h-7 px-2.5 text-xs text-amber-400 hover:text-amber-200 hover:bg-amber-900/40 rounded-lg font-mono font-bold"
+                            >
+                                Clear filter ✕
+                            </Button>
+                        </div>
+                    )}
+
                     {/* Reflections Content */}
                     {viewMode === 'bookcase' ? (
                         isLoading ? (
@@ -276,7 +416,7 @@ export default function ChroniclePage() {
                             </div>
                         ) : (
                             <ReflectionsBookcase
-                                entries={entries}
+                                entries={filteredEntries}
                                 onSelectEntry={handleEdit}
                                 onCreateEntry={handleCreate}
                             />

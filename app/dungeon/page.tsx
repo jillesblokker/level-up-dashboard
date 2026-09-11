@@ -1203,26 +1203,26 @@ export default function DungeonPage() {
                 </p>
 
                 {/* 4 Multiplier stat cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
-                  <div className="bg-zinc-950/80 p-3 rounded-xl border border-red-500/20 text-center space-y-1">
-                    <div className="text-base">⚔️</div>
-                    <div className="text-[11px] font-semibold text-zinc-300">Might</div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                  <div className="bg-zinc-950/90 p-3.5 rounded-xl border border-red-500/30 text-center space-y-1 hover:border-red-500/50 transition-colors shadow-sm">
+                    <div className="text-xl">⚔️</div>
+                    <div className="text-xs font-semibold text-zinc-200">Might</div>
                     <div className="font-mono text-xs font-bold text-red-400">+15% ATK</div>
                   </div>
-                  <div className="bg-zinc-950/80 p-3 rounded-xl border border-blue-500/20 text-center space-y-1">
-                    <div className="text-base">🔮</div>
-                    <div className="text-[11px] font-semibold text-zinc-300">Knowledge</div>
-                    <div className="font-mono text-xs font-bold text-blue-400">+10% Spell</div>
+                  <div className="bg-zinc-950/90 p-3.5 rounded-xl border border-blue-500/30 text-center space-y-1 hover:border-blue-500/50 transition-colors shadow-sm">
+                    <div className="text-xl">🔮</div>
+                    <div className="text-xs font-semibold text-zinc-200">Knowledge</div>
+                    <div className="font-mono text-xs font-bold text-blue-400">+10% spell</div>
                   </div>
-                  <div className="bg-zinc-950/80 p-3 rounded-xl border border-emerald-500/20 text-center space-y-1">
-                    <div className="text-base">🧘</div>
-                    <div className="text-[11px] font-semibold text-zinc-300">Wellness</div>
+                  <div className="bg-zinc-950/90 p-3.5 rounded-xl border border-emerald-500/30 text-center space-y-1 hover:border-emerald-500/50 transition-colors shadow-sm">
+                    <div className="text-xl">🧘</div>
+                    <div className="text-xs font-semibold text-zinc-200">Wellness</div>
                     <div className="font-mono text-xs font-bold text-emerald-400">+10% HP</div>
                   </div>
-                  <div className="bg-zinc-950/80 p-3 rounded-xl border border-yellow-500/20 text-center space-y-1">
-                    <div className="text-base">👑</div>
-                    <div className="text-[11px] font-semibold text-zinc-300">Honor</div>
-                    <div className="font-mono text-xs font-bold text-amber-300">+5% Def</div>
+                  <div className="bg-zinc-950/90 p-3.5 rounded-xl border border-yellow-500/30 text-center space-y-1 hover:border-yellow-500/50 transition-colors shadow-sm">
+                    <div className="text-xl">👑</div>
+                    <div className="text-xs font-semibold text-zinc-200">Honor</div>
+                    <div className="font-mono text-xs font-bold text-amber-300">+5% def</div>
                   </div>
                 </div>
               </div>
@@ -1352,21 +1352,21 @@ export default function DungeonPage() {
                   Defeating dungeon monsters aligned with daily bounties awards bonus gems and gold.
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                <div className="flex flex-col gap-3 pt-1">
                   {getDailyDungeonBounties().map(bounty => (
-                    <div key={bounty.id} className="bg-zinc-950/90 p-3 rounded-xl border border-purple-900/40 flex flex-col justify-between text-xs space-y-2">
-                      <div>
-                        <div className="flex items-center justify-between font-bold text-amber-300">
-                          <span className="truncate">{bounty.title}</span>
-                          <span className="text-[10px] bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30 font-mono shrink-0 ml-1">
+                    <div key={bounty.id} className="bg-zinc-950/90 p-3.5 rounded-xl border border-purple-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:border-purple-500/40 transition-colors shadow-sm">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-sm text-amber-300">{bounty.title}</span>
+                          <span className="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30 font-mono shrink-0">
                             {getTypeEmoji(bounty.targetType)} {bounty.targetType}
                           </span>
                         </div>
-                        <p className="text-[11px] text-zinc-400 mt-1 leading-snug line-clamp-2">{bounty.description}</p>
+                        <p className="text-xs text-zinc-400 leading-relaxed">{bounty.description}</p>
                       </div>
-                      <div className="flex items-center justify-between pt-1.5 border-t border-white/5 font-mono text-[11px]">
-                        <span className="text-purple-300 font-bold">💎 +{bounty.rewardGems}</span>
-                        <span className="text-amber-400 font-bold">🪙 +{bounty.rewardGold}</span>
+                      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1 font-mono text-xs shrink-0 pt-1.5 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                        <span className="text-purple-300 font-bold">💎 +{bounty.rewardGems} gems</span>
+                        <span className="text-amber-400 font-bold">🪙 +{bounty.rewardGold} gold</span>
                       </div>
                     </div>
                   ))}
@@ -1376,7 +1376,7 @@ export default function DungeonPage() {
 
             {/* Card 4: Guardian Pet Striker Support */}
             <div className="lg:col-span-6 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between space-y-4">
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-white/5 pb-3">
                   <div className="flex items-center gap-2">
                     <span className="text-base">🐾</span>
@@ -1387,30 +1387,36 @@ export default function DungeonPage() {
                   </Badge>
                 </div>
 
-                <div className="bg-zinc-950/90 rounded-xl p-4 border border-white/5 flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-3xl shrink-0 shadow-lg">
+                <div className="bg-zinc-950/90 rounded-2xl p-4 sm:p-5 border border-white/5 flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-4xl shrink-0 shadow-lg">
                     {activePet.emoji}
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-white text-sm">{activePet.name}</span>
-                      <Badge variant="outline" className="text-[9px] border-amber-500/30 text-amber-400 bg-amber-950/30 font-mono">
+                  <div className="space-y-1.5 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-white text-base">{activePet.name}</span>
+                      <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-400 bg-amber-950/30 font-mono">
                         {activePet.skill}
                       </Badge>
                     </div>
                     <p className="text-xs text-zinc-400 leading-relaxed">
-                      Your guardian pet joins your 6-member squad in dungeon rooms, unleashing signature elemental striker skills to turn the tide of battle.
+                      Your guardian pet joins your squad in dungeon keep battles, executing signature elemental striker attacks to vanquish monsters.
                     </p>
                   </div>
                 </div>
 
-                <div className="bg-zinc-950/60 rounded-xl p-3 border border-white/5 flex items-center justify-between text-xs">
-                  <span className="text-zinc-400">Want to switch guardian pets?</span>
+                <div className="bg-zinc-950/70 p-3.5 rounded-xl border border-amber-900/30 flex items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-base">⚡</span>
+                    <div className="min-w-0">
+                      <span className="font-semibold text-zinc-200 block truncate">Support striker synergy</span>
+                      <span className="text-[11px] text-zinc-400 block truncate">Increases boss floor victory drops</span>
+                    </div>
+                  </div>
                   <Button
-                    variant="link"
+                    variant="outline"
                     size="sm"
                     onClick={() => router.push('/kingdom?tab=pets')}
-                    className="text-amber-400 hover:text-amber-300 text-xs p-0 h-auto font-medium"
+                    className="border-amber-500/30 text-amber-300 hover:bg-amber-950/40 text-xs h-8 px-3 rounded-lg shrink-0"
                   >
                     Manage pets &rarr;
                   </Button>

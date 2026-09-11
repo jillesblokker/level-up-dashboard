@@ -1236,14 +1236,14 @@ export function AirshipHarborTab() {
                   </div>
 
                   {/* Flight Deck Observation Window */}
-                  <div className="relative h-48 sm:h-56 w-full rounded-2xl overflow-hidden border-2 border-amber-500/40 shadow-2xl flex flex-col justify-between p-4 group">
+                  <div className="relative h-72 sm:h-96 w-full rounded-2xl overflow-hidden border-2 border-amber-500/40 shadow-2xl flex flex-col justify-between p-4 sm:p-6 group">
                     <Image
                       src="/images/headers/airship-skydock-bridge.jpg"
                       alt="Flight Deck View"
                       fill
                       priority
                       unoptimized
-                      className="object-cover brightness-85 contrast-105 group-hover:scale-105 transition-transform duration-1000 ease-out select-none pointer-events-none"
+                      className="object-cover object-center brightness-85 contrast-105 group-hover:scale-105 transition-transform duration-1000 ease-out select-none pointer-events-none"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/50 z-10" />
 
@@ -1545,16 +1545,16 @@ export function AirshipHarborTab() {
             <div className="relative rounded-3xl overflow-hidden border-2 border-amber-900/50 shadow-2xl bg-zinc-950 p-2 sm:p-3">
               
               {/* Parchment Map Background Graphic */}
-              <div className="relative h-64 sm:h-80 w-full rounded-2xl overflow-hidden border border-amber-900/30">
+              <div className="relative h-[440px] sm:h-[560px] lg:h-[640px] w-full rounded-2xl overflow-hidden border border-amber-900/30">
                 <Image
                   src="/images/headers/celestial-sky-chart.jpg"
                   alt="Celestial Sky Chart"
                   fill
                   priority
                   unoptimized
-                  className="object-cover brightness-90 contrast-105 select-none pointer-events-none"
+                  className="object-cover object-center brightness-90 contrast-105 select-none pointer-events-none"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
 
                 {/* Interactive Waypoint Pins on the Map */}
                 {HABIT_JOURNEYS.map(j => {
@@ -1592,21 +1592,20 @@ export function AirshipHarborTab() {
                     </div>
                   );
                 })}
+              </div>
 
-                {/* Bottom Chart Table Status Banner */}
-                <div className="absolute bottom-3 left-3 right-3 z-20 bg-black/80 border border-amber-500/30 rounded-xl p-2.5 backdrop-blur-md flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Compass className="w-4 h-4 text-amber-400 animate-spin" />
-                    <div>
-                      <span className="text-[9px] font-mono uppercase text-amber-400 font-bold block">Plotted heading</span>
-                      <span className="text-xs font-serif font-bold text-white">{currentJourney.name} ({currentJourney.coordinates})</span>
-                    </div>
+              {/* Chart Table Status Banner - Positioned cleanly below the map so pins are never obscured */}
+              <div className="mt-3 bg-black/90 border border-amber-500/30 rounded-xl p-3 backdrop-blur-md flex items-center justify-between shadow-md">
+                <div className="flex items-center gap-2.5">
+                  <Compass className="w-4 h-4 text-amber-400 animate-spin" />
+                  <div>
+                    <span className="text-[9px] font-mono uppercase text-amber-400 font-bold block">Plotted heading</span>
+                    <span className="text-xs sm:text-sm font-serif font-bold text-white">{currentJourney.name} ({currentJourney.coordinates})</span>
                   </div>
-                  <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] font-mono capitalize">
-                    {currentJourney.category} rituals
-                  </Badge>
                 </div>
-
+                <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] font-mono capitalize">
+                  {currentJourney.category} rituals
+                </Badge>
               </div>
 
               {/* Waypoint Destination Select Cards */}

@@ -1016,26 +1016,26 @@ export default function CharacterPage() {
                 <h4 className="text-xs font-serif font-bold text-amber-300 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                   <span>🧪</span> Alchemy essences vault
                 </h4>
-                <div className="grid grid-cols-2 gap-2.5 text-xs font-serif">
-                  <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-red-950/60 via-[#181124] to-[#0f1526] rounded-lg border border-red-500/40 shadow-inner">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-2.5 text-xs font-serif">
+                  <div className="flex items-center gap-2 p-2.5 bg-gradient-to-r from-red-950/60 via-[#181124] to-[#0f1526] rounded-xl border border-red-500/40 shadow-inner min-w-0">
                     <span className="w-7 h-7 rounded-full border border-red-400 bg-radial from-rose-500 to-red-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(239,68,68,0.5)] shrink-0">🔥</span>
-                    <span className="text-slate-200 font-bold flex-1">Ember</span>
-                    <span className="font-bold font-mono text-amber-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-amber-500/30">{characterStats.ember_essence || 0}</span>
+                    <span className="text-slate-200 font-bold truncate flex-1 min-w-0">Ember</span>
+                    <span className="font-bold font-mono text-amber-300 text-xs px-2 py-0.5 rounded bg-zinc-950/80 border border-amber-500/30 shrink-0">{characterStats.ember_essence || 0}</span>
                   </div>
-                  <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-cyan-950/60 via-[#111c2e] to-[#0f1526] rounded-lg border border-cyan-500/40 shadow-inner">
+                  <div className="flex items-center gap-2 p-2.5 bg-gradient-to-r from-cyan-950/60 via-[#111c2e] to-[#0f1526] rounded-xl border border-cyan-500/40 shadow-inner min-w-0">
                     <span className="w-7 h-7 rounded-full border border-cyan-400 bg-radial from-cyan-400 to-cyan-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(6,182,212,0.5)] shrink-0">❄️</span>
-                    <span className="text-slate-200 font-bold flex-1">Frost</span>
-                    <span className="font-bold font-mono text-cyan-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-cyan-500/30">{characterStats.frost_essence || 0}</span>
+                    <span className="text-slate-200 font-bold truncate flex-1 min-w-0">Frost</span>
+                    <span className="font-bold font-mono text-cyan-300 text-xs px-2 py-0.5 rounded bg-zinc-950/80 border border-cyan-500/30 shrink-0">{characterStats.frost_essence || 0}</span>
                   </div>
-                  <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-blue-950/60 via-[#0d1c33] to-[#0f1526] rounded-lg border border-blue-500/40 shadow-inner">
+                  <div className="flex items-center gap-2 p-2.5 bg-gradient-to-r from-blue-950/60 via-[#0d1c33] to-[#0f1526] rounded-xl border border-blue-500/40 shadow-inner min-w-0">
                     <span className="w-7 h-7 rounded-full border border-blue-400 bg-radial from-blue-500 to-blue-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(59,130,246,0.5)] shrink-0">💧</span>
-                    <span className="text-slate-200 font-bold flex-1">Tide</span>
-                    <span className="font-bold font-mono text-blue-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-blue-500/30">{characterStats.tide_essence || 0}</span>
+                    <span className="text-slate-200 font-bold truncate flex-1 min-w-0">Tide</span>
+                    <span className="font-bold font-mono text-blue-300 text-xs px-2 py-0.5 rounded bg-zinc-950/80 border border-blue-500/30 shrink-0">{characterStats.tide_essence || 0}</span>
                   </div>
-                  <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-emerald-950/60 via-[#0b241c] to-[#0f1526] rounded-lg border border-emerald-500/40 shadow-inner">
+                  <div className="flex items-center gap-2 p-2.5 bg-gradient-to-r from-emerald-950/60 via-[#0b241c] to-[#0f1526] rounded-xl border border-emerald-500/40 shadow-inner min-w-0">
                     <span className="w-7 h-7 rounded-full border border-emerald-400 bg-radial from-emerald-500 to-emerald-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(34,197,94,0.5)] shrink-0">🍃</span>
-                    <span className="text-slate-200 font-bold flex-1">Verdant</span>
-                    <span className="font-bold font-mono text-emerald-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-emerald-500/30">{characterStats.verdant_essence || 0}</span>
+                    <span className="text-slate-200 font-bold truncate flex-1 min-w-0">Verdant</span>
+                    <span className="font-bold font-mono text-emerald-300 text-xs px-2 py-0.5 rounded bg-zinc-950/80 border border-emerald-500/30 shrink-0">{characterStats.verdant_essence || 0}</span>
                   </div>
                 </div>
               </div>
@@ -1056,26 +1056,29 @@ export default function CharacterPage() {
           {/* BENTO ROW 2 — Blessings, Altar & Empowerments */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             {/* Bento Tile 2A: Active Blessings & Altar */}
-            <div className="lg:col-span-7 flex flex-col justify-between medieval-card p-6 rounded-2xl shadow-xl">
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold font-medieval text-amber-400">
-                    Altar of blessings
-                  </h3>
+            <div className="lg:col-span-6 flex flex-col justify-between medieval-card p-6 rounded-2xl shadow-xl">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center mb-2">
+                  <div>
+                    <h3 className="text-lg font-bold font-medieval text-amber-400">
+                      Altar of blessings
+                    </h3>
+                    <p className="text-xs text-zinc-400 font-serif">Sanctuary of consecrated buffs & active rites</p>
+                  </div>
                   {perks.filter((p) => p.active && p.unlocked).length > 0 || activePotionPerks.length > 0 ? (
-                    <Badge variant="outline" className="text-emerald-400 border-emerald-500/40 text-xs">
+                    <Badge variant="outline" className="text-emerald-400 border-emerald-500/40 text-xs bg-emerald-950/30">
                       {perks.filter((p) => p.active && p.unlocked).length + activePotionPerks.length} active
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className="text-amber-400/80 border-amber-500/30 text-xs font-serif">
-                      Altar of blessings
+                    <Badge variant="outline" className="text-amber-400/80 border-amber-500/30 text-xs font-serif bg-amber-950/20">
+                      Sanctuary dormant
                     </Badge>
                   )}
                 </div>
 
                 {/* Active Perks List */}
                 {perks.filter((p) => p.active && p.unlocked).length > 0 && (
-                  <div className="space-y-3 mb-4">
+                  <div className="space-y-3">
                     {perks
                       .filter((p) => p.active && p.unlocked)
                       .map((perk) => (
@@ -1126,7 +1129,7 @@ export default function CharacterPage() {
 
                 {/* Active Potion Perks */}
                 {activePotionPerks.length > 0 && (
-                  <div className="space-y-3 mb-4">
+                  <div className="space-y-3">
                     {activePotionPerks.map((perk) => (
                       <Card key={perk.name} className="bg-black border-amber-800" aria-label={`active-bonus-potion-${perk.name}`}>
                         <CardHeader className="pb-2">
@@ -1155,34 +1158,79 @@ export default function CharacterPage() {
                   </div>
                 )}
 
-                {/* Empty State: Archmage Turtoisy at the Sacred Altar */}
+                {/* State: Archmage Turtoisy Sanctuary & Potential Rites */}
                 {perks.filter((p) => p.active && p.unlocked).length === 0 && activePotionPerks.length === 0 && (
-                  <div className="relative overflow-hidden rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-950/25 via-[#14121a] to-[#0c0f17] p-4 shadow-lg">
-                    <div className="flex items-start gap-4">
-                      {/* Turtoisy Creature Avatar */}
-                      <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-amber-400/50 bg-gradient-to-b from-amber-500/20 to-zinc-950 p-1 shadow-[0_0_15px_rgba(245,158,11,0.2)] shrink-0 overflow-hidden">
-                        <Image
-                          src="/images/creatures/Turtoisy.webp"
-                          alt="Archmage Turtoisy"
-                          fill
-                          className="object-cover rounded-xl"
-                        />
+                  <div className="space-y-3">
+                    <div className="relative overflow-hidden rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-950/25 via-[#14121a] to-[#0c0f17] p-4 shadow-lg">
+                      <div className="flex items-start gap-4">
+                        {/* Turtoisy Creature Avatar */}
+                        <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-amber-400/50 bg-gradient-to-b from-amber-500/20 to-zinc-950 p-1 shadow-[0_0_15px_rgba(245,158,11,0.2)] shrink-0 overflow-hidden">
+                          <Image
+                            src="/images/creatures/Turtoisy.webp"
+                            alt="Archmage Turtoisy"
+                            fill
+                            className="object-cover rounded-xl"
+                          />
+                        </div>
+
+                        {/* Dialogue quote */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                            <span className="text-xs font-bold text-amber-300 tracking-wide flex items-center gap-1.5 font-serif">
+                              <span>🐢</span> Archmage Turtoisy
+                            </span>
+                            <span className="text-[11px] text-zinc-400">• Sacred altar</span>
+                          </div>
+                          <p
+                            style={{ fontFamily: 'var(--font-libre-baskerville), Georgia, serif' }}
+                            className="text-xs sm:text-[13px] text-zinc-300 italic leading-relaxed normal-case border-l-2 border-amber-500/40 pl-2.5 py-0.5"
+                          >
+                            &ldquo;No blessings active right now. Activate a perk or brew an elixir to empower your stats.&rdquo;
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Sanctuary Rites Preview Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                      <div className="p-3 rounded-xl bg-zinc-950/70 border border-purple-500/20 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="text-lg">✨</span>
+                          <div className="min-w-0">
+                            <h5 className="font-bold text-xs text-purple-200 truncate">Class blessing</h5>
+                            <p className="text-[10px] text-zinc-400 truncate">Empower permanent trait</p>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            setActiveTab("perks");
+                            const el = document.getElementById("character-vault-tabs");
+                            if (el) el.scrollIntoView({ behavior: "smooth" });
+                          }}
+                          className="h-7 px-2 text-[11px] text-purple-300 hover:text-purple-100 hover:bg-purple-950/40 shrink-0"
+                        >
+                          Select →
+                        </Button>
                       </div>
 
-                      {/* Dialogue quote */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                          <span className="text-xs font-bold text-amber-300 tracking-wide flex items-center gap-1.5 font-serif">
-                            <span>🐢</span> Archmage Turtoisy
-                          </span>
-                          <span className="text-[11px] text-zinc-400">• Sacred altar</span>
+                      <div className="p-3 rounded-xl bg-zinc-950/70 border border-emerald-500/20 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="text-lg">🧪</span>
+                          <div className="min-w-0">
+                            <h5 className="font-bold text-xs text-emerald-200 truncate">Apotheca draught</h5>
+                            <p className="text-[10px] text-zinc-400 truncate">Brew herbal bonuses</p>
+                          </div>
                         </div>
-                        <p
-                          style={{ fontFamily: 'var(--font-libre-baskerville), Georgia, serif' }}
-                          className="text-xs sm:text-[13px] text-zinc-300 italic leading-relaxed normal-case border-l-2 border-amber-500/40 pl-2.5 py-0.5"
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setShowApothecaModal(true)}
+                          className="h-7 px-2 text-[11px] text-emerald-300 hover:text-emerald-100 hover:bg-emerald-950/40 shrink-0"
                         >
-                          &ldquo;No blessings active right now. Activate a perk or brew an elixir to empower your stats.&rdquo;
-                        </p>
+                          Brew →
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -1191,19 +1239,23 @@ export default function CharacterPage() {
             </div>
 
             {/* Bento Tile 2B: Available Empowerments & Focus Surge */}
-            <div className="lg:col-span-5 flex flex-col justify-between gap-4 medieval-card p-6 rounded-2xl shadow-xl">
+            <div className="lg:col-span-6 flex flex-col justify-between gap-4 medieval-card p-6 rounded-2xl shadow-xl">
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-serif font-bold text-amber-300 uppercase tracking-widest flex items-center gap-1.5">
-                    <span>⚡</span> Available empowerments
-                  </h4>
-                  <span className="text-[11px] text-zinc-400">Quick sockets</span>
+                  <div>
+                    <h4 className="text-xs font-serif font-bold text-amber-300 uppercase tracking-widest flex items-center gap-1.5">
+                      <span>⚡</span> Available empowerments
+                    </h4>
+                    <p className="text-[11px] text-zinc-400">Quick-access conduits to enhance hero performance</p>
+                  </div>
+                  <span className="text-[11px] text-zinc-400 font-mono bg-zinc-900 border border-white/5 px-2 py-0.5 rounded-full">2 sockets</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2.5 text-xs font-serif">
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-serif">
                   {/* Perk Socket */}
-                  <div className="flex flex-col justify-between p-2.5 bg-gradient-to-r from-purple-950/40 via-[#181124] to-[#0f1526] rounded-lg border border-purple-500/30 shadow-inner">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="w-7 h-7 rounded-full border border-purple-400 bg-radial from-purple-500 to-purple-950 flex items-center justify-center text-xs shadow-[0_0_8px_rgba(168,85,247,0.4)] shrink-0">✨</span>
+                  <div className="flex flex-col justify-between p-3.5 bg-gradient-to-r from-purple-950/40 via-[#181124] to-[#0f1526] rounded-xl border border-purple-500/30 shadow-inner space-y-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-8 h-8 rounded-xl border border-purple-400 bg-radial from-purple-500 to-purple-950 flex items-center justify-center text-sm shadow-[0_0_8px_rgba(168,85,247,0.4)] shrink-0">✨</span>
                       <div className="min-w-0 flex-1">
                         <div className="text-slate-200 font-bold truncate">Class perk</div>
                         <div className="text-[10px] text-purple-300/80">{perks.filter((p) => p.unlocked).length} unlocked</div>
@@ -1217,16 +1269,16 @@ export default function CharacterPage() {
                         const el = document.getElementById("character-vault-tabs");
                         if (el) el.scrollIntoView({ behavior: "smooth" });
                       }}
-                      className="h-7 text-xs bg-purple-950/60 hover:bg-purple-900 text-purple-200 border-purple-500/40 font-serif w-full"
+                      className="h-8 text-xs bg-purple-950/60 hover:bg-purple-900 text-purple-200 border-purple-500/40 font-serif w-full px-2"
                     >
                       Activate perk →
                     </Button>
                   </div>
 
                   {/* Apotheca Elixir Socket */}
-                  <div className="flex flex-col justify-between p-2.5 bg-gradient-to-r from-emerald-950/40 via-[#0b241c] to-[#0f1526] rounded-lg border border-emerald-500/30 shadow-inner">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="w-7 h-7 rounded-full border border-emerald-400 bg-radial from-emerald-500 to-emerald-950 flex items-center justify-center text-xs shadow-[0_0_8px_rgba(34,197,94,0.4)] shrink-0">🧪</span>
+                  <div className="flex flex-col justify-between p-3.5 bg-gradient-to-r from-emerald-950/40 via-[#0b241c] to-[#0f1526] rounded-xl border border-emerald-500/30 shadow-inner space-y-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-8 h-8 rounded-xl border border-emerald-400 bg-radial from-emerald-500 to-emerald-950 flex items-center justify-center text-sm shadow-[0_0_8px_rgba(34,197,94,0.4)] shrink-0">🧪</span>
                       <div className="min-w-0 flex-1">
                         <div className="text-slate-200 font-bold truncate">Apotheca elixir</div>
                         <div className="text-[10px] text-emerald-300/80">Herbal stats buff</div>
@@ -1236,7 +1288,7 @@ export default function CharacterPage() {
                       size="sm"
                       variant="outline"
                       onClick={() => setShowApothecaModal(true)}
-                      className="h-7 text-xs bg-emerald-950/60 hover:bg-emerald-900 text-emerald-200 border-emerald-500/40 font-serif w-full"
+                      className="h-8 text-xs bg-emerald-950/60 hover:bg-emerald-900 text-emerald-200 border-emerald-500/40 font-serif w-full px-2"
                     >
                       Brew elixir →
                     </Button>
@@ -1245,8 +1297,8 @@ export default function CharacterPage() {
               </div>
 
               {/* Focus Points & Surge */}
-              <div className="pt-4 mt-2 border-t border-purple-900/30 bg-gradient-to-r from-purple-950/20 via-zinc-950 to-zinc-900 p-3.5 rounded-xl border border-purple-500/20">
-                <div className="flex items-center justify-between mb-1.5">
+              <div className="pt-3 mt-1 border-t border-purple-900/30 bg-gradient-to-r from-purple-950/20 via-zinc-950 to-zinc-900 p-3.5 rounded-xl border border-purple-500/20">
+                <div className="flex items-center justify-between mb-1.5 flex-wrap gap-2">
                   <div className="flex items-center gap-1.5">
                     <Brain className="w-4 h-4 text-purple-400 animate-pulse" />
                     <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wider">Focus points</h4>
@@ -1254,7 +1306,7 @@ export default function CharacterPage() {
                   <Button
                     onClick={() => setShowFocusModal(true)}
                     size="sm"
-                    className="h-7 text-xs bg-purple-900 hover:bg-purple-800 text-purple-200 border border-purple-500/40 font-bold px-3"
+                    className="h-7 text-xs bg-purple-900 hover:bg-purple-800 text-purple-200 border border-purple-500/40 font-bold px-3 shrink-0"
                   >
                     🧠 Use focus ({characterStats.focus_points || 0})
                   </Button>

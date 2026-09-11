@@ -851,9 +851,9 @@ export default function MarketPage() {
               </div>
 
               {/* Right: Free Mystic Chests Section (lg:col-span-5) */}
-              <div className="lg:col-span-5 flex flex-col justify-between bg-zinc-950/90 p-5 sm:p-6 rounded-2xl border border-amber-900/40 shadow-xl">
-                <div>
-                  <div className="flex items-center gap-3 mb-4 pb-3 border-b border-amber-900/30">
+              <div className="lg:col-span-5 flex flex-col justify-between bg-zinc-950/90 p-5 sm:p-6 rounded-2xl border border-amber-900/40 shadow-xl h-full">
+                <div className="flex flex-col flex-1 h-full">
+                  <div className="flex items-center gap-3 mb-4 pb-3 border-b border-amber-900/30 shrink-0">
                     <span className="text-2xl">🎁</span>
                     <div>
                       <h3 className="text-xl font-bold text-amber-400 font-serif">Mystic chests</h3>
@@ -861,7 +861,7 @@ export default function MarketPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 items-stretch">
                     {FREE_PACK_TYPES.map((pack, index) => {
                       const onCooldown = isPackOnCooldown(pack);
                       const remaining = getCooldownRemaining(pack);
@@ -948,24 +948,24 @@ export default function MarketPage() {
                           key={pack.id}
                           style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }}
                           className={cn(
-                            "bg-gradient-to-b transition-all duration-300 group flex flex-col justify-between relative overflow-hidden p-3 border-2 rounded-xl",
+                            "bg-gradient-to-b transition-all duration-300 group flex flex-col justify-between relative overflow-hidden p-4 border-2 rounded-2xl flex-1 shadow-md hover:scale-[1.01]",
                             cardTheme.gradient,
                             cardTheme.border,
                             onCooldown && "opacity-70 saturate-75"
                           )}
                         >
-                          <div>
+                          <div className="flex-1 flex flex-col justify-between">
                             <div className="text-center pb-1">
-                              <h4 className={cn("text-xs font-bold font-serif leading-tight truncate", cardTheme.title)}>
+                              <h4 className={cn("text-sm font-bold font-serif leading-tight", cardTheme.title)}>
                                 {pack.title}
                               </h4>
-                              <p className={cn("text-[9px] font-mono font-bold mt-0.5 tracking-wider uppercase", cardTheme.sub)}>
+                              <p className={cn("text-[10px] font-mono font-bold mt-0.5 tracking-wider uppercase", cardTheme.sub)}>
                                 {pack.shortLabel}
                               </p>
                             </div>
                             
                             {/* Treasure chest image */}
-                            <div className="relative w-full h-24 mx-auto flex items-center justify-center my-1">
+                            <div className="relative w-full h-28 sm:h-32 mx-auto flex items-center justify-center my-2">
                               <TreasureChestVisual
                                 state={onCooldown ? 'claimed' : isUnlocking ? 'opening' : 'ready'}
                                 rarity={cardTheme.rarity}
@@ -976,20 +976,22 @@ export default function MarketPage() {
                             </div>
 
                             {(onCooldown && remaining) ? (
-                              <div className="text-[9px] font-semibold text-amber-400 bg-amber-950/50 py-0.5 px-2 rounded-full text-center border border-amber-900/40 font-mono my-1">
+                              <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/50 py-1 px-2.5 rounded-full text-center border border-amber-900/40 font-mono my-1">
                                 ⏱️ {remaining}
                               </div>
                             ) : (isUnlocking && unlockRemaining) ? (
-                              <div className="text-[9px] font-semibold text-purple-300 bg-purple-950/50 py-0.5 px-2 rounded-full text-center border border-purple-900/40 font-mono my-1">
+                              <div className="text-[10px] font-semibold text-purple-300 bg-purple-950/50 py-1 px-2.5 rounded-full text-center border border-purple-900/40 font-mono my-1">
                                 ⏳ {unlockRemaining}
                               </div>
-                            ) : null}
+                            ) : (
+                              <div className="h-6 my-1" />
+                            )}
                           </div>
 
                           <div className="pt-2">
                             <Button 
                               className={cn(
-                                "w-full h-9 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all shadow-md",
+                                "w-full h-10 text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md",
                                 isButtonDisabled
                                   ? "bg-zinc-800 text-zinc-500 border border-zinc-700/50 cursor-not-allowed shadow-none"
                                   : cardTheme.btn
