@@ -1429,7 +1429,7 @@ export function AirshipHarborTab() {
           </Card>
 
           {/* SLOTTED CREW ON ACTIVE FLIGHT (3 Porthole Stations) */}
-          <div className="lg:col-span-1 flex flex-col justify-between space-y-4">
+          <div className="lg:col-span-1 flex flex-col gap-4">
             <div className="flex items-center justify-between px-1">
               <h3 className="text-base font-cardo font-bold text-amber-100 flex items-center gap-2">
                 <Users className="w-4 h-4 text-amber-500" /> Slotted crew members
@@ -1512,6 +1512,33 @@ export function AirshipHarborTab() {
                 );
               })}
             </div>
+
+            {/* Vessel Flight Telemetry & Speed Multiplier */}
+            <Card className="bg-[#0b0d11] border border-amber-900/40 rounded-3xl p-4 shadow-xl space-y-3 mt-auto">
+              <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                <span className="text-xs font-serif font-bold text-amber-300 flex items-center gap-1.5">
+                  <Flame className="w-3.5 h-3.5 text-amber-400" /> Ether propulsion engine
+                </span>
+                <Badge className="bg-amber-950/60 border border-amber-500/40 text-amber-300 text-[9px] font-mono">
+                  Cruising
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-center text-[10px] font-mono">
+                <div className="p-2 bg-zinc-950/80 rounded-xl border border-white/5">
+                  <span className="text-zinc-400 block font-sans">Speed multiplier</span>
+                  <span className="text-amber-300 font-bold text-xs">{activeVoyage.streakDays >= 7 ? "2.0x (7+ streak)" : "1.0x standard"}</span>
+                </div>
+                <div className="p-2 bg-zinc-950/80 rounded-xl border border-white/5">
+                  <span className="text-zinc-400 block font-sans">Habit ether gain</span>
+                  <span className="text-emerald-400 font-bold text-xs">+25% / habit</span>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-zinc-400 font-sans leading-snug">
+                Completing daily habits pumps radiant ether directly into {currentVessel.name}&apos;s combustion core.
+              </p>
+            </Card>
           </div>
 
         </div>
@@ -1651,9 +1678,9 @@ export function AirshipHarborTab() {
           </div>
 
           {/* RIGHT COLUMN: 3 BRIDGE CREW STATIONS & ENGINE TELEGRAPH LAUNCH */}
-          <div className="lg:col-span-1 flex flex-col justify-between space-y-4">
+          <div className="lg:col-span-1 flex flex-col gap-4">
             
-            <Card className="bg-[#0b0d11] border-2 border-amber-900/40 rounded-3xl p-5 sm:p-6 shadow-2xl flex flex-col justify-between h-full space-y-5">
+            <Card className="bg-[#0b0d11] border-2 border-amber-900/40 rounded-3xl p-5 sm:p-6 shadow-2xl flex flex-col h-full space-y-4">
               
               <div className="space-y-4">
                 
@@ -1800,7 +1827,7 @@ export function AirshipHarborTab() {
                       No idle citizens in dormitory.
                     </p>
                   ) : (
-                    <div className="grid grid-cols-1 gap-2 max-h-44 overflow-y-auto pr-1">
+                    <div className="grid grid-cols-1 gap-2 max-h-72 sm:max-h-80 overflow-y-auto pr-1">
                       {idleCitizens.map(c => {
                         const isSelected = selectedCrew.includes(c.id);
                         const hasAffinity = currentJourney.affinityElements.includes(c.type?.toLowerCase());
@@ -1851,7 +1878,7 @@ export function AirshipHarborTab() {
               </div>
 
               {/* TACTILE ENGINE ORDER TELEGRAPH LEVER (3-Crew Throttle) */}
-              <div className="pt-4 border-t border-amber-900/30 space-y-3">
+              <div className="mt-auto pt-4 border-t border-amber-900/30 space-y-3">
                 
                 <div className="bg-zinc-950/90 border border-amber-500/30 rounded-2xl p-3 flex items-center justify-between text-[10px] font-mono">
                   <span className="text-zinc-400 uppercase font-bold">Engine telegraph:</span>

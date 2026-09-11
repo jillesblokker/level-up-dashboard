@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Edit, X, Upload, Sword, Lock, Brain, Crown, Castle as CastleIcon, Hammer, Heart, AlertCircle, Loader2, Sparkles, AlertTriangle, Star, Coins, Clock, Check, ChevronDown, Utensils, Compass, Shield, FlaskConical, Zap } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { useUser } from "@clerk/nextjs"
@@ -927,7 +928,7 @@ export default function CharacterPage() {
           {/* BENTO ROW 1 — Hero Identity & Paperdoll Equipment Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             {/* Bento Tile 1A: Hero Identity Card */}
-            <div className="lg:col-span-5 flex flex-col justify-between medieval-card p-6 rounded-2xl shadow-xl">
+            <div className="lg:col-span-5 flex flex-col gap-4 medieval-card p-6 rounded-2xl shadow-xl">
               <div className="space-y-4">
                 <div className="flex justify-between items-start">
                   <div>
@@ -1009,10 +1010,26 @@ export default function CharacterPage() {
                     )}
                   </div>
                 </div>
+
+                {/* Hero combat rating overview */}
+                <div className="p-3 bg-zinc-950/80 rounded-xl border border-amber-500/20 flex items-center justify-between gap-3 text-xs font-serif shadow-inner">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🛡️</span>
+                    <div>
+                      <span className="text-zinc-200 font-bold block">Combat prowess</span>
+                      <span className="text-[10px] text-zinc-400">Habits empower all hero attributes</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 font-mono text-xs">
+                    <span className="text-red-400 font-bold bg-red-950/50 border border-red-500/30 px-2 py-0.5 rounded">⚔️ {25 + (characterStats.level || 1) * 2}</span>
+                    <span className="text-blue-400 font-bold bg-blue-950/50 border border-blue-500/30 px-2 py-0.5 rounded">🛡️ {20 + (characterStats.level || 1) * 2}</span>
+                    <span className="text-emerald-400 font-bold bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.5 rounded">💨 {15 + (characterStats.level || 1)}</span>
+                  </div>
+                </div>
               </div>
 
               {/* Essence Inventory */}
-              <div className="pt-4 mt-5 border-t border-amber-900/30">
+              <div className="mt-auto pt-4 border-t border-amber-900/30">
                 <h4 className="text-xs font-serif font-bold text-amber-300 normal-case tracking-wide mb-3 flex items-center gap-1.5">
                   <span>🧪</span> Alchemy essences vault
                 </h4>
@@ -1042,7 +1059,7 @@ export default function CharacterPage() {
             </div>
 
             {/* Bento Tile 1B: Paperdoll Equipment Grid */}
-            <div className="lg:col-span-7 flex flex-col justify-between medieval-card p-6 rounded-2xl shadow-xl">
+            <div className="lg:col-span-7 flex flex-col gap-4 medieval-card p-6 rounded-2xl shadow-xl">
               <PaperdollEquipmentGrid
                 avatarImage={`/images/character/${((characterStats as any).title || 'count').toLowerCase()}.webp`}
                 heroName={(characterStats as any).title || 'Count'}
@@ -1056,9 +1073,9 @@ export default function CharacterPage() {
           {/* BENTO ROW 2 — Blessings, Altar & Empowerments */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             {/* Bento Tile 2A: Active Blessings & Altar */}
-            <div className="lg:col-span-6 flex flex-col justify-between medieval-card p-6 rounded-2xl shadow-xl">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center mb-2">
+            <div className="lg:col-span-6 flex flex-col gap-4 medieval-card p-6 rounded-2xl shadow-xl">
+              <div className="space-y-4 flex flex-col flex-1">
+                <div className="flex justify-between items-center mb-1">
                   <div>
                     <h3 className="text-lg font-bold font-medieval text-amber-400">
                       Altar of blessings
@@ -1232,9 +1249,32 @@ export default function CharacterPage() {
                           Brew →
                         </Button>
                       </div>
+
+                      <div className="p-3 rounded-xl bg-zinc-950/70 border border-amber-500/20 flex items-center justify-between gap-2 sm:col-span-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="text-lg">🕯️</span>
+                          <div className="min-w-0">
+                            <h5 className="font-bold text-xs text-amber-200 truncate">Sanctuary resonance</h5>
+                            <p className="text-[10px] text-zinc-400 truncate">Completing daily habits channels virtue energy directly to your hero</p>
+                          </div>
+                        </div>
+                        <Button
+                          asChild
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 px-2 text-[11px] text-amber-300 hover:text-amber-100 hover:bg-amber-950/40 shrink-0 font-serif"
+                        >
+                          <Link href="/quests">Quests →</Link>
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}
+
+                <div className="mt-auto pt-3 border-t border-amber-900/20 flex items-center justify-between text-[11px] text-zinc-500 font-serif">
+                  <span>Altar sanctuary attunement</span>
+                  <span className="text-amber-400/80 font-mono">Consecrated</span>
+                </div>
               </div>
             </div>
 
@@ -1253,7 +1293,7 @@ export default function CharacterPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-serif">
                   {/* Perk Socket */}
-                  <div className="flex flex-col justify-between p-3.5 bg-gradient-to-r from-purple-950/40 via-[#181124] to-[#0f1526] rounded-xl border border-purple-500/30 shadow-inner space-y-3">
+                  <div className="flex flex-col gap-3 p-3.5 bg-gradient-to-r from-purple-950/40 via-[#181124] to-[#0f1526] rounded-xl border border-purple-500/30 shadow-inner">
                     <div className="flex items-center gap-2.5">
                       <span className="w-8 h-8 rounded-xl border border-purple-400 bg-radial from-purple-500 to-purple-950 flex items-center justify-center text-sm shadow-[0_0_8px_rgba(168,85,247,0.4)] shrink-0">✨</span>
                       <div className="min-w-0 flex-1">
@@ -1276,7 +1316,7 @@ export default function CharacterPage() {
                   </div>
 
                   {/* Apotheca Elixir Socket */}
-                  <div className="flex flex-col justify-between p-3.5 bg-gradient-to-r from-emerald-950/40 via-[#0b241c] to-[#0f1526] rounded-xl border border-emerald-500/30 shadow-inner space-y-3">
+                  <div className="flex flex-col gap-3 p-3.5 bg-gradient-to-r from-emerald-950/40 via-[#0b241c] to-[#0f1526] rounded-xl border border-emerald-500/30 shadow-inner">
                     <div className="flex items-center gap-2.5">
                       <span className="w-8 h-8 rounded-xl border border-emerald-400 bg-radial from-emerald-500 to-emerald-950 flex items-center justify-center text-sm shadow-[0_0_8px_rgba(34,197,94,0.4)] shrink-0">🧪</span>
                       <div className="min-w-0 flex-1">

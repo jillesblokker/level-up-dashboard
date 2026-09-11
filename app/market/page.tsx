@@ -738,8 +738,8 @@ export default function MarketPage() {
             {/* BENTO ROW 1 — Owned Packs & Mystic Chests */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
               {/* Left: Owned Packs Section (lg:col-span-7) */}
-              <div className="lg:col-span-7 flex flex-col justify-between bg-gradient-to-b from-amber-950/30 via-zinc-950 to-zinc-950 p-5 sm:p-6 rounded-2xl border-2 border-amber-500/40 shadow-2xl">
-                <div className="space-y-4">
+              <div className="lg:col-span-7 flex flex-col gap-4 bg-gradient-to-b from-amber-950/30 via-zinc-950 to-zinc-950 p-5 sm:p-6 rounded-2xl border-2 border-amber-500/40 shadow-2xl">
+                <div className="space-y-4 flex flex-col flex-1">
                   <div className="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-amber-900/30">
                     <div className="flex items-center gap-3">
                       <span className="text-3xl">📦</span>
@@ -760,12 +760,46 @@ export default function MarketPage() {
                   </div>
 
                   {ownedPacksList.length === 0 ? (
-                    <div className="py-16 px-4 rounded-xl border border-dashed border-amber-900/40 flex flex-col items-center justify-center text-center">
-                      <span className="text-4xl mb-2">🃏</span>
-                      <h4 className="text-sm font-bold text-amber-400 font-serif mb-1">No owned packs</h4>
-                      <p className="text-xs text-zinc-400 max-w-sm">
-                        Claim today&apos;s free daily chest or purchase booster packs to scratch cards here.
-                      </p>
+                    <div className="p-5 sm:p-6 rounded-2xl border border-amber-500/25 bg-zinc-950/80 flex flex-col justify-between gap-5 my-auto shadow-inner">
+                      <div className="flex items-start sm:items-center gap-4">
+                        <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-3xl shrink-0 shadow-inner">
+                          <span>🃏</span>
+                        </div>
+                        <div>
+                          <h4 className="text-base font-bold text-amber-300 font-serif mb-1">Mystic scratch card workshop</h4>
+                          <p className="text-xs text-zinc-400 leading-relaxed">
+                            No packs waiting in your inventory. Claim free gifts from the chests on the right or purchase booster packs below to scratch and reveal mystery creatures.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Card Rarity Showcase preview */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 text-center text-xs font-mono">
+                        <div className="p-2.5 bg-zinc-900/80 rounded-xl border border-zinc-800">
+                          <span className="text-zinc-400 text-[10px] block font-sans">Common</span>
+                          <span className="text-zinc-300 font-bold">50% chance</span>
+                        </div>
+                        <div className="p-2.5 bg-blue-950/40 rounded-xl border border-blue-500/30">
+                          <span className="text-blue-300 text-[10px] block font-sans">Rare</span>
+                          <span className="text-blue-200 font-bold">30% chance</span>
+                        </div>
+                        <div className="p-2.5 bg-purple-950/40 rounded-xl border border-purple-500/30">
+                          <span className="text-purple-300 text-[10px] block font-sans">Epic</span>
+                          <span className="text-purple-200 font-bold">15% chance</span>
+                        </div>
+                        <div className="p-2.5 bg-amber-950/50 rounded-xl border border-amber-500/40 shadow-sm">
+                          <span className="text-amber-300 text-[10px] block font-sans">Mythic</span>
+                          <span className="text-amber-200 font-bold">5% jackpot</span>
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-gradient-to-r from-amber-950/40 via-zinc-900 to-zinc-950 rounded-xl border border-amber-500/30 flex items-center justify-between text-xs font-serif">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-amber-400" />
+                          <span className="text-zinc-300">Scratch 3 matching glyphs to win full card drops!</span>
+                        </div>
+                        <span className="text-amber-400 font-mono text-[10px] font-bold">Guaranteed drop</span>
+                      </div>
                     </div>
                   ) : (
                     <div className={cn(
@@ -851,7 +885,7 @@ export default function MarketPage() {
               </div>
 
               {/* Right: Free Mystic Chests Section (lg:col-span-5) */}
-              <div className="lg:col-span-5 flex flex-col justify-between bg-zinc-950/90 p-5 sm:p-6 rounded-2xl border border-amber-900/40 shadow-xl h-full">
+              <div className="lg:col-span-5 flex flex-col gap-4 bg-zinc-950/90 p-5 sm:p-6 rounded-2xl border border-amber-900/40 shadow-xl h-full">
                 <div className="flex flex-col flex-1 h-full">
                   <div className="flex items-center gap-3 mb-4 pb-3 border-b border-amber-900/30 shrink-0">
                     <span className="text-2xl">🎁</span>
@@ -988,7 +1022,7 @@ export default function MarketPage() {
                             )}
                           </div>
 
-                          <div className="pt-2">
+                          <div className="mt-auto pt-2">
                             <Button 
                               className={cn(
                                 "w-full h-10 text-xs font-bold font-serif normal-case rounded-xl transition-all shadow-md",

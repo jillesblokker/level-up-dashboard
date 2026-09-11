@@ -1254,7 +1254,7 @@ export default function DungeonPage() {
             </div>
 
             {/* Card 2: Expedition Command & Entry */}
-            <div className="lg:col-span-5 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between space-y-4">
+            <div className="lg:col-span-5 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col space-y-4">
               <div className="space-y-3">
                 <div className="flex items-center justify-between border-b border-white/5 pb-3">
                   <div className="flex items-center gap-2">
@@ -1282,10 +1282,21 @@ export default function DungeonPage() {
                     <span className="font-mono font-semibold text-amber-300">{unlockedCreatures.length} heroes ready</span>
                   </div>
                 </div>
+
+                {/* Floor intelligence telemetry */}
+                <div className="bg-zinc-950/70 rounded-xl p-3 border border-white/5 space-y-1 text-xs">
+                  <div className="flex items-center justify-between text-[11px] font-mono">
+                    <span className="text-zinc-400">Boss room encounters:</span>
+                    <span className="text-amber-400 font-bold">Floor 5 & 10</span>
+                  </div>
+                  <p className="text-[11px] text-zinc-400 leading-snug">
+                    Defeating bosses yields rare kingdom blueprints and Apotheca potion reagents.
+                  </p>
+                </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-2.5 pt-2">
+              <div className="mt-auto space-y-2.5 pt-2">
                 <Button
                   onClick={startRun}
                   disabled={dailyCount >= 3}
@@ -1337,7 +1348,7 @@ export default function DungeonPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             
             {/* Card 3: Active Daily Bounties */}
-            <div className="lg:col-span-6 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between space-y-4">
+            <div className="lg:col-span-6 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col space-y-4">
               <div className="space-y-3">
                 <div className="flex items-center justify-between border-b border-white/5 pb-3">
                   <div className="flex items-center gap-2">
@@ -1375,8 +1386,8 @@ export default function DungeonPage() {
             </div>
 
             {/* Card 4: Guardian Pet Striker Support */}
-            <div className="lg:col-span-6 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between space-y-4">
-              <div className="space-y-4">
+            <div className="lg:col-span-6 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col space-y-4">
+              <div className="space-y-4 flex flex-col flex-1">
                 <div className="flex items-center justify-between border-b border-white/5 pb-3">
                   <div className="flex items-center gap-2">
                     <span className="text-base">🐾</span>
@@ -1387,11 +1398,11 @@ export default function DungeonPage() {
                   </Badge>
                 </div>
 
-                <div className="bg-zinc-950/90 rounded-2xl p-4 sm:p-5 border border-white/5 flex items-center gap-4">
+                <div className="bg-zinc-950/90 rounded-2xl p-4 sm:p-5 border border-white/5 flex items-center gap-4 shadow-inner">
                   <div className="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-4xl shrink-0 shadow-lg">
                     {activePet.emoji}
                   </div>
-                  <div className="space-y-1.5 min-w-0">
+                  <div className="space-y-1.5 min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-bold text-white text-base">{activePet.name}</span>
                       <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-400 bg-amber-950/30 font-mono">
@@ -1404,7 +1415,19 @@ export default function DungeonPage() {
                   </div>
                 </div>
 
-                <div className="bg-zinc-950/70 p-3.5 rounded-xl border border-amber-900/30 flex items-center justify-between gap-3 text-xs">
+                {/* Pet yields & striker mechanics */}
+                <div className="grid grid-cols-2 gap-2.5 text-xs font-mono">
+                  <div className="p-3 bg-zinc-950/80 rounded-xl border border-white/5 text-center">
+                    <span className="text-zinc-400 text-[10px] block font-sans">Passive yield</span>
+                    <span className="text-amber-300 font-bold">+10% gold & essences</span>
+                  </div>
+                  <div className="p-3 bg-zinc-950/80 rounded-xl border border-white/5 text-center">
+                    <span className="text-zinc-400 text-[10px] block font-sans">Striker trigger</span>
+                    <span className="text-emerald-400 font-bold">Every 3 combat turns</span>
+                  </div>
+                </div>
+
+                <div className="mt-auto bg-zinc-950/70 p-3.5 rounded-xl border border-amber-900/30 flex items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-base">⚡</span>
                     <div className="min-w-0">

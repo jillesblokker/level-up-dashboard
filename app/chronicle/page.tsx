@@ -169,11 +169,11 @@ export default function ChroniclePage() {
                     
                     {/* Card 1: Tales Shelf */}
                     <div className="lg:col-span-7 flex flex-col">
-                        <TalesShelfCard className="h-full flex flex-col justify-between" />
+                        <TalesShelfCard className="h-full flex flex-col" />
                     </div>
 
                     {/* Card 2: Growth Insights & Mood Radar */}
-                    <div className="lg:col-span-5 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between space-y-4">
+                    <div className="lg:col-span-5 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col gap-4">
                         <div className="space-y-3">
                             <div className="flex items-center justify-between border-b border-white/5 pb-3">
                                 <div className="flex items-center gap-2 text-amber-400">
@@ -307,7 +307,7 @@ export default function ChroniclePage() {
                             </div>
                         </div>
 
-                        <div className="pt-2">
+                        <div className="mt-auto pt-2">
                             <Button
                                 onClick={handleCreate}
                                 className="w-full h-11 text-xs font-serif font-bold bg-amber-950/40 hover:bg-amber-900/50 text-amber-200 border border-amber-500/30 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all active:scale-95"

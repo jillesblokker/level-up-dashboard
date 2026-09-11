@@ -605,11 +605,11 @@ export function DailyHubClient() {
                 {/* BENTO ROW 1 — Expedition command & core momentum */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
                     {/* Bento Tile 1A: Hero companion & morning focus */}
-                    <div className="lg:col-span-5 flex flex-col justify-between rounded-2xl bg-gradient-to-b from-zinc-950 via-zinc-950/95 to-amber-950/20 border border-amber-900/40 p-5 shadow-2xl relative overflow-hidden">
+                    <div className="lg:col-span-5 flex flex-col gap-3.5 rounded-2xl bg-gradient-to-b from-zinc-950 via-zinc-950/95 to-amber-950/20 border border-amber-900/40 p-5 shadow-2xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
                         {/* Top banner: Streak badge */}
-                        <div className="flex items-center justify-between gap-3 mb-4 relative z-10">
+                        <div className="flex items-center justify-between gap-3 mb-1 relative z-10">
                             <div className="flex items-center gap-2">
                                 <span className="text-xl">🔥</span>
                                 <div>
@@ -784,13 +784,13 @@ export function DailyHubClient() {
                     </div>
 
                     {/* Bento Tile 1B: Core realm momentum & stats */}
-                    <div className="lg:col-span-7 flex flex-col justify-between gap-4">
+                    <div className="lg:col-span-7 flex flex-col gap-4">
                         {/* 3 Balanced Metric Tiles */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 h-full">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             {/* Habits today card */}
-                            <Card className="bg-zinc-950 border-amber-900/40 shadow-xl overflow-hidden relative group hover:border-purple-500/40 transition-all flex flex-col justify-between">
+                            <Card className="bg-zinc-950 border-amber-900/40 shadow-xl overflow-hidden relative group hover:border-purple-500/40 transition-all flex flex-col">
                                 <div className="absolute inset-0 bg-gradient-to-br from-purple-900/15 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
-                                <CardContent className="p-5 relative z-10 flex flex-col justify-between h-full">
+                                <CardContent className="p-5 relative z-10 flex flex-col flex-1">
                                     <div>
                                         <div className="flex items-center justify-between mb-2">
                                             <p className="text-xs text-purple-200/70 font-medium uppercase tracking-wider">Habits today</p>
@@ -801,7 +801,7 @@ export function DailyHubClient() {
                                             <span className="text-xs text-purple-400">done today</span>
                                         </div>
                                     </div>
-                                    <div className="mt-4 pt-3 border-t border-purple-900/30 flex items-center justify-between text-[11px] text-zinc-400">
+                                    <div className="mt-auto pt-4 border-t border-purple-900/30 flex items-center justify-between text-[11px] text-zinc-400">
                                         <span>Daily target</span>
                                         <span className="text-amber-400 font-mono font-bold">5 habits</span>
                                     </div>
@@ -809,9 +809,9 @@ export function DailyHubClient() {
                             </Card>
 
                             {/* Level card */}
-                            <Card className="bg-zinc-950 border-amber-900/40 shadow-xl overflow-hidden relative group hover:border-blue-500/40 transition-all flex flex-col justify-between">
+                            <Card className="bg-zinc-950 border-amber-900/40 shadow-xl overflow-hidden relative group hover:border-blue-500/40 transition-all flex flex-col">
                                 <div className="absolute inset-0 bg-gradient-to-br from-blue-900/15 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
-                                <CardContent className="p-5 relative z-10 flex flex-col justify-between h-full">
+                                <CardContent className="p-5 relative z-10 flex flex-col flex-1">
                                     <div>
                                         <div className="flex items-center justify-between mb-2">
                                             <p className="text-xs text-blue-200/70 font-medium uppercase tracking-wider">Level {stats.level}</p>
@@ -859,7 +859,7 @@ export function DailyHubClient() {
                                         const chapterProgress = (levelsCompletedInChapter / totalLevelsInChapter) * 100;
                                         const levelsRemaining = nextChapter.levelRequirement - stats.level;
                                         return (
-                                            <div className="mt-3 pt-2.5 border-t border-zinc-900/60 space-y-1">
+                                            <div className="mt-auto pt-3 border-t border-zinc-900/60 space-y-1">
                                                 <div className="flex items-center justify-between text-[10px] text-zinc-400">
                                                     <span className="truncate">{nextChapter.title}</span>
                                                     <span className="font-mono text-[9px] text-amber-400 shrink-0">{levelsRemaining} lvl</span>
@@ -874,9 +874,9 @@ export function DailyHubClient() {
                             </Card>
 
                             {/* Treasury card */}
-                            <Card className="bg-zinc-950 border-amber-900/40 shadow-xl overflow-hidden relative group hover:border-yellow-500/40 transition-all flex flex-col justify-between">
+                            <Card className="bg-zinc-950 border-amber-900/40 shadow-xl overflow-hidden relative group hover:border-yellow-500/40 transition-all flex flex-col">
                                 <div className="absolute inset-0 bg-gradient-to-br from-yellow-900/15 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
-                                <CardContent className="p-5 relative z-10 flex flex-col justify-between h-full">
+                                <CardContent className="p-5 relative z-10 flex flex-col flex-1">
                                     <div>
                                         <div className="flex items-center justify-between mb-2">
                                             <p className="text-xs text-yellow-200/70 font-medium uppercase tracking-wider">Treasury</p>
@@ -889,7 +889,7 @@ export function DailyHubClient() {
                                             <span className="text-xs text-yellow-500 font-semibold">gold</span>
                                         </div>
                                     </div>
-                                    <div className="mt-4 pt-3 border-t border-yellow-900/30 flex items-center gap-1.5">
+                                    <div className="mt-auto pt-4 border-t border-yellow-900/30 flex items-center gap-1.5">
                                         <TrendingUp className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                                         <span className="text-[11px] text-emerald-400 font-medium">
                                             +{weeklyGoldEarned} gold this week
@@ -973,7 +973,7 @@ export function DailyHubClient() {
                 {/* BENTO ROW 2 — Habit execution & active perks */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
                     {/* Bento Tile 2A: Favorite quests */}
-                    <div id="favorites-section" className="lg:col-span-7 flex flex-col justify-between rounded-2xl bg-zinc-950/95 border border-amber-900/40 p-5 shadow-2xl">
+                    <div id="favorites-section" className="lg:col-span-7 flex flex-col gap-4 rounded-2xl bg-zinc-950/95 border border-amber-900/40 p-5 shadow-2xl">
                         <div>
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2.5">
@@ -1051,7 +1051,7 @@ export function DailyHubClient() {
                     {/* Bento Tile 2B: Active buffs & Alliance daily oath */}
                     <div className="lg:col-span-5 flex flex-col gap-4">
                         {/* Active Buffs Card */}
-                        <Card className="bg-[#0e1217]/95 border border-amber-900/40 shadow-xl rounded-2xl flex flex-col">
+                        <Card className="bg-[#0e1217]/95 border border-amber-900/40 shadow-xl rounded-2xl flex flex-col flex-1">
                             <CardHeader className="pb-3 pt-4 px-5 border-b border-white/5">
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-base font-serif font-bold text-amber-300 flex items-center gap-2">
@@ -1066,7 +1066,7 @@ export function DailyHubClient() {
                                     Temporary passive bonuses currently active
                                 </CardDescription>
                             </CardHeader>
-                            <CardContent className="p-5 space-y-4">
+                            <CardContent className="p-5 space-y-4 flex flex-col flex-1">
                                 {/* Alchemical station banner */}
                                 <div className="relative overflow-hidden rounded-xl border border-amber-500/20 bg-gradient-to-r from-amber-950/30 via-zinc-900/60 to-zinc-950 p-3.5 flex items-center gap-3.5 shadow-sm">
                                     <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xl shrink-0 shadow-inner">
@@ -1175,7 +1175,7 @@ export function DailyHubClient() {
                                     </div>
                                 </div>
 
-                                <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] font-sans">
+                                <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between text-[11px] font-sans">
                                     <span className="text-zinc-500">Need rare reagents?</span>
                                     <Link href="/market" className="text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1 transition-colors">
                                         Grand Apotheca <ArrowRight className="w-3 h-3" />
@@ -1197,7 +1197,7 @@ export function DailyHubClient() {
                     </div>
 
                     {/* Bento Tile 3B: Consistency Chart & Active Timers */}
-                    <div className="lg:col-span-5 flex flex-col justify-between gap-4">
+                    <div className="lg:col-span-5 flex flex-col gap-4">
                         <div className="flex-1">
                             <ConsistencyChart />
                         </div>
