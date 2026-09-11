@@ -14,7 +14,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn, renderSafeNode } from '@/lib/utils'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame, Star, CheckCircle2, Zap, Scroll, RefreshCw, Shield } from 'lucide-react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame, Star, CheckCircle2, Zap, Scroll, RefreshCw, Shield, Lock } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
 import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
 import { useUser, useAuth } from '@clerk/nextjs'
@@ -35,6 +36,7 @@ import { gainGold } from '@/lib/gold-manager';
 import { useRef } from 'react';
 import { StreakRecovery } from '@/components/streak-recovery';
 import { StreakRecoveryCard } from '@/components/streaks/streak-recovery-card';
+import { StreaksHubTab } from '@/components/streaks/streaks-hub-tab';
 import { StreakShieldBadge } from '@/components/StreakShieldBadge';
 import { FullPageLoading, DataLoadingState } from '@/components/ui/loading-states';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -96,6 +98,8 @@ interface Quest {
   completionId?: string;
   mandate_period?: string;
   mandate_count?: number;
+  is_private?: boolean;
+  isPrivate?: boolean;
 }
 
 const categoryIcons = {
@@ -284,7 +288,7 @@ export default function QuestsPage() {
   const [bossQuestId, setBossQuestId] = useState<string | undefined>();
 
   // Add missing state variables
-  const [streakData, setStreakData] = useState<{ streak_days: number; week_streaks: number }>({ streak_days: 0, week_streaks: 0 });
+  const [streakData, setStreakData] = useState<{ streak_days: number; week_streaks: number; longest_streak?: number }>({ streak_days: 0, week_streaks: 0, longest_streak: 0 });
   const [challengeStreakData, setChallengeStreakData] = useState<{ streak_days: number; week_streaks: number }>({ streak_days: 0, week_streaks: 0 });
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingQuest, setEditingQuest] = useState<Quest | null>(null);
@@ -2627,6 +2631,7 @@ export default function QuestsPage() {
           gold_reward: updatedQuest.gold || 25,
           mandate_period: updatedQuest.mandate_period || 'daily',
           mandate_count: updatedQuest.mandate_count || 1,
+          is_private: Boolean(updatedQuest.is_private || updatedQuest.isPrivate),
         })
       });
 
@@ -3006,8 +3011,8 @@ export default function QuestsPage() {
                   value="recovery"
                   className="flex-shrink-0 whitespace-nowrap rounded-xl text-xs sm:text-sm font-bold font-serif py-2.5 px-4 sm:px-6 flex items-center justify-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-900/40 data-[state=active]:to-blue-900/50 data-[state=active]:text-cyan-300 data-[state=active]:border data-[state=active]:border-cyan-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
                 >
-                  <Shield className="w-4 h-4 text-cyan-400 shrink-0" />
-                  <span>Streak recovery</span>
+                  <Flame className="w-4 h-4 text-orange-400 shrink-0 animate-pulse" />
+                  <span>Streaks ({streakData?.streak_days || 0}d)</span>
                   <CollectibleRune
                     id="isa_freeze"
                     runeId="isa"
@@ -3056,65 +3061,12 @@ export default function QuestsPage() {
               />
             ) : forgeTab === 'recovery' ? (
               <div className="space-y-6">
-                {/* Streak Shield & Freeze Status Card */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-cyan-950/40 via-zinc-950 to-blue-950/40 border border-cyan-500/30 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-2xl shadow-inner shrink-0">
-                      ❄️
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-base font-serif font-bold text-cyan-200">
-                          Streak freeze shields & status
-                        </h3>
-                        <StreakShieldBadge userId={userId || undefined} streakDays={streakData?.streak_days || 0} />
-                      </div>
-                      <p className="text-xs text-zinc-400 font-serif mt-0.5">
-                        Freezes your daily habit counter so you never lose momentum on rest days or unexpected breaks.
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    onClick={async () => {
-                      try {
-                        const currentGold = stats.gold || 0;
-                        if (currentGold < 50) {
-                          toast({
-                            title: "Not enough gold",
-                            description: `You need 50 Gold to seal a Streak Freeze Pact. You currently have ${currentGold} Gold.`,
-                            variant: "destructive"
-                          });
-                          return;
-                        }
-                        gainGold(-50, 'streak-freeze-purchase');
-                        const curInv = JSON.parse(localStorage.getItem('tileInventory') || '{}');
-                        const curCount = curInv['streak-scroll']?.quantity || 0;
-                        curInv['streak-scroll'] = {
-                          id: 'streak-scroll',
-                          type: 'streak-scroll',
-                          name: 'Streak Scroll',
-                          quantity: curCount + 1,
-                          cost: 500,
-                          connections: []
-                        };
-                        localStorage.setItem('tileInventory', JSON.stringify(curInv));
-                        window.dispatchEvent(new Event('character-stats-update'));
-                        window.dispatchEvent(new Event('inventory-updated'));
-                        toast({
-                          title: "Streak freeze activated! ❄️",
-                          description: "Deducted 50 Gold. A Streak Freeze Scroll is now guarding your streak!",
-                        });
-                      } catch (err) {
-                        toast({ title: "Purchase failed", description: "Could not activate streak freeze.", variant: "destructive" });
-                      }
-                    }}
-                    className="btn-primary-cta text-xs h-9 px-4 font-serif shrink-0 w-full sm:w-auto"
-                  >
-                    Activate streak freeze (50g) ❄️
-                  </Button>
-                </div>
-
-                <StreakRecoveryCard />
+                <StreaksHubTab
+                  currentStreak={streakData?.streak_days || 0}
+                  longestStreak={streakData?.longest_streak || 0}
+                  userId={userId || undefined}
+                  token={token}
+                />
 
                 {/* Comeback Challenge Engine */}
                 <div className="p-4 sm:p-6 rounded-2xl bg-zinc-950/90 border border-amber-900/30 shadow-xl space-y-5">
@@ -3513,6 +3465,24 @@ export default function QuestsPage() {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Private Sanctuary Habit Toggle */}
+              <div className="p-4 bg-zinc-950 border border-purple-900/30 rounded-2xl flex items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-purple-400" />
+                    <span className="text-sm font-semibold text-purple-200">Private sanctuary quest</span>
+                  </div>
+                  <p className="text-xs text-zinc-500">
+                    Mask habit title in social activity feeds as &quot;Secret discipline completed (+10 Honor)&quot;.
+                  </p>
+                </div>
+                <Switch
+                  checked={Boolean(editingQuest.is_private || editingQuest.isPrivate)}
+                  onCheckedChange={(checked) => setEditingQuest({ ...editingQuest, is_private: checked, isPrivate: checked })}
+                  className="data-[state=checked]:bg-purple-600"
+                />
               </div>
 
               <div className="flex justify-end gap-3 mt-8">

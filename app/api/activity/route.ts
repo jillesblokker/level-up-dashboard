@@ -33,17 +33,17 @@ export async function GET(req: NextRequest) {
 
         // Fetch quest details for these IDs
         const questIds = [...new Set(completions?.map(c => c.quest_id) || [])];
-        let questMap: Record<string, string> = {};
+        let questMap: Record<string, { name: string; is_private?: boolean }> = {};
 
         if (questIds.length > 0) {
             const { data: quests, error: questError } = await supabaseServer
                 .from('quests')
-                .select('id, name')
+                .select('id, name, is_private')
                 .in('id', questIds);
 
             if (!questError && quests) {
                 quests.forEach((q: any) => {
-                    questMap[q.id] = q.name;
+                    questMap[q.id] = { name: q.name, is_private: Boolean(q.is_private) };
                 });
             }
         }
@@ -52,16 +52,21 @@ export async function GET(req: NextRequest) {
             // @ts-ignore
             const user = c.character_stats;
             const userName = user?.display_name || user?.character_name || 'Anonymous Hero';
-            const questName = questMap[c.quest_id] || 'Unknown Quest';
+            const questInfo = questMap[c.quest_id];
+            const isPrivate = questInfo?.is_private;
+            const questName = isPrivate ? 'Secret discipline' : (questInfo?.name || 'Unknown Quest');
+            const message = isPrivate
+                ? `${userName}: Secret discipline completed (+10 Honor)`
+                : `${userName} completed ${questName}`;
 
             return {
                 id: c.completion_id,
                 type: 'quest_complete',
-                message: `${userName} completed ${questName}`,
+                message,
                 timestamp: c.completed_at,
                 user: userName,
                 userId: c.user_id,
-                details: questName
+                details: isPrivate ? 'Secret discipline (+10 Honor)' : questName
             };
         }) || [];
 

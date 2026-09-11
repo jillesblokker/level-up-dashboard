@@ -21,6 +21,7 @@ import { CharacterStats } from "@/types/character"
 
 import { getAppThemeSync, setAppTheme, AppTheme } from "@/lib/theme-manager"
 import { soundManager } from "@/lib/sound-manager"
+import { DataExportCard } from "@/components/settings/data-export-card"
 
 export default function SettingsPage() {
   const { user } = useUser()
@@ -955,6 +956,8 @@ export default function SettingsPage() {
                 <p className="text-xs text-zinc-500">All client updates push directly to Supabase authenticated API routes.</p>
               </CardContent>
             </Card>
+
+            <DataExportCard />
 
             {/* Danger Zone: Delete Account */}
             <Card className="bg-gradient-to-b from-red-950/20 via-black to-zinc-950 border-red-900/50 text-white">

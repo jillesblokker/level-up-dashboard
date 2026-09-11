@@ -47,6 +47,7 @@ const PenguinIceSlideModal = dynamic(() => import('@/components/minigames/Pengui
 const JoustingTournamentModal = dynamic(() => import('@/components/jousting-modal').then(m => m.JoustingTournamentModal), { ssr: false });
 const SiegeBattleshipModal = dynamic(() => import('@/components/siege-battleships-modal').then(m => m.SiegeBattleshipModal), { ssr: false });
 const WaypointPreviewModal = dynamic(() => import('@/components/kingdom/waypoint-preview-modal').then(m => m.WaypointPreviewModal), { ssr: false });
+const HabitStoneMonumentModal = dynamic(() => import('@/components/kingdom/habit-stone-monument-modal').then(m => m.HabitStoneMonumentModal), { ssr: false });
 import { getActiveEvent } from '@/lib/seasonal-events'
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage'
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager'
@@ -627,6 +628,7 @@ export function KingdomGridWithTimers({
   const [penguinModalOpen, setPenguinModalOpen] = useState(false);
   const [joustModalOpen, setJoustModalOpen] = useState(false);
   const [catapultModalOpen, setCatapultModalOpen] = useState(false);
+  const [stoneMonumentModalOpen, setStoneMonumentModalOpen] = useState(false);
 
   // Listen for external minigame open requests
   useEffect(() => {
@@ -1877,8 +1879,7 @@ export function KingdomGridWithTimers({
       return;
     }
     if (tile.type === 'monument') {
-      toast({ title: "Viewing Hall of Fame...", description: "Going to achievements." });
-      router.push('/achievements');
+      setStoneMonumentModalOpen(true);
       return;
     }
     if (tile.type === 'training-grounds') {
@@ -3439,6 +3440,12 @@ export function KingdomGridWithTimers({
         <SiegeBattleshipModal
           isOpen={catapultModalOpen}
           onClose={() => setCatapultModalOpen(false)}
+        />
+      )}
+      {stoneMonumentModalOpen && (
+        <HabitStoneMonumentModal
+          isOpen={stoneMonumentModalOpen}
+          onClose={() => setStoneMonumentModalOpen(false)}
         />
       )}
       {waypointModalOpen && selectedWaypointTileType && (

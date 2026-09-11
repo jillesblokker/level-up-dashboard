@@ -3,7 +3,8 @@
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Star, Zap, Flame, Trophy, Sparkles } from 'lucide-react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Sun, PersonStanding, Star, Zap, Flame, Trophy, Sparkles, Lock } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
 import { useAuth } from '@clerk/nextjs'
 import { toast } from '@/components/ui/use-toast'
 import { TEXT_CONTENT } from '@/lib/text-content'
@@ -59,7 +60,8 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
         category: 'might',
         difficulty: 'medium',
         mandatePeriod: 'daily',
-        mandateCount: 1
+        mandateCount: 1,
+        isPrivate: false
     })
 
     // Init with data if provided
@@ -71,7 +73,8 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                 category: initialData.category || 'might',
                 difficulty: initialData.difficulty || 'medium',
                 mandatePeriod: initialData.mandate_period || 'daily',
-                mandateCount: initialData.mandate_count || 1
+                mandateCount: initialData.mandate_count || 1,
+                isPrivate: Boolean(initialData.isPrivate || initialData.is_private)
             })
         }
     }, [initialData])
@@ -100,6 +103,7 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                 },
                 body: JSON.stringify({
                     ...newQuest,
+                    is_private: newQuest.isPrivate,
                     mandate_period: newQuest.mandatePeriod,
                     mandate_count: newQuest.mandateCount,
                     is_active: true
@@ -315,6 +319,24 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                         ? "This duty must be fulfilled every single day to maintain its legend."
                         : `A ritual to be performed ${newQuest.mandateCount} times throughout the ${newQuest.mandatePeriod === 'weekly' ? 'week' : 'month'}.`}
                 </p>
+            </div>
+
+            {/* Private Sanctuary Toggle */}
+            <div className="p-4 bg-zinc-950 border border-purple-900/30 rounded-2xl flex items-center justify-between gap-4">
+                <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                        <Lock className="w-4 h-4 text-purple-400" />
+                        <span className="text-sm font-semibold text-purple-200">Private sanctuary quest</span>
+                    </div>
+                    <p className="text-xs text-zinc-500">
+                        Mask habit name in social activity feeds. Displays as &quot;Secret discipline completed (+10 Honor)&quot;.
+                    </p>
+                </div>
+                <Switch
+                    checked={newQuest.isPrivate}
+                    onCheckedChange={(checked) => setNewQuest({ ...newQuest, isPrivate: checked })}
+                    className="data-[state=checked]:bg-purple-600"
+                />
             </div>
 
             {/* Reward Preview Card */}

@@ -42,9 +42,9 @@ const MATERIALS = [
   { id: 'material-stone-block', name: 'Blocks', icon: '🧱', buyPrice: 700, sellPrice: 350, description: 'Cut stone for walls.' },
   { id: 'material-steel', name: 'Steel', icon: '⚔️', buyPrice: 850, sellPrice: 425, description: 'Strong metal for reinforcements.' },
   { id: 'material-crystal', name: 'Crystal', icon: '🔮', buyPrice: 1000, sellPrice: 500, description: 'Rare magical resource.' },
-  { id: 'waterway_canal', name: 'Waterway canal', icon: '🌉', buyPrice: 750, sellPrice: 375, description: 'Serene stone canal tile with vertical aquamarine waters and arched stone bridge.' },
-  { id: 'astral_citadel_monument', name: 'Astral Citadel Monument', icon: '🔮', buyPrice: 1500, sellPrice: 750, description: 'Colossal monument crowned with a glowing floating purple crystal orb.' },
-  { id: 'serene_lake', name: 'Serene Lake', icon: '🌊', buyPrice: 25, sellPrice: 12, description: 'Tranquil aquamarine lake tile with pure shimmering water ripples.' },
+  { id: 'waterway_canal', name: 'Waterway canal', icon: '🌉', buyPrice: 3500, sellPrice: 1750, description: 'Serene stone canal tile with vertical aquamarine waters and arched stone bridge.' },
+  { id: 'astral_citadel_monument', name: 'Astral Citadel Monument', icon: '🔮', buyPrice: 15000, sellPrice: 7500, description: 'Colossal monument crowned with a glowing floating purple crystal orb.' },
+  { id: 'serene_lake', name: 'Serene Lake', icon: '🌊', buyPrice: 2500, sellPrice: 1250, description: 'Tranquil aquamarine lake tile with pure shimmering water ripples.' },
 ]
 
 export default function MarketPage() {
@@ -72,8 +72,10 @@ export default function MarketPage() {
 
   const scaledMaterials = useMemo(() => {
     return MATERIALS.map(mat => {
-      const multiplier = 1 + playerLevel * 0.1;
-      const scaledBuy = Math.floor(mat.buyPrice * multiplier);
+      // High-tier prestige tiles scale significantly higher for late-game players
+      const isPrestige = ['astral_citadel_monument', 'waterway_canal', 'serene_lake'].includes(mat.id);
+      const prestigeScale = isPrestige ? (1 + Math.pow(playerLevel, 1.25) * 0.15) : (1 + playerLevel * 0.1);
+      const scaledBuy = Math.floor(mat.buyPrice * prestigeScale);
       const scaledSell = Math.floor(scaledBuy * 0.5); // Sell price is 50% of scaled buy price
       return {
         ...mat,

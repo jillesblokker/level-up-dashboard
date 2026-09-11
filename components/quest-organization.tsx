@@ -11,12 +11,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { DebouncedInput } from '@/components/debounced-input'
-import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Check, Pencil, Trash2, Plus, Minus, Copy, Scroll, Dumbbell, Flag, Crown } from 'lucide-react'
+import { Search, Filter, Star, Trophy, Target, TrendingUp, CheckCircle, Check, Pencil, Trash2, Plus, Minus, Copy, Scroll, Dumbbell, Flag, Crown, Lock } from 'lucide-react'
 import { QuestToggleButton } from '@/components/quest-toggle-button'
 import { QuestCardSkeleton } from '@/components/skeletons/quest-card-skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
 import { HeraldicShield } from '@/components/ui/heraldic-shield'
 import { cn } from '@/lib/utils'
+import { TEXT_CONTENT } from '@/lib/text-content'
 
 interface Quest {
   id: string
@@ -28,6 +29,8 @@ interface Quest {
   xp?: number
   gold?: number
   completed: boolean
+  isPrivate?: boolean
+  is_private?: boolean
   favorited?: boolean
   date?: Date | string | null | undefined
   isNew: boolean
@@ -209,10 +212,19 @@ const categoryConfig = {
 }
 
 const difficultyConfig = {
-  easy: { name: 'Easy', color: 'text-amber-400', bgColor: 'bg-amber-500/10' },
-  medium: { name: 'Medium', color: 'text-zinc-400', bgColor: 'bg-zinc-500/10' },
-  hard: { name: 'Hard', color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
-  epic: { name: 'Epic', color: 'text-amber-600', bgColor: 'bg-amber-500/10' }
+  easy: { name: TEXT_CONTENT.quests.difficulties.easy, color: 'text-emerald-400', bgColor: 'bg-emerald-500/10' },
+  medium: { name: TEXT_CONTENT.quests.difficulties.medium, color: 'text-blue-400', bgColor: 'bg-blue-500/10' },
+  hard: { name: TEXT_CONTENT.quests.difficulties.hard, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
+  epic: { name: TEXT_CONTENT.quests.difficulties.epic, color: 'text-purple-400', bgColor: 'bg-purple-500/10' }
+}
+
+const getDifficultyInfo = (diff?: string) => {
+  const normalized = (diff || 'medium').toLowerCase()
+  if (normalized === 'novice' || normalized === 'easy') return difficultyConfig.easy
+  if (normalized === 'adventurer' || normalized === 'medium') return difficultyConfig.medium
+  if (normalized === 'heroic' || normalized === 'hard') return difficultyConfig.hard
+  if (normalized === 'legendary' || normalized === 'epic') return difficultyConfig.epic
+  return difficultyConfig.medium
 }
 
 export function QuestOrganization({
@@ -347,9 +359,14 @@ export function QuestOrganization({
       case 'reward':
         return ((b.gold || 0) + (b.xp || 0)) - ((a.gold || 0) + (a.xp || 0))
       case 'difficulty':
-        const difficultyOrder = { easy: 1, medium: 2, hard: 3, epic: 4 }
-        return (difficultyOrder[a.difficulty as keyof typeof difficultyOrder] || 0) -
-          (difficultyOrder[b.difficulty as keyof typeof difficultyOrder] || 0)
+        const difficultyOrder: Record<string, number> = {
+          easy: 1, novice: 1,
+          medium: 2, adventurer: 2,
+          hard: 3, heroic: 3,
+          epic: 4, legendary: 4
+        }
+        return (difficultyOrder[a.difficulty?.toLowerCase()] || 0) -
+          (difficultyOrder[b.difficulty?.toLowerCase()] || 0)
       default:
         return a.name.localeCompare(b.name)
     }
@@ -719,6 +736,12 @@ export function QuestOrganization({
                               Friend
                             </Badge>
                           )}
+                          {Boolean(quest.isPrivate || quest.is_private) && (
+                            <Badge variant="outline" className="bg-purple-950/40 text-purple-300 border-purple-800/40 flex items-center gap-1 text-xs">
+                              <Lock className="w-3 h-3 text-purple-400" />
+                              Private
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-1">
                           {context === 'quests' && onToggleBossQuest && (
@@ -856,10 +879,9 @@ export function QuestOrganization({
                         <div className="flex items-center justify-between">
                           <Badge
                             variant="outline"
-                            className={`text-xs ${difficultyConfig[quest.difficulty as keyof typeof difficultyConfig]?.color || 'text-zinc-400'
-                              }`}
+                            className={`text-xs ${getDifficultyInfo(quest.difficulty).color}`}
                           >
-                            {difficultyConfig[quest.difficulty as keyof typeof difficultyConfig]?.name || quest.difficulty}
+                            {getDifficultyInfo(quest.difficulty).name}
                           </Badge>
                           <div className="flex items-center gap-1">
                             <Button
