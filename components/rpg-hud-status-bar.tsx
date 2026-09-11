@@ -1000,6 +1000,15 @@ export function RpgHudStatusBar() {
                     <h4 className="font-bold text-cyan-300">❄️ 1 Streak Freeze Shield</h4>
                     <p className="text-zinc-400 text-[11px]">Automatically protects your habit streak from resetting if you miss a day or need a rest day!</p>
                   </div>
+                  <Button
+                    onClick={() => {
+                      setActiveDrawer(null);
+                      window.location.href = '/quests?tab=recovery';
+                    }}
+                    className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold h-10 flex items-center justify-center gap-2 font-serif text-xs"
+                  >
+                    🛡️ Open streak save & recovery <ArrowRight className="w-4 h-4" />
+                  </Button>
                 </div>
               )}
 
@@ -1069,9 +1078,18 @@ export function RpgHudStatusBar() {
               {activeDrawer === 'recovery' && (
                 <div className="space-y-3">
                   <div className="p-3 bg-amber-950/40 border border-amber-500/40 rounded-xl space-y-1">
-                    <h4 className="font-serif font-bold text-amber-300">🛡️ Overdrive Streak Recovery (0/2)</h4>
-                    <p className="text-zinc-400 text-[11px]">Your streak was at risk! Complete 2 habits today (0/2) to fully repair your streak.</p>
+                    <h4 className="font-serif font-bold text-amber-300">🛡️ Overdrive Streak Recovery</h4>
+                    <p className="text-zinc-400 text-[11px]">Your streak was at risk! Complete 2 habits today to fully repair your streak, or view comeback challenges.</p>
                   </div>
+                  <Button
+                    onClick={() => {
+                      setActiveDrawer(null);
+                      window.location.href = '/quests?tab=recovery';
+                    }}
+                    className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold h-10 flex items-center justify-center gap-2 font-serif text-xs"
+                  >
+                    🛡️ Open streak save & recovery <ArrowRight className="w-4 h-4" />
+                  </Button>
                 </div>
               )}
 

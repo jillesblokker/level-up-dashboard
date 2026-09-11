@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn, renderSafeNode } from '@/lib/utils'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame, Star, CheckCircle2, Zap, Scroll, RefreshCw } from 'lucide-react'
+import { Sword, Brain, Crown, Castle, Hammer, Heart, Plus, Trash2, Trophy, Sun, PersonStanding, Pencil, Flame, Star, CheckCircle2, Zap, Scroll, RefreshCw, Shield } from 'lucide-react'
 import { HeaderSection } from '@/components/HeaderSection'
 import { PageGuide } from '@/components/page-guide'
 import { useUser, useAuth } from '@clerk/nextjs'
@@ -35,6 +35,7 @@ import { gainGold } from '@/lib/gold-manager';
 import { useRef } from 'react';
 import { StreakRecovery } from '@/components/streak-recovery';
 import { StreakRecoveryCard } from '@/components/streaks/streak-recovery-card';
+import { StreakShieldBadge } from '@/components/StreakShieldBadge';
 import { FullPageLoading, DataLoadingState } from '@/components/ui/loading-states';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { gainExperience } from '@/lib/experience-manager'
@@ -242,7 +243,7 @@ export default function QuestsPage() {
     return [];
   });
   const [activeView, setActiveView] = useState<'forge' | 'ledger' | 'sanctuary' | 'recovery'>('forge');
-  const [forgeTab, setForgeTab] = useState<'quests' | 'challenges' | 'milestones' | 'petitions'>('quests');
+  const [forgeTab, setForgeTab] = useState<'quests' | 'challenges' | 'milestones' | 'petitions' | 'recovery'>('quests');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [allCategories, setAllCategories] = useState<string[]>(questCategories);
@@ -251,8 +252,13 @@ export default function QuestsPage() {
   // Sync tab with URL query param
   useEffect(() => {
     const tab = searchParams?.get('tab');
-    if (tab && ['forge', 'ledger', 'sanctuary', 'recovery'].includes(tab)) {
-      setActiveView(tab as any);
+    if (tab) {
+      if (['quests', 'challenges', 'milestones', 'petitions', 'recovery'].includes(tab)) {
+        setForgeTab(tab as any);
+      }
+      if (['forge', 'ledger', 'sanctuary'].includes(tab)) {
+        setActiveView(tab as any);
+      }
     }
   }, [searchParams]);
 
@@ -2996,6 +3002,21 @@ export default function QuestsPage() {
                     className="ml-0.5"
                   />
                 </TabsTrigger>
+                <TabsTrigger
+                  value="recovery"
+                  className="flex-shrink-0 whitespace-nowrap rounded-xl text-xs sm:text-sm font-bold font-serif py-2.5 px-4 sm:px-6 flex items-center justify-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-900/40 data-[state=active]:to-blue-900/50 data-[state=active]:text-cyan-300 data-[state=active]:border data-[state=active]:border-cyan-500/40 data-[state=active]:shadow-md transition-all tracking-wide"
+                >
+                  <Shield className="w-4 h-4 text-cyan-400 shrink-0" />
+                  <span>Streak recovery</span>
+                  <CollectibleRune
+                    id="isa_freeze"
+                    runeId="isa"
+                    symbol="ᛁ"
+                    name="Isa"
+                    meaning="Ice, stillness, and patience that freezes time to guard streaks"
+                    className="ml-0.5 text-cyan-300"
+                  />
+                </TabsTrigger>
               </TabsList>
             </Tabs>
 
@@ -3033,6 +3054,122 @@ export default function QuestsPage() {
                 hideCategoryOverview={true}
                 isLoading={loading}
               />
+            ) : forgeTab === 'recovery' ? (
+              <div className="space-y-6">
+                {/* Streak Shield & Freeze Status Card */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-cyan-950/40 via-zinc-950 to-blue-950/40 border border-cyan-500/30 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-2xl bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-2xl shadow-inner shrink-0">
+                      ❄️
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-base font-serif font-bold text-cyan-200">
+                          Streak freeze shields & status
+                        </h3>
+                        <StreakShieldBadge userId={userId || undefined} streakDays={streakData?.streak_days || 0} />
+                      </div>
+                      <p className="text-xs text-zinc-400 font-serif mt-0.5">
+                        Freezes your daily habit counter so you never lose momentum on rest days or unexpected breaks.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={async () => {
+                      try {
+                        const currentGold = stats.gold || 0;
+                        if (currentGold < 50) {
+                          toast({
+                            title: "Not enough gold",
+                            description: `You need 50 Gold to seal a Streak Freeze Pact. You currently have ${currentGold} Gold.`,
+                            variant: "destructive"
+                          });
+                          return;
+                        }
+                        gainGold(-50, 'streak-freeze-purchase');
+                        const curInv = JSON.parse(localStorage.getItem('tileInventory') || '{}');
+                        const curCount = curInv['streak-scroll']?.quantity || 0;
+                        curInv['streak-scroll'] = {
+                          id: 'streak-scroll',
+                          type: 'streak-scroll',
+                          name: 'Streak Scroll',
+                          quantity: curCount + 1,
+                          cost: 500,
+                          connections: []
+                        };
+                        localStorage.setItem('tileInventory', JSON.stringify(curInv));
+                        window.dispatchEvent(new Event('character-stats-update'));
+                        window.dispatchEvent(new Event('inventory-updated'));
+                        toast({
+                          title: "Streak freeze activated! ❄️",
+                          description: "Deducted 50 Gold. A Streak Freeze Scroll is now guarding your streak!",
+                        });
+                      } catch (err) {
+                        toast({ title: "Purchase failed", description: "Could not activate streak freeze.", variant: "destructive" });
+                      }
+                    }}
+                    className="btn-primary-cta text-xs h-9 px-4 font-serif shrink-0 w-full sm:w-auto"
+                  >
+                    Activate streak freeze (50g) ❄️
+                  </Button>
+                </div>
+
+                <StreakRecoveryCard />
+
+                {/* Comeback Challenge Engine */}
+                <div className="p-4 sm:p-6 rounded-2xl bg-zinc-950/90 border border-amber-900/30 shadow-xl space-y-5">
+                  <div className="flex items-center justify-between pb-3 border-b border-amber-900/20">
+                    <div>
+                      <h3 className="text-base font-serif font-bold text-amber-300 flex items-center gap-2">
+                        <Heart className="w-4 h-4 text-red-400" /> Overdrive comeback challenges
+                      </h3>
+                      <p className="text-xs text-zinc-400">
+                        Choose a habit discipline to view missed streak history and repair your category momentum
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="recovery-category-select" className="block text-xs font-serif font-bold text-amber-300 mb-2">
+                      Select habit category
+                    </label>
+                    <Select value={challengeCategory || ''} onValueChange={handleChallengeCategoryChange}>
+                      <SelectTrigger id="recovery-category-select" className="w-full sm:max-w-xs rounded-xl border border-amber-500/40 bg-zinc-950 text-amber-200 text-xs h-9" aria-label="Recovery category dropdown">
+                        <SelectValue placeholder="Select habit category" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-zinc-950 border border-amber-500/40 text-amber-100">
+                        <SelectItem value="all">All categories</SelectItem>
+                        {workoutPlan.map(day => (
+                          <SelectItem key={day.category} value={day.category}>
+                            {day.category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {token && (
+                    <StreakRecovery
+                      token={token}
+                      category={challengeCategory}
+                      streakData={challengeStreakData}
+                      onStreakUpdate={() => {
+                        if (token && challengeCategory) {
+                          fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
+                            headers: { Authorization: `Bearer ${token}` },
+                          })
+                            .then(res => {
+                              if (res.ok) return res.json();
+                              throw new Error('Failed to refetch');
+                            })
+                            .then(data => setChallengeStreakData(data))
+                            .catch(error => logger.error('Error refetching streak:', error));
+                        }
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
             ) : (
               /* DAILY QUESTS TAB CONTENT */
               <div className="space-y-8">
@@ -3205,63 +3342,6 @@ export default function QuestsPage() {
                   </div>
                 </div>
             )}
-
-
-
-            {/* RECOVERY - Streak Management */}
-            {
-              activeView === 'recovery' && (
-                <div className="space-y-6">
-                  <div className="flex items-center gap-3 border-b border-green-900/20 pb-4 mb-6">
-                    <div className="p-3 bg-green-500/10 rounded-xl">
-                      <Heart className="w-6 h-6 text-green-500" />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-green-400 font-serif">Recovery</h2>
-                      <p className="text-sm text-zinc-500">Restore your streaks and momentum</p>
-                    </div>
-                  </div>
-                  <div className="mb-6">
-                    <label htmlFor="recovery-category-select" className="block text-sm font-medium text-amber-300 mb-2">
-                      Select Workout Category
-                    </label>
-                    <Select value={challengeCategory || ''} onValueChange={handleChallengeCategoryChange}>
-                      <SelectTrigger className="w-full rounded-lg border border-[#F59E0B] bg-black text-amber-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 transition-colors" aria-label="Recovery category dropdown">
-                        <SelectValue placeholder="Select workout category" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-black border border-[#F59E0B]">
-                        <SelectItem value="all">All Categories</SelectItem>
-                        {workoutPlan.map(day => (
-                          <SelectItem key={day.category} value={day.category}>
-                            {day.category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {token && (
-                    <StreakRecovery
-                      token={token}
-                      category={challengeCategory}
-                      streakData={challengeStreakData}
-                      onStreakUpdate={() => {
-                        if (token && challengeCategory) {
-                          fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
-                            headers: { Authorization: `Bearer ${token}` },
-                          })
-                            .then(res => {
-                              if (res.ok) return res.json();
-                              throw new Error('Failed to refetch');
-                            })
-                            .then(data => setChallengeStreakData(data))
-                            .catch(error => logger.error('Error refetching streak:', error));
-                        }
-                      }}
-                    />
-                  )}
-                </div>
-              )
-            }
 
           </MobileContentWrapper>
         </MedievalErrorBoundary>

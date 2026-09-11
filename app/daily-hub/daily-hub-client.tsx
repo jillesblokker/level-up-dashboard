@@ -617,7 +617,7 @@ export function DailyHubClient() {
                                     <p className="text-[11px] text-zinc-400">Daily synergy & focus</p>
                                 </div>
                             </div>
-                            {stats.streakDays > 0 && (() => {
+                            {stats.streakDays > 0 ? (() => {
                                 const days = stats.streakDays;
                                 let badgeClass = "bg-orange-950/40 border-orange-500/30 text-orange-400 shadow-[0_0_8px_rgba(249,115,22,0.25)]";
                                 let flameClass = "text-orange-500";
@@ -634,12 +634,25 @@ export function DailyHubClient() {
                                 }
                                 
                                 return (
-                                  <div className={cn("flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-bold font-mono transition-all", badgeClass)} title={`${streakTitle}: ${days} days`}>
+                                  <Link
+                                    href="/quests?tab=recovery"
+                                    className={cn("flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-bold font-mono transition-all hover:scale-105 active:scale-95 cursor-pointer", badgeClass)}
+                                    title={`${streakTitle}: ${days} days • Tap to open streak save & recovery`}
+                                  >
                                       <Flame className={cn("w-3.5 h-3.5 animate-bounce", flameClass)} style={{ animationDuration: '2s' }} />
                                       <span>Day {days} streak</span>
-                                  </div>
+                                      <span className="text-[10px] ml-0.5 opacity-80">🛡️</span>
+                                  </Link>
                                 );
-                            })()}
+                            })() : (
+                              <Link
+                                href="/quests?tab=recovery"
+                                className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/40 text-cyan-300 text-xs font-bold font-mono transition-all hover:scale-105"
+                                title="Open streak save & recovery"
+                              >
+                                <span>❄️ Streak save</span>
+                              </Link>
+                            )}
                         </div>
 
                         {/* Streak Warning if at risk */}

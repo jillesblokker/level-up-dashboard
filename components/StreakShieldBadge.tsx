@@ -8,9 +8,9 @@ import { useToast } from '@/components/ui/use-toast'
 import { CollectibleRune } from '@/components/runes/collectible-rune'
 
 interface StreakShieldBadgeProps {
-  userId?: string
-  streakDays?: number
-  className?: string
+  userId?: string | undefined
+  streakDays?: number | undefined
+  className?: string | undefined
 }
 
 export function StreakShieldBadge({ userId, streakDays = 0, className = '' }: StreakShieldBadgeProps) {

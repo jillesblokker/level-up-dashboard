@@ -61,6 +61,7 @@ export function BottomNav() {
         { href: "/tales", label: "Tales & chronicle", desc: "Stories, archives & journal", icon: BookOpen, color: "text-blue-400 border-blue-500/30 bg-blue-950/40" },
         { href: "/worldmap", label: "World map", desc: "Observatory & provinces", icon: Globe, color: "text-indigo-400 border-indigo-500/30 bg-indigo-950/40" },
         { href: "/notifications", label: "Action notifications", desc: "Dares, raids & alerts", icon: Bell, color: "text-red-400 border-red-500/30 bg-red-950/40", badge: unreadCount > 0 ? unreadCount : undefined },
+        { href: "/quests?tab=recovery", label: "Streak save & recovery", desc: "Freeze shields & streak repair", icon: Shield, color: "text-cyan-400 border-cyan-500/30 bg-cyan-950/40" },
         { href: "/settings", label: "Settings & audio", desc: "Preferences & controls", icon: Settings, color: "text-zinc-400 border-zinc-500/30 bg-zinc-900/60" },
     ]
 
