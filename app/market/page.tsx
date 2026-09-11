@@ -621,35 +621,54 @@ export default function MarketPage() {
   return (
     <div className="min-h-screen thrivehaven-page-bg text-zinc-100 p-4 sm:p-6 lg:p-8 font-serif">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Sleek Top Action Bar: Back Button on Left, Apotheca Glasshouse on Right */}
-        <div className="flex items-center justify-between gap-4">
-          <Link href="/kingdom">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-amber-400 hover:text-amber-200 hover:bg-amber-950/60 rounded-full h-11 w-11 border border-amber-500/40 shadow-lg shrink-0 cursor-pointer"
-              title="Back to Kingdom"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
+        {/* Top Bento Header Bar: Back, Balances & Apotheca Glasshouse */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-950/90 border border-amber-900/40 shadow-xl">
+          <div className="flex items-center gap-3">
+            <Link href="/kingdom">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-amber-400 hover:text-amber-200 hover:bg-amber-950/60 rounded-full h-10 w-10 border border-amber-500/40 shadow-lg shrink-0 cursor-pointer"
+                title="Back to Kingdom"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-lg font-bold font-medieval text-amber-300">Market & mystic bazaar</h1>
+              <p className="text-xs text-zinc-400 font-serif">Trade resources, claim chests & uncover cards</p>
+            </div>
+          </div>
 
-          <Button
-            size="sm"
-            onClick={() => setApothecaOpen(true)}
-            className="bg-purple-950/90 border border-purple-500/60 text-purple-200 hover:bg-purple-900 text-xs px-4 py-2.5 rounded-xl font-serif flex items-center justify-center gap-2 shadow-lg shadow-purple-950/40 shrink-0 font-bold cursor-pointer"
-          >
-            🧪 Apotheca Glasshouse
-            <Badge className="bg-purple-500/30 text-purple-200 text-[9px] font-mono border-purple-400/40 ml-0.5">
-              Brew Ready ✨
-            </Badge>
-          </Button>
+          <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+            {/* Gold balance pill */}
+            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-xs font-mono font-bold text-amber-300 shadow-inner">
+              <span>🪙</span>
+              <span>{formatGold(goldBalance)} gold</span>
+            </div>
+            {/* Gems balance pill */}
+            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-pink-950/40 border border-pink-500/30 text-xs font-mono font-bold text-pink-300 shadow-inner">
+              <span>💎</span>
+              <span>{gemBalance} gems</span>
+            </div>
+            {/* Apotheca Glasshouse button */}
+            <Button
+              size="sm"
+              onClick={() => setApothecaOpen(true)}
+              className="bg-purple-950/90 border border-purple-500/60 text-purple-200 hover:bg-purple-900 text-xs px-3.5 py-2 rounded-xl font-serif flex items-center gap-2 shadow-lg shadow-purple-950/40 font-bold shrink-0"
+            >
+              🧪 Apotheca glasshouse
+              <Badge className="bg-purple-500/30 text-purple-200 text-[9px] font-mono border-purple-400/40 ml-0.5">
+                Brew ready ✨
+              </Badge>
+            </Button>
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={(val) => { setActiveTab(val); setSearchQuery(""); }} className="space-y-6">
           <TabsList className="mb-8 bg-zinc-950 border border-amber-900/40 p-1 rounded-xl">
             <TabsTrigger value="buy" className="rounded-lg text-xs font-bold font-serif py-2.5">
-              <ShoppingBag className="w-4 h-4 mr-1.5 text-amber-400" /> Buy Materials
+              <ShoppingBag className="w-4 h-4 mr-1.5 text-amber-400" /> Buy materials
               <CollectibleRune
                 id="fehu_buy"
                 runeId="fehu"
@@ -660,7 +679,7 @@ export default function MarketPage() {
               />
             </TabsTrigger>
             <TabsTrigger value="sell" className="rounded-lg text-xs font-bold font-serif py-2.5">
-              <Coins className="w-4 h-4 mr-1.5 text-green-400" /> Sell Resources
+              <Coins className="w-4 h-4 mr-1.5 text-green-400" /> Sell resources
               <CollectibleRune
                 id="jera_sell"
                 runeId="jera"
@@ -671,7 +690,7 @@ export default function MarketPage() {
               />
             </TabsTrigger>
             <TabsTrigger value="mystic-shop" className="rounded-lg text-xs font-bold font-serif py-2.5">
-              <Package className="w-4 h-4 mr-1.5 text-pink-400" /> Mystic Bazaar
+              <Package className="w-4 h-4 mr-1.5 text-pink-400" /> Mystic bazaar
               <CollectibleRune
                 id="perthro_mystic"
                 runeId="perthro"
@@ -684,9 +703,9 @@ export default function MarketPage() {
           </TabsList>
 
           {/* MYSTIC SHOP TAB */}
-          <TabsContent value="mystic-shop" className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* MYSTIC BAZAAR HERO HEADER BANNER (Matching Airship Harbor Header Structure & Art Style) */}
-            <div className="relative h-60 md:h-72 rounded-2xl overflow-hidden border border-emerald-500/40 shadow-2xl flex items-end">
+          <TabsContent value="mystic-shop" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* MYSTIC BAZAAR HERO HEADER BANNER */}
+            <div className="relative h-52 md:h-64 rounded-2xl overflow-hidden border border-emerald-500/40 shadow-2xl flex items-end">
               <Image
                 src="/images/headers/mystic-bazaar-header.jpg"
                 alt="Mystic Bazaar Card Shop"
@@ -697,387 +716,373 @@ export default function MarketPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
               <div className="p-6 relative z-10 space-y-2">
                 <Badge className="bg-emerald-600 text-black font-extrabold text-[9px] tracking-wider uppercase mb-1">
-                  ✨ Mystic Bazaar • Cards of Fate
+                  ✨ Mystic bazaar • Cards of fate
                 </Badge>
                 <h2 className="font-medieval text-2xl sm:text-4xl text-amber-300 tracking-wide drop-shadow-md">
-                  Mystic Bazaar
+                  Mystic bazaar
                 </h2>
                 <p className="text-xs sm:text-sm text-zinc-200 max-w-2xl leading-relaxed italic drop-shadow-sm">
-                  Find Your Destiny! Unlock Daily Mystic Chests, Collect Mystery Cards, and Unlock Legendary Realm Blueprint Tiles.
+                  Find your destiny! Unlock daily mystic chests, collect mystery cards, and unlock legendary realm blueprint tiles.
                 </p>
                 <div className="flex items-center gap-2 flex-wrap pt-1">
                   <Badge className="bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-sm">
-                    🎁 Mystic Chests
+                    🎁 Mystic chests
                   </Badge>
                   <Badge className="bg-amber-950/90 border border-amber-500/50 text-amber-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-sm">
-                    🃏 Buy Card Packs
+                    🃏 Buy card packs
                   </Badge>
                 </div>
               </div>
             </div>
 
-            {/* OWNED PACKS INVENTORY SECTION (Buy vs Unpack Flow!) */}
-            {ownedPacksList.length > 0 && (
-              <div className="space-y-4 bg-gradient-to-b from-amber-950/30 via-zinc-950 to-zinc-950 p-5 sm:p-6 rounded-2xl border-2 border-amber-500/40 shadow-2xl animate-fadeIn">
-                <div className="flex items-center justify-between flex-wrap gap-3 pb-2 border-b border-amber-900/30">
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl">📦</span>
-                    <div>
-                      <h3 className="text-xl sm:text-2xl font-bold text-amber-300 font-serif">
-                        Owned Packs ({ownedPacksList.length})
-                      </h3>
-                      <p className="text-xs text-zinc-400 font-serif">
-                        Scratch cards to reveal matching symbols and claim Mystery Cards for your vault
+            {/* BENTO ROW 1 — Owned Packs & Mystic Chests */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+              {/* Left: Owned Packs Section (lg:col-span-7) */}
+              <div className="lg:col-span-7 flex flex-col justify-between bg-gradient-to-b from-amber-950/30 via-zinc-950 to-zinc-950 p-5 sm:p-6 rounded-2xl border-2 border-amber-500/40 shadow-2xl">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-amber-900/30">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl">📦</span>
+                      <div>
+                        <h3 className="text-xl sm:text-2xl font-bold text-amber-300 font-serif">
+                          Owned packs ({ownedPacksList.length})
+                        </h3>
+                        <p className="text-xs text-zinc-400 font-serif">
+                          Scratch cards to reveal matching symbols and claim mystery cards
+                        </p>
+                      </div>
+                    </div>
+                    {ownedPacksList.length > 0 && (
+                      <Badge className="bg-amber-950/90 border border-amber-500/50 text-amber-300 text-xs font-mono font-bold px-3 py-1 shadow-md">
+                        Ready to unpack ✨
+                      </Badge>
+                    )}
+                  </div>
+
+                  {ownedPacksList.length === 0 ? (
+                    <div className="py-16 px-4 rounded-xl border border-dashed border-amber-900/40 flex flex-col items-center justify-center text-center">
+                      <span className="text-4xl mb-2">🃏</span>
+                      <h4 className="text-sm font-bold text-amber-400 font-serif mb-1">No owned packs</h4>
+                      <p className="text-xs text-zinc-400 max-w-sm">
+                        Claim today&apos;s free daily chest or purchase booster packs to scratch cards here.
                       </p>
                     </div>
-                  </div>
-                  <Badge className="bg-amber-950/90 border border-amber-500/50 text-amber-300 text-xs font-mono font-bold px-3 py-1 shadow-md">
-                    Ready to Unpack ✨
-                  </Badge>
-                </div>
+                  ) : (
+                    <div className={cn(
+                      "grid gap-4 pt-2",
+                      groupedOwnedPacks.length === 1 ? "grid-cols-1 max-w-sm mx-auto" : "grid-cols-1 sm:grid-cols-2"
+                    )}>
+                      {groupedOwnedPacks.map((group, index) => {
+                        const meta = getOwnedPackMeta(group.latestPack);
+                        const currentPackToOpen = group.packs[0] || group.latestPack;
 
-                <div className={cn(
-                  "gap-5 lg:gap-6 pt-2",
-                  groupedOwnedPacks.length === 1 && "max-w-sm mx-auto flex justify-center",
-                  groupedOwnedPacks.length === 2 && "max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2",
-                  groupedOwnedPacks.length === 3 && "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
-                  groupedOwnedPacks.length >= 4 && "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-                )}>
-                  {groupedOwnedPacks.map((group, index) => {
-                    const meta = getOwnedPackMeta(group.latestPack);
-                    const currentPackToOpen = group.packs[0] || group.latestPack;
-
-                    return (
-                      <Card
-                        key={group.key}
-                        style={{ animationDelay: `${index * 60}ms` }}
-                        onClick={() => {
-                          if (!currentPackToOpen) return;
-                          hapticSuccess();
-                          setOpeningPack({ ...currentPackToOpen.packData, ownedPackId: currentPackToOpen.id });
-                        }}
-                        className={cn(
-                          "bg-gradient-to-b transition-all duration-300 group flex flex-col justify-between relative overflow-hidden animate-in fade-in slide-in-from-bottom-3 cursor-pointer hover:scale-[1.02] shadow-xl min-h-[430px] w-full",
-                          meta.gradient,
-                          meta.cardBorder
-                        )}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-40 pointer-events-none" />
-
-                        <div>
-                          {/* Fixed-height header anchoring titles to bottom so all pack images start at identical vertical height */}
-                          <CardHeader className="text-center relative z-10 pb-2 pt-3 h-24 sm:h-28 flex flex-col justify-end px-3">
-                            <div className="min-h-[44px] sm:min-h-[50px] flex items-end justify-center">
-                              <CardTitle className={cn("text-lg sm:text-xl font-black font-serif tracking-wide leading-tight", meta.titleColor)}>
-                                {meta.cleanTitle}
-                              </CardTitle>
-                            </div>
-                            <CardDescription className={cn("text-[11px] font-mono font-bold tracking-wider uppercase mt-1", meta.subColor)}>
-                              {group.shortLabel ? `${group.shortLabel} • Ready to Unpack` : "Ready to Unpack"}
-                            </CardDescription>
-                          </CardHeader>
-
-                          <CardContent className="text-center relative z-10 space-y-4 px-4 pt-1">
-                            {/* 3D Realistic Tactile Booster Pack Visual with Duplicate Stacking */}
-                            <div className="relative w-36 h-48 sm:w-44 sm:h-56 mx-auto">
-                              {/* Visual Physical Stack Layers for duplicates */}
-                              {group.count > 1 && (
-                                <>
-                                  {group.count > 2 && (
-                                    <div className={cn(
-                                      "absolute -top-3 -right-2.5 w-full h-full rounded-2xl border-2 opacity-35 transform rotate-3 pointer-events-none transition-all duration-300",
-                                      meta.packBorder
-                                    )} />
-                                  )}
-                                  <div className={cn(
-                                    "absolute -top-1.5 -right-1.5 w-full h-full rounded-2xl border-2 opacity-60 transform rotate-1.5 pointer-events-none transition-all duration-300",
-                                    meta.packBorder
-                                  )} />
-                                </>
-                              )}
-
-                              {/* Main Pack Sleeve */}
-                              <div className={cn(
-                                "relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border-2 transition-all duration-500 group-hover:scale-105 group-hover:rotate-1 group-hover:-translate-y-1",
-                                meta.packBorder
-                              )}>
-                                <Image
-                                  src={meta.image}
-                                  alt={meta.cleanTitle}
-                                  fill
-                                  sizes="(max-width: 768px) 160px, 180px"
-                                  className="object-cover"
-                                />
-                                {/* Foil Sheen Glint Effect on Hover */}
-                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                              </div>
-
-                              {/* Prominent Duplicate Stack Pill Badge */}
-                              {group.count > 1 && (
-                                <div className="absolute -top-2.5 -right-2.5 z-30 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-zinc-950 font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.8)] border-2 border-white flex items-center gap-1">
-                                  <span>x{group.count}</span>
-                                </div>
-                              )}
-                            </div>
-
-                            <p className="text-xs sm:text-sm text-zinc-300 leading-snug line-clamp-2 px-1">
-                              Tap to begin scratching cards and reveal 3 matching symbols to win!
-                            </p>
-                          </CardContent>
-                        </div>
-
-                        <CardFooter className="pt-2 pb-4 relative z-10">
-                          <Button
+                        return (
+                          <Card
+                            key={group.key}
+                            style={{ animationDelay: `${index * 60}ms` }}
+                            onClick={() => {
+                              if (!currentPackToOpen) return;
+                              hapticSuccess();
+                              setOpeningPack({ ...currentPackToOpen.packData, ownedPackId: currentPackToOpen.id });
+                            }}
                             className={cn(
-                              "w-full h-12 text-sm font-black uppercase tracking-wider rounded-xl shadow-lg transition-all duration-300 group-hover:brightness-110",
-                              meta.btnColor
+                              "bg-gradient-to-b transition-all duration-300 group flex flex-col justify-between relative overflow-hidden animate-in fade-in slide-in-from-bottom-3 cursor-pointer hover:scale-[1.02] shadow-xl min-h-[400px] w-full",
+                              meta.gradient,
+                              meta.cardBorder
                             )}
                           >
-                            {group.count > 1 ? `Unpack (x${group.count}) ✨` : "Unpack Now ✨"}
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    );
-                  })}
+                            <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-40 pointer-events-none" />
+
+                            <div>
+                              <CardHeader className="text-center relative z-10 pb-2 pt-4">
+                                <CardTitle className={cn("text-lg font-bold font-serif tracking-wide truncate", meta.titleColor)}>
+                                  {meta.cleanTitle}
+                                </CardTitle>
+                                <CardDescription className={cn("text-[10px] font-mono font-bold tracking-wider uppercase", meta.subColor)}>
+                                  {group.shortLabel || 'Card pack'}
+                                </CardDescription>
+                              </CardHeader>
+
+                              <CardContent className="text-center relative z-10 space-y-3 px-3">
+                                <div className="relative w-28 h-36 sm:w-32 sm:h-40 mx-auto">
+                                  <div className={cn(
+                                    "relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border-2 transition-all duration-500 group-hover:scale-105 group-hover:rotate-1 group-hover:-translate-y-1",
+                                    meta.packBorder
+                                  )}>
+                                    <Image
+                                      src={meta.image}
+                                      alt={meta.cleanTitle}
+                                      fill
+                                      sizes="(max-width: 768px) 140px, 160px"
+                                      className="object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                                  </div>
+
+                                  {group.count > 1 && (
+                                    <div className="absolute -top-2.5 -right-2.5 z-30 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-zinc-950 font-black text-xs px-2 py-0.5 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.8)] border-2 border-white flex items-center gap-1">
+                                      <span>x{group.count}</span>
+                                    </div>
+                                  )}
+                                </div>
+
+                                <p className="text-xs text-zinc-300 leading-snug line-clamp-2 px-1">
+                                  Tap to begin scratching cards and reveal 3 matching symbols to win!
+                                </p>
+                              </CardContent>
+                            </div>
+
+                            <CardFooter className="pt-2 pb-4 relative z-10">
+                              <Button
+                                className={cn(
+                                  "w-full h-11 text-xs font-black uppercase tracking-wider rounded-xl shadow-lg transition-all duration-300 group-hover:brightness-110",
+                                  meta.btnColor
+                                )}
+                              >
+                                {group.count > 1 ? `Unpack (x${group.count}) ✨` : "Unpack now ✨"}
+                              </Button>
+                            </CardFooter>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
-            {/* Free Packs Section - Mystic Chests */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">🎁</span>
-                <h2 className="text-2xl font-bold tracking-tight text-amber-400 font-serif">Mystic Chests</h2>
-              </div>
-              <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-3 custom-scrollbar mobile-scroll-hide sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-5 lg:gap-6">
-                {FREE_PACK_TYPES.map((pack, index) => {
-                  const onCooldown = isPackOnCooldown(pack);
-                  const remaining = getCooldownRemaining(pack);
 
-                  let isUnlocking = false;
-                  let unlockRemaining = "";
-                  let canClaimMystery = false;
-                  let mysteryStarted = false;
-                  
-                  if (pack.cooldownType === 'mystery' && !onCooldown) {
-                    const unlockStarted = unlockStartTimestamps[pack.id];
-                    if (unlockStarted) {
-                      mysteryStarted = true;
-                      const diff = currentTime - unlockStarted;
-                      const remainingMs = 3 * 60 * 60 * 1000 - diff;
-                      if (remainingMs > 0) {
-                        isUnlocking = true;
-                        const totalSeconds = Math.floor(remainingMs / 1000);
-                        const hours = Math.floor(totalSeconds / 3600);
-                        const minutes = Math.floor((totalSeconds % 3600) / 60);
-                        const seconds = totalSeconds % 60;
-                        unlockRemaining = hours > 0 ? `${hours}h ${minutes}m ${seconds}s` : `${minutes}m ${seconds}s`;
-                      } else {
-                        canClaimMystery = true;
-                      }
-                    }
-                  }
-                  
-                  const isButtonDisabled = onCooldown || isProcessing || isUnlocking;
-                  let buttonLabel = onCooldown ? "Claimed" : (isProcessing ? "Processing..." : `Claim Free ${pack.shortLabel}`);
-                  
-                  if (pack.cooldownType === 'mystery' && !onCooldown && !isProcessing) {
-                    if (!mysteryStarted) {
-                      buttonLabel = "Start Unlock (3h)";
-                    } else if (isUnlocking) {
-                      buttonLabel = `Unlocking... (${unlockRemaining})`;
-                    } else if (canClaimMystery) {
-                      buttonLabel = "Claim Mystery Chest!";
-                    }
-                  }
+              {/* Right: Free Mystic Chests Section (lg:col-span-5) */}
+              <div className="lg:col-span-5 flex flex-col justify-between bg-zinc-950/90 p-5 sm:p-6 rounded-2xl border border-amber-900/40 shadow-xl">
+                <div>
+                  <div className="flex items-center gap-3 mb-4 pb-3 border-b border-amber-900/30">
+                    <span className="text-2xl">🎁</span>
+                    <div>
+                      <h3 className="text-xl font-bold text-amber-400 font-serif">Mystic chests</h3>
+                      <p className="text-xs text-zinc-400">Daily and recurring free gifts</p>
+                    </div>
+                  </div>
 
-                  const isDaily = pack.id === 'free_daily';
-                  const isMystery = pack.id === 'free_mystery';
-                  const isWeekly = pack.id === 'free_weekly';
-                  const isMonthly = pack.id === 'free_monthly';
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {FREE_PACK_TYPES.map((pack, index) => {
+                      const onCooldown = isPackOnCooldown(pack);
+                      const remaining = getCooldownRemaining(pack);
 
-                  const cardTheme = isDaily
-                    ? {
-                        border: "border-emerald-500/35 hover:border-emerald-400/80 shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_25px_rgba(16,185,129,0.25)]",
-                        gradient: "from-emerald-950/25 via-zinc-900 to-zinc-900",
-                        title: "text-emerald-300",
-                        sub: "text-emerald-400/80",
-                        btn: "bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white shadow-emerald-950/50",
-                        rarity: "uncommon" as const
-                      }
-                    : isMystery
-                    ? {
-                        border: "border-purple-500/35 hover:border-purple-400/80 shadow-[0_0_15px_rgba(168,85,247,0.1)] hover:shadow-[0_0_25px_rgba(168,85,247,0.25)]",
-                        gradient: "from-purple-950/25 via-zinc-900 to-zinc-900",
-                        title: "text-purple-300",
-                        sub: "text-purple-400/80",
-                        btn: "bg-gradient-to-r from-purple-600 via-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white shadow-purple-950/50",
-                        rarity: "epic" as const
-                      }
-                    : isWeekly
-                    ? {
-                        border: "border-blue-500/35 hover:border-blue-400/80 shadow-[0_0_15px_rgba(59,130,246,0.1)] hover:shadow-[0_0_25px_rgba(59,130,246,0.25)]",
-                        gradient: "from-blue-950/25 via-zinc-900 to-zinc-900",
-                        title: "text-blue-300",
-                        sub: "text-blue-400/80",
-                        btn: "bg-gradient-to-r from-blue-600 via-blue-600 to-cyan-700 hover:from-blue-500 hover:to-cyan-600 text-white shadow-blue-950/50",
-                        rarity: "rare" as const
-                      }
-                    : {
-                        border: "border-amber-500/45 hover:border-amber-400/90 shadow-[0_0_18px_rgba(245,158,11,0.15)] hover:shadow-[0_0_30px_rgba(245,158,11,0.35)]",
-                        gradient: "from-amber-950/30 via-zinc-900 to-zinc-900",
-                        title: "text-amber-300",
-                        sub: "text-amber-400/80",
-                        btn: "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-500 text-zinc-950 font-black shadow-amber-500/25",
-                        rarity: "legendary" as const
-                      };
-
-                  return (
-                    <Card
-                      key={pack.id}
-                      style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }}
-                      className={cn(
-                        "bg-gradient-to-b transition-all duration-300 group flex flex-col justify-between relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 snap-start shrink-0 w-[calc(100vw-3.25rem)] max-w-[285px] sm:w-auto sm:max-w-none sm:min-w-0 sm:shrink min-h-[390px] border-2",
-                        cardTheme.gradient,
-                        cardTheme.border,
-                        onCooldown && "opacity-70 saturate-75"
-                      )}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-40 pointer-events-none" />
+                      let isUnlocking = false;
+                      let unlockRemaining = "";
+                      let canClaimMystery = false;
+                      let mysteryStarted = false;
                       
-                      <div>
-                        <CardHeader className="text-center relative z-10 pb-1.5 pt-4">
-                          <CardTitle className={cn("text-base sm:text-lg font-bold font-serif leading-tight", cardTheme.title)}>
-                            {pack.title}
-                          </CardTitle>
-                          <CardDescription className={cn("text-[10px] font-mono font-bold mt-0.5 tracking-wider uppercase", cardTheme.sub)}>
-                            {pack.shortLabel}
-                          </CardDescription>
-                        </CardHeader>
-                        
-                        <CardContent className="text-center relative z-10 space-y-2 px-3">
-                          {/* 3D Tactile Treasure Chest Visual */}
-                          <div className="relative w-full max-w-[170px] h-32 mx-auto flex items-center justify-center">
-                            <TreasureChestVisual
-                              state={onCooldown ? 'claimed' : isUnlocking ? 'opening' : 'ready'}
-                              rarity={cardTheme.rarity}
-                              tierLabel={pack.shortLabel}
-                              hideLabels={true}
-                              className="w-full h-full bg-transparent border-0 p-0 shadow-none"
-                            />
+                      if (pack.cooldownType === 'mystery' && !onCooldown) {
+                        const unlockStarted = unlockStartTimestamps[pack.id];
+                        if (unlockStarted) {
+                          mysteryStarted = true;
+                          const diff = currentTime - unlockStarted;
+                          const remainingMs = 3 * 60 * 60 * 1000 - diff;
+                          if (remainingMs > 0) {
+                            isUnlocking = true;
+                            const totalSeconds = Math.floor(remainingMs / 1000);
+                            const hours = Math.floor(totalSeconds / 3600);
+                            const minutes = Math.floor((totalSeconds % 3600) / 60);
+                            const seconds = totalSeconds % 60;
+                            unlockRemaining = hours > 0 ? `${hours}h ${minutes}m ${seconds}s` : `${minutes}m ${seconds}s`;
+                          } else {
+                            canClaimMystery = true;
+                          }
+                        }
+                      }
+                      
+                      const isButtonDisabled = onCooldown || isProcessing || isUnlocking;
+                      let buttonLabel = onCooldown ? "Claimed" : (isProcessing ? "Processing..." : `Claim free ${pack.shortLabel.toLowerCase()}`);
+                      
+                      if (pack.cooldownType === 'mystery' && !onCooldown && !isProcessing) {
+                        if (!mysteryStarted) {
+                          buttonLabel = "Start unlock (3h)";
+                        } else if (isUnlocking) {
+                          buttonLabel = `Unlocking... (${unlockRemaining})`;
+                        } else if (canClaimMystery) {
+                          buttonLabel = "Claim mystery chest!";
+                        }
+                      }
+
+                      const isDaily = pack.id === 'free_daily';
+                      const isMystery = pack.id === 'free_mystery';
+                      const isWeekly = pack.id === 'free_weekly';
+
+                      const cardTheme = isDaily
+                        ? {
+                            border: "border-emerald-500/35 hover:border-emerald-400/80 shadow-[0_0_15px_rgba(16,185,129,0.1)]",
+                            gradient: "from-emerald-950/25 via-zinc-900 to-zinc-900",
+                            title: "text-emerald-300",
+                            sub: "text-emerald-400/80",
+                            btn: "bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white shadow-emerald-950/50",
+                            rarity: "uncommon" as const
+                          }
+                        : isMystery
+                        ? {
+                            border: "border-purple-500/35 hover:border-purple-400/80 shadow-[0_0_15px_rgba(168,85,247,0.1)]",
+                            gradient: "from-purple-950/25 via-zinc-900 to-zinc-900",
+                            title: "text-purple-300",
+                            sub: "text-purple-400/80",
+                            btn: "bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white shadow-purple-950/50",
+                            rarity: "epic" as const
+                          }
+                        : isWeekly
+                        ? {
+                            border: "border-blue-500/35 hover:border-blue-400/80 shadow-[0_0_15px_rgba(59,130,246,0.1)]",
+                            gradient: "from-blue-950/25 via-zinc-900 to-zinc-900",
+                            title: "text-blue-300",
+                            sub: "text-blue-400/80",
+                            btn: "bg-gradient-to-r from-blue-600 to-cyan-700 hover:from-blue-500 hover:to-cyan-600 text-white shadow-blue-950/50",
+                            rarity: "rare" as const
+                          }
+                        : {
+                            border: "border-amber-500/45 hover:border-amber-400/90 shadow-[0_0_18px_rgba(245,158,11,0.15)]",
+                            gradient: "from-amber-950/30 via-zinc-900 to-zinc-900",
+                            title: "text-amber-300",
+                            sub: "text-amber-400/80",
+                            btn: "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-yellow-500 text-zinc-950 font-black shadow-amber-500/25",
+                            rarity: "legendary" as const
+                          };
+
+                      return (
+                        <Card
+                          key={pack.id}
+                          style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }}
+                          className={cn(
+                            "bg-gradient-to-b transition-all duration-300 group flex flex-col justify-between relative overflow-hidden p-3 border-2 rounded-xl",
+                            cardTheme.gradient,
+                            cardTheme.border,
+                            onCooldown && "opacity-70 saturate-75"
+                          )}
+                        >
+                          <div>
+                            <div className="text-center pb-1">
+                              <h4 className={cn("text-xs font-bold font-serif leading-tight truncate", cardTheme.title)}>
+                                {pack.title}
+                              </h4>
+                              <p className={cn("text-[9px] font-mono font-bold mt-0.5 tracking-wider uppercase", cardTheme.sub)}>
+                                {pack.shortLabel}
+                              </p>
+                            </div>
+                            
+                            {/* Treasure chest image */}
+                            <div className="relative w-full h-24 mx-auto flex items-center justify-center my-1">
+                              <TreasureChestVisual
+                                state={onCooldown ? 'claimed' : isUnlocking ? 'opening' : 'ready'}
+                                rarity={cardTheme.rarity}
+                                tierLabel={pack.shortLabel}
+                                hideLabels={true}
+                                className="w-full h-full bg-transparent border-0 p-0 shadow-none"
+                              />
+                            </div>
+
+                            {(onCooldown && remaining) ? (
+                              <div className="text-[9px] font-semibold text-amber-400 bg-amber-950/50 py-0.5 px-2 rounded-full text-center border border-amber-900/40 font-mono my-1">
+                                ⏱️ {remaining}
+                              </div>
+                            ) : (isUnlocking && unlockRemaining) ? (
+                              <div className="text-[9px] font-semibold text-purple-300 bg-purple-950/50 py-0.5 px-2 rounded-full text-center border border-purple-900/40 font-mono my-1">
+                                ⏳ {unlockRemaining}
+                              </div>
+                            ) : null}
                           </div>
 
-                          <p className="text-xs text-zinc-300 px-1 line-clamp-2 min-h-[32px] leading-snug">
-                            {pack.description}
-                          </p>
-                          
-                          {(onCooldown && remaining) ? (
-                            <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/50 py-1 px-2.5 rounded-full inline-block border border-amber-900/40 font-mono">
-                              ⏱️ {remaining}
-                            </div>
-                          ) : (isUnlocking && unlockRemaining) ? (
-                            <div className="text-[10px] font-semibold text-purple-300 bg-purple-950/50 py-1 px-2.5 rounded-full inline-block border border-purple-900/40 font-mono">
-                              ⏳ {unlockRemaining}
-                            </div>
-                          ) : null}
-                        </CardContent>
-                      </div>
-
-                      <CardFooter className="pt-2 pb-4 relative z-10">
-                        <Button 
-                          className={cn(
-                            "w-full h-12 text-xs sm:text-sm font-black uppercase tracking-wider rounded-xl transition-all duration-300 shadow-md",
-                            isButtonDisabled
-                              ? "bg-zinc-800 text-zinc-500 border border-zinc-700/50 cursor-not-allowed shadow-none"
-                              : cardTheme.btn
-                          )}
-                          onClick={() => handleBuyPack(pack)}
-                          disabled={isButtonDisabled}
-                        >
-                          {buttonLabel}
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  );
-                })}
+                          <div className="pt-2">
+                            <Button 
+                              className={cn(
+                                "w-full h-9 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all shadow-md",
+                                isButtonDisabled
+                                  ? "bg-zinc-800 text-zinc-500 border border-zinc-700/50 cursor-not-allowed shadow-none"
+                                  : cardTheme.btn
+                              )}
+                              onClick={() => handleBuyPack(pack)}
+                              disabled={isButtonDisabled}
+                            >
+                              {buttonLabel}
+                            </Button>
+                          </div>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Paid Packs Section - Buy Card Packs */}
-            <div className="space-y-6">
+            {/* BENTO ROW 2 — Paid Booster Card Packs */}
+            <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🪙</span>
-                <h2 className="text-2xl font-bold tracking-tight text-amber-300 font-serif">Buy Card Packs</h2>
+                <h3 className="text-2xl font-bold tracking-tight text-amber-300 font-serif">Buy card packs</h3>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                 {PACK_TYPES.map((pack, index) => {
                   const packImg = (pack as any).image || (pack.id === 'starter' ? '/images/packs/drift-pack.jpg' : pack.id === 'vault' ? '/images/packs/vault-pack.jpg' : '/images/packs/crown-pack.jpg');
                   const isCrown = pack.id === 'crown';
                   const isVault = pack.id === 'vault';
-                  const isDrift = pack.id === 'starter';
                   
                   return (
                     <Card key={pack.id} style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'backwards' }} className={cn(
-                      "bg-zinc-900 transition-all duration-300 shadow-xl group flex flex-col relative overflow-hidden animate-in fade-in slide-in-from-bottom-4",
+                      "bg-zinc-900 transition-all duration-300 shadow-xl group flex flex-col justify-between relative overflow-hidden rounded-2xl",
                       isCrown 
-                        ? "border-2 border-amber-500/50 hover:border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.25)] hover:shadow-[0_0_35px_rgba(245,158,11,0.45)]" 
+                        ? "border-2 border-amber-500/50 hover:border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.25)]" 
                         : isVault
-                        ? "border-2 border-purple-500/50 hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.2)] hover:shadow-[0_0_35px_rgba(168,85,247,0.4)]"
-                        : "border-2 border-cyan-500/40 hover:border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.15)] hover:shadow-[0_0_30px_rgba(6,182,212,0.35)]"
+                        ? "border-2 border-purple-500/50 hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.2)]"
+                        : "border-2 border-cyan-500/40 hover:border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.15)]"
                     )}>
                       <div className={cn(
                         "absolute inset-0 bg-gradient-to-b opacity-40 pointer-events-none",
                         isCrown ? "from-amber-600/20 to-transparent" : isVault ? "from-purple-600/20 to-transparent" : "from-cyan-600/20 to-transparent"
                       )} />
-                      <CardHeader className="text-center relative z-10 pb-2 pt-4">
-                        <CardTitle className={cn(
-                          "text-2xl font-black font-serif tracking-wide",
-                          isCrown ? "text-amber-300" : isVault ? "text-purple-300" : "text-cyan-300"
-                        )}>
-                          {pack.title}
-                        </CardTitle>
-                        <CardDescription className={cn(
-                          "text-xs font-mono font-bold tracking-wider uppercase",
-                          isCrown ? "text-amber-200/80" : isVault ? "text-purple-200/80" : "text-cyan-200/80"
-                        )}>
-                          {pack.shortLabel}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="flex-1 text-center relative z-10 space-y-4 px-4">
-                        {/* 3D Realistic Tactile Booster Pack Visual */}
-                        <div className={cn(
-                          "relative w-36 h-48 sm:w-44 sm:h-56 mx-auto rounded-2xl overflow-hidden shadow-2xl border-2 transition-all duration-500 group-hover:scale-105 group-hover:rotate-1 group-hover:-translate-y-1",
-                          isCrown ? "border-amber-400/80 shadow-[0_10px_25px_rgba(245,158,11,0.4)]" : isVault ? "border-purple-400/80 shadow-[0_10px_25px_rgba(168,85,247,0.4)]" : "border-cyan-400/80 shadow-[0_10px_25px_rgba(6,182,212,0.3)]"
-                        )}>
-                          <Image
-                            src={packImg}
-                            alt={pack.title}
-                            fill
-                            sizes="(max-width: 768px) 160px, 180px"
-                            className="object-cover"
-                            priority={index === 0}
-                          />
-                          {/* Foil Sheen Glint Effect on Hover */}
-                          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                        </div>
-                        <p className="text-xs sm:text-sm text-zinc-300 px-2 line-clamp-2 min-h-[36px] leading-snug">
-                          {pack.description}
-                        </p>
-                      </CardContent>
-                      <CardFooter className="relative z-10 pb-4 pt-2">
+                      <div>
+                        <CardHeader className="text-center relative z-10 pb-2 pt-5">
+                          <CardTitle className={cn(
+                            "text-xl font-bold font-serif tracking-wide",
+                            isCrown ? "text-amber-300" : isVault ? "text-purple-300" : "text-cyan-300"
+                          )}>
+                            {pack.title}
+                          </CardTitle>
+                          <CardDescription className={cn(
+                            "text-xs font-mono font-bold tracking-wider uppercase",
+                            isCrown ? "text-amber-200/80" : isVault ? "text-purple-200/80" : "text-cyan-200/80"
+                          )}>
+                            {pack.shortLabel}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="text-center relative z-10 space-y-3 px-4">
+                          <div className={cn(
+                            "relative w-32 h-44 sm:w-36 sm:h-48 mx-auto rounded-2xl overflow-hidden shadow-2xl border-2 transition-all duration-500 group-hover:scale-105 group-hover:rotate-1 group-hover:-translate-y-1",
+                            isCrown ? "border-amber-400/80 shadow-[0_10px_25px_rgba(245,158,11,0.4)]" : isVault ? "border-purple-400/80 shadow-[0_10px_25px_rgba(168,85,247,0.4)]" : "border-cyan-400/80 shadow-[0_10px_25px_rgba(6,182,212,0.3)]"
+                          )}>
+                            <Image
+                              src={packImg}
+                              alt={pack.title}
+                              fill
+                              sizes="(max-width: 768px) 140px, 160px"
+                              className="object-cover"
+                              priority={index === 0}
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                          </div>
+                          <p className="text-xs text-zinc-300 px-2 line-clamp-2 min-h-[32px] leading-snug">
+                            {pack.description}
+                          </p>
+                        </CardContent>
+                      </div>
+                      <CardFooter className="relative z-10 pb-5 pt-2">
                         <Button 
                           className={cn(
-                            "w-full h-14 text-base font-black tracking-wide rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed",
+                            "w-full h-12 text-sm font-black tracking-wide rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed",
                             isCrown
-                              ? "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-500 text-zinc-950 font-black shadow-amber-500/25"
+                              ? "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-yellow-500 text-zinc-950 font-black shadow-amber-500/25"
                               : isVault
-                              ? "bg-gradient-to-r from-purple-600 via-fuchsia-600 to-indigo-600 hover:from-purple-500 hover:to-fuchsia-500 text-white shadow-purple-600/30"
-                              : "bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-600/30"
+                              ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-fuchsia-500 text-white shadow-purple-600/30"
+                              : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-600/30"
                           )}
                           onClick={() => handleBuyPack(pack)}
                           disabled={(pack.currency === 'gems' ? gemBalance < pack.price : goldBalance < pack.price) || isProcessing}
                         >
-                          {isProcessing ? "Processing..." : `Buy for ${pack.currency === 'gems' ? `${pack.price} Gems` : `${formatGold(pack.price)} Gold`}`} 
-                          {pack.currency === 'gems' ? <Gem className="w-5 h-5 ml-2 text-pink-300" /> : <Coins className="w-5 h-5 ml-2 text-yellow-300" />}
+                          {isProcessing ? "Processing..." : `Buy for ${pack.currency === 'gems' ? `${pack.price} gems` : `${formatGold(pack.price)} gold`}`} 
+                          {pack.currency === 'gems' ? <Gem className="w-4 h-4 ml-1.5 text-pink-300" /> : <Coins className="w-4 h-4 ml-1.5 text-yellow-300" />}
                         </Button>
                       </CardFooter>
                     </Card>
