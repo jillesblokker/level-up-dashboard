@@ -10,6 +10,7 @@ import { Session } from '@supabase/supabase-js'
 import { Castle, Coins, Star, Brain, Bell } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Progress } from "@/components/ui/progress"
+import { NotificationCenter } from "@/components/notification-center"
 import { notificationService } from "@/lib/notification-service"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -307,18 +308,7 @@ export function NavBar({ session }: NavBarProps) {
 
           </div>
           <div className="relative">
-            <Link
-              href="/notifications"
-              className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-amber-500/10 text-zinc-400 hover:text-white transition-transform hover:scale-105 active:scale-95 border border-transparent hover:border-amber-500/30"
-              title="Notifications"
-            >
-              <Bell className="h-5 w-5" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center shadow-md">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </Link>
+            <NotificationCenter />
           </div>
           <UserNav />
         </div>

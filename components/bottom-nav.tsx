@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { Crown, Compass, MapIcon, User, Users, LayoutGrid, X, Trophy, Shield, Sword, ShoppingBag, Sun, Ship, BookOpen, Globe, Bell, Settings, Backpack, Scroll, Puzzle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { notificationService } from "@/lib/notification-service"
+import { NotificationCenter } from "@/components/notification-center"
 import { useState, useEffect } from "react"
 import { useNavigationAudio } from "@/components/audio-provider"
 import { useHaptics, HapticPatterns } from "@/lib/haptics"
@@ -68,7 +69,7 @@ export function BottomNav() {
         { href: "/tales", label: "Chronicle", icon: BookOpen, color: "text-blue-400 border-blue-500/30 bg-blue-950/40" },
         { href: "/worldmap", label: "World map", icon: Globe, color: "text-indigo-400 border-indigo-500/30 bg-indigo-950/40" },
         { action: () => window.dispatchEvent(new CustomEvent('open-inventory-bag')), label: "Bag", icon: Backpack, color: "text-amber-400 border-amber-500/30 bg-amber-950/40" },
-        { href: "/notifications", label: "Notifications", icon: Bell, color: "text-red-400 border-red-500/30 bg-red-950/40", badge: unreadCount > 0 ? unreadCount : undefined },
+        { action: () => window.dispatchEvent(new CustomEvent('open-notification-center')), label: "Notifications", icon: Bell, color: "text-amber-400 border-amber-500/30 bg-amber-950/40", badge: unreadCount > 0 ? unreadCount : undefined },
         { href: "/quests?tab=recovery", label: "Streak recovery", icon: Shield, color: "text-cyan-400 border-cyan-500/30 bg-cyan-950/40" },
         { href: "/requirements", label: "Guide", icon: Scroll, color: "text-emerald-300 border-emerald-500/30 bg-emerald-950/40" },
         { href: "/riddles", label: "Riddles", icon: Puzzle, color: "text-pink-400 border-pink-500/30 bg-pink-950/40" },
@@ -267,6 +268,9 @@ export function BottomNav() {
                     </button>
                 </div>
             </nav>
+            <NotificationCenter>
+                <span className="hidden" aria-hidden="true" />
+            </NotificationCenter>
         </>
     )
 }

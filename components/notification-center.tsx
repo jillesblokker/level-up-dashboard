@@ -76,9 +76,13 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
     // Also listen for friend updates to refresh notifications
     window.addEventListener('friend-update', fetchServerNotifications)
 
+    const handleOpenExternal = () => setOpen(true)
+    window.addEventListener('open-notification-center', handleOpenExternal)
+
     return () => {
       window.removeEventListener('newNotification', handleNewNotification)
       window.removeEventListener('friend-update', fetchServerNotifications)
+      window.removeEventListener('open-notification-center', handleOpenExternal)
     }
   }, [])
 

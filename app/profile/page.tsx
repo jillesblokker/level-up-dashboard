@@ -25,10 +25,11 @@ import { setUserPreference, getUserPreference } from "@/lib/user-preferences-man
 import { getRulerTitleSync, getRulerTitle, setRulerTitle, RulerTitle } from "@/lib/ruler-title-service";
 import Link from "next/link";
 import { logout } from "@/app/actions/auth";
+import { NotificationCenter } from "@/components/notification-center";
 import { notificationService } from "@/lib/notification-service";
 import { getCharacterStats, fetchFreshCharacterStats, CharacterStats as ServiceCharacterStats } from "@/lib/character-stats-service";
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character";
-import { Bell } from "lucide-react";
+import { Bell, Mail } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { cn } from "@/lib/utils";
@@ -391,24 +392,24 @@ export default function ProfilePage() {
 
         {/* Quick Access Cards - Mobile/Tablet Optimization */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
-        <Link href="/notifications">
+        <NotificationCenter>
           <Card className="bg-zinc-900 border-amber-800/30 hover:bg-zinc-800/80 hover:border-amber-500/50 transition-all cursor-pointer h-full group">
             <CardContent className="p-3.5 sm:p-4 flex flex-col items-center justify-center text-center h-full">
               <div className="relative">
-                <Bell className="w-7 h-7 sm:w-8 sm:h-8 text-amber-400 mb-1.5 group-hover:scale-110 transition-transform" />
+                <Mail className="w-7 h-7 sm:w-8 sm:h-8 text-amber-400 mb-1.5 group-hover:scale-110 transition-transform" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
                 )}
               </div>
-              <div className="text-xs sm:text-sm font-bold text-white font-serif">Notifications</div>
+              <div className="text-xs sm:text-sm font-bold text-white font-serif">{TEXT_CONTENT.profile.quickAccess.inbox.title}</div>
               {unreadCount > 0 ? (
                 <Badge className="mt-1.5 bg-red-500 hover:bg-red-600 border-none text-[10px]">{unreadCount} new</Badge>
               ) : (
-                <span className="text-[11px] text-zinc-500 mt-1">Action feed</span>
+                <span className="text-[11px] text-zinc-500 mt-1">{TEXT_CONTENT.profile.quickAccess.inbox.empty}</span>
               )}
             </CardContent>
           </Card>
-        </Link>
+        </NotificationCenter>
 
         <Link href="/character">
           <Card className="bg-zinc-900 border-amber-800/30 hover:bg-zinc-800/80 hover:border-amber-500/50 transition-all cursor-pointer h-full group">
