@@ -964,9 +964,9 @@ export default function CharacterPage() {
                 </div>
 
                 {/* Glowing Paragon Champion Rank */}
-                <div className="relative inline-block my-0.5">
+                <div className="relative inline-block my-0.5 max-w-full">
                   <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-amber-500 via-purple-500 to-amber-500 blur-md opacity-75 animate-pulse" />
-                  <Badge className="relative bg-gradient-to-r from-amber-950 via-zinc-950 to-amber-950 border border-amber-400 text-amber-300 px-4 py-1.5 rounded-full font-serif text-xs tracking-wider shadow-xl">
+                  <Badge className="relative bg-gradient-to-r from-amber-950 via-zinc-950 to-amber-950 border border-amber-400 text-amber-300 px-3 sm:px-4 py-1.5 rounded-full font-serif text-xs tracking-wide shadow-xl max-w-full truncate text-center">
                     👑 Paragon champion rank: Level {characterStats.level} King
                   </Badge>
                 </div>
@@ -994,10 +994,10 @@ export default function CharacterPage() {
                   {/* Track 2: Title Ascension */}
                   <div className="space-y-1.5 pt-2 border-t border-amber-900/30">
                     <div className="flex justify-between items-center text-xs font-mono">
-                      <span className="text-zinc-300 font-serif flex items-center gap-1">
+                      <span className="text-zinc-300 font-serif flex items-center gap-1 min-w-0 truncate">
                         📜 Ascension: Marquis (Level 50)
                       </span>
-                      <span className="text-amber-400 font-bold">
+                      <span className="text-amber-400 font-bold shrink-0 ml-1">
                         {Math.round(calculateLevelProgress(characterStats.experience))}%
                       </span>
                     </div>
@@ -1017,41 +1017,44 @@ export default function CharacterPage() {
                       <span className="text-base">🛡️</span>
                       <span className="text-zinc-200 font-bold text-xs font-serif">Combat prowess</span>
                     </div>
-                    <Badge variant="outline" className="border-amber-500/40 text-amber-300 bg-amber-950/40 text-[10px] font-mono font-bold">
+                    <Badge variant="outline" className="border-amber-500/40 text-amber-300 bg-amber-950/40 text-[10px] font-mono font-bold shrink-0">
                       ⚡ Gear score: {gearStats.gearScore} (sovereign knight)
                     </Badge>
                   </div>
 
                   {/* 3 Unified RPG Attribute Tiles */}
                   <div className="grid grid-cols-3 gap-2 font-serif text-center">
-                    <div className="p-2.5 rounded-lg bg-zinc-900/90 border border-red-500/30 flex flex-col items-center">
-                      <span className="text-red-400 text-xs font-bold flex items-center gap-1">⚔️ Might</span>
+                    <div className="p-2 sm:p-2.5 rounded-lg bg-zinc-900/90 border border-red-500/30 flex flex-col items-center justify-center min-w-0">
+                      <span className="text-red-400 text-xs font-bold flex items-center gap-1 truncate">⚔️ Might</span>
                       <span className="text-red-200 text-base sm:text-lg font-bold font-mono mt-0.5">
                         {25 + (characterStats.level || 1) * 2 + (gearStats.atk || 0)}
                       </span>
-                      <span className="text-[10px] text-zinc-400 font-mono">
-                        {25 + (characterStats.level || 1) * 2} + {gearStats.atk || 0} gear
-                      </span>
+                      <div className="text-[10px] text-zinc-400 font-mono flex items-center justify-center gap-1 flex-wrap">
+                        <span>{25 + (characterStats.level || 1) * 2}</span>
+                        <span className="text-red-400/90 font-bold">+{gearStats.atk || 0}</span>
+                      </div>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-zinc-900/90 border border-blue-500/30 flex flex-col items-center">
-                      <span className="text-blue-400 text-xs font-bold flex items-center gap-1">🛡️ Defense</span>
+                    <div className="p-2 sm:p-2.5 rounded-lg bg-zinc-900/90 border border-blue-500/30 flex flex-col items-center justify-center min-w-0">
+                      <span className="text-blue-400 text-xs font-bold flex items-center gap-1 truncate">🛡️ Defense</span>
                       <span className="text-blue-200 text-base sm:text-lg font-bold font-mono mt-0.5">
                         {20 + (characterStats.level || 1) * 2 + (gearStats.def || 0)}
                       </span>
-                      <span className="text-[10px] text-zinc-400 font-mono">
-                        {20 + (characterStats.level || 1) * 2} + {gearStats.def || 0} gear
-                      </span>
+                      <div className="text-[10px] text-zinc-400 font-mono flex items-center justify-center gap-1 flex-wrap">
+                        <span>{20 + (characterStats.level || 1) * 2}</span>
+                        <span className="text-blue-400/90 font-bold">+{gearStats.def || 0}</span>
+                      </div>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-zinc-900/90 border border-emerald-500/30 flex flex-col items-center">
-                      <span className="text-emerald-400 text-xs font-bold flex items-center gap-1">💨 Speed</span>
+                    <div className="p-2 sm:p-2.5 rounded-lg bg-zinc-900/90 border border-emerald-500/30 flex flex-col items-center justify-center min-w-0">
+                      <span className="text-emerald-400 text-xs font-bold flex items-center gap-1 truncate">💨 Speed</span>
                       <span className="text-emerald-200 text-base sm:text-lg font-bold font-mono mt-0.5">
                         {15 + (characterStats.level || 1) + (gearStats.spd || 0)}
                       </span>
-                      <span className="text-[10px] text-zinc-400 font-mono">
-                        {15 + (characterStats.level || 1)} + {gearStats.spd || 0} gear
-                      </span>
+                      <div className="text-[10px] text-zinc-400 font-mono flex items-center justify-center gap-1 flex-wrap">
+                        <span>{15 + (characterStats.level || 1)}</span>
+                        <span className="text-emerald-400/90 font-bold">+{gearStats.spd || 0}</span>
+                      </div>
                     </div>
                   </div>
 
@@ -1088,12 +1091,12 @@ export default function CharacterPage() {
                 </div>
               </div>
 
-              {/* Essence Inventory */}
+              {/* Essence Inventory Vault */}
               <div className="pt-4 border-t border-amber-900/30">
                 <h4 className="text-xs font-serif font-bold text-amber-300 normal-case tracking-wide mb-2.5 flex items-center gap-1.5">
                   <span>🧪</span> Alchemy essences vault
                 </h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-2.5 text-xs font-serif">
+                <div className="grid grid-cols-2 gap-2.5 text-xs font-serif">
                   <div className="flex items-center gap-2 p-2.5 bg-gradient-to-r from-red-950/60 via-[#181124] to-[#0f1526] rounded-xl border border-red-500/40 shadow-inner min-w-0">
                     <span className="w-7 h-7 rounded-full border border-red-400 bg-radial from-rose-500 to-red-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(239,68,68,0.5)] shrink-0">🔥</span>
                     <span className="text-slate-200 font-bold truncate flex-1 min-w-0">Ember</span>
@@ -1707,10 +1710,10 @@ export default function CharacterPage() {
                 <div className="max-w-7xl mx-auto w-full space-y-6">
                   <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
                     {[
-                      { id: 'ember-drake', name: 'Ember Drake', type: 'Fire', focus: 'Might & Craft', yield: '+10% Gold Yield', skill: 'Ember Strike (45 AOE Fire DMG)', image: '/images/creatures/EmberDrake.webp', borderColor: 'border-orange-500/50', glowColor: 'shadow-[0_0_20px_rgba(249,115,22,0.3)]', badgeBg: 'bg-orange-950/80 text-orange-300 border-orange-500/40' },
-                      { id: 'sage-owl', name: 'Sage Owl', type: 'Water', focus: 'Knowledge & Wisdom', yield: '+10% Essence Yield', skill: 'Arcane Gust (+35 Team Heal)', image: '/images/creatures/SageOwl.webp', borderColor: 'border-blue-500/50', glowColor: 'shadow-[0_0_20px_rgba(59,130,246,0.3)]', badgeBg: 'bg-blue-950/80 text-blue-300 border-blue-500/40' },
-                      { id: 'spirit-sprite', name: 'Spirit Sprite', type: 'Verdant', focus: 'Vitality & Wellness', yield: '+10% XP Yield', skill: 'Floral Blessing (+40 Def Shield)', image: '/images/creatures/SpiritSprite.webp', borderColor: 'border-emerald-500/50', glowColor: 'shadow-[0_0_20px_rgba(16,185,129,0.3)]', badgeBg: 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40' },
-                      { id: 'grove-fox', name: 'Grove Fox', type: 'Nature', focus: 'Exploration & Castle', yield: '+10% Speed & Luck', skill: 'Swift Pounce (+30 Crit Strike)', image: '/images/creatures/GroveFox.webp?v=2', borderColor: 'border-amber-500/50', glowColor: 'shadow-[0_0_20px_rgba(245,158,11,0.3)]', badgeBg: 'bg-amber-950/80 text-amber-300 border-amber-500/40' }
+                      { id: 'ember-drake', name: 'Ember Drake', type: 'fire', focus: 'Might & Craft', yield: '+10% gold yield', skill: 'Ember strike (45 AOE fire DMG)', image: '/images/creatures/EmberDrake.webp', borderColor: 'border-orange-500/50', glowColor: 'shadow-[0_0_20px_rgba(249,115,22,0.3)]', badgeBg: 'bg-orange-950/80 text-orange-300 border-orange-500/40' },
+                      { id: 'sage-owl', name: 'Sage Owl', type: 'water', focus: 'Knowledge & Wisdom', yield: '+10% essence yield', skill: 'Arcane gust (+35 team heal)', image: '/images/creatures/SageOwl.webp', borderColor: 'border-blue-500/50', glowColor: 'shadow-[0_0_20px_rgba(59,130,246,0.3)]', badgeBg: 'bg-blue-950/80 text-blue-300 border-blue-500/40' },
+                      { id: 'spirit-sprite', name: 'Spirit Sprite', type: 'verdant', focus: 'Vitality & Wellness', yield: '+10% exp yield', skill: 'Floral blessing (+40 def shield)', image: '/images/creatures/SpiritSprite.webp', borderColor: 'border-emerald-500/50', glowColor: 'shadow-[0_0_20px_rgba(16,185,129,0.3)]', badgeBg: 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40' },
+                      { id: 'grove-fox', name: 'Grove Fox', type: 'nature', focus: 'Exploration & Castle', yield: '+10% speed & luck', skill: 'Swift pounce (+30 crit strike)', image: '/images/creatures/GroveFox.webp?v=2', borderColor: 'border-amber-500/50', glowColor: 'shadow-[0_0_20px_rgba(245,158,11,0.3)]', badgeBg: 'bg-amber-950/80 text-amber-300 border-amber-500/40' }
                     ].map((pet) => (
                       <Card key={pet.id} className={cn("medieval-card bg-zinc-950 flex flex-col justify-between p-4 space-y-3 transition-all duration-300 hover:scale-[1.02]", pet.borderColor, pet.glowColor)}>
                         <div className="space-y-3">
@@ -1719,7 +1722,7 @@ export default function CharacterPage() {
                             <h4 className="font-serif font-bold text-base text-amber-200 truncate">
                               {pet.name}
                             </h4>
-                            <Badge variant="outline" className={cn("text-[9px] font-mono px-2 py-0.5 uppercase tracking-wider", pet.badgeBg)}>
+                            <Badge variant="outline" className={cn("text-[9px] font-mono px-2 py-0.5 capitalize tracking-wide", pet.badgeBg)}>
                               {pet.type}
                             </Badge>
                           </div>
@@ -1753,9 +1756,9 @@ export default function CharacterPage() {
                             <div className="space-y-2 pt-2 border-t border-zinc-800/80">
                               <div className="space-y-1">
                                 <div className="flex justify-between text-[10px] font-mono text-zinc-400">
-                                  <span>Affection Level</span>
+                                  <span>Affection level</span>
                                   <span className={cn("font-bold", isMax ? "text-emerald-400" : "text-amber-300")}>
-                                    {affection}% {isMax ? "(Max ❤️)" : ""}
+                                    {affection}% {isMax ? "(max ❤️)" : ""}
                                   </span>
                                 </div>
                                 <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-amber-900/30">
@@ -1782,7 +1785,7 @@ export default function CharacterPage() {
                                     : "bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white"
                                 )}
                               >
-                                {isMax ? "❤️ Fully Fed (100%)" : "🍎 Feed Treat (+5% Affection)"}
+                                {isMax ? "❤️ Fully fed (100%)" : "🍎 Feed treat (+5% affection)"}
                               </Button>
                             </div>
                           );

@@ -218,13 +218,13 @@ export function PaperdollEquipmentGrid({
       </div>
 
       {/* Spacious 2D Paperdoll Stage */}
-      <div className="relative w-full bg-gradient-to-b from-zinc-900/90 via-zinc-950 to-zinc-900/90 border border-zinc-800/90 rounded-2xl p-6 sm:p-10 flex flex-col items-center justify-center shadow-inner overflow-hidden flex-1 min-h-[360px]">
+      <div className="relative w-full bg-gradient-to-b from-zinc-900/90 via-zinc-950 to-zinc-900/90 border border-zinc-800/90 rounded-2xl p-4 sm:p-8 md:p-10 flex flex-col items-center justify-center shadow-inner flex-1 min-h-[360px]">
         {/* Ambient Radial Aura Glow */}
-        <div className="absolute inset-0 bg-radial from-amber-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 rounded-2xl bg-radial from-amber-500/10 via-transparent to-transparent blur-3xl pointer-events-none overflow-hidden" />
 
-        <div className="relative w-full max-w-sm flex items-center justify-center py-6 px-4">
+        <div className="relative w-full max-w-sm flex items-center justify-center py-6 px-2 sm:px-4">
           {/* Central Hero Character Avatar Showcase */}
-          <div className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-52 md:h-52 rounded-3xl border-2 border-amber-500/50 bg-gradient-to-b from-amber-500/10 via-zinc-900/90 to-zinc-950 p-2 shadow-[0_0_35px_rgba(245,158,11,0.2)] flex items-center justify-center overflow-hidden group">
+          <div className="relative w-36 h-36 sm:w-48 sm:h-48 md:w-52 md:h-52 rounded-3xl border-2 border-amber-500/50 bg-gradient-to-b from-amber-500/10 via-zinc-900/90 to-zinc-950 p-2 shadow-[0_0_35px_rgba(245,158,11,0.2)] flex items-center justify-center overflow-hidden group">
             <Image
               src={avatarImage}
               alt={heroName}
@@ -234,49 +234,54 @@ export function PaperdollEquipmentGrid({
             />
           </div>
 
-          {/* 4 Corner Equipment Slots with Generous Breathing Room */}
+          {/* 4 Corner Equipment Slots with In-Bounds Responsive Positioning */}
           {/* Top-Left: Weapon */}
-          <div className="absolute -top-3 -left-3 sm:-left-6 md:-left-8 z-20">
+          <div className="absolute top-0 left-0 sm:-left-2 md:-left-4 z-20">
             <EquipmentSlotButton
               item={equipment.weapon}
               slotConfig={SLOT_CONFIGS[0]}
+              tooltipAlign="left"
               onClick={() => equipment.weapon && setSelectedItem(equipment.weapon)}
             />
           </div>
 
           {/* Top-Right: Shield */}
-          <div className="absolute -top-3 -right-3 sm:-right-6 md:-right-8 z-20">
+          <div className="absolute top-0 right-0 sm:-right-2 md:-right-4 z-20">
             <EquipmentSlotButton
               item={equipment.offhand}
               slotConfig={SLOT_CONFIGS[1]}
+              tooltipAlign="right"
               onClick={() => equipment.offhand && setSelectedItem(equipment.offhand)}
             />
           </div>
 
           {/* Bottom-Left: Armor */}
-          <div className="absolute -bottom-3 -left-3 sm:-left-6 md:-left-8 z-20">
+          <div className="absolute bottom-0 left-0 sm:-left-2 md:-left-4 z-20">
             <EquipmentSlotButton
               item={equipment.armor}
               slotConfig={SLOT_CONFIGS[2]}
+              tooltipAlign="left"
               onClick={() => equipment.armor && setSelectedItem(equipment.armor)}
             />
           </div>
 
           {/* Bottom-Right: Mount */}
-          <div className="absolute -bottom-3 -right-3 sm:-right-6 md:-right-8 z-20">
+          <div className="absolute bottom-0 right-0 sm:-right-2 md:-right-4 z-20">
             <EquipmentSlotButton
               item={equipment.mount}
               slotConfig={SLOT_CONFIGS[3]}
+              tooltipAlign="right"
               onClick={() => equipment.mount && setSelectedItem(equipment.mount)}
             />
           </div>
         </div>
 
         {/* Centered Relic Slot Directly Under Avatar */}
-        <div className="mt-6 z-20">
+        <div className="mt-4 sm:mt-6 z-20">
           <EquipmentSlotButton
             item={equipment.relic}
             slotConfig={SLOT_CONFIGS[4]}
+            tooltipAlign="center"
             onClick={() => equipment.relic && setSelectedItem(equipment.relic)}
           />
         </div>
@@ -292,7 +297,7 @@ export function PaperdollEquipmentGrid({
             5 / 5 active sockets
           </span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+        <div className="flex overflow-x-auto sm:grid sm:grid-cols-3 xl:grid-cols-5 gap-2 pb-1.5 custom-scrollbar mobile-scroll-hide">
           {SLOT_CONFIGS.map(({ slot, label, icon }) => {
             const item = equipment[slot]
             const rarityStyle = item ? getItemRarityStyles(item.rarity) : null
@@ -300,7 +305,7 @@ export function PaperdollEquipmentGrid({
               <div
                 key={slot}
                 onClick={() => item && setSelectedItem(item)}
-                className={`p-2.5 rounded-xl border flex flex-col justify-between gap-1.5 text-xs cursor-pointer transition-all relative overflow-hidden group ${
+                className={`p-2.5 rounded-xl border flex flex-col justify-between gap-1.5 text-xs cursor-pointer transition-all relative overflow-hidden group min-w-[135px] sm:min-w-0 flex-shrink-0 sm:flex-shrink ${
                   item
                     ? 'border-zinc-800 bg-zinc-950/80 hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]'
                     : 'border-zinc-900 bg-zinc-950/40 opacity-60 hover:opacity-80'
@@ -317,10 +322,10 @@ export function PaperdollEquipmentGrid({
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <span className="text-[9px] text-zinc-400 font-mono capitalize block leading-none">
+                    <span className="text-[9px] text-zinc-400 font-mono capitalize block leading-none truncate">
                       {slot}
                     </span>
-                    <span className="font-bold text-zinc-200 block text-[11px] truncate leading-tight mt-0.5">
+                    <span className="font-bold text-zinc-200 block text-[11px] truncate leading-tight mt-0.5" title={item ? item.name : 'Empty'}>
                       {item ? item.name : `Empty`}
                     </span>
                   </div>
@@ -328,10 +333,10 @@ export function PaperdollEquipmentGrid({
 
                 {item && (
                   <div className="flex items-center justify-between gap-1 pt-1 border-t border-zinc-800/80">
-                    <span className="text-[9px] font-mono font-bold text-amber-300">
+                    <span className="text-[9px] font-mono font-bold text-amber-300 truncate">
                       {item.stats.atk ? `+${item.stats.atk} atk` : item.stats.def ? `+${item.stats.def} def` : `+${item.stats.spd} spd`}
                     </span>
-                    <Badge variant="outline" className={`text-[8px] capitalize px-1 py-0 ${getRarityBadge(item.rarity)}`}>
+                    <Badge variant="outline" className={`text-[8px] capitalize px-1 py-0 shrink-0 ${getRarityBadge(item.rarity)}`}>
                       {item.rarity}
                     </Badge>
                   </div>
@@ -438,10 +443,12 @@ export function PaperdollEquipmentGrid({
 function EquipmentSlotButton({
   item,
   slotConfig,
+  tooltipAlign = 'center',
   onClick
 }: {
   item: EquippedItem | null
   slotConfig?: { slot: string; label: string; icon: React.ReactNode } | undefined
+  tooltipAlign?: 'left' | 'right' | 'center'
   onClick: () => void
 }) {
   const label = slotConfig?.label || 'Slot'
@@ -457,6 +464,17 @@ function EquipmentSlotButton({
       }
     }
   };
+
+  const getTooltipPositionClass = () => {
+    switch (tooltipAlign) {
+      case 'left':
+        return 'left-0 translate-x-0'
+      case 'right':
+        return 'right-0 translate-x-0'
+      default:
+        return 'left-1/2 -translate-x-1/2'
+    }
+  }
 
   return (
     <div className="relative group">
@@ -487,7 +505,7 @@ function EquipmentSlotButton({
 
         {/* Actionable Empty-State Hover Tooltip */}
         {isHovered && !item && (
-          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-30 whitespace-nowrap bg-zinc-900 border border-amber-500/40 text-[10px] text-amber-300 font-mono px-2 py-0.5 rounded-md shadow-lg pointer-events-none animate-in fade-in duration-200">
+          <div className={cn("absolute -bottom-8 z-30 whitespace-nowrap bg-zinc-900 border border-amber-500/40 text-[10px] text-amber-300 font-mono px-2 py-0.5 rounded-md shadow-lg pointer-events-none animate-in fade-in duration-200", getTooltipPositionClass())}>
             ⚔️ Empty {label.toLowerCase()} — tap to open bag
           </div>
         )}
@@ -507,7 +525,7 @@ function EquipmentSlotButton({
       {isHovered && item && (() => {
         const rarityStyle = getItemRarityStyles(item.rarity);
         return (
-          <div className={cn("absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 rounded-xl bg-zinc-950/95 border shadow-2xl z-50 pointer-events-none animate-in fade-in zoom-in-95 duration-150", rarityStyle.modalBorder)}>
+          <div className={cn("absolute bottom-full mb-2 w-48 p-3 rounded-xl bg-zinc-950/95 border shadow-2xl z-50 pointer-events-none animate-in fade-in zoom-in-95 duration-150", getTooltipPositionClass(), rarityStyle.modalBorder)}>
             <div className="flex items-center justify-between gap-1 mb-1">
               <span className={cn("text-xs font-bold truncate", rarityStyle.text)}>{item.name}</span>
               <span className={cn("text-[9px] font-bold capitalize px-1.5 py-0.5 rounded font-mono", rarityStyle.badge)}>
