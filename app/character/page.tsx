@@ -924,386 +924,367 @@ export default function CharacterPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 py-8">
         <div className="grid gap-6">
-          {/* Combined Character Overview & Active Bonuses */}
-          <Card className="medieval-card">
-            <CardHeader>
-              <CardTitle className="font-serif flex items-center gap-2">
-                <span>{TEXT_CONTENT.character.ui.overview.title}</span>
-                <CollectibleRune
-                  id="ingwaz_vault"
-                  runeId="ingwaz"
-                  symbol="ᛜ"
-                  name="Ingwaz"
-                  meaning="The sacred seed, inner potential, and fruition of character growth"
-                  className="ml-1"
-                />
-              </CardTitle>
-              <CardDescription>{TEXT_CONTENT.character.ui.overview.description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Left: Level, XP, Title */}
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <h3 className="text-lg font-medium">{TEXT_CONTENT.character.ui.overview.level.replace("{level}", String(characterStats.level))}</h3>
-                        <SigilCrestEditor userId={user?.id} />
-                      </div>
-                      {(characterStats.ascension_level || 0) > 0 && (
-                        <Badge variant="outline" className="text-amber-400 border-amber-400 flex items-center gap-1">
-                          <Sparkles className="w-3 h-3" />
-                          Ascension {characterStats.ascension_level}
-                        </Badge>
-                      )}
+          {/* BENTO ROW 1 — Hero Identity & Paperdoll Equipment Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            {/* Bento Tile 1A: Hero Identity Card */}
+            <div className="lg:col-span-5 flex flex-col justify-between medieval-card p-6 rounded-2xl shadow-xl">
+              <div className="space-y-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xl font-bold font-medieval text-amber-400">
+                        {TEXT_CONTENT.character.ui.overview.level.replace("{level}", String(characterStats.level))}
+                      </h3>
+                      <SigilCrestEditor userId={user?.id} />
+                      <CollectibleRune
+                        id="ingwaz_vault"
+                        runeId="ingwaz"
+                        symbol="ᛜ"
+                        name="Ingwaz"
+                        meaning="The sacred seed, inner potential, and fruition of character growth"
+                        className="ml-1"
+                      />
                     </div>
-
-                    {/* Glowing Paragon Avatar Ring */}
-                    <div className="relative inline-block my-2">
-                      <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-amber-500 via-purple-500 to-amber-500 blur-md opacity-75 animate-pulse" />
-                      <Badge className="relative bg-gradient-to-r from-amber-950 via-zinc-950 to-amber-950 border border-amber-400 text-amber-300 px-4 py-1.5 rounded-full font-medieval text-xs tracking-wider shadow-xl">
-                        👑 Paragon Champion Rank: Level {characterStats.level} King
-                      </Badge>
-                    </div>
-
-                    <Progress value={calculateLevelProgress(characterStats.experience)} className="h-2" />
-                    <div className="flex justify-between items-center text-sm text-muted-foreground">
-                      {(() => {
-                        const expForPreviousLevels = Array.from({ length: characterStats.level - 1 }, (_, i) => calculateExperienceForLevel(i + 1)).reduce((sum, exp) => sum + exp, 0);
-                        const expInCurrentLevel = Math.max(0, Math.floor(characterStats.experience - expForPreviousLevels));
-                        const expForCurrentLevel = calculateExperienceForLevel(characterStats.level);
-                        return (
-                          <p>
-                            <AnimatedCounter value={expInCurrentLevel} duration={800} /> / {expForCurrentLevel.toLocaleString()} XP to Level {characterStats.level + 1}
-                          </p>
-                        );
-                      })()}
-
-                      {characterStats.level >= 100 && (
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="sm" variant="destructive" className="h-6 text-xs bg-amber-600 hover:bg-amber-700 text-white border-amber-800">
-                              <Sparkles className="w-3 h-3 mr-1" />
-                              Ascend
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="bg-zinc-900 border-amber-700 text-white">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle className="text-amber-500 font-serif text-xl flex items-center gap-2">
-                                <AlertTriangle className="w-5 h-5" />
-                                Perform Ascension?
-                              </AlertDialogTitle>
-                              <AlertDialogDescription className="text-zinc-300">
-                                This action will reset your Level to 1 and Experience to 0.
-                                You will keep your items, gold, and titles.
-                                <br /><br />
-                                Ascending grants you a permanent <strong>Ascension Level</strong> which boosts your prestige.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel className="bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-600">Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={handleAscension} className="bg-amber-600 text-white hover:bg-amber-700 border-amber-800">
-                                Confirm Ascension
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      )}
-                    </div>
-
-                    {/* Essence Inventory */}
-                    <div className="pt-4 mt-4 border-t border-amber-900/30">
-                      <h4 className="text-xs font-serif font-bold text-amber-300 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                        <span>🧪</span> Alchemy Essences Vault
-                      </h4>
-                      <div className="grid grid-cols-2 gap-2.5 text-xs font-serif">
-                        <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-red-950/60 via-[#181124] to-[#0f1526] rounded-lg border border-red-500/40 shadow-inner">
-                          <span className="w-7 h-7 rounded-full border border-red-400 bg-radial from-rose-500 to-red-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(239,68,68,0.5)] shrink-0">🔥</span>
-                          <span className="text-slate-200 font-bold flex-1">Ember</span>
-                          <span className="font-bold font-mono text-amber-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-amber-500/30">{characterStats.ember_essence || 0}</span>
-                        </div>
-                        <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-cyan-950/60 via-[#111c2e] to-[#0f1526] rounded-lg border border-cyan-500/40 shadow-inner">
-                          <span className="w-7 h-7 rounded-full border border-cyan-400 bg-radial from-cyan-400 to-cyan-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(6,182,212,0.5)] shrink-0">❄️</span>
-                          <span className="text-slate-200 font-bold flex-1">Frost</span>
-                          <span className="font-bold font-mono text-cyan-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-cyan-500/30">{characterStats.frost_essence || 0}</span>
-                        </div>
-                        <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-blue-950/60 via-[#0d1c33] to-[#0f1526] rounded-lg border border-blue-500/40 shadow-inner">
-                          <span className="w-7 h-7 rounded-full border border-blue-400 bg-radial from-blue-500 to-blue-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(59,130,246,0.5)] shrink-0">💧</span>
-                          <span className="text-slate-200 font-bold flex-1">Tide</span>
-                          <span className="font-bold font-mono text-blue-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-blue-500/30">{characterStats.tide_essence || 0}</span>
-                        </div>
-                        <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-emerald-950/60 via-[#0b241c] to-[#0f1526] rounded-lg border border-emerald-500/40 shadow-inner">
-                          <span className="w-7 h-7 rounded-full border border-emerald-400 bg-radial from-emerald-500 to-emerald-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(34,197,94,0.5)] shrink-0">🍃</span>
-                          <span className="text-slate-200 font-bold flex-1">Verdant</span>
-                          <span className="font-bold font-mono text-emerald-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-emerald-500/30">{characterStats.verdant_essence || 0}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Focus Points & Mind Clarity Card */}
-                    <div className="pt-4 mt-4 border-t border-purple-900/30 bg-gradient-to-r from-purple-950/20 via-zinc-950 to-zinc-900 p-3.5 rounded-xl border border-purple-500/20">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <div className="flex items-center gap-1.5">
-                          <Brain className="w-4 h-4 text-purple-400 animate-pulse" />
-                          <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wider">Focus Points</h4>
-                        </div>
-                        <Button
-                          onClick={() => setShowFocusModal(true)}
-                          size="sm"
-                          className="h-7 text-xs bg-purple-900 hover:bg-purple-800 text-purple-200 border border-purple-500/40 font-bold px-3"
-                        >
-                          🧠 Use Focus ({characterStats.focus_points || 0})
-                        </Button>
-                      </div>
-                      <p className="text-[11px] text-zinc-400">
-                        Earned by completing daily habits. Spend points to activate XP boosts, rush kingdom timers, or claim rewards.
-                      </p>
-                    </div>
-
-                    {/* Focus Points Power Modal */}
-                    <FocusPointsModal
-                      isOpen={showFocusModal}
-                      onClose={() => setShowFocusModal(false)}
-                      currentFocusPoints={characterStats.focus_points || 0}
-                      onStatsUpdate={() => {
-                        const stats = getCharacterStats();
-                        setCharacterStats(prev => ({ ...prev, gold: stats.gold, focus_points: stats.focus_points || 0 }));
-                      }}
-                    />
-
-                    {/* Apotheca Elixirs Modal */}
-                    <ApothecaModal
-                      open={showApothecaModal}
-                      onOpenChange={setShowApothecaModal}
-                      onComplete={() => {
-                        const stats = getCharacterStats();
-                        setCharacterStats(prev => ({ ...prev, gold: stats.gold, focus_points: stats.focus_points || 0 }));
-                      }}
-                    />
+                    <p className="text-xs text-zinc-400 font-serif mt-0.5">Hero progression & alchemy</p>
                   </div>
+                  {(characterStats.ascension_level || 0) > 0 && (
+                    <Badge variant="outline" className="text-amber-400 border-amber-400 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" />
+                      Ascension {characterStats.ascension_level}
+                    </Badge>
+                  )}
                 </div>
 
-                {/* Right: Active Bonuses & Altar */}
-                <div className="space-y-6 flex flex-col justify-between">
-                  <div>
-                    <div className="space-y-2 mb-4">
-                      <div className="flex justify-between items-center">
-                        <h3 className="text-lg font-medium">{TEXT_CONTENT.character.ui.overview.activeBonuses}</h3>
-                        {perks.filter((p) => p.active && p.unlocked).length > 0 || activePotionPerks.length > 0 ? (
-                          <Badge variant="outline" className="text-emerald-400 border-emerald-500/40 text-xs">
-                            {perks.filter((p) => p.active && p.unlocked).length + activePotionPerks.length} active
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-amber-400/80 border-amber-500/30 text-xs font-serif">
-                            Altar of blessings
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
+                {/* Glowing Paragon Avatar Ring */}
+                <div className="relative inline-block my-1">
+                  <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-amber-500 via-purple-500 to-amber-500 blur-md opacity-75 animate-pulse" />
+                  <Badge className="relative bg-gradient-to-r from-amber-950 via-zinc-950 to-amber-950 border border-amber-400 text-amber-300 px-4 py-1.5 rounded-full font-medieval text-xs tracking-wider shadow-xl">
+                    👑 Paragon champion rank: Level {characterStats.level} King
+                  </Badge>
+                </div>
 
-                    {/* Active Perks List */}
-                    {perks.filter((p) => p.active && p.unlocked).length > 0 && (
-                      <div className="space-y-3 mb-4">
-                        {perks
-                          .filter((p) => p.active && p.unlocked)
-                          .map((perk) => (
-                            <Card
-                              key={perk.id}
-                              className="bg-zinc-950 border-amber-800/30"
-                              aria-label={`active-bonus-${perk.id}`}
-                            >
-                              <CardHeader className="pb-2">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    {(() => {
-                                      const meta = categoryMeta[perk.category as keyof typeof categoryMeta];
-                                      if (meta) {
-                                        const Icon = meta.icon;
-                                        return <Icon className={`h-5 w-5 shrink-0 ${meta.iconClass}`} />;
-                                      }
-                                      return null;
-                                    })()}
-                                    <CardTitle className="text-base font-medium">{perk.name}</CardTitle>
-                                  </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => deactivatePerk(perk.id)}
-                                    className="h-6 w-6 p-0 text-red-400 hover:text-red-300"
-                                    aria-label={TEXT_CONTENT.character.perks.deactivate + ` ${perk.name}`}
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </CardHeader>
-                              <CardContent>
-                                <div className="space-y-2">
-                                  <Badge className="bg-purple-500 hover:bg-purple-600">Level {perk.level}</Badge>
-                                  <p className="text-sm text-muted-foreground">
-                                    {perk.effect.replace("per level", `(${perk.level * 10}% total)`)}
-                                  </p>
-                                  <p className="text-xs text-amber-400">
-                                    {getTimeUntilExpiry(perk)}
-                                  </p>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                      </div>
+                <div className="space-y-1.5">
+                  <Progress value={calculateLevelProgress(characterStats.experience)} className="h-2" />
+                  <div className="flex justify-between items-center text-xs text-muted-foreground">
+                    {(() => {
+                      const expForPreviousLevels = Array.from({ length: characterStats.level - 1 }, (_, i) => calculateExperienceForLevel(i + 1)).reduce((sum, exp) => sum + exp, 0);
+                      const expInCurrentLevel = Math.max(0, Math.floor(characterStats.experience - expForPreviousLevels));
+                      const expForCurrentLevel = calculateExperienceForLevel(characterStats.level);
+                      return (
+                        <p>
+                          <AnimatedCounter value={expInCurrentLevel} duration={800} /> / {expForCurrentLevel.toLocaleString()} XP to Level {characterStats.level + 1}
+                        </p>
+                      );
+                    })()}
+
+                    {characterStats.level >= 100 && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button size="sm" variant="destructive" className="h-6 text-xs bg-amber-600 hover:bg-amber-700 text-white border-amber-800">
+                            <Sparkles className="w-3 h-3 mr-1" />
+                            Ascend
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="bg-zinc-900 border-amber-700 text-white">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="text-amber-500 font-serif text-xl flex items-center gap-2">
+                              <AlertTriangle className="w-5 h-5" />
+                              Perform ascension?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription className="text-zinc-300">
+                              This action will reset your Level to 1 and Experience to 0.
+                              You will keep your items, gold, and titles.
+                              <br /><br />
+                              Ascending grants you a permanent <strong>Ascension Level</strong> which boosts your prestige.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel className="bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-600">Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleAscension} className="bg-amber-600 text-white hover:bg-amber-700 border-amber-800">
+                              Confirm ascension
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     )}
+                  </div>
+                </div>
+              </div>
 
-                    {/* Active Potion Perks */}
-                    {activePotionPerks.length > 0 && (
-                      <div className="space-y-3 mb-4">
-                        {activePotionPerks.map((perk) => (
-                          <Card key={perk.name} className="bg-black border-amber-800" aria-label={`active-bonus-potion-${perk.name}`}>
-                            <CardHeader className="pb-2">
+              {/* Essence Inventory */}
+              <div className="pt-4 mt-5 border-t border-amber-900/30">
+                <h4 className="text-xs font-serif font-bold text-amber-300 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                  <span>🧪</span> Alchemy essences vault
+                </h4>
+                <div className="grid grid-cols-2 gap-2.5 text-xs font-serif">
+                  <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-red-950/60 via-[#181124] to-[#0f1526] rounded-lg border border-red-500/40 shadow-inner">
+                    <span className="w-7 h-7 rounded-full border border-red-400 bg-radial from-rose-500 to-red-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(239,68,68,0.5)] shrink-0">🔥</span>
+                    <span className="text-slate-200 font-bold flex-1">Ember</span>
+                    <span className="font-bold font-mono text-amber-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-amber-500/30">{characterStats.ember_essence || 0}</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-cyan-950/60 via-[#111c2e] to-[#0f1526] rounded-lg border border-cyan-500/40 shadow-inner">
+                    <span className="w-7 h-7 rounded-full border border-cyan-400 bg-radial from-cyan-400 to-cyan-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(6,182,212,0.5)] shrink-0">❄️</span>
+                    <span className="text-slate-200 font-bold flex-1">Frost</span>
+                    <span className="font-bold font-mono text-cyan-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-cyan-500/30">{characterStats.frost_essence || 0}</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-blue-950/60 via-[#0d1c33] to-[#0f1526] rounded-lg border border-blue-500/40 shadow-inner">
+                    <span className="w-7 h-7 rounded-full border border-blue-400 bg-radial from-blue-500 to-blue-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(59,130,246,0.5)] shrink-0">💧</span>
+                    <span className="text-slate-200 font-bold flex-1">Tide</span>
+                    <span className="font-bold font-mono text-blue-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-blue-500/30">{characterStats.tide_essence || 0}</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 p-2 bg-gradient-to-r from-emerald-950/60 via-[#0b241c] to-[#0f1526] rounded-lg border border-emerald-500/40 shadow-inner">
+                    <span className="w-7 h-7 rounded-full border border-emerald-400 bg-radial from-emerald-500 to-emerald-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(34,197,94,0.5)] shrink-0">🍃</span>
+                    <span className="text-slate-200 font-bold flex-1">Verdant</span>
+                    <span className="font-bold font-mono text-emerald-300 text-sm px-2 py-0.5 rounded bg-zinc-950/80 border border-emerald-500/30">{characterStats.verdant_essence || 0}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bento Tile 1B: Paperdoll Equipment Grid */}
+            <div className="lg:col-span-7 flex flex-col justify-between medieval-card p-6 rounded-2xl shadow-xl">
+              <PaperdollEquipmentGrid
+                avatarImage={`/images/character/${((characterStats as any).title || 'count').toLowerCase()}.webp`}
+                heroName={(characterStats as any).title || 'Count'}
+                heroDescription="A powerful noble, ruling over a large county in Thrivehaven."
+                nextTitle="Marquis (Level 50)"
+                titleProgress={Math.round(calculateLevelProgress(characterStats.experience))}
+              />
+            </div>
+          </div>
+
+          {/* BENTO ROW 2 — Blessings, Altar & Empowerments */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            {/* Bento Tile 2A: Active Blessings & Altar */}
+            <div className="lg:col-span-7 flex flex-col justify-between medieval-card p-6 rounded-2xl shadow-xl">
+              <div>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold font-medieval text-amber-400">
+                    Altar of blessings
+                  </h3>
+                  {perks.filter((p) => p.active && p.unlocked).length > 0 || activePotionPerks.length > 0 ? (
+                    <Badge variant="outline" className="text-emerald-400 border-emerald-500/40 text-xs">
+                      {perks.filter((p) => p.active && p.unlocked).length + activePotionPerks.length} active
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-amber-400/80 border-amber-500/30 text-xs font-serif">
+                      Altar of blessings
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Active Perks List */}
+                {perks.filter((p) => p.active && p.unlocked).length > 0 && (
+                  <div className="space-y-3 mb-4">
+                    {perks
+                      .filter((p) => p.active && p.unlocked)
+                      .map((perk) => (
+                        <Card
+                          key={perk.id}
+                          className="bg-zinc-950 border-amber-800/30"
+                          aria-label={`active-bonus-${perk.id}`}
+                        >
+                          <CardHeader className="pb-2">
+                            <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <CardTitle className="text-base font-medium">{TEXT_CONTENT.character.activePerkCard.potionPerkObs.replace("{name}", perk.name)}</CardTitle>
+                                {(() => {
+                                  const meta = categoryMeta[perk.category as keyof typeof categoryMeta];
+                                  if (meta) {
+                                    const Icon = meta.icon;
+                                    return <Icon className={`h-5 w-5 shrink-0 ${meta.iconClass}`} />;
+                                  }
+                                  return null;
+                                })()}
+                                <CardTitle className="text-base font-medium">{perk.name}</CardTitle>
                               </div>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-2">
-                                <p className="text-sm text-muted-foreground">{perk.effect}</p>
-                                <p className="text-xs text-amber-400">
-                                  {(() => {
-                                    const expires = new Date(perk.expiresAt)
-                                    const now = new Date()
-                                    const diff = expires.getTime() - now.getTime()
-                                    if (diff <= 0) return "Expired"
-                                    const hours = Math.floor(diff / (60 * 60 * 1000))
-                                    const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000))
-                                    return `${hours}h ${minutes}m remaining`
-                                  })()}
-                                </p>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Empty State: Archmage Turtoisy at the Sacred Altar */}
-                    {perks.filter((p) => p.active && p.unlocked).length === 0 && activePotionPerks.length === 0 && (
-                      <div className="relative overflow-hidden rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-950/25 via-[#14121a] to-[#0c0f17] p-4 shadow-lg">
-                        <div className="flex items-start gap-4">
-                          {/* Turtoisy Creature Avatar */}
-                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-amber-400/50 bg-gradient-to-b from-amber-500/20 to-zinc-950 p-1 shadow-[0_0_15px_rgba(245,158,11,0.2)] shrink-0 overflow-hidden">
-                            <Image
-                              src="/images/creatures/Turtoisy.webp"
-                              alt="Archmage Turtoisy"
-                              fill
-                              className="object-cover rounded-xl"
-                            />
-                          </div>
-
-                          {/* Dialogue quote */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                              <span className="text-xs font-bold text-amber-300 tracking-wide flex items-center gap-1.5 font-serif">
-                                <span>🐢</span> Archmage Turtoisy
-                              </span>
-                              <span className="text-[11px] text-zinc-400">• Sacred altar</span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => deactivatePerk(perk.id)}
+                                className="h-6 w-6 p-0 text-red-400 hover:text-red-300"
+                                aria-label={TEXT_CONTENT.character.perks.deactivate + ` ${perk.name}`}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
                             </div>
-                            <p
-                              style={{ fontFamily: 'var(--font-libre-baskerville), Georgia, serif' }}
-                              className="text-xs sm:text-[13px] text-zinc-300 italic leading-relaxed normal-case border-l-2 border-amber-500/40 pl-2.5 py-0.5"
-                            >
-                              &ldquo;No blessings active right now. Activate a perk or brew an elixir to empower your stats.&rdquo;
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-2">
+                              <Badge className="bg-purple-500 hover:bg-purple-600">Level {perk.level}</Badge>
+                              <p className="text-sm text-muted-foreground">
+                                {perk.effect.replace("per level", `(${perk.level * 10}% total)`)}
+                              </p>
+                              <p className="text-xs text-amber-400">
+                                {getTimeUntilExpiry(perk)}
+                              </p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                  </div>
+                )}
+
+                {/* Active Potion Perks */}
+                {activePotionPerks.length > 0 && (
+                  <div className="space-y-3 mb-4">
+                    {activePotionPerks.map((perk) => (
+                      <Card key={perk.name} className="bg-black border-amber-800" aria-label={`active-bonus-potion-${perk.name}`}>
+                        <CardHeader className="pb-2">
+                          <div className="flex items-center gap-2">
+                            <CardTitle className="text-base font-medium">{TEXT_CONTENT.character.activePerkCard.potionPerkObs.replace("{name}", perk.name)}</CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <p className="text-sm text-muted-foreground">{perk.effect}</p>
+                            <p className="text-xs text-amber-400">
+                              {(() => {
+                                const expires = new Date(perk.expiresAt)
+                                const now = new Date()
+                                const diff = expires.getTime() - now.getTime()
+                                if (diff <= 0) return "Expired"
+                                const hours = Math.floor(diff / (60 * 60 * 1000))
+                                const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000))
+                                return `${hours}h ${minutes}m remaining`
+                              })()}
                             </p>
                           </div>
-                        </div>
-                      </div>
-                    )}
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
+                )}
 
-                  {/* Middle: Available Empowerments (Directly mirrors Alchemy Essences Vault) */}
-                  <div className="pt-4 mt-4 border-t border-amber-900/30">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-xs font-serif font-bold text-amber-300 uppercase tracking-widest flex items-center gap-1.5">
-                        <span>⚡</span> Available Empowerments
-                      </h4>
-                      <span className="text-[11px] text-zinc-400">Quick sockets</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2.5 text-xs font-serif">
-                      {/* Perk Socket */}
-                      <div className="flex flex-col justify-between p-2.5 bg-gradient-to-r from-purple-950/40 via-[#181124] to-[#0f1526] rounded-lg border border-purple-500/30 shadow-inner">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="w-7 h-7 rounded-full border border-purple-400 bg-radial from-purple-500 to-purple-950 flex items-center justify-center text-xs shadow-[0_0_8px_rgba(168,85,247,0.4)] shrink-0">✨</span>
-                          <div className="min-w-0 flex-1">
-                            <div className="text-slate-200 font-bold truncate">Class perk</div>
-                            <div className="text-[10px] text-purple-300/80">{perks.filter((p) => p.unlocked).length} unlocked</div>
-                          </div>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setActiveTab("perks");
-                            const el = document.getElementById("character-vault-tabs");
-                            if (el) el.scrollIntoView({ behavior: "smooth" });
-                          }}
-                          className="h-7 text-xs bg-purple-950/60 hover:bg-purple-900 text-purple-200 border-purple-500/40 font-serif w-full"
-                        >
-                          Activate perk →
-                        </Button>
+                {/* Empty State: Archmage Turtoisy at the Sacred Altar */}
+                {perks.filter((p) => p.active && p.unlocked).length === 0 && activePotionPerks.length === 0 && (
+                  <div className="relative overflow-hidden rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-950/25 via-[#14121a] to-[#0c0f17] p-4 shadow-lg">
+                    <div className="flex items-start gap-4">
+                      {/* Turtoisy Creature Avatar */}
+                      <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-amber-400/50 bg-gradient-to-b from-amber-500/20 to-zinc-950 p-1 shadow-[0_0_15px_rgba(245,158,11,0.2)] shrink-0 overflow-hidden">
+                        <Image
+                          src="/images/creatures/Turtoisy.webp"
+                          alt="Archmage Turtoisy"
+                          fill
+                          className="object-cover rounded-xl"
+                        />
                       </div>
 
-                      {/* Apotheca Elixir Socket */}
-                      <div className="flex flex-col justify-between p-2.5 bg-gradient-to-r from-emerald-950/40 via-[#0b241c] to-[#0f1526] rounded-lg border border-emerald-500/30 shadow-inner">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="w-7 h-7 rounded-full border border-emerald-400 bg-radial from-emerald-500 to-emerald-950 flex items-center justify-center text-xs shadow-[0_0_8px_rgba(34,197,94,0.4)] shrink-0">🧪</span>
-                          <div className="min-w-0 flex-1">
-                            <div className="text-slate-200 font-bold truncate">Apotheca elixir</div>
-                            <div className="text-[10px] text-emerald-300/80">Herbal stats buff</div>
-                          </div>
+                      {/* Dialogue quote */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                          <span className="text-xs font-bold text-amber-300 tracking-wide flex items-center gap-1.5 font-serif">
+                            <span>🐢</span> Archmage Turtoisy
+                          </span>
+                          <span className="text-[11px] text-zinc-400">• Sacred altar</span>
                         </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setShowApothecaModal(true)}
-                          className="h-7 text-xs bg-emerald-950/60 hover:bg-emerald-900 text-emerald-200 border-emerald-500/40 font-serif w-full"
+                        <p
+                          style={{ fontFamily: 'var(--font-libre-baskerville), Georgia, serif' }}
+                          className="text-xs sm:text-[13px] text-zinc-300 italic leading-relaxed normal-case border-l-2 border-amber-500/40 pl-2.5 py-0.5"
                         >
-                          Brew elixir →
-                        </Button>
+                          &ldquo;No blessings active right now. Activate a perk or brew an elixir to empower your stats.&rdquo;
+                        </p>
                       </div>
                     </div>
                   </div>
+                )}
+              </div>
+            </div>
 
-                  {/* Bottom: Focus Surge (Directly mirrors Focus Points Card) */}
-                  <div className="pt-4 mt-4 border-t border-amber-900/30 bg-gradient-to-r from-amber-950/20 via-zinc-950 to-zinc-900 p-3.5 rounded-xl border border-amber-500/20">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center gap-1.5">
-                        <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
-                        <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider">Focus Surge</h4>
+            {/* Bento Tile 2B: Available Empowerments & Focus Surge */}
+            <div className="lg:col-span-5 flex flex-col justify-between gap-4 medieval-card p-6 rounded-2xl shadow-xl">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-xs font-serif font-bold text-amber-300 uppercase tracking-widest flex items-center gap-1.5">
+                    <span>⚡</span> Available empowerments
+                  </h4>
+                  <span className="text-[11px] text-zinc-400">Quick sockets</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2.5 text-xs font-serif">
+                  {/* Perk Socket */}
+                  <div className="flex flex-col justify-between p-2.5 bg-gradient-to-r from-purple-950/40 via-[#181124] to-[#0f1526] rounded-lg border border-purple-500/30 shadow-inner">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="w-7 h-7 rounded-full border border-purple-400 bg-radial from-purple-500 to-purple-950 flex items-center justify-center text-xs shadow-[0_0_8px_rgba(168,85,247,0.4)] shrink-0">✨</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-slate-200 font-bold truncate">Class perk</div>
+                        <div className="text-[10px] text-purple-300/80">{perks.filter((p) => p.unlocked).length} unlocked</div>
                       </div>
-                      <Button
-                        onClick={() => setShowFocusModal(true)}
-                        size="sm"
-                        className="h-7 text-xs bg-amber-950 hover:bg-amber-900 text-amber-200 border border-amber-500/40 font-bold px-3 font-serif"
-                      >
-                        ⚡ Empower
-                      </Button>
                     </div>
-                    <p className="text-[11px] text-zinc-400">
-                      Spend focus points to activate immediate double-XP bursts or instant kingdom productivity boosts.
-                    </p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setActiveTab("perks");
+                        const el = document.getElementById("character-vault-tabs");
+                        if (el) el.scrollIntoView({ behavior: "smooth" });
+                      }}
+                      className="h-7 text-xs bg-purple-950/60 hover:bg-purple-900 text-purple-200 border-purple-500/40 font-serif w-full"
+                    >
+                      Activate perk →
+                    </Button>
+                  </div>
+
+                  {/* Apotheca Elixir Socket */}
+                  <div className="flex flex-col justify-between p-2.5 bg-gradient-to-r from-emerald-950/40 via-[#0b241c] to-[#0f1526] rounded-lg border border-emerald-500/30 shadow-inner">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="w-7 h-7 rounded-full border border-emerald-400 bg-radial from-emerald-500 to-emerald-950 flex items-center justify-center text-xs shadow-[0_0_8px_rgba(34,197,94,0.4)] shrink-0">🧪</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-slate-200 font-bold truncate">Apotheca elixir</div>
+                        <div className="text-[10px] text-emerald-300/80">Herbal stats buff</div>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setShowApothecaModal(true)}
+                      className="h-7 text-xs bg-emerald-950/60 hover:bg-emerald-900 text-emerald-200 border-emerald-500/40 font-serif w-full"
+                    >
+                      Brew elixir →
+                    </Button>
                   </div>
                 </div>
               </div>
 
-              {/* Merged 2D RPG Paperdoll Equipment & Title Vault */}
-              <div className="mt-8 pt-6 border-t border-zinc-800">
-                <PaperdollEquipmentGrid
-                  avatarImage={`/images/character/${((characterStats as any).title || 'count').toLowerCase()}.webp`}
-                  heroName={(characterStats as any).title || 'Count'}
-                  heroDescription="A powerful noble, ruling over a large county in Thrivehaven."
-                  nextTitle="Marquis (Level 50)"
-                  titleProgress={Math.round(calculateLevelProgress(characterStats.experience))}
-                />
+              {/* Focus Points & Surge */}
+              <div className="pt-4 mt-2 border-t border-purple-900/30 bg-gradient-to-r from-purple-950/20 via-zinc-950 to-zinc-900 p-3.5 rounded-xl border border-purple-500/20">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <Brain className="w-4 h-4 text-purple-400 animate-pulse" />
+                    <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wider">Focus points</h4>
+                  </div>
+                  <Button
+                    onClick={() => setShowFocusModal(true)}
+                    size="sm"
+                    className="h-7 text-xs bg-purple-900 hover:bg-purple-800 text-purple-200 border border-purple-500/40 font-bold px-3"
+                  >
+                    🧠 Use focus ({characterStats.focus_points || 0})
+                  </Button>
+                </div>
+                <p className="text-[11px] text-zinc-400">
+                  Earned by completing daily habits. Spend points to activate XP boosts, rush kingdom timers, or claim rewards.
+                </p>
               </div>
-            </CardContent>
-          </Card>
+
+              {/* Modals */}
+              <FocusPointsModal
+                isOpen={showFocusModal}
+                onClose={() => setShowFocusModal(false)}
+                currentFocusPoints={characterStats.focus_points || 0}
+                onStatsUpdate={() => {
+                  const stats = getCharacterStats();
+                  setCharacterStats(prev => ({ ...prev, gold: stats.gold, focus_points: stats.focus_points || 0 }));
+                }}
+              />
+
+              <ApothecaModal
+                open={showApothecaModal}
+                onOpenChange={setShowApothecaModal}
+                onComplete={() => {
+                  const stats = getCharacterStats();
+                  setCharacterStats(prev => ({ ...prev, gold: stats.gold, focus_points: stats.focus_points || 0 }));
+                }}
+              />
+            </div>
+          </div>
 
           {/* Responsive Character Vault Tabs (Horizontal Touch Snap Carousel) */}
           <div id="character-vault-tabs" className="flex justify-center w-full">
