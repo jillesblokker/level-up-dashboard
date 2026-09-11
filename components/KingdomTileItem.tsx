@@ -30,6 +30,14 @@ interface KingdomTileItemProps {
 
 import { KINGDOM_TILES } from '@/lib/kingdom-tiles'
 
+const REDIRECT_TILES = [
+  'daily-hub', 'dailyhub', 'daily_hub', 'quest-board', 'market', 'market-stalls',
+  'dungeon', 'dungeon-keep', 'crystal_cavern', 'monument', 'hall_of_fame',
+  'mystic_bazaar', 'airship_harbor', 'housecup', 'observatory', 'hall_of_champions',
+  'titan_watchtower', 'castle', 'library', 'barracks', 'training-grounds',
+  'training_grounds', 'tavern', 'inn', 'town-hall', 'town_hall', 'mayor'
+];
+
 export const KingdomTileItem = React.memo(({
   x,
   y,
@@ -48,7 +56,7 @@ export const KingdomTileItem = React.memo(({
   onRotate,
   formatTimeRemaining
 }: KingdomTileItemProps) => {
-  const isReady = timer?.isReady || false
+  const isReady = timer ? (timer.isReady || Date.now() >= timer.endTime) : false
   const isKingdomTile = tile.type !== 'vacant'
   const type = tile.type?.toLowerCase()
 
@@ -194,9 +202,9 @@ export const KingdomTileItem = React.memo(({
         </div>
       )}
 
-      {/* Efficiency Badge */}
+      {/* Efficiency Badge - Desktop Only to prevent mobile tile overlaps */}
       {tile.type !== 'vacant' && !['path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'waterway_canal'].includes(tile.type) && (
-        <div className="absolute bottom-1 right-1 bg-zinc-950 px-1 rounded border border-white/10 text-[7px] font-bold text-amber-500/90 tracking-tighter z-40">
+        <div className="hidden md:block absolute bottom-1 right-1 bg-zinc-950 px-1 rounded border border-white/10 text-[7px] font-bold text-amber-500/90 tracking-tighter z-40">
           {currentTier > 2 ? 'III' : currentTier > 1 ? 'II' : 'I'}
         </div>
       )}
@@ -257,46 +265,39 @@ export const KingdomTileItem = React.memo(({
         </>
       )}
 
-      {/* Hover Info-Card (Desktop Only) */}
-      {(['daily-hub', 'dailyhub', 'daily_hub', 'quest-board', 'market', 'market-stalls', 'dungeon', 'dungeon-keep', 'crystal_cavern', 'monument', 'hall_of_fame', 'mystic_bazaar', 'airship_harbor', 'housecup', 'observatory', 'hall_of_champions', 'titan_watchtower', 'castle', 'library', 'barracks', 'training-grounds', 'training_grounds', 'tavern', 'inn', 'town-hall', 'town_hall', 'mayor', 'zen-garden', 'plank-labyrinth', 'fortune_teller', 'fortune-teller', 'apotheca', 'siege_workshop', 'prison', 'serene_lake', 'astral_citadel_monument'].includes(type) || auraColor) && (
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-zinc-950/80 transition-all pointer-events-none hidden md:flex flex-col items-center justify-center p-1 z-50">
-            <div className="bg-zinc-900/95 border border-white/10 rounded-lg p-2 shadow-2xl scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-300 ">
-              <p className="text-[10px] font-bold text-amber-100 uppercase tracking-tighter text-center">{libraryTile?.name || kingdomTile?.name || tile.name || tile.type}</p>
-              <div className="h-px bg-white/10 my-1 w-full" />
-              <p className="text-[8px] text-zinc-400 text-center italic">
-                {type.includes('daily') ? 'Portal: Habit dashboard' :
-                 type === 'quest-board' ? 'Portal: Tasks & milestones' :
-                 type === 'market' || type === 'market-stalls' ? 'Portal: Royal exchange' :
-                 type.includes('mystic') ? 'Portal: Mystic bazaar' :
-                 type === 'dungeon' || type === 'dungeon-keep' || type === 'crystal_cavern' ? 'Portal: Combat depths' :
-                 type === 'monument' || type === 'hall_of_fame' ? 'Statue: Hall of fame' :
-                 type === 'astral_citadel_monument' ? 'Monument: Cosmic crystal spire' :
-                 type === 'airship_harbor' ? 'Portal: Skydock voyages' :
-                 type === 'housecup' ? 'Portal: Hourglass spire' :
-                 type === 'observatory' ? 'Portal: Cartography & world map' :
-                 type === 'hall_of_champions' ? 'Portal: Hall of champions' :
-                 type === 'titan_watchtower' ? 'Portal: Titan raid watchtower' :
-                 type === 'castle' ? 'Portal: Royal castle & sandbox' :
-                 type === 'library' ? 'Portal: Archives & lore' :
-                 type === 'barracks' ? 'Portal: Citizen barracks' :
-                 type === 'training-grounds' || type === 'training_grounds' ? 'Portal: Hero vault & equipment' :
-                 type === 'tavern' || type === 'inn' ? 'Portal: Social hall & dares' :
-                 type === 'town-hall' || type === 'town_hall' || type === 'mayor' ? 'Portal: Citizen workforce' :
-                 type.includes('zen') ? 'Minigame: Sacred meditation' :
-                 type.includes('labyrinth') ? 'Minigame: River plank puzzle' :
-                 type.includes('fortune') ? 'Minigame: Daily tarot reading' :
-                 type === 'apotheca' ? 'Workshop: Potion brewing' :
-                 type === 'siege_workshop' ? 'Workshop: Titan siege engines' :
-                 type.includes('prison') ? 'Settlement: Royal prison' :
-                 auraColor ? synergyLabel : 'Waypoint available'}
-              </p>
-              
-              <div className="flex items-center justify-between text-[10px] text-zinc-400 border-t border-white/5 pt-2 mt-2">
-                <span>Current Tier</span>
-                <span className="text-amber-500">Tier {currentTier}</span>
-              </div>
+      {/* Redirect Tile Hover "Go" Button (Desktop Only) */}
+      {REDIRECT_TILES.includes(type) && (
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/40 backdrop-blur-[1px] transition-all duration-200 pointer-events-none hidden md:flex items-center justify-center z-50">
+          <div className="bg-gradient-to-r from-amber-500 to-amber-400 text-zinc-950 text-xs font-serif font-bold px-3 py-1 rounded-full shadow-lg border border-amber-300 flex items-center gap-1.5 transform scale-90 group-hover:scale-100 transition-transform">
+            <span>Go</span>
+            <span className="text-[10px]">➔</span>
+          </div>
+        </div>
+      )}
+
+      {/* Other Interactive / Aura Tiles Hover Info-Card (Desktop Only) */}
+      {!REDIRECT_TILES.includes(type) && (['zen-garden', 'plank-labyrinth', 'fortune_teller', 'fortune-teller', 'apotheca', 'siege_workshop', 'prison', 'serene_lake', 'astral_citadel_monument'].includes(type) || auraColor) && (
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-zinc-950/80 transition-all pointer-events-none hidden md:flex flex-col items-center justify-center p-1 z-50">
+          <div className="bg-zinc-900/95 border border-white/10 rounded-lg p-2 shadow-2xl scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-300">
+            <p className="text-[10px] font-bold text-amber-100 uppercase tracking-tighter text-center">{libraryTile?.name || kingdomTile?.name || tile.name || tile.type}</p>
+            <div className="h-px bg-white/10 my-1 w-full" />
+            <p className="text-[8px] text-zinc-400 text-center italic">
+              {type.includes('zen') ? 'Minigame: Sacred meditation' :
+               type.includes('labyrinth') ? 'Minigame: River plank puzzle' :
+               type.includes('fortune') ? 'Minigame: Daily tarot reading' :
+               type === 'apotheca' ? 'Workshop: Potion brewing' :
+               type === 'siege_workshop' ? 'Workshop: Titan siege engines' :
+               type.includes('prison') ? 'Settlement: Royal prison' :
+               type === 'astral_citadel_monument' ? 'Monument: Cosmic crystal spire' :
+               auraColor ? synergyLabel : 'Interactive waypoint'}
+            </p>
+            
+            <div className="flex items-center justify-between text-[10px] text-zinc-400 border-t border-white/5 pt-2 mt-2">
+              <span>Current tier</span>
+              <span className="text-amber-500">Tier {currentTier}</span>
             </div>
           </div>
+        </div>
       )}
 
       {/* Move/Rotate/Delete Controls - Desktop Hover & Edit Overlay */}
@@ -481,7 +482,7 @@ export const KingdomTileItem = React.memo(({
             isRoadOrTerrain) && !isMinigame;
 
           if (isNonProducer) {
-            if (isRoadOrTerrain) return null;
+            if (isRoadOrTerrain || REDIRECT_TILES.includes(type)) return null;
             const landmarkName = libraryTile?.name || kingdomTile?.name || (type === 'daily-hub' ? 'Daily Hub' : type === 'monument' ? 'Hall of Fame' : '');
             if (!landmarkName) return null;
 
@@ -559,74 +560,41 @@ export const KingdomTileItem = React.memo(({
             return { badge: '1/1', isClosed: false };
           };
 
+          // If ready: show the glowing Collect badge on both mobile and desktop
+          if (isReady) {
+            return (
+              <div className="transition-all duration-200 absolute bottom-1 left-1/2 -translate-x-1/2 w-max max-w-[90%] pointer-events-none z-30">
+                <div className="text-[9px] md:text-xs px-2 py-0.5 rounded text-center font-mono shadow-md min-h-[16px] md:min-h-[20px] flex items-center justify-center shrink-0 border w-auto inline-flex gap-1 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 font-black border-yellow-300 shadow-[0_0_12px_rgba(245,158,11,0.6)]">
+                  <span className="whitespace-nowrap font-black text-[10px] md:text-xs text-zinc-950 tracking-wide uppercase">
+                    Collect
+                  </span>
+                </div>
+              </div>
+            );
+          }
+
+          // If not ready: keep the mobile interface completely clear!
+          // On desktop only, show timer on hover.
+          if (isMinigame) {
+            const state = getMinigameBadgeState(type);
+            return (
+              <div className="hidden md:flex transition-opacity duration-200 absolute bottom-1 left-1/2 -translate-x-1/2 w-max max-w-[90%] pointer-events-none group-hover:opacity-100 opacity-0 z-30">
+                <div className="text-[9px] md:text-xs px-2 py-0.5 rounded text-center font-mono shadow-md min-h-[16px] md:min-h-[20px] flex items-center justify-center shrink-0 border w-auto inline-flex gap-1 bg-zinc-950/90 border-amber-900/40 text-amber-200">
+                  <span className="truncate">{state.badge} {state.isClosed ? `(${state.formattedTimer})` : 'Ready'}</span>
+                </div>
+              </div>
+            );
+          }
+
           return (
-            <div className={cn(
-              "transition-opacity duration-200 absolute bottom-1 left-1/2 -translate-x-1/2 w-max max-w-[90%] pointer-events-none group-hover:opacity-100 z-30",
-              timer && (timer.endTime - Date.now() > 3 * 60 * 1000 && !isReady) ? "opacity-0 md:opacity-0" : "opacity-100 md:opacity-0"
-            )}>
-              <div className={cn(
-                "text-[9px] md:text-xs px-2 py-0.5 rounded text-center font-mono shadow-md min-h-[16px] md:min-h-[20px] flex items-center justify-center shrink-0 border w-auto inline-flex gap-1",
-                isMinigame
-                  ? (type === 'dungeon' || type === 'dungeon-keep'
-                      ? "bg-gradient-to-r from-red-900 via-purple-900 to-indigo-900 border-purple-400/60 text-purple-100 font-bold"
-                      : type.includes('fortune')
-                      ? "bg-gradient-to-r from-purple-900 via-fuchsia-900 to-pink-900 border-fuchsia-400/60 text-fuchsia-100 font-bold"
-                      : type.includes('zen')
-                      ? "bg-gradient-to-r from-emerald-900 via-teal-900 to-cyan-900 border-emerald-400/60 text-emerald-100 font-bold"
-                      : "bg-gradient-to-r from-cyan-900 via-teal-900 to-emerald-900 border-cyan-400/60 text-cyan-100 font-bold")
-                  : (isReady 
-                      ? "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 font-black border-yellow-300 shadow-[0_0_12px_rgba(245,158,11,0.6)]" 
-                      : "bg-zinc-950/90 border-amber-900/40 text-amber-200")
-              )}>
-                {isMinigame ? (
-                  <div className="flex items-center justify-center gap-1">
-                    {(() => {
-                      const state = getMinigameBadgeState(type);
-                      if (type.includes('dungeon')) {
-                        return (
-                          <span>
-                            ⚔️ {state.badge} {state.isClosed ? `(${state.formattedTimer || 'Reset at Midnight'})` : 'Attempts'}
-                          </span>
-                        );
-                      }
-                      if (type.includes('labyrinth')) {
-                        return (
-                          <span>
-                            🧩 {state.badge} {state.isClosed ? `(${state.formattedTimer || 'Reset at Midnight'})` : 'Attempts'}
-                          </span>
-                        );
-                      }
-                      if (type.includes('fortune')) {
-                        return (
-                          <span>
-                            🔮 {state.badge} {state.isClosed ? `(${state.formattedTimer || 'Reset at Midnight'})` : 'Cards'}
-                          </span>
-                        );
-                      }
-                      if (type.includes('zen')) {
-                        return (
-                          <span>
-                            🧘 {state.badge} {state.isClosed ? `(${state.formattedTimer || 'Reset at Midnight'})` : 'Attempts'}
-                          </span>
-                        );
-                      }
-                      return <span>{state.badge} {state.isClosed ? `(${state.formattedTimer})` : 'Ready'}</span>;
-                    })()}
-                  </div>
-                ) : isReady ? (
-                  <div className="flex items-center justify-center relative">
-                    <span className="whitespace-nowrap font-black text-[10px] md:text-xs text-zinc-950 tracking-wide uppercase">
-                      Collect
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center gap-0.5 md:gap-1">
-                    <Clock className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 opacity-70 text-amber-400" />
-                    <span className="whitespace-nowrap font-bold tracking-tighter">
-                      {timer ? formatTimeRemaining(timer.endTime) : ''}
-                    </span>
-                  </div>
-                )}
+            <div className="hidden md:flex transition-opacity duration-200 absolute bottom-1 left-1/2 -translate-x-1/2 w-max max-w-[90%] pointer-events-none group-hover:opacity-100 opacity-0 z-30">
+              <div className="text-[9px] md:text-xs px-2 py-0.5 rounded text-center font-mono shadow-md min-h-[16px] md:min-h-[20px] flex items-center justify-center shrink-0 border w-auto inline-flex gap-1 bg-zinc-950/90 border-amber-900/40 text-amber-200">
+                <div className="flex items-center justify-center gap-0.5 md:gap-1">
+                  <Clock className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 opacity-70 text-amber-400" />
+                  <span className="whitespace-nowrap font-bold tracking-tighter">
+                    {timer ? formatTimeRemaining(timer.endTime) : ''}
+                  </span>
+                </div>
               </div>
             </div>
           );

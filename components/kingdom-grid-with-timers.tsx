@@ -1861,10 +1861,17 @@ export function KingdomGridWithTimers({
       setPlankModalOpen(true);
       return;
     }
-    // Flavor 4: Production Properties Modal (Stable, Blacksmith, Sawmill, Bakery, Quarry, Well, etc.)
+    // Flavor 4: Production Properties (Stable, Blacksmith, Sawmill, Bakery, Quarry, Well, etc.)
     const kingdomTileForTimer = KINGDOM_TILES.find(kt => kt.id === tile.type?.toLowerCase());
     if (kingdomTileForTimer && kingdomTileForTimer.timerMinutes > 0) {
       const activeTimer = tileTimers.find(t => t.x === x && t.y === y);
+      const isReady = activeTimer ? (activeTimer.isReady || Date.now() >= activeTimer.endTime) : false;
+
+      if (isReady) {
+        collectPropertyTile(x, y, tile);
+        return;
+      }
+
       setSpecialTileData({ x, y, tile, timer: activeTimer });
       setSpecialModalOpen(true);
       return;
@@ -1912,26 +1919,13 @@ export function KingdomGridWithTimers({
 
       // Check if tile is ready
       const timer = tileTimers.find(t => t.x === x && t.y === y)
-      if (!timer) {
-        toast({
-          title: 'Property Not Ready',
-          description: 'This property is still producing. Wait for the timer to finish.',
-          variant: 'destructive',
-        });
-        return
-      }
-
-      // Calculate if timer is actually ready (real-time check)
       const now = Date.now()
-      const isReady = now >= timer.endTime
+      const isReady = timer ? (timer.isReady || now >= timer.endTime) : false
 
       if (!isReady) {
-        toast({
-          title: 'Property Not Ready',
-          description: 'This property is still producing. Wait for the timer to finish.',
-          variant: 'destructive',
-        });
-        return
+        setSpecialTileData({ x, y, tile, timer });
+        setSpecialModalOpen(true);
+        return;
       }
 
       // Find the kingdom tile definition
