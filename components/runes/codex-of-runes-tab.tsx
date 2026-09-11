@@ -16,6 +16,7 @@ import {
   WORD_HUNT_TIERS,
   WordHuntTier,
   letterToRuneSymbol,
+  isLetterUnlocked,
   getInscribedWords,
   getInscribedTiersProgress,
   inscribeWord,
@@ -212,6 +213,21 @@ export function CodexOfRunesTab() {
       toast({
         title: 'Empty inscription',
         description: 'Enter a word using the runes to inscribe it into the codex.',
+      });
+      return;
+    }
+
+    // Check if player has discovered the runes for all letters in this word
+    const lockedLetters = Array.from(new Set(word.split(''))).filter(
+      (c) => !isLetterUnlocked(c, unlockedRuneIds)
+    );
+
+    if (lockedLetters.length > 0) {
+      hapticMedium();
+      toast({
+        title: 'Undiscovered runes',
+        description: `You have not yet discovered the rune for letter ${lockedLetters.join(', ')}. Find the corresponding runes across Thrivehaven to inscribe this word!`,
+        variant: 'destructive',
       });
       return;
     }
@@ -637,7 +653,9 @@ export function CodexOfRunesTab() {
           <div className="flex items-center justify-center gap-1 sm:gap-2 overflow-x-auto py-2">
             {Array.from({ length: 10 }).map((_, idx) => {
               const char = inputWord[idx] || '';
-              const runeSym = char ? letterToRuneSymbol(char) : '᛬';
+              const isCharUnlocked = char ? isLetterUnlocked(char, unlockedRuneIds) : false;
+              const runeSym = char ? (isCharUnlocked ? letterToRuneSymbol(char) : '᛬') : '᛬';
+              const displayChar = char ? (isCharUnlocked ? char : '?') : '·';
               const isActive = idx === inputWord.length;
 
               return (
@@ -645,17 +663,20 @@ export function CodexOfRunesTab() {
                   key={idx}
                   className={`flex flex-col items-center justify-center w-8 sm:w-11 h-14 sm:h-16 rounded-xl border transition-all select-none ${
                     char
-                      ? 'bg-emerald-500/15 border-emerald-500/60 shadow-[0_0_10px_rgba(16,185,129,0.25)] text-emerald-200'
+                      ? isCharUnlocked
+                        ? 'bg-emerald-500/15 border-emerald-500/60 shadow-[0_0_10px_rgba(16,185,129,0.25)] text-emerald-200'
+                        : 'bg-red-950/20 border-red-500/40 text-red-300/80 shadow-[0_0_8px_rgba(239,68,68,0.2)]'
                       : isActive
                       ? 'bg-zinc-900 border-emerald-500/50 animate-pulse text-zinc-600'
                       : 'bg-zinc-950/70 border-zinc-800 text-zinc-700'
                   }`}
+                  title={char && !isCharUnlocked ? `Letter ${char} locked (Rune not yet discovered)` : undefined}
                 >
                   <span className="font-serif text-base sm:text-xl font-bold leading-none">
                     {runeSym}
                   </span>
-                  <span className="mt-1 font-serif text-xs sm:text-sm font-bold leading-none text-zinc-300">
-                    {char || '·'}
+                  <span className={`mt-1 font-serif text-xs sm:text-sm font-bold leading-none ${isCharUnlocked ? 'text-zinc-300' : 'text-red-400/90 font-mono'}`}>
+                    {displayChar}
                   </span>
                 </div>
               );
@@ -695,10 +716,12 @@ export function CodexOfRunesTab() {
             </Button>
           </form>
 
-          {/* Quick Runic Letter Keyboard (for mobile / fast input) */}
+          {/* Quick Runic Letter Keyboard (only discovered runes show letters) */}
           <div className="pt-2 border-t border-zinc-800/80">
-            <p className="text-[11px] text-zinc-400 font-serif mb-2 flex items-center justify-between">
-              <span>Tap letters to inscribe into slots:</span>
+            <div className="text-[11px] text-zinc-400 font-serif mb-2 flex items-center justify-between">
+              <span>
+                Tap letters to inscribe into slots ({'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter(c => isLetterUnlocked(c, unlockedRuneIds)).length} of 26 deciphered):
+              </span>
               <button
                 type="button"
                 onClick={handleClearInput}
@@ -706,23 +729,45 @@ export function CodexOfRunesTab() {
               >
                 Clear slots
               </button>
-            </p>
+            </div>
             <div className="flex flex-wrap gap-1 justify-center">
-              {'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((char) => (
-                <button
-                  key={char}
-                  type="button"
-                  onClick={() => handleAppendLetter(char)}
-                  className="w-7 h-8 sm:w-8 sm:h-9 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-emerald-500/50 hover:bg-emerald-950/40 text-zinc-300 hover:text-emerald-200 text-xs font-serif font-bold transition-all flex flex-col items-center justify-center"
-                >
-                  <span className="text-[10px] font-serif text-emerald-400/70 leading-none">
-                    {letterToRuneSymbol(char)}
-                  </span>
-                  <span className="text-xs leading-none mt-0.5">
-                    {char}
-                  </span>
-                </button>
-              ))}
+              {'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((char) => {
+                const isUnlocked = isLetterUnlocked(char, unlockedRuneIds);
+                return (
+                  <button
+                    key={char}
+                    type="button"
+                    disabled={!isUnlocked}
+                    onClick={() => {
+                      if (isUnlocked) {
+                        handleAppendLetter(char);
+                      } else {
+                        toast({
+                          title: 'Rune undiscovered',
+                          description: `Discover the rune for letter "${char}" in Thrivehaven to unlock it.`,
+                        });
+                      }
+                    }}
+                    className={`w-7 h-8 sm:w-8 sm:h-9 rounded-lg border text-xs font-serif font-bold transition-all flex flex-col items-center justify-center ${
+                      isUnlocked
+                        ? 'bg-zinc-900 border-zinc-800 hover:border-emerald-500/50 hover:bg-emerald-950/40 text-zinc-300 hover:text-emerald-200 cursor-pointer'
+                        : 'bg-zinc-950/60 border-zinc-900 text-zinc-700 opacity-40 cursor-not-allowed select-none'
+                    }`}
+                    title={
+                      isUnlocked
+                        ? `Letter ${char} (Rune ${letterToRuneSymbol(char)})`
+                        : 'Undiscovered rune — search Thrivehaven to unlock this letter'
+                    }
+                  >
+                    <span className={`text-[10px] font-serif leading-none ${isUnlocked ? 'text-emerald-400/70' : 'text-zinc-700'}`}>
+                      {isUnlocked ? letterToRuneSymbol(char) : '᛬'}
+                    </span>
+                    <span className="text-xs leading-none mt-0.5">
+                      {isUnlocked ? char : '?'}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -988,18 +1033,18 @@ export function CodexOfRunesTab() {
                       ? 'bg-amber-500/10 border-amber-500/40 hover:border-amber-300 text-amber-200'
                       : 'bg-zinc-900/60 border-zinc-800 text-zinc-500 hover:border-zinc-700'
                   }`}
-                  title={`${rune.letter} = ${rune.symbol} (${rune.name})`}
+                  title={isUnlocked ? `${rune.letter} = ${rune.symbol} (${rune.name})` : 'Undiscovered rune — search Thrivehaven to decipher'}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="font-serif font-bold text-xs text-amber-300 w-5">
-                      {rune.letter}
+                    <span className={`font-serif font-bold text-xs w-5 ${isUnlocked ? 'text-amber-300' : 'text-zinc-600'}`}>
+                      {isUnlocked ? rune.letter : '?'}
                     </span>
                     <span className="font-serif text-lg font-bold">
                       {isUnlocked ? rune.symbol : '᛬'}
                     </span>
                   </div>
                   <span className="text-[10px] font-serif text-zinc-400 truncate max-w-[65px]">
-                    {isUnlocked ? rune.name : 'hidden'}
+                    {isUnlocked ? rune.name : 'Undiscovered'}
                   </span>
                 </div>
               );

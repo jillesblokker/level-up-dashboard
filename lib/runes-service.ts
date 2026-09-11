@@ -808,6 +808,43 @@ export function letterToRuneSymbol(letter: string): string {
   return map[upper] || '᛬';
 }
 
+export const LETTER_TO_RUNE_ID: Record<string, string> = {
+  A: 'ansuz',
+  B: 'berkano',
+  C: 'kenaz',
+  D: 'dagaz',
+  E: 'ehwaz',
+  F: 'fehu',
+  G: 'gebo',
+  H: 'hagalaz',
+  I: 'isa',
+  J: 'jera',
+  K: 'kenaz',
+  L: 'laguz',
+  M: 'mannaz',
+  N: 'nauthiz',
+  O: 'othala',
+  P: 'perthro',
+  Q: 'kenaz',
+  R: 'raidho',
+  S: 'sowilo',
+  T: 'tiwaz',
+  U: 'uruz',
+  V: 'fehu',
+  W: 'wunjo',
+  X: 'algiz',
+  Y: 'jera',
+  Z: 'algiz',
+};
+
+export function isLetterUnlocked(letter: string, unlockedRuneIds: string[]): boolean {
+  if (!letter) return false;
+  const upper = letter.toUpperCase();
+  const runeId = LETTER_TO_RUNE_ID[upper];
+  if (!runeId) return false;
+  return unlockedRuneIds.includes(runeId);
+}
+
 export function wordToRunesString(word: string): string {
   return word
     .toUpperCase()
