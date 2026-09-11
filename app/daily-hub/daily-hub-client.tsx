@@ -89,28 +89,52 @@ const POSSIBLE_BUFFS = [
         name: 'Exp draught',
         effect: '+25% quest EXP',
         durationHours: 2,
-        icon: '🧪'
+        icon: '🧪',
+        theme: {
+            border: 'border-emerald-500/30 hover:border-emerald-400/60',
+            bg: 'bg-gradient-to-r from-emerald-950/30 via-zinc-900 to-zinc-950',
+            iconBg: 'bg-emerald-950/70 border-emerald-500/40 shadow-[0_0_10px_rgba(16,185,129,0.25)] text-emerald-400',
+            badge: 'bg-emerald-950/60 text-emerald-300 border-emerald-500/30'
+        }
     },
     {
         id: 'potion-gold',
         name: 'Gold surge',
         effect: '+20% habit gold',
         durationHours: 4,
-        icon: '🍯'
+        icon: '🍯',
+        theme: {
+            border: 'border-amber-500/30 hover:border-amber-400/60',
+            bg: 'bg-gradient-to-r from-amber-950/30 via-zinc-900 to-zinc-950',
+            iconBg: 'bg-amber-950/70 border-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.25)] text-amber-400',
+            badge: 'bg-amber-950/60 text-amber-300 border-amber-500/30'
+        }
     },
     {
         id: 'potion-focus',
         name: 'Focus tonic',
         effect: '+15% dungeon attack',
         durationHours: 2,
-        icon: '⚡'
+        icon: '⚡',
+        theme: {
+            border: 'border-purple-500/30 hover:border-purple-400/60',
+            bg: 'bg-gradient-to-r from-purple-950/30 via-zinc-900 to-zinc-950',
+            iconBg: 'bg-purple-950/70 border-purple-500/40 shadow-[0_0_10px_rgba(168,85,247,0.25)] text-purple-400',
+            badge: 'bg-purple-950/60 text-purple-300 border-purple-500/30'
+        }
     },
     {
         id: 'potion-sage',
         name: 'Sage brew',
         effect: '+10% expedition essences',
         durationHours: 6,
-        icon: '🍵'
+        icon: '🍵',
+        theme: {
+            border: 'border-teal-500/30 hover:border-teal-400/60',
+            bg: 'bg-gradient-to-r from-teal-950/30 via-zinc-900 to-zinc-950',
+            iconBg: 'bg-teal-950/70 border-teal-500/40 shadow-[0_0_10px_rgba(20,184,166,0.25)] text-teal-400',
+            badge: 'bg-teal-950/60 text-teal-300 border-teal-500/30'
+        }
     }
 ]
 
@@ -1025,16 +1049,16 @@ export function DailyHubClient() {
                     </div>
 
                     {/* Bento Tile 2B: Active buffs & Alliance daily oath */}
-                    <div className="lg:col-span-5 flex flex-col justify-between gap-4">
+                    <div className="lg:col-span-5 flex flex-col gap-4">
                         {/* Active Buffs Card */}
-                        <Card className="bg-zinc-950 border-amber-900/40 shadow-xl flex-1 flex flex-col justify-between">
-                            <CardHeader className="pb-3 pt-4 px-5">
+                        <Card className="bg-[#0e1217]/95 border border-amber-900/40 shadow-xl rounded-2xl flex flex-col">
+                            <CardHeader className="pb-3 pt-4 px-5 border-b border-white/5">
                                 <div className="flex items-center justify-between">
-                                    <CardTitle className="text-base font-medieval text-amber-400 flex items-center gap-2">
+                                    <CardTitle className="text-base font-serif font-bold text-amber-300 flex items-center gap-2">
                                         <Sparkles className="w-4 h-4 text-amber-400" />
-                                        <span>Active buffs</span>
+                                        <span>Active buffs & draughts</span>
                                     </CardTitle>
-                                    <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-400">
+                                    <Badge variant="outline" className={cn("text-[10px] font-mono px-2 py-0.5", activePerks.length > 0 ? "border-emerald-500/40 text-emerald-400 bg-emerald-950/40" : "border-amber-500/30 text-amber-400/80 bg-amber-950/20")}>
                                         {activePerks.length} active
                                     </Badge>
                                 </div>
@@ -1042,68 +1066,48 @@ export function DailyHubClient() {
                                     Temporary passive bonuses currently active
                                 </CardDescription>
                             </CardHeader>
-                            <CardContent className="px-5 pb-5 pt-0 flex-1 flex flex-col justify-center">
-                                {activePerks.length === 0 ? (
-                                    <div className="space-y-3 flex-1 flex flex-col justify-between py-1">
-                                        <div className="flex items-center justify-between text-[11px] text-zinc-400">
-                                            <span className="font-medium text-amber-300/90">Possible enhancements</span>
-                                            <span className="text-[10px] text-zinc-500">Tap to activate</span>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            {POSSIBLE_BUFFS.map(buff => (
-                                                <div
-                                                    key={buff.id}
-                                                    className="p-2.5 bg-zinc-900/80 rounded-xl border border-zinc-800/80 hover:border-amber-500/30 flex items-center justify-between gap-3 transition-colors"
-                                                >
-                                                    <div className="flex items-center gap-2.5 min-w-0">
-                                                        <div className="w-8 h-8 rounded-lg bg-amber-950/40 border border-amber-900/30 flex items-center justify-center text-base shrink-0">
-                                                            {buff.icon}
-                                                        </div>
-                                                        <div className="min-w-0">
-                                                            <h5 className="font-bold text-xs text-amber-100 truncate">{buff.name}</h5>
-                                                            <p className="text-[10px] text-zinc-400 truncate">
-                                                                {buff.effect} • {buff.durationHours}h
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <Button
-                                                        size="sm"
-                                                        onClick={() => handleActivateBuff(buff)}
-                                                        disabled={activatingBuffId === buff.id}
-                                                        className="h-7 px-3 text-[11px] font-bold rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 active:scale-95 shrink-0 transition-all"
-                                                    >
-                                                        {activatingBuffId === buff.id ? "Activating..." : "Activate"}
-                                                    </Button>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        <div className="pt-2 border-t border-zinc-900/80 flex items-center justify-between text-[11px]">
-                                            <span className="text-zinc-500">Need more reagents?</span>
-                                            <Link href="/inventory" className="text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1">
-                                                Open backpack <ArrowRight className="w-3 h-3" />
-                                            </Link>
-                                        </div>
+                            <CardContent className="p-5 space-y-4">
+                                {/* Alchemical station banner */}
+                                <div className="relative overflow-hidden rounded-xl border border-amber-500/20 bg-gradient-to-r from-amber-950/30 via-zinc-900/60 to-zinc-950 p-3.5 flex items-center gap-3.5 shadow-sm">
+                                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xl shrink-0 shadow-inner">
+                                        <span>⚗️</span>
                                     </div>
-                                ) : (
-                                    <div className="space-y-2.5">
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-bold text-xs text-amber-200 font-serif">Apothecary station</span>
+                                            <span className="text-[10px] text-zinc-400 font-mono">• Daily elixirs</span>
+                                        </div>
+                                        <p className="text-[11px] text-zinc-400 leading-snug font-sans mt-0.5">
+                                            {activePerks.length === 0
+                                                ? "Quaff an elixir below to infuse your daily quests and dungeon battles with temporary passive boosts."
+                                                : "Active alchemical infusions are empowering your quests and combat performance."}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Active Perks List (if any active) */}
+                                {activePerks.length > 0 && (
+                                    <div className="space-y-2 pt-1">
+                                        <div className="flex items-center justify-between text-[11px] font-mono text-amber-300 uppercase tracking-wider font-bold">
+                                            <span>Active infusions</span>
+                                            <span className="text-zinc-400">{activePerks.length} running</span>
+                                        </div>
                                         {Array.isArray(activePerks) && activePerks.map((perk, index) => {
                                             const totalDuration = perk.created_at ? (new Date(perk.expires_at).getTime() - new Date(perk.created_at).getTime()) : (24 * 60 * 60 * 1000);
                                             const remaining = new Date(perk.expires_at).getTime() - Date.now();
                                             const progress = Math.max(0, Math.min(100, (remaining / totalDuration) * 100));
 
                                             return (
-                                                <div key={perk.id || index} className="p-2.5 bg-zinc-900 rounded-xl border border-zinc-800/80 flex flex-col gap-2">
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-2.5">
-                                                            <span className="text-xl">🧪</span>
-                                                            <div>
-                                                                <h5 className="font-bold text-xs text-amber-100">{perk.perk_name}</h5>
-                                                                <p className="text-[10px] text-zinc-400">{perk.effect}</p>
+                                                <div key={perk.id || index} className="p-2.5 bg-zinc-900/90 rounded-xl border border-amber-500/30 flex flex-col gap-2 shadow-sm">
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <div className="flex items-center gap-2.5 min-w-0">
+                                                            <span className="text-lg">🧪</span>
+                                                            <div className="min-w-0">
+                                                                <h5 className="font-bold text-xs text-white font-sans normal-case truncate">{perk.perk_name}</h5>
+                                                                <p className="text-[10px] text-zinc-400 font-sans truncate">{perk.effect}</p>
                                                             </div>
                                                         </div>
-                                                        <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-amber-400 bg-amber-950/40 border border-amber-900/30 px-2 py-0.5 rounded-full shrink-0">
+                                                        <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full shrink-0">
                                                             <Clock className="w-3 h-3 animate-spin duration-3000" />
                                                             <span>{getPerkTimeRemaining(perk.expires_at)}</span>
                                                         </div>
@@ -1116,6 +1120,67 @@ export function DailyHubClient() {
                                         })}
                                     </div>
                                 )}
+
+                                {/* Available Draughts list */}
+                                <div className="space-y-2 pt-1">
+                                    <div className="flex items-center justify-between text-[11px] text-zinc-400 font-sans">
+                                        <span className="font-bold text-zinc-300 uppercase tracking-wider font-mono text-[10px]">
+                                            {activePerks.length === 0 ? "Possible enhancements" : "Additional draughts"}
+                                        </span>
+                                        <span className="text-[10px] text-zinc-500 font-mono">Tap to activate</span>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        {POSSIBLE_BUFFS.map(buff => (
+                                            <div
+                                                key={buff.id}
+                                                className={cn(
+                                                    "p-3 rounded-xl border flex items-center justify-between gap-3 transition-all shadow-sm",
+                                                    buff.theme?.bg || "bg-zinc-900/80",
+                                                    buff.theme?.border || "border-zinc-800/80 hover:border-amber-500/40"
+                                                )}
+                                            >
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    <div className={cn(
+                                                        "w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 border",
+                                                        buff.theme?.iconBg || "bg-amber-950/40 border-amber-900/30"
+                                                    )}>
+                                                        {buff.icon}
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <div className="flex items-center gap-2">
+                                                            <h5 className="font-bold text-xs text-white font-sans normal-case truncate">{buff.name}</h5>
+                                                            <span className={cn(
+                                                                "text-[9px] font-mono px-1.5 py-0.5 rounded border",
+                                                                buff.theme?.badge || "bg-zinc-900 text-zinc-400 border-zinc-700"
+                                                            )}>
+                                                                {buff.durationHours}h
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-[11px] text-zinc-300 font-sans truncate mt-0.5">
+                                                            {buff.effect}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() => handleActivateBuff(buff)}
+                                                    disabled={activatingBuffId === buff.id}
+                                                    className="h-8 px-3.5 text-xs font-sans font-bold normal-case rounded-lg bg-amber-500/20 text-amber-200 border border-amber-500/40 hover:bg-amber-500/30 hover:text-amber-100 active:scale-95 shrink-0 transition-all shadow-sm"
+                                                >
+                                                    {activatingBuffId === buff.id ? "Activating..." : "Activate"}
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] font-sans">
+                                    <span className="text-zinc-500">Need rare reagents?</span>
+                                    <Link href="/market" className="text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1 transition-colors">
+                                        Grand Apotheca <ArrowRight className="w-3 h-3" />
+                                    </Link>
+                                </div>
                             </CardContent>
                         </Card>
 
@@ -1240,13 +1305,13 @@ function AllianceDailyOathWidget() {
             🛡️
           </div>
           <div>
-            <h4 className="font-bold text-amber-300 text-sm font-serif">Alliance Daily Oath</h4>
+            <h4 className="font-bold text-amber-300 text-sm font-serif">Alliance daily oath</h4>
             <p className="text-xs text-zinc-400">Join an alliance to swear daily oaths and earn House Cup virtue rewards!</p>
           </div>
         </div>
         <Link href="/social">
-          <Button size="sm" className="bg-amber-600 hover:bg-amber-500 text-zinc-950 font-bold rounded-xl text-xs whitespace-nowrap">
-            Find Alliance
+          <Button size="sm" className="bg-amber-600 hover:bg-amber-500 text-zinc-950 font-bold rounded-xl text-xs whitespace-nowrap normal-case">
+            Find alliance
           </Button>
         </Link>
       </Card>
@@ -1266,8 +1331,8 @@ function AllianceDailyOathWidget() {
       playSound(SOUNDS.ALLIANCE_OATH);
       confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
       toast({
-        title: "Alliance Oath Sworn! 🛡️",
-        description: `You have fulfilled your daily oath for ${myAlliance.name}! Streak: ${result.streak || streak + 1} Days.`,
+        title: "Alliance oath sworn! 🛡️",
+        description: `You have fulfilled your daily oath for ${myAlliance.name}! Streak: ${result.streak || streak + 1} days.`,
       });
       setAlliances(prev => prev.map(a => a.id === myAlliance.id ? {
         ...a,
@@ -1275,7 +1340,7 @@ function AllianceDailyOathWidget() {
       } : a));
     } else {
       toast({
-        title: "Oath Status",
+        title: "Oath status",
         description: result.message || "Failed to check in.",
         variant: result.message?.includes('already') ? "default" : "destructive"
       });
@@ -1303,13 +1368,13 @@ function AllianceDailyOathWidget() {
             <div className="flex items-center gap-2">
               <span className="font-bold text-amber-300 text-sm font-serif">{myAlliance.name}</span>
               <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/60 border border-amber-500/30 text-amber-400 font-bold">
-                <Flame className="w-3 h-3 text-orange-400 fill-orange-400" /> {streak} Day Oath Streak
+                <Flame className="w-3 h-3 text-orange-400 fill-orange-400" /> {streak} day oath streak
               </span>
             </div>
             <p className="text-xs text-zinc-300 mt-0.5">
               {checkedInToday
                 ? "Daily alliance oath sworn! Your loyalty empowers the House Cup."
-                : "Fulfill your daily alliance oath to earn +10 House Cup Virtue points & streak bonus!"}
+                : "Fulfill your daily alliance oath to earn +10 House Cup virtue points & streak bonus!"}
             </p>
           </div>
         </div>
@@ -1318,18 +1383,18 @@ function AllianceDailyOathWidget() {
           onClick={handleCheckIn}
           disabled={checkedInToday || checkingIn}
           className={cn(
-            "w-full sm:w-auto h-10 px-5 rounded-xl font-black text-xs uppercase tracking-wider shrink-0 transition-all shadow-lg active:scale-95",
+            "w-full sm:w-auto h-10 px-5 rounded-xl font-bold text-xs normal-case shrink-0 transition-all shadow-lg active:scale-95",
             checkedInToday
               ? "bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 cursor-default opacity-90"
               : "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-300 text-zinc-950 border border-yellow-300/50 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
           )}
         >
           {checkingIn ? (
-            <span className="flex items-center gap-1.5"><Loader2 className="w-4 h-4 animate-spin" /> Swearing Oath...</span>
+            <span className="flex items-center gap-1.5"><Loader2 className="w-4 h-4 animate-spin" /> Swearing oath...</span>
           ) : checkedInToday ? (
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Oath Sworn Today</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Oath sworn today</span>
           ) : (
-            <span className="flex items-center gap-1.5">🛡️ Fulfill Daily Oath</span>
+            <span className="flex items-center gap-1.5">🛡️ Fulfill daily oath</span>
           )}
         </Button>
       </div>

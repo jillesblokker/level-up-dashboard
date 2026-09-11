@@ -1013,7 +1013,7 @@ export default function CharacterPage() {
 
               {/* Essence Inventory */}
               <div className="pt-4 mt-5 border-t border-amber-900/30">
-                <h4 className="text-xs font-serif font-bold text-amber-300 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <h4 className="text-xs font-serif font-bold text-amber-300 normal-case tracking-wide mb-3 flex items-center gap-1.5">
                   <span>🧪</span> Alchemy essences vault
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-2.5 text-xs font-serif">
@@ -1239,11 +1239,11 @@ export default function CharacterPage() {
             </div>
 
             {/* Bento Tile 2B: Available Empowerments & Focus Surge */}
-            <div className="lg:col-span-6 flex flex-col justify-between gap-4 medieval-card p-6 rounded-2xl shadow-xl">
+            <div className="lg:col-span-6 flex flex-col gap-4 medieval-card p-6 rounded-2xl shadow-xl">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <h4 className="text-xs font-serif font-bold text-amber-300 uppercase tracking-widest flex items-center gap-1.5">
+                    <h4 className="text-xs font-serif font-bold text-amber-300 normal-case flex items-center gap-1.5">
                       <span>⚡</span> Available empowerments
                     </h4>
                     <p className="text-[11px] text-zinc-400">Quick-access conduits to enhance hero performance</p>
@@ -1301,7 +1301,7 @@ export default function CharacterPage() {
                 <div className="flex items-center justify-between mb-1.5 flex-wrap gap-2">
                   <div className="flex items-center gap-1.5">
                     <Brain className="w-4 h-4 text-purple-400 animate-pulse" />
-                    <h4 className="text-xs font-bold text-purple-300 uppercase tracking-wider">Focus points</h4>
+                    <h4 className="text-xs font-bold text-purple-300 font-serif normal-case">Focus points</h4>
                   </div>
                   <Button
                     onClick={() => setShowFocusModal(true)}

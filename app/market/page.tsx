@@ -959,7 +959,7 @@ export default function MarketPage() {
                               <h4 className={cn("text-sm font-bold font-serif leading-tight", cardTheme.title)}>
                                 {pack.title}
                               </h4>
-                              <p className={cn("text-[10px] font-mono font-bold mt-0.5 tracking-wider uppercase", cardTheme.sub)}>
+                              <p className={cn("text-[10px] font-mono font-bold mt-0.5 tracking-wide normal-case", cardTheme.sub)}>
                                 {pack.shortLabel}
                               </p>
                             </div>
@@ -991,7 +991,7 @@ export default function MarketPage() {
                           <div className="pt-2">
                             <Button 
                               className={cn(
-                                "w-full h-10 text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md",
+                                "w-full h-10 text-xs font-bold font-serif normal-case rounded-xl transition-all shadow-md",
                                 isButtonDisabled
                                   ? "bg-zinc-800 text-zinc-500 border border-zinc-700/50 cursor-not-allowed shadow-none"
                                   : cardTheme.btn

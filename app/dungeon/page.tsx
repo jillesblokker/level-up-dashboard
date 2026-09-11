@@ -1986,11 +1986,11 @@ export default function DungeonPage() {
                                 onClick={() => fight('strike')}
                                 className="h-16 px-3 flex flex-col items-center justify-center bg-gradient-to-b from-zinc-900 to-zinc-950 hover:from-zinc-800 hover:to-zinc-900 border border-amber-500/40 hover:border-amber-400 rounded-xl shadow-lg transition-all active:scale-95 text-center overflow-hidden group"
                               >
-                                <span className="text-sm font-serif font-bold uppercase tracking-wider flex items-center gap-1.5 truncate text-[#f5e6c8] group-hover:text-amber-300">
+                                <span className="text-sm font-serif font-bold normal-case flex items-center gap-1.5 truncate text-[#f5e6c8] group-hover:text-amber-300">
                                   ⚔️ Strike
                                 </span>
                                 <span className="text-[10px] text-zinc-400 font-mono truncate mt-0.5">
-                                  1.0x Dmg (⚡ Ready)
+                                  1.0x dmg (⚡ ready)
                                 </span>
                               </Button>
 
@@ -2013,11 +2013,11 @@ export default function DungeonPage() {
                                         : 'bg-gradient-to-b from-zinc-900 to-zinc-950 hover:from-zinc-800 hover:to-zinc-900 border-amber-500/40 hover:border-amber-400 text-[#f5e6c8] active:scale-95'
                                     }`}
                                   >
-                                    <span className="text-sm font-serif font-bold uppercase tracking-wider flex items-center gap-1.5 truncate text-[#f5e6c8] group-hover:text-amber-300">
+                                    <span className="text-sm font-serif font-bold normal-case flex items-center gap-1.5 truncate text-[#f5e6c8] group-hover:text-amber-300">
                                       {spellEmoji} {spellName}
                                     </span>
                                     <span className="text-[10px] font-mono text-zinc-400 truncate mt-0.5">
-                                      {cdValue > 0 ? `⏳ Cooldown (${cdValue}t)` : `1.4x Dmg (⚡ Ready)`}
+                                      {cdValue > 0 ? `⏳ Cooldown (${cdValue}t)` : `1.4x dmg (⚡ ready)`}
                                     </span>
                                   </Button>
                                 );
@@ -2036,11 +2036,11 @@ export default function DungeonPage() {
                                         : 'bg-gradient-to-b from-zinc-900 to-zinc-950 hover:from-zinc-800 hover:to-zinc-900 border-emerald-500/40 hover:border-emerald-400 text-[#f5e6c8] active:scale-95'
                                     }`}
                                   >
-                                    <span className="text-sm font-serif font-bold uppercase tracking-wider flex items-center gap-1.5 truncate text-[#f5e6c8] group-hover:text-emerald-300">
+                                    <span className="text-sm font-serif font-bold normal-case flex items-center gap-1.5 truncate text-[#f5e6c8] group-hover:text-emerald-300">
                                       {statusSpell.emoji} {statusSpell.name}
                                     </span>
                                     <span className="text-[10px] font-mono text-zinc-400 truncate mt-0.5">
-                                      {cooldowns.status > 0 ? `⏳ Cooldown (${cooldowns.status}t)` : `${statusSpell.desc} (⚡ Ready)`}
+                                      {cooldowns.status > 0 ? `⏳ Cooldown (${cooldowns.status}t)` : `${statusSpell.desc} (⚡ ready)`}
                                     </span>
                                   </Button>
                                 );
@@ -2058,11 +2058,11 @@ export default function DungeonPage() {
                                       }`
                                 }`}
                               >
-                                <span className="text-sm font-serif font-bold uppercase tracking-wider flex items-center gap-1.5 truncate text-[#f5e6c8] group-hover:text-amber-300">
+                                <span className="text-sm font-serif font-bold normal-case flex items-center gap-1.5 truncate text-[#f5e6c8] group-hover:text-amber-300">
                                   🛡️ Guard
                                 </span>
                                 <span className="text-[10px] font-mono text-zinc-400 truncate mt-0.5">
-                                  {cooldowns.guard > 0 ? `⏳ Cooldown (${cooldowns.guard}t)` : `-60% Dmg (⚡ Ready)`}
+                                  {cooldowns.guard > 0 ? `⏳ Cooldown (${cooldowns.guard}t)` : `-60% dmg (⚡ ready)`}
                                 </span>
                               </Button>
                             </div>
