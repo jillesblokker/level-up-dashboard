@@ -442,7 +442,7 @@ const initialCreatures: Creature[] = [
     number: '#019',
     name: 'Crypto',
     description: 'An ancient crocodile warrior awakened by inscripting all 8 word lengths into the sacred runic codex.',
-    image: '/images/creatures/019.webp',
+    image: '/images/creatures/107.webp',
     category: 'runic',
     discovered: false,
     stats: {

@@ -935,7 +935,7 @@ export default function Page() {
                         <Card className={`absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden border-2 flex flex-col transition-all duration-300 ${unlocked ? 'bg-zinc-950 border-amber-500/50 shadow-2xl shadow-black/40 group-hover:border-amber-400 group-hover:scale-[1.02]' : 'border-dashed border-zinc-800 bg-zinc-950 grayscale opacity-80'}`}>
                           <div className="relative w-full h-full">
                             <Image
-                              src={unlocked ? `/images/creatures/${creature.id}.webp` : '/images/placeholders/undiscovered.webp'}
+                              src={unlocked ? (creature.id === '019' ? '/images/creatures/107.webp' : `/images/creatures/${creature.id}.webp`) : '/images/placeholders/undiscovered.webp'}
                               alt={creature.name}
                               fill
                               className={`object-contain p-2 relative z-10 transition-transform duration-500 group-hover:scale-105 ${!unlocked && 'opacity-20 blur-sm scale-90'}`}

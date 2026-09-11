@@ -782,30 +782,32 @@ export function CodexOfRunesTab() {
                   {/* Visual Word Slot Carving */}
                   <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto py-1">
                     {Array.from({ length: tier.length }).map((_, slotIdx) => {
+                      const targetChar = tier.canonicalWord[slotIdx] || '';
+                      const runeSym = letterToRuneSymbol(targetChar);
                       const char = isTierComplete ? inscribedWord[slotIdx] : '';
-                      const runeSym = char ? letterToRuneSymbol(char) : '᛬';
 
                       return (
                         <div
                           key={slotIdx}
-                          className={`w-7 sm:w-8 h-10 sm:h-11 rounded-lg border flex flex-col items-center justify-center shrink-0 ${
+                          className={`w-7 sm:w-8 h-11 sm:h-12 rounded-lg border flex flex-col items-center justify-center shrink-0 transition-all ${
                             isTierComplete
-                              ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-200'
-                              : 'bg-zinc-900/60 border-zinc-800/80 text-zinc-700'
+                              ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-200 shadow-[0_0_10px_rgba(16,185,129,0.2)]'
+                              : 'bg-zinc-900/90 border-amber-900/40 text-amber-300/90 shadow-sm hover:border-amber-500/60'
                           }`}
+                          title={isTierComplete ? `${runeSym} = ${char}` : `Decipher rune: ${runeSym}`}
                         >
-                          <span className="font-serif text-xs sm:text-sm font-bold leading-none">
+                          <span className={`font-serif text-sm sm:text-base font-bold leading-none ${isTierComplete ? 'text-emerald-300' : 'text-amber-300'}`}>
                             {runeSym}
                           </span>
-                          <span className="font-serif text-[10px] sm:text-xs font-bold leading-none mt-0.5 text-zinc-300">
-                            {char || '·'}
+                          <span className={`font-mono text-[9px] sm:text-[10px] font-bold leading-none mt-1 ${isTierComplete ? 'text-emerald-200' : 'text-zinc-500'}`}>
+                            {char || '?'}
                           </span>
                         </div>
                       );
                     })}
 
                     {isTierComplete && (
-                      <span className="ml-2 font-serif font-bold text-xs sm:text-sm text-emerald-300">
+                      <span className="ml-2 font-serif font-bold text-xs sm:text-sm text-emerald-300 shrink-0">
                         = {inscribedWord}
                       </span>
                     )}
@@ -843,50 +845,20 @@ export function CodexOfRunesTab() {
                   }`}
                 >
                   {/* FRONT FACE */}
-                  <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden rounded-3xl border-2 border-emerald-500/60 bg-gradient-to-b from-zinc-950 via-[#0a150e] to-zinc-950 flex flex-col shadow-2xl shadow-emerald-950/50 group-hover:border-emerald-400 group-hover:scale-[1.01] transition-transform">
-                    <div className="relative w-full h-full p-4 flex flex-col items-center justify-between">
-                      {/* Card Header */}
-                      <div className="w-full flex items-center justify-between z-20">
-                        <Badge className="bg-emerald-500 text-black font-bold text-[10px] px-2.5 py-0.5">
-                          #019 • Special
+                  <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] overflow-hidden rounded-3xl border-2 border-emerald-500/60 bg-zinc-950 flex flex-col shadow-2xl shadow-emerald-950/50 group-hover:border-emerald-400 group-hover:scale-[1.01] transition-transform">
+                    <div className="relative w-full h-full">
+                      <Image
+                        src="/images/creatures/107.webp"
+                        alt="Crypto the runic crocodile"
+                        fill
+                        className="object-contain p-1"
+                        priority
+                      />
+                      {/* Floating pill for flip indication */}
+                      <div className="absolute top-3.5 right-3.5 z-20">
+                        <Badge className="bg-black/70 hover:bg-black/80 text-emerald-300 border border-emerald-500/40 text-[10px] font-serif backdrop-blur-md shadow-md">
+                          Tap to flip
                         </Badge>
-                        <span className="text-[10px] font-serif text-emerald-400">
-                          (Tap to flip)
-                        </span>
-                      </div>
-
-                      {/* Creature Image */}
-                      <div className="relative w-52 h-52 sm:w-60 sm:h-60 z-10">
-                        <Image
-                          src="/images/creatures/Crypto.webp"
-                          alt="Crypto the runic crocodile"
-                          fill
-                          className="object-contain drop-shadow-[0_0_20px_rgba(16,185,129,0.3)] group-hover:scale-105 transition-transform duration-500"
-                          priority
-                        />
-                      </div>
-
-                      {/* Bottom Info Banner */}
-                      <div className="w-full bg-black/80 backdrop-blur-md rounded-2xl p-4 border border-emerald-500/30 text-center z-20 space-y-1">
-                        <h4 className="text-2xl font-black text-emerald-300 uppercase tracking-wider font-serif">
-                          Crypto
-                        </h4>
-                        <p className="text-xs text-zinc-400 font-serif">
-                          Cipher guardian • Crocodile warrior
-                        </p>
-                        <div className="flex items-center justify-center gap-3 text-xs font-serif text-emerald-200/90 pt-1">
-                          <span className="flex items-center gap-1">
-                            <Star className="w-3 h-3 text-emerald-400" /> Runic
-                          </span>
-                          <span className="w-1 h-1 rounded-full bg-emerald-500/50" />
-                          <span className="flex items-center gap-1">
-                            <Shield className="w-3 h-3 text-emerald-400" /> DEF: 26
-                          </span>
-                          <span className="w-1 h-1 rounded-full bg-emerald-500/50" />
-                          <span className="flex items-center gap-1">
-                            <Sword className="w-3 h-3 text-emerald-400" /> ATK: 28
-                          </span>
-                        </div>
                       </div>
                     </div>
                   </div>
