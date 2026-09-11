@@ -1193,7 +1193,7 @@ export function AirshipHarborTab() {
       {activeVoyage?.active ? (
         
         /* ACTIVE IN-FLIGHT BRIDGE SCREEN */
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in items-stretch">
           
           <Card className="lg:col-span-2 bg-[#0b0d11] border-2 border-amber-900/40 rounded-3xl p-6 shadow-2xl flex flex-col justify-between min-h-[420px] space-y-6">
             
@@ -1429,7 +1429,7 @@ export function AirshipHarborTab() {
           </Card>
 
           {/* SLOTTED CREW ON ACTIVE FLIGHT (3 Porthole Stations) */}
-          <div className="lg:col-span-1 space-y-4">
+          <div className="lg:col-span-1 flex flex-col justify-between space-y-4">
             <div className="flex items-center justify-between px-1">
               <h3 className="text-base font-cardo font-bold text-amber-100 flex items-center gap-2">
                 <Users className="w-4 h-4 text-amber-500" /> Slotted crew members
@@ -1519,7 +1519,7 @@ export function AirshipHarborTab() {
       ) : (
 
         /* LAUNCH SETUP: CELESTIAL SKY-CHART & 3 CREW STATIONS */
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in items-stretch">
           
           {/* THE CELESTIAL SKY-CHART NAVIGATION TABLE */}
           <div className="lg:col-span-2 space-y-4">
@@ -1652,15 +1652,15 @@ export function AirshipHarborTab() {
           </div>
 
           {/* RIGHT COLUMN: 3 BRIDGE CREW STATIONS & ENGINE TELEGRAPH LAUNCH */}
-          <div className="lg:col-span-1 space-y-4">
+          <div className="lg:col-span-1 flex flex-col justify-between space-y-4">
             
-            <Card className="bg-[#0b0d11] border-2 border-amber-900/40 rounded-3xl p-5 sm:p-6 shadow-2xl flex flex-col justify-between min-h-[460px] space-y-5">
+            <Card className="bg-[#0b0d11] border-2 border-amber-900/40 rounded-3xl p-5 sm:p-6 shadow-2xl flex flex-col justify-between h-full space-y-5">
               
               <div className="space-y-4">
                 
                 <div className="flex items-center justify-between pb-3 border-b border-amber-900/30">
                   <div>
-                    <h3 className="font-cardo font-bold text-base text-amber-100">3 Bridge crew stations</h3>
+                    <h3 className="font-cardo font-bold text-base text-amber-100">3 bridge crew stations</h3>
                     <p className="text-[10px] text-zinc-400 font-mono">Assign 3 citizens from the dormitory</p>
                   </div>
                   <Badge className="bg-amber-950/60 text-amber-300 border border-amber-500/40 text-[9px] font-mono">

@@ -29,7 +29,7 @@ export default function AirshipHarborPage() {
                 <Anchor className="h-4 w-4" />
               </div>
               <h1 className="text-lg font-bold tracking-wide text-amber-300 sm:text-xl font-serif flex items-center gap-2">
-                <span>Airship Harbor</span>
+                <span>Airship harbor</span>
                 <CollectibleRune
                   id="ehwaz_airship"
                   runeId="ehwaz"
@@ -50,7 +50,7 @@ export default function AirshipHarborPage() {
                 className="gap-1.5 text-xs text-zinc-400 hover:text-amber-300"
               >
                 <Compass className="h-4 w-4" />
-                <span className="hidden sm:inline">World Map</span>
+                <span className="hidden sm:inline">World map</span>
               </Button>
             </Link>
           </div>
