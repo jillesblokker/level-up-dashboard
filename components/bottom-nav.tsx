@@ -55,25 +55,24 @@ export function BottomNav() {
         href?: string | undefined
         action?: (() => void) | undefined
         label: string
-        desc: string
         icon: any
         color: string
         badge?: number | string | undefined
     }> = [
-        { href: "/achievements", label: "Achievements & runes", desc: "Codex, trophies & cards", icon: Trophy, color: "text-yellow-400 border-yellow-500/30 bg-yellow-950/40" },
-        { href: "/character", label: "Hero character vault", desc: "Equipment, pets & stats", icon: Shield, color: "text-amber-400 border-amber-500/30 bg-amber-950/40" },
-        { href: "/dungeon", label: "Dungeon keep", desc: "3v3 elemental battles", icon: Sword, color: "text-purple-400 border-purple-500/30 bg-purple-950/40" },
-        { href: "/market", label: "Royal market & bazaar", desc: "Trading post & mystery packs", icon: ShoppingBag, color: "text-emerald-400 border-emerald-500/30 bg-emerald-950/40" },
-        { href: "/daily-hub", label: "Daily habit hub", desc: "Morning focus & streak", icon: Sun, color: "text-amber-300 border-amber-500/30 bg-amber-950/40" },
-        { href: "/kingdom?tab=airship", label: "Airship harbor", desc: "Habit ether voyages", icon: Ship, color: "text-cyan-400 border-cyan-500/30 bg-cyan-950/40" },
-        { href: "/tales", label: "Tales & chronicle", desc: "Stories, archives & journal", icon: BookOpen, color: "text-blue-400 border-blue-500/30 bg-blue-950/40" },
-        { href: "/worldmap", label: "World map", desc: "Observatory & provinces", icon: Globe, color: "text-indigo-400 border-indigo-500/30 bg-indigo-950/40" },
-        { action: () => window.dispatchEvent(new CustomEvent('open-inventory-bag')), label: "Inventory backpack", desc: "Potions, runes & items", icon: Backpack, color: "text-amber-400 border-amber-500/30 bg-amber-950/40" },
-        { href: "/notifications", label: "Action notifications", desc: "Dares, raids & alerts", icon: Bell, color: "text-red-400 border-red-500/30 bg-red-950/40", badge: unreadCount > 0 ? unreadCount : undefined },
-        { href: "/quests?tab=recovery", label: "Streak save & recovery", desc: "Freeze shields & streak repair", icon: Shield, color: "text-cyan-400 border-cyan-500/30 bg-cyan-950/40" },
-        { href: "/requirements", label: "Adventurer's guide", desc: "Chapters, lore & tome", icon: Scroll, color: "text-emerald-300 border-emerald-500/30 bg-emerald-950/40" },
-        { href: "/riddles", label: "Sphinx riddles", desc: "Mind puzzles & labyrinth", icon: Puzzle, color: "text-pink-400 border-pink-500/30 bg-pink-950/40" },
-        { href: "/settings", label: "Settings & audio", desc: "Preferences & controls", icon: Settings, color: "text-zinc-400 border-zinc-500/30 bg-zinc-900/60" },
+        { href: "/achievements", label: "Achievements", icon: Trophy, color: "text-yellow-400 border-yellow-500/30 bg-yellow-950/40" },
+        { href: "/character", label: "Character", icon: Shield, color: "text-amber-400 border-amber-500/30 bg-amber-950/40" },
+        { href: "/dungeon", label: "Dungeon", icon: Sword, color: "text-purple-400 border-purple-500/30 bg-purple-950/40" },
+        { href: "/market", label: "Market", icon: ShoppingBag, color: "text-emerald-400 border-emerald-500/30 bg-emerald-950/40" },
+        { href: "/daily-hub", label: "Daily hub", icon: Sun, color: "text-amber-300 border-amber-500/30 bg-amber-950/40" },
+        { href: "/kingdom?tab=airship", label: "Airship", icon: Ship, color: "text-cyan-400 border-cyan-500/30 bg-cyan-950/40" },
+        { href: "/tales", label: "Chronicle", icon: BookOpen, color: "text-blue-400 border-blue-500/30 bg-blue-950/40" },
+        { href: "/worldmap", label: "World map", icon: Globe, color: "text-indigo-400 border-indigo-500/30 bg-indigo-950/40" },
+        { action: () => window.dispatchEvent(new CustomEvent('open-inventory-bag')), label: "Bag", icon: Backpack, color: "text-amber-400 border-amber-500/30 bg-amber-950/40" },
+        { href: "/notifications", label: "Notifications", icon: Bell, color: "text-red-400 border-red-500/30 bg-red-950/40", badge: unreadCount > 0 ? unreadCount : undefined },
+        { href: "/quests?tab=recovery", label: "Streak recovery", icon: Shield, color: "text-cyan-400 border-cyan-500/30 bg-cyan-950/40" },
+        { href: "/requirements", label: "Guide", icon: Scroll, color: "text-emerald-300 border-emerald-500/30 bg-emerald-950/40" },
+        { href: "/riddles", label: "Riddles", icon: Puzzle, color: "text-pink-400 border-pink-500/30 bg-pink-950/40" },
+        { href: "/settings", label: "Settings", icon: Settings, color: "text-zinc-400 border-zinc-500/30 bg-zinc-900/60" },
     ]
 
     const secondaryPaths: string[] = secondaryDestinations
@@ -169,29 +168,24 @@ export function BottomNav() {
                                             }
                                         }}
                                         className={cn(
-                                            "flex items-start gap-2.5 p-2.5 rounded-xl border text-left transition-all active:scale-95 touch-manipulation relative group",
+                                            "flex items-center gap-2.5 p-2.5 sm:p-3 rounded-xl border text-left transition-all active:scale-95 touch-manipulation relative group",
                                             active
                                                 ? "bg-amber-950/80 border-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.25)]"
                                                 : "bg-zinc-900/90 border-zinc-800 hover:border-amber-700/60 hover:bg-zinc-900"
                                         )}
                                     >
-                                        <div className={cn("p-1.5 rounded-lg border shrink-0 mt-0.5", dest.color)}>
+                                        <div className={cn("p-1.5 rounded-lg border shrink-0", dest.color)}>
                                             <Icon className="w-4 h-4" />
                                         </div>
-                                        <div className="min-w-0 flex-1">
-                                            <div className="flex items-center gap-1.5">
-                                                <span className="font-serif font-bold text-xs text-zinc-100 group-hover:text-amber-300 truncate">
-                                                    {dest.label}
+                                        <div className="min-w-0 flex-1 flex items-center justify-between gap-1.5">
+                                            <span className="font-serif font-bold text-xs sm:text-sm text-zinc-100 group-hover:text-amber-300 truncate">
+                                                {dest.label}
+                                            </span>
+                                            {dest.badge && (
+                                                <span className="px-1.5 py-0.2 rounded-full bg-red-500 text-white font-mono text-[9px] font-bold shrink-0">
+                                                    {dest.badge}
                                                 </span>
-                                                {dest.badge && (
-                                                    <span className="px-1.5 py-0.2 rounded-full bg-red-500 text-white font-mono text-[9px] font-bold">
-                                                        {dest.badge}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <p className="text-[10px] text-zinc-400 truncate mt-0.5">
-                                                {dest.desc}
-                                            </p>
+                                            )}
                                         </div>
                                     </button>
                                 )

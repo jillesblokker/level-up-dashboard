@@ -25,7 +25,6 @@ import { setUserPreference, getUserPreference } from "@/lib/user-preferences-man
 import { getRulerTitleSync, getRulerTitle, setRulerTitle, RulerTitle } from "@/lib/ruler-title-service";
 import Link from "next/link";
 import { logout } from "@/app/actions/auth";
-import { NotificationCenter } from "@/components/notification-center";
 import { notificationService } from "@/lib/notification-service";
 import { getCharacterStats, fetchFreshCharacterStats, CharacterStats as ServiceCharacterStats } from "@/lib/character-stats-service";
 import { CharacterStats, calculateExperienceForLevel, calculateLevelFromExperience, calculateLevelProgress } from "@/types/character";
@@ -392,7 +391,7 @@ export default function ProfilePage() {
 
         {/* Quick Access Cards - Mobile/Tablet Optimization */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
-        <NotificationCenter>
+        <Link href="/notifications">
           <Card className="bg-zinc-900 border-amber-800/30 hover:bg-zinc-800/80 hover:border-amber-500/50 transition-all cursor-pointer h-full group">
             <CardContent className="p-3.5 sm:p-4 flex flex-col items-center justify-center text-center h-full">
               <div className="relative">
@@ -401,15 +400,15 @@ export default function ProfilePage() {
                   <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
                 )}
               </div>
-              <div className="text-xs sm:text-sm font-bold text-white font-serif">{TEXT_CONTENT.profile.quickAccess.inbox.title}</div>
+              <div className="text-xs sm:text-sm font-bold text-white font-serif">Notifications</div>
               {unreadCount > 0 ? (
-                <Badge className="mt-1.5 bg-red-500 hover:bg-red-600 border-none text-[10px]">{unreadCount} New</Badge>
+                <Badge className="mt-1.5 bg-red-500 hover:bg-red-600 border-none text-[10px]">{unreadCount} new</Badge>
               ) : (
-                <span className="text-[11px] text-zinc-500 mt-1">{TEXT_CONTENT.profile.quickAccess.inbox.empty}</span>
+                <span className="text-[11px] text-zinc-500 mt-1">Action feed</span>
               )}
             </CardContent>
           </Card>
-        </NotificationCenter>
+        </Link>
 
         <Link href="/character">
           <Card className="bg-zinc-900 border-amber-800/30 hover:bg-zinc-800/80 hover:border-amber-500/50 transition-all cursor-pointer h-full group">
