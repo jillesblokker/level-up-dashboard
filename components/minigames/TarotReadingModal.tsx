@@ -114,8 +114,8 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
           </DialogDescription>
         </DialogHeader>
 
-        {/* Spirit Sprite Avatar & Story Banner */}
-        <div className="flex items-center gap-3 bg-gradient-to-r from-purple-950/50 via-zinc-950 to-zinc-950 border border-purple-500/30 p-2.5 rounded-2xl shadow-md my-1">
+        {/* Spirit Sprite Avatar & Story Banner (Hidden on mobile to preserve viewport space for tarot cards) */}
+        <div className="hidden sm:flex items-center gap-3 bg-gradient-to-r from-purple-950/50 via-zinc-950 to-zinc-950 border border-purple-500/30 p-2.5 rounded-2xl shadow-md my-1">
           <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-purple-400/60 shadow-[0_0_10px_rgba(168,85,247,0.3)] shrink-0 bg-purple-950 flex items-center justify-center">
             <Image
               src="/images/creatures/SpiritSprite.webp"

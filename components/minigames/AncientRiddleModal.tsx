@@ -185,8 +185,8 @@ export function AncientRiddleModal({ isOpen, onClose }: AncientRiddleModalProps)
           </DialogDescription>
         </DialogHeader>
 
-        {/* Sage Owl Avatar & Story Banner */}
-        <div className="flex items-center gap-3 bg-gradient-to-r from-blue-950/50 via-zinc-950 to-zinc-950 border border-blue-500/30 p-2.5 rounded-2xl shadow-md my-1">
+        {/* Sage Owl Avatar & Story Banner (Hidden on mobile to preserve viewport space for riddle question and choices) */}
+        <div className="hidden sm:flex items-center gap-3 bg-gradient-to-r from-blue-950/50 via-zinc-950 to-zinc-950 border border-blue-500/30 p-2.5 rounded-2xl shadow-md my-1">
           <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-blue-400/60 shadow-[0_0_10px_rgba(59,130,246,0.3)] shrink-0 bg-blue-950 flex items-center justify-center">
             <Image
               src="/images/creatures/SageOwl.webp"

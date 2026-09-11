@@ -251,8 +251,8 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
           </DialogDescription>
         </DialogHeader>
 
-        {/* Valerion Avatar & Story Banner */}
-        <div className="flex items-center gap-3 bg-gradient-to-r from-amber-950/40 via-cyan-950/30 to-zinc-950 border border-amber-500/30 p-2.5 rounded-2xl shadow-md my-1">
+        {/* Valerion Avatar & Story Banner (Hidden on mobile to preserve viewport space for pipe board) */}
+        <div className="hidden sm:flex items-center gap-3 bg-gradient-to-r from-amber-950/40 via-cyan-950/30 to-zinc-950 border border-amber-500/30 p-2.5 rounded-2xl shadow-md my-1">
           <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-amber-500/50 shadow-[0_0_10px_rgba(245,158,11,0.3)] shrink-0 bg-amber-950">
             <Image
               src="/images/creatures/Valerion.webp"

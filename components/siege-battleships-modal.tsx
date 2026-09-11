@@ -98,17 +98,17 @@ export function SiegeBattleshipModal({ isOpen: controlledIsOpen, onClose }: Sieg
         </DialogTrigger>
       )}
 
-      <DialogContent className="bg-zinc-950 border border-red-500/30 text-white max-w-md p-6 rounded-2xl shadow-2xl space-y-4 max-h-[88dvh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-between font-serif text-red-300 text-xl">
-            <div className="flex items-center gap-2">
-              <Castle className="w-5 h-5 text-red-400" />
-              Catapult Siege Battleships
-            </div>
-            <Badge variant="outline" className="border-red-500/40 text-red-200 text-xs font-mono font-bold">
-              🪨 {boulders} Boulders Left
+      <DialogContent className="bg-zinc-950 border border-red-500/30 text-white max-w-md p-4 sm:p-6 rounded-2xl shadow-2xl space-y-3 sm:space-y-4 max-h-[88dvh] overflow-y-auto">
+        <DialogHeader className="pr-10 sm:pr-12">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+            <DialogTitle className="flex items-center gap-2 font-serif text-red-300 text-xl break-words">
+              <Castle className="w-5 h-5 text-red-400 shrink-0" />
+              <span>Catapult siege battleships</span>
+            </DialogTitle>
+            <Badge variant="outline" className="border-red-500/40 text-red-200 text-xs font-mono font-bold w-fit">
+              🪨 {boulders} boulders left
             </Badge>
-          </DialogTitle>
+          </div>
         </DialogHeader>
 
         <p className="text-xs text-zinc-300 leading-relaxed bg-zinc-900/80 p-3 rounded-xl border border-white/10">

@@ -356,8 +356,8 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
           </DialogDescription>
         </DialogHeader>
 
-        {/* Penguino Avatar & Story Banner */}
-        <div className="flex items-center gap-3 bg-gradient-to-r from-sky-950/40 via-cyan-950/30 to-zinc-950 border border-cyan-500/30 p-2.5 rounded-2xl shadow-md my-1">
+        {/* Penguino Avatar & Story Banner (Hidden on mobile to preserve viewport space for arena and D-pad) */}
+        <div className="hidden sm:flex items-center gap-3 bg-gradient-to-r from-sky-950/40 via-cyan-950/30 to-zinc-950 border border-cyan-500/30 p-2.5 rounded-2xl shadow-md my-1">
           <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-cyan-400/60 shadow-[0_0_10px_rgba(56,189,248,0.3)] shrink-0 bg-cyan-950 flex items-center justify-center">
             <div className="w-10 h-10 relative">
               <Image

@@ -81,8 +81,8 @@ export function PlankLabyrinthModal({ isOpen, onClose }: PlankLabyrinthModalProp
           </DialogDescription>
         </DialogHeader>
 
-        {/* Buldour Avatar & Story Banner */}
-        <div className="flex items-center gap-3 bg-gradient-to-r from-amber-950/50 via-zinc-950 to-zinc-950 border border-amber-500/30 p-2.5 rounded-2xl shadow-md my-1">
+        {/* Buldour Avatar & Story Banner (Hidden on mobile to preserve viewport space for stepping stones) */}
+        <div className="hidden sm:flex items-center gap-3 bg-gradient-to-r from-amber-950/50 via-zinc-950 to-zinc-950 border border-amber-500/30 p-2.5 rounded-2xl shadow-md my-1">
           <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-amber-500/60 shadow-[0_0_10px_rgba(245,158,11,0.3)] shrink-0 bg-amber-950 flex items-center justify-center">
             <Image
               src="/images/creatures/Buldour.webp"

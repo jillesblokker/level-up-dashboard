@@ -660,42 +660,38 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="max-w-lg w-full bg-zinc-950/95 border border-amber-900/40 text-white rounded-2xl p-4 sm:p-6 shadow-2xl overflow-y-auto max-h-[85vh] font-serif pb-safe">
-        <DialogHeader className="text-center border-b border-amber-900/20 pb-3 px-8 sm:px-10">
-          <DialogTitle className="text-2xl sm:text-3xl font-medieval tracking-wide text-amber-400 break-words">
-            Plank labyrinth
+      <DialogContent className="max-w-lg w-full bg-zinc-950/95 border border-amber-900/40 text-white rounded-2xl p-3 sm:p-5 shadow-2xl overflow-y-auto max-h-[88vh] font-serif pb-safe">
+        <DialogHeader className="text-center border-b border-amber-900/20 pb-2.5 px-8 sm:px-10">
+          <DialogTitle className="text-2xl sm:text-3xl font-serif font-bold tracking-wide text-amber-400 break-words">
+            Plank Labyrinth
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400 italic">
             Slide the heavy oak barriers to clear the water channel. Guide your ship to the open sea.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col items-center gap-4 mt-4">
-          {/* Stats Bar */}
-          <div className="flex justify-between items-center w-full px-2 text-xs font-mono tracking-wider text-amber-500 font-semibold">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <span>VARIATION: <strong className="text-white font-extrabold">{activeVariationIndex + 1} / {PUZZLE_VARIATIONS.length}</strong></span>
-                <span className="px-2 py-0.5 rounded text-[10px] font-medieval tracking-widest bg-amber-950/80 border border-amber-500/40 text-amber-300 uppercase">
-                  {PUZZLE_DIFFICULTIES[activeVariationIndex]}
-                </span>
-              </div>
-              <span>TARGET PAR: <strong className="text-white font-extrabold">{PAR_SCORES[activeVariationIndex]} Moves</strong></span>
+        <div className="flex flex-col items-center gap-2.5 sm:gap-3.5 mt-2">
+          {/* Stats Bar (Streamlined, no master badge, Title Cased) */}
+          <div className="flex justify-between items-center w-full px-1 text-xs font-mono text-amber-400/90 font-medium">
+            <div className="flex items-center gap-2">
+              <span>Variation: <strong className="text-white font-bold">{activeVariationIndex + 1}/{PUZZLE_VARIATIONS.length}</strong></span>
+              <span className="text-zinc-600 hidden sm:inline">&bull;</span>
+              <span className="hidden sm:inline text-zinc-400">Target: <strong className="text-white font-bold">{PAR_SCORES[activeVariationIndex]} moves</strong></span>
             </div>
-            <div className="flex flex-col items-end gap-1">
-              <span>MOVES EXPENDED: <strong className="text-white text-base font-extrabold">{moves}</strong></span>
+            <div className="flex items-center gap-2.5">
+              <span>Moves: <strong className="text-white text-sm font-bold">{moves}</strong></span>
               {hasWon ? (
-                <span className="text-green-400 font-bold flex items-center gap-1 animate-pulse"><Trophy className="w-3.5 h-3.5 animate-bounce" /> SOLVED</span>
+                <span className="text-green-400 font-bold flex items-center gap-1 animate-pulse"><Trophy className="w-3.5 h-3.5 animate-bounce" /> Solved</span>
               ) : (
-                <span className="text-zinc-500 font-bold">ACTIVE</span>
+                <span className="text-zinc-500 text-[11px]">Active</span>
               )}
             </div>
           </div>
 
-          {/* Full-Size Responsive 6x6 Grid Container with Water Channel Tiles */}
+          {/* Responsive 6x6 Grid Container with Water Channel Tiles */}
           <div
             ref={gridRef}
-            className="relative w-full max-w-[min(90vw,440px)] aspect-square mx-auto bg-[#1a3a4b] border-4 border-[#3d240f] rounded-2xl overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.8),0_10px_25px_rgba(0,0,0,0.6)] flex flex-wrap"
+            className="relative w-full max-w-[min(82vw,380px)] sm:max-w-[420px] aspect-square mx-auto bg-[#1a3a4b] border-4 border-[#3d240f] rounded-2xl overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.8),0_10px_25px_rgba(0,0,0,0.6)] flex flex-wrap"
           >
             {/* 6x6 Kingdom Water Tiles */}
             {Array.from({ length: 36 }).map((_, i) => (
@@ -879,10 +875,6 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
                 </Button>
               </div>
             )}
-          </div>
-
-          <div className="text-[10px] text-zinc-400 text-center italic font-serif leading-relaxed px-4">
-            * Touch and drag planks directly across the board, or toggle Arrow Keys for manual controls.
           </div>
         </div>
       </DialogContent>
