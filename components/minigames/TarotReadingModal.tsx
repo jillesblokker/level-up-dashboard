@@ -102,11 +102,11 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
       <DialogContent className="max-w-md w-full bg-gradient-to-b from-purple-950 via-zinc-950 to-zinc-950 border border-purple-500/40 text-purple-100 p-6 rounded-2xl shadow-2xl font-serif text-center overflow-hidden z-[100]">
         <div className="absolute -top-12 -right-12 w-32 h-32 bg-purple-500/10 blur-3xl rounded-full pointer-events-none" />
 
-        <DialogHeader>
+        <DialogHeader className="px-8 sm:px-10">
           <div className="mx-auto w-12 h-12 rounded-full bg-purple-500/20 border border-purple-400 flex items-center justify-center mb-2 shadow-[0_0_20px_rgba(168,85,247,0.4)]">
             <Wand2 className="w-6 h-6 text-purple-300 animate-spin" />
           </div>
-          <DialogTitle className="text-2xl font-medieval text-purple-200">
+          <DialogTitle className="text-2xl font-medieval text-purple-200 break-words">
             Town fortune tarot reading
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-300 italic leading-relaxed pt-1">

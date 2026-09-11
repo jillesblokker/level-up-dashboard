@@ -157,8 +157,8 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
   return (
     <Dialog open={open} onOpenChange={(val) => { if (!isProcessing) onOpenChange(val); }}>
       <DialogContent className="max-w-full sm:max-w-[560px] border-2 border-emerald-800/60 bg-slate-950/95 backdrop-blur-md p-4 sm:p-6 rounded-2xl overflow-y-auto max-h-[90dvh] shadow-2xl">
-        <DialogHeader className="p-0 mb-2">
-          <DialogTitle className="text-2xl font-medieval text-emerald-400 text-center">
+        <DialogHeader className="px-8 sm:px-10 pb-2 mb-2">
+          <DialogTitle className="text-2xl font-medieval text-emerald-400 text-center break-words">
             🔮 The fortune teller
           </DialogTitle>
           <DialogDescription className="text-center text-emerald-200/80 text-xs sm:text-sm">

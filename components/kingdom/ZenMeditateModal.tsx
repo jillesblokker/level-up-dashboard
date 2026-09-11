@@ -448,8 +448,8 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
             <DialogContent className={cn("max-w-md max-h-[92vh] overflow-y-auto bg-zinc-950 text-zinc-100 shadow-2xl transition-colors duration-700", activeExercise.theme.dialogBorder, activeExercise.theme.dialogShadow)}>
                 <div className={cn("absolute inset-0 bg-gradient-to-b to-transparent pointer-events-none transition-colors duration-700", activeExercise.theme.topGradient)} />
 
-                <DialogHeader className="relative z-10 space-y-1.5">
-                    <DialogTitle className={cn("text-center font-serif text-3xl transition-colors duration-500", activeExercise.theme.titleColor)}>
+                <DialogHeader className="relative z-10 space-y-1.5 px-8 sm:px-10">
+                    <DialogTitle className={cn("text-center font-serif text-3xl transition-colors duration-500 break-words", activeExercise.theme.titleColor)}>
                         The sacred garden
                     </DialogTitle>
                     <DialogDescription className="text-center text-zinc-400 text-xs italic font-light max-w-sm mx-auto leading-relaxed">

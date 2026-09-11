@@ -173,11 +173,11 @@ export function AncientRiddleModal({ isOpen, onClose }: AncientRiddleModalProps)
   return (
     <Dialog open={isOpen} onOpenChange={(op) => { if (!op) onClose() }}>
       <DialogContent className="max-w-md w-full bg-gradient-to-b from-blue-950 via-zinc-950 to-zinc-950 border border-blue-500/40 text-blue-100 p-6 rounded-2xl shadow-2xl font-serif text-center max-h-[88dvh] overflow-y-auto custom-scrollbar z-[100]">
-        <DialogHeader>
+        <DialogHeader className="px-8 sm:px-10">
           <div className="mx-auto w-12 h-12 rounded-full bg-blue-500/20 border border-blue-400 flex items-center justify-center mb-2 shadow-[0_0_20px_rgba(59,130,246,0.4)]">
             <BookOpen className="w-6 h-6 text-blue-300 animate-pulse" />
           </div>
-          <DialogTitle className="text-2xl font-medieval text-blue-200">
+          <DialogTitle className="text-2xl font-medieval text-blue-200 break-words">
             Town scholar&apos;s ancient riddle
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400 italic">

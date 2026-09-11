@@ -242,8 +242,8 @@ export function SewerPipesModal({ isOpen, onClose, onSuccess }: SewerPipesModalP
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-xl w-full bg-[#0a0f14] border border-cyan-900/40 text-cyan-50 p-4 sm:p-6 rounded-2xl shadow-2xl font-serif z-[100] max-h-[95vh] overflow-y-auto">
-        <DialogHeader className="text-center pb-1">
-          <DialogTitle className="text-2xl font-medieval text-cyan-300">
+        <DialogHeader className="text-center pb-1 px-8 sm:px-10">
+          <DialogTitle className="text-2xl font-medieval text-cyan-300 break-words">
             Valerion plumbing
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400 italic">

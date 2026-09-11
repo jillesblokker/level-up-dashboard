@@ -130,11 +130,11 @@ export function AbbeyModal({ open, onOpenChange, onComplete }: AbbeyModalProps) 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm sm:max-w-md w-full bg-zinc-950 border border-purple-900/40 text-white rounded-2xl p-5 shadow-2xl font-serif max-h-[85dvh] flex flex-col overflow-y-auto">
-        <DialogHeader className="text-center flex flex-col items-center pb-2">
+        <DialogHeader className="text-center flex flex-col items-center pb-2 px-8 sm:px-10">
           <div className="p-2.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 mb-1.5 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
             <Church className="w-5 h-5" />
           </div>
-          <DialogTitle className="text-xl font-medieval text-purple-200 tracking-tight font-bold">
+          <DialogTitle className="text-xl font-medieval text-purple-200 tracking-tight font-bold break-words">
             Silent abbey
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">

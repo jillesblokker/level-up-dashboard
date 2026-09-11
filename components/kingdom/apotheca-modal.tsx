@@ -130,11 +130,11 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm sm:max-w-md w-full bg-zinc-950 border border-emerald-900/40 text-white rounded-2xl p-5 shadow-2xl font-serif max-h-[85dvh] flex flex-col overflow-y-auto">
-        <DialogHeader className="text-center flex flex-col items-center pb-2">
+        <DialogHeader className="text-center flex flex-col items-center pb-2 px-8 sm:px-10">
           <div className="p-2.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mb-1.5 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
             <FlaskConical className="w-5 h-5" />
           </div>
-          <DialogTitle className="text-xl font-medieval text-emerald-200 tracking-tight font-bold flex items-center justify-center gap-2">
+          <DialogTitle className="text-xl font-medieval text-emerald-200 tracking-tight font-bold flex items-center justify-center gap-2 flex-wrap break-words">
             <span>Grand apotheca</span>
             <CollectibleRune
               id="berkano_apotheca"

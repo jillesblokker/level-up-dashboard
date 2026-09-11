@@ -237,21 +237,21 @@ export function OnboardingModal({ isOpen, onClose, onComplete, onSkip }: Onboard
       <div className="relative w-full max-w-4xl mx-4 flex flex-col items-center justify-center h-full max-h-[90vh]">
         <Card className="relative w-full overflow-hidden flex flex-col bg-zinc-950 border-amber-900/40 shadow-2xl text-zinc-100">
           {/* Header */}
-          <div className="flex-none flex items-center justify-between p-4 md:p-6 border-b border-amber-900/30 bg-gradient-to-r from-amber-900/80 to-black/80">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-amber-500/20 border border-amber-500/40 rounded-full flex items-center justify-center ">
+          <div className="flex-none flex items-center justify-between gap-3 p-4 md:p-6 border-b border-amber-900/30 bg-gradient-to-r from-amber-900/80 to-black/80">
+            <div className="flex items-center space-x-3 min-w-0 flex-1">
+              <div className="w-8 h-8 bg-amber-500/20 border border-amber-500/40 rounded-full flex items-center justify-center shrink-0">
                 <BookOpen className="w-4 h-4 text-amber-400" />
               </div>
-              <div>
-                <h2 className="text-lg md:text-xl font-bold text-white font-serif tracking-wide">Welcome to Thrivehaven</h2>
-                <p className="text-amber-200/60 text-xs md:text-sm">Let&apos;s get you started on your journey</p>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg md:text-xl font-bold text-white font-serif tracking-wide truncate">Welcome to Thrivehaven</h2>
+                <p className="text-amber-200/60 text-xs md:text-sm truncate">Let&apos;s get you started on your journey</p>
               </div>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-amber-200/60 hover:text-white hover:bg-amber-900/40"
+              className="text-amber-200/60 hover:text-white hover:bg-amber-900/40 shrink-0 min-w-[36px] min-h-[36px]"
               aria-label="Close onboarding"
             >
               <X className="w-4 h-4" />

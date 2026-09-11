@@ -594,12 +594,12 @@ export function RealmEventModal({ isOpen, onClose, tileType, onWeatherChange }: 
                 <div className="absolute inset-0 bg-amber-500/5 opacity-40 pointer-events-none blur-[100px]" />
 
                 <div className="relative z-10 p-6 flex flex-col items-center">
-                    <DialogHeader className="w-full text-center items-center">
+                    <DialogHeader className="w-full text-center items-center px-4 sm:px-6">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-amber-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-amber-500">
                             <Icon className="w-3 h-3" />
                             {content.title}
                         </div>
-                        <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
+                        <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2 break-words">
                             {content.desc}
                         </DialogTitle>
                     </DialogHeader>

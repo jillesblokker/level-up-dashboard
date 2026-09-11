@@ -2743,7 +2743,7 @@ function RealmPageContent() {
                             <div className="absolute inset-0 bg-blue-500/5 opacity-40 pointer-events-none blur-[100px]" />
 
                             <div className="relative z-10 p-6 flex flex-col items-center">
-                                <DialogHeader className="w-full text-center items-center">
+                                <DialogHeader className="w-full text-center items-center px-4 sm:px-6">
                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-blue-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-blue-400">
                                         <Compass className="w-3 h-3" />
                                         Exploration Event
@@ -2873,12 +2873,12 @@ function RealmPageContent() {
                     <Dialog open={pyramidEvent.open} onOpenChange={() => setPyramidEvent(null)}>
                         <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 max-h-[88dvh] overflow-y-auto custom-scrollbar p-6 rounded-2xl">
                             <div className="absolute inset-0 bg-amber-500/5 opacity-40 pointer-events-none blur-[100px]" />
-                            <DialogHeader className="text-center items-center">
+                            <DialogHeader className="text-center items-center px-4 sm:px-6">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-amber-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-amber-400">
                                     <Crown className="w-3 h-3" />
                                     Monolith of Devotion
                                 </div>
-                                <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
+                                <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2 break-words">
                                     The Sun Pyramid
                                 </DialogTitle>
                                 <DialogDescription className="text-zinc-400 text-center leading-relaxed">
@@ -2971,7 +2971,7 @@ function RealmPageContent() {
                     <Dialog open={wellEvent.open} onOpenChange={() => setWellEvent(null)}>
                         <DialogContent className="w-[92%] sm:max-w-[440px] bg-zinc-950 border-zinc-800 text-zinc-100 p-6 rounded-2xl max-h-[88dvh] flex flex-col overflow-y-auto custom-scrollbar">
                             <div className="absolute inset-0 bg-blue-500/5 opacity-40 pointer-events-none blur-[100px]" />
-                            <DialogHeader className="text-center items-center shrink-0">
+                            <DialogHeader className="text-center items-center shrink-0 px-4 sm:px-6">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-blue-500/30 text-xs font-semibold mb-3 text-blue-400">
                                     <Compass className="w-3.5 h-3.5" />
                                     Whispering well
@@ -3185,7 +3185,7 @@ function RealmPageContent() {
                     <Dialog open={sphinxEvent.open} onOpenChange={() => setSphinxEvent(null)}>
                         <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-900 text-zinc-100 max-h-[88dvh] overflow-y-auto custom-scrollbar p-6 rounded-2xl">
                             <div className="absolute inset-0 bg-red-950/10 opacity-30 pointer-events-none blur-[100px]" />
-                            <DialogHeader className="text-center items-center">
+                            <DialogHeader className="text-center items-center px-4 sm:px-6">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-red-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-red-400">
                                     <ShieldCheck className="w-3 h-3" />
                                     Sphinx&apos;s Gates
@@ -3222,7 +3222,7 @@ function RealmPageContent() {
                     <Dialog open={canopyEvent.open} onOpenChange={() => setCanopyEvent(null)}>
                         <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 max-h-[88dvh] overflow-y-auto custom-scrollbar p-6 rounded-2xl">
                             <div className="absolute inset-0 bg-emerald-950/10 opacity-30 pointer-events-none blur-[100px]" />
-                            <DialogHeader className="text-center items-center">
+                            <DialogHeader className="text-center items-center px-4 sm:px-6">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-emerald-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-emerald-400">
                                     <Tent className="w-3 h-3" />
                                     Whispering Canopy
@@ -3365,7 +3365,7 @@ function RealmPageContent() {
                     <Dialog open={obeliskEvent.open} onOpenChange={() => setObeliskEvent(null)}>
                         <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 max-h-[88dvh] overflow-y-auto custom-scrollbar p-6 rounded-2xl">
                             <div className="absolute inset-0 bg-blue-950/10 opacity-30 pointer-events-none blur-[100px]" />
-                            <DialogHeader className="text-center items-center">
+                            <DialogHeader className="text-center items-center px-4 sm:px-6">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-blue-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-blue-400">
                                     <Compass className="w-3 h-3" />
                                     Frostfire Obelisk
@@ -3524,7 +3524,7 @@ function RealmPageContent() {
                     <Dialog open={fairyRingEvent.open} onOpenChange={() => setFairyRingEvent(null)}>
                         <DialogContent className="w-[92%] sm:max-w-[420px] bg-zinc-950 border-zinc-800 text-zinc-100 max-h-[88dvh] overflow-y-auto custom-scrollbar p-6 rounded-2xl">
                             <div className="absolute inset-0 bg-amber-950/10 opacity-30 pointer-events-none blur-[100px]" />
-                            <DialogHeader className="text-center items-center">
+                            <DialogHeader className="text-center items-center px-4 sm:px-6">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-amber-500/30 text-xs font-bold uppercase tracking-widest mb-4 text-amber-400">
                                     <Crown className="w-3 h-3" />
                                     Fairy Ring

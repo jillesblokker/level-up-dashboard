@@ -45,7 +45,7 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
           </div>
         )}
 
-        <DialogHeader className="text-center pb-2 items-center">
+        <DialogHeader className="text-center pb-2 items-center px-8 sm:px-10">
           <div className="flex items-center justify-center gap-2 mb-1">
             {reward.isLucky ? (
               <Crown className="h-5 w-5 text-amber-400 animate-bounce" />
@@ -53,7 +53,7 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
               <Sparkles className="h-5 w-5 text-amber-400" />
             )}
             <DialogTitle className={cn(
-              "font-medieval text-xl sm:text-2xl tracking-tight font-bold",
+              "font-medieval text-xl sm:text-2xl tracking-tight font-bold break-words",
               reward.isLucky ? "text-amber-300" : "text-amber-100"
             )}>
               {reward.isLucky ? 'Fortune smiles upon you' : "The day's harvest"}

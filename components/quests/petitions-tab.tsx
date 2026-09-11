@@ -271,7 +271,7 @@ export function PetitionsTab() {
                 ? 'from-emerald-950/40 via-zinc-950 to-zinc-950 border-emerald-500/50'
                 : 'from-amber-950/40 via-zinc-950 to-zinc-950 border-amber-500/50'
             } border-2 text-white p-6 rounded-2xl shadow-2xl font-serif text-center overflow-hidden z-[100] animate-in zoom-in-95`}>
-              <DialogHeader className="items-center text-center">
+              <DialogHeader className="items-center text-center px-8 sm:px-10">
                 {/* Petitioner Character Avatar Frame (styled like Tales / Storybook) */}
                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-900 via-amber-950 to-black border-2 border-amber-400 shadow-[0_4px_20px_rgba(0,0,0,0.8),0_0_16px_rgba(245,158,11,0.35)] flex items-center justify-center overflow-hidden shrink-0 p-1 mx-auto mb-2">
                   {activeOutcomeModal.requesterImage ? (

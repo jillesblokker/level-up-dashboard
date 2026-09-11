@@ -69,11 +69,11 @@ export function PlankLabyrinthModal({ isOpen, onClose }: PlankLabyrinthModalProp
   return (
     <Dialog open={isOpen} onOpenChange={(op) => { if (!op) onClose() }}>
       <DialogContent className="max-w-md w-full bg-[#120e0b] border border-amber-800/40 text-amber-100 p-6 rounded-2xl shadow-2xl font-serif text-center overflow-hidden z-[100]">
-        <DialogHeader>
+        <DialogHeader className="px-8 sm:px-10">
           <div className="mx-auto w-12 h-12 rounded-full bg-amber-950 border border-amber-500/40 flex items-center justify-center mb-2 shadow-lg">
             <Footprints className="w-6 h-6 text-amber-400 animate-pulse" />
           </div>
-          <DialogTitle className="text-2xl font-medieval text-amber-300">
+          <DialogTitle className="text-2xl font-medieval text-amber-300 break-words">
             Plank labyrinth trail
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-300 italic leading-relaxed pt-1">

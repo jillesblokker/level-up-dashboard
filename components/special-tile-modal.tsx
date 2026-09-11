@@ -180,8 +180,8 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
           )} />
         </div>
 
-        <DialogHeader className="text-center pb-2 border-b border-amber-900/20">
-          <DialogTitle className="text-3xl font-medieval tracking-wide text-amber-400">
+        <DialogHeader className="text-center pb-2 border-b border-amber-900/20 px-8 sm:px-10">
+          <DialogTitle className="text-2xl sm:text-3xl font-medieval tracking-wide text-amber-400 break-words">
             {displayName}
           </DialogTitle>
           <DialogDescription className="text-xs font-mono text-zinc-400">

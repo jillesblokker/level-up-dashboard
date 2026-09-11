@@ -1906,11 +1906,11 @@ export function AirshipHarborTab() {
       {/* SHIPWRIGHT DRYDOCK MODAL (Suggestion 3: Vessel Hull Upgrades) */}
       <Dialog open={showDrydockModal} onOpenChange={setShowDrydockModal}>
         <DialogContent className="max-w-xl w-full bg-zinc-950 border-2 border-amber-900/50 text-white rounded-3xl p-6 shadow-2xl font-serif max-h-[85dvh] flex flex-col overflow-y-auto">
-          <DialogHeader className="text-center flex flex-col items-center pb-2">
+          <DialogHeader className="text-center flex flex-col items-center pb-2 px-8 sm:px-10">
             <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 mb-1.5 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
               <Hammer className="w-6 h-6 animate-pulse" />
             </div>
-            <DialogTitle className="text-xl font-bold font-cardo text-amber-200 tracking-wide">
+            <DialogTitle className="text-xl font-bold font-cardo text-amber-200 tracking-wide break-words">
               Shipwright drydock &amp; vessel upgrades
             </DialogTitle>
             <DialogDescription className="text-xs text-zinc-400">

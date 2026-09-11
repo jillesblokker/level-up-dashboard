@@ -485,12 +485,12 @@ export function DailyTasks({ onTaskComplete }: DailyTasksProps) {
           </div>
 
           <div className="relative z-10 flex-1 overflow-y-auto p-6 scrollbar-hide">
-            <DialogHeader className="text-center items-center pb-6">
+            <DialogHeader className="text-center items-center pb-6 px-4 sm:px-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold mb-4 text-amber-500 shadow-sm">
                 <Plus className="w-3 h-3" />
                 New scroll
               </div>
-              <DialogTitle className="text-3xl font-serif text-white tracking-tight">Draft new quest</DialogTitle>
+              <DialogTitle className="text-3xl font-serif text-white tracking-tight break-words">Draft new quest</DialogTitle>
               <DialogDescription id="daily-tasks-modal-desc" className="text-zinc-500 mt-2">
                 Specify a new deed to be recorded in your daily archive.
               </DialogDescription>

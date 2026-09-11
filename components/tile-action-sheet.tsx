@@ -73,9 +73,9 @@ export function TileActionSheet({
                 <div role="dialog" aria-modal="true" aria-labelledby="tile-action-sheet-title" className="bg-zinc-950 border border-amber-900/40 rounded-2xl shadow-2xl w-[92vw] max-w-[480px] md:border-white/10 overflow-hidden pointer-events-auto max-h-[90vh] flex flex-col">
                     {/* Header */}
                     <div className="p-5 sm:px-6 sm:pb-4 border-b border-zinc-800">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
+                        <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                                <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
                                     {tile?.image ? (
                                         <Image
                                             src={tile.image}
@@ -88,8 +88,8 @@ export function TileActionSheet({
                                         <Info className="w-6 h-6 text-amber-400" />
                                     )}
                                 </div>
-                                <div>
-                                    <h3 id="tile-action-sheet-title" className="font-bold text-white text-lg capitalize">
+                                <div className="min-w-0 flex-1">
+                                    <h3 id="tile-action-sheet-title" className="font-bold text-white text-lg capitalize truncate">
                                         {tileName.replace(/_/g, ' ')}
                                     </h3>
                                     {isReady ? (
@@ -107,7 +107,7 @@ export function TileActionSheet({
                             </div>
                             <button
                                 onClick={onClose}
-                                className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors"
+                                className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors shrink-0 min-w-[36px] min-h-[36px] flex items-center justify-center"
                                 aria-label="Close tile actions"
                             >
                                 <X className="w-5 h-5 text-zinc-400" />

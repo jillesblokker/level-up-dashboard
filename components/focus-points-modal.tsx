@@ -96,11 +96,11 @@ export function FocusPointsModal({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="bg-zinc-950 border border-purple-900/40 text-white max-w-sm sm:max-w-xl shadow-2xl p-5 rounded-2xl font-serif max-h-[85dvh] flex flex-col overflow-y-auto">
-        <DialogHeader className="text-center flex flex-col items-center pb-2">
+        <DialogHeader className="text-center flex flex-col items-center pb-2 px-8 sm:px-10">
           <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-1.5 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
             <Brain className="w-5 h-5" />
           </div>
-          <DialogTitle className="font-medieval text-xl sm:text-2xl text-amber-200 tracking-tight font-bold">
+          <DialogTitle className="font-medieval text-xl sm:text-2xl text-amber-200 tracking-tight font-bold break-words">
             Focus point powers
           </DialogTitle>
           <DialogDescription className="text-zinc-400 text-xs mt-0.5">

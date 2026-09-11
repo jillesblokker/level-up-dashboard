@@ -83,11 +83,11 @@ export function KingdomSummaryModal({
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
 
         {/* Modal Header */}
-        <DialogHeader className="p-5 pb-2 text-center flex flex-col items-center relative z-10">
+        <DialogHeader className="pt-5 pb-2 px-8 sm:px-10 text-center flex flex-col items-center relative z-10">
           <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-2 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
             <Coins className="w-5 h-5" />
           </div>
-          <DialogTitle className="font-serif text-xl sm:text-2xl text-amber-100 tracking-tight font-bold">
+          <DialogTitle className="font-serif text-xl sm:text-2xl text-amber-100 tracking-tight font-bold break-words">
             {cleanTitle}
           </DialogTitle>
           <DialogDescription className="text-zinc-400 text-xs mt-1 italic">

@@ -144,24 +144,24 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
       <div className="absolute inset-0 bg-radial from-amber-500/15 via-transparent to-transparent blur-3xl pointer-events-none" />
 
       {/* Header Bar */}
-      <div className="w-full max-w-4xl mx-auto flex items-center justify-between z-20 pb-2 border-b border-amber-900/40 shrink-0">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-amber-400" />
-          <span className="font-serif font-bold text-amber-300 text-sm sm:text-base capitalize">
+      <div className="w-full max-w-4xl mx-auto flex items-center justify-between gap-2 z-20 pb-2 border-b border-amber-900/40 shrink-0">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <Sparkles className="w-5 h-5 text-amber-400 shrink-0" />
+          <span className="font-serif font-bold text-amber-300 text-sm sm:text-base capitalize truncate">
             {packData.title || "Mystery card pack"}
           </span>
-          <span className="text-xs text-amber-500/70 font-medium hidden sm:inline">
+          <span className="text-xs text-amber-500/70 font-medium hidden sm:inline shrink-0">
             ({revealedIds.size} / {totalCards} scratched)
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {/* View toggle (Grid vs Single) */}
           <Button
             size="sm"
             variant="ghost"
             onClick={() => setViewMode(viewMode === 'single' ? 'grid' : 'single')}
-            className="text-amber-300 hover:text-white bg-amber-950/60 hover:bg-amber-900 border border-amber-500/40 text-xs font-medium px-3 h-9"
+            className="text-amber-300 hover:text-white bg-amber-950/60 hover:bg-amber-900 border border-amber-500/40 text-xs font-medium px-3 h-9 shrink-0"
           >
             <Grid className="w-3.5 h-3.5 mr-1" />
             {viewMode === 'single' ? 'Grid view' : 'Single view'}
@@ -170,7 +170,7 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
           <button 
             type="button"
             onClick={onClose}
-            className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors cursor-pointer"
+            className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors cursor-pointer shrink-0 min-w-[36px] min-h-[36px] flex items-center justify-center"
             title="Close unpacking modal"
           >
             <X className="w-5 h-5" />

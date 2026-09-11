@@ -128,13 +128,13 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                 </div>
 
                 <div className="relative z-10 flex-1 overflow-y-auto p-6 scrollbar-hide">
-                    <DialogHeader className="text-center items-center pb-4">
+                    <DialogHeader className="text-center items-center pb-4 px-4 sm:px-6">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold mb-4 text-amber-500 shadow-sm">
                             <Sparkles className="w-3 h-3" />
                             Daily reflection
                         </div>
-                        <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2">
-                            The Sun Sets...
+                        <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2 break-words">
+                            The sun sets...
                         </DialogTitle>
                         <DialogDescription className="text-zinc-400 text-sm max-w-[300px] text-center leading-relaxed italic">
                             &quot;The scrolls of time await your inscription. How did the stars align for you today?&quot;

@@ -70,12 +70,12 @@ export function AchievementsModal({ open, onOpenChange, userId }: AchievementsMo
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-yellow-500/5 rounded-full blur-[120px] pointer-events-none" />
 
                 <div className="relative z-10 flex flex-col h-full">
-                    <DialogHeader className="p-6 pb-2 text-center items-center">
+                    <DialogHeader className="pt-6 pb-2 px-8 sm:px-12 text-center items-center">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-[10px] font-bold uppercase tracking-widest mb-4 text-yellow-500 shadow-sm">
                             <Trophy className="w-3 h-3" />
                             Grand Gallery
                         </div>
-                        <DialogTitle className="text-4xl font-serif text-white tracking-tight mb-2">
+                        <DialogTitle className="text-4xl font-serif text-white tracking-tight mb-2 break-words">
                             Fellowship achievements
                         </DialogTitle>
                         <p className="text-zinc-500 text-sm max-w-[400px]">

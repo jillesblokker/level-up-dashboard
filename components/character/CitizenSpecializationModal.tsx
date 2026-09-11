@@ -88,9 +88,9 @@ export function CitizenSpecializationModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg bg-zinc-950 border border-amber-900/40 text-white rounded-2xl p-6 shadow-2xl max-h-[88dvh] overflow-y-auto custom-scrollbar">
         <DialogHeader>
-          <div className="flex items-center gap-2 text-amber-400">
-            <Sparkles className="w-5 h-5" />
-            <DialogTitle className="text-xl font-bold tracking-wide">
+          <div className="flex items-center gap-2 text-amber-400 min-w-0 flex-1">
+            <Sparkles className="w-5 h-5 shrink-0" />
+            <DialogTitle className="text-xl font-bold tracking-wide break-words">
               Specialize citizen: {citizenName}
             </DialogTitle>
           </div>

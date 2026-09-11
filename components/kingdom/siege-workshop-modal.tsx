@@ -297,12 +297,12 @@ export function SiegeWorkshopModal({ open, onOpenChange, onComplete }: SiegeWork
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-full sm:max-w-[620px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 border-2 border-amber-800/60 text-white rounded-2xl p-4 sm:p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
-        <DialogHeader className="text-center flex flex-col items-center">
+        <DialogHeader className="text-center flex flex-col items-center px-8 sm:px-10">
           <div className="p-3 rounded-2xl bg-amber-950/80 border border-amber-500/40 text-amber-400 mb-2 shadow-inner">
             <Hammer className="w-8 h-8" />
           </div>
-          <DialogTitle className="text-2xl sm:text-3xl font-serif font-bold text-amber-400 drop-shadow">
-            Siege Engine Workshop
+          <DialogTitle className="text-2xl sm:text-3xl font-serif font-bold text-amber-400 drop-shadow break-words">
+            Siege engine workshop
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-300 max-w-md mx-auto">
             Commit daily habit achievements with your allies to craft Catapults, Scorpions, and Trebuchets for Titan Wyrm battles!

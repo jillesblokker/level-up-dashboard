@@ -153,12 +153,12 @@ export function QuestFormDialog({
                 </div>
 
                 <div className="relative z-10 flex-1 overflow-y-auto p-6 scrollbar-hide">
-                    <DialogHeader className="text-center items-center pb-6">
+                    <DialogHeader className="text-center items-center pb-6 px-4 sm:px-6">
                         <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${config.bgColor} ${config.borderColor} border text-[10px] font-bold uppercase tracking-widest mb-4 ${config.color} shadow-sm`}>
                             <Plus className="w-3 h-3" />
                             {config.scrollName}
                         </div>
-                        <DialogTitle className="text-3xl font-serif text-white tracking-tight">
+                        <DialogTitle className="text-3xl font-serif text-white tracking-tight break-words">
                             {config.title}
                         </DialogTitle>
                         <DialogDescription className="text-zinc-500 mt-2">
