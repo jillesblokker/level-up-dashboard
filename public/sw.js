@@ -1,6 +1,6 @@
 // Service Worker for Level Up - Medieval Habit Tracker
-// v2.2.0-grove-fox-purge - Direct-pass SW for API/pages, Stale-While-Revalidate for media assets
-const CACHE_VERSION = 'v2.2.0-grove-fox-purge'
+// v2.3.0-rsc-cors-fix - Direct-pass SW for API/pages/RSC, Stale-While-Revalidate for media assets
+const CACHE_VERSION = 'v2.3.0-rsc-cors-fix'
 const STATIC_CACHE = `level-up-static-${CACHE_VERSION}`
 const DYNAMIC_CACHE = `level-up-dynamic-${CACHE_VERSION}`
 
@@ -58,13 +58,16 @@ self.addEventListener('fetch', (event) => {
     request.mode === 'navigate' ||
     url.searchParams.has('_rsc') ||
     request.headers.get('rsc') === '1' ||
+    request.headers.has('next-router-state-tree') ||
+    request.headers.get('next-router-prefetch') === '1' ||
     request.headers.get('accept')?.includes('text/html') ||
+    request.headers.get('accept')?.includes('text/x-component') ||
     !url.pathname.match(/\.(jpg|jpeg|png|gif|svg|webp|mp3|wav|ogg|ico|webmanifest)$/)
   ) {
     return;
   }
 
-// Strategy: Stale-While-Revalidate for Images and Audio (serves fast while background-updating fresh assets)
+  // Strategy: Stale-While-Revalidate for Images and Audio
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       const fetchPromise = fetch(request).then((networkResponse) => {
@@ -75,10 +78,10 @@ self.addEventListener('fetch', (event) => {
           })
         }
         return networkResponse
-      }).catch(() => null)
+      })
 
       return cachedResponse || fetchPromise
-    })
+    }).catch(() => fetch(request))
   )
 })
 

@@ -22,22 +22,13 @@ export default clerkMiddleware(async (auth, request) => {
 
   const secFetchMode = request.headers.get('sec-fetch-mode');
   const acceptHeader = request.headers.get('accept') || '';
-  const isPrefetch = request.headers.get('purpose') === 'prefetch' || request.headers.get('x-middleware-prefetch') === '1';
-  const isNavigational = 
-    secFetchMode === 'navigate' || 
-    request.mode === 'navigate' || 
-    (acceptHeader.includes('text/html') && !isPrefetch);
+  const isRsc = searchParams.has('_rsc') || request.headers.get('rsc') === '1' || request.headers.has('next-router-state-tree');
+  const isPrefetch = 
+    request.headers.get('purpose') === 'prefetch' || 
+    request.headers.get('x-middleware-prefetch') === '1' ||
+    request.headers.get('next-router-prefetch') === '1' ||
+    isRsc;
 
-  
-  // Bypass broken Next.js image optimizer on the live server
-  if (pathname.startsWith('/_next/image')) {
-    const imageUrl = searchParams.get('url');
-    if (imageUrl) {
-      return NextResponse.redirect(new URL(imageUrl, request.url));
-    }
-  }
-
-  
   // Bypass broken Next.js image optimizer on the live server
   if (pathname.startsWith('/_next/image')) {
     const imageUrl = searchParams.get('url');
@@ -47,24 +38,26 @@ export default clerkMiddleware(async (auth, request) => {
   }
 
   // If user is signed in and trying to access sign-in/sign-up, redirect to kingdom
-
-
   if (userId && (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up'))) {
     return NextResponse.redirect(new URL('/kingdom', request.url));
   }
 
-  // Redirect unauthorized non-public routes to local sign-in, except for prefetches and API routes
+  // Handle unauthorized non-public routes
   if (!isPublicRoute(request) && !userId) {
     if (pathname.startsWith('/api/')) {
       // Allow API route handlers to perform multi-tier authentication (cookies + Bearer tokens)
       return NextResponse.next();
     }
-    if (isPrefetch) {
+    // For RSC fetches and link prefetches, return a clean 401 with CORS headers instead of a 307 redirect
+    // This prevents Safari and WebKit from failing with "access control checks" and crashing the client router
+    if (isPrefetch || isRsc) {
       return new NextResponse(null, {
         status: 401,
         headers: {
           'Content-Type': 'text/plain',
           'X-Clerk-Auth-Reason': 'unauthorized-prefetch',
+          'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
+          'Access-Control-Allow-Credentials': 'true',
         }
       });
     }
@@ -74,13 +67,16 @@ export default clerkMiddleware(async (auth, request) => {
     return NextResponse.redirect(signInUrl);
   }
 
-  // Protect all non-public routes
-  if (!isPublicRoute(request)) {
-    await auth.protect();
+  // Allow the request to continue with CORS headers for RSC requests
+  const response = NextResponse.next();
+  if (isRsc || isPrefetch) {
+    const origin = request.headers.get('origin') || '*';
+    response.headers.set('Access-Control-Allow-Origin', origin);
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Url, Accept');
   }
-
-  // Allow the request to continue
-  return NextResponse.next();
+  return response;
 }, {
   // Use Clerk's CSP configuration with custom directives
   contentSecurityPolicy: {
@@ -97,7 +93,10 @@ export default clerkMiddleware(async (auth, request) => {
         "https://*.supabase.co",
         "wss://*.supabase.co",
         "https://*.clerk.com",
-        "https://clerk.jillesblokker.com"
+        "https://clerk.jillesblokker.com",
+        "https://*.jillesblokker.com",
+        "https://*.clerk.accounts.dev",
+        "https://clerk.accounts.dev"
       ],
     },
   },
@@ -106,9 +105,6 @@ export default clerkMiddleware(async (auth, request) => {
 export const config = {
   matcher: [
     '/_next/image',
-
-    '/_next/image',
-
     // Skip Next.js internals and all static files, unless found in search params
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest|wav|mp3|ogg|mp4|webm)).*)',
     // Always run for API routes

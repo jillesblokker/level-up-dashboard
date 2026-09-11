@@ -41,13 +41,21 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
 
   const fetchServerNotifications = async () => {
     try {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        setIsLoading(false);
+        return;
+      }
       const res = await fetch('/api/notifications');
       if (!res.ok) return;
       const contentType = res.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) return;
       const data = await res.json();
       setServerNotifications(data.notifications || []);
-    } catch (error) {
+    } catch (error: any) {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+      if (error?.name === 'TypeError' && (error?.message?.includes('Load failed') || error?.message?.includes('Failed to fetch'))) {
+        return; // Silent bypass on brief network interruption
+      }
       logger.error("Error fetching notifications:", error);
     } finally {
       setIsLoading(false);
