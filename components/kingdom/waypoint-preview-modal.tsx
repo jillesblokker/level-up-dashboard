@@ -342,7 +342,7 @@ export function WaypointPreviewModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className="max-w-md w-[95vw] sm:w-full bg-zinc-950/95 border-2 border-amber-500/40 text-white rounded-2xl shadow-2xl p-0 overflow-hidden backdrop-blur-xl">
+      <DialogContent className="max-w-md w-[92vw] sm:w-full bg-zinc-950/95 border-2 border-amber-500/40 text-white rounded-2xl shadow-2xl p-0 overflow-hidden backdrop-blur-xl">
         {/* Header Hero Banner */}
         <div className="relative w-full h-44 sm:h-52 bg-gradient-to-b from-amber-950/40 to-zinc-950 flex items-center justify-center border-b border-amber-900/30 overflow-hidden">
           <div className="absolute inset-0 bg-radial-vignette opacity-75 z-10" />

@@ -90,22 +90,20 @@ const DialogContent = React.forwardRef<
     hideDescription?: boolean;
     showDragHandle?: boolean;
   }
->(({ className, children, hideDescription = false, showDragHandle = true, ...props }, ref) => (
+>(({ className, children, hideDescription = false, showDragHandle = false, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed z-[100] grid w-full gap-4 border border-amber-900/50 bg-zinc-950/95 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 font-serif",
-        "max-sm:bottom-0 max-sm:top-auto max-sm:left-0 max-sm:right-0 max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-t-3xl max-sm:rounded-b-none max-sm:max-h-[88dvh] max-sm:p-5 max-sm:pb-8 max-sm:pb-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1.5rem))] overflow-y-auto",
-        "sm:left-1/2 sm:top-1/2 sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg sm:max-h-[88dvh] sm:p-6 sm:rounded-2xl",
+        "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] grid w-[92vw] max-w-lg gap-4 border border-amber-900/50 bg-zinc-950/95 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 font-serif max-h-[88dvh] p-5 sm:p-6 rounded-2xl overflow-y-auto",
         className
       )}
       aria-modal="true"
       role="dialog"
       {...props}
     >
-      {/* iOS Sheet Interactive Touch Drag Handle for Mobile */}
+      {/* Optional touch drag handle */}
       {showDragHandle && <MobileSheetDragHandle />}
       {/* Hidden description for accessibility - required by Radix */}
       <DialogPrimitive.Description className="sr-only">

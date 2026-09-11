@@ -68,16 +68,11 @@ export function TileActionSheet({
                 onClick={onClose}
             />
 
-            {/* Bottom Sheet / Desktop Modal */}
-            <div className="fixed inset-x-0 bottom-0 z-[9999] md:inset-0 md:flex md:items-center md:justify-center p-0 md:p-6 animate-in slide-in-from-bottom md:zoom-in-95 duration-300 pointer-events-none">
-                <div role="dialog" aria-modal="true" aria-labelledby="tile-action-sheet-title" className="bg-zinc-950 border-t border-amber-900/30 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:rounded-3xl md:w-[480px] md:border md:border-white/10 md:shadow-2xl overflow-hidden pointer-events-auto max-h-[90vh] flex flex-col">
-                    {/* Handle (Mobile only) */}
-                    <div className="flex justify-center pt-3 pb-2 md:hidden">
-                        <div className="w-10 h-1 bg-zinc-700 rounded-full" />
-                    </div>
-
+            {/* Centered Modal on Both Mobile and Desktop */}
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 animate-in fade-in zoom-in-95 duration-200 pointer-events-none">
+                <div role="dialog" aria-modal="true" aria-labelledby="tile-action-sheet-title" className="bg-zinc-950 border border-amber-900/40 rounded-2xl shadow-2xl w-[92vw] max-w-[480px] md:border-white/10 overflow-hidden pointer-events-auto max-h-[90vh] flex flex-col">
                     {/* Header */}
-                    <div className="px-6 pb-4 border-b border-zinc-800">
+                    <div className="p-5 sm:px-6 sm:pb-4 border-b border-zinc-800">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
