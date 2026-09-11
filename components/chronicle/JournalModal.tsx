@@ -21,6 +21,39 @@ interface JournalModalProps {
     } | null
 }
 
+export const CHRONICLE_INSPIRATION_PROMPTS: string[] = [
+    "What made you smile today?",
+    "What was your biggest challenge, and how did you face it?",
+    "What are you grateful for in this exact moment?",
+    "What did you learn about yourself or your habits today?",
+    "If you could relive one moment from today, what would it be?",
+    "How did you move closer to your long-term vision today?",
+    "What was the most peaceful moment of your day?",
+    "Who showed you kindness today, or whom did you support?",
+    "What friction did you overcome that you used to avoid?",
+    "What gave you genuine energy today, and what drained it?",
+    "What is one small victory that someone else might overlook?",
+    "How did you nourish your body and mind today?",
+    "What thought or mindset served you well through today's tasks?",
+    "If today was a chapter in your book of life, what would the title be?",
+    "What habit felt easiest to complete today, and why?",
+    "What is one thing you did today that your future self will thank you for?",
+    "Where did you notice beauty or quiet wonder in your surroundings?",
+    "How did you handle an unexpected detour or interruption today?",
+    "What does progress feel like to you right now?",
+    "What is one boundary or promise to yourself that you honored today?",
+    "What made you laugh or brought lightness to your routine?",
+    "What is something you let go of today that wasn't serving you?",
+    "What is one skill or virtue you exercised today?",
+    "How did you find balance between doing and simply being?",
+    "What advice would your wiser self give you about today?",
+    "What music, conversation, or book inspired you today?",
+    "What are you proud of having started, even if unfinished?",
+    "How did you practice patience or empathy with yourself or others?",
+    "What is a simple comfort you enjoyed today?",
+    "What intention do you want to carry into tomorrow morning?"
+];
+
 export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps) {
     // Reset state when initialData changes or modal opens
     // We use a useEffect or key-based reset in parent, but typical pattern is useEffect here
@@ -243,16 +276,7 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => {
-                                        const prompts = [
-                                            "What made you smile today?",
-                                            "What was your biggest challenge, and how did you face it?",
-                                            "What are you grateful for in this moment?",
-                                            "What did you learn about yourself today?",
-                                            "If you could relive one moment from today, what would it be?",
-                                            "How did you move closer to your goals today?",
-                                            "What was the most peaceful moment of your day?"
-                                        ];
-                                        const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+                                        const randomPrompt = CHRONICLE_INSPIRATION_PROMPTS[Math.floor(Math.random() * CHRONICLE_INSPIRATION_PROMPTS.length)];
                                         setContent(prev => prev ? `${prev}\n\nPrompt: ${randomPrompt}` : `Prompt: ${randomPrompt}\n\n`);
                                     }}
                                     className="h-7 text-[10px] uppercase tracking-widest text-amber-500/60 hover:text-amber-400 hover:bg-amber-950/40 rounded-full px-3 border border-amber-500/10"

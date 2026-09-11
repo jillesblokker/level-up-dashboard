@@ -720,8 +720,504 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
         }
       ]
     }
-  }
-];
+  },
+  {
+      id: 'pet-15',
+      title: "Baker Pippin's sourdough golem",
+      requesterRole: 'Baker Pippin',
+      requesterAvatar: '🥖',
+      requesterImage: '/images/creatures/001.webp',
+      description: "Pippin accidentally tipped a vial of ether yeast into his dough trough. Now a warm, crusty bread golem is lumbering happily down the street handing out hot buns!",
+      optionA: {
+        label: "Bake it in the royal kiln",
+        description: "Lure the runaway loaf into the palace ovens to make the kingdom's largest celebratory feast.",
+        outcomes: [
+          {
+            storyText: "Giant golden crust! The kingdom enjoyed freshly buttered bread for a week, boosting civilian morale to all-time highs!",
+            goldChange: 180,
+            loyaltyChange: 12,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Crumb calamity! The golem exploded into a shower of warm garlic bread crumbs, coating the royal guards' armor in melted butter! Cleanup costs: 25 gold.",
+            goldChange: -25,
+            loyaltyChange: -2,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Adopt it as town baker mascot",
+        description: "Name the bread golem Loafy and commission an apron for it to knead morning dough.",
+        outcomes: [
+          {
+            storyText: "Best baker in the realm! Loafy kneads twenty batches a minute without breaking a sweat, doubling the baker's guild revenue!",
+            goldChange: 280,
+            loyaltyChange: 14,
+            itemReward: 'material-wood',
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Hungry birds attack! Pigeons and sparrows from three valleys swooped down to peck at Loafy, causing a feathered riot in the bakery! Guard overtime: 30 gold.",
+            goldChange: -30,
+            loyaltyChange: -3,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-16',
+      title: "Falconer Aaron's lovesick ravens",
+      requesterRole: 'Falconer Aaron',
+      requesterAvatar: '🦅',
+      requesterImage: '/images/creatures/002.webp',
+      description: "The citadel scout ravens intercepted a crate of scented perfume letters and now refuse to carry defense dispatches, delivering romantic poetry to random villagers instead.",
+      optionA: {
+        label: "Train them on shiny decoy gems",
+        description: "Retrain the flock with glittering silver stones to break their obsession with floral love notes.",
+        outcomes: [
+          {
+            storyText: "Eagle-eyed scouts! The ravens returned to their military posts with razor precision, spotting a hidden ether crystal deposit on the border!",
+            goldChange: 240,
+            loyaltyChange: 10,
+            itemReward: 'material-crystal',
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Kleptomaniac flock! Instead of scouting, the ravens swiped three teaspoons from the tavern and the captain's ceremonial whistle! Replacement: 20 gold.",
+            goldChange: -20,
+            loyaltyChange: -1,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Open a royal matchmaking courier",
+        description: "Let the ravens fly their love letters and charge citizens a postage fee for anonymous romantic deliveries.",
+        outcomes: [
+          {
+            storyText: "Courtly romance! Three knight weddings were arranged within a fortnight, filling the royal treasury with celebration permits!",
+            goldChange: 310,
+            loyaltyChange: 15,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Awkward mixup! The blacksmith received a passionate poem meant for the town florist, resulting in three hours of heated guild hall confusion! Peace offering: 35 gold.",
+            goldChange: -35,
+            loyaltyChange: -2,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-17',
+      title: "Cobbler Tobias's dancing boots",
+      requesterRole: 'Cobbler Tobias',
+      requesterAvatar: '👞',
+      requesterImage: '/images/creatures/003.webp',
+      description: "Tobias enchanted seven pairs of leather boots with swiftness runes, but the magic went haywire. The wearers cannot stop tap-dancing across the cobblestones!",
+      optionA: {
+        label: "Host an impromptu town square jig",
+        description: "Bring out fiddlers and turn the mishap into an impromptu festival of rhythm and stamina.",
+        outcomes: [
+          {
+            storyText: "Joyous celebration! Villagers danced until sunset, raising community spirits and attracting coin-spending traveling traders!",
+            goldChange: 220,
+            loyaltyChange: 14,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Exhausted cobblers! The dancers wore right through the leather into the stone paving! Cobbler repair subsidization: 30 gold.",
+            goldChange: -30,
+            loyaltyChange: -2,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Dispense cooling salt baths",
+        description: "Submerge the frantic footwear in brine vats infused with dispelling sea salt.",
+        outcomes: [
+          {
+            storyText: "Enchantment calmed! The swiftness magic stabilized, yielding seven pairs of masterwork boots that double walking speed!",
+            goldChange: 190,
+            loyaltyChange: 11,
+            itemReward: 'material-iron',
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Salty pickles! Tobias accidentally mixed pickling vinegar with the salt, making the guild square smell of pickled cabbage for three days! Air fresheners: 25 gold.",
+            goldChange: -25,
+            loyaltyChange: -1,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-18',
+      title: "Astronomer Selene's fallen star",
+      requesterRole: 'Astronomer Selene',
+      requesterAvatar: '🔭',
+      requesterImage: '/images/creatures/004.webp',
+      description: "A sparkling fragment of a fallen celestial meteorite landed directly in the center of the royal botanical fountain, radiating warm astral light.",
+      optionA: {
+        label: "Study its astral radiation",
+        description: "Mount magnifying lenses and mirrors to channel the starlight into the academy research ward.",
+        outcomes: [
+          {
+            storyText: "Cosmic breakthrough! Selene decoded astral resonance patterns that unlock new alchemy recipes and grant XP!",
+            goldChange: 150,
+            loyaltyChange: 12,
+            xpReward: 40,
+            itemReward: 'material-crystal',
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Blinding flash! An astronomer adjusted the lens backward, temporarily scorching a hole in the observatory ceiling curtain! Repairs: 35 gold.",
+            goldChange: -35,
+            loyaltyChange: -2,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Carve protective talismans",
+        description: "Carefully chip the starstone into protective amulets for the town gate guards.",
+        outcomes: [
+          {
+            storyText: "Radiant armor! Gate guards now glow with a warm aura that discourages dungeon shadows from approaching the walls!",
+            goldChange: 260,
+            loyaltyChange: 16,
+            raidBossDamage: 25,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Magnetic mishap! The fragments proved magnetic, pulling the kitchen cookware of five houses directly toward the town gate! Detangling fee: 20 gold.",
+            goldChange: -20,
+            loyaltyChange: -1,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-19',
+      title: "Bard Finnegan's hypnotic ballad",
+      requesterRole: 'Bard Finnegan',
+      requesterAvatar: '🪕',
+      requesterImage: '/images/creatures/005.webp',
+      description: "Finnegan composed a tune so catchy that guards, cooks, and stonemasons have been absent-mindedly whistling it on repeat for forty-eight hours straight.",
+      optionA: {
+        label: "Make it the official kingdom anthem",
+        description: "Organize the town choir to perform the ballad formally at the midday bell.",
+        outcomes: [
+          {
+            storyText: "Harmonious unity! The unified anthem inspired citizen cooperation and pride across all twelve settlement districts!",
+            goldChange: 230,
+            loyaltyChange: 15,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Earworm quarantine! The town crier lost his voice from singing the chorus eighty times in one morning! Lozenges: 15 gold.",
+            goldChange: -15,
+            loyaltyChange: 0,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Commission a sleepy counter-melody",
+        description: "Have Finnegan strum a soothing lullaby to purge the frantic tune from everyone's head.",
+        outcomes: [
+          {
+            storyText: "Restful tranquility! Citizens enjoyed their deepest night of restorative sleep in months, boosting morning productivity!",
+            goldChange: 200,
+            loyaltyChange: 11,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Midday nap wave! Half the market fell asleep right onto their display stands, allowing stray cats to sample the smoked cheese! Cheese refund: 30 gold.",
+            goldChange: -30,
+            loyaltyChange: -3,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-20',
+      title: "Beastmaster Orson's baby gryphon",
+      requesterRole: 'Beastmaster Orson',
+      requesterAvatar: '🐾',
+      requesterImage: '/images/creatures/006.webp',
+      description: "A fluffy baby feather-tailed gryphon escaped its sanctuary nest and is currently perched atop the citadel weather vane, chirping loudly for treats.",
+      optionA: {
+        label: "Coax it down with roasted smoked fish",
+        description: "Set up a fragrant landing platter of seasoned trout at the base of the tower.",
+        outcomes: [
+          {
+            storyText: "Fluffy rescue! The young gryphon glided down safely into Orson's arms and adopted the royal courtyard as its playground!",
+            goldChange: 180,
+            loyaltyChange: 13,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Seagull invasion! The scent of smoked trout lured sixty coastal gulls who made off with the fish and the town banner! Banner cleaning: 25 gold.",
+            goldChange: -25,
+            loyaltyChange: -2,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Build an observation perch",
+        description: "Let the gryphon stay atop the spire and install a nesting platform so it acts as an aerial lookout.",
+        outcomes: [
+          {
+            storyText: "Sky guardian! The young gryphon screeches whenever storm clouds or dungeon wyrms approach the valley, keeping citizens safe!",
+            goldChange: 270,
+            loyaltyChange: 16,
+            raidBossDamage: 20,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Shiny nest hoard! The gryphon decorated its new nest with seven brass door knockers and the jeweler's magnifying lens! Return compensation: 40 gold.",
+            goldChange: -40,
+            loyaltyChange: -3,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-21',
+      title: "Glassblower Mira's rainbow prisms",
+      requesterRole: 'Glassblower Mira',
+      requesterAvatar: '💎',
+      requesterImage: '/images/creatures/007.webp',
+      description: "Mira crafted enchanted stained-glass panes for the greenhouse, but during sunrise the refracted beams concentrate intense heat like miniature magnifying glasses.",
+      optionA: {
+        label: "Rotate the panes toward the solar collector",
+        description: "Channel the focused light into the town forge to smelt ore using zero charcoal.",
+        outcomes: [
+          {
+            storyText: "Eco-friendly smelting! The radiant forge burned hot and clean, doubling metal ingot production without spending fuel gold!",
+            goldChange: 290,
+            loyaltyChange: 14,
+            itemReward: 'material-iron',
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Singed laundry! A rogue rainbow beam reflected off a copper pot and burned a hole through Lord Pemberton's velvet trousers! Tailor bill: 35 gold.",
+            goldChange: -35,
+            loyaltyChange: -2,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Frost the glass with frosted dew wax",
+        description: "Coat the panes in translucent beeswax to diffuse the light into gentle, soothing ambient hues.",
+        outcomes: [
+          {
+            storyText: "Botanical paradise! The soft pastel glow tripled the growth rate of delicate apothecary orchids and healing herbs!",
+            goldChange: 210,
+            loyaltyChange: 12,
+            itemReward: 'material-herbs',
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Melting wax drips! The beeswax softened in the afternoon heat, dripping onto three visiting botanists' sun hats! Dry cleaning: 20 gold.",
+            goldChange: -20,
+            loyaltyChange: -1,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-22',
+      title: "Clockmaker Ferris's temporal pendulum",
+      requesterRole: 'Clockmaker Ferris',
+      requesterAvatar: '⏱️',
+      requesterImage: '/images/creatures/008.webp',
+      description: "Ferris installed a chronomantic gear inside the kingdom bell tower. Whenever the clock chimes three, everyone in the square experiences ten seconds in slow motion.",
+      optionA: {
+        label: "Use the slow motion for archer training",
+        description: "Schedule the town militia target drills precisely during the three o'clock chronomantic chime.",
+        outcomes: [
+          {
+            storyText: "Bullseye every time! Recruits learned arrow trajectories in crisp slow-motion, dramatically elevating defensive readiness!",
+            goldChange: 250,
+            loyaltyChange: 15,
+            raidBossDamage: 25,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Spilled stew! The palace chef tried to ladle soup during the temporal chime, splashing gravy across six slow-moving guards! Uniform washing: 25 gold.",
+            goldChange: -25,
+            loyaltyChange: -2,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Dampen the gear with ether grease",
+        description: "Pack the temporal cog with neutralizing grease to keep time flowing at a steady, reliable pace.",
+        outcomes: [
+          {
+            storyText: "Precision rhythm! The clock now chimes with flawless musical cadence, keeping all city workshops running like clockwork!",
+            goldChange: 195,
+            loyaltyChange: 10,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Greasy gears! Ferris dropped the oil canister down the spiral steps, leaving the bell tower stairs slippery as butter! Sand cleanup: 20 gold.",
+            goldChange: -20,
+            loyaltyChange: -1,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-23',
+      title: "Fisherwoman Tamsin's talking salmon",
+      requesterRole: 'Fisherwoman Tamsin',
+      requesterAvatar: '🎣',
+      requesterImage: '/images/creatures/009.webp',
+      description: "Tamsin caught a shimmering golden river trout that speaks fluent royal court dialect, demanding safe passage back to the Whispering Falls in exchange for river secrets.",
+      optionA: {
+        label: "Release it with royal honors",
+        description: "Escort the magical fish to the deep waterfall pool and return it to its ancestral waters.",
+        outcomes: [
+          {
+            storyText: "Blessing of the waters! The river fish guided fisherman boats to abundant schools of silver trout all season long!",
+            goldChange: 260,
+            loyaltyChange: 16,
+            itemReward: 'material-water',
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Fishy riddle! Before swimming off, the trout left a three-hour riddle that had the harbor council arguing through the lunch hour! Council dinner tab: 25 gold.",
+            goldChange: -25,
+            loyaltyChange: -1,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Interview it in the palace aquarium",
+        description: "Place the salmon in a comfortable fountain and ask it about sunken treasures beneath the river mud.",
+        outcomes: [
+          {
+            storyText: "Sunken chest discovered! The trout pointed out a mossy iron chest containing ancient gold coins lost during the old kingdom wars!",
+            goldChange: 350,
+            loyaltyChange: 18,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Endless complaints! The fish criticized the palace fountain's pebble arrangement and demanded imported mountain spring water! Catering bill: 30 gold.",
+            goldChange: -30,
+            loyaltyChange: -2,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-24',
+      title: "Tailor Vivienne's glowing moth silks",
+      requesterRole: 'Tailor Vivienne',
+      requesterAvatar: '🧵',
+      requesterImage: '/images/creatures/010.webp',
+      description: "Vivienne bred silk moths that feed on starlight clover. The resulting silk fabric glows gently in the dark, illuminating cobblestones at night without torches.",
+      optionA: {
+        label: "Weave night-patrol capes",
+        description: "Equip city watchmen with soft glowing capes to navigate narrow alleys without lantern smoke.",
+        outcomes: [
+          {
+            storyText: "Alley guardians! The luminescent cloaks deterred prowlers completely, ensuring peaceful and safe nights across the realm!",
+            goldChange: 270,
+            loyaltyChange: 15,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Moth party! Every wild moth within five leagues flocked to the glowing guards, turning night patrol into a fluttery carnival! Swatter purchases: 20 gold.",
+            goldChange: -20,
+            loyaltyChange: -1,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Sell glowing dresses at the grand market",
+        description: "Launch a high-society fashion line for nobles and traveling dignitaries visiting the court.",
+        outcomes: [
+          {
+            storyText: "Fashion sensation! Visiting ambassadors bought every bolt of luminescent silk at triple price, enriching the royal textile guild!",
+            goldChange: 380,
+            loyaltyChange: 14,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Static shock! The fabric built up minor static sparks on dry carpets, giving the visiting high duke a surprise jolt to the nose! Diplomatic wine gift: 45 gold.",
+            goldChange: -45,
+            loyaltyChange: -3,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-25',
+      title: "Traveling Chef Remy's dragon pepper chili",
+      requesterRole: 'Traveling Chef Remy',
+      requesterAvatar: '🍲',
+      requesterImage: '/images/creatures/011.webp',
+      description: "Chef Remy brewed a massive cauldron of five-alarm dragon pepper stew for the annual autumn fair. One spoonful grants temporary cold resistance, but the steam is melting candles!",
+      optionA: {
+        label: "Serve it to the mountain garrison",
+        description: "Send barrels of the spicy stew to the icy mountain watchtower to keep soldiers toasty through the frost.",
+        outcomes: [
+          {
+            storyText: "Fire in the snow! The garrison stayed warm and motivated through a three-day blizzard without burning extra firewood!",
+            goldChange: 230,
+            loyaltyChange: 13,
+            itemReward: 'material-iron',
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Hiccup outbreak! The whole garrison caught spicy chili hiccups simultaneously, misfiring one celebratory firework into the snowdrift! Firework cost: 20 gold.",
+            goldChange: -20,
+            loyaltyChange: -1,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Host a spicy chili eating contest",
+        description: "Charge spectators admission to watch the toughest knights attempt to finish a full bowl.",
+        outcomes: [
+          {
+            storyText: "Riotous applause! Villagers cheered as the blacksmith swallowed three bowls in a row, raising substantial fair admission coin!",
+            goldChange: 320,
+            loyaltyChange: 15,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Milk shortage! Contestants drank the royal dairy completely dry of whole milk to soothe their burning tongues! Dairy replenishment: 35 gold.",
+            goldChange: -35,
+            loyaltyChange: -2,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    }
+  ];
 
 // Helper to generate procedural variety up to 100 total story petitions
 function generateProceduralPool(): Petition[] {

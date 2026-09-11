@@ -25,6 +25,36 @@ interface DailyRoutineModalProps {
   citizensReadyCount?: number | undefined;
 }
 
+const MORNING_CHRONICLE_FALLBACKS = [
+  "Leaf peeks through the morning dew: Yesterday was peaceful across the meadows. All our creatures slept soundly.",
+  "Leaf flutters through the sunrise mist: The eastern bell chimed softly as morning light painted the stone ramparts gold.",
+  "Leaf dances in a gentle breeze: The town fountain sparkled under dawn rays. Yesterday's momentum echoed through the valley.",
+  "Leaf nestles by the herb garden: Fragrant lavender and mint filled the waking air. The kingdom awakens fresh and renewed.",
+  "Leaf gazes across the peaceful square: Quiet watchmen exchanged morning salutes as tavern hearth fires rekindled.",
+  "Leaf glides over the starlight pond: Shimmering ripples mirror the clearing skies. A new chapter unfolds today.",
+  "Leaf perches on the old watchstone: Dewdrops cling to the ivy vines. The morning air is crisp, calm, and full of possibility."
+];
+
+const DIVERO_TARGET_QUOTES = [
+  "Divero surfaces with a cool splash: \"Aim for at least 5 habits today to find your flow, 10 for awesome speed, and 15+ for peak form!\"",
+  "Divero ripples across the fountain: \"Every big waterfall begins with five clear drops. Knock out 5 habits today to build real momentum!\"",
+  "Divero leaps gracefully: \"Consistency is your greatest spell. Hit 5 habits for solid progress, or push to 10 to surge ahead!\"",
+  "Divero glides through morning waters: \"Start with the low-hanging fruit. 5 habits unlock your focus, 10 make you unstoppable!\"",
+  "Divero blows gentle silver bubbles: \"Steady rhythm beats hasty bursts. Target 5 habits today and watch your kingdom flourish!\"",
+  "Divero smiles through the spray: \"Keep the daily chain unbroken! 5 habits keeps your streak blazing, 10 sets a personal best!\"",
+  "Divero bobs happily in the sun: \"Take a deep breath and jump in. Complete 5 habits today to earn your daily laurels!\""
+];
+
+const ROCKIE_REPORTS = [
+  "Rockie grunts happily: citizens are out gathering sturdy timber and granite blocks across the settlement.",
+  "Rockie nods with satisfaction: quarry crews have their chisels sharp and ready for today's expansion.",
+  "Rockie taps his stone hammer: the workshops are buzzing with fresh charcoal and eager craftsmen.",
+  "Rockie scans the ramparts: the masonry holds rock-solid. Citizens are clearing stones along the trade route.",
+  "Rockie chuckles warmly: the town square is sweeping clean. Everyone is gearing up for a productive day.",
+  "Rockie stretches his rocky shoulders: another solid foundation laid. The kingdom builds higher stone by stone.",
+  "Rockie gives a thumbs up: morning deliveries arrived smoothly at the granary and the market stalls."
+];
+
 export function DailyRoutineModal({
   isOpen,
   onClose,
@@ -34,6 +64,11 @@ export function DailyRoutineModal({
   activePartnerBond,
   citizensReadyCount = 0,
 }: DailyRoutineModalProps) {
+  const dayIndex = typeof window !== 'undefined' ? new Date().getDay() : 0;
+  const morningFallback = MORNING_CHRONICLE_FALLBACKS[dayIndex % MORNING_CHRONICLE_FALLBACKS.length]!;
+  const diveroQuote = DIVERO_TARGET_QUOTES[dayIndex % DIVERO_TARGET_QUOTES.length]!;
+  const rockieReport = ROCKIE_REPORTS[dayIndex % ROCKIE_REPORTS.length]!;
+
   const [cachedStats] = useState(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -145,7 +180,7 @@ export function DailyRoutineModal({
               ) : (
                 <div className="flex items-start gap-2 text-zinc-400 italic">
                   <span className="text-base shrink-0">🌿</span>
-                  <p>&quot;Leaf peeks through the morning dew: Yesterday was peaceful across the meadows. All our creatures slept soundly.&quot;</p>
+                  <p>&quot;{morningFallback}&quot;</p>
                 </div>
               )}
 
@@ -164,7 +199,7 @@ export function DailyRoutineModal({
                   {citizensReadyCount > 0 ? (
                     <span>Rockie grunts happily: <strong className="text-amber-400">{citizensReadyCount} wandering {citizensReadyCount === 1 ? 'citizen is' : 'citizens are'}</strong> waiting at the town square with your gold!</span>
                   ) : (
-                    <span className="text-zinc-400">Rockie reports: citizens are out gathering stones and wood across the settlement.</span>
+                    <span className="text-zinc-400">{rockieReport}</span>
                   )}
                 </p>
               </div>
@@ -188,7 +223,7 @@ export function DailyRoutineModal({
                 🎯 Today&apos;s target
               </div>
               <p className="text-xs text-zinc-300 leading-normal">
-                Divero surfaces with a cool splash: &quot;Aim for at least <strong className="text-amber-400 font-bold">5 habits</strong> today to find your flow, 10 for awesome speed, and 15+ for peak form!&quot;
+                {diveroQuote}
               </p>
               <div className="text-[11px] text-zinc-400 italic pt-1 border-t border-amber-900/20">
                 Tip: Mix simple habits (brushing teeth) with aspirational ones (10 push-ups).
