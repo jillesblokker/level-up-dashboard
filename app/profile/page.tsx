@@ -19,7 +19,7 @@ import { getCroppedImg } from '../../app/lib/cropImage';
 import type { Area } from 'react-easy-crop';
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Crown, Shield, Sword, User, Palette, Camera, Save, Settings, Volume2, VolumeX, BookOpen, ClipboardCheck, Database, X, Trash2, AlertTriangle, Coins, Compass } from "lucide-react";
+import { Crown, Shield, Sword, User, Palette, Camera, Save, Settings, Volume2, VolumeX, BookOpen, ClipboardCheck, Database, X, Trash2, AlertTriangle, Coins, Compass, Trophy, Sun } from "lucide-react";
 import { useAudioContext } from "@/components/audio-provider";
 import { setUserPreference, getUserPreference } from "@/lib/user-preferences-manager";
 import { getRulerTitleSync, getRulerTitle, setRulerTitle, RulerTitle } from "@/lib/ruler-title-service";
@@ -391,21 +391,21 @@ export default function ProfilePage() {
       {/* Main Content        </div>
 
         {/* Quick Access Cards - Mobile/Tablet Optimization */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
         <NotificationCenter>
           <Card className="bg-zinc-900 border-amber-800/30 hover:bg-zinc-800/80 hover:border-amber-500/50 transition-all cursor-pointer h-full group">
-            <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+            <CardContent className="p-3.5 sm:p-4 flex flex-col items-center justify-center text-center h-full">
               <div className="relative">
-                <Bell className="w-8 h-8 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
+                <Bell className="w-7 h-7 sm:w-8 sm:h-8 text-amber-400 mb-1.5 group-hover:scale-110 transition-transform" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
                 )}
               </div>
-              <div className="text-sm font-bold text-white">{TEXT_CONTENT.profile.quickAccess.inbox.title}</div>
+              <div className="text-xs sm:text-sm font-bold text-white font-serif">{TEXT_CONTENT.profile.quickAccess.inbox.title}</div>
               {unreadCount > 0 ? (
-                <Badge className="mt-2 bg-red-500 hover:bg-red-600 border-none">{unreadCount} New</Badge>
+                <Badge className="mt-1.5 bg-red-500 hover:bg-red-600 border-none text-[10px]">{unreadCount} New</Badge>
               ) : (
-                <span className="text-xs text-zinc-500 mt-1">{TEXT_CONTENT.profile.quickAccess.inbox.empty}</span>
+                <span className="text-[11px] text-zinc-500 mt-1">{TEXT_CONTENT.profile.quickAccess.inbox.empty}</span>
               )}
             </CardContent>
           </Card>
@@ -413,10 +413,50 @@ export default function ProfilePage() {
 
         <Link href="/character">
           <Card className="bg-zinc-900 border-amber-800/30 hover:bg-zinc-800/80 hover:border-amber-500/50 transition-all cursor-pointer h-full group">
-            <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
-              <User className="w-8 h-8 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
-              <div className="text-sm font-bold text-white">{TEXT_CONTENT.profile.quickAccess.character.title}</div>
-              <div className="text-xs text-amber-400/80 mt-1 font-mono">{TEXT_CONTENT.profile.quickAccess.character.level.replace('{level}', characterStats.level.toString())}</div>
+            <CardContent className="p-3.5 sm:p-4 flex flex-col items-center justify-center text-center h-full">
+              <User className="w-7 h-7 sm:w-8 sm:h-8 text-amber-400 mb-1.5 group-hover:scale-110 transition-transform" />
+              <div className="text-xs sm:text-sm font-bold text-white font-serif">{TEXT_CONTENT.profile.quickAccess.character.title}</div>
+              <div className="text-[11px] text-amber-400/80 mt-1 font-mono">{TEXT_CONTENT.profile.quickAccess.character.level.replace('{level}', characterStats.level.toString())}</div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/achievements">
+          <Card className="bg-zinc-900 border-yellow-800/30 hover:bg-zinc-800/80 hover:border-yellow-500/50 transition-all cursor-pointer h-full group">
+            <CardContent className="p-3.5 sm:p-4 flex flex-col items-center justify-center text-center h-full">
+              <Trophy className="w-7 h-7 sm:w-8 sm:h-8 text-yellow-400 mb-1.5 group-hover:scale-110 transition-transform" />
+              <div className="text-xs sm:text-sm font-bold text-white font-serif">Achievements</div>
+              <div className="text-[11px] text-yellow-400/80 mt-1 font-mono">Codex & runes</div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/dungeon">
+          <Card className="bg-zinc-900 border-purple-800/30 hover:bg-zinc-800/80 hover:border-purple-500/50 transition-all cursor-pointer h-full group">
+            <CardContent className="p-3.5 sm:p-4 flex flex-col items-center justify-center text-center h-full">
+              <Sword className="w-7 h-7 sm:w-8 sm:h-8 text-purple-400 mb-1.5 group-hover:scale-110 transition-transform" />
+              <div className="text-xs sm:text-sm font-bold text-white font-serif">Dungeon keep</div>
+              <div className="text-[11px] text-purple-400/80 mt-1 font-mono">3v3 battles</div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/market">
+          <Card className="bg-zinc-900 border-emerald-800/30 hover:bg-zinc-800/80 hover:border-emerald-500/50 transition-all cursor-pointer h-full group">
+            <CardContent className="p-3.5 sm:p-4 flex flex-col items-center justify-center text-center h-full">
+              <Coins className="w-7 h-7 sm:w-8 sm:h-8 text-emerald-400 mb-1.5 group-hover:scale-110 transition-transform" />
+              <div className="text-xs sm:text-sm font-bold text-white font-serif">Royal market</div>
+              <div className="text-[11px] text-emerald-400/80 mt-1 font-mono">Packs & bazaar</div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/daily-hub">
+          <Card className="bg-zinc-900 border-amber-800/30 hover:bg-zinc-800/80 hover:border-amber-500/50 transition-all cursor-pointer h-full group">
+            <CardContent className="p-3.5 sm:p-4 flex flex-col items-center justify-center text-center h-full">
+              <Sun className="w-7 h-7 sm:w-8 sm:h-8 text-amber-300 mb-1.5 group-hover:scale-110 transition-transform" />
+              <div className="text-xs sm:text-sm font-bold text-white font-serif">Daily hub</div>
+              <div className="text-[11px] text-amber-400/80 mt-1 font-mono">Morning focus</div>
             </CardContent>
           </Card>
         </Link>
@@ -443,6 +483,14 @@ export default function ProfilePage() {
             <Settings className="w-4 h-4" />
             <span>{TEXT_CONTENT.profile.tabs.settings}</span>
           </TabsTrigger>
+          <Link href="/achievements" className="flex items-center gap-1.5 px-3.5 md:px-6 h-full rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
+            <Trophy className="w-4 h-4" />
+            <span>Achievements</span>
+          </Link>
+          <Link href="/dungeon" className="flex items-center gap-1.5 px-3.5 md:px-6 h-full rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
+            <Sword className="w-4 h-4" />
+            <span>Dungeon</span>
+          </Link>
           <Link href="/chronicle" className="flex items-center gap-1.5 px-3.5 md:px-6 h-full rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap min-h-[44px] text-zinc-400 hover:text-white hover:bg-white/5 lg:landscape:hidden">
             <BookOpen className="w-4 h-4" />
             <span>Logbook</span>

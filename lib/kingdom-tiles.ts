@@ -836,7 +836,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   },
   {
     id: 'monument',
-    name: 'Hall of Fame',
+    name: 'Hall of fame',
     timerMinutes: 60,
     normalGoldRange: [10, 20],
     luckyGoldAmount: 80,

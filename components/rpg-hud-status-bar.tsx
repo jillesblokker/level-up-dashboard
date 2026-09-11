@@ -913,6 +913,27 @@ export function RpgHudStatusBar() {
                     </div>
                     <p className="text-[11px] text-zinc-400">Complete daily habits to earn XP, level up, and unlock Paragon ranks at Level 100!</p>
                   </div>
+
+                  <div className="flex flex-col sm:flex-row gap-2 w-full">
+                    <Button
+                      onClick={() => {
+                        setActiveDrawer(null);
+                        window.location.href = '/character';
+                      }}
+                      className="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold h-10 flex items-center justify-center gap-2"
+                    >
+                      <span>👤 Hero character vault</span>
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setActiveDrawer(null);
+                        window.location.href = '/achievements';
+                      }}
+                      className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold h-10 flex items-center justify-center gap-2"
+                    >
+                      <span>🏆 Achievements & runes</span>
+                    </Button>
+                  </div>
                 </div>
               )}
 
@@ -1090,6 +1111,16 @@ export function RpgHudStatusBar() {
                       </div>
                     </div>
                   </div>
+
+                  <Button
+                    onClick={() => {
+                      setActiveDrawer(null);
+                      window.location.href = '/dungeon';
+                    }}
+                    className="w-full bg-orange-700 hover:bg-orange-600 text-white font-bold h-10 flex items-center justify-center gap-2"
+                  >
+                    <span>⚔️ Delve into dungeon keep</span>
+                  </Button>
                 </div>
               )}
             </div>
