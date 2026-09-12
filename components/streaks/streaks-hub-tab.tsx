@@ -108,9 +108,10 @@ export function StreaksHubTab({ currentStreak, longestStreak = 0, userId, token 
       setCampfireActive(true);
       setCampfireUntil(isoStr);
 
+      const durationText = campfireDays >= 60 ? '2 months' : campfireDays >= 30 ? '1 month' : `${campfireDays} days`;
       toast({
         title: "Campfire guard lit! 🏕️",
-        description: `Your streak is safely paused for ${campfireDays} days. Citizens will tend the hearth while you rest.`,
+        description: `Your streak is safely paused for ${durationText}. Citizens will tend the hearth while you rest.`,
       });
     } else {
       localStorage.removeItem('thrivehaven_campfire_guard');
@@ -288,19 +289,25 @@ export function StreaksHubTab({ currentStreak, longestStreak = 0, userId, token 
             </span>
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-xs text-zinc-400 font-serif">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400 font-serif">
             <span>Pause duration when lit:</span>
-            {[3, 7, 14].map(days => (
+            {[
+              { days: 3, label: '3 days' },
+              { days: 7, label: '7 days' },
+              { days: 14, label: '14 days' },
+              { days: 30, label: '1 month' },
+              { days: 60, label: '2 months' },
+            ].map(opt => (
               <button
-                key={days}
-                onClick={() => setCampfireDays(days)}
+                key={opt.days}
+                onClick={() => setCampfireDays(opt.days)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-mono border transition-all ${
-                  campfireDays === days
+                  campfireDays === opt.days
                     ? 'bg-amber-500/20 border-amber-400 text-amber-300 font-bold'
                     : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200'
                 }`}
               >
-                {days} days
+                {opt.label}
               </button>
             ))}
           </div>

@@ -2,6 +2,7 @@
 
 import { logger } from "@/lib/logger";
 
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
@@ -266,6 +267,19 @@ export default function DesignSystemPage() {
                   >
                     {TEXT_CONTENT.designSystem.navigation.items[5]}
                   </button>
+
+                  <div className="pt-3 mt-3 border-t border-amber-900/30">
+                    <Link
+                      href="/design-system/sources"
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-md transition-all bg-gradient-to-r from-amber-950/40 via-amber-900/20 to-zinc-950 text-amber-300 hover:text-amber-200 border border-amber-500/30 hover:border-amber-500/60 shadow-md group"
+                    >
+                      <span className="flex items-center gap-2 text-xs font-serif font-bold">
+                        <span>📜</span>
+                        <span>Sources & laws</span>
+                      </span>
+                      <span className="text-xs text-amber-400 group-hover:translate-x-0.5 transition-transform">→</span>
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
             </div>
