@@ -36,7 +36,7 @@ export function HabitStoneMonumentModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(op) => { if (!op) onClose(); }}>
-      <DialogContent className="max-w-lg w-full bg-[#0a180f] border-2 border-emerald-600/40 text-emerald-100 p-0 rounded-3xl shadow-[0_0_50px_rgba(16,185,129,0.25)] font-serif overflow-hidden z-[100]">
+      <DialogContent className="max-w-lg w-full bg-[#0a180f] border-2 border-emerald-600/40 text-emerald-100 p-0 rounded-3xl shadow-[0_0_50px_rgba(16,185,129,0.25)] font-serif overflow-hidden">
         {/* Grassy Top Banner & Zora Monolith Header */}
         <div className="relative bg-gradient-to-b from-emerald-900/60 via-[#0e2718] to-[#0a180f] p-6 pb-4 border-b border-emerald-500/30 text-center">
           {/* Subtle grassy texture background overlay */}

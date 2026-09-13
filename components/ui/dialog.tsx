@@ -96,8 +96,9 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[99995] grid w-[92vw] max-w-lg gap-4 border border-amber-900/50 bg-zinc-950/95 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 font-serif max-h-[88dvh] p-5 sm:p-6 rounded-2xl overflow-y-auto",
-        className
+        "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 grid w-[92vw] max-w-lg gap-4 border border-amber-900/50 bg-zinc-950/95 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 font-serif max-h-[88dvh] p-5 sm:p-6 rounded-2xl overflow-y-auto z-[99995]",
+        className,
+        "z-[99995]"
       )}
       aria-modal="true"
       role="dialog"
