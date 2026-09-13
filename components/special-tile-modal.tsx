@@ -169,9 +169,30 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
   const isPantheon = typeLower === "golden-pantheon"
   const isAstral = typeLower === "astral_citadel_monument" || typeLower.includes('astral')
   
+  const isWell = typeLower === 'well' || 
+                 typeLower.includes('well') || 
+                 String(tile?.id || '').toLowerCase().includes('well') || 
+                 String(tile?.name || '').toLowerCase().includes('well')
+
+  const isArena = typeLower === 'arena' || 
+                  tile?.id === 'arena' || 
+                  typeLower === 'colosseum' || 
+                  typeLower === 'training_grounds' || 
+                  typeLower === 'barracks' || 
+                  typeLower === 'tourney' || 
+                  typeLower.includes('joust')
+
+  const isCatapult = typeLower === 'catapult' || 
+                     typeLower === 'siege_catapult' || 
+                     typeLower === 'siege_workshop' || 
+                     typeLower.includes('catapult') || 
+                     typeLower.includes('siege')
+
+  const hasSpecialAction = isWell || isArena || isCatapult
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="max-w-md w-[92vw] sm:w-full bg-zinc-950 border border-amber-900/40 text-white rounded-2xl p-5 sm:p-6 shadow-2xl overflow-y-auto max-h-[88dvh] font-serif">
+      <DialogContent className="max-w-md sm:max-w-lg w-[94vw] bg-zinc-950 border border-amber-900/50 text-white rounded-2xl p-5 sm:p-6 shadow-2xl overflow-y-auto max-h-[90dvh] font-serif custom-scrollbar">
         {/* Decorative background glow */}
         <div className="absolute inset-0 pointer-events-none -z-10 opacity-30">
           <div className={cn(
@@ -180,16 +201,16 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
           )} />
         </div>
 
-        <DialogHeader className="text-center pb-2 border-b border-amber-900/20 px-8 sm:px-10">
-          <DialogTitle className="text-2xl sm:text-3xl font-medieval tracking-wide text-amber-400 break-words">
+        <DialogHeader className="text-center pb-2 border-b border-amber-900/20 pr-10 pl-6 sm:px-10">
+          <DialogTitle className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-amber-300 break-words capitalize">
             {displayName}
           </DialogTitle>
-          <DialogDescription className="text-xs font-mono text-zinc-400">
+          <DialogDescription className="text-xs font-mono text-zinc-400 mt-0.5">
             {subTitle}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col items-center gap-5 mt-5">
+        <div className="flex flex-col items-center gap-4 mt-3 pb-2 w-full">
           {/* Centered Tile Image */}
           <div className="relative w-28 h-28 bg-zinc-900/60 border border-amber-900/20 rounded-xl overflow-hidden flex items-center justify-center p-2 shadow-inner group">
             <Image
@@ -210,23 +231,23 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
           </span>
 
           {/* Lore / Description */}
-          <div className="text-center px-1 space-y-3">
-            <p className="text-sm text-zinc-300 font-serif leading-relaxed italic">
+          <div className="text-center px-1 space-y-3 w-full">
+            <p className="text-xs sm:text-sm text-zinc-300 font-serif leading-relaxed italic px-2">
               &ldquo;{clickMessage}&rdquo;
             </p>
 
             {/* Produces info */}
-            <div className="grid grid-cols-2 gap-2 text-xs text-zinc-400 font-mono text-left bg-zinc-900/40 p-2.5 rounded-lg border border-amber-900/5">
+            <div className="grid grid-cols-2 gap-3 text-xs text-zinc-400 font-mono text-left bg-zinc-900/70 p-3 rounded-xl border border-amber-900/30">
               <div>
-                <span className="text-zinc-500 block text-[9px]">Daily yield</span>
-                <span className="text-amber-400 font-bold flex items-center gap-1">
+                <span className="text-zinc-500 block text-[10px]">Daily yield</span>
+                <span className="text-amber-400 font-bold flex items-center gap-1 text-xs sm:text-sm">
                   <Coins className="w-3.5 h-3.5 shrink-0" />
                   {normalRange[0]}–{normalRange[1]} Gold
                 </span>
               </div>
               <div>
-                <span className="text-zinc-500 block text-[9px] tracking-wider">Lucky bonuses</span>
-                <span className="text-white font-semibold">
+                <span className="text-zinc-500 block text-[10px] tracking-wider">Lucky bonuses</span>
+                <span className="text-zinc-200 font-semibold text-xs sm:text-sm">
                   {luckyGold} Gold ({luckyChancePercent}%)
                 </span>
               </div>
@@ -251,19 +272,19 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
           </div>
 
           {/* Status & Timer Card */}
-          <div className="w-full bg-zinc-900 border border-amber-900/20 rounded-xl p-4 flex items-center justify-between">
+          <div className="w-full bg-zinc-900/90 border border-amber-900/30 rounded-xl p-3.5 sm:p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               {isReady ? (
-                <div className="p-2 bg-green-500/10 rounded-full">
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                <div className="p-2 bg-green-500/10 rounded-full border border-green-500/20">
+                  <CheckCircle2 className="w-5 h-5 text-green-400" />
                 </div>
               ) : (
-                <div className="p-2 bg-zinc-800 rounded-full">
-                  <Clock className="w-5 h-5 text-zinc-400 animate-pulse" />
+                <div className="p-2 bg-zinc-800 rounded-full border border-zinc-700/50">
+                  <Clock className="w-5 h-5 text-amber-400 animate-pulse" />
                 </div>
               )}
               <div className="text-left font-serif">
-                <span className="text-xs text-zinc-400 font-mono block leading-none">Status</span>
+                <span className="text-[10px] text-zinc-400 font-mono block leading-none mb-0.5">Status</span>
                 <span className={cn(
                   "font-bold text-sm",
                   isReady ? "text-green-400" : "text-amber-300"
@@ -274,64 +295,15 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
             </div>
 
             {!isReady && (
-              <div className="text-right font-mono text-xs text-zinc-300">
+              <div className="text-right font-mono text-xs text-amber-300/90 font-bold bg-zinc-950/80 px-2.5 py-1 rounded-lg border border-amber-900/20">
                 <span ref={timerRef}>{formatTime(timeRemainingMs)}</span>
               </div>
             )}
           </div>
 
           {/* Action Buttons */}
-          <div className="w-full flex flex-col sm:flex-row gap-2 sm:gap-3 mt-1">
-            <Button
-              variant="outline"
-              onClick={onClose}
-              className="flex-1 bg-zinc-900 hover:bg-zinc-800 border-zinc-700 text-white rounded-xl py-4 sm:py-5 font-serif font-semibold"
-            >
-              Close
-            </Button>
-
-            {(tile?.id?.toLowerCase() === 'well' || tile?.type?.toLowerCase() === 'well' || String(tile?.id || '').toLowerCase().includes('well') || String(tile?.type || '').toLowerCase().includes('well') || String(tile?.name || '').toLowerCase().includes('well')) && (
-              <Button
-                variant="outline"
-                onClick={() => {
-                  onClose();
-                  window.dispatchEvent(new CustomEvent('open-sewer-minigame'));
-                }}
-                className="flex-1 bg-gradient-to-r from-cyan-950 to-amber-950/80 hover:from-cyan-900 hover:to-amber-900 border-amber-500/40 text-amber-200 rounded-xl py-4 sm:py-5 font-serif font-semibold shadow-lg shadow-cyan-950/40 flex items-center justify-center gap-1.5"
-              >
-                <span>Enter sewers</span>
-                <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              </Button>
-            )}
-
-            {(tile?.id === 'arena' || tile?.type === 'arena' || tile?.id === 'colosseum' || tile?.id === 'training_grounds' || tile?.id === 'barracks' || tile?.id === 'tourney' || String(tile?.id || '').includes('joust')) && (
-              <Button
-                variant="outline"
-                onClick={() => {
-                  onClose();
-                  window.dispatchEvent(new CustomEvent('open-jousting-minigame'));
-                }}
-                className="flex-1 bg-gradient-to-r from-amber-950 to-red-950/80 hover:from-amber-900 hover:to-red-900 border-amber-500/40 text-amber-200 rounded-xl py-4 sm:py-5 font-serif font-semibold shadow-lg shadow-amber-950/40 flex items-center justify-center gap-1.5"
-              >
-                <span>Enter jousting tournament</span>
-                <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              </Button>
-            )}
-
-            {(tile?.id === 'siege_catapult' || tile?.type === 'catapult' || tile?.id === 'siege_workshop' || String(tile?.id || '').includes('catapult') || String(tile?.id || '').includes('siege')) && (
-              <Button
-                variant="outline"
-                onClick={() => {
-                  onClose();
-                  window.dispatchEvent(new CustomEvent('open-catapult-siege-minigame'));
-                }}
-                className="flex-1 bg-gradient-to-r from-red-950 to-orange-950/80 hover:from-red-900 hover:to-orange-900 border-orange-500/40 text-orange-200 rounded-xl py-4 sm:py-5 font-serif font-semibold shadow-lg shadow-red-950/40 flex items-center justify-center gap-1.5"
-              >
-                <span>Command catapult siege</span>
-                <Sparkles className="w-3.5 h-3.5 text-orange-400 shrink-0" />
-              </Button>
-            )}
-
+          <div className="w-full flex flex-col gap-2.5 pt-2">
+            {/* Primary Action Button: Collect (when ready) */}
             {isReady && (
               <Button
                 disabled={isCollecting}
@@ -342,15 +314,81 @@ export function SpecialTileModal({ isOpen, onClose, tile, timer, onCollect }: Sp
                   onClose();
                 }}
                 className={cn(
-                  "flex-1 text-white font-bold rounded-xl py-4 sm:py-5 shadow-lg border",
+                  "w-full font-bold font-serif rounded-xl py-3.5 sm:py-4 text-sm sm:text-base shadow-lg border transition-all active:scale-[0.98] flex items-center justify-center gap-2",
                   isAstral
-                    ? "bg-gradient-to-br from-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 border-purple-400/30 shadow-purple-500/20"
-                    : "bg-gradient-to-br from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 border-amber-400/20 shadow-amber-500/10"
+                    ? "bg-gradient-to-br from-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 border-purple-400/30 shadow-purple-500/20 text-white"
+                    : "bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-600 border-amber-400/30 shadow-amber-500/20 text-amber-950 font-extrabold"
                 )}
               >
-                {isAstral ? "Awaken astral crystal" : "Harvest building"}
+                {isAstral ? (
+                  <>
+                    <Sparkles className="w-4 h-4 text-purple-200" />
+                    <span>Awaken astral crystal</span>
+                  </>
+                ) : (
+                  <>
+                    <Coins className="w-4 h-4 text-amber-950" />
+                    <span>Collect</span>
+                  </>
+                )}
               </Button>
             )}
+
+            {/* Secondary Actions Row */}
+            <div className="w-full flex flex-col sm:flex-row gap-2 sm:gap-2.5">
+              {isWell && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    onClose();
+                    window.dispatchEvent(new CustomEvent('open-sewer-minigame'));
+                  }}
+                  className="flex-1 bg-gradient-to-r from-cyan-950 to-amber-950/80 hover:from-cyan-900 hover:to-amber-900 border-amber-500/40 text-amber-200 rounded-xl py-3 font-serif font-semibold shadow-md flex items-center justify-center gap-1.5 text-xs sm:text-sm"
+                >
+                  <span>Enter sewers</span>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                </Button>
+              )}
+
+              {isArena && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    onClose();
+                    window.dispatchEvent(new CustomEvent('open-jousting-minigame'));
+                  }}
+                  className="flex-1 bg-gradient-to-r from-amber-950 to-red-950/80 hover:from-amber-900 hover:to-red-900 border-amber-500/40 text-amber-200 rounded-xl py-3 font-serif font-semibold shadow-md flex items-center justify-center gap-1.5 text-xs sm:text-sm"
+                >
+                  <span>Enter jousting tournament</span>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                </Button>
+              )}
+
+              {isCatapult && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    onClose();
+                    window.dispatchEvent(new CustomEvent('open-catapult-siege-minigame'));
+                  }}
+                  className="flex-1 bg-gradient-to-r from-red-950 to-orange-950/80 hover:from-red-900 hover:to-orange-900 border-orange-500/40 text-orange-200 rounded-xl py-3 font-serif font-semibold shadow-md flex items-center justify-center gap-1.5 text-xs sm:text-sm"
+                >
+                  <span>Command catapult siege</span>
+                  <Sparkles className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+                </Button>
+              )}
+
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className={cn(
+                  "bg-zinc-900 hover:bg-zinc-800 border-zinc-700 text-zinc-300 hover:text-white rounded-xl py-3 font-serif font-semibold text-xs sm:text-sm",
+                  hasSpecialAction ? "flex-1" : "w-full"
+                )}
+              >
+                Close
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>
