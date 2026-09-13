@@ -147,19 +147,34 @@ export async function GET(request: Request) {
     // OR use a raw query if we were using pg.
     // Let's try to fetch all nulls and filter.
 
-    let { data: rawQuests, error: questsError } = await supabase
+    const questsQueryPromise = supabase
       .from('quests')
       .select('*')
       .or(`user_id.is.null,user_id.eq.${userId}`);
 
+    const timeoutPromise = new Promise<{ data: any; error: any }>((_, reject) =>
+      setTimeout(() => reject(new Error('Quests database query timeout')), 4500)
+    );
+
+    let rawQuests: any = null;
+    let questsError: any = null;
+    try {
+      const res = await Promise.race([questsQueryPromise, timeoutPromise]) as any;
+      rawQuests = res.data;
+      questsError = res.error;
+    } catch (err) {
+      logger.warn('[Quests API] Supabase query timed out or failed, falling back to sample defaults:', err);
+      rawQuests = defaultQuests;
+    }
+
     if (questsError) {
-      logger.error('Quests fetch error:', questsError);
-      return NextResponse.json({ error: questsError.message }, { status: 500 });
+      logger.error('Quests fetch error, serving default quests:', questsError);
+      rawQuests = defaultQuests;
     }
 
     // specific filter: if global (no user_id), must be active. If specific user quest, show it (or should we respect active there too?)
     // Let's assume user-specific quests are always active unless stated otherwise, but global ones often have an off-switch.
-    let quests = (rawQuests || []).filter((q: any) => {
+    let quests: any[] = (rawQuests || []).filter((q: any) => {
       if (!q.user_id) {
         // Global quest
         return q.is_active !== false; // Default to true if undefined
@@ -202,7 +217,7 @@ export async function GET(request: Request) {
 
     // Fetch sender names for friend quests with in-memory caching
     if (quests) {
-      const senderIds = [...new Set(quests.filter(q => q.sender_id).map(q => q.sender_id))] as string[];
+      const senderIds = [...new Set(quests.filter((q: any) => q.sender_id).map((q: any) => q.sender_id))] as string[];
       if (senderIds.length > 0) {
         const now = Date.now();
         const missingIds: string[] = [];

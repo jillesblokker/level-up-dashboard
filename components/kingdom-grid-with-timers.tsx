@@ -855,20 +855,21 @@ export function KingdomGridWithTimers({
   ])
 
   // Retry helper to mitigate auth races and transient 502 Nginx gateway errors
-  const fetchAuthRetry = async (input: RequestInfo | URL, init?: RequestInit, attempts: number = 3): Promise<Response> => {
+  const fetchAuthRetry = async (input: RequestInfo | URL, init?: RequestInit, attempts: number = 2): Promise<Response> => {
     let lastError: any = null
     for (let i = 0; i < attempts; i++) {
       try {
         const res = await fetchWithAuth(input, init)
         if (res && res.ok) return res
+        // For 401/403 or transient 5xx, retry once with backoff
         if (res && (res.status === 401 || res.status === 403 || res.status >= 500) && i < attempts - 1) {
-          await new Promise(r => setTimeout(r, (i + 1) * 300))
+          await new Promise(r => setTimeout(r, (i + 1) * 350))
           continue
         }
         return res
       } catch (e) {
         lastError = e
-        if (i < attempts - 1) await new Promise(r => setTimeout(r, (i + 1) * 300))
+        if (i < attempts - 1) await new Promise(r => setTimeout(r, (i + 1) * 350))
       }
     }
     throw lastError || new Error('Request failed')
@@ -1869,7 +1870,12 @@ export function KingdomGridWithTimers({
       const activeTimer = tileTimers.find(t => t.x === x && t.y === y);
       const isReady = activeTimer ? (activeTimer.isReady || Date.now() >= activeTimer.endTime) : false;
 
-      if (isReady) {
+      const isMinigameTile = tile.type?.toLowerCase() === 'well' || 
+        String(tile.type || '').toLowerCase().includes('well') ||
+        tile.type?.toLowerCase() === 'catapult' || 
+        tile.type?.toLowerCase() === 'arena';
+
+      if (isReady && !isMinigameTile) {
         collectPropertyTile(x, y, tile);
         return;
       }

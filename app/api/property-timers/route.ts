@@ -21,12 +21,24 @@ export async function GET(request: NextRequest) {
     });
 
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
+      if (result.error?.includes('Authentication failed') || result.error?.includes('session')) {
+        return NextResponse.json({ error: result.error }, { status: 401 });
+      }
+      return NextResponse.json({
+        success: true,
+        data: [],
+        warning: result.error,
+        serverTime: new Date().toISOString()
+      }, {
+        headers: {
+          'Cache-Control': 'no-store',
+        }
+      });
     }
 
     return NextResponse.json({
       success: true,
-      data: result.data,
+      data: result.data || [],
       serverTime: new Date().toISOString()
     }, {
       headers: {
@@ -37,8 +49,8 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     logger.error('[Property Timers API] Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { success: true, data: [], warning: 'Database unavailable', serverTime: new Date().toISOString() },
+      { status: 200 }
     );
   }
 }

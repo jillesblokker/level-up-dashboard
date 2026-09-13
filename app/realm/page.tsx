@@ -952,7 +952,31 @@ function RealmPageContent() {
 
         if (currentGameMode !== 'build' || !currentSelectedTile) {
             if (clickedTile?.type === 'well' || (clickedTile?.type as string)?.toLowerCase().includes('well')) {
-                setWellEvent({ open: true, pact: null, availableHabits: [], loading: false });
+                const stored = typeof window !== 'undefined' ? localStorage.getItem('well-focus-pact') : null;
+                let currentPact = null;
+                if (stored) {
+                    try { currentPact = JSON.parse(stored); } catch (e) {}
+                }
+                setWellEvent({ open: true, pact: currentPact, availableHabits: [], loading: true });
+                fetch(`/api/quests?t=${Date.now()}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (Array.isArray(data)) {
+                            if (currentPact) {
+                                const match = data.find((q: any) => q.id === currentPact.habitId);
+                                if (match && match.completed) {
+                                    currentPact.completed = true;
+                                }
+                            }
+                            const uncompleted = data.filter((q: any) => !q.completed);
+                            setWellEvent(prev => prev?.open ? { ...prev, pact: currentPact, availableHabits: uncompleted, loading: false } : null);
+                        } else {
+                            setWellEvent(prev => prev?.open ? { ...prev, pact: currentPact, availableHabits: [], loading: false } : null);
+                        }
+                    })
+                    .catch(() => {
+                        setWellEvent(prev => prev?.open ? { ...prev, pact: currentPact, availableHabits: [], loading: false } : null);
+                    });
                 return;
             }
             return;
@@ -3051,18 +3075,28 @@ function RealmPageContent() {
                                             )}
                                         </Button>
                                     ) : (
-                                        <>
-                                            <p className="text-xs text-zinc-400 text-center">
-                                                Complete this task in your daily quest board to unlock the well&apos;s floating chest!
-                                            </p>
-                                            <Button
-                                                className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 py-3 rounded-xl"
-                                                onClick={() => setWellEvent(null)}
-                                            >
-                                                Return to map
-                                            </Button>
-                                        </>
+                                        <p className="text-xs text-zinc-400 text-center">
+                                            Complete this task in your daily quest board to unlock the well&apos;s floating chest!
+                                        </p>
                                     )}
+
+                                    <Button
+                                        className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold font-serif py-3 rounded-xl shadow-lg border border-cyan-400/40 flex items-center justify-center gap-2 shrink-0"
+                                        onClick={() => {
+                                            setWellEvent(null);
+                                            setSewerModalOpen(true);
+                                        }}
+                                    >
+                                        <span>Enter sewers</span>
+                                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                                    </Button>
+
+                                    <Button
+                                        className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 py-3 rounded-xl"
+                                        onClick={() => setWellEvent(null)}
+                                    >
+                                        Return to map
+                                    </Button>
                                 </div>
                             ) : (
                                 <div className="space-y-3.5 my-3 flex-1 min-h-0 flex flex-col">
@@ -3165,7 +3199,7 @@ function RealmPageContent() {
                                             setSewerModalOpen(true);
                                         }}
                                     >
-                                        <span>Go into sewers (Valerion plumbing)</span>
+                                        <span>Enter sewers</span>
                                         <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                                     </Button>
                                     <Button

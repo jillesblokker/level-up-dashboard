@@ -72,12 +72,23 @@ export async function GET(request: Request) {
       };
     });
 
+    if (!result.success) {
+      if (result.error?.includes('Authentication failed') || result.error?.includes('session')) {
+        return NextResponse.json({ error: result.error }, { status: 401 });
+      }
+      return NextResponse.json({
+        success: false,
+        data: null,
+        error: result.error || 'Temporary database unavailability'
+      }, { status: 200 });
+    }
+
     return NextResponse.json(result);
   } catch (err: any) {
     if (err.message === 'Unauthorized' || err.status === 401) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    return NextResponse.json({ error: err.message || 'Failed to fetch stats' }, { status: 500 });
+    return NextResponse.json({ success: false, data: null, error: err.message || 'Failed to fetch stats' }, { status: 200 });
   }
 }
 

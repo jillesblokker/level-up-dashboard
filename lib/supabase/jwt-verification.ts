@@ -106,17 +106,23 @@ export async function querySupabaseWithServiceKey<T>(
       return { success: false, error: 'Supabase client not initialized' };
     }
 
-    // Set user context for RLS policies
+    // Set user context for RLS policies (with strict 1.2s timeout to prevent hanging on connection stalls)
     try {
       // SECURITY UPGRADE ENABLED
       // Row Level Security (RLS) policies now enforce access control via this context
-      await supabaseServer.rpc('public.set_user_context', { user_id: userId });
+      await Promise.race([
+        supabaseServer.rpc('public.set_user_context', { user_id: userId }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Context timeout')), 1200))
+      ]);
     } catch (contextError) {
       apiLogger.warn('[Supabase Query] Failed to set user context (continuing anyway):', contextError);
     }
 
-    // Execute query with service key privileges and RLS enforcement
-    const data = await queryFn(supabaseServer, userId);
+    // Execute query with service key privileges and RLS enforcement (with 5s fail-safe timeout)
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Database query timed out')), 5000)
+    );
+    const data = await Promise.race([queryFn(supabaseServer, userId), timeoutPromise]);
 
     return { success: true, data };
   } catch (error) {

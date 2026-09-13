@@ -6,11 +6,10 @@ import { createClient } from '@supabase/supabase-js';
 export const dynamic = 'force-dynamic';
 
 function getSupabaseAdmin() {
-  return createClient(
-    process.env['NEXT_PUBLIC_SUPABASE_URL']!,
-    process.env['SUPABASE_SERVICE_ROLE_KEY']!,
-    { auth: { persistSession: false } }
-  );
+  const url = process.env['NEXT_PUBLIC_SUPABASE_URL'];
+  const key = process.env['SUPABASE_SERVICE_ROLE_KEY'] || process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'];
+  if (!url || !key) return null;
+  return createClient(url, key, { auth: { persistSession: false } });
 }
 
 export async function GET(req: Request) {
@@ -22,12 +21,22 @@ export async function GET(req: Request) {
     }
 
     const supabase = getSupabaseAdmin();
-    const { data, error } = await supabase
+    if (!supabase) {
+      return NextResponse.json({ notifications: [] });
+    }
+
+    const queryPromise = supabase
       .from('notifications')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(50);
+
+    const timeoutPromise = new Promise<{ data: any; error: any }>((_, reject) =>
+      setTimeout(() => reject(new Error('Notifications query timeout')), 4000)
+    );
+
+    const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as any;
 
     if (error) {
       logger.error('[Notifications API] GET Error:', error);
@@ -67,6 +76,9 @@ export async function PATCH(req: Request) {
     const notificationIds = body.notificationIds;
 
     const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Database service unavailable' }, { status: 503 });
+    }
     let query = supabase
       .from('notifications')
       .update({ is_read: true })
@@ -105,6 +117,9 @@ export async function DELETE(req: Request) {
     const notificationIds = body.notificationIds;
 
     const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Database service unavailable' }, { status: 503 });
+    }
     let query = supabase
       .from('notifications')
       .delete()
