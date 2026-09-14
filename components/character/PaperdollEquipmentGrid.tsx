@@ -497,16 +497,19 @@ function EquipmentSlotButton({
             />
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-1">
+          <div className="flex flex-col items-center gap-0.5">
             {icon}
-            <span className="text-[9px] font-bold text-zinc-500 tracking-wide capitalize">{label}</span>
+            <span className="text-[9px] font-bold text-zinc-400 tracking-wide capitalize">{label}</span>
+            <span className="text-[7.5px] font-mono text-amber-400/60 leading-none">
+              {slotConfig?.slot === 'mount' ? 'Market' : 'Dungeon loot'}
+            </span>
           </div>
         )}
 
         {/* Actionable Empty-State Hover Tooltip */}
         {isHovered && !item && (
           <div className={cn("absolute -bottom-8 z-30 whitespace-nowrap bg-zinc-900 border border-amber-500/40 text-[10px] text-amber-300 font-mono px-2 py-0.5 rounded-md shadow-lg pointer-events-none animate-in fade-in duration-200", getTooltipPositionClass())}>
-            ⚔️ Empty {label.toLowerCase()} — tap to open bag
+            ⚔️ Empty {label.toLowerCase()} — {slotConfig?.slot === 'mount' ? 'bought in market' : 'found in dungeons'}
           </div>
         )}
 

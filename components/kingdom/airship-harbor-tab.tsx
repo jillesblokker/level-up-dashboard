@@ -1307,6 +1307,7 @@ export function AirshipHarborTab() {
                     <div className="flex justify-between items-center text-xs font-bold font-mono">
                       <span className="text-zinc-300 flex items-center gap-1.5 font-serif">
                         <Flame className="w-3.5 h-3.5 text-cyan-400 animate-pulse" /> Ether flight propulsion:
+                        <span className="text-[10px] text-amber-300/80 font-mono font-normal"> (habits generate fuel)</span>
                       </span>
                       <span className="text-amber-400">{progress}% completed</span>
                     </div>
@@ -1506,9 +1507,9 @@ export function AirshipHarborTab() {
                 <span className="text-xs font-serif font-bold text-amber-300 flex items-center gap-1.5">
                   <Flame className="w-3.5 h-3.5 text-amber-400" /> Ether propulsion engine
                 </span>
-                <Badge className="bg-amber-950/60 border border-amber-500/40 text-amber-300 text-[9px] font-mono">
-                  Cruising
-                </Badge>
+                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded-md">
+                  Habits generate fuel
+                </span>
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-center text-[10px] font-mono">

@@ -1195,7 +1195,7 @@ export default function DungeonPage() {
                     <h2 className="text-sm sm:text-base font-bold text-white">Active habit combat multipliers</h2>
                   </div>
                   <span className="text-[10px] font-mono text-amber-300 bg-amber-950/50 border border-amber-500/30 px-2 py-0.5 rounded-md">
-                    Today&apos;s boosts
+                    Today&apos;s habit buffs
                   </span>
                 </div>
                 <p className="text-xs text-zinc-400 leading-relaxed">
@@ -1208,21 +1208,25 @@ export default function DungeonPage() {
                     <div className="text-xl">⚔️</div>
                     <div className="text-xs font-semibold text-zinc-200">Might</div>
                     <div className="font-mono text-xs font-bold text-red-400">+15% ATK</div>
+                    <span className="text-[9px] text-zinc-500 font-mono block">Habit buff</span>
                   </div>
                   <div className="bg-zinc-950/90 p-3.5 rounded-xl border border-blue-500/30 text-center space-y-1 hover:border-blue-500/50 transition-colors shadow-sm">
                     <div className="text-xl">🔮</div>
                     <div className="text-xs font-semibold text-zinc-200">Knowledge</div>
                     <div className="font-mono text-xs font-bold text-blue-400">+10% spell</div>
+                    <span className="text-[9px] text-zinc-500 font-mono block">Habit buff</span>
                   </div>
                   <div className="bg-zinc-950/90 p-3.5 rounded-xl border border-emerald-500/30 text-center space-y-1 hover:border-emerald-500/50 transition-colors shadow-sm">
                     <div className="text-xl">🧘</div>
                     <div className="text-xs font-semibold text-zinc-200">Wellness</div>
                     <div className="font-mono text-xs font-bold text-emerald-400">+10% HP</div>
+                    <span className="text-[9px] text-zinc-500 font-mono block">Habit buff</span>
                   </div>
                   <div className="bg-zinc-950/90 p-3.5 rounded-xl border border-yellow-500/30 text-center space-y-1 hover:border-yellow-500/50 transition-colors shadow-sm">
                     <div className="text-xl">👑</div>
                     <div className="text-xs font-semibold text-zinc-200">Honor</div>
                     <div className="font-mono text-xs font-bold text-amber-300">+5% def</div>
+                    <span className="text-[9px] text-zinc-500 font-mono block">Habit buff</span>
                   </div>
                 </div>
               </div>

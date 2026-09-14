@@ -177,7 +177,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
                     🎁 Level {heroLevel} loot bonus: +{Math.round((goldBonusMult - 1) * 100)}% gold
                   </Badge>
                 ) : (
-                  <span className="text-emerald-400 font-mono font-bold text-[10px]">⚡ Active fellowship raid</span>
+                  <span className="text-emerald-400 font-mono font-bold text-[10px]">⚡ Habits deal raid DMG</span>
                 )}
               </div>
             </div>

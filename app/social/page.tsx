@@ -577,8 +577,8 @@ export default function AlliesPage() {
                                             meaning="Thor's hammer, giant-slayer & primal force"
                                             className="text-red-400"
                                         />
-                                        <Badge className="bg-red-900/60 text-red-300 border border-red-500/40 text-[10px] font-bold px-2 py-0.5">
-                                            Weekly boss
+                                        <Badge className="bg-red-900/60 text-red-300 border border-red-500/40 text-[10px] font-bold px-2 py-0.5 font-mono">
+                                            Habits deal raid DMG
                                         </Badge>
                                     </div>
                                     <p className="text-xs text-zinc-300 mt-1 max-w-xl">
