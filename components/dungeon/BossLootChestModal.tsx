@@ -20,7 +20,7 @@ export function BossLootChestModal({ isOpen, onClose, roomLevel, blueprintName =
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
       <DialogContent className="max-w-md w-full bg-gradient-to-b from-amber-950 via-zinc-950 to-zinc-950 border-2 border-amber-500/60 text-amber-100 p-6 rounded-2xl shadow-2xl font-serif text-center relative max-h-[88dvh] overflow-y-auto custom-scrollbar">
         <DialogHeader className="sr-only">
-          <DialogTitle>Boss Victory Chest Unlocked</DialogTitle>
+          <DialogTitle>Boss victory chest unlocked</DialogTitle>
         </DialogHeader>
         <div className="absolute -top-12 -right-12 w-40 h-40 bg-amber-500/20 blur-3xl rounded-full pointer-events-none" />
 
@@ -29,7 +29,7 @@ export function BossLootChestModal({ isOpen, onClose, roomLevel, blueprintName =
           <div className="relative w-20 h-24 rounded-2xl border-2 border-purple-500/50 bg-zinc-950 overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.4)]">
             <Image
               src={mythicImage}
-              alt="Defeated Keep Guardian"
+              alt="Defeated keep guardian"
               fill
               className="object-contain p-1"
               unoptimized
@@ -42,16 +42,16 @@ export function BossLootChestModal({ isOpen, onClose, roomLevel, blueprintName =
           </div>
         </div>
 
-        <div className="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest my-1">
-          ✨ Boss Dual Drops Unlocked ✨
+        <div className="text-xs font-mono font-bold text-amber-400 tracking-wider my-1">
+          ✨ Boss dual drops unlocked ✨
         </div>
 
         <DialogHeader>
           <DialogTitle className="text-xl font-serif font-bold text-amber-200">
-            Dungeon Boss Cleared! (Floor {roomLevel})
+            Dungeon boss cleared! (Floor {roomLevel})
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400 italic">
-            Guaranteed Dual Drops unlocked from defeating the Keep Guardian.
+            Guaranteed dual drops unlocked from defeating the keep guardian.
           </DialogDescription>
         </DialogHeader>
 
@@ -59,7 +59,7 @@ export function BossLootChestModal({ isOpen, onClose, roomLevel, blueprintName =
           <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-950/40 border border-amber-500/40">
             <Scroll className="w-6 h-6 text-amber-400 shrink-0" />
             <div>
-              <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block">Kingdom Blueprint Drop</span>
+              <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block">Kingdom blueprint drop</span>
               <p className="text-xs font-bold text-white">{blueprintName}</p>
             </div>
           </div>
@@ -67,17 +67,17 @@ export function BossLootChestModal({ isOpen, onClose, roomLevel, blueprintName =
           <div className="flex items-center gap-3 p-3 rounded-xl bg-purple-950/40 border border-purple-500/40">
             <FlaskConical className="w-6 h-6 text-purple-400 shrink-0" />
             <div>
-              <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider block">Apotheca Brewing Reagents</span>
-              <p className="text-xs font-bold text-white">+3x Botanical Reagents (Ember & Frost)</p>
+              <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider block">Apotheca brewing reagents</span>
+              <p className="text-xs font-bold text-white">+3x botanical reagents (ember & frost)</p>
             </div>
           </div>
         </div>
 
         <Button
           onClick={onClose}
-          className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-amber-950 font-bold uppercase tracking-wider text-xs shadow-lg flex items-center justify-center gap-2 rounded-xl"
+          className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-amber-950 font-bold text-xs shadow-lg flex items-center justify-center gap-2 rounded-xl"
         >
-          Claim Dual Drops <Sparkles className="w-4 h-4" />
+          Claim dual drops <Sparkles className="w-4 h-4" />
         </Button>
       </DialogContent>
     </Dialog>

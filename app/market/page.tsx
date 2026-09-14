@@ -43,8 +43,9 @@ const MATERIALS = [
   { id: 'material-steel', name: 'Steel', icon: '⚔️', buyPrice: 850, sellPrice: 425, description: 'Strong metal for reinforcements.' },
   { id: 'material-crystal', name: 'Crystal', icon: '🔮', buyPrice: 1000, sellPrice: 500, description: 'Rare magical resource.' },
   { id: 'waterway_canal', name: 'Waterway canal', icon: '🌉', buyPrice: 3500, sellPrice: 1750, description: 'Serene stone canal tile with vertical aquamarine waters and arched stone bridge.' },
-  { id: 'astral_citadel_monument', name: 'Astral Citadel Monument', icon: '🔮', buyPrice: 15000, sellPrice: 7500, description: 'Colossal monument crowned with a glowing floating purple crystal orb.' },
-  { id: 'serene_lake', name: 'Serene Lake', icon: '🌊', buyPrice: 2500, sellPrice: 1250, description: 'Tranquil aquamarine lake tile with pure shimmering water ripples.' },
+  { id: 'astral_citadel_monument', name: 'Astral citadel monument', icon: '🔮', buyPrice: 15000, sellPrice: 7500, description: 'Colossal monument crowned with a glowing floating purple crystal orb.' },
+  { id: 'serene_lake', name: 'Serene lake', icon: '🌊', buyPrice: 2500, sellPrice: 1250, description: 'Tranquil aquamarine lake tile with pure shimmering water ripples.' },
+  { id: 'golden_apple', name: 'Golden apple', icon: '🍎', buyPrice: 150, sellPrice: 75, description: 'Rare botanical delicacy harvested from fertile vegetable gardens. Fed to guardian pets to boost affection and yields.' },
 ]
 
 export default function MarketPage() {

@@ -847,7 +847,7 @@ export function RpgHudStatusBar() {
                     {activeDrawer === 'fuel' && 'Ether Voyage Fuel'}
                     {activeDrawer === 'freeze' && 'Streak Freeze Shields'}
                     {activeDrawer === 'event' && 'Active Seasonal Festival'}
-                    {activeDrawer === 'recovery' && 'Overdrive Streak Recovery'}
+                    {activeDrawer === 'recovery' && 'Streak healing & campfire guard'}
                     {activeDrawer === 'buffs' && 'Today\'s Dungeon Combat Stat Buffs'}
                   </h3>
                   <p className="text-xs text-zinc-400 mt-0.5">RPG Status Overview</p>
@@ -1078,8 +1078,8 @@ export function RpgHudStatusBar() {
               {activeDrawer === 'recovery' && (
                 <div className="space-y-3">
                   <div className="p-3 bg-amber-950/40 border border-amber-500/40 rounded-xl space-y-1">
-                    <h4 className="font-serif font-bold text-amber-300">🛡️ Overdrive Streak Recovery</h4>
-                    <p className="text-zinc-400 text-[11px]">Your streak was at risk! Complete 2 habits today to fully repair your streak, or view comeback challenges.</p>
+                    <h4 className="font-serif font-bold text-amber-300">❤️‍🩹 Streak healing & campfire guard</h4>
+                    <p className="text-zinc-400 text-[11px]">Visiting distant lands or missed a day? Light the campfire guard vacation mode or fulfill 3 gentle mercy rituals to heal your sacred flame without penalty.</p>
                   </div>
                   <Button
                     onClick={() => {
@@ -1088,7 +1088,7 @@ export function RpgHudStatusBar() {
                     }}
                     className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold h-10 flex items-center justify-center gap-2 font-serif text-xs"
                   >
-                    🛡️ Open streak save & recovery <ArrowRight className="w-4 h-4" />
+                    ❤️‍🩹 Open streaks hub <ArrowRight className="w-4 h-4" />
                   </Button>
                 </div>
               )}

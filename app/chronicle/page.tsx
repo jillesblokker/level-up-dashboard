@@ -13,6 +13,7 @@ import { SeasonArchivalModal } from '@/components/chronicle/SeasonArchivalModal'
 import { Badge } from '@/components/ui/badge'
 import { WeeklyGrowthInsightsCard } from '@/components/chronicle/WeeklyGrowthInsightsCard'
 import { TalesShelfCard } from '@/components/storybook/tales-shelf-card'
+import { ChronicleMoodRingsCard } from '@/components/chronicle/ChronicleMoodRingsCard'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ReflectionsBookcase } from '@/components/chronicle/ReflectionsBookcase'
 import { cn } from '@/lib/utils'
@@ -164,150 +165,42 @@ export default function ChroniclePage() {
 
                 <SeasonArchivalModal isOpen={isArchivalOpen} onClose={() => setIsArchivalOpen(false)} />
 
-                {/* ROW 1: Tales of the Realm (7 cols) + Growth Insights & Mood Radar (5 cols) */}
+                {/* Concentric Astrolabe Mood Balance Rings & Monthly Reflection Synthesis */}
+                <ChronicleMoodRingsCard
+                    energizedCount={energizedCount}
+                    focusedCount={focusedCount}
+                    calmCount={calmCount}
+                    totalEntries={entries.length}
+                    selectedMoodFilter={selectedMoodFilter}
+                    onSelectMoodFilter={setSelectedMoodFilter}
+                    recentEntries={entries}
+                />
+
+                {/* ROW 2: Tales of the Realm (7 cols) + Weekly Growth Insights (5 cols) */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                    
                     {/* Card 1: Tales Shelf */}
                     <div className="lg:col-span-7 flex flex-col">
                         <TalesShelfCard className="h-full flex flex-col" />
                     </div>
 
-                    {/* Card 2: Growth Insights & Mood Radar */}
-                    <div className="lg:col-span-5 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col gap-4">
+                    {/* Card 2: Weekly Growth Insights & Scribe CTA */}
+                    <div className="lg:col-span-5 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between gap-4">
                         <div className="space-y-3">
                             <div className="flex items-center justify-between border-b border-white/5 pb-3">
                                 <div className="flex items-center gap-2 text-amber-400">
                                     <Sparkles className="w-5 h-5 text-amber-400" />
                                     <h2 className="text-base font-bold font-serif text-amber-200">
-                                        Growth insights & mood radar
+                                        Weekly growth intelligence
                                     </h2>
                                 </div>
-                                {selectedMoodFilter ? (
-                                    <Badge
-                                        onClick={() => setSelectedMoodFilter(null)}
-                                        variant="outline"
-                                        className="text-[10px] border-amber-500/40 text-amber-300 bg-amber-950/60 font-mono cursor-pointer hover:bg-amber-900/60 transition-colors"
-                                    >
-                                        Filtering: {selectedMoodFilter} ✕
-                                    </Badge>
-                                ) : (
-                                    <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-400 bg-emerald-950/40 font-mono">
-                                        Optimal balance
-                                    </Badge>
-                                )}
+                                <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-300 bg-amber-950/40 font-mono">
+                                    7-day cadence
+                                </Badge>
                             </div>
-                            <p className="text-xs text-zinc-400 font-sans leading-relaxed">
-                                Review your reflection rhythm and emotional balance synthesized from your private reflections. Tap any mood to filter the royal archives.
-                            </p>
-
                             <WeeklyGrowthInsightsCard />
-
-                            {/* 3 Mood distribution tiles - Vertically stacked with tangible purpose & active filter controls */}
-                            <div className="flex flex-col gap-2.5 pt-1">
-                                {[
-                                    {
-                                        id: 'energized' as const,
-                                        emoji: '⚡',
-                                        name: 'Energized',
-                                        color: 'text-amber-300',
-                                        borderDefault: 'border-amber-500/20 bg-zinc-950/80 hover:border-amber-500/40',
-                                        borderActive: 'border-amber-400 bg-amber-950/40 shadow-[0_0_15px_rgba(245,158,11,0.25)]',
-                                        pillBg: 'bg-amber-500/10 border-amber-500/30 text-amber-300',
-                                        barColor: 'bg-gradient-to-r from-amber-600 to-amber-400',
-                                        pct: energizedPct,
-                                        count: energizedCount,
-                                        purpose: 'Might & Vitality habits &bull; +15% ether voyage boost'
-                                    },
-                                    {
-                                        id: 'focused' as const,
-                                        emoji: '🎯',
-                                        name: 'Focused',
-                                        color: 'text-blue-300',
-                                        borderDefault: 'border-blue-500/20 bg-zinc-950/80 hover:border-blue-500/40',
-                                        borderActive: 'border-blue-400 bg-blue-950/40 shadow-[0_0_15px_rgba(59,130,246,0.25)]',
-                                        pillBg: 'bg-blue-500/10 border-blue-500/30 text-blue-300',
-                                        barColor: 'bg-gradient-to-r from-blue-600 to-blue-400',
-                                        pct: focusedPct,
-                                        count: focusedCount,
-                                        purpose: 'Knowledge & Craft rituals &bull; +10% dungeon spell power'
-                                    },
-                                    {
-                                        id: 'calm' as const,
-                                        emoji: '🌿',
-                                        name: 'Calm',
-                                        color: 'text-emerald-300',
-                                        borderDefault: 'border-emerald-500/20 bg-zinc-950/80 hover:border-emerald-500/40',
-                                        borderActive: 'border-emerald-400 bg-emerald-950/40 shadow-[0_0_15px_rgba(16,185,129,0.25)]',
-                                        pillBg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300',
-                                        barColor: 'bg-gradient-to-r from-emerald-600 to-emerald-400',
-                                        pct: calmPct,
-                                        count: calmCount,
-                                        purpose: 'Wellness & Honor rhythm &bull; streak resilience shield'
-                                    }
-                                ].map(m => {
-                                    const isSelected = selectedMoodFilter === m.id;
-
-                                    return (
-                                        <div
-                                            key={m.id}
-                                            onClick={() => setSelectedMoodFilter(isSelected ? null : m.id)}
-                                            className={cn(
-                                                "p-3 rounded-xl border transition-all cursor-pointer select-none group",
-                                                isSelected ? m.borderActive : m.borderDefault
-                                            )}
-                                        >
-                                            <div className="flex items-center justify-between gap-3">
-                                                <div className="flex items-center gap-2.5 min-w-0">
-                                                    <div className={cn(
-                                                        "w-8 h-8 rounded-lg flex items-center justify-center text-base shrink-0 border shadow-sm",
-                                                        m.pillBg
-                                                    )}>
-                                                        <span>{m.emoji}</span>
-                                                    </div>
-                                                    <div className="min-w-0">
-                                                        <div className="flex items-center gap-2">
-                                                            <h4 className={cn("font-bold text-xs", m.color)}>{m.name}</h4>
-                                                            {isSelected ? (
-                                                                <Badge className="text-[9px] font-mono px-1.5 py-0 bg-amber-500 text-black font-bold">
-                                                                    Filtering
-                                                                </Badge>
-                                                            ) : (
-                                                                <span className="text-[9px] text-zinc-500 font-mono group-hover:text-zinc-400">
-                                                                    {entries.length > 0 ? `${m.count} logs` : 'Filter'}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <p 
-                                                            className="text-[10px] text-zinc-400 truncate"
-                                                            dangerouslySetInnerHTML={{ __html: m.purpose }}
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="text-right shrink-0">
-                                                    <span className={cn("text-xs font-mono font-bold block", m.color)}>
-                                                        {m.pct}%
-                                                    </span>
-                                                    <span className="text-[9px] text-zinc-500 font-mono">
-                                                        {isSelected ? "Tap to clear" : "Tap to filter"}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            {/* Progress bar */}
-                                            <div className="w-full bg-zinc-900 rounded-full h-1 mt-2.5 overflow-hidden">
-                                                <div
-                                                    style={{ width: `${m.pct}%` }}
-                                                    className={cn("h-full rounded-full transition-all duration-500", m.barColor)}
-                                                />
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
                         </div>
 
-                        <div className="mt-auto pt-2">
+                        <div className="pt-2">
                             <Button
                                 onClick={handleCreate}
                                 className="w-full h-11 text-xs font-serif font-bold bg-amber-950/40 hover:bg-amber-900/50 text-amber-200 border border-amber-500/30 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all active:scale-95"
@@ -317,7 +210,6 @@ export default function ChroniclePage() {
                             </Button>
                         </div>
                     </div>
-
                 </div>
 
                 {/* ROW 2: Royal Library & Reflection Archives (Full-width 12 cols) */}

@@ -25,6 +25,7 @@ const ApothecaModal = dynamic(
   { ssr: false }
 );
 import { CollectibleRune } from '@/components/runes/collectible-rune';
+import { useRealmInventory } from '@/hooks/use-realm-inventory';
 import { Progress } from "@/components/ui/progress"
 import {
   AlertDialog,
@@ -179,15 +180,36 @@ export default function CharacterPage() {
     return () => window.removeEventListener('pet-affection-update', loadPetAffections);
   }, []);
 
+  // Realm Inventory for Pet Feeding (Golden Apples)
+  const { inventoryAsItems, updateTileQuantity } = useRealmInventory(user?.id, true);
+  const goldenAppleItem = inventoryAsItems.find(
+    (item) => item.id === 'golden_apple' || (item.type as string) === 'golden_apple' || item.id === 'material-apple'
+  );
+  const goldenAppleCount = goldenAppleItem?.quantity ?? 0;
+
   const handleFeedPet = async (pet: { id: string; name: string }) => {
     const currentAffection = petAffections[pet.id] ?? 50;
     if (currentAffection >= 100) {
       toast({
-        title: "❤️ Max Affection Reached!",
-        description: `${pet.name} is already at 100% affection and completely full!`,
+        title: "Max affection reached! ❤️",
+        description: `${pet.name} is already at 100% affection and completely full.`,
       });
       return;
     }
+
+    if (goldenAppleCount <= 0) {
+      toast({
+        title: "No golden apples in inventory! 🍎",
+        description: "Harvest your kingdom vegetable farm or visit the market trading post to acquire treats.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Consume 1 Golden Apple from inventory
+    try {
+      await updateTileQuantity('golden_apple' as any, -1);
+    } catch {}
 
     const updatedAffection = Math.min(100, currentAffection + 5);
     const updatedAffections = {
@@ -197,7 +219,6 @@ export default function CharacterPage() {
 
     setPetAffections(updatedAffections);
     playSFX('petFeed');
-    gainGold(10, 'pet-treat');
 
     try {
       await setUserPreference('thrivehaven_pet_affections', updatedAffections);
@@ -220,8 +241,8 @@ export default function CharacterPage() {
     }
 
     toast({
-      title: `🍎 Fed ${pet.name}!`,
-      description: `Increased pet affection to ${updatedAffection}%! (+5% boost, passive yield strengthened)`,
+      title: `Fed ${pet.name}! 🍎`,
+      description: `Increased pet affection to ${updatedAffection}% (+5% boost, passive yield strengthened).`,
     });
   };
 
@@ -1708,6 +1729,23 @@ export default function CharacterPage() {
               </TabsContent>
               <TabsContent value="pets" className="mt-6">
                 <div className="max-w-7xl mx-auto w-full space-y-6">
+                  {/* Golden Apple inventory & guidance banner */}
+                  <div className="p-3.5 bg-gradient-to-r from-amber-950/40 via-zinc-950 to-amber-950/30 border border-amber-500/30 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-inner">
+                    <div className="flex items-center gap-2.5 text-xs text-zinc-300">
+                      <span className="text-xl">🍎</span>
+                      <span className="font-serif">
+                        <strong className="text-amber-300 font-bold">Botanical treat feeding:</strong> Feed golden apples to increase pet affection (+5%) and boost passive kingdom yields. Golden apples drop rarely from vegetable farms or can be purchased in the market trading post.
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-950/60 border border-amber-500/40 text-xs text-amber-200">
+                        <span>🍎</span>
+                        <span className="font-mono font-bold text-amber-300">{goldenAppleCount}</span>
+                        <span className="text-zinc-400">owned</span>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
                     {[
                       { id: 'ember-drake', name: 'Ember Drake', type: 'fire', focus: 'Might & Craft', yield: '+10% gold yield', skill: 'Ember strike (45 AOE fire DMG)', image: '/images/creatures/EmberDrake.webp', borderColor: 'border-orange-500/50', glowColor: 'shadow-[0_0_20px_rgba(249,115,22,0.3)]', badgeBg: 'bg-orange-950/80 text-orange-300 border-orange-500/40' },
@@ -1776,16 +1814,22 @@ export default function CharacterPage() {
 
                               <Button
                                 size="sm"
-                                disabled={isMax}
+                                disabled={isMax || goldenAppleCount <= 0}
                                 onClick={() => handleFeedPet(pet)}
                                 className={cn(
-                                  "w-full font-bold text-xs h-8 rounded-lg shadow-md transition-all",
+                                  "w-full font-bold text-xs h-8 rounded-lg shadow-md transition-all font-serif",
                                   isMax
                                     ? "bg-zinc-800 text-zinc-400 cursor-not-allowed border border-zinc-700 hover:bg-zinc-800"
+                                    : goldenAppleCount <= 0
+                                    ? "bg-zinc-900 border border-amber-900/40 text-amber-300/70 hover:bg-zinc-800"
                                     : "bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white"
                                 )}
                               >
-                                {isMax ? "❤️ Fully fed (100%)" : "🍎 Feed treat (+5% affection)"}
+                                {isMax
+                                  ? "Fully fed (100%)"
+                                  : goldenAppleCount <= 0
+                                  ? "No golden apples owned"
+                                  : `Feed golden apple (${goldenAppleCount})`}
                               </Button>
                             </div>
                           );

@@ -34,8 +34,6 @@ import Image from 'next/image'
 
 import { gainGold } from '@/lib/gold-manager';
 import { useRef } from 'react';
-import { StreakRecovery } from '@/components/streak-recovery';
-import { StreakRecoveryCard } from '@/components/streaks/streak-recovery-card';
 import { StreaksHubTab } from '@/components/streaks/streaks-hub-tab';
 import { StreakShieldBadge } from '@/components/StreakShieldBadge';
 import { FullPageLoading, DataLoadingState } from '@/components/ui/loading-states';
@@ -3067,60 +3065,6 @@ export default function QuestsPage() {
                   userId={userId || undefined}
                   token={token}
                 />
-
-                {/* Comeback Challenge Engine */}
-                <div className="p-4 sm:p-6 rounded-2xl bg-zinc-950/90 border border-amber-900/30 shadow-xl space-y-5">
-                  <div className="flex items-center justify-between pb-3 border-b border-amber-900/20">
-                    <div>
-                      <h3 className="text-base font-serif font-bold text-amber-300 flex items-center gap-2">
-                        <Heart className="w-4 h-4 text-red-400" /> Overdrive comeback challenges
-                      </h3>
-                      <p className="text-xs text-zinc-400">
-                        Choose a habit discipline to view missed streak history and repair your category momentum
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="recovery-category-select" className="block text-xs font-serif font-bold text-amber-300 mb-2">
-                      Select habit category
-                    </label>
-                    <Select value={challengeCategory || ''} onValueChange={handleChallengeCategoryChange}>
-                      <SelectTrigger id="recovery-category-select" className="w-full sm:max-w-xs rounded-xl border border-amber-500/40 bg-zinc-950 text-amber-200 text-xs h-9" aria-label="Recovery category dropdown">
-                        <SelectValue placeholder="Select habit category" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-zinc-950 border border-amber-500/40 text-amber-100">
-                        <SelectItem value="all">All categories</SelectItem>
-                        {workoutPlan.map(day => (
-                          <SelectItem key={day.category} value={day.category}>
-                            {day.category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {token && (
-                    <StreakRecovery
-                      token={token}
-                      category={challengeCategory}
-                      streakData={challengeStreakData}
-                      onStreakUpdate={() => {
-                        if (token && challengeCategory) {
-                          fetch(`/api/streaks-direct?category=${encodeURIComponent(challengeCategory)}`, {
-                            headers: { Authorization: `Bearer ${token}` },
-                          })
-                            .then(res => {
-                              if (res.ok) return res.json();
-                              throw new Error('Failed to refetch');
-                            })
-                            .then(data => setChallengeStreakData(data))
-                            .catch(error => logger.error('Error refetching streak:', error));
-                        }
-                      }}
-                    />
-                  )}
-                </div>
               </div>
             ) : (
               /* DAILY QUESTS TAB CONTENT */

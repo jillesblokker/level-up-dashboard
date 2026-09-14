@@ -1922,7 +1922,8 @@ export function KingdomGridWithTimers({
       tile.type === 'fisherman' || tile.type === 'grocery' || tile.type === 'foodcourt' ||
       tile.type === 'windmill' ||
       tile.type === 'fountain' ||
-      tile.type === 'mansion' || tile.type === 'mayor' || tile.type === 'archery' || tile.type === 'jousting' || tile.type === 'watchtower')) {
+      tile.type === 'mansion' || tile.type === 'mayor' || tile.type === 'archery' || tile.type === 'jousting' || tile.type === 'watchtower' ||
+      (tile.type as string) === 'vegetables' || (tile.type as string) === 'farm')) {
 
       // Check if tile is ready
       const timer = tileTimers.find(t => t.x === x && t.y === y)
@@ -2108,6 +2109,32 @@ export function KingdomGridWithTimers({
               } catch (err) {}
             })();
           }
+        }
+      }
+
+      // Handle rare botanical Golden apple drop from vegetable garden (~25% chance)
+      if (kingdomTile.id === 'vegetables' || kingdomTile.id === 'farm') {
+        const appleRoll = Math.random();
+        if (appleRoll < 0.25) {
+          finalMessage += " Rare harvest: Uncovered a crisp Golden apple! 🍎";
+          (async () => {
+            try {
+              const { invManager } = await loadManagers();
+              await invManager.addToKingdomInventory(userId, {
+                id: 'golden_apple',
+                name: 'Golden apple',
+                type: 'resource',
+                quantity: 1,
+                image: '/images/items/materials/material-apple.webp',
+                description: 'A rare botanical delicacy harvested from fertile vegetable gardens. Fed to guardian pets to boost affection and yields.',
+                emoji: '🍎',
+                stats: {},
+                category: 'material',
+                rarity: 'rare'
+              });
+              window.dispatchEvent(new CustomEvent('realm-inventory-updated'));
+            } catch (err) {}
+          })();
         }
       }
 

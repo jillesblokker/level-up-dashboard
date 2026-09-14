@@ -48,7 +48,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { getCurrentChapter, getNextChapter } from "@/lib/chronicles-data"
 import { HabitGuardian } from "@/components/kingdom/habit-guardian"
 import { ActiveTimersLedger } from "@/components/active-timers-ledger"
-import { StreakRecoveryCard } from "@/components/streaks/streak-recovery-card"
 import { getUserAlliances, checkInToAlliance, Alliance } from "@/lib/alliance-manager"
 import { useToast } from "@/components/ui/use-toast"
 import { useSound, SOUNDS, playSFX } from "@/lib/sound-manager"
@@ -600,8 +599,6 @@ export function DailyHubClient() {
             <div className="h-16 md:h-8" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 md:-mt-20 relative z-10 space-y-6 md:space-y-8">
-                <StreakRecoveryCard />
-
                 {/* BENTO ROW 1 — Expedition command & core momentum */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
                     {/* Bento Tile 1A: Hero companion & morning focus */}

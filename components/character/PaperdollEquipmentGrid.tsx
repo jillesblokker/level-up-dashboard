@@ -24,7 +24,7 @@ export interface EquippedItem {
 const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'relic', EquippedItem | null> = {
   weapon: {
     id: 'sword-irony',
-    name: 'Irony Longsword',
+    name: 'Irony longsword',
     slot: 'weapon',
     stats: { atk: 25, spd: 5 },
     rarity: 'rare',
@@ -33,7 +33,7 @@ const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'reli
   },
   offhand: {
     id: 'shield-oak',
-    name: 'Sturdy Oak Shield',
+    name: 'Sturdy oak shield',
     slot: 'offhand',
     stats: { def: 18 },
     rarity: 'uncommon',
@@ -42,7 +42,7 @@ const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'reli
   },
   armor: {
     id: 'armor-normalo',
-    name: 'Vanguard Cuirass',
+    name: 'Vanguard cuirass',
     slot: 'armor',
     stats: { def: 35, atk: 10 },
     rarity: 'epic',
@@ -51,7 +51,7 @@ const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'reli
   },
   mount: {
     id: 'mount-goldy',
-    name: 'Golden Warhorse',
+    name: 'Golden warhorse',
     slot: 'mount',
     stats: { spd: 30, atk: 10 },
     rarity: 'epic',

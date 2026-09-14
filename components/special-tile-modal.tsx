@@ -67,7 +67,7 @@ const getBuildingSpecialOutput = (id: string, kt: any) => {
     'harvest-barn': 'Stores winter grain & organic harvest.',
     'harvest_barn': 'Stores winter grain & organic harvest.',
     'farm': 'Harvests golden grain & botanical crops.',
-    'vegetables': 'Grows fresh vegetables & produce.',
+    'vegetables': 'Grows fresh vegetables & produce. (~25% chance to uncover a rare Golden apple for guardian pets).',
     'pumpkin-patch': 'Grows autumn pumpkins & gourds.',
     'serene-lake': 'Provides pure spring water & calm reflection.',
     'serene_lake': 'Provides pure spring water & calm reflection.',
