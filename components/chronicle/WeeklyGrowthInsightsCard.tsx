@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sparkles, TrendingUp, Sun, Smile, Award } from 'lucide-react';
+import { Award, TrendingUp, Sun, Quote } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
-export function WeeklyGrowthInsightsCard() {
+export function WeeklyGrowthInsightsCard({ className }: { className?: string } = {}) {
   const [data, setData] = useState<{
     totalCompletions: number;
     topCategory: string;
@@ -29,55 +30,86 @@ export function WeeklyGrowthInsightsCard() {
     fetchInsights();
   }, []);
 
-  if (!data) return null;
+  const fallbackData = {
+    totalCompletions: 0,
+    topCategory: 'Might',
+    topCategoryCount: 0,
+    peakFocusWindow: 'Morning 8 AM - 11 AM',
+    takeaway: 'Maintain your momentum! Building daily habits creates long-term persistency.'
+  };
+
+  const activeData = data || fallbackData;
 
   return (
-    <Card className="border-purple-500/30 bg-gradient-to-r from-purple-950/40 via-indigo-950/20 to-background shadow-lg mb-6">
-      <CardHeader className="pb-2 flex flex-row items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300">
-            <Sparkles className="w-5 h-5 text-purple-400" />
-          </div>
-          <div>
-            <CardTitle className="text-base text-purple-200 font-semibold">Weekly Growth Synthesis</CardTitle>
-            <p className="text-xs text-muted-foreground">7-Day Habit & Mood Intelligence</p>
-          </div>
-        </div>
-        <span className="text-[10px] px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 font-mono border border-purple-500/30">
-          7-Day Snapshot
-        </span>
-      </CardHeader>
-      <CardContent className="pt-2 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="p-3 rounded-xl bg-black/30 border border-purple-500/20 flex items-center gap-3">
-            <Award className="w-5 h-5 text-amber-400 shrink-0" />
-            <div>
-              <span className="text-[10px] text-muted-foreground block font-medium">Top domain</span>
-              <span className="text-xs font-bold text-amber-200">{data.topCategory} ({data.topCategoryCount})</span>
+    <div className={cn("space-y-3.5", className)}>
+      {/* 3 Vertically Stacked Metric Cards */}
+      <div className="flex flex-col gap-3">
+        {/* Card 1: Top domain */}
+        <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-amber-500/20 hover:border-amber-500/40 transition-colors flex items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-amber-950/50 border border-amber-500/40 flex items-center justify-center shrink-0 text-amber-400 shadow-inner">
+              <Award className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-[10px] text-zinc-400 uppercase font-mono block tracking-wider">
+                Top domain
+              </span>
+              <span className="text-sm font-serif font-bold text-amber-200 truncate block">
+                {activeData.topCategory}
+              </span>
             </div>
           </div>
-
-          <div className="p-3 rounded-xl bg-black/30 border border-purple-500/20 flex items-center gap-3">
-            <TrendingUp className="w-5 h-5 text-emerald-400 shrink-0" />
-            <div>
-              <span className="text-[10px] text-muted-foreground block font-medium">Habits done</span>
-              <span className="text-xs font-bold text-emerald-200">{data.totalCompletions} Habits</span>
-            </div>
-          </div>
-
-          <div className="p-3 rounded-xl bg-black/30 border border-purple-500/20 flex items-center gap-3">
-            <Sun className="w-5 h-5 text-yellow-400 shrink-0" />
-            <div>
-              <span className="text-[10px] text-muted-foreground block font-medium">Peak focus</span>
-              <span className="text-xs font-bold text-yellow-200">{data.peakFocusWindow}</span>
-            </div>
-          </div>
+          <Badge className="bg-amber-950/70 border-amber-500/40 text-amber-300 font-mono text-[11px] px-2.5 py-0.5 shrink-0">
+            {activeData.topCategoryCount} {activeData.topCategoryCount === 1 ? 'habit' : 'habits'}
+          </Badge>
         </div>
 
-        <div className="p-3 rounded-xl bg-purple-900/20 border border-purple-500/20 text-xs text-purple-200/90 leading-relaxed italic">
-          &quot;{data.takeaway}&quot;
+        {/* Card 2: Habits done */}
+        <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-emerald-500/20 hover:border-emerald-500/40 transition-colors flex items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-emerald-950/50 border border-emerald-500/40 flex items-center justify-center shrink-0 text-emerald-400 shadow-inner">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-[10px] text-zinc-400 uppercase font-mono block tracking-wider">
+                Habits completed
+              </span>
+              <span className="text-sm font-serif font-bold text-emerald-200 truncate block">
+                {activeData.totalCompletions} {activeData.totalCompletions === 1 ? 'habit' : 'habits'}
+              </span>
+            </div>
+          </div>
+          <Badge className="bg-emerald-950/70 border-emerald-500/40 text-emerald-300 font-mono text-[11px] px-2.5 py-0.5 shrink-0">
+            Weekly total
+          </Badge>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Card 3: Peak focus */}
+        <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-yellow-500/20 hover:border-yellow-500/40 transition-colors flex items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-yellow-950/50 border border-yellow-500/40 flex items-center justify-center shrink-0 text-yellow-400 shadow-inner">
+              <Sun className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-[10px] text-zinc-400 uppercase font-mono block tracking-wider">
+                Peak focus
+              </span>
+              <span className="text-sm font-serif font-bold text-yellow-200 truncate block">
+                {activeData.peakFocusWindow}
+              </span>
+            </div>
+          </div>
+          <Badge className="bg-yellow-950/70 border-yellow-500/40 text-yellow-300 font-mono text-[11px] px-2.5 py-0.5 shrink-0">
+            Prime flow
+          </Badge>
+        </div>
+      </div>
+
+      {/* Synthesis Takeaway Quote */}
+      <div className="p-3.5 rounded-xl bg-gradient-to-r from-purple-950/30 via-zinc-900/60 to-purple-950/20 border border-purple-500/30 text-xs text-purple-200/90 leading-relaxed italic font-serif flex items-start gap-2.5 shadow-inner">
+        <Quote className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+        <span>&ldquo;{activeData.takeaway}&rdquo;</span>
+      </div>
+    </div>
   );
 }
