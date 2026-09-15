@@ -52,9 +52,10 @@ export interface Citizen {
 
 export function getCitizenEffectiveStats(citizen: Citizen): { atk: number; def: number; spd: number; gearScore: number } {
   const level = citizen.level || 1;
-  let baseAtk = 10 + level * 3;
-  let baseDef = 8 + level * 2.5;
-  let baseSpd = 10 + level * 2;
+  const isMythic = Boolean(citizen.isMythic || citizen.id?.startsWith('mythic-'));
+  let baseAtk = (isMythic ? 22 : 10) + level * 3;
+  let baseDef = (isMythic ? 20 : 8) + level * 2.5;
+  let baseSpd = (isMythic ? 16 : 10) + level * 2;
 
   const spec = citizen.specialization;
   if (spec === 'Tank') {
@@ -781,12 +782,18 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
     let hasFood = false;
     const cleanId = foodItemId.toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '');
+    const targetName = formatFoodDisplayName(foodItemId).name.toLowerCase();
 
     // 1. Try to find and deduct from player inventory first
     try {
       const inventory = await getInventory(userId);
       const invItem = inventory.find(
-        (i) => (i.id === foodItemId || i.id.toLowerCase() === foodItemId.toLowerCase() || i.id.toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '') === cleanId) && (i.quantity || 0) > 0
+        (i) => (
+          i.id === foodItemId || 
+          i.id.toLowerCase() === foodItemId.toLowerCase() || 
+          i.id.toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '') === cleanId ||
+          formatFoodDisplayName(i.id, i.name).name.toLowerCase() === targetName
+        ) && (i.quantity || 0) > 0
       );
 
       if (invItem) {
@@ -795,7 +802,12 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
         if (typeof window !== 'undefined') {
           try {
             const localItems = JSON.parse(localStorage.getItem('kingdom-tile-items') || '[]');
-            const idx = localItems.findIndex((it: any) => it.id === invItem.id || it.id === foodItemId || (it.id && it.id.toLowerCase().replace(/\.[^/.]+$/, '') === cleanId));
+            const idx = localItems.findIndex((it: any) => 
+              it.id === invItem.id || 
+              it.id === foodItemId || 
+              (it.id && it.id.toLowerCase().replace(/\.[^/.]+$/, '') === cleanId) ||
+              (it.id && formatFoodDisplayName(it.id, it.name).name.toLowerCase() === targetName)
+            );
             if (idx >= 0) {
               if ((localItems[idx].quantity || 1) > 1) {
                 localItems[idx].quantity -= 1;
@@ -824,7 +836,8 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
               (k) =>
                 k.toLowerCase() === foodItemId.toLowerCase() ||
                 k.toLowerCase() === dbKey.toLowerCase() ||
-                k.toLowerCase().replace(/\.[^/.]+$/, '') === cleanId
+                k.toLowerCase().replace(/\.[^/.]+$/, '') === cleanId ||
+                formatFoodDisplayName(k).name.toLowerCase() === targetName
             );
 
         if (itemKey && tileInv[itemKey]) {

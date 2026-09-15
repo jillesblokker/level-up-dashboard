@@ -168,20 +168,24 @@ export function CitizensTab() {
         } catch {}
       }
 
-      const foodItems: { id: string; name: string; quantity: number; emoji: string }[] = [];
-      const seen = new Set<string>();
+      // Group & stack by canonical food name & emoji
+      const foodMap = new Map<string, { id: string; name: string; quantity: number; emoji: string }>();
 
       allItems
         .filter(item => isFoodItem(item) && (item.quantity || 0) > 0)
         .forEach(item => {
-          const cleanId = (item.id || '').toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '');
-          if (!seen.has(cleanId)) {
-            seen.add(cleanId);
-            const { name, emoji } = formatFoodDisplayName(item.id, item.name, item.emoji);
-            foodItems.push({
+          const { name, emoji } = formatFoodDisplayName(item.id, item.name, item.emoji);
+          const stackKey = name.toLowerCase().trim();
+          const qty = typeof item.quantity === 'number' ? item.quantity : 1;
+
+          if (foodMap.has(stackKey)) {
+            const existing = foodMap.get(stackKey)!;
+            existing.quantity += qty;
+          } else {
+            foodMap.set(stackKey, {
               id: item.id,
               name,
-              quantity: item.quantity,
+              quantity: qty,
               emoji
             });
           }
@@ -192,14 +196,17 @@ export function CitizensTab() {
         Object.entries(tileInv).forEach(([rawKey, value]) => {
           const key = rawKey === 'water' ? 'material-water' : rawKey;
           const qty = typeof value === 'number' ? value : (value?.quantity ?? 0);
-          const cleanKey = key.toLowerCase().replace(/\.[^/.]+$/, '').replace(/-item$/, '');
           if (isFoodItem({ id: key, name: typeof value === 'object' ? value?.name : undefined }) && qty > 0) {
-            if (!seen.has(cleanKey)) {
-              seen.add(cleanKey);
-              const rawName = typeof value === 'object' && value?.name ? value.name : key;
-              const rawEmoji = typeof value === 'object' && value?.emoji ? value.emoji : undefined;
-              const { name, emoji } = formatFoodDisplayName(key, rawName, rawEmoji);
-              foodItems.push({
+            const rawName = typeof value === 'object' && value?.name ? value.name : key;
+            const rawEmoji = typeof value === 'object' && value?.emoji ? value.emoji : undefined;
+            const { name, emoji } = formatFoodDisplayName(key, rawName, rawEmoji);
+            const stackKey = name.toLowerCase().trim();
+
+            if (foodMap.has(stackKey)) {
+              const existing = foodMap.get(stackKey)!;
+              existing.quantity += qty;
+            } else {
+              foodMap.set(stackKey, {
                 id: key,
                 name,
                 quantity: qty,
@@ -210,7 +217,7 @@ export function CitizensTab() {
         });
       }
 
-      setInventoryFood(foodItems);
+      setInventoryFood(Array.from(foodMap.values()));
     } catch (error) {
       logger.error('Failed to load inventory food', error);
     }
@@ -687,11 +694,14 @@ export function CitizensTab() {
                                           }
                                         }}
                                       >
-                                        <span className="flex items-center gap-2 text-sm text-white">
-                                          <span className="text-base">{f.emoji}</span>
-                                          <span className="font-medium">{f.name}</span>
+                                        <span className="flex items-center gap-2 text-sm text-white min-w-0">
+                                          <span className="text-base shrink-0">{f.emoji}</span>
+                                          <span className="font-medium truncate">{f.name}</span>
+                                          <span className="text-[10px] text-zinc-400 font-normal shrink-0">
+                                            +{getFoodActiveDays(f.id, f)}d
+                                          </span>
                                         </span>
-                                        <span className="text-xs text-amber-400 font-semibold bg-amber-950/50 px-1.5 py-0.5 rounded">
+                                        <span className="text-xs text-amber-400 font-semibold bg-amber-950/60 border border-amber-800/40 px-1.5 py-0.5 rounded shrink-0">
                                           ×{f.quantity}
                                         </span>
                                       </button>
@@ -1043,11 +1053,14 @@ export function CitizensTab() {
                                     }
                                   }}
                                 >
-                                  <span className="flex items-center gap-2 text-sm text-white">
-                                    <span className="text-base">{f.emoji}</span>
-                                    <span className="font-medium">{f.name}</span>
+                                  <span className="flex items-center gap-2 text-sm text-white min-w-0">
+                                    <span className="text-base shrink-0">{f.emoji}</span>
+                                    <span className="font-medium truncate">{f.name}</span>
+                                    <span className="text-[10px] text-zinc-400 font-normal shrink-0">
+                                      +{getFoodActiveDays(f.id, f)}d
+                                    </span>
                                   </span>
-                                  <span className="text-xs text-amber-400 font-semibold bg-amber-950/50 px-1.5 py-0.5 rounded">
+                                  <span className="text-xs text-amber-400 font-semibold bg-amber-950/60 border border-amber-800/40 px-1.5 py-0.5 rounded shrink-0">
                                     ×{f.quantity}
                                   </span>
                                 </button>

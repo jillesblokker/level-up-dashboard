@@ -33,7 +33,8 @@ import {
   MonsterStatusState
 } from './game-logic';
 import { useAuth } from '@clerk/nextjs';
-import { useCitizensStore } from '@/stores/citizensStore';
+import { useCitizensStore, getCitizenEffectiveStats } from '@/stores/citizensStore';
+import { getEquippedGearStats } from '@/components/character/PaperdollEquipmentGrid';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -457,17 +458,15 @@ export default function DungeonPage() {
             c.type === 'ice' ? 'Ice' : 'Fire';
           
           const lvl = normalizeCreatureLevel(c.level || 1);
-          const statAtk = (c.isMythic ? 22 : 12) + (lvl * 2);
-          const statDef = (c.isMythic ? 20 : 10) + (lvl * 2);
-          const statSpd = (c.isMythic ? 16 : 10) + lvl;
+          const effStats = getCitizenEffectiveStats(c);
 
           const newItem: CreatureDef = {
             id: c.id,
             name: c.name,
             type: cType,
             level: lvl,
-            stats: { atk: statAtk, def: statDef, spd: statSpd },
-            description: c.isMythic ? 'Rare Mythic creature unlocked from card collection.' : 'Unlocked town citizen.',
+            stats: { atk: effStats.atk, def: effStats.def, spd: effStats.spd },
+            description: c.isMythic ? `Rare Mythic ${c.loreTitle || 'champion'}.` : `${c.specialization || 'Citizen'} fighter.`,
             isMythic: c.isMythic,
             filename: c.filename,
           };
@@ -819,10 +818,14 @@ export default function DungeonPage() {
     // 1. Calculate Base Stats
     const elementalHabitBuff = (elementBuffs[activeFighter.type] || 0) * 2;
     const buildingAtkBuff = buildingBuffs.atkBuff;
+    const heroGear = getEquippedGearStats();
+    const heroAtkBuff = Math.round((heroGear?.atk || 0) * 0.25);
+    const heroDefBuff = Math.round((heroGear?.def || 0) * 0.25);
+    const heroSpdBuff = Math.round((heroGear?.spd || 0) * 0.25);
 
-    const playerSpd = activeFighter.stats.spd;
-    const playerDef = activeFighter.stats.def;
-    let playerAtk = activeFighter.stats.atk + (Math.floor(Math.random() * 5)) + elementalHabitBuff + buildingAtkBuff;
+    const playerSpd = activeFighter.stats.spd + heroSpdBuff;
+    const playerDef = activeFighter.stats.def + heroDefBuff;
+    let playerAtk = activeFighter.stats.atk + (Math.floor(Math.random() * 5)) + elementalHabitBuff + buildingAtkBuff + heroAtkBuff;
 
     // Enemy stats
     const enemySpd = enemyDef.stats.spd;
@@ -831,6 +834,9 @@ export default function DungeonPage() {
 
     if (elementalHabitBuff > 0) logEntries.push(`✨ Daily habits empower ${activeFighter.name}! (+${elementalHabitBuff} ATK)`);
     if (buildingAtkBuff > 0) logEntries.push(`⚔️ Blacksmith sharpens your attack! (+${buildingAtkBuff} ATK)`);
+    if ((heroAtkBuff > 0 || heroDefBuff > 0) && battleLog.length === 0) {
+      logEntries.push(`👑 Sovereign Hero Vault empowers your squad! (+${heroAtkBuff} ATK, +${heroDefBuff} DEF, +${heroSpdBuff} SPD)`);
+    }
 
     // 2. Type Multipliers
     const playerTypeMult = getMatchupMultiplier(activeFighter.type, enemyDef.type);
