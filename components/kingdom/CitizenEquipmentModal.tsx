@@ -6,10 +6,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { toast } from '@/components/ui/use-toast'
-import { Shield, Sword, Shirt, Gem, Plus, Trash2, Sparkles, ArrowRightLeft } from 'lucide-react'
+import { Shield, Sword, Shirt, Gem, Plus, Trash2, Sparkles, ArrowRightLeft, Footprints } from 'lucide-react'
 import { Citizen, useCitizensStore, getCitizenImageSrc } from '@/stores/citizensStore'
 import { getItemRarityStyles } from '@/components/character/PaperdollEquipmentGrid'
-import { getItemSlot } from '@/lib/hero-equipment'
+import { getItemSlot, type HeroEquipmentSlot } from '@/lib/hero-equipment'
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { cn } from '@/lib/utils'
 
@@ -20,19 +20,40 @@ interface CitizenEquipmentModalProps {
   userId?: string | undefined
 }
 
-const SLOT_CONFIGS: { slot: 'weapon' | 'offhand' | 'armor' | 'relic'; label: string; icon: React.ReactNode }[] = [
-  { slot: 'weapon', label: 'Weapon', icon: <Sword className="w-5 h-5 text-amber-400" /> },
-  { slot: 'offhand', label: 'Offhand / Shield', icon: <Shield className="w-5 h-5 text-blue-400" /> },
-  { slot: 'armor', label: 'Armor', icon: <Shirt className="w-5 h-5 text-emerald-400" /> },
-  { slot: 'relic', label: 'Relic / Artifact', icon: <Gem className="w-5 h-5 text-purple-400" /> }
+const SLOT_CONFIGS: { slot: HeroEquipmentSlot; label: string; icon: React.ReactNode }[] = [
+  { slot: 'weapon', label: 'Weapon', icon: <Sword className="w-4 h-4 text-amber-400" /> },
+  { slot: 'offhand', label: 'Shield / Offhand', icon: <Shield className="w-4 h-4 text-blue-400" /> },
+  { slot: 'armor', label: 'Armor', icon: <Shirt className="w-4 h-4 text-emerald-400" /> },
+  { slot: 'robe', label: 'Robe', icon: <Sparkles className="w-4 h-4 text-indigo-400" /> },
+  { slot: 'footwear', label: 'Footwear', icon: <Footprints className="w-4 h-4 text-amber-400" /> },
+  { slot: 'mount', label: 'Mount', icon: <span className="text-sm">🐎</span> },
+  { slot: 'relic', label: 'Relic / Artifact', icon: <Gem className="w-4 h-4 text-purple-400" /> }
 ]
+
+const formatItemStats = (stats: any) => {
+  if (!stats) return null;
+  const parts: string[] = [];
+  const atk = typeof stats.attack === 'number' ? stats.attack : stats.atk;
+  const def = typeof stats.defense === 'number' ? stats.defense : stats.def;
+  const spd = typeof stats.movement === 'number' ? stats.movement : (typeof stats.speed === 'number' ? stats.speed : stats.spd);
+  const hp = typeof stats.health === 'number' ? stats.health : stats.hp;
+  const mp = typeof stats.mana === 'number' ? stats.mana : stats.mp;
+
+  if (atk) parts.push(`+${atk} atk`);
+  if (def) parts.push(`+${def} def`);
+  if (spd) parts.push(`+${spd} spd`);
+  if (hp) parts.push(`+${hp} HP`);
+  if (mp) parts.push(`+${mp} MP`);
+
+  return parts.length > 0 ? parts.join(' • ') : 'Cosmetic gear';
+};
 
 export function CitizenEquipmentModal({ citizen, open, onClose, userId }: CitizenEquipmentModalProps) {
   const equipCitizen = useCitizensStore(state => state.equipCitizen)
   const unequipCitizen = useCitizensStore(state => state.unequipCitizen)
   const getCitizenEffectiveStats = useCitizensStore(state => state.getCitizenEffectiveStats)
 
-  const [activeSlotToEquip, setActiveSlotToEquip] = useState<'weapon' | 'offhand' | 'armor' | 'relic' | null>(null)
+  const [activeSlotToEquip, setActiveSlotToEquip] = useState<HeroEquipmentSlot | null>(null)
   const [availableInventory, setAvailableInventory] = useState<any[]>([])
   const [isLoadingInventory, setIsLoadingInventory] = useState(false)
 
@@ -81,7 +102,7 @@ export function CitizenEquipmentModal({ citizen, open, onClose, userId }: Citize
     setActiveSlotToEquip(null)
   }
 
-  const handleUnequipItem = async (slot: 'weapon' | 'offhand' | 'armor' | 'relic') => {
+  const handleUnequipItem = async (slot: HeroEquipmentSlot) => {
     if (!userId) return
     const currentItem = equipment[slot]
     await unequipCitizen(userId, citizen.id, slot)
@@ -93,7 +114,7 @@ export function CitizenEquipmentModal({ citizen, open, onClose, userId }: Citize
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-zinc-950 border border-amber-500/30 text-white rounded-2xl p-6 shadow-2xl font-serif max-h-[90dvh] overflow-y-auto custom-scrollbar">
+      <DialogContent className="max-w-lg bg-zinc-950 border border-amber-500/30 text-white rounded-2xl p-6 shadow-2xl font-serif max-h-[90dvh] overflow-y-auto custom-scrollbar">
         <DialogHeader className="border-b border-zinc-800/80 pb-4">
           <div className="flex items-center gap-3">
             <div className="relative w-14 h-14 rounded-2xl bg-zinc-900 border border-amber-500/40 p-1 shrink-0 overflow-hidden">
@@ -167,6 +188,7 @@ export function CitizenEquipmentModal({ citizen, open, onClose, userId }: Citize
               <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-1">
                 {matchingInventoryItems.map((item) => {
                   const rarityStyle = getItemRarityStyles(item.rarity || 'common')
+                  const statsDisplay = formatItemStats(item.stats)
                   return (
                     <div
                       key={item.id}
@@ -178,11 +200,9 @@ export function CitizenEquipmentModal({ citizen, open, onClose, userId }: Citize
                         </div>
                         <div className="min-w-0">
                           <h4 className="text-xs font-bold text-white truncate">{item.name}</h4>
-                          <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-400 mt-0.5">
-                            {item.stats?.attack && <span className="text-red-400">+{item.stats.attack} atk</span>}
-                            {item.stats?.defense && <span className="text-blue-400">+{item.stats.defense} def</span>}
-                            {item.stats?.movement && <span className="text-emerald-400">+{item.stats.movement} spd</span>}
-                          </div>
+                          <p className="text-[10px] font-mono text-emerald-400 mt-0.5 font-bold">
+                            {statsDisplay}
+                          </p>
                         </div>
                       </div>
 
@@ -201,14 +221,20 @@ export function CitizenEquipmentModal({ citizen, open, onClose, userId }: Citize
           </div>
         ) : (
           <div className="mt-4 space-y-3 font-sans">
-            <span className="text-xs font-serif font-bold text-amber-300 block">
-              Citizen loadout sockets
-            </span>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-serif font-bold text-amber-300 block">
+                Citizen loadout sockets
+              </span>
+              <span className="text-[10px] font-mono text-zinc-400">
+                {Object.values(equipment).filter(Boolean).length} / 7 active sockets
+              </span>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {SLOT_CONFIGS.map(({ slot, label, icon }) => {
                 const item = equipment[slot]
                 const rarityStyle = item ? getItemRarityStyles(item.rarity) : null
+                const statsDisplay = item ? formatItemStats(item.stats) : null
                 return (
                   <div
                     key={slot}
@@ -237,10 +263,8 @@ export function CitizenEquipmentModal({ citizen, open, onClose, userId }: Citize
                         </div>
                         <div className="min-w-0 flex-1">
                           <span className="text-xs font-bold text-white block truncate">{item.name}</span>
-                          <span className="text-[10px] font-mono text-amber-300 block mt-0.5">
-                            {item.stats?.atk ? `+${item.stats.atk} atk ` : ''}
-                            {item.stats?.def ? `+${item.stats.def} def ` : ''}
-                            {item.stats?.spd ? `+${item.stats.spd} spd` : ''}
+                          <span className="text-[10px] font-mono text-emerald-400 font-bold block mt-0.5 truncate">
+                            {statsDisplay}
                           </span>
                         </div>
                       </div>
@@ -276,7 +300,7 @@ export function CitizenEquipmentModal({ citizen, open, onClose, userId }: Citize
                           onClick={() => setActiveSlotToEquip(slot)}
                           className="w-full h-7 text-[11px] bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-serif"
                         >
-                          <Plus className="w-3.5 h-3.5 mr-1 text-emerald-400" /> Equip gear
+                          <Plus className="w-3.5 h-3.5 mr-1 text-emerald-400" /> Equip {label.toLowerCase()}
                         </Button>
                       )}
                     </div>

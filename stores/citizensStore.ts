@@ -47,7 +47,7 @@ export interface Citizen {
   lockedReason?: 'expedition' | null | undefined;
   specialization?: 'Tank' | 'Mage' | 'Alchemist' | 'Scout' | undefined;
   loreTitle?: string | undefined;
-  equipment?: Partial<Record<'weapon' | 'offhand' | 'armor' | 'relic', any>> | undefined;
+  equipment?: Partial<Record<'weapon' | 'offhand' | 'armor' | 'robe' | 'footwear' | 'mount' | 'relic', any>> | undefined;
 }
 
 export function getCitizenEffectiveStats(citizen: Citizen): { atk: number; def: number; spd: number; gearScore: number } {
@@ -149,8 +149,8 @@ interface CitizensStore {
   triggerAutopilotHarvest: (userId: string, activePartnerId: string | undefined) => Promise<{ gold: number; items: Record<string, { quantity: number; name: string; emoji: string }>; partnerName: string; count: number } | null>;
   mergeDuplicateCitizens: (userId: string) => Promise<{ success: boolean; count: number; mergedNames: string[] }>;
   specializeCitizen: (userId: string, citizenId: string, chosenClass: 'Tank' | 'Mage' | 'Alchemist' | 'Scout') => Promise<void>;
-  equipCitizen: (userId: string | undefined, citizenId: string, slot: 'weapon' | 'offhand' | 'armor' | 'relic', item: any) => Promise<void>;
-  unequipCitizen: (userId: string | undefined, citizenId: string, slot: 'weapon' | 'offhand' | 'armor' | 'relic') => Promise<void>;
+  equipCitizen: (userId: string | undefined, citizenId: string, slot: 'weapon' | 'offhand' | 'armor' | 'robe' | 'footwear' | 'mount' | 'relic', item: any) => Promise<void>;
+  unequipCitizen: (userId: string | undefined, citizenId: string, slot: 'weapon' | 'offhand' | 'armor' | 'robe' | 'footwear' | 'mount' | 'relic') => Promise<void>;
   getCitizenEffectiveStats: (citizen: Citizen) => { atk: number; def: number; spd: number; gearScore: number };
   addCitizenById: (citizenId: string) => Promise<void>;
 }
@@ -1502,7 +1502,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
 
   getCitizenEffectiveStats: (citizen: Citizen) => getCitizenEffectiveStats(citizen),
 
-  equipCitizen: async (userId: string | undefined, citizenId: string, slot: 'weapon' | 'offhand' | 'armor' | 'relic', item: any) => {
+  equipCitizen: async (userId: string | undefined, citizenId: string, slot: 'weapon' | 'offhand' | 'armor' | 'robe' | 'footwear' | 'mount' | 'relic', item: any) => {
     const { citizens } = get();
     const updatedCitizens = citizens.map(c => {
       if (c.id === citizenId) {
@@ -1542,7 +1542,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     }
   },
 
-  unequipCitizen: async (userId: string | undefined, citizenId: string, slot: 'weapon' | 'offhand' | 'armor' | 'relic') => {
+  unequipCitizen: async (userId: string | undefined, citizenId: string, slot: 'weapon' | 'offhand' | 'armor' | 'robe' | 'footwear' | 'mount' | 'relic') => {
     const { citizens } = get();
     const updatedCitizens = citizens.map(c => {
       if (c.id === citizenId) {
