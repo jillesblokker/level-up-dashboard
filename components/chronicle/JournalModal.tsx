@@ -69,30 +69,28 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
     // Better: Add a useEffect dependency.
 
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const supabase = (typeof window !== 'undefined' ? (require('@/lib/supabase/client').supabase) : null);
-
     const { getToken } = useAuth()
 
-    // Sync effect
-    // Sync effect
     useEffect(() => {
         if (isOpen) {
             setContent(initialData?.content || '')
             setMood(initialData?.mood_score || null)
         }
     }, [isOpen, initialData])
-    // Actually the above useState with initializer only runs once. 
-    // We need useEffect.
 
     const handleSave = async () => {
         if (!mood) {
             toast.error("Sage Owl tilts its head with a soft hoot: 'How is your spirit feeling today? Pick a mood icon.'")
             return
         }
+        if (!content || !content.trim()) {
+            toast.error("Sage Owl taps the parchment with a quill: 'Inscribe a few thoughts into your journal before recording.'")
+            return
+        }
         setIsSubmitting(true)
         const entryDate = initialData?.entry_date || new Date().toISOString().split('T')[0];
         const payload = {
-            content,
+            content: content.trim(),
             mood_score: mood,
             entry_date: entryDate,
             is_update: !!initialData
@@ -165,7 +163,7 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                 {/* Background Effects */}
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-amber-500/10 rounded-full blur-[100px] animate-pulse" />
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-transparent to-purple-950/10" />
                 </div>
 
                 <div className="relative z-10 flex-1 overflow-y-auto p-6 scrollbar-hide">
@@ -331,7 +329,7 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                     </Button>
                     <Button
                         onClick={handleSave}
-                        disabled={isSubmitting || !mood}
+                        disabled={isSubmitting}
                         className="flex-[2] h-12 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-stone-950 font-serif font-bold rounded-xl shadow-lg shadow-amber-950/40 border-t border-amber-300/40 active:scale-[0.98] transition-all"
                     >
                         {isSubmitting ? 'Inscribing...' : 'Inscribe chronicle'}

@@ -9,25 +9,23 @@ export interface GildedCornerBracketsProps {
   inset?: string // e.g. "inset-1" or "inset-1.5"
 }
 
-export function GildedCornerBrackets({
-  size = 'md',
-  className,
-  inset = 'inset-1',
-}: GildedCornerBracketsProps) {
-  const pixelSize = {
-    sm: 18,
-    md: 26,
-    lg: 34,
-  }[size]
-
-  // Ornate medieval corner L-bracket with rivet and filigree scroll
-  const CornerSvg = ({ flipX = false, flipY = false }: { flipX?: boolean; flipY?: boolean }) => (
+// Ornate medieval corner L-bracket with rivet and filigree scroll
+function CornerSvg({
+  pixelSize,
+  flipX = false,
+  flipY = false,
+}: {
+  pixelSize: number
+  flipX?: boolean
+  flipY?: boolean
+}) {
+  return (
     <svg
       viewBox="0 0 32 32"
       width={pixelSize}
       height={pixelSize}
       className={cn(
-        "drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] opacity-90",
+        "drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] opacity-90 pointer-events-none select-none",
         flipX && "-scale-x-100",
         flipY && "-scale-y-100"
       )}
@@ -62,27 +60,39 @@ export function GildedCornerBrackets({
       <circle cx="3.5" cy="15" r="1.2" fill="#d97706" />
     </svg>
   )
+}
+
+export function GildedCornerBrackets({
+  size = 'md',
+  className,
+  inset = 'inset-1',
+}: GildedCornerBracketsProps) {
+  const pixelSize = {
+    sm: 18,
+    md: 26,
+    lg: 34,
+  }[size]
 
   return (
     <div className={cn("absolute pointer-events-none select-none z-15", inset, className)} aria-hidden="true">
       {/* Top-Left */}
       <div className="absolute top-0 left-0">
-        <CornerSvg />
+        <CornerSvg pixelSize={pixelSize} />
       </div>
 
       {/* Top-Right */}
       <div className="absolute top-0 right-0">
-        <CornerSvg flipX />
+        <CornerSvg pixelSize={pixelSize} flipX />
       </div>
 
       {/* Bottom-Left */}
       <div className="absolute bottom-0 left-0">
-        <CornerSvg flipY />
+        <CornerSvg pixelSize={pixelSize} flipY />
       </div>
 
       {/* Bottom-Right */}
       <div className="absolute bottom-0 right-0">
-        <CornerSvg flipX flipY />
+        <CornerSvg pixelSize={pixelSize} flipX flipY />
       </div>
     </div>
   )

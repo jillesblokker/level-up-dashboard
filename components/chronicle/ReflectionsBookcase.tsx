@@ -184,10 +184,14 @@ export function ReflectionsBookcase({ entries, onSelectEntry, onCreateEntry }: R
       return (
         <button
           key="scribe_action_book"
-          onClick={onCreateEntry}
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onCreateEntry();
+          }}
           onMouseEnter={() => setHoveredEntry('scribe')}
           onMouseLeave={() => setHoveredEntry(null)}
-          className="group relative flex flex-col items-center justify-between w-[44px] sm:w-[48px] h-[142px] sm:h-[150px] rounded-t-md rounded-b-sm border-2 border-dashed border-amber-500/40 bg-zinc-950/60 hover:bg-amber-950/40 hover:border-amber-400 transition-all duration-200 hover:-translate-y-2 cursor-pointer shadow-md shadow-black/60 shrink-0 select-none p-1.5"
+          className="group relative flex flex-col items-center justify-between w-[44px] sm:w-[48px] h-[142px] sm:h-[150px] rounded-t-md rounded-b-sm border-2 border-dashed border-amber-500/40 bg-zinc-950/60 hover:bg-amber-950/40 hover:border-amber-400 transition-all duration-200 hover:-translate-y-2 cursor-pointer shadow-md shadow-black/60 shrink-0 select-none p-1.5 z-20"
           title="Scribe a new reflection"
         >
           <div className="w-full flex items-center justify-center pt-1 text-amber-400 group-hover:scale-110 transition-transform">
@@ -445,15 +449,21 @@ export function ReflectionsBookcase({ entries, onSelectEntry, onCreateEntry }: R
           </div>
         ) : (
           <div className="w-full flex items-center justify-between gap-3 text-zinc-500 px-1 select-none">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
               <BookOpen className="w-4 h-4 text-amber-500/40 shrink-0" />
-              <p className="text-xs font-serif italic text-zinc-400">
-                Hover over any volume to inspect its tale, or click to open your reflections.
+              <p className="text-xs font-serif italic text-zinc-400 truncate">
+                Tap any volume to read, or scribe a new reflection into your journal.
               </p>
             </div>
-            <span className="hidden sm:inline-block text-[11px] font-mono text-amber-500/40">
-              Royal library lectern
-            </span>
+            <Button
+              type="button"
+              size="sm"
+              onClick={onCreateEntry}
+              className="bg-amber-950/60 border border-amber-500/40 text-amber-300 hover:bg-amber-900/60 text-xs font-serif font-bold rounded-lg px-3 h-8 flex items-center gap-1.5 shrink-0 shadow-sm"
+            >
+              <PenTool className="w-3 h-3 text-amber-400" />
+              <span>Scribe</span>
+            </Button>
           </div>
         )}
       </div>

@@ -70,7 +70,7 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
         <DialogContent className="sm:max-w-md bg-zinc-950 text-white border-amber-800/40 p-0 shadow-2xl max-h-[88dvh] overflow-y-auto custom-scrollbar">
           <div className="relative p-6 pt-10">
             {/* Background Ornate Pattern */}
-            <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]" />
+            <div className="absolute inset-0 opacity-10 pointer-events-none bg-gradient-to-b from-amber-500/5 via-transparent to-amber-950/10" />
 
             <DialogHeader className="relative z-10 text-center space-y-4">
               <div className="mx-auto w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center border-2 border-amber-500/30 mb-2">
