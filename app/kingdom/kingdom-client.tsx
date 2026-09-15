@@ -268,7 +268,7 @@ function getItemImagePath(item: KingdomInventoryItem): string {
 function isEquippable(item: KingdomInventoryItem): boolean {
   // Only allow equipment, creature (mount), or items with a category (e.g., weapon, shield, armor)
   if (item.type === 'equipment' || item.type === 'creature') return true;
-  if (item.category && ['weapon', 'shield', 'armor', 'mount'].includes(item.category)) return true;
+  if (item.category && ['weapon', 'shield', 'armor', 'mount', 'robe', 'robes', 'footwear'].includes(item.category)) return true;
   return false;
 }
 

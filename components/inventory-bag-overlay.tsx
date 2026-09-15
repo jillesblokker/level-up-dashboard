@@ -364,8 +364,8 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
 
   const isEquippable = (item: KingdomInventoryItem) => {
     return getItemSlot(item) !== null || 
-           ['weapon', 'armor', 'shield', 'equipment', 'helmet', 'boots', 'gloves', 'ring', 'necklace', 'mount', 'relic'].includes(item.type) || 
-           (item.category && ['weapon', 'armor', 'shield', 'equipment', 'mount', 'relic'].includes(item.category));
+           ['weapon', 'armor', 'shield', 'equipment', 'helmet', 'boots', 'gloves', 'ring', 'necklace', 'mount', 'relic', 'robe', 'robes', 'footwear'].includes(item.type) || 
+           (item.category && ['weapon', 'armor', 'shield', 'equipment', 'mount', 'relic', 'robe', 'robes', 'footwear'].includes(item.category));
   };
 
   const isConsumable = (item: KingdomInventoryItem) => {

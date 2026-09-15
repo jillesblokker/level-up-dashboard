@@ -147,7 +147,7 @@ export function EnterLocationModal({
             </Button>
             <Button
               onClick={handleEnter}
-              className="flex-1 h-12 bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-500/20 gap-2 rounded-xl"
+              className="flex-1 h-12 btn-rpg-emerald font-serif font-bold text-xs sm:text-sm shadow-lg gap-2 rounded-xl"
             >
               {buttonText}
               <ArrowRight className="w-4 h-4" />

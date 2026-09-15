@@ -2,8 +2,8 @@ export interface ComprehensiveItem {
   id: string;
   name: string;
   description: string;
-  type: 'weapon' | 'shield' | 'armor' | 'mount' | 'potion' | 'scroll' | 'artifact' | 'material' | 'food' | 'consumable' | 'building' | 'siege_engine' | 'tool' | 'shelter' | 'reagent' | 'currency' | 'key';
-  category: 'weapon' | 'shield' | 'armor' | 'mount' | 'consumable' | 'scroll' | 'artifact' | 'material' | 'building' | 'siege_engine';
+  type: 'weapon' | 'shield' | 'armor' | 'robes' | 'robe' | 'footwear' | 'mount' | 'potion' | 'scroll' | 'artifact' | 'material' | 'food' | 'consumable' | 'building' | 'siege_engine' | 'tool' | 'shelter' | 'reagent' | 'currency' | 'key';
+  category: 'weapon' | 'shield' | 'armor' | 'robes' | 'robe' | 'footwear' | 'mount' | 'consumable' | 'scroll' | 'artifact' | 'material' | 'building' | 'siege_engine';
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   stats: {
     attack?: number;
@@ -700,12 +700,12 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     id: 'artifact-ropy',
     name: 'Robe of the Archmage',
     description: 'A robe that enhances magical prowess',
-    type: 'artifact',
-    category: 'artifact',
+    type: 'robe',
+    category: 'robe',
     rarity: 'epic',
     stats: { mana: 70, defense: 8, health: 30 },
     emoji: '👘',
-    image: '/images/items/artifact/robe/artifact-ropy.webp',
+    image: '/images/items/robe/artifact-ropy.webp',
     cost: 1200,
     isDefault: false,
     isEquippable: true,
@@ -1238,12 +1238,12 @@ export const comprehensiveItems: ComprehensiveItem[] = [
     id: 'boots-traveler',
     name: 'Traveler boots',
     description: 'Reinforced leather boots that quicken airship journeys and overland march speed.',
-    type: 'armor',
-    category: 'armor',
+    type: 'footwear',
+    category: 'footwear',
     rarity: 'uncommon',
     stats: { movement: 6 },
     emoji: '👢',
-    image: '/images/items/armor/boots-traveler.webp',
+    image: '/images/items/footwear/boots-traveler.webp',
     cost: 140,
     isDefault: false,
     isEquippable: true,

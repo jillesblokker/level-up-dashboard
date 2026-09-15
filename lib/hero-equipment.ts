@@ -11,10 +11,12 @@ export interface BagEquippableItem {
   description?: string;
 }
 
+export type HeroEquipmentSlot = 'weapon' | 'offhand' | 'armor' | 'robe' | 'footwear' | 'mount' | 'relic';
+
 export const HERO_EQUIPMENT_STORAGE_KEY = 'pref:equipped_gear';
 export const HERO_EQUIPMENT_EVENT = 'hero-equipment-updated';
 
-export const DEFAULT_HERO_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'relic', EquippedItem | null> = {
+export const DEFAULT_HERO_EQUIPMENT: Record<HeroEquipmentSlot, EquippedItem | null> = {
   weapon: {
     id: 'sword-irony',
     name: 'Irony longsword',
@@ -42,6 +44,24 @@ export const DEFAULT_HERO_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mo
     image: '/images/items/armor/armor-normalo.webp',
     description: 'Forged by Buldour and fitted for champions who walk the realm.'
   },
+  robe: {
+    id: 'artifact-ropy',
+    name: 'Robe of the Archmage',
+    slot: 'robe',
+    stats: { def: 8, atk: 15, spd: 5 },
+    rarity: 'epic',
+    image: '/images/items/robe/artifact-ropy.webp',
+    description: 'A robe woven from starry threads that channels arcane habit power.'
+  },
+  footwear: {
+    id: 'boots-traveler',
+    name: 'Traveler boots',
+    slot: 'footwear',
+    stats: { spd: 15, def: 5 },
+    rarity: 'uncommon',
+    image: '/images/items/footwear/boots-traveler.webp',
+    description: 'Reinforced leather boots that quicken airship journeys and overland march speed.'
+  },
   mount: {
     id: 'mount-goldy',
     name: 'Golden warhorse',
@@ -62,7 +82,7 @@ export const DEFAULT_HERO_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mo
   }
 };
 
-export function getHeroEquipment(): Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'relic', EquippedItem | null> {
+export function getHeroEquipment(): Record<HeroEquipmentSlot, EquippedItem | null> {
   if (typeof window === 'undefined') return DEFAULT_HERO_EQUIPMENT;
   try {
     const saved = localStorage.getItem(HERO_EQUIPMENT_STORAGE_KEY);
@@ -73,7 +93,7 @@ export function getHeroEquipment(): Record<'weapon' | 'offhand' | 'armor' | 'mou
   return DEFAULT_HERO_EQUIPMENT;
 }
 
-export function saveHeroEquipment(equipment: Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'relic', EquippedItem | null>) {
+export function saveHeroEquipment(equipment: Record<HeroEquipmentSlot, EquippedItem | null>) {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(HERO_EQUIPMENT_STORAGE_KEY, JSON.stringify(equipment));
@@ -81,18 +101,24 @@ export function saveHeroEquipment(equipment: Record<'weapon' | 'offhand' | 'armo
   } catch {}
 }
 
-export function getItemSlot(item: { type: string; category?: string; id?: string }): 'weapon' | 'offhand' | 'armor' | 'mount' | 'relic' | null {
+export function getItemSlot(item: { type: string; category?: string; id?: string }): HeroEquipmentSlot | null {
   const type = (item.type || '').toLowerCase();
   const cat = (item.category || '').toLowerCase();
   const id = (item.id || '').toLowerCase();
 
-  if (type === 'weapon' || cat === 'weapon' || id.startsWith('sword') || id.startsWith('bow') || id.startsWith('axe') || id.startsWith('flail')) {
+  if (type === 'weapon' || cat === 'weapon' || id.startsWith('sword') || id.startsWith('bow') || id.startsWith('axe') || id.startsWith('flail') || id.startsWith('staff')) {
     return 'weapon';
   }
   if (type === 'shield' || cat === 'shield' || id.startsWith('shield') || id.startsWith('quiver')) {
     return 'offhand';
   }
-  if (type === 'armor' || cat === 'armor' || id.startsWith('armor') || id.startsWith('boots') || id.startsWith('cowl') || id.startsWith('gauntlets')) {
+  if (type === 'robe' || type === 'robes' || cat === 'robe' || cat === 'robes' || id.startsWith('robe') || id.startsWith('artifact-ropy') || id.startsWith('cloak')) {
+    return 'robe';
+  }
+  if (type === 'footwear' || cat === 'footwear' || type === 'boots' || cat === 'boots' || id.startsWith('boots') || id.startsWith('shoe') || id.startsWith('footwear')) {
+    return 'footwear';
+  }
+  if (type === 'armor' || cat === 'armor' || id.startsWith('armor') || id.startsWith('cowl') || id.startsWith('gauntlets')) {
     return 'armor';
   }
   if (type === 'mount' || cat === 'mount' || id.startsWith('horse') || id.startsWith('mount')) {
@@ -128,7 +154,7 @@ export function equipItemOnHero(item: BagEquippableItem): boolean {
   return true;
 }
 
-export function unequipItemFromHero(slot: 'weapon' | 'offhand' | 'armor' | 'mount' | 'relic') {
+export function unequipItemFromHero(slot: HeroEquipmentSlot) {
   const current = getHeroEquipment();
   const updated = { ...current, [slot]: null };
   saveHeroEquipment(updated);

@@ -419,7 +419,7 @@ export function WaypointPreviewModal({
           <div className="pt-2 flex flex-col sm:flex-row gap-2.5 w-full">
             <Button
               onClick={handleEnter}
-              className="w-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-zinc-950 font-extrabold text-sm py-5 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all flex items-center justify-center gap-2"
+              className="w-full btn-rpg-emerald font-serif font-bold text-sm py-5 rounded-xl shadow-lg flex items-center justify-center gap-2"
             >
               <span>{info.buttonText}</span>
               <ArrowRight className="w-4 h-4 shrink-0" />

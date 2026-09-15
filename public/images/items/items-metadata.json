@@ -600,7 +600,7 @@
     },
     "artifact-ropy": {
       "name": "Robe of the Archmage",
-      "type": "artifacts",
+      "type": "robes",
       "category": "robes",
       "rarity": "epic",
       "stats": {
@@ -610,8 +610,21 @@
       },
       "cost": 1200,
       "isDefault": false,
-      "image": "/images/items/artifact/robe/artifact-ropy.webp",
+      "image": "/images/items/robe/artifact-ropy.webp",
       "description": "A robe that enhances magical prowess"
+    },
+    "boots-traveler": {
+      "name": "Traveler boots",
+      "type": "footwear",
+      "category": "footwear",
+      "rarity": "uncommon",
+      "stats": {
+        "movement": 6
+      },
+      "cost": 140,
+      "isDefault": false,
+      "image": "/images/items/footwear/boots-traveler.webp",
+      "description": "Reinforced leather boots that quicken airship journeys and overland march speed."
     },
     "material-logs": {
       "name": "Wooden Logs",

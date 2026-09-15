@@ -757,9 +757,9 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
             <Button
               disabled={isUpdating}
               onClick={handleSetup}
-              className="w-full sm:w-auto min-w-[260px] max-w-sm py-3.5 px-8 rounded-xl font-serif font-bold text-xs bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-zinc-950 shadow-lg shadow-amber-950/40 hover:brightness-110 active:scale-[0.98]"
+              className="w-full sm:w-auto min-w-[260px] max-w-sm py-3.5 px-8 rounded-xl font-serif font-bold text-xs btn-rpg-emerald shadow-lg shadow-emerald-950/40 hover:brightness-110 active:scale-[0.98]"
             >
-              {isUpdating ? '⏳ Activating altar...' : '✨ Activate focus district'}
+              {isUpdating ? 'Activating altar...' : 'Activate focus district'}
             </Button>
           </div>
         </div>

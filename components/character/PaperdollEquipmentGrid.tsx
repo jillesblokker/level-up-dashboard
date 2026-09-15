@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
-import { Shield, Sword, Shirt, Gem, Sparkles, Award, Flame, ArrowRightLeft } from 'lucide-react'
+import { Shield, Sword, Shirt, Gem, Sparkles, Award, Flame, ArrowRightLeft, Footprints } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
@@ -15,13 +15,14 @@ import {
   saveHeroEquipment,
   unequipItemFromHero,
   HERO_EQUIPMENT_EVENT,
-  DEFAULT_HERO_EQUIPMENT
+  DEFAULT_HERO_EQUIPMENT,
+  type HeroEquipmentSlot
 } from '@/lib/hero-equipment'
 
 export interface EquippedItem {
   id: string
   name: string
-  slot: 'weapon' | 'offhand' | 'armor' | 'mount' | 'relic'
+  slot: HeroEquipmentSlot
   stats: { atk?: number; def?: number; spd?: number }
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
   image: string
@@ -82,7 +83,7 @@ export interface PaperdollEquipmentGridProps {
   onStatsCalculated?: (stats: { atk: number; def: number; spd: number; gearScore: number }) => void
 }
 
-export function getEquippedGear(): Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'relic', EquippedItem | null> {
+export function getEquippedGear(): Record<HeroEquipmentSlot, EquippedItem | null> {
   if (typeof window !== 'undefined') {
     try {
       const saved = localStorage.getItem('pref:equipped_gear')
@@ -107,7 +108,7 @@ export function PaperdollEquipmentGrid({
   onOpenInventory,
   onStatsCalculated
 }: PaperdollEquipmentGridProps) {
-  const [equipment, setEquipment] = useState<Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'relic', EquippedItem | null>>(getHeroEquipment)
+  const [equipment, setEquipment] = useState<Record<HeroEquipmentSlot, EquippedItem | null>>(getHeroEquipment)
   const [selectedItem, setSelectedItem] = useState<EquippedItem | null>(null)
 
   React.useEffect(() => {
@@ -141,12 +142,14 @@ export function PaperdollEquipmentGrid({
     }
   }, [totalAtk, totalDef, totalSpd, gearScore, onStatsCalculated])
 
-  const SLOT_CONFIGS: { slot: 'weapon' | 'offhand' | 'armor' | 'mount' | 'relic'; label: string; icon: React.ReactNode }[] = [
-    { slot: 'weapon', label: 'Weapon', icon: <Sword className="w-6 h-6 text-amber-400" /> },
-    { slot: 'offhand', label: 'Shield', icon: <Shield className="w-6 h-6 text-blue-400" /> },
-    { slot: 'armor', label: 'Armor', icon: <Shirt className="w-6 h-6 text-emerald-400" /> },
-    { slot: 'mount', label: 'Mount', icon: <span className="text-xl">🐎</span> },
-    { slot: 'relic', label: 'Artifact', icon: <Gem className="w-6 h-6 text-purple-400" /> }
+  const SLOT_CONFIGS: { slot: HeroEquipmentSlot; label: string; icon: React.ReactNode }[] = [
+    { slot: 'weapon', label: 'Weapon', icon: <Sword className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" /> },
+    { slot: 'offhand', label: 'Shield', icon: <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" /> },
+    { slot: 'armor', label: 'Armor', icon: <Shirt className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" /> },
+    { slot: 'robe', label: 'Robe', icon: <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-400" /> },
+    { slot: 'footwear', label: 'Footwear', icon: <Footprints className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" /> },
+    { slot: 'mount', label: 'Mount', icon: <span className="text-lg sm:text-xl">🐎</span> },
+    { slot: 'relic', label: 'Artifact', icon: <Gem className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" /> }
   ]
 
   const getRarityBadge = (rarity: string) => getItemRarityStyles(rarity).badge
@@ -189,13 +192,13 @@ export function PaperdollEquipmentGrid({
       </div>
 
       {/* Spacious 2D Paperdoll Stage */}
-      <div className="relative w-full bg-gradient-to-b from-zinc-900/90 via-zinc-950 to-zinc-900/90 border border-zinc-800/90 rounded-2xl p-4 sm:p-8 md:p-10 flex flex-col items-center justify-center shadow-inner flex-1 min-h-[360px]">
+      <div className="relative w-full bg-gradient-to-b from-zinc-900/90 via-zinc-950 to-zinc-900/90 border border-zinc-800/90 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col items-center justify-center shadow-inner flex-1 min-h-[380px]">
         {/* Ambient Radial Aura Glow */}
         <div className="absolute inset-0 rounded-2xl bg-radial from-amber-500/10 via-transparent to-transparent blur-3xl pointer-events-none overflow-hidden" />
 
-        <div className="relative w-full max-w-sm flex items-center justify-center py-6 px-2 sm:px-4">
+        <div className="relative w-full max-w-sm flex items-center justify-center py-8 px-2 sm:px-4 min-h-[340px] sm:min-h-[380px]">
           {/* Central Hero Character Avatar Showcase */}
-          <div className="relative w-36 h-36 sm:w-48 sm:h-48 md:w-52 md:h-52 rounded-3xl border-2 border-amber-500/50 bg-gradient-to-b from-amber-500/10 via-zinc-900/90 to-zinc-950 p-2 shadow-[0_0_35px_rgba(245,158,11,0.2)] flex items-center justify-center overflow-hidden group">
+          <div className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-48 md:h-48 rounded-3xl border-2 border-amber-500/50 bg-gradient-to-b from-amber-500/10 via-zinc-900/90 to-zinc-950 p-2 shadow-[0_0_35px_rgba(245,158,11,0.2)] flex items-center justify-center overflow-hidden group">
             <Image
               src={avatarImage}
               alt={heroName}
@@ -205,7 +208,7 @@ export function PaperdollEquipmentGrid({
             />
           </div>
 
-          {/* 4 Corner Equipment Slots with In-Bounds Responsive Positioning */}
+          {/* Left Column (3 Slots): Weapon, Armor, Footwear */}
           {/* Top-Left: Weapon */}
           <div className="absolute top-0 left-0 sm:-left-2 md:-left-4 z-20">
             <EquipmentSlotButton
@@ -216,6 +219,27 @@ export function PaperdollEquipmentGrid({
             />
           </div>
 
+          {/* Mid-Left: Armor */}
+          <div className="absolute top-1/2 -translate-y-1/2 left-0 sm:-left-2 md:-left-4 z-20">
+            <EquipmentSlotButton
+              item={equipment.armor}
+              slotConfig={SLOT_CONFIGS[2]}
+              tooltipAlign="left"
+              onClick={() => equipment.armor && setSelectedItem(equipment.armor)}
+            />
+          </div>
+
+          {/* Bottom-Left: Footwear */}
+          <div className="absolute bottom-0 left-0 sm:-left-2 md:-left-4 z-20">
+            <EquipmentSlotButton
+              item={equipment.footwear}
+              slotConfig={SLOT_CONFIGS[4]}
+              tooltipAlign="left"
+              onClick={() => equipment.footwear && setSelectedItem(equipment.footwear)}
+            />
+          </div>
+
+          {/* Right Column (3 Slots): Shield/Offhand, Robe, Mount */}
           {/* Top-Right: Shield */}
           <div className="absolute top-0 right-0 sm:-right-2 md:-right-4 z-20">
             <EquipmentSlotButton
@@ -226,13 +250,13 @@ export function PaperdollEquipmentGrid({
             />
           </div>
 
-          {/* Bottom-Left: Armor */}
-          <div className="absolute bottom-0 left-0 sm:-left-2 md:-left-4 z-20">
+          {/* Mid-Right: Robe */}
+          <div className="absolute top-1/2 -translate-y-1/2 right-0 sm:-right-2 md:-right-4 z-20">
             <EquipmentSlotButton
-              item={equipment.armor}
-              slotConfig={SLOT_CONFIGS[2]}
-              tooltipAlign="left"
-              onClick={() => equipment.armor && setSelectedItem(equipment.armor)}
+              item={equipment.robe}
+              slotConfig={SLOT_CONFIGS[3]}
+              tooltipAlign="right"
+              onClick={() => equipment.robe && setSelectedItem(equipment.robe)}
             />
           </div>
 
@@ -240,7 +264,7 @@ export function PaperdollEquipmentGrid({
           <div className="absolute bottom-0 right-0 sm:-right-2 md:-right-4 z-20">
             <EquipmentSlotButton
               item={equipment.mount}
-              slotConfig={SLOT_CONFIGS[3]}
+              slotConfig={SLOT_CONFIGS[5]}
               tooltipAlign="right"
               onClick={() => equipment.mount && setSelectedItem(equipment.mount)}
             />
@@ -251,7 +275,7 @@ export function PaperdollEquipmentGrid({
         <div className="mt-4 sm:mt-6 z-20">
           <EquipmentSlotButton
             item={equipment.relic}
-            slotConfig={SLOT_CONFIGS[4]}
+            slotConfig={SLOT_CONFIGS[6]}
             tooltipAlign="center"
             onClick={() => equipment.relic && setSelectedItem(equipment.relic)}
           />
@@ -265,10 +289,10 @@ export function PaperdollEquipmentGrid({
             Equipped gear overview
           </span>
           <span className="text-[10px] font-mono text-zinc-400">
-            5 / 5 active sockets
+            {Object.values(equipment).filter(Boolean).length} / 7 active sockets
           </span>
         </div>
-        <div className="flex overflow-x-auto sm:grid sm:grid-cols-3 xl:grid-cols-5 gap-2 pb-1.5 custom-scrollbar mobile-scroll-hide">
+        <div className="flex overflow-x-auto sm:grid sm:grid-cols-4 xl:grid-cols-7 gap-2 pb-1.5 custom-scrollbar mobile-scroll-hide">
           {SLOT_CONFIGS.map(({ slot, label, icon }) => {
             const item = equipment[slot]
             const rarityStyle = item ? getItemRarityStyles(item.rarity) : null
@@ -276,7 +300,7 @@ export function PaperdollEquipmentGrid({
               <div
                 key={slot}
                 onClick={() => item && setSelectedItem(item)}
-                className={`p-2.5 rounded-xl border flex flex-col justify-between gap-1.5 text-xs cursor-pointer transition-all relative overflow-hidden group min-w-[135px] sm:min-w-0 flex-shrink-0 sm:flex-shrink ${
+                className={`p-2.5 rounded-xl border flex flex-col justify-between gap-1.5 text-xs cursor-pointer transition-all relative overflow-hidden group min-w-[130px] sm:min-w-0 flex-shrink-0 sm:flex-shrink ${
                   item
                     ? 'border-zinc-800 bg-zinc-950/80 hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]'
                     : 'border-zinc-900 bg-zinc-950/40 opacity-60 hover:opacity-80'
@@ -466,7 +490,7 @@ function EquipmentSlotButton({
         onClick={handleSlotClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl transition-all duration-200 flex flex-col items-center justify-center bg-zinc-950/95 shadow-xl backdrop-blur-md relative overflow-hidden group/btn hover:scale-105 active:scale-95"
+        className="w-16 h-16 sm:w-20 sm:h-20 md:w-22 md:h-22 rounded-2xl transition-all duration-200 flex flex-col items-center justify-center bg-zinc-950/95 shadow-xl backdrop-blur-md relative overflow-hidden group/btn hover:scale-105 active:scale-95"
         aria-label={item ? `Inspect ${item.name}` : `Empty ${label} slot. Tap to open inventory.`}
       >
         {item ? (
