@@ -20,6 +20,7 @@ export interface CitizenState {
   lockedReason?: 'expedition' | null | undefined;
   specialization?: 'Tank' | 'Mage' | 'Alchemist' | 'Scout' | undefined;
   loreTitle?: string | undefined;
+  equipment?: Partial<Record<'weapon' | 'offhand' | 'armor' | 'relic', any>> | undefined;
 }
 
 export interface Citizen {
@@ -46,6 +47,80 @@ export interface Citizen {
   lockedReason?: 'expedition' | null | undefined;
   specialization?: 'Tank' | 'Mage' | 'Alchemist' | 'Scout' | undefined;
   loreTitle?: string | undefined;
+  equipment?: Partial<Record<'weapon' | 'offhand' | 'armor' | 'relic', any>> | undefined;
+}
+
+export function getCitizenEffectiveStats(citizen: Citizen): { atk: number; def: number; spd: number; gearScore: number } {
+  const level = citizen.level || 1;
+  let baseAtk = 10 + level * 3;
+  let baseDef = 8 + level * 2.5;
+  let baseSpd = 10 + level * 2;
+
+  const spec = citizen.specialization;
+  if (spec === 'Tank') {
+    baseAtk = Math.round(baseAtk * 0.9);
+    baseDef = Math.round(baseDef * 1.5);
+    baseSpd = Math.round(baseSpd * 0.85);
+  } else if (spec === 'Mage') {
+    baseAtk = Math.round(baseAtk * 1.45);
+    baseDef = Math.round(baseDef * 0.85);
+    baseSpd = Math.round(baseSpd * 1.15);
+  } else if (spec === 'Scout') {
+    baseAtk = Math.round(baseAtk * 1.1);
+    baseDef = Math.round(baseDef * 0.9);
+    baseSpd = Math.round(baseSpd * 1.55);
+  } else if (spec === 'Alchemist') {
+    baseAtk = Math.round(baseAtk * 1.15);
+    baseDef = Math.round(baseDef * 1.15);
+    baseSpd = Math.round(baseSpd * 1.1);
+  }
+
+  const eq = citizen.equipment || {};
+  let equipAtk = 0;
+  let equipDef = 0;
+  let equipSpd = 0;
+
+  Object.values(eq).forEach((item: any) => {
+    if (!item) return;
+    const stats = item.stats || {};
+    const atk = typeof stats.atk === 'number' ? stats.atk : (typeof stats.attack === 'number' ? stats.attack : 0);
+    const def = typeof stats.def === 'number' ? stats.def : (typeof stats.defense === 'number' ? stats.defense : 0);
+    const spd = typeof stats.spd === 'number' ? stats.spd : (typeof stats.speed === 'number' ? stats.speed : (typeof stats.movement === 'number' ? stats.movement : 0));
+    equipAtk += atk;
+    equipDef += def;
+    equipSpd += spd;
+  });
+
+  const finalAtk = Math.round(baseAtk + equipAtk);
+  const finalDef = Math.round(baseDef + equipDef);
+  const finalSpd = Math.round(baseSpd + equipSpd);
+  const gearScore = Math.round(finalAtk * 2 + finalDef * 1.5 + finalSpd * 3);
+
+  return { atk: finalAtk, def: finalDef, spd: finalSpd, gearScore };
+}
+
+export function getCitizenImageSrc(citizen: Citizen): string {
+  const isMythic = citizen.isMythic || citizen.id?.startsWith('mythic-') || citizen.filename?.startsWith('Mythic');
+  if (isMythic && citizen.filename) {
+    const fn = citizen.filename.replace(/\.png$/i, '.webp');
+    return `/images/Mythics/${fn}?v=2`;
+  }
+
+  // Animal companion citizens
+  if (citizen.id?.startsWith('9') || ['sheep.webp', 'horse.webp', 'penguin.webp'].includes(citizen.filename?.toLowerCase() || '')) {
+    const fn = citizen.filename 
+      ? citizen.filename.replace(/\.png$/i, '.webp') 
+      : (citizen.id === '901' ? 'sheep.webp' : citizen.id === '902' ? 'horse.webp' : 'penguin.webp');
+    return `/images/Animals/${fn}`;
+  }
+
+  // Standard creature citizens
+  if (citizen.filename) {
+    const fn = citizen.filename.replace(/\.png$/i, '.webp');
+    return `/images/creatures/${fn}`;
+  }
+
+  return `/images/creatures/${citizen.id}.webp`;
 }
 
 interface CitizensStore {
@@ -74,6 +149,9 @@ interface CitizensStore {
   triggerAutopilotHarvest: (userId: string, activePartnerId: string | undefined) => Promise<{ gold: number; items: Record<string, { quantity: number; name: string; emoji: string }>; partnerName: string; count: number } | null>;
   mergeDuplicateCitizens: (userId: string) => Promise<{ success: boolean; count: number; mergedNames: string[] }>;
   specializeCitizen: (userId: string, citizenId: string, chosenClass: 'Tank' | 'Mage' | 'Alchemist' | 'Scout') => Promise<void>;
+  equipCitizen: (userId: string | undefined, citizenId: string, slot: 'weapon' | 'offhand' | 'armor' | 'relic', item: any) => Promise<void>;
+  unequipCitizen: (userId: string | undefined, citizenId: string, slot: 'weapon' | 'offhand' | 'armor' | 'relic') => Promise<void>;
+  getCitizenEffectiveStats: (citizen: Citizen) => { atk: number; def: number; spd: number; gearScore: number };
   addCitizenById: (citizenId: string) => Promise<void>;
 }
 
@@ -1420,7 +1498,90 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       };
       await setUserPreference('citizens_state', currentPrefs);
     } catch {}
-  }
+  },
+
+  getCitizenEffectiveStats: (citizen: Citizen) => getCitizenEffectiveStats(citizen),
+
+  equipCitizen: async (userId: string | undefined, citizenId: string, slot: 'weapon' | 'offhand' | 'armor' | 'relic', item: any) => {
+    const { citizens } = get();
+    const updatedCitizens = citizens.map(c => {
+      if (c.id === citizenId) {
+        const currentEq = c.equipment || {};
+        return {
+          ...c,
+          equipment: { ...currentEq, [slot]: item }
+        };
+      }
+      return c;
+    });
+    set({ citizens: updatedCitizens });
+
+    try {
+      const citizenPrefs: Record<string, CitizenState> = {};
+      updatedCitizens.forEach(c => {
+        citizenPrefs[c.id] = {
+          active: c.active,
+          favorite: c.favorite,
+          lastFedAt: c.lastFedAt,
+          activeDays: c.activeDays,
+          lastHarvestedAt: c.lastHarvestedAt,
+          affection: c.affection || 0,
+          level: c.level || 1,
+          experience: c.experience || 0,
+          specialization: c.specialization,
+          loreTitle: c.loreTitle,
+          equipment: c.equipment || {}
+        };
+      });
+      await setUserPreference('citizens_state', citizenPrefs);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('citizen-equipment-updated', { detail: { citizenId, slot, item } }));
+      }
+    } catch (e) {
+      console.error('Failed to save citizen equipment:', e);
+    }
+  },
+
+  unequipCitizen: async (userId: string | undefined, citizenId: string, slot: 'weapon' | 'offhand' | 'armor' | 'relic') => {
+    const { citizens } = get();
+    const updatedCitizens = citizens.map(c => {
+      if (c.id === citizenId) {
+        const currentEq = { ...(c.equipment || {}) };
+        delete currentEq[slot];
+        return {
+          ...c,
+          equipment: currentEq
+        };
+      }
+      return c;
+    });
+    set({ citizens: updatedCitizens });
+
+    try {
+      const citizenPrefs: Record<string, CitizenState> = {};
+      updatedCitizens.forEach(c => {
+        citizenPrefs[c.id] = {
+          active: c.active,
+          favorite: c.favorite,
+          lastFedAt: c.lastFedAt,
+          activeDays: c.activeDays,
+          lastHarvestedAt: c.lastHarvestedAt,
+          affection: c.affection || 0,
+          level: c.level || 1,
+          experience: c.experience || 0,
+          specialization: c.specialization,
+          loreTitle: c.loreTitle,
+          equipment: c.equipment || {}
+        };
+      });
+      await setUserPreference('citizens_state', citizenPrefs);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('citizen-equipment-updated', { detail: { citizenId, slot } }));
+      }
+    } catch (e) {
+      console.error('Failed to save citizen unequip:', e);
+    }
+  },
 }));
 
 // Helper to determine if a citizen is currently hungry

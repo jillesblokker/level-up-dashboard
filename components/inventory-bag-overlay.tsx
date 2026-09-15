@@ -22,6 +22,15 @@ import { useToast } from "@/components/ui/use-toast";
 import { TEXT_CONTENT } from "@/lib/text-content";
 import { getUserPreference, setUserPreference } from "@/lib/user-preferences-manager";
 import { unwrapApiResponse } from "@/lib/api-response-unwrapper";
+import { 
+  getHeroEquipment, 
+  saveHeroEquipment, 
+  equipItemOnHero, 
+  unequipItemFromHero, 
+  HERO_EQUIPMENT_EVENT,
+  getItemSlot
+} from "@/lib/hero-equipment";
+import { useCitizensStore, getCitizenEffectiveStats, getCitizenImageSrc, Citizen } from "@/stores/citizensStore";
 
 // --- Types ---
 
@@ -149,6 +158,11 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
   const [inventoryItems, setInventoryItems] = useState<KingdomInventoryItem[]>([]);
   const [equippedItems, setEquippedItems] = useState<KingdomInventoryItem[]>([]);
   const [storedItems, setStoredItems] = useState<KingdomInventoryItem[]>([]);
+  const [equippedViewMode, setEquippedViewMode] = useState<'hero' | 'citizens'>('hero');
+
+  const citizens = useCitizensStore(state => state.citizens);
+  const unequipCitizen = useCitizensStore(state => state.unequipCitizen);
+  const loadCitizens = useCitizensStore(state => state.loadCitizens);
   
   const [playerGold, setPlayerGold] = useState(0);
   const [forgeSubTab, setForgeSubTab] = useState<'craft' | 'upgrade'>('craft');
@@ -268,26 +282,34 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
         return Array.from(combined.values());
       };
 
-      const equipped = allItems.filter((i: any) => i.equipped);
+      // Synchronize directly with Hero Paperdoll ragdoll storage (Single Source of Truth)
+      const heroGear = getHeroEquipment();
+      const heroEquippedList: KingdomInventoryItem[] = [];
+      (['weapon', 'offhand', 'armor', 'mount', 'relic'] as const).forEach(slot => {
+        const item = heroGear[slot];
+        if (item) {
+          const comp = comprehensiveItems.find(c => c.id === item.id);
+          heroEquippedList.push({
+            id: item.id,
+            name: item.name || comp?.name || item.id,
+            type: (item.slot === 'offhand' ? 'shield' : item.slot) as any,
+            category: item.slot,
+            quantity: 1,
+            stats: item.stats || comp?.stats || {},
+            description: item.description || comp?.description || '',
+            image: item.image || comp?.image,
+            equipped: true,
+            canEquip: true,
+            canUse: false,
+            rarity: item.rarity,
+            dbId: item.id,
+            slot: item.slot
+          } as any);
+        }
+      });
+      setEquippedItems(heroEquippedList);
+
       const stored = allItems.filter((i: any) => !i.equipped);
-
-      const normEquipped = normalize(equipped);
-
-      if (normEquipped.length === 0) {
-        const defaults = (comprehensiveItems || []).filter(i => i.isDefault).map(item => ({
-          ...item,
-          stats: item.stats || {},
-          description: item.description || '',
-          equipped: true,
-          quantity: 1,
-          type: item.type as any,
-          category: item.type,
-        })) as KingdomInventoryItem[];
-        setEquippedItems(defaults);
-      } else {
-        setEquippedItems(normEquipped);
-      }
-
       setStoredItems(normalize(stored));
       setInventoryItems(normalize(allItems));
     } finally {
@@ -313,28 +335,42 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
     if (open) {
       loadInventory();
       loadForgeData();
+      if (user?.id) {
+        loadCitizens(user.id);
+      }
     }
-  }, [open, loadInventory, loadForgeData]);
+  }, [open, loadInventory, loadForgeData, loadCitizens, user?.id]);
 
   useEffect(() => {
     const handleUpdate = () => {
-      // Re-fetch when the inventory updates
+      // Re-fetch when the inventory or equipment updates
       loadInventory();
       loadForgeData();
+      if (user?.id) {
+        loadCitizens(user.id);
+      }
     };
     window.addEventListener('character-inventory-update', handleUpdate);
-    return () => window.removeEventListener('character-inventory-update', handleUpdate);
-  }, [loadInventory, loadForgeData]);
+    window.addEventListener(HERO_EQUIPMENT_EVENT, handleUpdate);
+    window.addEventListener('citizens-updated', handleUpdate);
+    return () => {
+      window.removeEventListener('character-inventory-update', handleUpdate);
+      window.removeEventListener(HERO_EQUIPMENT_EVENT, handleUpdate);
+      window.removeEventListener('citizens-updated', handleUpdate);
+    };
+  }, [loadInventory, loadForgeData, loadCitizens, user?.id]);
 
   // --- Actions ---
 
   const isEquippable = (item: KingdomInventoryItem) => {
-    return ['weapon', 'armor', 'shield', 'equipment', 'helmet', 'boots', 'gloves', 'ring', 'necklace', 'mount'].includes(item.type) || 
-           (item.category && ['weapon', 'armor', 'shield', 'equipment', 'mount'].includes(item.category));
+    return getItemSlot(item) !== null || 
+           ['weapon', 'armor', 'shield', 'equipment', 'helmet', 'boots', 'gloves', 'ring', 'necklace', 'mount', 'relic'].includes(item.type) || 
+           (item.category && ['weapon', 'armor', 'shield', 'equipment', 'mount', 'relic'].includes(item.category));
   };
 
   const isConsumable = (item: KingdomInventoryItem) => {
-    return item.type === 'artifact' || item.type === 'scroll' || item.type === 'potion' || (item.type === 'item' && !item.category);
+    if (getItemSlot(item)) return false;
+    return item.type === 'scroll' || item.type === 'potion' || item.type === 'food' || (item.type === 'item' && !item.category);
   };
 
   const getItemSellPrice = (item: KingdomInventoryItem): number => {
@@ -545,11 +581,39 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
       }
       return;
     }
+    const slot = getItemSlot(item);
+    if (slot) {
+      equipItemOnHero(item as any);
+      if (user?.id) {
+        equipItem(user.id, item.id);
+      }
+      toast({
+        title: "Item equipped",
+        description: `${item.name} equipped in hero ${slot} socket.`,
+      });
+      window.dispatchEvent(new Event('character-inventory-update'));
+      window.dispatchEvent(new Event(HERO_EQUIPMENT_EVENT));
+      loadInventory();
+      return;
+    }
     if (user?.id) equipItem(user.id, item.id);
   };
 
   const handleUnequip = (item: KingdomInventoryItem) => {
-    if (user?.id) unequipItem(user.id, item.id);
+    const slot = (item as any).slot || getItemSlot(item);
+    if (slot) {
+      unequipItemFromHero(slot as any);
+    }
+    if (user?.id) {
+      unequipItem(user.id, item.id);
+    }
+    toast({
+      title: "Item unequipped",
+      description: `${item.name} returned to stored bag.`,
+    });
+    window.dispatchEvent(new Event('character-inventory-update'));
+    window.dispatchEvent(new Event(HERO_EQUIPMENT_EVENT));
+    loadInventory();
   };
 
   const handleSellItem = async (item: KingdomInventoryItem) => {
@@ -1087,7 +1151,7 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
                   'bg-emerald-600 hover:bg-emerald-700'
                 )}
               >
-                {item.equipped ? 'Unequip Item' : item.canUse ? 'Use Item' : 'Equip Item'}
+                {item.equipped ? 'Unequip item' : item.canUse ? 'Use item' : 'Equip item'}
               </Button>
             )}
             {!item.equipped && item.sellPrice !== undefined && item.sellPrice > 0 && (
@@ -1195,16 +1259,155 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
           <ScrollArea className="flex-1 px-6 bg-[#13161b] custom-scrollbar">
             {/* ── EQUIPPED tab ──────────────────────────────────────────── */}
             <TabsContent value="equipped" className="mt-4">
-              {equippedInventoryView.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center text-zinc-400 border border-dashed border-zinc-700 rounded-xl bg-zinc-950">
-                  <span className="text-5xl mb-4">🛡️</span>
-                  <h3 className="text-lg font-medium text-amber-500/80 mb-1">Nothing Equipped</h3>
-                  <p className="text-sm max-w-xs mb-4">Go to your Stored items to equip gear.</p>
-                </div>
+              {/* Loadout Toggle */}
+              <div className="flex items-center gap-2 mb-4 bg-zinc-950 p-1 rounded-xl border border-white/5">
+                <button
+                  onClick={() => setEquippedViewMode('hero')}
+                  className={cn(
+                    "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2",
+                    equippedViewMode === 'hero' 
+                      ? "bg-amber-600 text-white shadow-sm" 
+                      : "text-zinc-400 hover:text-white"
+                  )}
+                >
+                  <span>👑 Hero loadout</span>
+                  <Badge variant="secondary" className="text-[10px] py-0 px-1.5 bg-black/40 text-amber-200 border-0">
+                    {equippedInventoryView.length}
+                  </Badge>
+                </button>
+                <button
+                  onClick={() => setEquippedViewMode('citizens')}
+                  className={cn(
+                    "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2",
+                    equippedViewMode === 'citizens' 
+                      ? "bg-amber-600 text-white shadow-sm" 
+                      : "text-zinc-400 hover:text-white"
+                  )}
+                >
+                  <span>👥 Citizen loadouts</span>
+                  <Badge variant="secondary" className="text-[10px] py-0 px-1.5 bg-black/40 text-amber-200 border-0">
+                    {citizens.filter(c => c.equipment && Object.values(c.equipment).some(Boolean)).length}
+                  </Badge>
+                </button>
+              </div>
+
+              {equippedViewMode === 'hero' ? (
+                equippedInventoryView.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 text-center text-zinc-400 border border-dashed border-zinc-700 rounded-xl bg-zinc-950">
+                    <span className="text-5xl mb-4">🛡️</span>
+                    <h3 className="text-lg font-medium text-amber-500/80 mb-1">Nothing equipped</h3>
+                    <p className="text-sm max-w-xs mb-4">Go to your stored items to equip gear on your hero.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-8">
+                    {equippedInventoryView.map(renderItemCard)}
+                  </div>
+                )
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-8">
-                  {equippedInventoryView.map(renderItemCard)}
-                </div>
+                (() => {
+                  const equippedCitizens = citizens.filter(c => c.equipment && Object.values(c.equipment).some(Boolean));
+                  if (equippedCitizens.length === 0) {
+                    return (
+                      <div className="flex flex-col items-center justify-center py-16 text-center text-zinc-400 border border-dashed border-zinc-700 rounded-xl bg-zinc-950">
+                        <span className="text-5xl mb-4">👥</span>
+                        <h3 className="text-lg font-medium text-amber-500/80 mb-1">No citizen gear equipped</h3>
+                        <p className="text-sm max-w-sm mb-4">Visit the Kingdom Citizens tab to equip weapons, shields, armor, and relics directly onto your citizens.</p>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="space-y-4 pb-8">
+                      {equippedCitizens.map(citizen => {
+                        const stats = getCitizenEffectiveStats(citizen);
+                        const citizenImg = getCitizenImageSrc(citizen);
+                        const specClass = citizen.specialization || 'Scout';
+
+                        return (
+                          <div key={citizen.id} className="p-4 rounded-xl bg-[#0f1115] border border-white/10 flex flex-col gap-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/5 pb-2.5 gap-2">
+                              <div className="flex items-center gap-3">
+                                <div className="relative w-12 h-12 rounded-lg bg-black/50 border border-white/10 overflow-hidden shrink-0">
+                                  <Image src={citizenImg} alt={citizen.name} fill sizes="48px" className="object-cover" />
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <h4 className="font-bold text-sm text-white">{citizen.name}</h4>
+                                    <Badge variant="outline" className="text-[9px] py-0 px-1.5 border-amber-500/40 text-amber-300">
+                                      Lvl {citizen.level || 1}
+                                    </Badge>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 mt-0.5">
+                                    <Badge variant="secondary" className="text-[9px] py-0 px-1.5 bg-emerald-950/60 text-emerald-300 border border-emerald-500/30">
+                                      {specClass}
+                                    </Badge>
+                                    <span className="text-[10px] text-zinc-400 font-mono">
+                                      Gear score: {stats.gearScore}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 font-mono text-[11px]">
+                                <span className="px-2 py-0.5 rounded bg-red-950/60 text-red-300 border border-red-500/30">⚔️ {stats.atk} ATK</span>
+                                <span className="px-2 py-0.5 rounded bg-blue-950/60 text-blue-300 border border-blue-500/30">🛡️ {stats.def} DEF</span>
+                                <span className="px-2 py-0.5 rounded bg-amber-950/60 text-amber-300 border border-amber-500/30">⚡ {stats.spd} SPD</span>
+                              </div>
+                            </div>
+
+                            {/* Equipment Grid */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                              {(['weapon', 'offhand', 'armor', 'relic'] as const).map(slot => {
+                                const item = citizen.equipment?.[slot];
+                                return (
+                                  <div key={slot} className="p-2 rounded-lg bg-black/40 border border-white/5 flex flex-col justify-between min-h-[96px]">
+                                    <div className="flex items-center justify-between text-[9px] text-zinc-400 font-mono uppercase">
+                                      <span>{slot}</span>
+                                      {item && (
+                                        <button
+                                          onClick={() => {
+                                            unequipCitizen(user?.id, citizen.id, slot);
+                                            toast({
+                                              title: "Item unequipped",
+                                              description: `Unequipped ${item.name} from ${citizen.name}.`,
+                                            });
+                                          }}
+                                          className="text-red-400 hover:text-red-300 text-[9px] hover:underline"
+                                        >
+                                          Unequip
+                                        </button>
+                                      )}
+                                    </div>
+                                    {item ? (
+                                      <div className="flex items-center gap-2 my-1">
+                                        <div className="relative w-8 h-8 rounded bg-zinc-900 border border-amber-500/30 overflow-hidden shrink-0">
+                                          {item.image ? (
+                                            <Image src={item.image} alt={item.name} fill sizes="32px" className="object-contain p-0.5" />
+                                          ) : (
+                                            <span className="text-sm flex items-center justify-center h-full">📦</span>
+                                          )}
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                          <p className="text-[11px] font-semibold text-amber-200 truncate">{item.name}</p>
+                                          <p className="text-[9px] text-emerald-400 font-mono">
+                                            {item.stats?.atk || item.stats?.attack ? `+${item.stats.atk || item.stats.attack} ATK ` : ''}
+                                            {item.stats?.def || item.stats?.defense ? `+${item.stats.def || item.stats.defense} DEF` : ''}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="my-auto py-2 text-center text-zinc-600 text-[10px] italic">
+                                        Empty socket
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()
               )}
             </TabsContent>
 

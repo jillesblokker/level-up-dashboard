@@ -23,7 +23,8 @@ import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
+import { Search, Sword as SwordIcon } from "lucide-react"
+import { CitizenEquipmentModal } from "./CitizenEquipmentModal"
 
 export function getCitizenImageSrc(citizen: Citizen): string {
   const isMythic = citizen.isMythic || citizen.id?.startsWith('mythic-') || citizen.filename?.startsWith('Mythic');
@@ -55,28 +56,31 @@ export function getCitizenImageSrc(citizen: Citizen): string {
 }
 
 function getCitizenMiniGear(citizen: any) {
-  if (citizen.type === 'special' || citizen.type === 'ice') {
-    return [
-      { name: 'Enchanted blade', img: '/images/items/sword/sword-irony.webp', border: 'border-blue-500/50' },
-      { name: 'Crystal ward', img: '/images/items/shield/shield-blockado.webp', border: 'border-blue-500/50' },
-      { name: 'Arcane robes', img: '/images/items/armor/armor-normalo.webp', border: 'border-purple-500/50' },
-      { name: 'Astral crystal', img: '/images/items/materials/material-crystal.webp', border: 'border-amber-400/50' },
-    ];
-  }
-  if (citizen.type === 'fire') {
-    return [
-      { name: 'Flame claymore', img: '/images/items/sword/sword-irony.webp', border: 'border-orange-500/50' },
-      { name: 'Spiked aegis', img: '/images/items/shield/shield-blockado.webp', border: 'border-amber-500/50' },
-      { name: 'Ignited cuirass', img: '/images/items/armor/armor-normalo.webp', border: 'border-orange-500/50' },
-      { name: 'Ember shard', img: '/images/items/materials/material-crystal.webp', border: 'border-red-400/50' },
-    ];
-  }
-  return [
-    { name: 'Iron sword', img: '/images/items/sword/sword-irony.webp', border: 'border-zinc-700/60' },
-    { name: 'Oak shield', img: '/images/items/shield/shield-blockado.webp', border: 'border-zinc-700/60' },
-    { name: 'Reinforced mail', img: '/images/items/armor/armor-normalo.webp', border: 'border-zinc-700/60' },
-    { name: 'Forest amber', img: '/images/items/materials/material-crystal.webp', border: 'border-emerald-500/50' },
-  ];
+  const eq = citizen.equipment || {};
+  const slots: ('weapon' | 'offhand' | 'armor' | 'relic')[] = ['weapon', 'offhand', 'armor', 'relic'];
+  return slots.map(slot => {
+    const item = eq[slot];
+    if (item) {
+      return {
+        name: `${item.name} (${slot})`,
+        img: item.image,
+        border: 'border-amber-400/90 shadow-[0_0_8px_rgba(245,158,11,0.4)]',
+        isEquipped: true
+      };
+    }
+    const defaultIcons: Record<string, { name: string; img: string }> = {
+      weapon: { name: 'Empty weapon socket', img: '/images/items/sword/sword-twig.webp' },
+      offhand: { name: 'Empty offhand socket', img: '/images/items/shield/shield-blockado.webp' },
+      armor: { name: 'Empty armor socket', img: '/images/items/armor/armor-normalo.webp' },
+      relic: { name: 'Empty relic socket', img: '/images/items/materials/material-crystal.webp' }
+    };
+    return {
+      name: defaultIcons[slot]?.name || slot,
+      img: defaultIcons[slot]?.img || '/images/items/materials/material-crystal.webp',
+      border: 'border-zinc-800 opacity-30',
+      isEquipped: false
+    };
+  });
 }
 
 export function CitizensTab() {
@@ -95,6 +99,7 @@ export function CitizensTab() {
   const [speciesFilter, setSpeciesFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [specializeCitizenTarget, setSpecializeCitizenTarget] = useState<Citizen | null>(null);
+  const [equipmentModalCitizen, setEquipmentModalCitizen] = useState<Citizen | null>(null);
   const [inventoryFood, setInventoryFood] = useState<{ id: string; name: string; quantity: number; emoji: string }[]>([]);
   const [feedModalCitizenId, setFeedModalCitizenId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -576,8 +581,14 @@ export function CitizensTab() {
                             </div>
 
                             {/* Subtle Mini Paperdoll Loadout Tray */}
-                            <div className="flex items-center justify-between bg-zinc-950/70 px-2 py-1 rounded border border-zinc-800/30">
-                              <span className="text-[10px] text-zinc-500 font-mono">Loadout:</span>
+                            <button
+                              type="button"
+                              onClick={() => setEquipmentModalCitizen(citizen)}
+                              className="w-full flex items-center justify-between bg-zinc-950/70 hover:bg-zinc-900/80 px-2 py-1 rounded border border-zinc-800/30 hover:border-amber-500/40 transition-colors group text-left cursor-pointer"
+                            >
+                              <span className="text-[10px] text-zinc-500 group-hover:text-amber-300 font-mono flex items-center gap-1">
+                                Loadout: <span className="text-[9px] text-zinc-600 group-hover:text-amber-400">Manage ⚔️</span>
+                              </span>
                               <div className="flex items-center gap-1">
                                 {getCitizenMiniGear(citizen).map((gear, gIdx) => (
                                   <div
@@ -598,7 +609,7 @@ export function CitizensTab() {
                                   </div>
                                 ))}
                               </div>
-                            </div>
+                            </button>
                           </div>
                         </CardContent>
 
@@ -628,6 +639,16 @@ export function CitizensTab() {
                           >
                             <Sparkles className="w-3.5 h-3.5 mr-1.5 shrink-0 text-amber-400" />
                             {citizen.specialization ? `Class: ${citizen.specialization}` : 'Specialize class'}
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full font-semibold text-xs border-amber-500/40 bg-amber-950/20 text-amber-200 hover:bg-amber-900/40 hover:text-white"
+                            onClick={() => setEquipmentModalCitizen(citizen)}
+                          >
+                            <SwordIcon className="w-3.5 h-3.5 mr-1.5 shrink-0 text-amber-400" />
+                            Equip gear
                           </Button>
 
                           {isHungry && (
@@ -904,8 +925,14 @@ export function CitizensTab() {
                       </div>
 
                       {/* Subtle Mini Paperdoll Loadout Tray */}
-                      <div className="flex items-center justify-between bg-zinc-950/70 px-2 py-1 rounded border border-zinc-800/30">
-                        <span className="text-[10px] text-zinc-500 font-mono">Loadout:</span>
+                      <button
+                        type="button"
+                        onClick={() => setEquipmentModalCitizen(citizen)}
+                        className="w-full flex items-center justify-between bg-zinc-950/70 hover:bg-zinc-900/80 px-2 py-1 rounded border border-zinc-800/30 hover:border-amber-500/40 transition-colors group text-left cursor-pointer"
+                      >
+                        <span className="text-[10px] text-zinc-500 group-hover:text-amber-300 font-mono flex items-center gap-1">
+                          Loadout: <span className="text-[9px] text-zinc-600 group-hover:text-amber-400">Manage ⚔️</span>
+                        </span>
                         <div className="flex items-center gap-1">
                           {getCitizenMiniGear(citizen).map((gear, gIdx) => (
                             <div
@@ -926,7 +953,7 @@ export function CitizensTab() {
                             </div>
                           ))}
                         </div>
-                      </div>
+                      </button>
                     </div>
                   </CardContent>
 
@@ -968,6 +995,16 @@ export function CitizensTab() {
                     >
                       <Sparkles className="w-3.5 h-3.5 mr-1.5 shrink-0 text-amber-400" />
                       {citizen.specialization ? `Class: ${citizen.specialization}` : 'Specialize class'}
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full font-semibold text-xs border-amber-500/40 bg-amber-950/20 text-amber-200 hover:bg-amber-900/40 hover:text-white"
+                      onClick={() => setEquipmentModalCitizen(citizen)}
+                    >
+                      <SwordIcon className="w-3.5 h-3.5 mr-1.5 shrink-0 text-amber-400" />
+                      Equip gear
                     </Button>
 
                     {isHungry ? (
@@ -1058,6 +1095,15 @@ export function CitizensTab() {
                 })
               }
             }}
+          />
+        )}
+
+        {equipmentModalCitizen && (
+          <CitizenEquipmentModal
+            citizen={citizens.find(c => c.id === equipmentModalCitizen.id) || equipmentModalCitizen}
+            open={!!equipmentModalCitizen}
+            onClose={() => setEquipmentModalCitizen(null)}
+            userId={user?.id}
           />
         )}
       </div>

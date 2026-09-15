@@ -10,6 +10,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Shield, Sword, Shirt, Gem, Sparkles, Award, Flame, ArrowRightLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import {
+  getHeroEquipment,
+  saveHeroEquipment,
+  unequipItemFromHero,
+  HERO_EQUIPMENT_EVENT,
+  DEFAULT_HERO_EQUIPMENT
+} from '@/lib/hero-equipment'
 
 export interface EquippedItem {
   id: string
@@ -21,53 +28,7 @@ export interface EquippedItem {
   description: string
 }
 
-const DEFAULT_EQUIPMENT: Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'relic', EquippedItem | null> = {
-  weapon: {
-    id: 'sword-irony',
-    name: 'Irony longsword',
-    slot: 'weapon',
-    stats: { atk: 25, spd: 5 },
-    rarity: 'rare',
-    image: '/images/items/sword/sword-irony.webp',
-    description: 'Flamio heated the ingot and Vulcana tempered the blade using pure habit sparks.'
-  },
-  offhand: {
-    id: 'shield-oak',
-    name: 'Sturdy oak shield',
-    slot: 'offhand',
-    stats: { def: 18 },
-    rarity: 'uncommon',
-    image: '/images/items/shield/shield-blockado.webp',
-    description: 'Carved by Shello from ancient riverbed stone to deflect heavy dungeon blows.'
-  },
-  armor: {
-    id: 'armor-normalo',
-    name: 'Vanguard cuirass',
-    slot: 'armor',
-    stats: { def: 35, atk: 10 },
-    rarity: 'epic',
-    image: '/images/items/armor/armor-normalo.webp',
-    description: 'Forged by Buldour and fitted for champions who walk the realm.'
-  },
-  mount: {
-    id: 'mount-goldy',
-    name: 'Golden warhorse',
-    slot: 'mount',
-    stats: { spd: 30, atk: 10 },
-    rarity: 'epic',
-    image: '/images/items/horse/horse-goldy.webp',
-    description: 'A spirited wild horse reared in the green meadows, eager for long voyages.'
-  },
-  relic: {
-    id: 'relic-astral',
-    name: 'Astral crystal',
-    slot: 'relic',
-    stats: { atk: 15, def: 15, spd: 15 },
-    rarity: 'legendary',
-    image: '/images/items/materials/material-crystal.webp',
-    description: 'Turtoisy found this crystal in an astral cavern, humming with virtue power.'
-  }
-}
+export const DEFAULT_EQUIPMENT = DEFAULT_HERO_EQUIPMENT;
 
 export const getItemRarityStyles = (rarity: string) => {
   switch (rarity) {
@@ -146,16 +107,26 @@ export function PaperdollEquipmentGrid({
   onOpenInventory,
   onStatsCalculated
 }: PaperdollEquipmentGridProps) {
-  const [equipment, setEquipment] = useState<Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'relic', EquippedItem | null>>(DEFAULT_EQUIPMENT)
+  const [equipment, setEquipment] = useState<Record<'weapon' | 'offhand' | 'armor' | 'mount' | 'relic', EquippedItem | null>>(getHeroEquipment)
   const [selectedItem, setSelectedItem] = useState<EquippedItem | null>(null)
 
   React.useEffect(() => {
-    try {
-      const saved = localStorage.getItem('pref:equipped_gear')
-      if (saved) {
-        setEquipment(JSON.parse(saved))
+    setEquipment(getHeroEquipment())
+
+    const handleSync = (e?: any) => {
+      if (e?.detail) {
+        setEquipment(e.detail)
+      } else {
+        setEquipment(getHeroEquipment())
       }
-    } catch {}
+    }
+
+    window.addEventListener(HERO_EQUIPMENT_EVENT, handleSync)
+    window.addEventListener('storage', handleSync)
+    return () => {
+      window.removeEventListener(HERO_EQUIPMENT_EVENT, handleSync)
+      window.removeEventListener('storage', handleSync)
+    }
   }, [])
 
   // Calculate total stats
@@ -418,6 +389,18 @@ export function PaperdollEquipmentGrid({
               </div>
 
               <DialogFooter className="pt-2 border-t border-zinc-900 flex flex-col gap-2">
+                <Button
+                  type="button"
+                  onClick={() => {
+                    if (selectedItem?.slot) {
+                      unequipItemFromHero(selectedItem.slot);
+                      setSelectedItem(null);
+                    }
+                  }}
+                  className="w-full text-xs h-9 bg-red-950/80 hover:bg-red-900 text-red-200 border border-red-500/40 font-serif"
+                >
+                  Unequip gear
+                </Button>
                 <Button
                   type="button"
                   onClick={handleEquipmentChange}
