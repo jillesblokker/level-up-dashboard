@@ -192,7 +192,7 @@ export function LevelUpCelebration({
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center space-y-6">
           {/* Level up text */}
-          <div className="bg-gradient-to-b from-[#1f6834] via-[#134e24] to-[#0a2d14] text-[#fef9c3] px-12 py-8 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.95),0_0_40px_rgba(34,197,94,0.35)] border-2 border-[#b45309]">
+          <div className="bg-gradient-to-b from-[#1f6834] via-[#134e24] to-[#0a2d14] text-[#fef9c3] px-12 py-8 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.95),0_0_40px_rgba(34,197,94,0.35)] border-2 border-[#22c55e]">
             <h1 className="text-4xl sm:text-5xl font-bold font-serif mb-3 tracking-wide text-amber-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
               🏆 Level up! 🏆
             </h1>

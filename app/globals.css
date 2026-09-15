@@ -451,7 +451,7 @@ button:focus-visible,
 .theme-medieval .btn-primary-cta,
 .btn-rpg-emerald {
   background: linear-gradient(180deg, #1f6834 0%, #134e24 45%, #0a2d14 100%) !important;
-  border: 1.5px solid #b45309 !important;
+  border: 1.5px solid #22c55e !important;
   border-radius: 8px !important;
   color: #fef9c3 !important;
   font-family: var(--font-gloock), serif !important;
@@ -465,7 +465,7 @@ button:focus-visible,
 .theme-medieval .btn-primary-cta:hover,
 .btn-rpg-emerald:hover {
   background: linear-gradient(180deg, #277c40 0%, #18602d 45%, #0d3819 100%) !important;
-  border-color: #f59e0b !important;
+  border-color: #4ade80 !important;
   color: #ffffff !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(254, 240, 138, 0.65), inset 0 -2px 4px rgba(0, 0, 0, 0.6), 0 0 22px rgba(34, 197, 94, 0.5) !important;
@@ -647,10 +647,10 @@ button:focus-visible,
 }
 
 @layer components {
-  /* Standardized Primary CTA Button Class (Button 01 Emerald Gem with Antique Bronze Rim) */
+  /* Standardized Primary CTA Button Class (Button 01 Emerald Gem with Bright Neon Green Rim) */
   .btn-primary-cta,
   .btn-rpg-emerald {
-    @apply bg-gradient-to-b from-[#1f6834] via-[#134e24] to-[#0a2d14] hover:from-[#277c40] hover:via-[#18602d] hover:to-[#0d3819] text-[#fef9c3] hover:text-white font-serif font-bold px-6 py-3 text-sm rounded-xl shadow-lg border border-[#b45309] hover:border-[#f59e0b] transition-all duration-150 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2;
+    @apply bg-gradient-to-b from-[#1f6834] via-[#134e24] to-[#0a2d14] hover:from-[#277c40] hover:via-[#18602d] hover:to-[#0d3819] text-[#fef9c3] hover:text-white font-serif font-bold px-6 py-3 text-sm rounded-xl shadow-lg border border-[#22c55e] hover:border-[#4ade80] transition-all duration-150 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2;
   }
 
   /* Secondary Action Button Class (Button 02 Sapphire Gem with Antique Bronze Rim) */

@@ -264,7 +264,7 @@ export const rpgButtons = {
   primary: {
     name: 'Emerald Gem (Button 01 Primary CTA)',
     gradient: 'linear-gradient(180deg, #1f6834 0%, #134e24 45%, #0a2d14 100%)',
-    border: '#b45309',
+    border: '#22c55e',
     text: '#fef9c3',
     glow: 'rgba(34, 197, 94, 0.25)',
     className: 'btn-rpg-emerald'
