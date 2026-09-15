@@ -654,8 +654,10 @@ function CityLocationPageInner() {
 
 
   // Handle shop item purchase (works with ShopItem from comprehensive-items)
+  // NOTE: Items passed here are already pre-scaled via scaledPotions/scaledWeapons memos,
+  // so use item.cost directly — do NOT re-scale with getScaledCost (that would double-scale).
   const handleItemPurchase = async (item: ShopItem) => {
-    const finalCost = getScaledCost(item.cost);
+    const finalCost = item.cost;
     if (goldBalance < finalCost) {
       toast({
         title: "Insufficient Gold",

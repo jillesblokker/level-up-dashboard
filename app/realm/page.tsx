@@ -2223,7 +2223,7 @@ function RealmPageContent() {
                     !isVisiting && (
                         <Button
                             onClick={handleCollectRealmTaxes}
-                            className="btn-primary-cta shadow-lg shadow-amber-500/20 animate-in fade-in zoom-in duration-300 font-serif font-bold text-sm px-5 py-2.5 flex items-center gap-1.5"
+                            className="btn-rpg-emerald shadow-lg shadow-emerald-950/50 animate-in fade-in zoom-in duration-300 font-serif font-bold text-sm px-5 py-2.5 flex items-center gap-1.5"
                         >
                             <span>💰 Collect realm taxes ({realmSettlementTiles.length || 2})</span>
                             <CollectibleRune

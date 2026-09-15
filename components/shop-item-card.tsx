@@ -168,9 +168,9 @@ export function ShopItemCard({
           onClick={() => onPurchase(item)}
           disabled={disabled}
           className={`
-            ${accent.button}
+            btn-rpg-emerald
             rounded-lg px-4 text-xs font-bold uppercase tracking-wider
-            transition-colors disabled:opacity-40 disabled:cursor-not-allowed
+            disabled:opacity-40 disabled:cursor-not-allowed
           `}
         >
           {actionLabel}

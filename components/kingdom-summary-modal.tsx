@@ -177,7 +177,7 @@ export function KingdomSummaryModal({
         <div className="p-4 sm:p-5 bg-zinc-900/80 border-t border-amber-900/20 flex flex-col gap-2 relative z-10">
           <Button
             onClick={onClose}
-            className="w-full py-5 font-serif text-base bg-amber-600 hover:bg-amber-500 text-zinc-950 font-bold rounded-xl shadow-lg shadow-amber-950/30 transition-all active:scale-[0.98]"
+            className="w-full py-5 font-serif text-base btn-rpg-emerald rounded-xl shadow-lg shadow-emerald-950/30 transition-all active:scale-[0.98]"
           >
             Collect & return
           </Button>
