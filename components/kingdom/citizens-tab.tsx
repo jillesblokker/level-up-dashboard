@@ -2,7 +2,7 @@
 
 import { logger } from "@/lib/logger";
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { X, Sparkles, Star, Clock, Check, ChevronDown, Utensils, Heart } from "lucide-react"
+import { X, Sparkles, Star, Clock, Check, ChevronDown, Utensils, Heart, Crown } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
@@ -94,6 +94,9 @@ export function CitizensTab() {
   const feedCitizen = useCitizensStore(state => state.feedCitizen);
   const mergeDuplicateCitizens = useCitizensStore(state => state.mergeDuplicateCitizens);
   const specializeCitizen = useCitizensStore(state => state.specializeCitizen);
+  const hasBanquetHall = useCitizensStore(state => state.hasBanquetHall);
+  const unlockBanquetHall = useCitizensStore(state => state.unlockBanquetHall);
+  const holdRoyalFeast = useCitizensStore(state => state.holdRoyalFeast);
 
   const [citizenFilter, setCitizenFilter] = useState<"all" | "active" | "inactive" | "favorites">("all");
   const [speciesFilter, setSpeciesFilter] = useState<string>("all");
@@ -104,6 +107,86 @@ export function CitizensTab() {
   const [feedModalCitizenId, setFeedModalCitizenId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [playerLevel, setPlayerLevel] = useState(1);
+
+  const hungryCitizens = useMemo(() => {
+    return citizens.filter(c => isCitizenHungry(c));
+  }, [citizens]);
+
+  const totalPantryFood = useMemo(() => {
+    return inventoryFood.reduce((acc, f) => acc + f.quantity, 0);
+  }, [inventoryFood]);
+
+  const feastGoldCost = useMemo(() => {
+    let cost = 0;
+    for (let i = 0; i < hungryCitizens.length; i++) {
+      const batchTier = Math.floor(i / 8);
+      cost += 200 + batchTier * 100;
+    }
+    return cost;
+  }, [hungryCitizens.length]);
+
+  const feastBatchesCount = useMemo(() => {
+    return Math.max(1, Math.ceil(hungryCitizens.length / 8));
+  }, [hungryCitizens.length]);
+
+  const handleUnlockBanquetHall = async () => {
+    if (!user?.id) return;
+    try {
+      setIsLoading(true);
+      const res = await unlockBanquetHall(user.id);
+      if (res.success) {
+        if (typeof window !== 'undefined') {
+          import('canvas-confetti').then(confetti => {
+            confetti.default({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+          }).catch(() => {});
+        }
+        toast({
+          title: "Grand banquet hall constructed! 🏰🍖",
+          description: "Your kingdom now features the grand banquet hall! You can now hold royal feasts to feed all citizens in 1-tap.",
+        });
+      } else {
+        toast({
+          title: "Construction failed",
+          description: res.error || "Could not construct grand banquet hall.",
+          variant: "destructive"
+        });
+      }
+    } catch (e) {
+      logger.error("Failed to construct banquet hall", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleHoldRoyalFeast = async () => {
+    if (!user?.id) return;
+    try {
+      setIsLoading(true);
+      const res = await holdRoyalFeast(user.id);
+      if (res.success) {
+        if (typeof window !== 'undefined') {
+          import('canvas-confetti').then(confetti => {
+            confetti.default({ particleCount: 120, spread: 90, origin: { y: 0.6 } });
+          }).catch(() => {});
+        }
+        toast({
+          title: "Royal feast held! 🍖👑",
+          description: `Gathered ${res.count} citizens across ${feastBatchesCount} banquet course${feastBatchesCount > 1 ? 's' : ''} for ${res.goldSpent.toLocaleString()} gold! +5% bonus affection awarded to all guests.`,
+        });
+        await loadInventoryFood();
+      } else {
+        toast({
+          title: "Feast could not be held",
+          description: res.error || "Could not hold feast.",
+          variant: "destructive"
+        });
+      }
+    } catch (e) {
+      logger.error("Failed to hold royal feast", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const duplicateGroups = useMemo(() => {
     const map: Record<string, Citizen[]> = {};
@@ -385,6 +468,105 @@ export function CitizensTab() {
             </div>
           </div>
         </Card>
+
+        {/* Grand Banquet Hall Widget */}
+        {!hasBanquetHall ? (
+          <Card className="bg-gradient-to-r from-amber-950/30 via-zinc-950 to-zinc-900 border border-amber-500/30 p-5 rounded-2xl mb-6 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+              <div className="flex items-start gap-3.5">
+                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0 text-2xl shadow-inner">
+                  🏰
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-serif font-bold text-amber-300">Grand banquet hall</h3>
+                    <Badge className="bg-amber-900/60 border-amber-500/40 text-amber-200 text-[10px] uppercase font-mono tracking-wider">
+                      Kingdom tile
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-zinc-400 max-w-xl leading-relaxed">
+                    Construct the royal banquet hall to feed all your hungry citizens in 1-tap! Caters large communal feasts with multi-course scaling and awards a <span className="text-amber-300 font-semibold">+5% bonus affection</span> surge to all dining guests.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                <Button
+                  onClick={handleUnlockBanquetHall}
+                  disabled={isLoading}
+                  className="btn-rpg-emerald text-xs px-5 py-2.5 font-serif font-bold shadow-lg flex items-center gap-2 w-full sm:w-auto"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+                  Construct hall (35,000 gold)
+                </Button>
+              </div>
+            </div>
+          </Card>
+        ) : (
+          <Card className="bg-gradient-to-r from-amber-950/20 via-zinc-950 to-zinc-900 border border-amber-500/40 p-5 rounded-2xl mb-6 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+              <div className="flex items-start gap-3.5">
+                <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center shrink-0 text-2xl shadow-inner">
+                  🍖
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-serif font-bold text-amber-300">Grand banquet hall</h3>
+                    <Badge className="bg-emerald-950/80 border-emerald-500/40 text-emerald-300 text-[10px] font-mono">
+                      ✨ Active
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-zinc-300 max-w-xl leading-relaxed">
+                    {hungryCitizens.length === 0 ? (
+                      <span className="text-emerald-400">All citizens are currently well-fed and thriving! The banquet tables are polished and ready for the next feast.</span>
+                    ) : (
+                      <span>
+                        <strong className="text-amber-300">{hungryCitizens.length}</strong> hungry citizen{hungryCitizens.length > 1 ? 's' : ''} awaiting banquet catering across <strong className="text-amber-300">{feastBatchesCount}</strong> course{feastBatchesCount > 1 ? 's' : ''} of 8. Feasting awards <span className="text-amber-300 font-semibold">+5% bonus affection</span>!
+                      </span>
+                    )}
+                  </p>
+                  {hungryCitizens.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] text-zinc-400">
+                      <span className="bg-zinc-900/90 border border-amber-900/40 px-2.5 py-0.5 rounded-full text-amber-300 font-mono">
+                        💰 {feastGoldCost.toLocaleString()} gold ({hungryCitizens.length <= 8 ? '200g / citizen' : `scaled per 8 citizens`})
+                      </span>
+                      <span className={cn(
+                        "px-2.5 py-0.5 rounded-full font-mono border",
+                        totalPantryFood >= hungryCitizens.length 
+                          ? "bg-zinc-900/90 border-emerald-900/40 text-emerald-300"
+                          : "bg-red-950/60 border-red-800/60 text-red-300"
+                      )}>
+                        🍖 {hungryCitizens.length} food portions ({totalPantryFood} available in pantry)
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                <Button
+                  onClick={handleHoldRoyalFeast}
+                  disabled={isLoading || hungryCitizens.length === 0 || totalPantryFood < hungryCitizens.length}
+                  className={cn(
+                    "text-xs px-5 py-2.5 font-serif font-bold shadow-lg flex items-center gap-2 w-full sm:w-auto",
+                    hungryCitizens.length > 0 && totalPantryFood >= hungryCitizens.length
+                      ? "btn-rpg-emerald"
+                      : "bg-zinc-900 text-zinc-500 border border-zinc-800 cursor-not-allowed"
+                  )}
+                >
+                  <Utensils className="w-4 h-4 text-amber-300" />
+                  {hungryCitizens.length === 0 
+                    ? "All citizens fed ✨" 
+                    : totalPantryFood < hungryCitizens.length 
+                      ? "Need more food in pantry" 
+                      : `Hold royal feast (${hungryCitizens.length})`}
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Filter Controls Bar: Status Buttons + Creature Species Dropdown + Search */}
         <div className="bg-zinc-950 p-4 rounded-2xl border border-amber-900/30 mb-6 space-y-3">

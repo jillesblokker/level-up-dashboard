@@ -152,6 +152,9 @@ interface CitizensStore {
   specializeCitizen: (userId: string, citizenId: string, chosenClass: 'Tank' | 'Mage' | 'Alchemist' | 'Scout') => Promise<void>;
   equipCitizen: (userId: string | undefined, citizenId: string, slot: 'weapon' | 'offhand' | 'armor' | 'robe' | 'footwear' | 'mount' | 'relic', item: any) => Promise<void>;
   unequipCitizen: (userId: string | undefined, citizenId: string, slot: 'weapon' | 'offhand' | 'armor' | 'robe' | 'footwear' | 'mount' | 'relic') => Promise<void>;
+  hasBanquetHall: boolean;
+  unlockBanquetHall: (userId: string) => Promise<{ success: boolean; error?: string }>;
+  holdRoyalFeast: (userId: string) => Promise<{ success: boolean; count: number; goldSpent: number; error?: string }>;
   getCitizenEffectiveStats: (citizen: Citizen) => { atk: number; def: number; spd: number; gearScore: number };
   addCitizenById: (citizenId: string) => Promise<void>;
 }
@@ -418,6 +421,7 @@ export function formatFoodDisplayName(
 export const useCitizensStore = create<CitizensStore>((set, get) => ({
   citizens: [],
   combatSupporters: [],
+  hasBanquetHall: false,
   loading: false,
   error: null,
   isSleepy: false,
@@ -432,16 +436,20 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
       const token = await getClerkToken().catch(() => null);
       const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
-      // Parallel fetches for achievements, mythic cards, citizen preferences, hidden IDs, merged levels, and character stats (for sleepy check)
-      const [achievementsRes, mythicsRes, prefState, hiddenIdsState, mergedLevelsState, charStatsRes, supportersState] = await Promise.all([
+      // Parallel fetches for achievements, mythic cards, citizen preferences, hidden IDs, merged levels, banquet hall unlock, and character stats
+      const [achievementsRes, mythicsRes, prefState, hiddenIdsState, mergedLevelsState, charStatsRes, supportersState, banquetHallState] = await Promise.all([
         fetch('/api/achievements', { headers }).catch(() => null),
         fetch('/api/packs/mythics', { headers }).catch(() => null),
         getUserPreference('citizens_state') as Promise<Record<string, CitizenState> | null>,
         getUserPreference('citizens_hidden_ids') as Promise<string[] | null>,
         getUserPreference('citizens_merged_levels') as Promise<Record<string, number> | null>,
         fetch('/api/character-stats', { headers }).catch(() => null),
-        getUserPreference('combat_supporters') as Promise<string[] | null>
+        getUserPreference('combat_supporters') as Promise<string[] | null>,
+        getUserPreference('grand_banquet_hall_unlocked') as Promise<boolean | null>
       ]);
+
+      const isBanquetUnlocked = banquetHallState === true || 
+        (typeof window !== 'undefined' && localStorage.getItem('grand_banquet_hall_unlocked') === 'true');
 
       let isSleepy = false;
       if (charStatsRes && charStatsRes.ok) {
@@ -692,7 +700,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
          };
       }
 
-      set({ citizens: updatedCitizens, combatSupporters, isSleepy, offlineCatchup, loading: false });
+      set({ citizens: updatedCitizens, combatSupporters, hasBanquetHall: isBanquetUnlocked, isSleepy, offlineCatchup, loading: false });
     } catch (error: any) {
       console.error('Failed to load citizens:', error);
       set({ error: error.message || 'Failed to load citizens', loading: false });
@@ -1594,6 +1602,172 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     } catch (e) {
       console.error('Failed to save citizen unequip:', e);
     }
+  },
+
+  unlockBanquetHall: async (userId: string) => {
+    const cost = 35000;
+    const { spendGold, hasEnoughGold } = await import('@/lib/gold-manager');
+    if (!hasEnoughGold(cost)) {
+      return { success: false, error: `You need ${cost.toLocaleString()} gold to construct the Grand Banquet Hall.` };
+    }
+    const spent = await spendGold(cost, 'Grand Banquet Hall construction');
+    if (!spent) {
+      return { success: false, error: 'Failed to deduct gold.' };
+    }
+    try {
+      await setUserPreference('grand_banquet_hall_unlocked', true);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('grand_banquet_hall_unlocked', 'true');
+      }
+    } catch (e) {
+      console.error('Failed to save banquet hall unlock preference:', e);
+    }
+    set({ hasBanquetHall: true });
+    return { success: true };
+  },
+
+  holdRoyalFeast: async (userId: string) => {
+    const { citizens } = get();
+    const hungryCitizens = citizens.filter(c => isCitizenHungry(c));
+    if (hungryCitizens.length === 0) {
+      return { success: false, count: 0, goldSpent: 0, error: 'All citizens are already well-fed and nourished!' };
+    }
+
+    // Calculate dynamic cost scaling per 8 citizens:
+    // Batch 1 (citizens 1-8): 200g each
+    // Batch 2 (citizens 9-16): 300g each (+100g surcharge)
+    // Batch 3 (citizens 17-24): 400g each (+200g surcharge)
+    // Batch 4 (citizens 25-32): 500g each, etc.
+    let totalGoldCost = 0;
+    for (let i = 0; i < hungryCitizens.length; i++) {
+      const batchTier = Math.floor(i / 8);
+      const perCitizenCost = 200 + batchTier * 100;
+      totalGoldCost += perCitizenCost;
+    }
+
+    const { spendGold, hasEnoughGold } = await import('@/lib/gold-manager');
+    if (!hasEnoughGold(totalGoldCost)) {
+      return { success: false, count: 0, goldSpent: 0, error: `You need ${totalGoldCost.toLocaleString()} gold to cater a feast for ${hungryCitizens.length} citizens.` };
+    }
+
+    // Check available food items in character inventory & tile inventory
+    const inv = await getInventory(userId);
+    let allFoodItems: { id: string; name?: string; isTile: boolean }[] = [];
+    if (Array.isArray(inv)) {
+      inv.filter(item => isFoodItem(item) && (item.quantity || 0) > 0).forEach(item => {
+        for (let q = 0; q < (item.quantity || 1); q++) {
+          allFoodItems.push({ id: item.id, name: item.name, isTile: false });
+        }
+      });
+    }
+
+    const tileInv = await loadTileInventory(userId);
+    if (tileInv && typeof tileInv === 'object') {
+      Object.entries(tileInv).forEach(([rawKey, value]) => {
+        const key = rawKey === 'water' ? 'material-water' : rawKey;
+        const qty = typeof value === 'number' ? value : (value?.quantity ?? 0);
+        if (isFoodItem({ id: key, name: typeof value === 'object' ? value?.name : undefined }) && qty > 0) {
+          for (let q = 0; q < qty; q++) {
+            allFoodItems.push({ id: key, name: typeof value === 'object' && value?.name ? value.name : key, isTile: true });
+          }
+        }
+      });
+    }
+
+    if (allFoodItems.length < hungryCitizens.length) {
+      return { 
+        success: false, 
+        count: 0, 
+        goldSpent: 0, 
+        error: `Not enough food in pantry! You need ${hungryCitizens.length} food items, but only have ${allFoodItems.length}.` 
+      };
+    }
+
+    // Deduct gold
+    const goldSpentSuccess = await spendGold(totalGoldCost, `Royal Feast for ${hungryCitizens.length} citizens`);
+    if (!goldSpentSuccess) {
+      return { success: false, count: 0, goldSpent: 0, error: 'Could not spend gold.' };
+    }
+
+    // Deduct food items and feed citizens
+    const foodConsumedCounts: Record<string, number> = {};
+    const tileFoodConsumedCounts: Record<string, number> = {};
+    const nowIso = new Date().toISOString();
+
+    const hungryCitizenIds = new Set(hungryCitizens.map(c => c.id));
+    let foodIdx = 0;
+
+    const updatedCitizens = citizens.map(c => {
+      if (hungryCitizenIds.has(c.id)) {
+        const foodItem = allFoodItems[foodIdx++];
+        if (foodItem.isTile) {
+          tileFoodConsumedCounts[foodItem.id] = (tileFoodConsumedCounts[foodItem.id] || 0) + 1;
+        } else {
+          foodConsumedCounts[foodItem.id] = (foodConsumedCounts[foodItem.id] || 0) + 1;
+        }
+
+        const foodDays = getFoodActiveDays(foodItem.id, foodItem);
+        // Bonus feast affection: +15 affection (+5% over normal +10)
+        const currentAffection = c.affection || 0;
+        const newAffection = Math.min(100, currentAffection + 15);
+
+        return {
+          ...c,
+          active: true,
+          lastFedAt: nowIso,
+          activeDays: foodDays,
+          affection: newAffection
+        };
+      }
+      return c;
+    });
+
+    // Remove consumed inventory items
+    for (const [itemId, qty] of Object.entries(foodConsumedCounts)) {
+      await removeFromInventory(userId, itemId, qty).catch(console.error);
+    }
+
+    // Remove consumed tile inventory items if any
+    if (Object.keys(tileFoodConsumedCounts).length > 0) {
+      const updatedTileInv = { ...(tileInv || {}) };
+      for (const [key, qty] of Object.entries(tileFoodConsumedCounts)) {
+        const rawKey = key === 'material-water' && updatedTileInv['water'] !== undefined ? 'water' : key;
+        if (typeof updatedTileInv[rawKey] === 'number') {
+          updatedTileInv[rawKey] = Math.max(0, updatedTileInv[rawKey] - qty);
+        } else if (updatedTileInv[rawKey] && typeof updatedTileInv[rawKey] === 'object') {
+          updatedTileInv[rawKey].quantity = Math.max(0, (updatedTileInv[rawKey].quantity || 0) - qty);
+        }
+      }
+      await saveTileInventory(userId, updatedTileInv).catch(console.error);
+    }
+
+    // Save citizen state
+    const citizenPrefs: Record<string, CitizenState> = {};
+    updatedCitizens.forEach((c) => {
+      citizenPrefs[c.id] = {
+        active: c.active,
+        favorite: c.favorite,
+        lastFedAt: c.lastFedAt,
+        activeDays: c.activeDays,
+        lastHarvestedAt: c.lastHarvestedAt,
+        affection: c.affection || 0,
+        level: c.level || 1,
+        experience: c.experience || 0,
+        specialization: c.specialization,
+        loreTitle: c.loreTitle,
+        equipment: c.equipment || {}
+      };
+    });
+    await setUserPreference('citizens_state', citizenPrefs).catch(console.error);
+
+    set({ citizens: updatedCitizens });
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('character-inventory-update'));
+      window.dispatchEvent(new CustomEvent('tile-inventory-update'));
+    }
+
+    return { success: true, count: hungryCitizens.length, goldSpent: totalGoldCost };
   },
 }));
 
