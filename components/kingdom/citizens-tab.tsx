@@ -569,7 +569,7 @@ export function CitizensTab() {
                               {isHungry ? (
                                 <span className="text-zinc-500">Requires Feed</span>
                               ) : isReadyToHarvest ? (
-                                <span className="text-amber-400 font-bold animate-pulse">Collect ✨</span>
+                                <span className="text-emerald-400 font-bold animate-pulse">Collect taxes ✨</span>
                               ) : (
                                 <span className="text-zinc-500 font-mono">{harvestRemaining}</span>
                               )}
@@ -893,8 +893,8 @@ export function CitizensTab() {
                         {isHungry ? (
                           <span className="text-zinc-500">Requires Feed</span>
                         ) : isReadyToHarvest ? (
-                          <span className="text-amber-400 font-semibold flex items-center gap-1 animate-pulse">
-                            Collect Taxes ✨
+                          <span className="text-emerald-400 font-semibold flex items-center gap-1 animate-pulse">
+                            Collect taxes ✨
                           </span>
                         ) : (
                           <span className="text-zinc-500 flex items-center gap-1">

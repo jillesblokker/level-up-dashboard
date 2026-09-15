@@ -471,9 +471,9 @@ export function HabitFocusCard({ locationName, locationType }: HabitFocusCardPro
                     disabled={(focusData.taxGold || 0) === 0 || isCollecting}
                     onClick={handleCollectTax}
                     size="sm"
-                    className="w-full h-8 text-[10px] font-extrabold bg-amber-600 hover:bg-amber-700 text-black rounded-lg"
+                    className="w-full h-8 text-xs font-serif font-bold btn-rpg-emerald rounded-lg"
                   >
-                    {isCollecting ? 'Collecting...' : 'Collect taxes'}
+                    {isCollecting ? 'Collecting…' : 'Collect taxes'}
                   </Button>
                 </div>
               </div>

@@ -268,7 +268,7 @@ export const KingdomTileItem = React.memo(({
       {/* Redirect Tile Hover "Go" Button (Desktop Only) */}
       {REDIRECT_TILES.includes(type) && (
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/40 backdrop-blur-[1px] transition-all duration-200 pointer-events-none hidden md:flex items-center justify-center z-50">
-          <div className="bg-gradient-to-r from-amber-500 to-amber-400 text-zinc-950 text-xs font-serif font-bold px-3 py-1 rounded-full shadow-lg border border-amber-300 flex items-center gap-1.5 transform scale-90 group-hover:scale-100 transition-transform">
+          <div className="btn-rpg-emerald text-xs font-serif font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 transform scale-90 group-hover:scale-100 transition-transform">
             <span>Go</span>
             <span className="text-[10px]">➔</span>
           </div>
@@ -564,8 +564,8 @@ export const KingdomTileItem = React.memo(({
           if (isReady) {
             return (
               <div className="transition-all duration-200 absolute bottom-1 left-1/2 -translate-x-1/2 w-max max-w-[90%] pointer-events-none z-30">
-                <div className="text-[9px] md:text-xs px-1.5 md:px-2 py-0.5 rounded text-center font-mono shadow-md min-h-[16px] md:min-h-[20px] flex items-center justify-center shrink-0 border w-auto inline-flex gap-1 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-zinc-950 font-black border-yellow-300 shadow-[0_0_12px_rgba(245,158,11,0.6)]">
-                  <span className="whitespace-nowrap font-black text-[9px] md:text-xs text-zinc-950 tracking-tight md:tracking-wide">
+                <div className="text-[9px] md:text-xs px-2 py-0.5 rounded text-center font-serif shadow-md min-h-[16px] md:min-h-[20px] flex items-center justify-center shrink-0 border w-auto inline-flex gap-1 btn-rpg-emerald font-bold tracking-tight md:tracking-wide">
+                  <span className="whitespace-nowrap font-bold text-[9px] md:text-xs text-[#fef9c3]">
                     <span className="md:hidden">Get</span>
                     <span className="hidden md:inline">Collect</span>
                   </span>

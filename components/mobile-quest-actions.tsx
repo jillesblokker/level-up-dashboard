@@ -34,10 +34,10 @@ export function MobileQuestActions({
           <Button
             onClick={onBulkCompleteFavorites}
             disabled={loading || favoritesCount === 0}
-            className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg min-h-[48px] touch-manipulation"
+            className="w-full btn-rpg-emerald px-4 py-3 font-serif font-bold rounded-xl shadow-lg min-h-[48px] touch-manipulation text-xs sm:text-sm"
             aria-label="Complete all favorited quests in this category"
           >
-            <Star className="w-4 h-4" />
+            <Star className="w-4 h-4 text-amber-300" />
             <span className="text-sm sm:text-base">
               Complete {favoritesCount} Favorites
             </span>
@@ -49,10 +49,10 @@ export function MobileQuestActions({
           <Button
             onClick={onBulkCompleteAllFavorites}
             disabled={loading || allFavoritesCount === 0}
-            className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg min-h-[48px] touch-manipulation"
+            className="w-full btn-rpg-emerald px-4 py-3 font-serif font-bold rounded-xl shadow-lg min-h-[48px] touch-manipulation text-xs sm:text-sm"
             aria-label="Complete all favorited quests across all categories"
           >
-            <Star className="w-4 h-4" />
+            <Star className="w-4 h-4 text-amber-300" />
             <span className="text-sm sm:text-base">
               Complete {allFavoritesCount} Total
             </span>
@@ -64,12 +64,13 @@ export function MobileQuestActions({
           <Button
             onClick={onManualReset}
             disabled={manualResetLoading || !token}
-            className="w-full bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg border border-zinc-500 min-h-[48px] touch-manipulation"
+            variant="outline"
+            className="w-full border border-red-500/60 bg-red-950/20 text-red-300 hover:bg-red-900/40 hover:text-red-100 hover:border-red-400 px-4 py-3 font-serif font-bold rounded-xl shadow-md min-h-[48px] touch-manipulation disabled:opacity-50"
             aria-label="Manually reset today's quests"
           >
             {manualResetLoading ? (
               <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-red-300 border-t-transparent rounded-full animate-spin" />
                 <span className="text-sm sm:text-base">Resetting...</span>
               </>
             ) : (

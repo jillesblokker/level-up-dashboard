@@ -1342,9 +1342,9 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                     handleHarvest(synergy.multiplier);
                                 }}
                                 disabled={isInteracting}
-                                className="w-full h-11 bg-amber-500 hover:bg-amber-600 text-black font-serif font-bold rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.5)] hover:shadow-[0_0_25px_rgba(245,158,11,0.7)] transition-all hover:-translate-y-0.5"
+                                className="w-full h-11 btn-rpg-emerald rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all hover:-translate-y-0.5 font-serif font-bold text-xs"
                             >
-                                <Coins className="w-4 h-4" /> Collect gold 💰
+                                <Coins className="w-4 h-4 text-amber-300" /> Collect gold 💰
                             </Button>
                         ) : selectedCitizen && !isCitizenHungry(selectedCitizen) ? (
                             <div className="bg-zinc-950 border border-zinc-800/40 rounded-xl p-3 flex flex-col items-center justify-center gap-1">

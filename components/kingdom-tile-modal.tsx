@@ -126,7 +126,7 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
         <div className="pt-2">
           <Button
             onClick={onClose}
-            className="w-full py-5 font-serif text-sm font-bold bg-amber-600 hover:bg-amber-500 text-zinc-950 rounded-xl shadow-lg shadow-amber-950/30 transition-all active:scale-[0.98]"
+            className="w-full py-5 font-serif text-sm font-bold btn-rpg-emerald rounded-xl shadow-lg transition-all active:scale-[0.98]"
           >
             Collect & continue
           </Button>

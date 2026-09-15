@@ -1792,7 +1792,7 @@ export function KingdomClient() {
                   window.dispatchEvent(new Event('collect-all-kingdom-taxes'));
                 }
               }}
-              className="btn-primary-cta shadow-lg shadow-amber-500/20 animate-in fade-in zoom-in duration-300 flex items-center gap-1.5"
+              className="btn-rpg-emerald shadow-lg shadow-emerald-950/50 animate-in fade-in zoom-in duration-300 flex items-center gap-1.5 px-6 py-3 rounded-xl font-serif font-bold text-sm"
             >
               <span>💰 Collect taxes ({collectableTaxesCount})</span>
               <CollectibleRune

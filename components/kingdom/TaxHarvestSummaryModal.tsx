@@ -50,9 +50,9 @@ export function TaxHarvestSummaryModal({ isOpen, onClose, harvestStats }: TaxHar
 
         <Button
           onClick={onClose}
-          className="w-full py-2.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-amber-950 font-bold uppercase tracking-wider text-xs shadow-lg flex items-center justify-center gap-2"
+          className="w-full py-2.5 btn-rpg-emerald font-serif font-bold text-xs shadow-lg flex items-center justify-center gap-2 rounded-xl"
         >
-          Deposit to Treasury <Sparkles className="w-4 h-4" />
+          Deposit to treasury <Sparkles className="w-4 h-4 text-amber-300" />
         </Button>
       </DialogContent>
     </Dialog>

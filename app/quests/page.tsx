@@ -3074,10 +3074,10 @@ export default function QuestsPage() {
                   <Button
                     onClick={handleBulkCompleteFavorites}
                     disabled={loading || quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length === 0}
-                    className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-300 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
+                    className="btn-rpg-emerald px-4 py-3 font-serif font-bold rounded-xl shadow-lg text-xs"
                     aria-label="Complete all favorited quests in this category"
                   >
-                    <Star className="w-4 h-4" />
+                    <Star className="w-4 h-4 text-amber-300" />
                     <span className="hidden sm:inline">
                       {TEXT_CONTENT.questBoard.buttons.completeFavorites.replace('{count}', String(quests.filter(q => q.category === questCategory && favoritedQuests.has(q.id) && !q.completed).length))}
                     </span>
@@ -3088,10 +3088,10 @@ export default function QuestsPage() {
                   <Button
                     onClick={handleBulkCompleteAllFavorites}
                     disabled={loading || quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length === 0}
-                    className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg"
+                    className="btn-rpg-emerald px-4 py-3 font-serif font-bold rounded-xl shadow-lg text-xs"
                     aria-label="Complete all favorited quests across all categories"
                   >
-                    <Star className="w-4 h-4" />
+                    <Star className="w-4 h-4 text-amber-300" />
                     <span className="hidden sm:inline">
                       {TEXT_CONTENT.questBoard.buttons.completeAllFavorites.replace('{count}', String(quests.filter(q => favoritedQuests.has(q.id) && !q.completed).length))}
                     </span>
@@ -3103,7 +3103,8 @@ export default function QuestsPage() {
                     onClick={handleManualReset}
                     disabled={manualResetLoading || !token}
                     isLoading={manualResetLoading}
-                    className="bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-800/50 disabled:text-zinc-400 text-white px-4 py-3 font-bold rounded-lg shadow-lg border border-zinc-500"
+                    variant="outline"
+                    className="border border-red-500/60 bg-red-950/20 text-red-300 hover:bg-red-900/40 hover:text-red-100 hover:border-red-400 px-4 py-3 font-serif font-bold rounded-xl shadow-md text-xs disabled:opacity-50"
                     aria-label="Manually reset today's quests"
                   >
                     🔄 {TEXT_CONTENT.questBoard.buttons.reset}
