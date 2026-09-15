@@ -259,9 +259,39 @@ export function createAnimationClass(name: string, duration: keyof typeof animat
   return `${name} ${animation.duration[duration]} ${animation.easing[easing]}`
 }
 
+// Medieval Fantasy RPG Button Palette (Inspired by Fantasy RPG UI Essentials)
+export const rpgButtons = {
+  primary: {
+    name: 'Emerald Gem (Button 01 Primary CTA)',
+    gradient: 'linear-gradient(180deg, #1f6834 0%, #134e24 45%, #0a2d14 100%)',
+    border: '#b45309',
+    text: '#fef9c3',
+    glow: 'rgba(34, 197, 94, 0.25)',
+    className: 'btn-rpg-emerald'
+  },
+  secondary: {
+    name: 'Sapphire Gem (Button 02 Secondary CTA)',
+    gradient: 'linear-gradient(180deg, #1d4b8f 0%, #113264 45%, #091d3e 100%)',
+    border: '#b45309',
+    text: '#e0f2fe',
+    glow: 'rgba(59, 130, 246, 0.25)',
+    className: 'btn-rpg-sapphire'
+  },
+  danger: {
+    name: 'Ruby Gem (Button 04 Destructive)',
+    gradient: 'linear-gradient(180deg, #881337 0%, #4c0519 45%, #20020b 100%)',
+    border: '#991b1b',
+    text: '#fecdd3',
+    glow: 'rgba(239, 68, 68, 0.25)',
+    className: 'btn-rpg-ruby'
+  }
+};
+
 // Theme configuration
 export const theme = {
   colors,
+  rpgButtons,
+
   spacing,
   borderRadius,
   shadows,

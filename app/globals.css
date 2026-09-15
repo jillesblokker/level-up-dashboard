@@ -446,32 +446,67 @@ button:focus-visible,
   pointer-events: none;
 }
 
-/* 4. Global Primary CTA Button Transformation (Sword & Staff Bevelled Cyan/Gold) */
-[data-theme="medieval"] button.bg-amber-500,
-.theme-medieval button.bg-amber-500,
-[data-theme="medieval"] button.bg-amber-600,
-.theme-medieval button.bg-amber-600,
+/* 4. Global RPG Button System (Button 01 Emerald Gem Primary & Button 02 Sapphire Gem Secondary) */
 [data-theme="medieval"] .btn-primary-cta,
-.theme-medieval .btn-primary-cta {
-  background: linear-gradient(180deg, #78350f 0%, #451a03 50%, #78350f 100%) !important;
-  border: 1.5px solid #f59e0b !important;
-  border-radius: 6px !important;
-  color: #fef3c7 !important;
+.theme-medieval .btn-primary-cta,
+.btn-rpg-emerald {
+  background: linear-gradient(180deg, #1f6834 0%, #134e24 45%, #0a2d14 100%) !important;
+  border: 1.5px solid #b45309 !important;
+  border-radius: 8px !important;
+  color: #fef9c3 !important;
   font-family: var(--font-gloock), serif !important;
   font-weight: 700 !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9) !important;
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2), 0 4px 10px rgba(0, 0, 0, 0.5) !important;
-  transition: all 0.2s ease-in-out !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(254, 240, 138, 0.45), inset 0 -2px 4px rgba(0, 0, 0, 0.6), 0 0 14px rgba(34, 197, 94, 0.25) !important;
+  transition: all 0.15s ease-in-out !important;
 }
 
-[data-theme="medieval"] button.bg-amber-500:hover,
-.theme-medieval button.bg-amber-500:hover,
 [data-theme="medieval"] .btn-primary-cta:hover,
-.theme-medieval .btn-primary-cta:hover {
-  background: linear-gradient(180deg, #991b1b 0%, #78350f 60%, #451a03 100%) !important;
+.theme-medieval .btn-primary-cta:hover,
+.btn-rpg-emerald:hover {
+  background: linear-gradient(180deg, #277c40 0%, #18602d 45%, #0d3819 100%) !important;
+  border-color: #f59e0b !important;
+  color: #ffffff !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 0 20px rgba(220, 38, 38, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.3) !important;
-  border-color: #fbbf24 !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(254, 240, 138, 0.65), inset 0 -2px 4px rgba(0, 0, 0, 0.6), 0 0 22px rgba(34, 197, 94, 0.5) !important;
+}
+
+[data-theme="medieval"] .btn-primary-cta:active,
+.theme-medieval .btn-primary-cta:active,
+.btn-rpg-emerald:active {
+  transform: translateY(1px) scale(0.98) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8), inset 0 2px 4px rgba(0, 0, 0, 0.7) !important;
+}
+
+[data-theme="medieval"] .btn-secondary-cta,
+.theme-medieval .btn-secondary-cta,
+.btn-rpg-sapphire {
+  background: linear-gradient(180deg, #1d4b8f 0%, #113264 45%, #091d3e 100%) !important;
+  border: 1.5px solid #b45309 !important;
+  border-radius: 8px !important;
+  color: #e0f2fe !important;
+  font-family: var(--font-gloock), serif !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(191, 219, 254, 0.45), inset 0 -2px 4px rgba(0, 0, 0, 0.6), 0 0 14px rgba(59, 130, 246, 0.25) !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+[data-theme="medieval"] .btn-secondary-cta:hover,
+.theme-medieval .btn-secondary-cta:hover,
+.btn-rpg-sapphire:hover {
+  background: linear-gradient(180deg, #255cb0 0%, #163f7c 45%, #0d2854 100%) !important;
+  border-color: #f59e0b !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(191, 219, 254, 0.65), inset 0 -2px 4px rgba(0, 0, 0, 0.6), 0 0 22px rgba(59, 130, 246, 0.5) !important;
+}
+
+[data-theme="medieval"] .btn-secondary-cta:active,
+.theme-medieval .btn-secondary-cta:active,
+.btn-rpg-sapphire:active {
+  transform: translateY(1px) scale(0.98) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8), inset 0 2px 4px rgba(0, 0, 0, 0.7) !important;
 }
 
 /* 5. Header Navigation & Transparent Tab Track (No Bottom Orange Line & No Dark Blue Box) */
@@ -612,14 +647,16 @@ button:focus-visible,
 }
 
 @layer components {
-  /* Standardized Primary CTA Button Class */
-  .btn-primary-cta {
-    @apply bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold px-8 py-4 text-base rounded-2xl shadow-xl hover:shadow-amber-500/30 transition-all hover:scale-105 border border-amber-400/40 cursor-pointer flex items-center justify-center gap-2;
+  /* Standardized Primary CTA Button Class (Button 01 Emerald Gem with Antique Bronze Rim) */
+  .btn-primary-cta,
+  .btn-rpg-emerald {
+    @apply bg-gradient-to-b from-[#1f6834] via-[#134e24] to-[#0a2d14] hover:from-[#277c40] hover:via-[#18602d] hover:to-[#0d3819] text-[#fef9c3] hover:text-white font-serif font-bold px-6 py-3 text-sm rounded-xl shadow-lg border border-[#b45309] hover:border-[#f59e0b] transition-all duration-150 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2;
   }
 
-  /* Secondary Action Button Class */
-  .btn-secondary-cta {
-    @apply border border-amber-500/40 text-amber-300 hover:bg-amber-950/40 font-bold rounded-xl px-4 py-2.5 text-xs transition-all flex items-center justify-center gap-2;
+  /* Secondary Action Button Class (Button 02 Sapphire Gem with Antique Bronze Rim) */
+  .btn-secondary-cta,
+  .btn-rpg-sapphire {
+    @apply bg-gradient-to-b from-[#1d4b8f] via-[#113264] to-[#091d3e] hover:from-[#255cb0] hover:via-[#163f7c] hover:to-[#0d2854] text-[#e0f2fe] hover:text-white font-serif font-bold px-5 py-2.5 text-xs rounded-xl shadow-md border border-[#b45309] hover:border-[#f59e0b] transition-all duration-150 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2;
   }
 
   /* iOS Safe Area & Dynamic Viewport Utilities */

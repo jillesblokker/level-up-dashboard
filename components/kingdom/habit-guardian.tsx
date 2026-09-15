@@ -529,13 +529,13 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
                 disabled={((guardianState as any)?.affection || 50) >= 100}
                 size="sm"
                 className={cn(
-                  "font-bold text-xs px-3.5 h-8 rounded-lg shadow-md shrink-0 gap-1",
+                  "font-bold text-xs px-3.5 h-8 rounded-lg shadow-md shrink-0 gap-1 font-serif",
                   ((guardianState as any)?.affection || 50) >= 100
                     ? "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700"
-                    : "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-zinc-950"
+                    : "btn-rpg-emerald"
                 )}
               >
-                {((guardianState as any)?.affection || 50) >= 100 ? "❤️ Max Affection" : "🍎 Feed Treat"}
+                {((guardianState as any)?.affection || 50) >= 100 ? "❤️ Max affection" : "🍎 Feed treat"}
               </Button>
             </div>
 
@@ -545,10 +545,10 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
                 onClick={handleFeedTreat}
                 disabled={((guardianState as any)?.affection || 50) >= 100}
                 className={cn(
-                  "w-full font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all",
+                  "w-full font-serif font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all",
                   ((guardianState as any)?.affection || 50) >= 100
                     ? "bg-zinc-900 text-zinc-500 cursor-not-allowed border border-zinc-800"
-                    : "bg-gradient-to-r from-amber-600/30 via-orange-600/30 to-amber-600/30 hover:from-amber-600/50 hover:to-orange-600/50 border border-amber-500/40 text-amber-300"
+                    : "btn-rpg-emerald"
                 )}
               >
                 <span>🍎</span>

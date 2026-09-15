@@ -1034,12 +1034,13 @@ export default function DesignSystemPage() {
                           <h4 className="text-lg font-medium text-amber-300 mb-3">{TEXT_CONTENT.designSystem.components.basic.buttons.title}</h4>
                           <Card className="bg-zinc-900 border-amber-800/20 mb-4">
                             <CardContent className="p-4">
-                              <div className="flex flex-wrap gap-3">
-                                <Button>Default Button</Button>
-                                <Button variant="secondary">Secondary</Button>
+                              <div className="flex flex-wrap gap-3 items-center">
+                                <Button>Button 01 Emerald (Primary)</Button>
+                                <Button variant="secondary">Button 02 Sapphire (Secondary)</Button>
+                                <Button variant="gold">Button 03 Bronze</Button>
+                                <Button variant="destructive">Button 04 Ruby</Button>
                                 <Button variant="outline">Outline</Button>
                                 <Button variant="ghost">Ghost</Button>
-                                <Button variant="destructive">Destructive</Button>
                                 <Button size="sm">Small</Button>
                                 <Button size="lg">Large</Button>
                                 <Button disabled>Disabled</Button>
@@ -1662,10 +1663,10 @@ export default function DesignSystemPage() {
                                   <div>
                                     <h5 className="font-semibold text-white mb-2">{TEXT_CONTENT.designSystem.components.rules.usage.buttons.title}</h5>
                                     <div className="flex flex-wrap gap-2 items-center">
-                                      <Button className="btn-primary-cta text-xs py-2 px-4 h-auto">Primary CTA</Button>
-                                      <Button className="bg-zinc-700 hover:bg-zinc-600 text-white">Secondary</Button>
-                                      <Button className="bg-red-600 hover:bg-red-700">Destructive</Button>
-                                      <Button disabled className="bg-zinc-600 text-zinc-400">Disabled</Button>
+                                      <Button className="btn-primary-cta text-xs py-2 px-4 h-auto">Button 01 Primary CTA</Button>
+                                      <Button className="btn-secondary-cta text-xs py-2 px-4 h-auto">Button 02 Secondary CTA</Button>
+                                      <Button variant="destructive" size="sm" className="text-xs">Button 04 Destructive</Button>
+                                      <Button disabled size="sm" className="text-xs">Disabled</Button>
                                     </div>
                                   </div>
                                   <div>

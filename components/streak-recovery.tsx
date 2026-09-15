@@ -598,9 +598,9 @@ export function StreakRecovery({ token, category, streakData, onStreakUpdate }: 
                     onClick={() => handleComebackChallenge(challenge.name)}
                     disabled={loadingAction === `comeback_${challenge.name}`}
                     size="default"
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 text-base transition-all duration-200 shadow-lg hover:shadow-xl"
+                    className="w-full btn-primary-cta text-sm py-3"
                   >
-                    {loadingAction === `comeback_${challenge.name}` ? 'Completing...' : 'Complete Challenge'}
+                    {loadingAction === `comeback_${challenge.name}` ? 'Completing…' : 'Complete challenge'}
                   </Button>
                 </div>
               ))}

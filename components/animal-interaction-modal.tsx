@@ -151,7 +151,7 @@ export function AnimalInteractionModal({
           shadow: 'shadow-cyan-500/10',
           accent: 'text-cyan-400',
           accentBg: 'bg-cyan-900/30',
-          button: 'bg-cyan-600 hover:bg-cyan-500'
+          button: 'btn-rpg-sapphire'
         };
       case 'sheep':
         return {
@@ -160,7 +160,7 @@ export function AnimalInteractionModal({
           shadow: 'shadow-emerald-500/10',
           accent: 'text-emerald-400',
           accentBg: 'bg-emerald-900/30',
-          button: 'bg-emerald-600 hover:bg-emerald-500'
+          button: 'btn-rpg-emerald'
         };
       case 'horse':
         return {
@@ -169,7 +169,7 @@ export function AnimalInteractionModal({
           shadow: 'shadow-amber-500/10',
           accent: 'text-amber-400',
           accentBg: 'bg-amber-900/30',
-          button: 'bg-amber-600 hover:bg-amber-500'
+          button: 'btn-rpg-emerald'
         };
       default:
         return {
@@ -178,7 +178,7 @@ export function AnimalInteractionModal({
           shadow: 'shadow-amber-500/10',
           accent: 'text-amber-400',
           accentBg: 'bg-amber-900/30',
-          button: 'bg-amber-600 hover:bg-amber-500'
+          button: 'btn-rpg-emerald'
         };
     }
   };
@@ -281,7 +281,7 @@ export function AnimalInteractionModal({
               onClick={() => handleFeed(firstFood.id)}
               disabled={isInteracting}
               className={cn(
-                "w-full h-11 text-white rounded-xl gap-2 bg-orange-600 hover:bg-orange-500 shadow-lg",
+                "w-full h-11 btn-rpg-emerald rounded-xl gap-2 shadow-lg font-serif font-bold text-xs",
                 isInteracting && "opacity-70"
               )}
             >

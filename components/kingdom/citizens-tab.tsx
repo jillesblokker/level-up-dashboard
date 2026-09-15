@@ -401,7 +401,7 @@ export function CitizensTab() {
                   size="sm"
                   onClick={handleMergeDuplicates}
                   disabled={isLoading}
-                  className="bg-gradient-to-r from-purple-600 via-pink-600 to-amber-600 hover:from-purple-500 hover:to-amber-500 text-white font-bold text-xs px-3.5 py-1.5 shadow-lg border border-purple-400/40 animate-pulse flex items-center gap-1.5 shrink-0"
+                  className="btn-rpg-emerald text-xs px-3.5 py-1.5 shadow-lg flex items-center gap-1.5 shrink-0 font-serif font-bold"
                 >
                   <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
                   Merge all ({duplicateCount} duplicates)
@@ -605,21 +605,19 @@ export function CitizensTab() {
                         <CardFooter className="flex flex-col gap-2 pt-2 pb-4 px-4">
                           <Button
                             size="sm"
-                            variant={activePartnerId === citizen.id ? "default" : "outline"}
-                            className={activePartnerId === citizen.id ? 'w-full bg-amber-500 text-black font-bold' : 'w-full border-zinc-700 bg-zinc-900 text-zinc-300'}
+                            className={activePartnerId === citizen.id ? 'w-full btn-rpg-sapphire text-xs font-serif font-bold' : 'w-full border-zinc-700 bg-zinc-900/80 text-zinc-300 hover:text-white text-xs font-serif'}
                             onClick={() => setActivePartnerId(activePartnerId === citizen.id ? undefined : citizen.id)}
                           >
-                            <Heart className={`w-3.5 h-3.5 mr-1.5 ${activePartnerId === citizen.id ? 'fill-black' : ''}`} />
-                            {activePartnerId === citizen.id ? "Active Companion" : "Set as Companion"}
+                            <Heart className={`w-3.5 h-3.5 mr-1.5 ${activePartnerId === citizen.id ? 'fill-blue-200' : ''}`} />
+                            {activePartnerId === citizen.id ? "Active companion" : "Set as companion"}
                           </Button>
 
                           <Button
                             size="sm"
-                            variant={citizen.active ? "outline" : "default"}
-                            className={citizen.active ? 'w-full border-zinc-700 bg-zinc-950 text-zinc-300' : 'w-full bg-amber-600 text-black font-bold'}
+                            className={citizen.active ? 'w-full border-zinc-700 bg-zinc-950 text-zinc-300 hover:text-white text-xs font-serif' : 'w-full btn-rpg-emerald text-xs font-serif font-bold'}
                             onClick={() => handleToggleActive(citizen)}
                           >
-                            {citizen.active ? "Set to Tab Only" : "Let Wander Map"}
+                            {citizen.active ? "Set to tab only" : "Let wander map"}
                           </Button>
 
                           <Button
@@ -682,12 +680,12 @@ export function CitizensTab() {
                               ) : (
                                 <Button
                                   size="sm"
-                                  className="w-full bg-red-950/60 border border-red-800/50 text-red-300 hover:bg-red-900/50 hover:border-red-600/70 hover:text-red-200 text-sm font-semibold"
+                                  className="w-full btn-rpg-emerald text-xs font-serif font-bold h-9 shadow-md"
                                   onClick={() => setFeedModalCitizenId(citizen.id)}
                                 >
                                   <Utensils className="w-3.5 h-3.5 mr-1.5 shrink-0" />
                                   Feed citizen
-                                  <ChevronDown className="w-3.5 h-3.5 ml-auto shrink-0 opacity-60" />
+                                  <ChevronDown className="w-3.5 h-3.5 ml-auto shrink-0 opacity-70" />
                                 </Button>
                               )}
                             </div>
@@ -935,32 +933,30 @@ export function CitizensTab() {
                   <CardFooter className="flex flex-col gap-2 pt-2 pb-4 px-4">
                     <Button
                       size="sm"
-                      variant={activePartnerId === citizen.id ? "default" : "outline"}
-                      className={`w-full font-semibold text-sm ${
+                      className={`w-full text-xs font-serif font-bold ${
                         activePartnerId === citizen.id
-                          ? 'bg-amber-500 text-black hover:bg-amber-400 border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
-                          : 'border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-amber-900/40 hover:border-amber-700/50 hover:text-amber-200'
+                          ? 'btn-rpg-sapphire shadow-[0_0_12px_rgba(59,130,246,0.3)]'
+                          : 'border-zinc-700 bg-zinc-900/80 text-zinc-300 hover:text-white'
                       }`}
                       onClick={() => setActivePartnerId(activePartnerId === citizen.id ? undefined : citizen.id)}
                     >
-                      <Heart className={`w-3.5 h-3.5 mr-1.5 shrink-0 ${activePartnerId === citizen.id ? 'fill-black' : ''}`} />
-                      {activePartnerId === citizen.id ? "Active Companion" : "Set as Companion"}
+                      <Heart className={`w-3.5 h-3.5 mr-1.5 shrink-0 ${activePartnerId === citizen.id ? 'fill-blue-200' : ''}`} />
+                      {activePartnerId === citizen.id ? "Active companion" : "Set as companion"}
                     </Button>
 
                     <Button
                       size="sm"
-                      variant={citizen.active ? "outline" : "default"}
-                      className={`w-full font-semibold text-sm ${
+                      className={`w-full text-xs font-serif font-bold ${
                         citizen.active
                           ? 'border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-red-950/40 hover:border-red-800/60 hover:text-red-300'
-                          : 'bg-amber-600 text-black hover:bg-amber-500 border-amber-500'
+                          : 'btn-rpg-emerald'
                       }`}
                       onClick={() => handleToggleActive(citizen)}
                     >
                       {citizen.active ? (
-                        <><X className="w-3.5 h-3.5 mr-1.5 shrink-0" />Set to Tab Only</>
+                        <><X className="w-3.5 h-3.5 mr-1.5 shrink-0" />Set to tab only</>
                       ) : (
-                        <><Sparkles className="w-3.5 h-3.5 mr-1.5 shrink-0" />Let Wander Map</>
+                        <><Sparkles className="w-3.5 h-3.5 mr-1.5 shrink-0" />Let wander map</>
                       )}
                     </Button>
 
@@ -1024,12 +1020,12 @@ export function CitizensTab() {
                         ) : (
                           <Button
                             size="sm"
-                            className="w-full bg-red-950/60 border border-red-800/50 text-red-300 hover:bg-red-900/50 hover:border-red-600/70 hover:text-red-200 text-sm font-semibold"
+                            className="w-full btn-rpg-emerald text-xs font-serif font-bold h-9 shadow-md"
                             onClick={() => setFeedModalCitizenId(citizen.id)}
                           >
                             <Utensils className="w-3.5 h-3.5 mr-1.5 shrink-0" />
-                            Feed Citizen
-                            <ChevronDown className="w-3.5 h-3.5 ml-auto shrink-0 opacity-60" />
+                            Feed citizen
+                            <ChevronDown className="w-3.5 h-3.5 ml-auto shrink-0 opacity-70" />
                           </Button>
                         )}
                       </div>

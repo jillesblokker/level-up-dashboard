@@ -1382,13 +1382,13 @@ export function CreatureLayer({ grid, mapType, playerPosition, onCreatureClick }
                                                 key={food.id}
                                                 onClick={() => handleFeed(food.id)}
                                                 disabled={isInteracting}
-                                                className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white rounded-xl flex items-center justify-between px-4 shadow border border-orange-500/20"
+                                                className="w-full h-11 btn-rpg-emerald rounded-xl flex items-center justify-between px-4 shadow-md font-serif font-bold text-xs"
                                             >
                                                 <div className="flex items-center gap-2">
                                                     <span>{food.emoji}</span>
                                                     <span className="text-xs font-semibold">{food.name} (x{food.quantity})</span>
                                                 </div>
-                                                <span className="text-[10px] bg-zinc-950 text-orange-200 px-2 py-0.5 rounded-md font-mono">
+                                                <span className="text-[10px] bg-zinc-950/80 text-amber-200 px-2 py-0.5 rounded-md font-mono border border-amber-500/30">
                                                     +{getFoodActiveDays(food.id, food)} day{getFoodActiveDays(food.id, food) !== 1 ? 's' : ''} active
                                                 </span>
                                             </Button>

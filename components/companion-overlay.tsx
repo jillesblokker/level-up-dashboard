@@ -478,13 +478,13 @@ export function CompanionOverlay() {
                 onClick={handleOverlayFeedTreat}
                 disabled={partnerAffection >= 100}
                 className={cn(
-                  "text-[9px] font-bold font-mono px-2 py-0.5 rounded-full shadow-sm [text-shadow:none] !drop-shadow-none transition-colors",
+                  "text-[9px] font-bold font-mono px-2.5 py-0.5 rounded-full shadow-sm [text-shadow:none] !drop-shadow-none transition-colors",
                   partnerAffection >= 100
                     ? "bg-zinc-400 text-zinc-700 cursor-not-allowed"
-                    : "bg-amber-600 hover:bg-amber-700 text-white"
+                    : "btn-rpg-emerald text-[#fef9c3] hover:text-white border-0"
                 )}
               >
-                {partnerAffection >= 100 ? "Fully Fed" : "🍎 Feed Treat (+5%)"}
+                {partnerAffection >= 100 ? "Fully fed" : "🍎 Feed treat (+5%)"}
               </button>
             </div>
 

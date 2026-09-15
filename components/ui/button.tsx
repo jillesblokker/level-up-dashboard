@@ -9,14 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-amber-500 text-zinc-950 font-bold hover:bg-amber-600 active:bg-amber-700 disabled:bg-amber-800/50",
-        destructive: "bg-red-600 text-white hover:bg-red-700 active:bg-red-800",
-        outline: "border border-amber-500 bg-transparent text-amber-500 hover:bg-amber-500 hover:text-white active:bg-amber-600 active:text-white",
-        secondary: "bg-amber-900/20 text-amber-400 hover:bg-amber-800/30 active:bg-amber-800/50",
-        ghost: "text-amber-500 hover:bg-amber-900/20 active:bg-amber-900/40",
-        link: "text-amber-500 underline-offset-4 hover:underline hover:text-amber-400",
-        gold: "bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 text-amber-950 font-bold uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:shadow-[0_0_30px_rgba(245,158,11,0.6)] active:scale-95",
-        medieval: "bg-zinc-950 border border-amber-900/50 text-amber-200 hover:border-amber-500/50 hover:bg-amber-950/30 active:bg-amber-950/60 shadow-md",
+        default: "bg-gradient-to-b from-[#1f6834] via-[#134e24] to-[#0a2d14] hover:from-[#277c40] hover:via-[#18602d] hover:to-[#0d3819] text-[#fef9c3] hover:text-white border border-[#b45309] hover:border-[#f59e0b] shadow-[0_3px_10px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(254,240,138,0.45),inset_0_-2px_4px_rgba(0,0,0,0.6),0_0_12px_rgba(34,197,94,0.25)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.8),inset_0_1px_2px_rgba(254,240,138,0.65),inset_0_-2px_4px_rgba(0,0,0,0.6),0_0_20px_rgba(34,197,94,0.45)] font-serif font-bold disabled:opacity-50 disabled:grayscale",
+        destructive: "bg-gradient-to-b from-[#881337] via-[#4c0519] to-[#20020b] hover:from-[#9f1239] hover:via-[#5c0720] hover:to-[#2b030e] text-[#fecdd3] hover:text-white border border-[#991b1b] hover:border-[#ef4444] shadow-[0_3px_10px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(254,205,211,0.35),inset_0_-2px_4px_rgba(0,0,0,0.6)] font-serif font-bold disabled:opacity-50 disabled:grayscale",
+        outline: "border border-amber-500/40 bg-zinc-950/60 text-amber-300 hover:bg-amber-950/40 hover:text-amber-100 hover:border-amber-400 font-serif font-medium shadow-xs",
+        secondary: "bg-gradient-to-b from-[#1d4b8f] via-[#113264] to-[#091d3e] hover:from-[#255cb0] hover:via-[#163f7c] hover:to-[#0d2854] text-[#e0f2fe] hover:text-white border border-[#b45309] hover:border-[#f59e0b] shadow-[0_3px_10px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(191,219,254,0.45),inset_0_-2px_4px_rgba(0,0,0,0.6),0_0_12px_rgba(59,130,246,0.25)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.8),inset_0_1px_2px_rgba(191,219,254,0.65),inset_0_-2px_4px_rgba(0,0,0,0.6),0_0_20px_rgba(59,130,246,0.45)] font-serif font-bold disabled:opacity-50 disabled:grayscale",
+        ghost: "text-amber-300/80 hover:text-amber-100 hover:bg-amber-950/30 active:bg-amber-950/50 font-serif",
+        link: "text-amber-400 underline-offset-4 hover:underline hover:text-amber-300 font-serif",
+        gold: "bg-gradient-to-b from-[#b45309] via-[#78350f] to-[#451a03] hover:from-[#d97706] hover:via-[#92400e] hover:to-[#572204] text-[#fef3c7] border border-[#f59e0b] font-serif font-bold shadow-[0_2px_10px_rgba(245,158,11,0.25),inset_0_1px_1px_rgba(254,240,138,0.45)] uppercase tracking-wider",
+        medieval: "bg-zinc-950/80 border border-amber-900/60 text-amber-200 hover:border-amber-500/60 hover:bg-amber-950/30 active:bg-amber-950/60 shadow-md font-serif",
       },
       size: {
         default: "h-10 px-4 py-2",
