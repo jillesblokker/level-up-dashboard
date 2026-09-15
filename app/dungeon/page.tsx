@@ -2,13 +2,14 @@
 
 import { logger } from "@/lib/logger";
 import { cn } from "@/lib/utils";
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { notificationService } from "@/lib/notification-service";
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useRouter } from 'next/navigation';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { unwrapApiResponse } from '@/lib/api-response-unwrapper';
 import { PerimeterFuseBorder } from "@/components/ui/perimeter-fuse-border";
 import { CollectibleRune } from "@/components/runes/collectible-rune";
 import { comprehensiveItems } from '@/app/lib/comprehensive-items';
@@ -240,6 +241,139 @@ export default function DungeonPage() {
     emoji: '🐉',
     skill: 'Flame breath (45 AOE fire DMG)'
   });
+
+  // Consumable inventory counters for dungeon survival
+  const [healthPotionsCount, setHealthPotionsCount] = useState<number>(0);
+  const [shelterTentsCount, setShelterTentsCount] = useState<number>(0);
+
+  // Load and refresh consumable item counts from inventory
+  const refreshConsumables = useCallback(async () => {
+    try {
+      const res = await fetchWithAuth('/api/inventory');
+      if (res && res.ok) {
+        const raw = await res.json();
+        const items: any[] = unwrapApiResponse(raw) || (Array.isArray(raw) ? raw : raw?.items) || [];
+        const hpCount = items
+          .filter((i: any) => i.id === 'potion-health' || (i.name && i.name.toLowerCase().includes('health potion')))
+          .reduce((sum: number, i: any) => sum + (i.quantity || 1), 0);
+        const tentCount = items
+          .filter((i: any) => i.id === 'shelter-tent' || (i.name && i.name.toLowerCase().includes('tent')))
+          .reduce((sum: number, i: any) => sum + (i.quantity || 1), 0);
+        setHealthPotionsCount(hpCount);
+        setShelterTentsCount(tentCount);
+      }
+    } catch (e) {
+      logger.warn('[Dungeon] Failed to load inventory consumables:', e);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshConsumables();
+  }, [refreshConsumables]);
+
+  // Save persistent party HP
+  const savePersistentPartyHp = (party: DungeonPartyMember[]) => {
+    try {
+      const map: Record<string, number> = {};
+      party.forEach(p => {
+        map[p.id] = p.hp;
+      });
+      localStorage.setItem('dungeon_fighter_hp_map', JSON.stringify(map));
+    } catch {}
+  };
+
+  // Load persistent HP map
+  const getPersistentPartyHp = (): Record<string, number> => {
+    try {
+      return JSON.parse(localStorage.getItem('dungeon_fighter_hp_map') || '{}');
+    } catch {
+      return {};
+    }
+  };
+
+  const handleUseHealthPotionOutside = async (fighterId?: string) => {
+    if (healthPotionsCount <= 0) {
+      toast({ title: "No health potions", description: "You don't have any health potions in your inventory.", variant: "destructive" });
+      return;
+    }
+    if (!run || !run.party || run.party.length === 0) return;
+
+    // Target the specific fighter or the one with lowest HP ratio
+    const target = fighterId 
+      ? run.party.find(c => c.id === fighterId)
+      : [...run.party].filter(c => c.hp < c.maxHp).sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0];
+
+    if (!target) {
+      toast({ title: "Squad at full health", description: "All fighters are already at maximum health!" });
+      return;
+    }
+
+    try {
+      await fetchWithAuth('/api/inventory', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId: 'potion-health', quantity: 1 })
+      });
+      setHealthPotionsCount(prev => Math.max(0, prev - 1));
+
+      const updatedParty = run.party.map(c => {
+        if (c.id === target.id) {
+          return { ...c, hp: Math.min(c.maxHp, c.hp + 50) };
+        }
+        return c;
+      });
+
+      const totalHp = updatedParty.reduce((s, c) => s + c.hp, 0);
+      setRun({ ...run, party: updatedParty, currentHp: totalHp });
+      savePersistentPartyHp(updatedParty);
+
+      toast({
+        title: "Fighter healed! ❤️",
+        description: `Uncorked Health potion for ${target.name}! Restored +50 HP.`
+      });
+    } catch (e) {
+      logger.error('Failed to consume health potion outside battle', e);
+    }
+  };
+
+  const handlePitchTravelerTent = async () => {
+    if (shelterTentsCount <= 0) {
+      toast({ title: "No traveler tent", description: "You don't have a Traveler tent in your inventory.", variant: "destructive" });
+      return;
+    }
+    if (!run || !run.party || run.party.length === 0) return;
+
+    const allFull = run.party.every(c => c.hp >= c.maxHp);
+    if (allFull) {
+      toast({ title: "Squad already rested", description: "All fighters are already at full health!" });
+      return;
+    }
+
+    try {
+      await fetchWithAuth('/api/inventory', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId: 'shelter-tent', quantity: 1 })
+      });
+      setShelterTentsCount(prev => Math.max(0, prev - 1));
+
+      const updatedParty = run.party.map(c => {
+        const healAmt = Math.max(25, Math.floor(c.maxHp * 0.5));
+        return { ...c, hp: Math.min(c.maxHp, c.hp + healAmt) };
+      });
+
+      const totalHp = updatedParty.reduce((s, c) => s + c.hp, 0);
+      setRun({ ...run, party: updatedParty, currentHp: totalHp });
+      savePersistentPartyHp(updatedParty);
+
+      toast({
+        title: "Traveler tent pitched! ⛺",
+        description: "Your squad rested at the field shelter! All fighters recovered 50% HP."
+      });
+    } catch (e) {
+      logger.error('Failed to pitch traveler tent', e);
+    }
+  };
 
   useEffect(() => {
     async function loadBuffs() {
@@ -519,15 +653,18 @@ export default function DungeonPage() {
     const party: DungeonPartyMember[] = [];
     const draftSize = Math.min(6, pool.length);
 
+    const savedHpMap = getPersistentPartyHp();
+
     for (let i = 0; i < draftSize; i++) {
       if (pool.length === 0) break;
       const randomIndex = Math.floor(Math.random() * pool.length);
       const creature = pool[randomIndex];
       if (creature) {
         const memberMaxHp = 50 + Math.floor(creature.stats.def * 2.5);
+        const persistentHp = typeof savedHpMap[creature.id] === 'number' ? (savedHpMap[creature.id] as number) : memberMaxHp;
         party.push({
           ...creature,
-          hp: memberMaxHp,
+          hp: Math.max(0, persistentHp),
           maxHp: memberMaxHp
         });
         pool.splice(randomIndex, 1);
@@ -537,11 +674,19 @@ export default function DungeonPage() {
     // Fallback
     if (party.length === 0) {
       const fbMaxHp = 50 + Math.floor(DEFAULT_CREATURE.stats.def * 2.5);
+      const persistentHp = typeof savedHpMap[DEFAULT_CREATURE.id] === 'number' ? (savedHpMap[DEFAULT_CREATURE.id] as number) : fbMaxHp;
       party.push({
         ...DEFAULT_CREATURE,
-        hp: fbMaxHp,
+        hp: Math.max(0, persistentHp),
         maxHp: fbMaxHp
       });
+    }
+
+    // If all members are completely fainted, grant emergency 30% health revival
+    const allFainted = party.every(p => p.hp <= 0);
+    if (allFainted) {
+      party.forEach(p => { p.hp = Math.max(15, Math.floor(p.maxHp * 0.3)); });
+      savePersistentPartyHp(party);
     }
 
     const totalHp = party.reduce((s, c) => s + c.hp, 0);
@@ -615,8 +760,25 @@ export default function DungeonPage() {
     }
   };
 
-  const fight = (actionType: 'strike' | 'elemental' | 'counter' | 'signature' | 'status' = 'strike') => {
+  const fight = (actionType: 'strike' | 'elemental' | 'counter' | 'signature' | 'status' | 'potion' = 'strike') => {
     if (!run || run.currentEncounter.type !== 'monster' || !selectedCreature) return;
+
+    if (actionType === 'potion') {
+      if (healthPotionsCount <= 0) {
+        toast({ title: "No health potions", description: "You don't have any health potions in your inventory.", variant: "destructive" });
+        return;
+      }
+      try {
+        fetchWithAuth('/api/inventory', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ itemId: 'potion-health', quantity: 1 })
+        });
+        setHealthPotionsCount(prev => Math.max(0, prev - 1));
+      } catch (e) {
+        logger.error('Failed to consume health potion in combat', e);
+      }
+    }
 
     // Check skill cooldowns
     if (actionType === 'elemental' && cooldowns.burst > 0) {
@@ -683,7 +845,10 @@ export default function DungeonPage() {
     const isEnemyCrit = Math.random() < 0.05;
 
     // 3. Action Type Resolution
-    if (actionType === 'status') {
+    if (actionType === 'potion') {
+      healAmount = 50;
+      logEntries.push(`🧪 ${activeFighter.name} drank a Health potion! Restored +50 HP!`);
+    } else if (actionType === 'status') {
       const statusSpell = getStatusSpell(activeFighter.type);
       if (statusSpell.type === 'heal') {
         healAmount = Math.floor(activeFighter.maxHp * 0.35);
@@ -799,6 +964,8 @@ export default function DungeonPage() {
       }
       return c;
     });
+
+    savePersistentPartyHp(updatedParty);
 
     const activeFighterAfterDamage = updatedParty.find(c => c.id === selectedCreature.id)!;
     const isFighterFainted = activeFighterAfterDamage.hp <= 0;
@@ -1734,6 +1901,50 @@ export default function DungeonPage() {
                       </Badge>
                     </div>
 
+                    {/* Field Camp & Medical Supplies (Outside Combat Healing & Tent) */}
+                    <div className="bg-zinc-950/80 border border-emerald-950/40 rounded-xl p-3 flex flex-col sm:flex-row items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">⛺</span>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-serif font-bold text-amber-200">Field shelter & supplies</span>
+                          <span className="text-[10px] text-zinc-400">Heal wounded squad fighters before entering battle</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => handleUseHealthPotionOutside()}
+                          disabled={healthPotionsCount <= 0}
+                          className={`h-8 text-xs font-serif font-bold px-3 rounded-lg flex items-center gap-1.5 flex-1 sm:flex-initial ${
+                            healthPotionsCount > 0
+                              ? 'btn-rpg-emerald text-[#fef9c3]'
+                              : 'bg-zinc-900 border border-zinc-800 text-zinc-500 opacity-50 cursor-not-allowed'
+                          }`}
+                        >
+                          <span>🧪</span>
+                          <span>Heal (+50 HP)</span>
+                          <span className="text-[9px] font-mono px-1 rounded bg-black/40">({healthPotionsCount})</span>
+                        </Button>
+
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={handlePitchTravelerTent}
+                          disabled={shelterTentsCount <= 0}
+                          className={`h-8 text-xs font-serif font-bold px-3 rounded-lg flex items-center gap-1.5 flex-1 sm:flex-initial ${
+                            shelterTentsCount > 0
+                              ? 'bg-amber-600 hover:bg-amber-500 text-black border border-amber-400/50 shadow-md'
+                              : 'bg-zinc-900 border border-zinc-800 text-zinc-500 opacity-50 cursor-not-allowed'
+                          }`}
+                        >
+                          <span>⛺</span>
+                          <span>Rest at tent (50% all)</span>
+                          <span className="text-[9px] font-mono px-1 rounded bg-black/40">({shelterTentsCount})</span>
+                        </Button>
+                      </div>
+                    </div>
+
                     {/* 2 ROWS OF 3 FIGHTERS GRID LAYOUT (Natural Aspect Ratio, Hugs Content, Zero Cropping) */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 w-full">
                       {(run.party || [DEFAULT_CREATURE]).map((creature, idx) => {
@@ -2090,6 +2301,28 @@ export default function DungeonPage() {
                                 </span>
                                 <span className="text-[10px] font-mono text-zinc-400 truncate mt-0.5">
                                   {cooldowns.guard > 0 ? `⏳ Cooldown (${cooldowns.guard}t)` : `-60% dmg (⚡ ready)`}
+                                </span>
+                              </Button>
+                            </div>
+
+                            {/* In-Combat Medical Potion Action */}
+                            <div className="w-full pt-1">
+                              <Button
+                                type="button"
+                                onClick={() => fight('potion')}
+                                disabled={healthPotionsCount <= 0}
+                                className={`w-full h-11 px-3.5 flex items-center justify-between border rounded-xl shadow-lg transition-all text-center overflow-hidden font-serif ${
+                                  healthPotionsCount > 0
+                                    ? 'btn-rpg-emerald text-[#fef9c3] hover:brightness-110 active:scale-95'
+                                    : 'bg-zinc-950 border-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed'
+                                }`}
+                              >
+                                <span className="flex items-center gap-2 font-bold text-xs">
+                                  <span>🧪</span>
+                                  <span>Drink health potion (+50 HP)</span>
+                                </span>
+                                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-black/50 border border-emerald-500/30 text-emerald-300">
+                                  {healthPotionsCount} available
                                 </span>
                               </Button>
                             </div>

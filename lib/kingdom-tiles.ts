@@ -108,6 +108,11 @@ export const KINGDOM_TILES: KingdomTile[] = [
       '/images/items/sword/sword-twig.webp',
       '/images/items/sword/sword-sunblade.webp',
       '/images/items/sword/sword-irony.webp',
+      '/images/items/sword/sword-morningstar.webp',
+      '/images/items/sword/sword-solaraxe.webp',
+      '/images/items/shield/shield-shellow.webp',
+      '/images/items/materials/material-steel.webp',
+      '/images/items/materials/material-crystal.webp',
       '/images/items/armor/armor-normalo.webp',
       '/images/items/armor/armor-darko.webp',
       '/images/items/armor/armor-blanko.webp'
@@ -842,8 +847,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyGoldAmount: 80,
     luckyChance: 0.12,
     clickMessage: 'View achievements and glory.',
-    possibleItems: [],
-    itemType: 'none',
+    possibleItems: [
+      '/images/items/materials/material-gold.webp',
+      '/images/items/materials/material-crystal.webp',
+      '/images/items/artifact/ring/artifact-ringo.webp'
+    ],
+    itemType: 'artifact',
     rarity: 'rare',
     image: '/images/kingdom-tiles/Monument.webp',
     cost: 500
@@ -856,8 +865,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyGoldAmount: 70,
     luckyChance: 0.14,
     clickMessage: 'Socialize with other players.',
-    possibleItems: [],
-    itemType: 'none',
+    possibleItems: [
+      '/images/items/materials/material-water.webp',
+      '/images/items/food/fish-red.webp',
+      '/images/items/food/fish-silver.webp'
+    ],
+    itemType: 'food',
     rarity: 'uncommon',
     image: '/images/kingdom-tiles/Inn.webp',
     cost: 200
@@ -870,8 +883,12 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyGoldAmount: 100,
     luckyChance: 0.15,
     clickMessage: 'Trade items and resources.',
-    possibleItems: [],
-    itemType: 'none',
+    possibleItems: [
+      '/images/items/materials/material-gold.webp',
+      '/images/items/materials/material-silver.webp',
+      '/images/items/materials/material-crystal.webp'
+    ],
+    itemType: 'material',
     rarity: 'common',
     image: '/images/kingdom-tiles/MarketStalls.webp',
     cost: 400
@@ -884,8 +901,13 @@ export const KINGDOM_TILES: KingdomTile[] = [
     luckyGoldAmount: 150,
     luckyChance: 0.12,
     clickMessage: 'Delve into the depths!',
-    possibleItems: [],
-    itemType: 'none',
+    possibleItems: [
+      '/images/items/potion/potion-health.webp',
+      '/images/items/potion/potion-mana.webp',
+      '/images/items/materials/material-crystal.webp',
+      '/images/items/materials/material-steel.webp'
+    ],
+    itemType: 'potion',
     rarity: 'epic',
     image: '/images/tiles/dungeon-tile.webp',
     cost: 1000

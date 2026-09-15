@@ -485,8 +485,8 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
               body: JSON.stringify({ deltas: [{ stat: 'experience', delta: 100 }] })
             });
             toast({
-              title: "Experience Gained! ⭐",
-              description: "Consumed Experience Potion. Gained +100 XP!"
+              title: "Experience gained! ⭐",
+              description: "Consumed exp potion. Gained +100 XP!"
             });
           } else if (item.id === 'potion-gold') {
             await fetch('/api/character-stats', {
@@ -495,12 +495,42 @@ export function InventoryBagOverlay({ open, onClose }: InventoryBagOverlayProps)
               body: JSON.stringify({ deltas: [{ stat: 'gold', delta: 200 }] })
             });
             toast({
-              title: "Gold Potion Consumed! 🪙",
-              description: "Added +200 Gold to your character stats."
+              title: "Gold potion consumed! 🪙",
+              description: "Added +200 gold to your character stats."
+            });
+          } else if (item.id === 'currency-gold-pile' || item.id === 'currency-pouch') {
+            const goldToAdd = item.id === 'currency-gold-pile' ? 100 : 45;
+            await fetch('/api/character-stats', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ deltas: [{ stat: 'gold', delta: goldToAdd }] })
+            });
+            window.dispatchEvent(new CustomEvent('gold-update', { detail: { delta: goldToAdd } }));
+            toast({
+              title: "Gold claimed! 💰",
+              description: `Added +${goldToAdd} gold to your treasury.`
+            });
+          } else if (item.id === 'shelter-tent') {
+            const savedHpMap = (() => {
+              try { return JSON.parse(localStorage.getItem('dungeon_fighter_hp_map') || '{}'); }
+              catch { return {}; }
+            })();
+            for (const fId of Object.keys(savedHpMap)) {
+              savedHpMap[fId] = Math.min(100, (savedHpMap[fId] || 50) + 50);
+            }
+            localStorage.setItem('dungeon_fighter_hp_map', JSON.stringify(savedHpMap));
+            toast({
+              title: "Traveler tent pitched! ⛺",
+              description: "Your field shelter was pitched! All dungeon fighters rested and recovered +50 HP."
+            });
+          } else if (item.id === 'food-grain-sack') {
+            toast({
+              title: "Grain distributed! 🌾",
+              description: "Citizen rations provided! Your hungry citizens in the kingdom have been fed."
             });
           } else {
             toast({
-              title: "Used Item",
+              title: "Item used",
               description: `You used ${item.name}`,
             });
           }
