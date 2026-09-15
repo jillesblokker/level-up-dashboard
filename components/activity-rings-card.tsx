@@ -85,7 +85,7 @@ export function ActivityRingsCard({
       <div className="px-5 py-3.5 border-b border-[#2d2115] bg-gradient-to-r from-[#140e09] via-[#1a130c] to-[#140e09] flex items-center justify-between z-20">
         <div className="flex items-center gap-2.5">
           <span className="text-amber-500 font-serif text-base select-none">✢</span>
-          <h2 className="text-sm sm:text-base font-serif font-bold text-amber-100 tracking-wider uppercase drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+          <h2 className="text-sm sm:text-base font-serif font-bold text-amber-100 tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
             Daily momentum
           </h2>
         </div>
@@ -98,39 +98,39 @@ export function ActivityRingsCard({
       <div className="flex-1 flex flex-col justify-between p-4 sm:p-5 z-20 space-y-4">
         
         {/* TOP SECTION: Astrolabe Centerpiece flanked by Medieval Heraldic Banners */}
-        <div className="w-full flex items-center justify-center gap-2 sm:gap-4 md:gap-6 lg:gap-8 py-2 min-h-[300px] sm:min-h-[360px] md:min-h-[400px]">
+        <div className="w-full flex items-center justify-center gap-1.5 xs:gap-2 sm:gap-3 md:gap-4 xl:gap-6 py-2 min-h-[250px] sm:min-h-[280px] md:min-h-[300px] xl:min-h-[340px] max-w-full overflow-hidden">
           
           {/* LEFT BANNER: Royal Blue Velvet with Golden Rampant Lion */}
-          <div className="hidden sm:flex flex-col items-center shrink-0 select-none w-14 sm:w-16 md:w-20 lg:w-22 h-[280px] sm:h-[320px] md:h-[350px] justify-center">
+          <div className="hidden sm:flex flex-col items-center shrink-0 select-none w-10 sm:w-11 md:w-12 lg:w-12 xl:w-14 h-[210px] sm:h-[230px] md:h-[250px] lg:h-[255px] xl:h-[280px] justify-center">
             {/* Iron bracket */}
             <div className="w-full flex items-center justify-center relative mb-0.5">
               <div className="h-1.5 w-full bg-gradient-to-r from-[#1c1917] via-[#57432e] to-[#1c1917] rounded-full border-t border-[#8c6d48]/40 shadow-md" />
-              <div className="absolute -left-1.5 w-3 h-3 rounded-full bg-[#3d2e1f] border border-[#8c6d48]/70 shadow" />
-              <div className="absolute -right-1.5 w-3 h-3 rounded-full bg-[#3d2e1f] border border-[#8c6d48]/70 shadow" />
+              <div className="absolute -left-1.5 w-2.5 h-2.5 rounded-full bg-[#3d2e1f] border border-[#8c6d48]/70 shadow" />
+              <div className="absolute -right-1.5 w-2.5 h-2.5 rounded-full bg-[#3d2e1f] border border-[#8c6d48]/70 shadow" />
             </div>
             {/* Blue Banner cloth */}
-            <div className="w-12 sm:w-14 md:w-16 lg:w-18 h-[210px] sm:h-[250px] md:h-[280px] bg-gradient-to-b from-[#172554] via-[#1e3a8a] to-[#0f172a] border-x-2 border-[#8c6d48]/60 shadow-[0_8px_20px_rgba(0,0,0,0.85)] flex flex-col items-center pt-3 pb-1 relative">
-              <div className="absolute inset-x-1 top-0 h-1 bg-[#d97706]/50" />
+            <div className="w-8 sm:w-9 md:w-10 lg:w-10 xl:w-12 h-[155px] sm:h-[175px] md:h-[190px] lg:h-[195px] xl:h-[220px] bg-gradient-to-b from-[#172554] via-[#1e3a8a] to-[#0f172a] border-x-2 border-[#8c6d48]/60 shadow-[0_8px_20px_rgba(0,0,0,0.85)] flex flex-col items-center pt-2.5 pb-1 relative">
+              <div className="absolute inset-x-0.5 top-0 h-1 bg-[#d97706]/50" />
               {/* Heraldic Lion Crest */}
-              <div className="w-8 h-10 sm:w-10 sm:h-12 md:w-11 md:h-14 flex items-center justify-center text-amber-400 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] opacity-95 my-auto">
+              <div className="w-6 h-8 sm:w-7 sm:h-9 md:w-8 md:h-10 flex items-center justify-center text-amber-400 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] opacity-95 my-auto">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
                   <path d="M12 2C10.9 2 10 2.9 10 4C10 4.3 10.1 4.6 10.2 4.9C9.2 5.3 8.3 6.1 7.8 7.1C7.2 8.3 7.3 9.7 7.9 10.8C7.5 11.2 7.2 11.8 7.1 12.4C6.5 12.1 5.8 12.2 5.3 12.6C4.6 13.2 4.5 14.2 5.1 14.9L6.5 16.5C6.1 17.5 6.4 18.7 7.2 19.5C8 20.3 9.2 20.6 10.2 20.2L12 22L13.8 20.2C14.8 20.6 16 20.3 16.8 19.5C17.6 18.7 17.9 17.5 17.5 16.5L18.9 14.9C19.5 14.2 19.4 13.2 18.7 12.6C18.2 12.2 17.5 12.1 16.9 12.4C16.8 11.8 16.5 11.2 16.1 10.8C16.7 9.7 16.8 8.3 16.2 7.1C15.7 6.1 14.8 5.3 13.8 4.9C13.9 4.6 14 4.3 14 4C14 2.9 13.1 2 12 2Z" />
                 </svg>
               </div>
-              <div className="text-[10px] text-[#fde68a]/80 font-serif font-bold tracking-widest mt-auto mb-1">VALOR</div>
+              <div className="text-[8px] sm:text-[9px] text-[#fde68a]/80 font-serif font-bold tracking-widest mt-auto mb-1">VALOR</div>
               {/* Swallowtail cut at bottom */}
-              <div className="w-full h-4 flex">
+              <div className="w-full h-3.5 flex">
                 <div className="w-1/2 h-full bg-[#0d0b08] [clip-path:polygon(0_0,100%_100%,0_100%)]" />
                 <div className="w-1/2 h-full bg-[#0d0b08] [clip-path:polygon(100%_0,100%_100%,0_100%)]" />
               </div>
             </div>
             {/* Hanging Tassel */}
-            <div className="w-1.5 h-3 bg-[#d97706]/80 mx-auto" />
-            <div className="w-2.5 h-2.5 rounded-full bg-[#b45309] border border-[#fef3c7]/60 shadow-md" />
+            <div className="w-1 h-2.5 bg-[#d97706]/80 mx-auto" />
+            <div className="w-2 h-2 rounded-full bg-[#b45309] border border-[#fef3c7]/60 shadow-md" />
           </div>
 
-          {/* CENTER: Royal Astrolabe Progress Dial - Scaled up to match Builder Card height */}
-          <div className="relative flex-shrink-0 w-[270px] h-[270px] xs:w-[290px] xs:h-[290px] sm:w-[330px] sm:h-[330px] md:w-[370px] md:h-[370px] lg:w-[390px] lg:h-[390px] xl:w-[410px] xl:h-[410px] transition-all duration-300">
+          {/* CENTER: Royal Astrolabe Progress Dial */}
+          <div className="relative flex-shrink-0 w-[205px] h-[205px] xs:w-[225px] xs:h-[225px] sm:w-[240px] sm:h-[240px] md:w-[255px] md:h-[255px] lg:w-[265px] lg:h-[265px] xl:w-[290px] xl:h-[290px] transition-all duration-300 max-w-full">
             <svg
               viewBox="0 0 280 280"
               className="w-full h-full drop-shadow-[0_12px_32px_rgba(0,0,0,0.95)] select-none"
@@ -410,32 +410,32 @@ export function ActivityRingsCard({
           </div>
 
           {/* RIGHT BANNER: Crimson Silk Velvet with Golden Fleur-de-lis */}
-          <div className="hidden sm:flex flex-col items-center shrink-0 select-none w-14 sm:w-16 md:w-20 lg:w-22 h-[280px] sm:h-[320px] md:h-[350px] justify-center">
+          <div className="hidden sm:flex flex-col items-center shrink-0 select-none w-10 sm:w-11 md:w-12 lg:w-12 xl:w-14 h-[210px] sm:h-[230px] md:h-[250px] lg:h-[255px] xl:h-[280px] justify-center">
             {/* Iron bracket */}
             <div className="w-full flex items-center justify-center relative mb-0.5">
               <div className="h-1.5 w-full bg-gradient-to-r from-[#1c1917] via-[#57432e] to-[#1c1917] rounded-full border-t border-[#8c6d48]/40 shadow-md" />
-              <div className="absolute -left-1.5 w-3 h-3 rounded-full bg-[#3d2e1f] border border-[#8c6d48]/70 shadow" />
-              <div className="absolute -right-1.5 w-3 h-3 rounded-full bg-[#3d2e1f] border border-[#8c6d48]/70 shadow" />
+              <div className="absolute -left-1.5 w-2.5 h-2.5 rounded-full bg-[#3d2e1f] border border-[#8c6d48]/70 shadow" />
+              <div className="absolute -right-1.5 w-2.5 h-2.5 rounded-full bg-[#3d2e1f] border border-[#8c6d48]/70 shadow" />
             </div>
             {/* Crimson Banner cloth */}
-            <div className="w-12 sm:w-14 md:w-16 lg:w-18 h-[210px] sm:h-[250px] md:h-[280px] bg-gradient-to-b from-[#881337] via-[#9f1239] to-[#4c0519] border-x-2 border-[#8c6d48]/60 shadow-[0_8px_20px_rgba(0,0,0,0.85)] flex flex-col items-center pt-3 pb-1 relative">
-              <div className="absolute inset-x-1 top-0 h-1 bg-[#d97706]/50" />
+            <div className="w-8 sm:w-9 md:w-10 lg:w-10 xl:w-12 h-[155px] sm:h-[175px] md:h-[190px] lg:h-[195px] xl:h-[220px] bg-gradient-to-b from-[#881337] via-[#9f1239] to-[#4c0519] border-x-2 border-[#8c6d48]/60 shadow-[0_8px_20px_rgba(0,0,0,0.85)] flex flex-col items-center pt-2.5 pb-1 relative">
+              <div className="absolute inset-x-0.5 top-0 h-1 bg-[#d97706]/50" />
               {/* Heraldic Fleur-de-lis Crest */}
-              <div className="w-8 h-10 sm:w-10 sm:h-12 md:w-11 md:h-14 flex items-center justify-center text-amber-300 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] opacity-95 my-auto">
+              <div className="w-6 h-8 sm:w-7 sm:h-9 md:w-8 md:h-10 flex items-center justify-center text-amber-300 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] opacity-95 my-auto">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
                   <path d="M12 2C11.5 4 10.5 5.8 9.2 7.2C8.3 8.1 7.2 8.7 6 9C5.5 6.5 7 4 8.5 2.5C7.2 3.2 4 6 4 9.5C4 12 5.5 13.5 7.5 13.5C8.8 13.5 9.9 12.8 10.5 12C10.3 13.2 10 15 8 16.5H16C14 15 13.7 13.2 13.5 12C14.1 12.8 15.2 13.5 16.5 13.5C18.5 13.5 20 12 20 9.5C20 6 16.8 3.2 15.5 2.5C17 4 18.5 6.5 18 9C16.8 8.7 15.7 8.1 14.8 7.2C13.5 5.8 12.5 4 12 2ZM6 18H18C18 19 17 21 12 22C7 21 6 19 6 18Z" />
                 </svg>
               </div>
-              <div className="text-[10px] text-[#fde68a]/80 font-serif font-bold tracking-widest mt-auto mb-1">HONOR</div>
+              <div className="text-[8px] sm:text-[9px] text-[#fde68a]/80 font-serif font-bold tracking-widest mt-auto mb-1">HONOR</div>
               {/* Swallowtail cut at bottom */}
-              <div className="w-full h-4 flex">
+              <div className="w-full h-3.5 flex">
                 <div className="w-1/2 h-full bg-[#0d0b08] [clip-path:polygon(0_0,100%_100%,0_100%)]" />
                 <div className="w-1/2 h-full bg-[#0d0b08] [clip-path:polygon(100%_0,100%_100%,0_100%)]" />
               </div>
             </div>
             {/* Hanging Tassel */}
-            <div className="w-1.5 h-3 bg-[#d97706]/80 mx-auto" />
-            <div className="w-2.5 h-2.5 rounded-full bg-[#b45309] border border-[#fef3c7]/60 shadow-md" />
+            <div className="w-1 h-2.5 bg-[#d97706]/80 mx-auto" />
+            <div className="w-2 h-2 rounded-full bg-[#b45309] border border-[#fef3c7]/60 shadow-md" />
           </div>
 
         </div>
@@ -511,7 +511,7 @@ export function ActivityRingsCard({
             {/* Content & Carved Bar */}
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-baseline mb-1">
-                <span className="text-xs font-serif font-bold text-blue-200/90 tracking-wide">XP Today</span>
+                <span className="text-xs font-serif font-bold text-blue-200/90 tracking-wide">Daily exp</span>
                 <span className="text-xs font-serif font-bold text-blue-300">
                   {xpEarnedToday} <span className="text-[#8c6d48] font-normal">/</span> {targetXp}
                 </span>
