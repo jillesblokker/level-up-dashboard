@@ -1265,7 +1265,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     const level = citizen.level || 1;
     if (level >= 100) return { success: false, error: 'Maximum level (+100) reached' };
 
-    const goldCost = Math.min(500, 50 * level);
+    const goldCost = Math.round(100 * Math.pow(level, 1.25));
 
     // Check stats & gold
     try {
