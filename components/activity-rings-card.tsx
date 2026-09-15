@@ -3,6 +3,7 @@
 import React from "react"
 import { cn } from "@/lib/utils"
 import { CollectibleRune } from "@/components/runes/collectible-rune"
+import { GildedCornerBrackets } from "@/components/ui/gilded-corner-brackets"
 
 // ── Astrolabe Math Constants (viewBox 0 0 280 280) ───────────────────────────
 const CX = 140
@@ -74,12 +75,9 @@ export function ActivityRingsCard({
 
   return (
     <div className="h-full flex flex-col rounded-2xl bg-[#0d0b08] border-2 border-[#42311f] shadow-[0_10px_30px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(255,255,255,0.06)] overflow-hidden relative group">
-      {/* Antique medieval corner rivets & inner gold hairline border */}
+      {/* Antique medieval corner rivets & gilded brass brackets */}
       <div className="absolute inset-1.5 rounded-xl border border-[#2b2014]/70 pointer-events-none z-10" />
-      <div className="absolute top-2 left-2 text-[#785934] text-[10px] select-none pointer-events-none">✦</div>
-      <div className="absolute top-2 right-2 text-[#785934] text-[10px] select-none pointer-events-none">✦</div>
-      <div className="absolute bottom-2 left-2 text-[#785934] text-[10px] select-none pointer-events-none">✦</div>
-      <div className="absolute bottom-2 right-2 text-[#785934] text-[10px] select-none pointer-events-none">✦</div>
+      <GildedCornerBrackets size="sm" inset="inset-1" />
 
       {/* Header with Cross Fleurée and Gold Serif */}
       <div className="px-5 py-3.5 border-b border-[#2d2115] bg-gradient-to-r from-[#140e09] via-[#1a130c] to-[#140e09] flex items-center justify-between z-20">

@@ -16,6 +16,8 @@ import { QuestToggleButton } from '@/components/quest-toggle-button'
 import { QuestCardSkeleton } from '@/components/skeletons/quest-card-skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
 import { HeraldicShield } from '@/components/ui/heraldic-shield'
+import { MedievalWaxStamp } from '@/components/ui/medieval-wax-stamp'
+import { RewardSocket } from '@/components/ui/reward-socket'
 import { cn } from '@/lib/utils'
 import { TEXT_CONTENT } from '@/lib/text-content'
 
@@ -719,6 +721,18 @@ export function QuestOrganization({
                           }`}
                         aria-label={`Quest card: ${quest.name}`}
                       >
+                        {/* Completed Notary Wax Stamp Watermark */}
+                        {quest.completed && (
+                          <div className="absolute right-2.5 bottom-2 z-0 pointer-events-none opacity-80">
+                            <MedievalWaxStamp
+                              size="sm"
+                              variant="crimson"
+                              text="Complete"
+                              subtext="Royal guild"
+                            />
+                          </div>
+                        )}
+
                         {/* Mobile swipe/tap affordance indicator strip */}
                         {!quest.completed && (
                           <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-amber-600/10 via-amber-500/40 to-amber-600/10 rounded-r-xl pointer-events-none md:hidden" />
@@ -861,17 +875,13 @@ export function QuestOrganization({
 
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-zinc-300">Rewards</span>
-                          <div className="flex items-center gap-2">
+                          <span className="text-xs font-serif font-bold text-zinc-400">Rewards</span>
+                          <div className="flex items-center gap-1.5">
                             {quest.gold && quest.gold > 0 && (
-                              <Badge variant="outline" className="text-amber-400 border-amber-400 text-xs">
-                                {quest.gold} Gold
-                              </Badge>
+                              <RewardSocket type="gold" amount={quest.gold} />
                             )}
                             {quest.xp && quest.xp > 0 && (
-                              <Badge variant="outline" className="text-blue-400 border-blue-400 text-xs">
-                                {quest.xp} XP
-                              </Badge>
+                              <RewardSocket type="xp" amount={quest.xp} />
                             )}
                           </div>
                         </div>

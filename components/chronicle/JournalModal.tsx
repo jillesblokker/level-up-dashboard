@@ -5,11 +5,13 @@ import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { Sparkles, Frown, Meh, Smile, Laugh, PartyPopper } from 'lucide-react'
+import { Sparkles, Frown, Meh, Smile, Laugh, PartyPopper, BookOpen, Feather } from 'lucide-react'
 import { useAuth } from '@clerk/nextjs'
 import { toast } from 'sonner'
 import { updateCharacterStats } from '@/lib/character-stats-service'
 import { cn } from '@/lib/utils'
+import { BookmarkTab } from '@/components/ui/bookmark-tab'
+import { GildedCornerBrackets } from '@/components/ui/gilded-corner-brackets'
 
 interface JournalModalProps {
     isOpen: boolean
@@ -153,7 +155,13 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-md max-h-[90vh] bg-zinc-950 border-zinc-800 text-amber-50 p-0 overflow-hidden flex flex-col shadow-2xl">
+            <DialogContent className="sm:max-w-lg max-h-[92vh] bg-[#0d0a07] border-2 border-[#5c3e21] text-amber-50 p-0 overflow-hidden flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.98)] rounded-2xl relative">
+                {/* Antique Gilded Corner Tome Brackets */}
+                <GildedCornerBrackets size="md" inset="inset-1" />
+
+                {/* Stitched leather inner border */}
+                <div className="absolute inset-2 rounded-xl border border-dashed border-[#8c6d48]/30 pointer-events-none z-10" />
+
                 {/* Background Effects */}
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-amber-500/10 rounded-full blur-[100px] animate-pulse" />
@@ -185,7 +193,7 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                                     </span>
                                 )}
                             </div>
-                            <div className="grid grid-cols-5 gap-2 bg-zinc-900 p-2 rounded-2xl border border-white/5 ">
+                            <div className="grid grid-cols-5 gap-2 bg-[#120d08] p-2 rounded-2xl border border-[#3e2a18]/80 shadow-inner">
                                 {moods.map((m) => {
                                     const Icon = m.icon
                                     const isSelected = mood === m.score
@@ -268,54 +276,65 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                             </div>
                         </div>
 
-                        {/* Chronicle Entry Section */}
-                        <div className="space-y-4">
+                        {/* Chronicle Entry Section with Illuminated Codex Framing & Bookmark Tab */}
+                        <div className="space-y-3">
                             <div className="flex justify-between items-center px-1">
-                                <label className="text-xs font-bold uppercase tracking-widest text-zinc-500">The Chronicle</label>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
+                                <label className="text-xs font-serif font-bold text-amber-200/90 tracking-wide flex items-center gap-1.5">
+                                    <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                                    Annals of reflection
+                                </label>
+                                <BookmarkTab
+                                    icon={<Sparkles className="w-3 h-3 text-amber-300" />}
+                                    label="Inspiration"
+                                    variant="leather"
                                     onClick={() => {
                                         const randomPrompt = CHRONICLE_INSPIRATION_PROMPTS[Math.floor(Math.random() * CHRONICLE_INSPIRATION_PROMPTS.length)];
                                         setContent(prev => prev ? `${prev}\n\nPrompt: ${randomPrompt}` : `Prompt: ${randomPrompt}\n\n`);
                                     }}
-                                    className="h-7 text-[10px] uppercase tracking-widest text-amber-500/60 hover:text-amber-400 hover:bg-amber-950/40 rounded-full px-3 border border-amber-500/10"
-                                >
-                                    <Sparkles className="w-3 h-3 mr-1.5" />
-                                    Inspiration
-                                </Button>
+                                    title="Draw random reflection prompt"
+                                />
                             </div>
-                            <div className="relative group/textarea">
-                                <div className="absolute -inset-[1px] bg-gradient-to-b from-amber-500/20 to-transparent rounded-2xl opacity-0 group-hover/textarea:opacity-100 transition-opacity" />
+
+                            {/* Illuminated Manuscript Textarea Container */}
+                            <div className="relative rounded-2xl bg-gradient-to-b from-[#140e08] via-[#1c130b] to-[#120c07] border-2 border-[#5c3e21]/80 p-4 sm:p-5 shadow-[inset_0_3px_10px_rgba(0,0,0,0.9)] group/textarea">
+                                <div className="flex justify-between items-center pb-2 mb-2 border-b border-[#3d2714]/80">
+                                    <span className="text-[11px] font-serif font-bold text-amber-200/90 tracking-wide flex items-center gap-1.5">
+                                        <Feather className="w-3.5 h-3.5 text-amber-400" />
+                                        Manuscript parchment
+                                    </span>
+                                    <span className="text-[10px] font-mono text-zinc-500">
+                                        {initialData?.entry_date || new Date().toISOString().split('T')[0]}
+                                    </span>
+                                </div>
                                 <Textarea
                                     value={content}
                                     onChange={(e) => setContent(e.target.value)}
-                                    placeholder="Speak your truth into the annals of history..."
-                                    className="relative bg-zinc-900 border-white/5 focus:border-amber-500/50 min-h-[160px] max-h-[250px] rounded-2xl p-4 text-zinc-200 placeholder:text-zinc-600 focus:ring-0 transition-all font-serif italic text-lg leading-relaxed shadow-inner"
+                                    placeholder="Inscribe your journey into the annals of Thrivehaven..."
+                                    className="relative bg-transparent border-0 focus:ring-0 p-0 text-amber-100 placeholder:text-zinc-600 font-serif italic text-base sm:text-lg leading-relaxed shadow-none resize-none min-h-[160px] max-h-[250px]"
                                 />
                                 {/* Bottom scroll decorative flair */}
-                                <div className="absolute bottom-2 right-2 opacity-20 group-hover/textarea:opacity-40 transition-opacity">
-                                    <Sparkles className="w-4 h-4 text-amber-500" />
+                                <div className="absolute bottom-2.5 right-2.5 opacity-25 group-hover/textarea:opacity-60 transition-opacity pointer-events-none">
+                                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="p-4 bg-zinc-950 border-t border-white/5 flex flex-row gap-3">
+                <div className="p-4 bg-[#0d0a07] border-t border-[#3e2a18] flex flex-row gap-3 relative z-10">
                     <Button
                         variant="ghost"
                         onClick={onClose}
-                        className="flex-1 h-12 rounded-xl text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900"
+                        className="flex-1 h-12 rounded-xl text-zinc-400 hover:text-amber-200 hover:bg-[#1a120b] border border-transparent hover:border-[#5c3e21]/50 font-serif"
                     >
-                        Skip for Now
+                        Skip for now
                     </Button>
                     <Button
                         onClick={handleSave}
                         disabled={isSubmitting || !mood}
-                        className="flex-[2] h-12 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg shadow-amber-900/20 border-t border-white/10 active:scale-[0.98] transition-all"
+                        className="flex-[2] h-12 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-stone-950 font-serif font-bold rounded-xl shadow-lg shadow-amber-950/40 border-t border-amber-300/40 active:scale-[0.98] transition-all"
                     >
-                        {isSubmitting ? 'Inscribing...' : 'Inscribe Chronicle'}
+                        {isSubmitting ? 'Inscribing...' : 'Inscribe chronicle'}
                     </Button>
                 </div>
             </DialogContent>
