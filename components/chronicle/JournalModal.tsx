@@ -153,9 +153,9 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-lg max-h-[92vh] bg-[#0d0a07] border-2 border-[#5c3e21] text-amber-50 p-0 overflow-hidden flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.98)] rounded-2xl relative">
+            <DialogContent className="sm:max-w-lg max-h-[88dvh] bg-[#0d0a07] border-2 border-[#5c3e21] text-amber-50 p-0 overflow-hidden flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.98)] rounded-2xl">
                 {/* Antique Gilded Corner Tome Brackets */}
-                <GildedCornerBrackets size="md" inset="inset-1" />
+                <GildedCornerBrackets size="sm" inset="inset-1" />
 
                 {/* Stitched leather inner border */}
                 <div className="absolute inset-2 rounded-xl border border-dashed border-[#8c6d48]/30 pointer-events-none z-10" />
