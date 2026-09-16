@@ -1542,20 +1542,6 @@ export const KINGDOM_TILES: KingdomTile[] = [
     cost: 2400
   },
   {
-    id: 'siege_foundry',
-    name: 'Siege foundry',
-    timerMinutes: 90,
-    normalGoldRange: [120, 280],
-    luckyGoldAmount: 1100,
-    luckyChance: 0.24,
-    clickMessage: 'Foundry artisans cast masterwork iron gears and siege artillery engines.',
-    possibleItems: ['material-damascus-steel', 'material-iron', 'material-steel'],
-    itemType: 'metal',
-    rarity: 'epic',
-    image: '/images/kingdom-tiles/siege_foundry.webp',
-    cost: 5800
-  },
-  {
     id: 'jester_stage',
     name: 'Jester stage',
     timerMinutes: 30,

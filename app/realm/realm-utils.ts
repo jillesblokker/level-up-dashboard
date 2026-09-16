@@ -229,7 +229,6 @@ export const getTileImage = (type: TileType | string): string => {
     if (t === 'granary') return '/images/kingdom-tiles/granary.webp';
     if (t === 'falconer') return '/images/kingdom-tiles/falconer.webp';
     if (t === 'scriptorium') return '/images/kingdom-tiles/scriptorium.webp';
-    if (t === 'siege_foundry') return '/images/kingdom-tiles/siege_foundry.webp';
     if (t === 'jester_stage') return '/images/kingdom-tiles/jester_stage.webp';
     return `/images/tiles/${t}-tile.webp`;
 };
