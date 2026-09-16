@@ -1005,19 +1005,19 @@ export default function DungeonPage() {
           reagent: { name: string; id: string; emoji: string; desc: string; qty: number };
         }> = {
           1: {
-            blueprint: { name: 'Blueprint: Serene Lake', img: '/images/tiles/lake.webp', desc: 'Unlocks serene water canal tiles for your realm sandbox (+10 DEF).', tileId: 'serene_lake' },
+            blueprint: { name: 'Blueprint: Serene Lake', img: '/images/kingdom-tiles/SereneLake.webp', desc: 'Unlocks serene water canal tiles for your realm sandbox (+10 DEF).', tileId: 'serene_lake' },
             reagent: { name: 'Deeproot Moss', id: 'material-deeproot', emoji: '🌿', desc: 'Rare botanical moss for Apotheca vitality brewing.', qty: 2 }
           },
           2: {
-            blueprint: { name: 'Blueprint: Waterway Canal', img: '/images/tiles/waterway_canal.webp', desc: 'Unlocks capital water trade canals (+30% Tax Gold).', tileId: 'waterway_canal' },
+            blueprint: { name: 'Blueprint: Waterway Canal', img: '/images/kingdom-tiles/WaterwayCanal.webp', desc: 'Unlocks capital water trade canals (+30% Tax Gold).', tileId: 'waterway_canal' },
             reagent: { name: 'Astral Shard', id: 'material-astral-shard', emoji: '🌌', desc: 'Glowing starlight crystal for Apotheca EXP elixirs.', qty: 2 }
           },
           3: {
-            blueprint: { name: 'Blueprint: Crystal Cascades', img: '/images/tiles/crystal_cavern.webp', desc: 'Unlocks glowing crystal waterfall tiles (+20 ATK, +20 DEF).', tileId: 'crystal_cascades' },
+            blueprint: { name: 'Blueprint: Crystal Cascades', img: '/images/kingdom-tiles/CrystalCavern.webp', desc: 'Unlocks glowing crystal waterfall tiles (+20 ATK, +20 DEF).', tileId: 'crystal_cascades' },
             reagent: { name: 'Abyssal Pearl', id: 'material-abyssal-pearl', emoji: '🦪', desc: 'Deep sea pearl for Apotheca fortune and gem draughts.', qty: 2 }
           },
           4: {
-            blueprint: { name: 'Blueprint: Astral Citadel', img: '/images/tiles/astral_citadel.webp', desc: 'Unlocks celestial star tower sanctuary (+35 ATK, +35 DEF).', tileId: 'astral_citadel' },
+            blueprint: { name: 'Blueprint: Astral Citadel', img: '/images/kingdom-tiles/AstralCitadelMonument.webp', desc: 'Unlocks celestial star tower sanctuary (+35 ATK, +35 DEF).', tileId: 'astral_citadel' },
             reagent: { name: 'Dragon Scale', id: 'material-dragon-scale', emoji: '🐉', desc: 'Molten wyrm scale for Apotheca dragon vigor max HP brews.', qty: 2 }
           }
         };

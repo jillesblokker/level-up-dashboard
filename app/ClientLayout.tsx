@@ -70,9 +70,6 @@ export default function ClientLayout({
         </div>
         <Toaster />
         <JournalModal isOpen={isJournalOpen} onClose={closeJournal} />
-        <div className="hidden">
-          <DevicePreview />
-        </div>
       </RealmProvider>
     </ThemeProvider>
   )

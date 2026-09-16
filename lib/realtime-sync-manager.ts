@@ -83,55 +83,57 @@ class RealtimeSyncManager {
       'challenges'
     ];
 
-    tablesToSubscribe.forEach((table) => {
-      try {
-        const channelName = `realtime:${table}:${userId.slice(0, 8)}`;
-        const channel = supabase.channel(channelName)
-          .on(
-            'postgres_changes',
-            {
-              event: '*',
-              schema: 'public',
+    try {
+      const channelName = `realtime:user_sync:${userId.slice(0, 8)}`;
+      let channel = supabase.channel(channelName);
+
+      tablesToSubscribe.forEach((table) => {
+        channel = channel.on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table,
+            filter: `user_id=eq.${userId}`,
+          },
+          (payload) => {
+            const syncEvent: RealtimeSyncEvent = {
               table,
-              filter: `user_id=eq.${userId}`,
-            },
-            (payload) => {
-              const syncEvent: RealtimeSyncEvent = {
-                table,
-                eventType: payload.eventType as any,
-                payload: payload.new || payload.old,
-                timestamp: Date.now(),
-              };
+              eventType: payload.eventType as any,
+              payload: payload.new || payload.old,
+              timestamp: Date.now(),
+            };
 
-              logger.debug(`[SYNC] Realtime event received [${table}]:`, payload.eventType);
+            logger.debug(`[SYNC] Realtime event received [${table}]:`, payload.eventType);
 
-              // Broadcast to local listeners
-              this.notifyListeners(syncEvent);
+            // Broadcast to local listeners
+            this.notifyListeners(syncEvent);
 
-              // Broadcast to other open browser tabs
-              if (this.broadcastChannel) {
-                try {
-                  this.broadcastChannel.postMessage({
-                    type: 'REALTIME_SYNC_EVENT',
-                    event: syncEvent,
-                  });
-                } catch { /* ignore */ }
-              }
+            // Broadcast to other open browser tabs
+            if (this.broadcastChannel) {
+              try {
+                this.broadcastChannel.postMessage({
+                  type: 'REALTIME_SYNC_EVENT',
+                  event: syncEvent,
+                });
+              } catch { /* ignore */ }
             }
-          )
-          .subscribe((status, err) => {
-            if (status === 'SUBSCRIBED') {
-              logger.debug(`[SYNC] Subscribed to table [${table}] successfully`);
-            } else if (status === 'CHANNEL_ERROR') {
-              logger.warn(`[SYNC] Subscription error on table [${table}]:`, err);
-            }
-          });
+          }
+        );
+      });
 
-        this.channels.set(table, channel);
-      } catch (err) {
-        logger.warn(`[SYNC] Failed to subscribe to ${table}:`, err);
-      }
-    });
+      channel.subscribe((status, err) => {
+        if (status === 'SUBSCRIBED') {
+          logger.debug('[SYNC] Subscribed to realtime sync channel successfully');
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          logger.debug(`[SYNC] Realtime channel status [${status}], fallback active:`, err);
+        }
+      });
+
+      this.channels.set('user_sync', channel);
+    } catch (err) {
+      logger.debug('[SYNC] Failed to initialize realtime subscription, falling back to polling:', err);
+    }
 
     this.isSubscribed = true;
   }

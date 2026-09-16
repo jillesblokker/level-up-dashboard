@@ -1430,7 +1430,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: ['material-water', 'material-crystal', 'fish-silver'],
     itemType: 'fish',
     rarity: 'epic',
-    image: '/images/tiles/lake.webp',
+    image: '/images/kingdom-tiles/SereneLake.webp',
     cost: 3500,
     levelRequired: 5,
     isBossBlueprint: true
@@ -1446,7 +1446,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: ['material-stone', 'material-crystal', 'material-deeproot'],
     itemType: 'material',
     rarity: 'epic',
-    image: '/images/tiles/zen_garden.webp',
+    image: '/images/kingdom-tiles/ZenGarden.webp',
     cost: 4000,
     levelRequired: 5,
     isBossBlueprint: true
@@ -1462,7 +1462,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: ['material-water', 'material-planks', 'fish-golden', 'material-astral-shard'],
     itemType: 'material',
     rarity: 'legendary',
-    image: '/images/tiles/waterway_canal.webp',
+    image: '/images/kingdom-tiles/WaterwayCanal.webp',
     cost: 7500,
     levelRequired: 10,
     isBossBlueprint: true
@@ -1478,7 +1478,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: ['material-crystal', 'material-abyssal-pearl', 'material-steel'],
     itemType: 'material',
     rarity: 'legendary',
-    image: '/images/tiles/crystal_cavern.webp',
+    image: '/images/kingdom-tiles/CrystalCavern.webp',
     cost: 12000,
     levelRequired: 15,
     isBossBlueprint: true
@@ -1494,7 +1494,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
     possibleItems: ['material-crystal', 'material-dragon-scale', 'material-astral-shard'],
     itemType: 'material',
     rarity: 'legendary',
-    image: '/images/tiles/astral_citadel.webp',
+    image: '/images/kingdom-tiles/AstralCitadelMonument.webp',
     cost: 18000,
     levelRequired: 20,
     isBossBlueprint: true
