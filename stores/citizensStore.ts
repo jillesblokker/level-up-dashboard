@@ -21,6 +21,7 @@ export interface CitizenState {
   specialization?: 'Tank' | 'Mage' | 'Alchemist' | 'Scout' | undefined;
   loreTitle?: string | undefined;
   equipment?: Partial<Record<'weapon' | 'offhand' | 'armor' | 'relic', any>> | undefined;
+  districtRole?: 'Lumbermill' | 'Quarry' | 'ArcaneWorkshop' | 'Barracks' | 'Farm' | 'Harbor' | null | undefined;
 }
 
 export interface Citizen {
@@ -48,6 +49,7 @@ export interface Citizen {
   specialization?: 'Tank' | 'Mage' | 'Alchemist' | 'Scout' | undefined;
   loreTitle?: string | undefined;
   equipment?: Partial<Record<'weapon' | 'offhand' | 'armor' | 'robe' | 'footwear' | 'mount' | 'relic', any>> | undefined;
+  districtRole?: 'Lumbermill' | 'Quarry' | 'ArcaneWorkshop' | 'Barracks' | 'Farm' | 'Harbor' | null | undefined;
 }
 
 export function getCitizenEffectiveStats(citizen: Citizen): { atk: number; def: number; spd: number; gearScore: number } {
@@ -155,6 +157,8 @@ interface CitizensStore {
   hasBanquetHall: boolean;
   unlockBanquetHall: (userId: string) => Promise<{ success: boolean; error?: string }>;
   holdRoyalFeast: (userId: string) => Promise<{ success: boolean; count: number; goldSpent: number; error?: string }>;
+  assignDistrictRole: (userId: string, citizenId: string, role: 'Lumbermill' | 'Quarry' | 'ArcaneWorkshop' | 'Barracks' | 'Farm' | 'Harbor' | null) => Promise<void>;
+  autoAssignAllIdleCitizens: (userId: string) => Promise<{ success: boolean; assignedCount: number; roles: Record<string, number> }>;
   getCitizenEffectiveStats: (citizen: Citizen) => { atk: number; def: number; spd: number; gearScore: number };
   addCitizenById: (citizenId: string) => Promise<void>;
 }
@@ -1770,6 +1774,96 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     }
 
     return { success: true, count: hungryCitizens.length, goldSpent: totalGoldCost };
+  },
+
+  assignDistrictRole: async (userId: string, citizenId: string, role: 'Lumbermill' | 'Quarry' | 'ArcaneWorkshop' | 'Barracks' | 'Farm' | 'Harbor' | null) => {
+    const { citizens } = get();
+    const updated = citizens.map((c) =>
+      c.id === citizenId ? { ...c, districtRole: role, active: role ? true : c.active } : c
+    );
+
+    const citizenPrefs: Record<string, CitizenState> = {};
+    updated.forEach((c) => {
+      citizenPrefs[c.id] = {
+        active: c.active,
+        favorite: c.favorite,
+        lastFedAt: c.lastFedAt,
+        activeDays: c.activeDays,
+        lastHarvestedAt: c.lastHarvestedAt,
+        affection: c.affection || 0,
+        level: c.level || 1,
+        experience: c.experience || 0,
+        specialization: c.specialization,
+        loreTitle: c.loreTitle,
+        equipment: c.equipment || {},
+        districtRole: c.districtRole
+      };
+    });
+
+    set({ citizens: updated });
+    await setUserPreference('citizens_state', citizenPrefs).catch(console.error);
+  },
+
+  autoAssignAllIdleCitizens: async (userId: string) => {
+    const { citizens } = get();
+    let assignedCount = 0;
+    const roles: Record<string, number> = {
+      Lumbermill: 0,
+      Quarry: 0,
+      ArcaneWorkshop: 0,
+      Farm: 0,
+      Barracks: 0
+    };
+
+    const updated = citizens.map((c) => {
+      if (!c.districtRole) {
+        assignedCount++;
+        let role: 'Lumbermill' | 'Quarry' | 'ArcaneWorkshop' | 'Barracks' | 'Farm' = 'Barracks';
+
+        if (c.specialization === 'Scout' || c.type === 'nature') {
+          role = 'Lumbermill';
+        } else if (c.specialization === 'Tank' || c.type === 'earth') {
+          role = 'Quarry';
+        } else if (c.specialization === 'Mage' || c.type === 'ice' || c.type === 'special') {
+          role = 'ArcaneWorkshop';
+        } else if (c.specialization === 'Alchemist' || c.type === 'fire') {
+          role = 'Farm';
+        } else {
+          role = 'Barracks';
+        }
+
+        roles[role] = (roles[role] || 0) + 1;
+        return {
+          ...c,
+          districtRole: role,
+          active: true
+        };
+      }
+      return c;
+    });
+
+    const citizenPrefs: Record<string, CitizenState> = {};
+    updated.forEach((c) => {
+      citizenPrefs[c.id] = {
+        active: c.active,
+        favorite: c.favorite,
+        lastFedAt: c.lastFedAt,
+        activeDays: c.activeDays,
+        lastHarvestedAt: c.lastHarvestedAt,
+        affection: c.affection || 0,
+        level: c.level || 1,
+        experience: c.experience || 0,
+        specialization: c.specialization,
+        loreTitle: c.loreTitle,
+        equipment: c.equipment || {},
+        districtRole: c.districtRole
+      };
+    });
+
+    set({ citizens: updated });
+    await setUserPreference('citizens_state', citizenPrefs).catch(console.error);
+
+    return { success: true, assignedCount, roles };
   },
 }));
 

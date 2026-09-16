@@ -97,6 +97,8 @@ export function CitizensTab() {
   const hasBanquetHall = useCitizensStore(state => state.hasBanquetHall);
   const unlockBanquetHall = useCitizensStore(state => state.unlockBanquetHall);
   const holdRoyalFeast = useCitizensStore(state => state.holdRoyalFeast);
+  const assignDistrictRole = useCitizensStore(state => state.assignDistrictRole);
+  const autoAssignAllIdleCitizens = useCitizensStore(state => state.autoAssignAllIdleCitizens);
 
   const [citizenFilter, setCitizenFilter] = useState<"all" | "active" | "inactive" | "favorites">("all");
   const [speciesFilter, setSpeciesFilter] = useState<string>("all");
@@ -111,6 +113,44 @@ export function CitizensTab() {
   const hungryCitizens = useMemo(() => {
     return citizens.filter(c => isCitizenHungry(c));
   }, [citizens]);
+
+  const idleCitizens = useMemo(() => {
+    return citizens.filter(c => !c.districtRole);
+  }, [citizens]);
+
+  const districtCounts = useMemo(() => {
+    return {
+      lumbermill: citizens.filter(c => c.districtRole === 'Lumbermill').length,
+      quarry: citizens.filter(c => c.districtRole === 'Quarry').length,
+      arcane: citizens.filter(c => c.districtRole === 'ArcaneWorkshop').length,
+      farm: citizens.filter(c => c.districtRole === 'Farm').length,
+      barracks: citizens.filter(c => c.districtRole === 'Barracks').length,
+    };
+  }, [citizens]);
+
+  const handleAutoAssignDistricts = async () => {
+    if (!user?.id) return;
+    try {
+      setIsLoading(true);
+      const res = await autoAssignAllIdleCitizens(user.id);
+      if (res.success) {
+        if (typeof window !== 'undefined') {
+          import('canvas-confetti').then(confetti => {
+            confetti.default({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+          }).catch(() => {});
+        }
+        toast({
+          title: "Districts mobilized! 🌲⛏️",
+          description: `Auto-assigned ${res.assignedCount} idle citizen(s) to matching kingdom workshops and resource nodes!`,
+        });
+        await loadCitizens(user.id);
+      }
+    } catch (e) {
+      logger.error("Failed to auto-assign districts", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const totalPantryFood = useMemo(() => {
     return inventoryFood.reduce((acc, f) => acc + f.quantity, 0);
@@ -568,6 +608,55 @@ export function CitizensTab() {
           </Card>
         )}
 
+        {/* Kingdom District Labor & Resource Yields Command Card */}
+        <Card className="bg-gradient-to-r from-emerald-950/20 via-zinc-950 to-zinc-900 border border-emerald-500/30 p-5 rounded-2xl mb-6 shadow-xl relative overflow-hidden">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-serif font-bold text-emerald-300">Kingdom district labor</h3>
+                <Badge className="bg-emerald-950 border-emerald-500/40 text-emerald-300 text-[10px] font-mono">
+                  🌲 Passive yields
+                </Badge>
+              </div>
+              <p className="text-xs text-zinc-300 max-w-xl leading-relaxed">
+                Assign citizens to kingdom district roles to generate passive building resources. Well-fed citizens continuously harvest logs, stone blocks, essence crystals, and food!
+              </p>
+
+              {/* District Workers Breakdown */}
+              <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
+                <span className="bg-zinc-900/90 border border-emerald-800/40 px-2.5 py-1 rounded-lg text-emerald-300 font-mono flex items-center gap-1.5">
+                  🌲 Lumbermill: <strong>{districtCounts.lumbermill}</strong> (+{districtCounts.lumbermill} logs/hr)
+                </span>
+                <span className="bg-zinc-900/90 border border-amber-800/40 px-2.5 py-1 rounded-lg text-amber-300 font-mono flex items-center gap-1.5">
+                  ⛏️ Quarry: <strong>{districtCounts.quarry}</strong> (+{districtCounts.quarry} stone/hr)
+                </span>
+                <span className="bg-zinc-900/90 border border-cyan-800/40 px-2.5 py-1 rounded-lg text-cyan-300 font-mono flex items-center gap-1.5">
+                  🔮 Arcane: <strong>{districtCounts.arcane}</strong> (+{districtCounts.arcane} crystal/hr)
+                </span>
+                <span className="bg-zinc-900/90 border border-teal-800/40 px-2.5 py-1 rounded-lg text-teal-300 font-mono flex items-center gap-1.5">
+                  🌾 Farm: <strong>{districtCounts.farm}</strong> (+{districtCounts.farm} food/hr)
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+              <Button
+                onClick={handleAutoAssignDistricts}
+                disabled={isLoading || idleCitizens.length === 0}
+                className={cn(
+                  "text-xs px-5 py-2.5 font-serif font-bold shadow-lg flex items-center gap-2 w-full sm:w-auto",
+                  idleCitizens.length > 0
+                    ? "btn-rpg-emerald"
+                    : "bg-zinc-900 text-zinc-500 border border-zinc-800 cursor-default"
+                )}
+              >
+                <Sparkles className="w-4 h-4 text-emerald-300" />
+                {idleCitizens.length === 0 ? "All citizens assigned ✨" : `Auto-assign (${idleCitizens.length} idle)`}
+              </Button>
+            </div>
+          </div>
+        </Card>
+
         {/* Filter Controls Bar: Status Buttons + Creature Species Dropdown + Search */}
         <div className="bg-zinc-950 p-4 rounded-2xl border border-amber-900/30 mb-6 space-y-3">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
@@ -740,6 +829,26 @@ export function CitizensTab() {
                               <Badge variant="outline" className="border-amber-500/40 text-amber-300 bg-amber-950/40 font-mono text-[10px] px-1.5 py-0">
                                 {citizen.specialization || 'Tank'}
                               </Badge>
+                            </div>
+
+                            <div className="flex justify-between items-center bg-zinc-950/80 p-2 rounded-lg border border-zinc-800/40">
+                              <span className="text-zinc-400">District Labor:</span>
+                              <Select
+                                value={citizen.districtRole || 'none'}
+                                onValueChange={(val) => assignDistrictRole(user!.id, citizen.id, val === 'none' ? null : val as any)}
+                              >
+                                <SelectTrigger className="w-[130px] h-7 text-[11px] bg-zinc-900 border-zinc-700 text-amber-200">
+                                  <SelectValue placeholder="Assign Role" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-zinc-950 border-amber-900/50 text-amber-100">
+                                  <SelectItem value="none">💤 Idle / None</SelectItem>
+                                  <SelectItem value="Lumbermill">🌲 Lumbermill</SelectItem>
+                                  <SelectItem value="Quarry">⛏️ Quarry</SelectItem>
+                                  <SelectItem value="ArcaneWorkshop">🔮 Arcane</SelectItem>
+                                  <SelectItem value="Farm">🌾 Farm</SelectItem>
+                                  <SelectItem value="Barracks">⚔️ Barracks</SelectItem>
+                                </SelectContent>
+                              </Select>
                             </div>
 
                             <div className="flex justify-between items-center bg-zinc-950/80 p-2 rounded-lg border border-zinc-800/40">
@@ -1057,6 +1166,26 @@ export function CitizensTab() {
                         <Badge variant="outline" className="border-amber-500/40 text-amber-300 bg-amber-950/40 font-mono text-[10px] px-2 py-0.5">
                           {citizen.specialization || 'Tank'}
                         </Badge>
+                      </div>
+
+                      <div className="flex justify-between items-center bg-zinc-950 p-2 rounded border border-zinc-800/20">
+                        <span className="text-zinc-400">District Labor:</span>
+                        <Select
+                          value={citizen.districtRole || 'none'}
+                          onValueChange={(val) => assignDistrictRole(user!.id, citizen.id, val === 'none' ? null : val as any)}
+                        >
+                          <SelectTrigger className="w-[125px] h-6 text-[10px] bg-zinc-900 border-zinc-700 text-amber-200 py-0">
+                            <SelectValue placeholder="Assign Role" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-zinc-950 border-amber-900/50 text-amber-100">
+                            <SelectItem value="none">💤 Idle / None</SelectItem>
+                            <SelectItem value="Lumbermill">🌲 Lumbermill</SelectItem>
+                            <SelectItem value="Quarry">⛏️ Quarry</SelectItem>
+                            <SelectItem value="ArcaneWorkshop">🔮 Arcane</SelectItem>
+                            <SelectItem value="Farm">🌾 Farm</SelectItem>
+                            <SelectItem value="Barracks">⚔️ Barracks</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div className="flex justify-between items-center bg-zinc-950 p-2 rounded border border-zinc-800/20">
