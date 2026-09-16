@@ -106,7 +106,7 @@ export function FriendDareModal({ isOpen, onClose, friendName = 'Friend' }: Frie
           <div className="flex items-center justify-between">
             <span className="text-zinc-400 font-semibold">Winner bonus:</span>
             <span className="text-amber-300 font-mono font-bold flex items-center gap-1">
-              +150 gold & "Duel victor" badge
+              +150 gold &amp; &quot;Duel victor&quot; badge
             </span>
           </div>
 
