@@ -534,7 +534,7 @@ export function BarracksTab() {
                             !isSlotted && !isLocked && "bg-emerald-600 hover:bg-emerald-500 text-white"
                           )}
                         >
-                          {isLocked ? "Away 🚀" : isSlotted ? "❌ Remove from Round Table" : "⚔️ Add to Round Table"}
+                          {isLocked ? "Away ⛵" : isSlotted ? "❌ Remove from Round Table" : "⚔️ Add to Round Table"}
                         </Button>
                       </div>
                     </div>
@@ -688,7 +688,7 @@ export function BarracksTab() {
                   <div className="pt-4 border-t border-white/5 mt-4 relative z-10">
                     {isLocked ? (
                       <Button disabled className="w-full bg-zinc-950 border border-zinc-800 text-zinc-500 cursor-not-allowed text-xs font-bold py-5 rounded-xl tracking-wider">
-                        Locked: away on airship expedition 🚀
+                        Locked: away on airship expedition ⛵
                       </Button>
                     ) : lvl >= 10 ? (
                       <Button disabled className="w-full bg-amber-950/20 border border-amber-500/30 text-amber-300 cursor-default text-xs font-bold py-5 rounded-xl tracking-wider">
@@ -701,21 +701,21 @@ export function BarracksTab() {
                         className={cn(
                           "w-full text-xs font-bold py-6 rounded-xl tracking-wider transition-all flex items-center justify-center gap-2 shadow-xl",
                           canTrain 
-                            ? "bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 text-black font-extrabold hover:brightness-110 active:scale-[0.98] shadow-amber-500/10" 
+                            ? "bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-white font-extrabold active:scale-[0.98] shadow-emerald-500/10" 
                             : "bg-zinc-950 text-zinc-600 border border-zinc-800 cursor-not-allowed"
                         )}
                       >
                         {isTraining ? (
-                          <>⏳ Hammering Arena Forge...</>
+                          <>⏳ Hammering arena forge...</>
                         ) : (
-                          <>🏋️ Train Citizen (+50 XP)</>
+                          <>⚔️ Train citizen (+50 XP)</>
                         )}
                       </Button>
                     )}
 
                     {isLocked && (
                       <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-zinc-400 font-bold bg-zinc-950/60 p-2 rounded-lg border border-white/5">
-                        🚀 Away on Voyage: This citizen is locked until they return from their Airship Journey.
+                        ⛵ Away on voyage: this citizen is locked until they return from their airship voyage.
                       </div>
                     )}
                     {!isLocked && isSlotted && (

@@ -129,7 +129,7 @@ export function FriendDareModal({ isOpen, onClose, friendName = 'Friend' }: Frie
           <Button
             onClick={handleIssueDare}
             disabled={isSending}
-            className="w-1/2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold text-xs h-9 gap-1.5"
+            className="w-1/2 bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-white font-bold text-xs h-9 gap-1.5 rounded-xl shadow-md"
           >
             <Sword className="w-3.5 h-3.5" /> {isSending ? "Sending..." : "Issue dare"}
           </Button>

@@ -195,9 +195,9 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
 
         <Button
           onClick={selectedCard ? onClose : () => drawCard(false)}
-          className="w-full py-3 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-bold text-xs shadow-lg"
+          className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-white font-bold text-xs shadow-lg rounded-xl"
         >
-          {selectedCard ? 'Accept blessing' : '🔮 Draw daily tarot card'}
+          {selectedCard ? 'Accept blessing' : 'Draw daily tarot card'}
         </Button>
       </DialogContent>
     </Dialog>

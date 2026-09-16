@@ -101,7 +101,7 @@ export function FriendDareModal({ isOpen, onClose, onSendDare }: FriendDareModal
               </Button>
               <Button
                 type="submit"
-                className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold text-xs px-5 rounded-xl shadow-md gap-1.5"
+                className="bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-white font-bold text-xs px-5 rounded-xl shadow-md gap-1.5"
               >
                 <Send className="w-3.5 h-3.5" /> Send dare
               </Button>

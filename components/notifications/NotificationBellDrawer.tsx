@@ -151,9 +151,9 @@ export function NotificationBellDrawer() {
                         if (n.type === 'dare') window.location.href = '/quests';
                         else if (n.type === 'alliance') window.location.href = '/kingdom';
                       }}
-                      className="h-6 text-[10px] font-bold bg-amber-600 hover:bg-amber-500 text-black px-2.5 rounded-lg shadow-sm"
+                      className="h-6 text-[10px] font-bold bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-white px-2.5 rounded-lg shadow-sm"
                     >
-                      {n.type === 'dare' ? '⚔️ Accept Dare' : n.type === 'alliance' ? '🏆 View Raid' : 'View Action'}
+                      {n.type === 'dare' ? '⚔️ Accept dare' : n.type === 'alliance' ? '🏆 View raid' : 'View action'}
                     </Button>
                   </div>
                 )}
@@ -164,7 +164,7 @@ export function NotificationBellDrawer() {
 
         {/* 24-Hour Auto-Archiving Badge */}
         <div className="pt-2 border-t border-zinc-900 flex items-center justify-between text-[10px] text-zinc-500 font-mono">
-          <span>📦 24h Auto-Archiving Inbox</span>
+          <span>📦 24h auto-archiving inbox</span>
           <span className="text-emerald-400 font-bold">● Active</span>
         </div>
       </PopoverContent>

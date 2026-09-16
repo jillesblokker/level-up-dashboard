@@ -288,10 +288,10 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
           </div>
 
           {/* Category Synergy & Streak Speed Perks */}
-          <div className="rounded-xl border border-cyan-500/20 bg-gradient-to-r from-cyan-950/30 via-zinc-950 to-cyan-950/30 p-3 space-y-1.5 text-xs">
-            <div className="flex items-center justify-between font-bold text-cyan-300">
-              <span className="flex items-center gap-1">⚡ Ether Engine Synergies</span>
-              <span className="text-[10px] text-amber-400 font-mono">7+ Streak = 2x Speed 🚀</span>
+          <div className="rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-950/30 via-zinc-950 to-amber-950/30 p-3 space-y-1.5 text-xs">
+            <div className="flex items-center justify-between font-bold text-amber-300">
+              <span className="flex items-center gap-1">⚡ Ether engine synergies</span>
+              <span className="text-[10px] text-amber-400 font-mono">7+ streak = 2x speed ⛵</span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-[10px] text-zinc-300">
               <div className="bg-zinc-950/80 p-1.5 rounded border border-white/5">
@@ -307,21 +307,16 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 space-y-2">
             <div className="flex items-center justify-between">
               <span className="font-bold text-xs text-zinc-200 flex items-center gap-1.5">
-                <Anchor className="w-4 h-4 text-cyan-400" /> Active Destination: {activeDestination}
+                <Anchor className="w-4 h-4 text-amber-400" /> Active Destination: {activeDestination}
               </span>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono font-bold text-cyan-300 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/40 animate-pulse">
-                  💨 Ether Propulsion Active
-                </span>
-                <span className="font-mono text-xs text-cyan-400 font-semibold">{voyageProgress}% Complete</span>
-              </div>
+              <span className="text-xs font-mono font-bold text-emerald-400">{voyageProgress}%</span>
             </div>
-
+            
             <Progress value={voyageProgress} className="h-2.5 bg-zinc-800" />
 
             <div className="flex items-center justify-between text-[11px] text-zinc-400 pt-1">
               <span className="flex items-center gap-1">
-                <Package className="w-3.5 h-3.5 text-amber-400" /> Expected Cargo: Rare Tile Blueprints
+                <Package className="w-3.5 h-3.5 text-amber-400" /> Expected cargo: Exotic equipment & trade goods
               </span>
               <span>Complete today&apos;s habits to propel +10%</span>
             </div>
@@ -336,13 +331,13 @@ export function AirshipHarborModal({ isOpen, onClose }: AirshipHarborModalProps)
                   <div className="space-y-1">
                     <span className="font-bold text-zinc-100 block">{port.name}</span>
                     <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">
-                      🎁 Guaranteed Loot: 1x Blueprint + 15x Essences
+                      🎁 Guaranteed cargo: Exotic gear tokens + 15 essences
                     </span>
                   </div>
                   <Button
                     size="sm"
                     onClick={() => handleLaunchCourse(port.name)}
-                    className="h-8 text-[10px] font-bold bg-cyan-600 hover:bg-cyan-500 text-white gap-1 shrink-0 px-3 rounded-lg"
+                    className="h-8 text-[10px] font-bold bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-white gap-1 shrink-0 px-3 rounded-lg shadow-md"
                   >
                     <Sparkles className="w-3 h-3" /> Set course ({port.distance})
                   </Button>
