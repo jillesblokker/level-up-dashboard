@@ -18,13 +18,36 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
   const [loading, setLoading] = useState(false)
   const [brew, setBrew] = useState<{ id: string; name: string; effect: string } | null>(null)
   const [resultMessage, setResultMessage] = useState<string | null>(null)
+  const [reagentCounts, setReagentCounts] = useState<{
+    deeproot: number;
+    astral: number;
+    abyssal: number;
+    dragon: number;
+  }>({ deeproot: 0, astral: 0, abyssal: 0, dragon: 0 });
 
   useEffect(() => {
     if (open) {
       setResultMessage(null)
       fetchStatus()
+      loadReagents()
     }
   }, [open])
+
+  const loadReagents = async () => {
+    try {
+      const res = await fetch('/api/inventory');
+      if (res && res.ok) {
+        const raw = await res.json();
+        const items: any[] = raw?.items || (Array.isArray(raw) ? raw : []);
+        setReagentCounts({
+          deeproot: items.find((i: any) => i.id === 'material-deeproot')?.quantity || 0,
+          astral: items.find((i: any) => i.id === 'material-astral-shard')?.quantity || 0,
+          abyssal: items.find((i: any) => i.id === 'material-abyssal-pearl')?.quantity || 0,
+          dragon: items.find((i: any) => i.id === 'material-dragon-scale')?.quantity || 0,
+        });
+      }
+    } catch {}
+  };
 
   const fetchStatus = async () => {
     try {
@@ -63,6 +86,43 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
       toast({
         title: "Brew error",
         description: err.message || "Failed to drink daily decoction.",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCraftBossElixir = async (elixirId: string, name: string) => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/kingdom/apotheca', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'craft_boss_elixir', elixirId })
+      })
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to craft master elixir');
+      }
+      const data = await res.json()
+      setResultMessage(data.message)
+      if (typeof window !== 'undefined') {
+        import('canvas-confetti').then(confetti => {
+          confetti.default({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+        }).catch(() => {});
+      }
+      toast({
+        title: "Master elixir distilled! ✨",
+        description: data.message,
+      })
+      await fetchFreshCharacterStats()
+      await loadReagents()
+      if (onComplete) onComplete()
+    } catch (err: any) {
+      toast({
+        title: "Alchemy error",
+        description: err.message || "Failed to distill master elixir.",
         variant: "destructive"
       })
     } finally {
@@ -129,7 +189,7 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm sm:max-w-md w-full bg-zinc-950 border border-emerald-900/40 text-white rounded-2xl p-5 shadow-2xl font-serif max-h-[85dvh] flex flex-col overflow-y-auto">
+      <DialogContent className="max-w-sm sm:max-w-md w-full bg-zinc-950 border border-emerald-900/40 text-white rounded-2xl p-5 shadow-2xl font-serif max-h-[88dvh] flex flex-col overflow-y-auto custom-scrollbar">
         <DialogHeader className="text-center flex flex-col items-center pb-2 px-8 sm:px-10">
           <div className="p-2.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mb-1.5 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
             <FlaskConical className="w-5 h-5" />
@@ -146,7 +206,7 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
             />
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
-            Botanical glasshouse & daily decoction sanctuary
+            Botanical glasshouse & master alchemy distillation sanctuary
           </DialogDescription>
         </DialogHeader>
 
@@ -182,7 +242,7 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
                 </Button>
               </div>
             ) : (
-              <div className="space-y-2 pt-1">
+              <div className="space-y-3 pt-1">
                 {/* Primary CTA: Drink Daily Brew */}
                 <button
                   onClick={handleDrink}
@@ -203,8 +263,116 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
                   </span>
                 </button>
 
-                {/* Secondary Actions: 2-col */}
-                <div className="grid grid-cols-2 gap-2">
+                {/* Dungeon Boss Reagents & Master Alchemy Section */}
+                <div className="space-y-2 pt-2 border-t border-zinc-800/80">
+                  <div className="flex items-center justify-between">
+                    <h5 className="text-[11px] font-mono font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <span>🏆</span> Boss reagent elixirs
+                    </h5>
+                    <span className="text-[10px] text-zinc-500">From dungeon keep floors</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* Deeproot vitality brew */}
+                    <button
+                      onClick={() => handleCraftBossElixir('deeproot_vitality', 'Deeproot vitality brew')}
+                      disabled={loading || reagentCounts.deeproot < 1}
+                      className={`p-2.5 rounded-xl border text-left flex flex-col justify-between gap-1 transition-all ${
+                        reagentCounts.deeproot > 0
+                          ? 'bg-emerald-950/30 hover:bg-emerald-900/40 border-emerald-500/40'
+                          : 'bg-zinc-900/40 border-zinc-800 opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-sm">🌿</span>
+                        <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                          reagentCounts.deeproot > 0 ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/30' : 'text-zinc-500'
+                        }`}>
+                          {reagentCounts.deeproot} in bag
+                        </span>
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-bold text-zinc-200 truncate">Deeproot brew</div>
+                        <div className="text-[9px] text-zinc-400">+150 XP & +250g</div>
+                      </div>
+                    </button>
+
+                    {/* Astral exp elixir */}
+                    <button
+                      onClick={() => handleCraftBossElixir('astral_exp', 'Astral exp elixir')}
+                      disabled={loading || reagentCounts.astral < 1}
+                      className={`p-2.5 rounded-xl border text-left flex flex-col justify-between gap-1 transition-all ${
+                        reagentCounts.astral > 0
+                          ? 'bg-blue-950/30 hover:bg-blue-900/40 border-blue-500/40'
+                          : 'bg-zinc-900/40 border-zinc-800 opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-sm">🌌</span>
+                        <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                          reagentCounts.astral > 0 ? 'bg-blue-950 text-blue-300 border border-blue-500/30' : 'text-zinc-500'
+                        }`}>
+                          {reagentCounts.astral} in bag
+                        </span>
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-bold text-zinc-200 truncate">Astral elixir</div>
+                        <div className="text-[9px] text-zinc-400">+500 XP & +300g</div>
+                      </div>
+                    </button>
+
+                    {/* Abyssal fortune draught */}
+                    <button
+                      onClick={() => handleCraftBossElixir('abyssal_fortune', 'Abyssal fortune draught')}
+                      disabled={loading || reagentCounts.abyssal < 1}
+                      className={`p-2.5 rounded-xl border text-left flex flex-col justify-between gap-1 transition-all ${
+                        reagentCounts.abyssal > 0
+                          ? 'bg-cyan-950/30 hover:bg-cyan-900/40 border-cyan-500/40'
+                          : 'bg-zinc-900/40 border-zinc-800 opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-sm">🦪</span>
+                        <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                          reagentCounts.abyssal > 0 ? 'bg-cyan-950 text-cyan-300 border border-cyan-500/30' : 'text-zinc-500'
+                        }`}>
+                          {reagentCounts.abyssal} in bag
+                        </span>
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-bold text-zinc-200 truncate">Abyssal draught</div>
+                        <div className="text-[9px] text-zinc-400">+500g & +15 gems</div>
+                      </div>
+                    </button>
+
+                    {/* Dragon vigor draught */}
+                    <button
+                      onClick={() => handleCraftBossElixir('dragon_vigor', 'Dragon vigor draught')}
+                      disabled={loading || reagentCounts.dragon < 1}
+                      className={`p-2.5 rounded-xl border text-left flex flex-col justify-between gap-1 transition-all ${
+                        reagentCounts.dragon > 0
+                          ? 'bg-amber-950/30 hover:bg-amber-900/40 border-amber-500/40'
+                          : 'bg-zinc-900/40 border-zinc-800 opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-sm">🐉</span>
+                        <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                          reagentCounts.dragon > 0 ? 'bg-amber-950 text-amber-300 border border-amber-500/30' : 'text-zinc-500'
+                        }`}>
+                          {reagentCounts.dragon} in bag
+                        </span>
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-bold text-zinc-200 truncate">Dragon vigor</div>
+                        <div className="text-[9px] text-zinc-400">+1,000g & +25 gems</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Secondary Actions: Focus Brew & Distill Water */}
+                <div className="grid grid-cols-2 gap-2 pt-1">
                   {/* Focus Double Brew */}
                   <button
                     onClick={handleFocusDoubleBrew}

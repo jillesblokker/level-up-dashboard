@@ -227,13 +227,15 @@ export default function DungeonPage() {
   const [monsterStatus, setMonsterStatus] = useState<MonsterStatusState>({ burnTurns: 0, sleepTurns: 0, confusionTurns: 0 });
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const [bossDualDrop, setBossDualDrop] = useState<{
-    blueprint: { name: string; img: string; desc: string };
+    blueprint: { name: string; img: string; desc: string; tileId?: string | undefined } | null;
     isDuplicate: boolean;
-    reagent: { name: string; id: string };
+    isFirstClear: boolean;
+    bountyAmount?: number | undefined;
+    reagent: { name: string; id: string; emoji: string; desc: string; qty: number };
   } | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
 
-  const { getToken } = useAuth();
+  const { getToken, userId } = useAuth();
   const [elementBuffs, setElementBuffs] = useState<Record<string, number>>({});
   const [buildingBuffs, setBuildingBuffs] = useState<{ atkBuff: number, healingBuff: number }>({ atkBuff: 0, healingBuff: 0 });
   const [activePet, setActivePet] = useState<{ id: string; name: string; emoji: string; skill: string }>({
@@ -993,66 +995,140 @@ export default function DungeonPage() {
 
       if (loot) logEntries.push(`✨ Loot found: ${loot.name}`);
 
-      // BOSS DUAL DROPS: Guaranteed Kingdom Blueprint AND Apotheca Potion Brewing Reagent on Boss Floors (every 5 rooms)
+      // BOSS DUAL DROPS: Tiered Kingdom Blueprints AND Apotheca Potion Brewing Reagents on Boss Floors (every 5 rooms)
       if (run.currentRoom % 5 === 0) {
-        const crystal = comprehensiveItems.find(i => i.id === 'material-crystal') || { name: 'Botanical Crystal Essence', id: 'material-crystal' };
-        const blueprints = [
-          { name: 'Blueprint: Serene Lake', img: '/images/Kingdom.webp', desc: 'Unlocks serene water canal tiles for your realm sandbox (+10 DEF).' },
-          { name: 'Blueprint: Zen Garden', img: '/images/Kingdom.webp', desc: 'Unlocks peaceful zen stone gardens (+15 Spell Power).' },
-          { name: 'Blueprint: Astral Citadel', img: '/images/Kingdom.webp', desc: 'Unlocks celestial star towers for your realm (+25 ATK).' },
-          { name: 'Blueprint: Waterway Canal', img: '/images/Kingdom.webp', desc: 'Unlocks capital water trade canals (+30% Tax Gold).' }
-        ];
-        const bp = blueprints[(Math.floor(run.currentRoom / 5) - 1) % blueprints.length] || blueprints[0]!;
+        const floorTier = Math.floor(run.currentRoom / 5);
+        
+        // Tiered Blueprints & Apotheca Reagents mapping
+        const TIER_DROPS: Record<number, {
+          blueprint: { name: string; img: string; desc: string; tileId: string };
+          reagent: { name: string; id: string; emoji: string; desc: string; qty: number };
+        }> = {
+          1: {
+            blueprint: { name: 'Blueprint: Serene Lake', img: '/images/tiles/lake.webp', desc: 'Unlocks serene water canal tiles for your realm sandbox (+10 DEF).', tileId: 'serene_lake' },
+            reagent: { name: 'Deeproot Moss', id: 'material-deeproot', emoji: '🌿', desc: 'Rare botanical moss for Apotheca vitality brewing.', qty: 2 }
+          },
+          2: {
+            blueprint: { name: 'Blueprint: Waterway Canal', img: '/images/tiles/waterway_canal.webp', desc: 'Unlocks capital water trade canals (+30% Tax Gold).', tileId: 'waterway_canal' },
+            reagent: { name: 'Astral Shard', id: 'material-astral-shard', emoji: '🌌', desc: 'Glowing starlight crystal for Apotheca EXP elixirs.', qty: 2 }
+          },
+          3: {
+            blueprint: { name: 'Blueprint: Crystal Cascades', img: '/images/tiles/crystal_cavern.webp', desc: 'Unlocks glowing crystal waterfall tiles (+20 ATK, +20 DEF).', tileId: 'crystal_cascades' },
+            reagent: { name: 'Abyssal Pearl', id: 'material-abyssal-pearl', emoji: '🦪', desc: 'Deep sea pearl for Apotheca fortune and gem draughts.', qty: 2 }
+          },
+          4: {
+            blueprint: { name: 'Blueprint: Astral Citadel', img: '/images/tiles/astral_citadel.webp', desc: 'Unlocks celestial star tower sanctuary (+35 ATK, +35 DEF).', tileId: 'astral_citadel' },
+            reagent: { name: 'Dragon Scale', id: 'material-dragon-scale', emoji: '🐉', desc: 'Molten wyrm scale for Apotheca dragon vigor max HP brews.', qty: 2 }
+          }
+        };
 
-        let isDuplicate = false;
+        const tierData = TIER_DROPS[floorTier] || TIER_DROPS[4]!;
+        const bp = tierData.blueprint;
+        const reagent = tierData.reagent;
+
+        // Check if first-time boss floor clear
+        let isFirstClear = false;
+        let clearedBossFloors: number[] = [];
         try {
-          const unlockedBps = JSON.parse(localStorage.getItem('thrivehaven_unlocked_blueprints') || '[]');
-          if (unlockedBps.includes(bp.name)) {
-            isDuplicate = true;
-          } else {
-            unlockedBps.push(bp.name);
-            localStorage.setItem('thrivehaven_unlocked_blueprints', JSON.stringify(unlockedBps));
+          clearedBossFloors = JSON.parse(localStorage.getItem('thrivehaven_cleared_boss_floors') || '[]');
+          if (!clearedBossFloors.includes(run.currentRoom)) {
+            isFirstClear = true;
+            clearedBossFloors.push(run.currentRoom);
+            localStorage.setItem('thrivehaven_cleared_boss_floors', JSON.stringify(clearedBossFloors));
           }
         } catch {}
 
-        const blueprintDrop = isDuplicate ? {
-          type: 'gold',
-          name: "Royal Architect's Bounty (+150 Gold)",
-          amount: 150,
-          starRating: 3
-        } : {
-          type: 'item',
-          name: bp.name,
-          itemId: bp.name.toLowerCase().replace(/[^a-z0-9]/g, '_'),
-          itemStats: { def: 10 },
-          starRating: 3
-        };
+        // Drop calculation: Guaranteed 100% on first clear; 25% chance on repeat clears
+        const rollBlueprint = isFirstClear || Math.random() < 0.25;
+        let isDuplicate = false;
+        let blueprintDrop: any = null;
+
+        if (rollBlueprint) {
+          try {
+            const unlockedBps = JSON.parse(localStorage.getItem('thrivehaven_unlocked_blueprints') || '[]');
+            if (unlockedBps.includes(bp.name) || unlockedBps.includes(bp.tileId)) {
+              isDuplicate = true;
+            } else {
+              unlockedBps.push(bp.name);
+              unlockedBps.push(bp.tileId);
+              localStorage.setItem('thrivehaven_unlocked_blueprints', JSON.stringify(unlockedBps));
+            }
+          } catch {}
+
+          blueprintDrop = isDuplicate ? {
+            type: 'gold',
+            name: "Royal Architect's Bounty (+250 Gold)",
+            amount: 250,
+            starRating: 3
+          } : {
+            type: 'item',
+            name: bp.name,
+            itemId: bp.tileId,
+            itemStats: { def: 15, atk: 15 },
+            starRating: 4
+          };
+        } else {
+          // Repeat clear without blueprint roll yields Keep Conqueror's Cache (+150 gold)
+          blueprintDrop = {
+            type: 'gold',
+            name: "Keep Conqueror's Cache (+150 Gold)",
+            amount: 150,
+            starRating: 2
+          };
+        }
 
         const reagentDrop = {
           type: 'item',
-          name: crystal.name,
-          itemId: crystal.id,
+          name: `${reagent.name} (x${reagent.qty})`,
+          itemId: reagent.id,
+          quantity: reagent.qty,
           itemStats: {},
-          starRating: 2
+          starRating: 3
         };
 
         newLoot = [...newLoot, blueprintDrop, reagentDrop];
+
+        // Deposit reagent into inventory
+        if (typeof window !== 'undefined') {
+          import('@/lib/inventory-manager').then(({ addToInventory }) => {
+            if (userId) {
+              addToInventory(userId, {
+                id: reagent.id,
+                name: reagent.name,
+                type: 'material',
+                category: 'material',
+                quantity: reagent.qty,
+                emoji: reagent.emoji,
+                image: `/images/items/materials/${reagent.id}.webp`,
+                description: reagent.desc
+              } as any).catch(() => {});
+            }
+          }).catch(() => {});
+        }
+
         setBossDualDrop({
-          blueprint: bp,
+          blueprint: rollBlueprint ? bp : null,
           isDuplicate,
-          reagent: crystal
+          isFirstClear,
+          bountyAmount: rollBlueprint ? (isDuplicate ? 250 : undefined) : 150,
+          reagent
         });
 
-        logEntries.push(isDuplicate
-          ? `🏰 BOSS DUAL DROPS: Royal Architect's Bounty (+150 gold) AND ${crystal.name}!`
-          : `🏰 BOSS DUAL DROPS: ${bp.name} AND ${crystal.name}!`
-        );
+        const dropText = isFirstClear
+          ? `🏆 FIRST CLEAR DUAL DROPS: ${bp.name} AND ${reagent.name} (x${reagent.qty})!`
+          : isDuplicate
+            ? `🏰 BOSS REPEAT CLEAR: Royal Architect's Bounty (+250g) AND ${reagent.name} (x${reagent.qty})!`
+            : rollBlueprint
+              ? `🏰 BOSS DUAL DROPS: ${bp.name} AND ${reagent.name} (x${reagent.qty})!`
+              : `🏰 BOSS CLEAR: Keep Conqueror's Cache (+150g) AND ${reagent.name} (x${reagent.qty})!`;
+
+        logEntries.push(dropText);
 
         toast({
-          title: "🏆 Boss keep cleared!",
-          description: isDuplicate
-            ? `Ember Drake roars with triumph: duplicate blueprint converted to gold (+150 gold) & apothecary reagents!`
-            : `Ember Drake roars with triumph: defeated room ${run.currentRoom} boss! Unlocked ${bp.name} & apothecary reagents!`,
+          title: isFirstClear ? "🏆 First clear: Boss keep conquered!" : "🏆 Boss keep cleared!",
+          description: isFirstClear
+            ? `Unlocked ${bp.name} & harvested ${reagent.name} (x${reagent.qty}) for the Grand Apotheca!`
+            : `Defeated room ${run.currentRoom} boss! Harvested ${reagent.name} (x${reagent.qty}) & bonus gold!`,
         });
       }
 
@@ -2451,10 +2527,12 @@ export default function DungeonPage() {
                   🏆
                 </div>
                 <DialogTitle className="font-serif text-2xl text-amber-300">
-                  Boss keep cleared!
+                  {bossDualDrop.isFirstClear ? "First clear: Boss conquered!" : "Boss keep cleared!"}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-zinc-300 font-sans">
-                  Defeated room boss! Dual treasures harvested from the keep vault.
+                  {bossDualDrop.isFirstClear 
+                    ? "Guaranteed first-clear rewards harvested from the keep vault!"
+                    : "Dual treasures & crafting materials harvested from the keep vault."}
                 </DialogDescription>
               </DialogHeader>
 
@@ -2462,19 +2540,23 @@ export default function DungeonPage() {
                 {/* Left Drop: Blueprint or Converted Bounty */}
                 <div className="rounded-xl border border-amber-500/40 bg-zinc-900/90 p-3.5 flex flex-col items-center text-center space-y-2">
                   <div className="w-12 h-12 rounded-xl bg-amber-950/60 border border-amber-500/50 flex items-center justify-center text-2xl shadow-inner">
-                    {bossDualDrop.isDuplicate ? '👑' : '📜'}
+                    {bossDualDrop.isDuplicate ? '👑' : (bossDualDrop.blueprint ? '📜' : '💰')}
                   </div>
                   <div>
-                    <Badge variant="outline" className={`text-[9px] uppercase font-mono font-bold mb-1 ${bossDualDrop.isDuplicate ? 'border-yellow-500 text-yellow-300' : 'border-amber-400 text-amber-300'}`}>
-                      {bossDualDrop.isDuplicate ? 'Duplicate converted' : 'Kingdom blueprint'}
+                    <Badge variant="outline" className={`text-[9px] uppercase font-mono font-bold mb-1 ${
+                      bossDualDrop.isDuplicate ? 'border-yellow-500 text-yellow-300' : (bossDualDrop.blueprint ? 'border-amber-400 text-amber-300' : 'border-zinc-500 text-zinc-300')
+                    }`}>
+                      {bossDualDrop.isDuplicate ? 'Duplicate converted' : (bossDualDrop.blueprint ? 'Kingdom blueprint' : 'Conqueror cache')}
                     </Badge>
                     <h4 className="text-xs font-bold text-zinc-100 font-serif line-clamp-1">
-                      {bossDualDrop.isDuplicate ? "Royal Architect's bounty" : bossDualDrop.blueprint.name}
+                      {bossDualDrop.isDuplicate 
+                        ? "Royal Architect's bounty" 
+                        : (bossDualDrop.blueprint ? bossDualDrop.blueprint.name : "Keep conqueror's cache")}
                     </h4>
                     <p className="text-[10px] text-zinc-400 font-sans mt-1 leading-snug">
                       {bossDualDrop.isDuplicate
-                        ? '+150 Gold bonus converted to prevent duplicate blueprint tiles.'
-                        : bossDualDrop.blueprint.desc}
+                        ? `+${bossDualDrop.bountyAmount || 250} Gold bonus converted to prevent duplicate blueprint tiles.`
+                        : (bossDualDrop.blueprint ? bossDualDrop.blueprint.desc : `+${bossDualDrop.bountyAmount || 150} Gold repeat victory cache.`)}
                     </p>
                   </div>
                 </div>
@@ -2482,17 +2564,17 @@ export default function DungeonPage() {
                 {/* Right Drop: Apotheca Reagent */}
                 <div className="rounded-xl border border-cyan-500/40 bg-zinc-900/90 p-3.5 flex flex-col items-center text-center space-y-2">
                   <div className="w-12 h-12 rounded-xl bg-cyan-950/60 border border-cyan-500/50 flex items-center justify-center text-2xl shadow-inner animate-pulse">
-                    🧪
+                    {bossDualDrop.reagent.emoji || '🧪'}
                   </div>
                   <div>
                     <Badge variant="outline" className="text-[9px] uppercase font-mono font-bold mb-1 border-cyan-400 text-cyan-300">
-                      Apotheca reagent
+                      Apotheca reagent (x{bossDualDrop.reagent.qty})
                     </Badge>
                     <h4 className="text-xs font-bold text-zinc-100 font-serif line-clamp-1">
                       {bossDualDrop.reagent.name}
                     </h4>
                     <p className="text-[10px] text-zinc-400 font-sans mt-1 leading-snug">
-                      Rare alchemical essence for Grand Apotheca potion brewing.
+                      {bossDualDrop.reagent.desc || 'Rare alchemical essence for Grand Apotheca potion brewing.'}
                     </p>
                   </div>
                 </div>

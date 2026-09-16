@@ -96,6 +96,48 @@ export async function POST(request: NextRequest) {
         success: true,
         message: `Distilled ${materialId.replace('material-', '')} into 1x Crystal Essence!`
       });
+    } else if (action === 'craft_boss_elixir') {
+      const { elixirId } = body;
+      const ELIXIRS: Record<string, { reagentId: string; name: string; exp?: number; gold?: number; gems?: number; desc: string }> = {
+        deeproot_vitality: { reagentId: 'material-deeproot', name: 'Deeproot vitality brew', exp: 150, gold: 250, desc: 'Restores vitality to citizens & granted +250 Gold!' },
+        astral_exp: { reagentId: 'material-astral-shard', name: 'Astral exp elixir', exp: 500, gold: 300, desc: 'Distilled celestial starlight! Granted +500 EXP & +300 Gold.' },
+        abyssal_fortune: { reagentId: 'material-abyssal-pearl', name: 'Abyssal fortune draught', gold: 500, gems: 15, desc: 'Tapped oceanic fortune! Granted +500 Gold & +15 Gems.' },
+        dragon_vigor: { reagentId: 'material-dragon-scale', name: 'Dragon vigor draught', gold: 1000, gems: 25, desc: 'Infused legendary dragon flame! Granted +1,000 Gold & +25 Gems.' },
+      };
+
+      const elixir = ELIXIRS[elixirId];
+      if (!elixir) {
+        return new NextResponse(JSON.stringify({ error: 'Unknown elixir recipe' }), { status: 400 });
+      }
+
+      const { data: currentMat } = await supabaseServer
+        .from('inventory_items')
+        .select('quantity')
+        .eq('user_id', userId)
+        .eq('item_id', elixir.reagentId)
+        .maybeSingle();
+
+      const currentQty = currentMat?.quantity || 0;
+      if (currentQty < 1) {
+        return new NextResponse(JSON.stringify({ error: `You need at least 1x ${elixir.reagentId.replace('material-', '').replace('-', ' ')} to brew this elixir.` }), { status: 400 });
+      }
+
+      // Deduct reagent
+      await supabaseServer
+        .from('inventory_items')
+        .update({ quantity: currentQty - 1, updated_at: new Date().toISOString() })
+        .eq('user_id', userId)
+        .eq('item_id', elixir.reagentId);
+
+      if (elixir.exp) await grantReward({ userId, type: 'exp', amount: elixir.exp, context: 'apotheca-boss-elixir' });
+      if (elixir.gold) await grantReward({ userId, type: 'gold', amount: elixir.gold, context: 'apotheca-boss-elixir' });
+      if (elixir.gems) await grantReward({ userId, type: 'gems', amount: elixir.gems, context: 'apotheca-boss-elixir' });
+
+      return NextResponse.json({
+        success: true,
+        message: `Successfully brewed ${elixir.name}! ${elixir.desc}`,
+        elixir
+      });
     }
 
     return new NextResponse(JSON.stringify({ error: 'Invalid action' }), { status: 400 });

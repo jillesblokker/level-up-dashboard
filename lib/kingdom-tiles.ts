@@ -16,6 +16,7 @@ export interface KingdomTile {
   gemCost?: number
   cost?: number
   levelRequired?: number
+  isBossBlueprint?: boolean
 }
 
 import { TEXT_CONTENT } from './text-content'
@@ -1328,6 +1329,87 @@ export const KINGDOM_TILES: KingdomTile[] = [
     image: '/images/kingdom-tiles/KrakenCove.jpg',
     cost: 12000,
     levelRequired: 100
+  },
+  // Dungeon Keep Boss Blueprint Tiles
+  {
+    id: 'serene_lake',
+    name: 'Serene Lake',
+    timerMinutes: 180,
+    normalGoldRange: [150, 450],
+    luckyGoldAmount: 1800,
+    luckyChance: 0.20,
+    clickMessage: 'Floor 5 Dungeon Boss Blueprint! Grants tranquil water energy (+10 DEF).',
+    possibleItems: ['material-water', 'material-crystal', 'fish-silver'],
+    itemType: 'fish',
+    rarity: 'epic',
+    image: '/images/tiles/lake.webp',
+    cost: 3500,
+    levelRequired: 5,
+    isBossBlueprint: true
+  },
+  {
+    id: 'zen_garden',
+    name: 'Zen Stone Garden',
+    timerMinutes: 180,
+    normalGoldRange: [180, 500],
+    luckyGoldAmount: 2000,
+    luckyChance: 0.22,
+    clickMessage: 'Floor 5 Dungeon Boss Blueprint! Meditative rock garden (+15 Spell Power).',
+    possibleItems: ['material-stone', 'material-crystal', 'material-deeproot'],
+    itemType: 'material',
+    rarity: 'epic',
+    image: '/images/tiles/zen_garden.webp',
+    cost: 4000,
+    levelRequired: 5,
+    isBossBlueprint: true
+  },
+  {
+    id: 'waterway_canal',
+    name: 'Waterway Trade Canal',
+    timerMinutes: 240,
+    normalGoldRange: [300, 800],
+    luckyGoldAmount: 3200,
+    luckyChance: 0.25,
+    clickMessage: 'Floor 10 Dungeon Boss Blueprint! Capital trade waterway canal (+30% Tax Gold).',
+    possibleItems: ['material-water', 'material-planks', 'fish-golden', 'material-astral-shard'],
+    itemType: 'material',
+    rarity: 'legendary',
+    image: '/images/tiles/waterway_canal.webp',
+    cost: 7500,
+    levelRequired: 10,
+    isBossBlueprint: true
+  },
+  {
+    id: 'crystal_cascades',
+    name: 'Crystal Cascades',
+    timerMinutes: 300,
+    normalGoldRange: [450, 1100],
+    luckyGoldAmount: 4500,
+    luckyChance: 0.28,
+    clickMessage: 'Floor 15 Dungeon Boss Blueprint! Luminous gemstone waterfalls (+20 ATK, +20 DEF).',
+    possibleItems: ['material-crystal', 'material-abyssal-pearl', 'material-steel'],
+    itemType: 'material',
+    rarity: 'legendary',
+    image: '/images/tiles/crystal_cavern.webp',
+    cost: 12000,
+    levelRequired: 15,
+    isBossBlueprint: true
+  },
+  {
+    id: 'astral_citadel',
+    name: 'Astral Citadel',
+    timerMinutes: 360,
+    normalGoldRange: [600, 1600],
+    luckyGoldAmount: 6500,
+    luckyChance: 0.30,
+    clickMessage: 'Floor 20 Dungeon Boss Blueprint! Celestial star tower sanctuary (+35 ATK, +35 DEF).',
+    possibleItems: ['material-crystal', 'material-dragon-scale', 'material-astral-shard'],
+    itemType: 'material',
+    rarity: 'legendary',
+    image: '/images/tiles/astral_citadel.webp',
+    cost: 18000,
+    levelRequired: 20,
+    isBossBlueprint: true
   }
 ]
 
