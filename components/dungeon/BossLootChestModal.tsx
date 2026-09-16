@@ -10,10 +10,17 @@ interface BossLootChestModalProps {
   isOpen: boolean
   onClose: () => void
   roomLevel: number
+  hasBlueprintDrop?: boolean
   blueprintName?: string
 }
 
-export function BossLootChestModal({ isOpen, onClose, roomLevel, blueprintName = 'Astral Citadel Monument' }: BossLootChestModalProps) {
+export function BossLootChestModal({
+  isOpen,
+  onClose,
+  roomLevel,
+  hasBlueprintDrop = false,
+  blueprintName = 'Serene lake'
+}: BossLootChestModalProps) {
   const mythicImage = roomLevel % 20 === 0 ? '/images/Mythics/Mythic4purple.webp' : roomLevel % 15 === 0 ? '/images/Mythics/Mythic3green.webp' : roomLevel % 10 === 0 ? '/images/Mythics/Mythic2blue.webp' : '/images/Mythics/Mythic1red.webp';
 
   return (
@@ -43,32 +50,42 @@ export function BossLootChestModal({ isOpen, onClose, roomLevel, blueprintName =
         </div>
 
         <div className="text-xs font-mono font-bold text-amber-400 tracking-wider my-1">
-          ✨ Boss dual drops unlocked ✨
+          ✨ Boss victory spoils ✨
         </div>
 
         <DialogHeader>
           <DialogTitle className="text-xl font-serif font-bold text-amber-200">
-            Dungeon boss cleared! (Floor {roomLevel})
+            Dungeon boss cleared (floor {roomLevel})
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400 italic">
-            Guaranteed dual drops unlocked from defeating the keep guardian.
+            Victory spoils unlocked from defeating the keep guardian.
           </DialogDescription>
         </DialogHeader>
 
         <div className="my-4 space-y-3 bg-zinc-950/90 p-3.5 rounded-xl border border-amber-900/40 text-left shadow-inner">
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-950/40 border border-amber-500/40">
-            <Scroll className="w-6 h-6 text-amber-400 shrink-0" />
-            <div>
-              <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block">Kingdom blueprint drop</span>
-              <p className="text-xs font-bold text-white">{blueprintName}</p>
+          {hasBlueprintDrop ? (
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-950/40 border border-amber-500/50 animate-pulse">
+              <Scroll className="w-6 h-6 text-amber-400 shrink-0" />
+              <div>
+                <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block">Rare kingdom blueprint discovered! (10% drop)</span>
+                <p className="text-xs font-bold text-white">{blueprintName}</p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-zinc-900 border border-zinc-800">
+              <Scroll className="w-6 h-6 text-zinc-400 shrink-0" />
+              <div>
+                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">Citizen training scroll</span>
+                <p className="text-xs font-bold text-zinc-200">+150 citizen combat EXP</p>
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center gap-3 p-3 rounded-xl bg-purple-950/40 border border-purple-500/40">
             <FlaskConical className="w-6 h-6 text-purple-400 shrink-0" />
             <div>
               <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider block">Apotheca brewing reagents</span>
-              <p className="text-xs font-bold text-white">+3x botanical reagents (ember & frost)</p>
+              <p className="text-xs font-bold text-white">+3 botanical reagents (dragon scale & astral shard)</p>
             </div>
           </div>
         </div>
@@ -77,7 +94,7 @@ export function BossLootChestModal({ isOpen, onClose, roomLevel, blueprintName =
           onClick={onClose}
           className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-amber-950 font-bold text-xs shadow-lg flex items-center justify-center gap-2 rounded-xl"
         >
-          Claim dual drops <Sparkles className="w-4 h-4" />
+          Claim spoils <Sparkles className="w-4 h-4" />
         </Button>
       </DialogContent>
     </Dialog>
