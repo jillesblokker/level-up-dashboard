@@ -1654,7 +1654,7 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     const inv = await getInventory(userId);
     let allFoodItems: { id: string; name?: string; isTile: boolean }[] = [];
     if (Array.isArray(inv)) {
-      inv.filter(item => isFoodItem(item) && (item.quantity || 0) > 0).forEach(item => {
+      inv.filter(item => isFoodItem(item as any) && (item.quantity || 0) > 0).forEach(item => {
         for (let q = 0; q < (item.quantity || 1); q++) {
           allFoodItems.push({ id: item.id, name: item.name, isTile: false });
         }
@@ -1698,26 +1698,28 @@ export const useCitizensStore = create<CitizensStore>((set, get) => ({
     let foodIdx = 0;
 
     const updatedCitizens = citizens.map(c => {
-      if (hungryCitizenIds.has(c.id)) {
+      if (hungryCitizenIds.has(c.id) && foodIdx < allFoodItems.length) {
         const foodItem = allFoodItems[foodIdx++];
-        if (foodItem.isTile) {
-          tileFoodConsumedCounts[foodItem.id] = (tileFoodConsumedCounts[foodItem.id] || 0) + 1;
-        } else {
-          foodConsumedCounts[foodItem.id] = (foodConsumedCounts[foodItem.id] || 0) + 1;
+        if (foodItem) {
+          if (foodItem.isTile) {
+            tileFoodConsumedCounts[foodItem.id] = (tileFoodConsumedCounts[foodItem.id] || 0) + 1;
+          } else {
+            foodConsumedCounts[foodItem.id] = (foodConsumedCounts[foodItem.id] || 0) + 1;
+          }
+
+          const foodDays = getFoodActiveDays(foodItem.id, foodItem);
+          // Bonus feast affection: +15 affection (+5% over normal +10)
+          const currentAffection = c.affection || 0;
+          const newAffection = Math.min(100, currentAffection + 15);
+
+          return {
+            ...c,
+            active: true,
+            lastFedAt: nowIso,
+            activeDays: foodDays,
+            affection: newAffection
+          };
         }
-
-        const foodDays = getFoodActiveDays(foodItem.id, foodItem);
-        // Bonus feast affection: +15 affection (+5% over normal +10)
-        const currentAffection = c.affection || 0;
-        const newAffection = Math.min(100, currentAffection + 15);
-
-        return {
-          ...c,
-          active: true,
-          lastFedAt: nowIso,
-          activeDays: foodDays,
-          affection: newAffection
-        };
       }
       return c;
     });
