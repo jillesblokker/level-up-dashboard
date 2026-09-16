@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { ArrowLeft, Coins, TrendingUp, TrendingDown, Package, ShoppingBag, Search, Gem, Sparkles } from "lucide-react"
+import { ArrowLeft, Coins, TrendingUp, TrendingDown, Package, ShoppingBag, Search, Gem, Sparkles, ChevronDown } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { getCharacterStats, addToCharacterStat, fetchFreshCharacterStats } from "@/lib/character-stats-service"
@@ -33,19 +33,30 @@ import { getOwnedPacks, saveOwnedPack, OwnedPack } from "@/lib/owned-packs-servi
 import { hapticSuccess } from "@/lib/haptics"
 import { playSFX } from "@/lib/sound-manager"
 
-// Define available materials for trade
+// Define available commodities & materials for trade (rare blueprints are excluded as dungeon/endgame rewards)
 const MATERIALS = [
-  { id: 'material-water', name: 'Water', icon: '💧', buyPrice: 200, sellPrice: 100, description: 'Essential for life and growth.' },
-  { id: 'material-logs', name: 'Logs', icon: '🪵', buyPrice: 300, sellPrice: 150, description: 'Raw wood for construction.' },
-  { id: 'material-stone', name: 'Stone', icon: '🪨', buyPrice: 400, sellPrice: 200, description: 'Heavy stone for foundations.' },
-  { id: 'material-planks', name: 'Planks', icon: '🪚', buyPrice: 550, sellPrice: 275, description: 'Refined wood for structures.' },
-  { id: 'material-stone-block', name: 'Blocks', icon: '🧱', buyPrice: 700, sellPrice: 350, description: 'Cut stone for walls.' },
-  { id: 'material-steel', name: 'Steel', icon: '⚔️', buyPrice: 850, sellPrice: 425, description: 'Strong metal for reinforcements.' },
-  { id: 'material-crystal', name: 'Crystal', icon: '🔮', buyPrice: 1000, sellPrice: 500, description: 'Rare magical resource.' },
-  { id: 'waterway_canal', name: 'Waterway canal', icon: '🌉', buyPrice: 3500, sellPrice: 1750, description: 'Serene stone canal tile with vertical aquamarine waters and arched stone bridge.' },
-  { id: 'astral_citadel_monument', name: 'Astral citadel monument', icon: '🔮', buyPrice: 15000, sellPrice: 7500, description: 'Colossal monument crowned with a glowing floating purple crystal orb.' },
-  { id: 'serene_lake', name: 'Serene lake', icon: '🌊', buyPrice: 2500, sellPrice: 1250, description: 'Tranquil aquamarine lake tile with pure shimmering water ripples.' },
-  { id: 'golden_apple', name: 'Golden apple', icon: '🍎', buyPrice: 150, sellPrice: 75, description: 'Rare botanical delicacy harvested from fertile vegetable gardens. Fed to guardian pets to boost affection and yields.' },
+  { id: 'material-water', name: 'Water', icon: '💧', buyPrice: 40, sellPrice: 20, description: 'Essential for kingdom life and growth.' },
+  { id: 'material-logs', name: 'Logs', icon: '🪵', buyPrice: 60, sellPrice: 30, description: 'Raw wood harvested from lumber mills.' },
+  { id: 'material-stone', name: 'Stone', icon: '🪨', buyPrice: 80, sellPrice: 40, description: 'Quarried stone for foundations.' },
+  { id: 'material-planks', name: 'Planks', icon: '🪚', buyPrice: 120, sellPrice: 60, description: 'Refined lumber for kingdom structures.' },
+  { id: 'material-stone-block', name: 'Stone blocks', icon: '🧱', buyPrice: 160, sellPrice: 80, description: 'Cut masonry for fortifications and walls.' },
+  { id: 'material-iron', name: 'Iron ore', icon: '🔩', buyPrice: 200, sellPrice: 100, description: 'Heavy ore for blacksmithing and arms.' },
+  { id: 'material-steel', name: 'Steel ingots', icon: '⚔️', buyPrice: 280, sellPrice: 140, description: 'Tempered metal for siege engines and weapons.' },
+  { id: 'material-crystal', name: 'Astral crystal', icon: '🔮', buyPrice: 450, sellPrice: 225, description: 'Rare magical resource from cosmic rifts.' },
+  { id: 'material-gold', name: 'Gold ore', icon: '🪙', buyPrice: 400, sellPrice: 200, description: 'Precious ore extracted from deep mines.' },
+  { id: 'material-silver', name: 'Silver ore', icon: '🥈', buyPrice: 250, sellPrice: 125, description: 'Fine silver for minting and relics.' },
+  { id: 'golden_apple', name: 'Golden apple', icon: '🍎', buyPrice: 150, sellPrice: 75, description: 'Botanical delicacy fed to guardian pets (+5% affection).' },
+  { id: 'honeyed_berries', name: 'Honeyed berries', icon: '🫐', buyPrice: 120, sellPrice: 60, description: 'Sweet wild berries fed to guardian pets.' },
+  { id: 'food-grain-sack', name: 'Grain sack', icon: '🌾', buyPrice: 70, sellPrice: 35, description: 'Harvested crops for bakery and settlement food.' },
+  { id: 'fish-silver', name: 'Silver trout', icon: '🐟', buyPrice: 90, sellPrice: 45, description: 'Fresh river fish for citizens and tavern stew.' },
+  { id: 'fish-golden', name: 'Golden koi', icon: '🐠', buyPrice: 260, sellPrice: 130, description: 'Prized ornamental fish found in serene waters.' },
+  { id: 'fish-rainbow', name: 'Rainbow bass', icon: '🌈', buyPrice: 380, sellPrice: 190, description: 'Luminous rare fish rich in elemental mana.' },
+  { id: 'potion-health', name: 'Health potion', icon: '🧪', buyPrice: 100, sellPrice: 50, description: 'Restores vitality during dungeon expeditions.' },
+  { id: 'potion-mana', name: 'Mana potion', icon: '🧪', buyPrice: 100, sellPrice: 50, description: 'Restores spell energy for wizard strikes.' },
+  { id: 'potion-exp', name: 'Exp potion', icon: '🧪', buyPrice: 220, sellPrice: 110, description: 'Grants instant experience toward leveling.' },
+  { id: 'potion-gold', name: 'Gold potion', icon: '🧪', buyPrice: 220, sellPrice: 110, description: 'Multiplies gold yields from daily habits.' },
+  { id: 'scroll-scrolly', name: 'Ancient scroll', icon: '📜', buyPrice: 160, sellPrice: 80, description: 'Citizen training parchment for specialization.' },
+  { id: 'scroll-perkamento', name: 'Scholar parchment', icon: '📜', buyPrice: 140, sellPrice: 70, description: 'Knowledge document for library research.' },
 ]
 
 export default function MarketPage() {
@@ -73,11 +84,9 @@ export default function MarketPage() {
 
   const scaledMaterials = useMemo(() => {
     return MATERIALS.map(mat => {
-      // High-tier prestige tiles scale significantly higher for late-game players
-      const isPrestige = ['astral_citadel_monument', 'waterway_canal', 'serene_lake'].includes(mat.id);
-      const prestigeScale = isPrestige ? (1 + Math.pow(playerLevel, 1.25) * 0.15) : (1 + playerLevel * 0.1);
-      const scaledBuy = Math.floor(mat.buyPrice * prestigeScale);
-      const scaledSell = Math.floor(scaledBuy * 0.5); // Sell price is 50% of scaled buy price
+      const scale = 1 + Math.max(0, playerLevel - 1) * 0.05;
+      const scaledBuy = Math.floor(mat.buyPrice * scale);
+      const scaledSell = Math.floor(scaledBuy * 0.5);
       return {
         ...mat,
         buyPrice: scaledBuy,
@@ -1187,27 +1196,33 @@ export default function MarketPage() {
                 />
               </div>
               <div className="flex gap-4">
-                <select
-                  value={filterBy}
-                  onChange={(e) => setFilterBy(e.target.value)}
-                  className="bg-zinc-950 border border-zinc-700 text-zinc-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:outline-none cursor-pointer"
-                >
-                  <option value="all">All Items</option>
-                  <option value="owned">Owned Only</option>
-                  <option value="unowned">Not Owned Only</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={filterBy}
+                    onChange={(e) => setFilterBy(e.target.value)}
+                    className="appearance-none bg-zinc-950 border border-zinc-700 text-zinc-200 rounded-lg pl-3 pr-8 py-2 text-sm focus:border-emerald-500 focus:outline-none cursor-pointer"
+                  >
+                    <option value="all">All items</option>
+                    <option value="owned">Owned only</option>
+                    <option value="unowned">Not owned only</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400/70" />
+                </div>
 
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-zinc-950 border border-zinc-700 text-zinc-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:outline-none cursor-pointer"
-                >
-                  <option value="name-asc">Name (A-Z)</option>
-                  <option value="name-desc">Name (Z-A)</option>
-                  <option value="price-asc">Price (Low to High)</option>
-                  <option value="price-desc">Price (High to Low)</option>
-                  <option value="owned-desc">Most Owned</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="appearance-none bg-zinc-950 border border-zinc-700 text-zinc-200 rounded-lg pl-3 pr-8 py-2 text-sm focus:border-emerald-500 focus:outline-none cursor-pointer"
+                  >
+                    <option value="name-asc">Name (A-Z)</option>
+                    <option value="name-desc">Name (Z-A)</option>
+                    <option value="price-asc">Price (low to high)</option>
+                    <option value="price-desc">Price (high to low)</option>
+                    <option value="owned-desc">Most owned</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400/70" />
+                </div>
               </div>
             </div>
 
@@ -1283,11 +1298,11 @@ export default function MarketPage() {
                     </CardContent>
                     <CardFooter className="pt-2">
                       <Button
-                        className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold h-12 shadow-lg shadow-amber-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-white font-serif font-bold text-sm tracking-wide h-12 shadow-lg shadow-emerald-950/40 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
                         onClick={() => handleBuy(material)}
                         disabled={goldBalance < (quantities[material.id] || 1) * material.buyPrice || (quantities[material.id] || 1) <= 0 || isProcessing}
                       >
-                        {isProcessing ? "Processing..." : `Buy for ${material.buyPrice} G / unit`}
+                        {isProcessing ? "Processing..." : "Buy"}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -1344,27 +1359,33 @@ export default function MarketPage() {
                 />
               </div>
               <div className="flex gap-4">
-                <select
-                  value={filterBy}
-                  onChange={(e) => setFilterBy(e.target.value)}
-                  className="bg-zinc-950 border border-zinc-700 text-zinc-200 rounded-lg px-3 py-2 text-sm focus:border-green-500 focus:outline-none cursor-pointer"
-                >
-                  <option value="all">All Items</option>
-                  <option value="owned">Owned Only</option>
-                  <option value="unowned">Not Owned Only</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={filterBy}
+                    onChange={(e) => setFilterBy(e.target.value)}
+                    className="appearance-none bg-zinc-950 border border-zinc-700 text-zinc-200 rounded-lg pl-3 pr-8 py-2 text-sm focus:border-emerald-500 focus:outline-none cursor-pointer"
+                  >
+                    <option value="all">All items</option>
+                    <option value="owned">Owned only</option>
+                    <option value="unowned">Not owned only</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400/70" />
+                </div>
 
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-zinc-950 border border-zinc-700 text-zinc-200 rounded-lg px-3 py-2 text-sm focus:border-green-500 focus:outline-none cursor-pointer"
-                >
-                  <option value="name-asc">Name (A-Z)</option>
-                  <option value="name-desc">Name (Z-A)</option>
-                  <option value="price-asc">Price (Low to High)</option>
-                  <option value="price-desc">Price (High to Low)</option>
-                  <option value="owned-desc">Most Owned</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="appearance-none bg-zinc-950 border border-zinc-700 text-zinc-200 rounded-lg pl-3 pr-8 py-2 text-sm focus:border-emerald-500 focus:outline-none cursor-pointer"
+                  >
+                    <option value="name-asc">Name (A-Z)</option>
+                    <option value="name-desc">Name (Z-A)</option>
+                    <option value="price-asc">Price (low to high)</option>
+                    <option value="price-desc">Price (high to low)</option>
+                    <option value="owned-desc">Most owned</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400/70" />
+                </div>
               </div>
             </div>
 
@@ -1451,11 +1472,11 @@ export default function MarketPage() {
                     </CardContent>
                     <CardFooter className="pt-2">
                       <Button
-                        className="w-full bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 text-white font-bold h-12 shadow-lg shadow-green-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-white font-serif font-bold text-sm tracking-wide h-12 shadow-lg shadow-emerald-950/40 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
                         onClick={() => handleSell(material)}
                         disabled={getInventoryQuantity(material.id) < (quantities[material.id] || 1) || (quantities[material.id] || 1) <= 0 || isProcessing}
                       >
-                        {isProcessing ? "Processing..." : `Sell for ${material.sellPrice} G / unit`}
+                        {isProcessing ? "Processing..." : "Sell"}
                       </Button>
                     </CardFooter>
                   </Card>
