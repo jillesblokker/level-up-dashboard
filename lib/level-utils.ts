@@ -136,3 +136,82 @@ export function getExperienceBreakdown(experience: number) {
         experienceToNextLevel: calculateExperienceToNextLevel(experience)
     };
 }
+
+export interface PrestigeInfo {
+  isPrestige: boolean;
+  rank: number;
+  roman: string;
+  title: string;
+  badgeLabel: string;
+  crestBorderClass: string;
+  glowEffectClass: string;
+  multiplier: number;
+  multiplierLabel: string;
+  currentLevel: number;
+  nextPrestigeLevel: number;
+  progressToNextPrestige: number;
+}
+
+/**
+ * Calculate Level 100 Prestige tier and visual Paragon crest properties
+ * @param level - Player character level
+ * @returns Prestige information object
+ */
+export function getPrestigeData(level: number): PrestigeInfo {
+  const currentLevel = Math.max(1, level || 1);
+  const rank = Math.floor(currentLevel / 100);
+  const isPrestige = rank >= 1;
+
+  const toRoman = (num: number): string => {
+    const lookup: Record<string, number> = { X: 10, IX: 9, V: 5, IV: 4, I: 1 };
+    let roman = '';
+    for (const i in lookup) {
+      while (num >= lookup[i]!) {
+        roman += i;
+        num -= lookup[i]!;
+      }
+    }
+    return roman || 'I';
+  };
+
+  const roman = isPrestige ? toRoman(rank) : '';
+  const nextPrestigeLevel = (rank + 1) * 100;
+  const prevPrestigeLevel = rank * 100;
+  const progressToNextPrestige = Math.min(100, Math.max(0, ((currentLevel - prevPrestigeLevel) / 100) * 100));
+
+  let title = 'Sovereign Pioneer';
+  let crestBorderClass = 'border-amber-400';
+  let glowEffectClass = 'shadow-[0_0_12px_rgba(245,158,11,0.3)]';
+
+  if (rank === 1) {
+    title = 'Paragon Sovereign';
+    crestBorderClass = 'border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.7)] ring-2 ring-amber-300/60';
+    glowEffectClass = 'shadow-[0_0_25px_rgba(245,158,11,0.8)]';
+  } else if (rank === 2) {
+    title = 'Eternal Luminary';
+    crestBorderClass = 'border-cyan-400 shadow-[0_0_22px_rgba(34,211,238,0.75)] ring-2 ring-cyan-300/60';
+    glowEffectClass = 'shadow-[0_0_28px_rgba(34,211,238,0.85)]';
+  } else if (rank >= 3) {
+    title = 'Mythic Sovereign';
+    crestBorderClass = 'border-purple-400 shadow-[0_0_25px_rgba(192,132,252,0.85)] ring-2 ring-purple-300/70';
+    glowEffectClass = 'shadow-[0_0_32px_rgba(192,132,252,0.95)]';
+  }
+
+  const multiplier = 1 + rank * 0.10;
+  const multiplierLabel = `+${rank * 10}% Gold & EXP`;
+
+  return {
+    isPrestige,
+    rank,
+    roman,
+    title,
+    badgeLabel: isPrestige ? `Prestige ${roman}` : `Level ${currentLevel}`,
+    crestBorderClass,
+    glowEffectClass,
+    multiplier,
+    multiplierLabel,
+    currentLevel,
+    nextPrestigeLevel,
+    progressToNextPrestige
+  };
+}

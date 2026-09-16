@@ -54,6 +54,8 @@ import { SigilCrestEditor } from '@/components/character/sigil-crest'
 import { PaperdollEquipmentGrid, getEquippedGearStats } from '@/components/character/PaperdollEquipmentGrid'
 import { SwordStaffOrbCard, SwordStaffSectionHeader } from '@/components/ui/sword-staff-orb-card'
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager'
+import { AscensionPrestigeCard } from '@/components/character/AscensionPrestigeCard'
+import { getPrestigeData } from '@/lib/level-utils'
 
 
 // Character progression types
@@ -131,6 +133,8 @@ export default function CharacterPage() {
       total: 6
     }
   });
+
+  const prestige = getPrestigeData(characterStats.level);
 
   const [titlesList, setTitlesList] = useState<any[]>([]);
   const [gearStats, setGearStats] = useState(() => getEquippedGearStats());
@@ -986,9 +990,17 @@ export default function CharacterPage() {
 
                 {/* Glowing Paragon Champion Rank */}
                 <div className="relative inline-block my-0.5 max-w-full">
-                  <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-amber-500 via-purple-500 to-amber-500 blur-md opacity-75 animate-pulse" />
-                  <Badge className="relative bg-gradient-to-r from-amber-950 via-zinc-950 to-amber-950 border border-amber-400 text-amber-300 px-3 sm:px-4 py-1.5 rounded-full font-serif text-xs tracking-wide shadow-xl max-w-full truncate text-center">
-                    👑 Paragon champion rank: Level {characterStats.level} King
+                  <div className={`absolute -inset-1.5 rounded-full ${
+                    prestige.isPrestige 
+                      ? 'bg-gradient-to-r from-amber-400 via-purple-500 to-cyan-400 blur-md opacity-85 animate-pulse'
+                      : 'bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 blur-sm opacity-60'
+                  }`} />
+                  <Badge className={`relative bg-gradient-to-r from-amber-950 via-zinc-950 to-amber-950 border ${
+                    prestige.isPrestige ? 'border-amber-300 text-amber-200 ring-1 ring-amber-400/40' : 'border-amber-400 text-amber-300'
+                  } px-3 sm:px-4 py-1.5 rounded-full font-serif text-xs tracking-wide shadow-xl max-w-full truncate text-center`}>
+                    {prestige.isPrestige 
+                      ? `👑 ${prestige.title} (Prestige ${prestige.roman}) • ${prestige.multiplierLabel}`
+                      : `👑 Sovereign rank: Level ${characterStats.level} King`}
                   </Badge>
                 </div>
 
@@ -1030,6 +1042,9 @@ export default function CharacterPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Level 100 Prestige & Infinite Ascension Card */}
+                <AscensionPrestigeCard level={characterStats.level} experience={characterStats.experience} />
 
                 {/* Hero Combat Rating & Attributes Console */}
                 <div className="p-3.5 bg-zinc-950/80 rounded-xl border border-amber-500/30 space-y-2.5 shadow-inner">

@@ -18,6 +18,7 @@ import { ChevronLeft, X, Heart, Sparkles, Zap, Snowflake, Brain, Flame, Shield, 
 import { Button } from '@/components/ui/button';
 import { PerimeterFuseBorder } from '@/components/ui/perimeter-fuse-border';
 import { SeasonalHuntManager, SEASONAL_EVENTS } from '@/lib/seasonal-hunt-manager';
+import { getPrestigeData } from '@/lib/level-utils';
 
 export function RpgHudStatusBar() {
   const pathname = usePathname();
@@ -305,6 +306,8 @@ export function RpgHudStatusBar() {
     setActiveDrawer(drawerKey);
   };
 
+  const prestige = getPrestigeData(charStats.level);
+
   if (isUnpackOpen) return null;
 
   return (
@@ -335,15 +338,23 @@ export function RpgHudStatusBar() {
               hapticSuccess();
               toggleCollapse(false);
             }}
-            className="group relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-amber-900 via-amber-950 to-black border-2 border-amber-400 shadow-[0_8px_32px_rgba(0,0,0,0.95),0_0_20px_rgba(245,158,11,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer p-0.5"
-            title="Click to Expand RPG Status Carousel"
+            className={cn(
+              "group relative flex items-center justify-center w-14 h-14 rounded-full transition-all cursor-pointer p-0.5 hover:scale-105 active:scale-95",
+              prestige.isPrestige
+                ? "bg-gradient-to-br from-amber-400 via-purple-500 to-cyan-400 p-[2px] shadow-[0_0_22px_rgba(245,158,11,0.8)] animate-pulse"
+                : "bg-gradient-to-br from-amber-900 via-amber-950 to-black border-2 border-amber-400 shadow-[0_8px_32px_rgba(0,0,0,0.95),0_0_20px_rgba(245,158,11,0.4)]"
+            )}
+            title={prestige.isPrestige ? `${prestige.title} (Prestige ${prestige.roman}) • Click to Expand` : "Click to Expand RPG Status Carousel"}
           >
             <div className="relative w-12 h-12 rounded-full bg-amber-950/90 flex items-center justify-center overflow-hidden border border-amber-300/40">
               <Image src="/images/character/count.webp" alt="Character Avatar" fill className="object-contain p-0.5" unoptimized />
             </div>
             {/* Level Badge Overlay */}
-            <span className="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded-full bg-emerald-600 border border-amber-300 text-[9px] font-mono font-bold text-white shadow-md">
-              Lv.{charStats.level}
+            <span className={cn(
+              "absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded-full border text-[9px] font-mono font-bold text-white shadow-md flex items-center gap-0.5",
+              prestige.isPrestige ? "bg-amber-950/90 border-amber-300 text-amber-300" : "bg-emerald-600 border-amber-300"
+            )}>
+              {prestige.isPrestige ? `⭐ ${prestige.roman}` : `Lv.${charStats.level}`}
             </span>
           </button>
         ) : (
@@ -360,8 +371,13 @@ export function RpgHudStatusBar() {
                 hapticSuccess();
                 toggleCollapse(true);
               }}
-              className="relative w-10 h-10 rounded-full bg-amber-950 border border-amber-400 flex items-center justify-center shrink-0 hover:scale-105 transition-transform overflow-hidden cursor-pointer shadow-md"
-              title="Click Avatar to Collapse HUD"
+              className={cn(
+                "relative w-10 h-10 rounded-full flex items-center justify-center shrink-0 hover:scale-105 transition-transform overflow-hidden cursor-pointer shadow-md",
+                prestige.isPrestige
+                  ? "bg-amber-950 border-2 border-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.7)]"
+                  : "bg-amber-950 border border-amber-400"
+              )}
+              title={prestige.isPrestige ? `${prestige.title} (Prestige ${prestige.roman}) • Click Avatar to Collapse` : "Click Avatar to Collapse HUD"}
             >
               <Image src="/images/character/count.webp" alt="Character Avatar" fill className="object-contain p-0.5" unoptimized />
             </button>

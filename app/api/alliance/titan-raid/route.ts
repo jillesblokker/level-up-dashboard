@@ -72,6 +72,8 @@ export async function GET(request: NextRequest) {
         }, { onConflict: 'user_id,preference_key' });
     }
 
+    let claimedTiers: string[] = Array.isArray(raidData.claimedTiers) ? raidData.claimedTiers : (raidData.claimed ? ['bronze', 'silver', 'gold', 'mythic'] : []);
+
     return NextResponse.json({
       titan: currentTitan,
       currentMonthKey,
@@ -79,6 +81,7 @@ export async function GET(request: NextRequest) {
       remainingHp,
       isDefeated,
       claimed: !!raidData.claimed,
+      claimedTiers,
       stats: {
         quests: monthlyQuests,
         challenges: actualChallenges,
@@ -100,7 +103,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { action, type } = body; // 'record_habit' | 'claim'
+    const { action, type, tier, category, streak = 0, hasPet = false } = body; // 'record_habit' | 'claim'
 
     const currentTitan = getCurrentMonthlyTitan();
     const currentMonthKey = `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
@@ -115,12 +118,15 @@ export async function POST(request: NextRequest) {
     const raidData = (prefData?.preference_value as any) || {
       damageDealt: 0,
       claimed: false,
+      claimedTiers: [],
       questsCompleted: 0,
       challengesCompleted: 0,
       milestonesCompleted: 0,
       petitionsCompleted: 0,
       petitionDamage: 0
     };
+
+    let claimedTiers: string[] = Array.isArray(raidData.claimedTiers) ? [...raidData.claimedTiers] : (raidData.claimed ? ['bronze', 'silver', 'gold', 'mythic'] : []);
 
     if (action === 'record_petition' || (action === 'record_habit' && type === 'petition')) {
       const dmg = typeof body.damage === 'number' && body.damage > 0 ? body.damage : 15;
@@ -155,22 +161,37 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'record_habit') {
-      let dmg = 1;
+      let baseDmg = 1;
       let newQuests = raidData.questsCompleted || 0;
       let newChallenges = raidData.challengesCompleted || 0;
       let newMilestones = raidData.milestonesCompleted || 0;
 
       if (type === 'challenge') {
-        dmg = 5;
+        baseDmg = 5;
         newChallenges += 1;
       } else if (type === 'milestone') {
-        dmg = 10;
+        baseDmg = 10;
         newMilestones += 1;
       } else {
         newQuests += 1;
       }
 
-      const newDmg = Math.min(currentTitan.totalHp, (raidData.damageDealt || 0) + dmg);
+      // Critical strikes for Might/Vitality
+      let multiplier = 1;
+      if (category === 'might' || category === 'vitality') {
+        multiplier *= 1.5;
+      }
+      // 7+ day streak doubles damage
+      if (streak >= 7) {
+        multiplier *= 2;
+      }
+      // Active guardian pet adds +25% striker boost
+      if (hasPet) {
+        multiplier *= 1.25;
+      }
+
+      const finalDmg = Math.round(baseDmg * multiplier);
+      const newDmg = Math.min(currentTitan.totalHp, (raidData.damageDealt || 0) + finalDmg);
       const updatedRaidData = {
         ...raidData,
         damageDealt: newDmg,
@@ -190,18 +211,36 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        damageDealt: dmg,
+        damageDealt: finalDmg,
         totalDamage: newDmg,
         remainingHp: Math.max(0, currentTitan.totalHp - newDmg),
         isDefeated: newDmg >= currentTitan.totalHp
       });
-    } else if (action === 'claim') {
-      if (raidData.damageDealt < currentTitan.totalHp) {
-        return new NextResponse(JSON.stringify({ error: 'Titan is not yet defeated this month!' }), { status: 400 });
+    } else if (action === 'claim' || action === 'claim_tier') {
+      const targetTier = tier || 'mythic';
+      const hpPct = Math.round((raidData.damageDealt / currentTitan.totalHp) * 100);
+
+      // Define tier thresholds & rewards
+      const tierConfig: Record<string, { threshold: number; gold: number; gems: number; name: string }> = {
+        bronze: { threshold: 25, gold: 250, gems: 5, name: 'Bronze Titan Chest' },
+        silver: { threshold: 50, gold: 500, gems: 10, name: 'Silver Titan Chest' },
+        gold: { threshold: 75, gold: 1000, gems: 20, name: 'Gold Titan Chest' },
+        mythic: { threshold: 100, gold: currentTitan.rewardGold || 2500, gems: currentTitan.rewardGems || 50, name: 'Mythic Wyrm Slayer Chest' }
+      };
+
+      const cfg = tierConfig[targetTier] || tierConfig['mythic']!;
+
+      if (hpPct < cfg.threshold) {
+        return new NextResponse(JSON.stringify({ error: `Raid progress has not reached ${cfg.threshold}% yet!` }), { status: 400 });
       }
-      if (raidData.claimed) {
-        return new NextResponse(JSON.stringify({ error: 'Raid reward already claimed this month!' }), { status: 400 });
+
+      if (claimedTiers.includes(targetTier)) {
+        return new NextResponse(JSON.stringify({ error: `${cfg.name} has already been claimed this month!` }), { status: 400 });
       }
+
+      // Add to claimed tiers
+      claimedTiers.push(targetTier);
+      const allClaimed = ['bronze', 'silver', 'gold', 'mythic'].every(t => claimedTiers.includes(t));
 
       // Grant Gold & Gems
       const { data: currentStats } = await supabaseServer
@@ -213,8 +252,8 @@ export async function POST(request: NextRequest) {
       await supabaseServer
         .from('character_stats')
         .update({
-          gold: (currentStats?.gold || 0) + currentTitan.rewardGold,
-          gems: (currentStats?.gems || 0) + currentTitan.rewardGems,
+          gold: (currentStats?.gold || 0) + cfg.gold,
+          gems: (currentStats?.gems || 0) + cfg.gems,
           updated_at: new Date().toISOString()
         })
         .eq('user_id', userId);
@@ -224,13 +263,14 @@ export async function POST(request: NextRequest) {
         .upsert({
           user_id: userId,
           preference_key: `titan_raid_${currentMonthKey}`,
-          preference_value: { ...raidData, claimed: true },
+          preference_value: { ...raidData, claimed: allClaimed, claimedTiers },
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id,preference_key' });
 
       return NextResponse.json({
         success: true,
-        message: `Claimed Monthly Titan Defeat Reward! Received +${currentTitan.rewardGold} Gold and +${currentTitan.rewardGems} Gems!`
+        claimedTiers,
+        message: `Claimed ${cfg.name}! Received +${cfg.gold} Gold and +${cfg.gems} Gems!`
       });
     }
 

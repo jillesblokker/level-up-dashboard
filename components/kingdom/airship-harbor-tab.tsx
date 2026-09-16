@@ -332,6 +332,26 @@ const HABIT_JOURNEYS: JourneyRegion[] = [
       { id: 'material-silver', name: 'Silver Bars', emoji: '🪙', image: '/images/items/materials/material-silver.webp', quantity: 2 },
       { id: 'fish-silver', name: 'Silver Fish', emoji: '🐟', image: '/images/items/food/fish-silver.webp', quantity: 2 }
     ]
+  },
+  {
+    id: 'celestial-nexus',
+    name: 'Celestial Nexus & Grand Apotheca',
+    category: 'knowledge',
+    subheading: 'High Orbit Glasshouse & Starlight Spire',
+    coordinates: '84°N, 12°W',
+    description: 'High-tier expedition fueled by Knowledge & Wellness habits. Harvest rare Apotheca botanical reagents and essence crystals.',
+    affinityElements: ['cosmic', 'water'],
+    pinPosition: { x: '48%', y: '16%' },
+    tubes: [
+      { category: 'knowledge', perkName: 'Stardust condensation', perkEffect: '+20% starting launch distance', perkType: 'speed' },
+      { category: 'wellness', perkName: 'Botanical greenhouse harvest', perkEffect: '+2 bonus reagent crystals', perkType: 'cargo' },
+      { category: 'craft', perkName: 'Alchemical distillery tuning', perkEffect: '+75 bonus EXP to all 3 crew', perkType: 'crew_exp' },
+      { category: 'honor', perkName: 'Celestial archivist tribute', perkEffect: '+150 gold bonus on arrival', perkType: 'gold' }
+    ],
+    rewards: [
+      { id: 'material-crystal', name: 'Essence Crystals', emoji: '💎', image: '/images/items/materials/material-crystal.webp', quantity: 3 },
+      { id: 'material-water', name: 'Cloud Water', emoji: '💧', image: '/images/items/materials/material-water.webp', quantity: 4 }
+    ]
   }
 ];
 

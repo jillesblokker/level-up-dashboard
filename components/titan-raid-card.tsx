@@ -23,6 +23,7 @@ export function TitanRaidCard() {
   const [remainingHp, setRemainingHp] = useState(1000);
   const [isDefeated, setIsDefeated] = useState(false);
   const [claimed, setClaimed] = useState(false);
+  const [claimedTiers, setClaimedTiers] = useState<string[]>([]);
   const [stats, setStats] = useState({ quests: 0, challenges: 0, milestones: 0, petitions: 0 });
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
@@ -39,6 +40,7 @@ export function TitanRaidCard() {
           setRemainingHp(data.remainingHp ?? 1000);
           setIsDefeated(!!data.isDefeated);
           setClaimed(!!data.claimed);
+          if (Array.isArray(data.claimedTiers)) setClaimedTiers(data.claimedTiers);
           if (data.stats) setStats(data.stats);
         }
       } catch (err) {
@@ -50,21 +52,25 @@ export function TitanRaidCard() {
     fetchRaidStatus();
   }, []);
 
-  const handleClaim = async () => {
+  const handleClaimTier = async (tier: 'bronze' | 'silver' | 'gold' | 'mythic') => {
     if (claiming) return;
     setClaiming(true);
     try {
       const res = await fetch('/api/alliance/titan-raid', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'claim' })
+        body: JSON.stringify({ action: 'claim_tier', tier })
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setClaimed(true);
-        toast({ title: "🏆 Titan Rewards Claimed!", description: data.message });
+        if (Array.isArray(data.claimedTiers)) setClaimedTiers(data.claimedTiers);
+        if (tier === 'mythic' || data.claimedTiers?.length === 4) setClaimed(true);
+        if (typeof window !== 'undefined') {
+          import('canvas-confetti').then(c => c.default({ particleCount: 80, spread: 70, origin: { y: 0.6 } })).catch(() => {});
+        }
+        toast({ title: "🏆 Victory chest claimed!", description: data.message });
       } else {
-        toast({ title: "Claim Error", description: data.error || "Failed to claim rewards.", variant: "destructive" });
+        toast({ title: "Claim failed", description: data.error || "Failed to claim rewards.", variant: "destructive" });
       }
     } catch (e) {
       toast({ title: "Error", description: "Failed to connect to server.", variant: "destructive" });
@@ -72,6 +78,8 @@ export function TitanRaidCard() {
       setClaiming(false);
     }
   };
+
+  const handleClaim = () => handleClaimTier('mythic');
 
   const hpPercentage = Math.round(((titan.totalHp - remainingHp) / titan.totalHp) * 100);
 
@@ -296,64 +304,76 @@ export function TitanRaidCard() {
             </div>
           </div>
 
-          {/* Bento Card 4: Titan Raid Victory Loot (Bottom Right, col-span-7) */}
-          <div className="lg:col-span-7 flex flex-col justify-between p-6 sm:p-8 rounded-2xl bg-gradient-to-b from-purple-950/40 via-zinc-950 to-zinc-950 border border-purple-800/40 shadow-xl text-center space-y-6">
-            <div className="space-y-1">
+          {/* Bento Card 4: Titan Raid Milestone Victory Loot (Bottom Right, col-span-7) */}
+          <div className="lg:col-span-7 flex flex-col justify-between p-5 sm:p-6 rounded-2xl bg-gradient-to-b from-purple-950/40 via-zinc-950 to-zinc-950 border border-purple-800/40 shadow-xl space-y-4">
+            <div className="text-center space-y-1">
               <div className="font-serif font-bold text-base sm:text-lg text-amber-300">
-                Titan raid victory loot
+                Milestone victory chests
               </div>
               <p className="text-xs text-zinc-400 font-sans">
-                Defeat the monthly titan with your fellowship to claim this bounty
+                Unlock 4 reward tiers as your fellowship inflicts cumulative habit damage
               </p>
             </div>
 
-            {/* Spacious Animated Treasure Chest Visual */}
-            <div className="w-full flex justify-center py-2">
-              <TreasureChestVisual
-                state={claimed ? 'claimed' : (isDefeated ? 'ready' : 'locked')}
-                rarity="legendary"
-                tierLabel="Titan victory chest"
-                className="w-full max-w-sm py-6 px-8 min-h-[210px] sm:min-h-[230px]"
-                onClick={() => isDefeated && !claimed && handleClaim()}
-              />
+            {/* 4-Tier Milestone Chest Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {[
+                { key: 'bronze', label: 'Bronze chest', threshold: 25, gold: 250, gems: 5, icon: '🥉' },
+                { key: 'silver', label: 'Silver chest', threshold: 50, gold: 500, gems: 10, icon: '🥈' },
+                { key: 'gold', label: 'Gold chest', threshold: 75, gold: 1000, gems: 20, icon: '🥇' },
+                { key: 'mythic', label: 'Mythic chest', threshold: 100, gold: titan.rewardGold, gems: titan.rewardGems, icon: '👑' }
+              ].map((tier) => {
+                const isUnlocked = hpPercentage >= tier.threshold;
+                const isClaimed = claimedTiers.includes(tier.key);
+
+                return (
+                  <div
+                    key={tier.key}
+                    className={cn(
+                      "flex flex-col items-center justify-between p-3 rounded-xl border transition-all text-center space-y-2",
+                      isClaimed
+                        ? "bg-zinc-900/60 border-zinc-800 opacity-80"
+                        : isUnlocked
+                          ? "bg-amber-950/40 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.25)] animate-pulse"
+                          : "bg-zinc-950/80 border-zinc-800/80 opacity-60"
+                    )}
+                  >
+                    <div className="text-2xl">{tier.icon}</div>
+                    <div>
+                      <div className="font-serif font-bold text-xs text-amber-200">{tier.label}</div>
+                      <div className="text-[10px] text-zinc-400 font-mono">{tier.threshold}% HP</div>
+                    </div>
+                    <div className="text-[10px] font-mono font-bold text-amber-400">
+                      +{tier.gold}g / +{tier.gems}💎
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={isClaimed ? "secondary" : isUnlocked ? "default" : "outline"}
+                      disabled={!isUnlocked || isClaimed || claiming}
+                      onClick={() => handleClaimTier(tier.key as any)}
+                      className={cn(
+                        "w-full text-[10px] font-serif py-1 h-7 rounded-lg",
+                        isClaimed
+                          ? "bg-zinc-800 text-zinc-400 cursor-default"
+                          : isUnlocked
+                            ? "bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold shadow-sm"
+                            : "border-zinc-800 text-zinc-500"
+                      )}
+                    >
+                      {isClaimed ? 'Claimed' : isUnlocked ? 'Claim' : 'Locked'}
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Reward Badges */}
-            <div className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
-              <span className="text-amber-400 bg-amber-950/70 border border-amber-500/40 px-4 py-1.5 rounded-full text-xs sm:text-sm font-mono font-bold flex items-center gap-1.5 shadow-sm">
-                🪙 +{titan.rewardGold} gold
-              </span>
-              <span className="text-purple-300 bg-purple-950/70 border border-purple-500/40 px-4 py-1.5 rounded-full text-xs sm:text-sm font-mono font-bold flex items-center gap-1.5 shadow-sm">
-                💎 +{titan.rewardGems} gems
-              </span>
-            </div>
-
-            {/* Action Button */}
-            <div className="w-full pt-1">
-              <Button
-                disabled={!isDefeated || claimed || claiming}
-                onClick={handleClaim}
-                className={claimed 
-                  ? "w-full bg-zinc-900 text-zinc-400 border border-zinc-800 py-3.5 rounded-xl min-h-[48px]" 
-                  : isDefeated 
-                    ? "w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-black shadow-[0_0_25px_rgba(245,158,11,0.4)] py-3.5 rounded-xl min-h-[48px] animate-bounce" 
-                    : "w-full bg-zinc-900/90 text-zinc-400 border border-zinc-800 py-3.5 rounded-xl min-h-[48px] hover:bg-zinc-900"
-                }
-              >
-                {claimed ? (
-                  <span className="flex items-center justify-center gap-2 font-bold text-sm">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Monthly reward claimed
-                  </span>
-                ) : isDefeated ? (
-                  <span className="flex items-center justify-center gap-2 font-extrabold text-base">
-                    <Trophy className="w-5 h-5" /> Claim victory loot
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2 font-bold text-xs sm:text-sm text-zinc-400">
-                    <Lock className="w-4 h-4 text-amber-500/70" /> Defeat Titan Wyrm to unlock
-                  </span>
-                )}
-              </Button>
+            {/* Overall Defeat Status / Notice */}
+            <div className="pt-2 text-center text-xs text-zinc-400">
+              {isDefeated ? (
+                <span className="text-emerald-400 font-medium">✨ Titan Wyrm repelled! Claim any remaining victory chests above.</span>
+              ) : (
+                <span>Complete daily habits to deal strike damage and unlock the next milestone chest!</span>
+              )}
             </div>
           </div>
         </div>
