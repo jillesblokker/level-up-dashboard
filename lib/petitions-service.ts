@@ -1216,6 +1216,532 @@ export const STORY_PETITIONS_TEMPLATES: Petition[] = [
           }
         ]
       }
+    },
+    {
+      id: 'pet-26',
+      title: "Master Scribe Aldous's glowing star parchment",
+      requesterRole: 'Master Scribe Aldous',
+      requesterAvatar: '📜',
+      requesterImage: '/images/creatures/008.webp',
+      description: "Aldous created parchment infused with crushed starlight crystals from the scriptorium. The scrolls glow in the dark, but the ink occasionally floats into glowing letters above the desk!",
+      optionA: {
+        label: "Archive royal history scrolls",
+        description: "Transcribe the realm's great chronicles onto the luminous parchment for posterity.",
+        outcomes: [
+          {
+            storyText: "Enlightened archive! Scholars across the realm flocked to read the glowing chronicles, donating rare research to the grand library.",
+            goldChange: 240,
+            loyaltyChange: 12,
+            xpReward: 40,
+            raidBossDamage: 20,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Floating vowels! A sudden gust caused the floating ink words to hover across the castle courtyard, forming comical poems in the night sky.",
+            goldChange: -15,
+            loyaltyChange: 4,
+            xpReward: 15,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Sell glowing map scrolls at the market",
+        description: "Auction night-navigation maps to merchants and airship captains.",
+        outcomes: [
+          {
+            storyText: "Gold rush! Airship captains paid top gold for maps they could read in pitch-black cloud cover!",
+            goldChange: 350,
+            loyaltyChange: 8,
+            xpReward: 35,
+            raidBossDamage: 15,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Moth gathering! The luminous maps attracted giant glowing moths to the bazaar, causing merchants to drop their coin pouches in surprise!",
+            goldChange: 80,
+            loyaltyChange: -1,
+            xpReward: 10,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-27',
+      title: "Grand Falconer Teresa's royal hunting eagle",
+      requesterRole: 'Grand Falconer Teresa',
+      requesterAvatar: '🦅',
+      requesterImage: '/images/Animals/eagle.webp',
+      description: "Teresa trained a magnificent mountain eagle with razor vision. She wants royal permission to establish regular aerial patrol routes over the border woods.",
+      optionA: {
+        label: "Scout wilderness border paths",
+        description: "Deploy the eagle mews to spot approaching bandit caravans or wyrm tracks.",
+        outcomes: [
+          {
+            storyText: "Vigilant skies! The falconers spotted an ambushing pack of goblin scouts before they reached the outer farmlands, securing valuable loot.",
+            goldChange: 210,
+            loyaltyChange: 14,
+            xpReward: 35,
+            raidBossDamage: 25,
+            itemReward: 'food-salted-beef',
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Crown snatcher! The eager eagle mistook the town mayor's velvet hat for a giant vole and carried it atop the highest parapet.",
+            goldChange: -25,
+            loyaltyChange: 2,
+            xpReward: 15,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Deliver urgent royal messages",
+        description: "Use swift raptor messengers to coordinate harvest collections across distant districts.",
+        outcomes: [
+          {
+            storyText: "Swift transit! Messages arrived in record time, improving kingdom logistical efficiency and tax yields.",
+            goldChange: 280,
+            loyaltyChange: 10,
+            xpReward: 35,
+            raidBossDamage: 15,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Snack diversion! One hungry raptor stopped at the fishmonger's cart along the way, snacking on two prize trout before finishing delivery.",
+            goldChange: -30,
+            loyaltyChange: -1,
+            xpReward: 10,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-28',
+      title: "Master Miller Bram's overflowing granary silos",
+      requesterRole: 'Master Miller Bram',
+      requesterAvatar: '🌾',
+      requesterImage: '/images/creatures/008.webp',
+      description: "Following a bountiful harvest, the kingdom granaries are bursting at the seams with golden wheat, barley, and rye.",
+      optionA: {
+        label: "Bake festive kingdom bread",
+        description: "Distribute fresh warm loaves to every peasant cottage across the kingdom.",
+        outcomes: [
+          {
+            storyText: "Feast of abundance! The delightful scent of fresh sourdough filled the kingdom, sparking immense gratitude and subject loyalty.",
+            goldChange: 50,
+            loyaltyChange: 22,
+            xpReward: 40,
+            raidBossDamage: 15,
+            itemReward: 'food-hardtack',
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Dough volcano! The bakers over-proofed the yeast in the grand ovens, resulting in a single gigantic dough dome that blocked the bakery door!",
+            goldChange: -40,
+            loyaltyChange: 5,
+            xpReward: 15,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Trade surplus grain to neighboring baronies",
+        description: "Sell surplus sacks of grain at high seasonal prices to foreign merchants.",
+        outcomes: [
+          {
+            storyText: "Golden returns! The grain caravans returned laden with silver and gold coins from eager buyers.",
+            goldChange: 420,
+            loyaltyChange: 6,
+            xpReward: 35,
+            raidBossDamage: 15,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Field mice celebration! Surplus grains left on the dock attracted dancing meadow mice that amused harbor workers all afternoon.",
+            goldChange: 110,
+            loyaltyChange: 2,
+            xpReward: 10,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-29',
+      title: "Siege Engineer Roderick's counterweight catapult calibration",
+      requesterRole: 'Siege Engineer Roderick',
+      requesterAvatar: '⚙️',
+      requesterImage: '/images/creatures/Flamio.webp',
+      description: "Roderick constructed a reinforced siege catapult in the foundry yard, boasting it can hurl boulders half a league with pinpoint accuracy.",
+      optionA: {
+        label: "Aim at the dungeon keep ruins",
+        description: "Test the artillery against the fortified outer wall of the monster dungeon.",
+        outcomes: [
+          {
+            storyText: "Direct impact! The boulder smashed the dungeon keep's reinforced gateway, weakening the monster defenses and uncovering ancient gold.",
+            goldChange: 260,
+            loyaltyChange: 15,
+            xpReward: 45,
+            raidBossDamage: 35,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Watermelon test! Lacking stone, Roderick loaded a prize giant watermelon that splattered gloriously across the training yard dummies.",
+            goldChange: -20,
+            loyaltyChange: 8,
+            xpReward: 15,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Refit catapult into a swift airship launcher",
+        description: "Modify the counterweight mechanism to slingshot ether cargo glider probes across the harbor.",
+        outcomes: [
+          {
+            storyText: "Soaring success! Fast-launch gliders sped up harbor transport by hours, boosting trade turnover.",
+            goldChange: 340,
+            loyaltyChange: 10,
+            xpReward: 35,
+            raidBossDamage: 20,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Over-cranked spring! The launcher fired a crate of wool so high it drifted onto the castle roof garden like a fluffy cloud.",
+            goldChange: -35,
+            loyaltyChange: 3,
+            xpReward: 10,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-30',
+      title: "Court Jester Pip's mocking parody of the neighboring duke",
+      requesterRole: 'Court Jester Pip',
+      requesterAvatar: '🎭',
+      requesterImage: '/images/creatures/008.webp',
+      description: "Pip composed a hilarious musical satire depicting Duke Bartholomew tripping over his own oversized ermine cloak.",
+      optionA: {
+        label: "Perform the parody in the public square",
+        description: "Let Pip entertain commoners and tavern-goers for an evening of roaring laughter.",
+        outcomes: [
+          {
+            storyText: "Roars of mirth! The crowd doubled over in laughter, boosting town morale and throwing hundreds of copper pennies onto the stage.",
+            goldChange: 180,
+            loyaltyChange: 20,
+            xpReward: 35,
+            raidBossDamage: 15,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Juggling juggle! In the climax of the dance, Pip juggled five turnip balls and accidentally bonked the town guard captain on his polished helmet!",
+            goldChange: -15,
+            loyaltyChange: 10,
+            xpReward: 15,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Censor the parody to preserve diplomacy",
+        description: "Offer Pip a handsome tip to write a flattering ode to Duke Bartholomew instead.",
+        outcomes: [
+          {
+            storyText: "Polite peace! The visiting duke was deeply flattered by the poetic ode and signed a lucrative mutual trade treaty.",
+            goldChange: 310,
+            loyaltyChange: 5,
+            xpReward: 30,
+            raidBossDamage: 10,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Rhyme disaster! Pip attempted to rhyme 'Bartholomew' with 'Kangaroo', baffling the duke's royal entourage into awkward silence.",
+            goldChange: -40,
+            loyaltyChange: -2,
+            xpReward: 10,
+            raidBossDamage: 5,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-31',
+      title: "Herbalist Fiona's whispering nightshade garden",
+      requesterRole: 'Herbalist Fiona',
+      requesterAvatar: '🌿',
+      requesterImage: '/images/creatures/011.webp',
+      description: "Fiona discovered a rare patch of silver nightshade flowers that glow faintly under moonlight and whisper gentle melodies when watered.",
+      optionA: {
+        label: "Brew potent dungeon elixirs",
+        description: "Harvest the blossoms for high-tier health and stamina potions at the apotheca.",
+        outcomes: [
+          {
+            storyText: "Elixir mastery! The concoctions provided unmatched clarity and recovery to dungeon crawl adventurers.",
+            goldChange: 220,
+            loyaltyChange: 12,
+            xpReward: 40,
+            raidBossDamage: 25,
+            itemReward: 'drink-honeyed-mead',
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Sleepy vapors! The brewing steam was so soothing that half the apothecary fell into a blissful 12-hour nap.",
+            goldChange: -20,
+            loyaltyChange: 4,
+            xpReward: 15,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Open a royal botanical conservatory",
+        description: "Preserve the magical plants so citizens can stroll through the soothing, singing garden.",
+        outcomes: [
+          {
+            storyText: "Sanctuary of peace! Stressed citizens found deep tranquility walking among the singing silver blossoms.",
+            goldChange: 120,
+            loyaltyChange: 24,
+            xpReward: 35,
+            raidBossDamage: 15,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Botanical sneeze! The singing flowers released fragrant pollen that made visitors harmoniously sneeze in a four-part rhythm!",
+            goldChange: 30,
+            loyaltyChange: 8,
+            xpReward: 10,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-32',
+      title: "Harbormaster Kaelen's ghost galleon sighting",
+      requesterRole: 'Harbormaster Kaelen',
+      requesterAvatar: '⚓',
+      requesterImage: '/images/creatures/Blizzey.webp',
+      description: "A mysterious mist-shrouded galleon anchored outside the reef. Signals show it carries exotic silk cargo, but the crew speaks only in maritime riddles.",
+      optionA: {
+        label: "Send an armed customs boarding party",
+        description: "Inspect the manifest and collect customary harbor docking duties.",
+        outcomes: [
+          {
+            storyText: "Valuable cargo! The ghostly sailors proved to be friendly wandering corsairs who paid their import taxes in rare foreign bullion.",
+            goldChange: 380,
+            loyaltyChange: 10,
+            xpReward: 40,
+            raidBossDamage: 20,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Foggy prank! As guards stepped on deck, the crew dissolved into mist and left behind a barrel of salted cod and a pirate songbook.",
+            goldChange: -30,
+            loyaltyChange: 3,
+            xpReward: 15,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Trade them fresh fruit and clean water",
+        description: "Send fresh supplies in exchange for their exotic silk bolts and sea maps.",
+        outcomes: [
+          {
+            storyText: "Fair exchange! The grateful sailors gifted the crown enchanted water-repellent silk worth a fortune.",
+            goldChange: 290,
+            loyaltyChange: 16,
+            xpReward: 35,
+            raidBossDamage: 15,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Barnacle blessing! In return for apples, the ghostly captain enchanted the harbor dock, making timber immune to sea rot forever!",
+            goldChange: 150,
+            loyaltyChange: 12,
+            xpReward: 20,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-33',
+      title: "Blacksmith Thorgar's Damascus folding technique",
+      requesterRole: 'Blacksmith Thorgar',
+      requesterAvatar: '🔨',
+      requesterImage: '/images/creatures/Flamio.webp',
+      description: "Thorgar perfected a five-hundred-layer steel folding method, producing blades with wavy silver patterns that never dull.",
+      optionA: {
+        label: "Equip the royal knight regiment",
+        description: "Outfit the castle guard with unbreakable Damascus steel broadswords.",
+        outcomes: [
+          {
+            storyText: "Invincible garrison! The knights marched with razor precision, intimidating bandit marauders and boosting security.",
+            goldChange: 160,
+            loyaltyChange: 18,
+            xpReward: 45,
+            raidBossDamage: 30,
+            itemReward: 'material-damascus-steel',
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Spark shower! Thorgar's apprentice struck the anvil so hard that a shower of sparks lit every torch in the armory all at once.",
+            goldChange: -20,
+            loyaltyChange: 6,
+            xpReward: 15,
+            raidBossDamage: 15,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Auction masterwork swords to noble collectors",
+        description: "Sell the first batch of Damascus swords to wealthy visiting nobles at high prestige markups.",
+        outcomes: [
+          {
+            storyText: "Treasury windfall! Wealthy lords competed in a heated bidding war, filling kingdom coffers with gold bars.",
+            goldChange: 480,
+            loyaltyChange: 5,
+            xpReward: 35,
+            raidBossDamage: 15,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Haircut accident! A noble inspecting a blade accidentally sliced off his own handlebar mustache due to its razor sharpness!",
+            goldChange: 90,
+            loyaltyChange: -2,
+            xpReward: 10,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-34',
+      title: "Vintner Lucian's honeyed spiced mead reserve",
+      requesterRole: 'Vintner Lucian',
+      requesterAvatar: '🍯',
+      requesterImage: '/images/creatures/008.webp',
+      description: "Lucian uncasked a ten-year-aged barrel of royal wildflower mead infused with cloves, cinnamon, and sun blossoms.",
+      optionA: {
+        label: "Host a tavern harvest banquet",
+        description: "Open the taps at the tavern for a kingdom-wide toast to prosperity.",
+        outcomes: [
+          {
+            storyText: "Golden jubilation! Townsfolk danced in the street until dawn, singing praise for the generous crown.",
+            goldChange: 80,
+            loyaltyChange: 25,
+            xpReward: 35,
+            raidBossDamage: 15,
+            itemReward: 'drink-honeyed-mead',
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Singing guards! Even the sternest watchtowers couldn't resist singing merry sea shanties in four-part harmony all night.",
+            goldChange: -15,
+            loyaltyChange: 14,
+            xpReward: 15,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Bottle vintage batches for trade caravans",
+        description: "Seal the spiced mead into ceramic jugs to export to distant desert emporiums.",
+        outcomes: [
+          {
+            storyText: "Exotic trade profits! Desert sultans purchased every cask for three times its weight in silver!",
+            goldChange: 390,
+            loyaltyChange: 7,
+            xpReward: 35,
+            raidBossDamage: 15,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Cork pop! Warm air pressure caused three mead corks to launch simultaneously into the harbor, splashing surprised pelicans!",
+            goldChange: 45,
+            loyaltyChange: 1,
+            xpReward: 10,
+            raidBossDamage: 10,
+            isFunnyTwist: true
+          }
+        ]
+      }
+    },
+    {
+      id: 'pet-35',
+      title: "Bounty Hunter Vane's rogue wyrm sighting",
+      requesterRole: 'Bounty Hunter Vane',
+      requesterAvatar: '🏹',
+      requesterImage: '/images/creatures/Vulcana.webp',
+      description: "Vane tracked a rogue juvenile fire wyrm nesting near the rocky northern foothills. He requests authorization to launch an expedition.",
+      optionA: {
+        label: "Lead a coordinated alliance strike",
+        description: "Mobilize heroic champions to slay the wyrm and claim its crystallized scales.",
+        outcomes: [
+          {
+            storyText: "Wyrm vanquished! The strike party claimed valuable titan scales and ancient lost kingdom loot from the beast's lair.",
+            goldChange: 320,
+            loyaltyChange: 16,
+            xpReward: 50,
+            raidBossDamage: 40,
+            itemReward: 'trophy-wyrm-fang',
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Toasted eyebrows! The young wyrm sneezed a smoke ring that singed Vane's feather cap before fleeing into the deep caves.",
+            goldChange: -25,
+            loyaltyChange: 4,
+            xpReward: 20,
+            raidBossDamage: 20,
+            isFunnyTwist: true
+          }
+        ]
+      },
+      optionB: {
+        label: "Lure the wyrm to power the royal foundry",
+        description: "Use sheep treats to guide the fire wyrm into an enclosed forge chimney to provide perpetual smelting heat.",
+        outcomes: [
+          {
+            storyText: "Perpetual furnace! The satisfied wyrm gladly breathes clean flame into the smelter in exchange for daily roast sausages.",
+            goldChange: 260,
+            loyaltyChange: 14,
+            xpReward: 40,
+            raidBossDamage: 25,
+            isFunnyTwist: false
+          },
+          {
+            storyText: "Barbecue feast! The wyrm's first forge test accidentally roasted 100 links of sausage all at once, feeding the entire foundry crew.",
+            goldChange: -10,
+            loyaltyChange: 10,
+            xpReward: 15,
+            raidBossDamage: 15,
+            isFunnyTwist: true
+          }
+        ]
+      }
     }
   ];
 

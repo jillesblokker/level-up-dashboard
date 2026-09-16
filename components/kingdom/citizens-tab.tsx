@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 
-import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, isFoodItem, getFoodActiveDays, formatFoodDisplayName, Citizen } from '@/stores/citizensStore';
+import { useCitizensStore, isCitizenHungry, isHarvestReady, FOOD_DAYS_MAP, isFoodItem, getFoodActiveDays, formatFoodDisplayName, Citizen, getCitizenDistrictGreeting } from '@/stores/citizensStore';
 import { CitizenSpecializationModal, CitizenClass } from '@/components/character/CitizenSpecializationModal';
 import { getInventory } from '@/lib/inventory-manager';
 import { loadTileInventory } from '@/lib/data-loaders';
@@ -850,6 +850,9 @@ export function CitizensTab() {
                                 </SelectContent>
                               </Select>
                             </div>
+                            <p className="text-[10px] text-zinc-400 italic px-2 py-1 bg-zinc-950/60 rounded border border-zinc-900/60">
+                              💬 {getCitizenDistrictGreeting(citizen)}
+                            </p>
 
                             <div className="flex justify-between items-center bg-zinc-950/80 p-2 rounded-lg border border-zinc-800/40">
                               <span className="text-zinc-400">Map Status:</span>

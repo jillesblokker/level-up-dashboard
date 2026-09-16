@@ -1498,6 +1498,76 @@ export const KINGDOM_TILES: KingdomTile[] = [
     cost: 18000,
     levelRequired: 20,
     isBossBlueprint: true
+  },
+  {
+    id: 'granary',
+    name: 'Granary',
+    timerMinutes: 25,
+    normalGoldRange: [15, 45],
+    luckyGoldAmount: 180,
+    luckyChance: 0.18,
+    clickMessage: 'Silo storage stores bumper harvests (+20% Farm yields)!',
+    possibleItems: ['food-grain-sack', 'food-hardtack'],
+    itemType: 'food',
+    rarity: 'common',
+    image: '/images/kingdom-tiles/granary.webp',
+    cost: 450
+  },
+  {
+    id: 'falconer',
+    name: "Falconer's mews",
+    timerMinutes: 45,
+    normalGoldRange: [30, 80],
+    luckyGoldAmount: 320,
+    luckyChance: 0.20,
+    clickMessage: 'Trained hunting eagles scout borderlands and deliver royal messages.',
+    possibleItems: ['food-salted-beef', 'material-leather'],
+    itemType: 'food',
+    rarity: 'uncommon',
+    image: '/images/kingdom-tiles/falconer.webp',
+    cost: 950
+  },
+  {
+    id: 'scriptorium',
+    name: 'Scriptorium',
+    timerMinutes: 60,
+    normalGoldRange: [60, 150],
+    luckyGoldAmount: 600,
+    luckyChance: 0.22,
+    clickMessage: 'Scholars illuminate rare manuscripts and record kingdom chronicles.',
+    possibleItems: ['scroll-memento', 'scroll-observio', 'crystal-sapphire'],
+    itemType: 'scroll',
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/scriptorium.webp',
+    cost: 2400
+  },
+  {
+    id: 'siege_foundry',
+    name: 'Siege foundry',
+    timerMinutes: 90,
+    normalGoldRange: [120, 280],
+    luckyGoldAmount: 1100,
+    luckyChance: 0.24,
+    clickMessage: 'Foundry artisans cast masterwork iron gears and siege artillery engines.',
+    possibleItems: ['material-damascus-steel', 'material-iron', 'material-steel'],
+    itemType: 'metal',
+    rarity: 'epic',
+    image: '/images/kingdom-tiles/siege_foundry.webp',
+    cost: 5800
+  },
+  {
+    id: 'jester_stage',
+    name: 'Jester stage',
+    timerMinutes: 30,
+    normalGoldRange: [40, 100],
+    luckyGoldAmount: 450,
+    luckyChance: 0.25,
+    clickMessage: 'Traveling minstrels and jesters perform humorous satires, lifting subject happiness!',
+    possibleItems: ['drink-honeyed-mead', 'food-royal-pastry'],
+    itemType: 'food',
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/jester_stage.webp',
+    cost: 1800
   }
 ]
 

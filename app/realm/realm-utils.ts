@@ -226,6 +226,11 @@ export const getTileImage = (type: TileType | string): string => {
     if (t === 'observatory') return '/images/kingdom-tiles/Observatory.webp';
     if (t === 'hall_of_champions') return '/images/kingdom-tiles/Hall_of_champions.webp';
     if (t === 'titan_watchtower') return '/images/kingdom-tiles/Titan_watchtower.webp';
+    if (t === 'granary') return '/images/kingdom-tiles/granary.webp';
+    if (t === 'falconer') return '/images/kingdom-tiles/falconer.webp';
+    if (t === 'scriptorium') return '/images/kingdom-tiles/scriptorium.webp';
+    if (t === 'siege_foundry') return '/images/kingdom-tiles/siege_foundry.webp';
+    if (t === 'jester_stage') return '/images/kingdom-tiles/jester_stage.webp';
     return `/images/tiles/${t}-tile.webp`;
 };
 

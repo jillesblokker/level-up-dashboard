@@ -126,6 +126,32 @@ export function getCitizenImageSrc(citizen: Citizen): string {
   return `/images/creatures/${citizen.id}.webp`;
 }
 
+export function getCitizenDistrictGreeting(citizen: Citizen): string {
+  const role = citizen.districtRole;
+  const name = citizen.name || 'Citizen';
+  
+  if (role === 'Lumbermill') {
+    return `${name}: "Felling sturdy timber logs for kingdom roofs and harbor ships!"`;
+  }
+  if (role === 'Quarry') {
+    return `${name}: "Chipping granite blocks and searching for deep crystal veins!"`;
+  }
+  if (role === 'ArcaneWorkshop') {
+    return `${name}: "Attuning ether crystals to empower potions and spells."`;
+  }
+  if (role === 'Farm') {
+    return `${name}: "Harvesting golden wheat bushels for the bakery and granary!"`;
+  }
+  if (role === 'Barracks') {
+    return `${name}: "Drilling combat stances to defend against dungeon keep beasts!"`;
+  }
+  
+  if (citizen.greetings && citizen.greetings.length > 0) {
+    return `${name}: "${citizen.greetings[0]}"`;
+  }
+  return `${name}: "Enjoying the gentle breeze around the town square."`;
+}
+
 interface CitizensStore {
   citizens: Citizen[];
   combatSupporters: string[]; // Active combat supporters (max 2)

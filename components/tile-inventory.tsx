@@ -51,6 +51,11 @@ const allPossibleTiles: Tile[] = [
   { id: 'megapolis', name: 'Megapolis', type: 'megapolis', quantity: 0, cost: 3000, connections: [], description: 'A grand fortress city landscape', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Megapolis tile', image: '/images/tiles/megapolis-tile.webp' },
   { id: 'abbey', name: 'Silent Abbey', type: 'abbey', quantity: 0, cost: 600, connections: [], description: 'A silent gothic monastery sanctuary', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Silent Abbey tile', image: '/images/tiles/abbey-tile.webp' },
   { id: 'coral_reef', name: 'Mermaid Coral Reef', type: 'coral_reef', quantity: 0, cost: 150, connections: [], description: 'A mermaid resting on a rock reef', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Mermaid tile', image: '/images/tiles/coral_reef-tile.webp' },
+  { id: 'granary', name: 'Granary', type: 'granary' as any, quantity: 0, cost: 450, connections: [], description: 'Silo storage for bumper harvests (+20% Farm yields)', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Granary tile', image: '/images/tiles/granary.webp' },
+  { id: 'falconer', name: "Falconer's Mews", type: 'falconer' as any, quantity: 0, cost: 950, connections: [], description: 'Hunting eagles that scout borderlands', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: "Falconer tile", image: '/images/tiles/falconer.webp' },
+  { id: 'scriptorium', name: 'Scriptorium', type: 'scriptorium' as any, quantity: 0, cost: 2400, connections: [], description: 'Scholarly sanctuary where rare manuscripts are illuminated', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Scriptorium tile', image: '/images/tiles/scriptorium.webp' },
+  { id: 'siege_foundry', name: 'Siege Foundry', type: 'siege_foundry' as any, quantity: 0, cost: 5800, connections: [], description: 'Artisan foundry casting heavy gears and siege frames', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Siege foundry tile', image: '/images/tiles/siege_foundry.webp' },
+  { id: 'jester_stage', name: 'Jester Stage', type: 'jester_stage' as any, quantity: 0, cost: 1800, connections: [], description: 'Open-air theater lifting kingdom happiness and morale', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Jester stage tile', image: '/images/tiles/jester_stage.webp' },
 
   // Ancient Ruins & Caverns (Level 50-75)
   { id: 'ruins', name: 'Ancient Ruins', type: 'ruins', quantity: 0, cost: 150, connections: [], description: 'Ancient mysterious ruins', rotation: 0, revealed: true, isVisited: false, x: 0, y: 0, ariaLabel: 'Ancient Ruins tile', image: '/images/tiles/ruins-tile.webp' },
@@ -89,11 +94,11 @@ const tileCategories = [
   },
   {
     id: 'settlement',
-    name: 'Landscape Districts',
+    name: 'Landscape Districts & Properties',
     minLevel: 25,
     maxLevel: 50,
-    description: 'Macro settlement districts and sanctuaries',
-    tiles: ['settlement', 'town', 'city', 'megapolis', 'abbey', 'coral_reef']
+    description: 'Macro settlement districts, properties, and sanctuaries',
+    tiles: ['settlement', 'town', 'city', 'megapolis', 'abbey', 'coral_reef', 'granary', 'falconer', 'scriptorium', 'siege_foundry', 'jester_stage']
   },
   {
     id: 'development',
