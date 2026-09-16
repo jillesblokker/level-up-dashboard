@@ -53,10 +53,27 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
       await addToCharacterStat('gold', gold, 'house-cup-recap');
       await addToCharacterStat('build_tokens', essence, 'house-cup-recap');
 
+      // Award Paragon title and glowing Paragon border unlock
+      try {
+        await fetchWithAuth('/api/titles/unlock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: 'Paragon of virtue' })
+        });
+      } catch {}
+
+      try {
+        const currentBorders = JSON.parse(localStorage.getItem('thrivehaven_unlocked_borders') || '[]');
+        if (!currentBorders.includes('border-paragon-gold')) {
+          currentBorders.push('border-paragon-gold');
+          localStorage.setItem('thrivehaven_unlocked_borders', JSON.stringify(currentBorders));
+        }
+      } catch {}
+
       setClaimed(true);
       toast({
-        title: "Rewards Claimed! 🏆",
-        description: `Received ${gold.toLocaleString()} Gold & ${essence} Essences! Title unlocked: ${recapData.rewards.trophyTitle}.`,
+        title: "Rewards claimed! 🏆",
+        description: `Received ${gold.toLocaleString()} gold & ${essence} essences! Title unlocked: Paragon of virtue.`,
       });
 
       setTimeout(() => {
@@ -64,8 +81,8 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
       }, 1500);
     } catch (err) {
       toast({
-        title: "Claim Error",
-        description: "Failed to claim House Cup rewards.",
+        title: "Claim error",
+        description: "Failed to claim house cup rewards.",
         variant: "destructive",
       });
     } finally {
@@ -78,10 +95,10 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
       <Dialog open={isOpen} onOpenChange={(op) => { if (!op) onClose(); }}>
         <DialogContent className="max-w-md bg-zinc-950 border border-amber-900/40 text-amber-100 p-8 text-center">
           <DialogHeader className="sr-only">
-            <DialogTitle>House Cup Standings</DialogTitle>
+            <DialogTitle>House cup standings</DialogTitle>
           </DialogHeader>
           <Sparkles className="w-8 h-8 text-amber-400 animate-spin mx-auto mb-3" />
-          <p className="font-medieval text-lg">Gathering House Cup Standings...</p>
+          <p className="font-medieval text-lg">Gathering house cup standings...</p>
         </DialogContent>
       </Dialog>
     );
@@ -101,7 +118,7 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
             <Trophy className="w-6 h-6 text-amber-400 animate-bounce" />
           </div>
           <DialogTitle className="font-medieval text-2xl text-amber-300 tracking-wide">
-            {isAnnual ? `The House Cup ${recapData?.year || 2026} Celebration` : `Monthly Virtue Recap`}
+            {isAnnual ? `The house cup ${recapData?.year || 2026} celebration` : `Monthly virtue recap`}
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400 italic">
             Honoring consistency, virtue energy, and sovereign habit momentum across the realm.
@@ -117,7 +134,7 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
           </div>
           <h3 className="font-medieval text-xl text-amber-200">{champion.display_name}</h3>
           <p className="text-xs text-amber-400/80 font-mono mt-0.5">
-            {champion.total_points.toLocaleString()} Total Virtue Energy
+            {champion.total_points.toLocaleString()} total virtue energy
           </p>
         </div>
 
@@ -142,8 +159,8 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
         {/* Monthly Virtues Medal Grid (Jan-Dec) */}
         <div className="p-3.5 bg-zinc-950/90 rounded-xl border border-amber-500/30 space-y-2 mb-4">
           <div className="flex items-center justify-between text-xs font-bold text-amber-300 font-serif">
-            <span>🏆 Monthly Virtues Medal Grid (2026)</span>
-            <span className="text-[10px] text-emerald-400 font-mono font-bold">12/12 Months Tracked</span>
+            <span>🏆 Monthly virtues medal grid (2026)</span>
+            <span className="text-[10px] text-emerald-400 font-mono font-bold">12/12 months tracked</span>
           </div>
           <div className="grid grid-cols-6 gap-1.5 text-[9px] font-mono text-center">
             {['Jan 🥇', 'Feb 🥈', 'Mar 🥇', 'Apr 🥉', 'May 🥇', 'Jun 🥇', 'Jul 🥇', 'Aug 🥇', 'Sep 🥈', 'Oct 🥇', 'Nov 🥇', 'Dec 👑'].map((m, i) => (
@@ -162,15 +179,15 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
           <div className="flex justify-around items-center pt-1 text-xs">
             <div className="flex items-center gap-1.5 text-amber-200">
               <Coins className="w-4 h-4 text-amber-400" />
-              <span className="font-bold text-amber-300">+{recapData?.rewards.gold.toLocaleString()} Gold</span>
+              <span className="font-bold text-amber-300">+{recapData?.rewards.gold.toLocaleString()} gold</span>
             </div>
             <div className="flex items-center gap-1.5 text-amber-200">
               <Sparkles className="w-4 h-4 text-purple-400" />
-              <span className="font-bold text-purple-300">+{recapData?.rewards.essence} Essences</span>
+              <span className="font-bold text-purple-300">+{recapData?.rewards.essence} essences</span>
             </div>
           </div>
           <div className="text-[10px] text-center text-zinc-400 italic">
-            Rewards scaled +{(allyCount * 25)}% boost from {allyCount} active circle allies!
+            Rewards scaled +{(allyCount * 25)}% boost from {allyCount} active circle allies! Title unlocked: <span className="text-amber-300 font-bold">Paragon of virtue</span>.
           </div>
         </div>
 

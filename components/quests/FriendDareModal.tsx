@@ -58,13 +58,13 @@ export function FriendDareModal({ isOpen, onClose, onSendDare }: FriendDareModal
             <div className="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 mx-auto flex items-center justify-center animate-bounce">
               <Sparkles className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-sm text-zinc-100">Dare Issued to {friendName}!</h4>
+            <h4 className="font-bold text-sm text-zinc-100">Dare issued to {friendName}!</h4>
             <p className="text-xs text-zinc-400">Awarded +10 virtue points to your House Cup hourglass!</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="my-4 space-y-4">
             <div>
-              <label className="text-xs font-semibold text-zinc-300 block mb-1.5">Friend Username or Display Name</label>
+              <label className="text-xs font-semibold text-zinc-300 block mb-1.5">Friend username or display name</label>
               <Input
                 placeholder="e.g. Alex"
                 value={friendName}
@@ -75,7 +75,7 @@ export function FriendDareModal({ isOpen, onClose, onSendDare }: FriendDareModal
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-zinc-300 block mb-1.5">Habit Challenge Dare</label>
+              <label className="text-xs font-semibold text-zinc-300 block mb-1.5">Habit challenge dare</label>
               <Input
                 placeholder="e.g. 20 push-ups, read 10 pages, 5-min plank"
                 value={habitDare}
@@ -88,10 +88,10 @@ export function FriendDareModal({ isOpen, onClose, onSendDare }: FriendDareModal
             <div className="bg-amber-950/20 border border-amber-500/30 rounded-xl p-3 flex items-center justify-between text-xs">
               <div className="flex items-center gap-2 text-amber-400">
                 <Flame className="w-4 h-4" />
-                <span>Duel Bonus Reward</span>
+                <span>Duel bonus reward</span>
               </div>
               <Badge className="bg-amber-600 text-white font-bold text-[10px]">
-                +10 Virtue Points
+                +10 virtue points
               </Badge>
             </div>
 
@@ -103,7 +103,7 @@ export function FriendDareModal({ isOpen, onClose, onSendDare }: FriendDareModal
                 type="submit"
                 className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold text-xs px-5 rounded-xl shadow-md gap-1.5"
               >
-                <Send className="w-3.5 h-3.5" /> Send Dare
+                <Send className="w-3.5 h-3.5" /> Send dare
               </Button>
             </div>
           </form>

@@ -1302,31 +1302,31 @@ export default function MarketPage() {
             <div className="relative h-60 md:h-72 rounded-2xl overflow-hidden border border-emerald-500/40 shadow-2xl flex items-end">
               <Image
                 src="/images/headers/market-sell-header.jpg"
-                alt="Royal Treasury Trade Post"
+                alt="Royal treasury trade post"
                 fill
                 priority
                 className="object-cover brightness-90 select-none pointer-events-none"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
               <div className="p-6 relative z-10 space-y-2">
-                <Badge className="bg-emerald-600 text-black font-extrabold text-[9px] tracking-wider uppercase mb-1">
-                  💰 ROYAL HARVEST TREASURY • RESOURCE LIQUIDATION
+                <Badge className="bg-emerald-600 text-black font-extrabold text-[9px] tracking-wider mb-1">
+                  💰 Royal harvest treasury • Resource liquidation
                 </Badge>
                 <h2 className="font-medieval text-2xl sm:text-4xl text-amber-300 tracking-wide drop-shadow-md">
-                  Royal Treasury Trade Post
+                  Royal treasury trade post
                 </h2>
                 <p className="text-xs sm:text-sm text-zinc-200 max-w-2xl leading-relaxed italic drop-shadow-sm">
                   Liquidate excess kingdom crops, surplus minerals, and rare monster trophies for instant gold into your treasury.
                 </p>
                 <div className="flex items-center gap-2 flex-wrap pt-1">
                   <Badge className="bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-sm">
-                    🌾 Surplus Crops & Food Goods
+                    🌾 Surplus crops & food goods
                   </Badge>
                   <Badge className="bg-amber-950/90 border border-amber-500/50 text-amber-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-sm">
-                    💎 Rare Minerals & Essences
+                    💎 Rare minerals & essences
                   </Badge>
                   <Badge className="bg-purple-950/90 border border-purple-500/50 text-purple-300 text-[10px] font-mono font-bold px-2.5 py-1 backdrop-blur-sm">
-                    💰 100% Guaranteed Gold Yield
+                    💰 100% guaranteed gold yield
                   </Badge>
                 </div>
               </div>

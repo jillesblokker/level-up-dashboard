@@ -26,15 +26,15 @@ export function SeasonArchivalModal({ isOpen, onClose }: SeasonArchivalModalProp
             <div className="flex items-center gap-2 text-amber-400">
               <Crown className="w-6 h-6" />
               <DialogTitle className="text-xl font-bold tracking-wide text-amber-100">
-                Season Champions & Chronicle Archival
+                Season champions & chronicle archival
               </DialogTitle>
             </div>
             <Badge variant="outline" className="border-amber-500/40 text-amber-400 bg-amber-950/30 text-xs">
-              Annual Hall of Fame
+              Annual hall of fame
             </Badge>
           </div>
           <DialogDescription className="text-zinc-400 text-xs mt-1">
-            At the start of each new season, standings reset to 0, past champions are permanently archived in the Chronicle, and players earn legacy title badges!
+            At the start of each new season, standings reset to 0, past champions are permanently archived in the chronicle, and players earn legacy title badges!
           </DialogDescription>
         </DialogHeader>
 
@@ -47,20 +47,20 @@ export function SeasonArchivalModal({ isOpen, onClose }: SeasonArchivalModalProp
               </div>
               <div>
                 <h4 className="font-bold text-sm text-zinc-100 flex items-center gap-1.5">
-                  2026 Season I Standing <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  2026 season I standing <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                 </h4>
-                <p className="text-xs text-amber-400 font-medium">House of Might leading with 4,850 Virtue Energy</p>
+                <p className="text-xs text-amber-400 font-medium">House of Might leading with 4,850 virtue energy</p>
               </div>
             </div>
             <Badge className="bg-amber-600 text-white font-bold text-[10px]">
-              Active Season
+              Active season
             </Badge>
           </div>
 
           {/* Past Champions List */}
           <div className="space-y-2">
             <h4 className="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
-              <BookOpen className="w-4 h-4 text-amber-400" /> Chronicle Archived Champions
+              <BookOpen className="w-4 h-4 text-amber-400" /> Chronicle archived champions
             </h4>
 
             <div className="space-y-2">
@@ -92,7 +92,7 @@ export function SeasonArchivalModal({ isOpen, onClose }: SeasonArchivalModalProp
                     <span className="text-[10px] text-zinc-400 flex items-center gap-1 justify-end font-mono">
                       <Calendar className="w-3 h-3 text-amber-400" /> {champ.year}
                     </span>
-                    <span className="font-mono text-xs text-emerald-400 font-bold">{champ.habitsCompleted.toLocaleString()} Habits</span>
+                    <span className="font-mono text-xs text-emerald-400 font-bold">{champ.habitsCompleted.toLocaleString()} habits</span>
                   </div>
                 </div>
               ))}
