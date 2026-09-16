@@ -810,7 +810,24 @@ export const KINGDOM_TILES: KingdomTile[] = [
     levelRequired: 15,
     cost: 800
   },
-  // (Removed floating_island)
+  {
+    id: 'floating_island',
+    name: 'Floating island',
+    timerMinutes: 120,
+    normalGoldRange: [40, 80],
+    luckyGoldAmount: 500,
+    luckyChance: 0.2,
+    clickMessage: 'A celestial floating island unlocked through Level 100 Prestige ascension!',
+    possibleItems: [
+      '/images/items/materials/material-crystal.webp',
+      '/images/items/materials/material-water.webp'
+    ],
+    itemType: 'material',
+    rarity: 'legendary',
+    image: '/images/tiles/floating_island-tile.webp',
+    levelRequired: 100,
+    cost: 5000
+  },
   // Hub Tiles (Navigation)
   {
     id: 'quest-board',
