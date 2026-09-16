@@ -144,11 +144,11 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
     }
 
     const moods = [
-        { score: 1, icon: Frown, label: "Gloomy" },
-        { score: 2, icon: Meh, label: "Quiet" },
-        { score: 3, icon: Smile, label: "Good" },
-        { score: 4, icon: Laugh, label: "Great" },
-        { score: 5, icon: PartyPopper, label: "Radiant" },
+        { score: 1, icon: Frown, label: "Tired", virtue: "Vitality", desc: "Need rest & recovery" },
+        { score: 2, icon: Meh, label: "Calm", virtue: "Wellness", desc: "Steady & peaceful" },
+        { score: 3, icon: Smile, label: "Focused", virtue: "Knowledge", desc: "Centered on tasks" },
+        { score: 4, icon: Laugh, label: "Energized", virtue: "Might", desc: "High drive & stamina" },
+        { score: 5, icon: PartyPopper, label: "Proud", virtue: "Honor", desc: "Crushed today's goals" },
     ]
 
     return (
@@ -175,19 +175,19 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                         <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2 break-words">
                             The sun sets...
                         </DialogTitle>
-                        <DialogDescription className="text-zinc-400 text-sm max-w-[300px] text-center leading-relaxed italic">
+                        <DialogDescription className="text-zinc-400 text-sm max-w-[300px] text-center leading-relaxed italic font-serif">
                             &quot;The scrolls of time await your inscription. How did the stars align for you today?&quot;
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="space-y-8 py-4">
+                    <div className="space-y-6 py-2">
                         {/* Mood Selector Section */}
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                             <div className="flex items-center justify-between px-1">
-                                <label className="text-xs font-semibold text-zinc-400">Current aura</label>
+                                <label className="text-xs font-semibold text-zinc-400 font-serif">Daily mood & energy</label>
                                 {mood && (
-                                    <span className="text-[10px] font-medium text-amber-500 capitalize px-2 py-0.5 rounded-full bg-amber-900/30 border border-amber-500/20">
-                                        {moods.find(m => m.score === mood)?.label}
+                                    <span className="text-[10px] font-medium text-amber-400 capitalize px-2.5 py-0.5 rounded-full bg-amber-950/80 border border-amber-500/30">
+                                        {moods.find(m => m.score === mood)?.label} ({moods.find(m => m.score === mood)?.virtue})
                                     </span>
                                 )}
                             </div>
@@ -198,25 +198,12 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                                     return (
                                         <button
                                             key={m.score}
-                                            onClick={() => {
-                                                setMood(m.score)
-                                                if (!content.trim()) {
-                                                    const prompts: Record<number, string> = {
-                                                        1: "What felt overwhelming today, and how can you reset tomorrow?",
-                                                        2: "What was one small habit that kept you going through a slow day?",
-                                                        3: "What habits went smoothly today? Reflect on your daily rhythm.",
-                                                        4: "What made today feel productive and focused? Capture the momentum!",
-                                                        5: "You smashed your goals today! What streak or win are you proudest of?",
-                                                    }
-                                                    if (prompts[m.score]) {
-                                                        setContent(prompts[m.score]!)
-                                                    }
-                                                }
-                                            }}
+                                            type="button"
+                                            onClick={() => setMood(m.score)}
                                             className={cn(
-                                                "relative flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-300 group",
+                                                "relative flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-all duration-300 group",
                                                 isSelected
-                                                    ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30'
+                                                    ? 'text-amber-400 bg-amber-500/15 border border-amber-500/40 shadow-sm'
                                                     : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5 border border-transparent'
                                             )}
                                         >
@@ -224,32 +211,40 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                                                 <div className="absolute inset-0 bg-amber-400/10 blur-xl rounded-full animate-pulse" />
                                             )}
                                             <Icon className={cn(
-                                                "w-7 h-7 transition-transform duration-500 group-hover:scale-110",
-                                                isSelected ? "drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" : ""
+                                                "w-6 h-6 transition-transform duration-500 group-hover:scale-110",
+                                                isSelected ? "drop-shadow-[0_0_8px_rgba(251,191,36,0.6)] text-amber-300" : ""
                                             )} />
+                                            <span className="text-[10px] font-serif font-bold leading-tight block">
+                                                {m.label}
+                                            </span>
                                         </button>
                                     )
                                 })}
                             </div>
 
-                            {/* Quick Mood Tag Selectors */}
-                            <div className="space-y-1">
-                                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block font-serif">
-                                    ✨ 1-Tap Quick Mood Pill Shortcuts:
+                            {/* Optional Prompt Inspiration Pills (Never forced) */}
+                            <div className="space-y-1 pt-1">
+                                <span className="text-[10px] font-bold text-amber-400/80 font-serif block">
+                                    Optional writing prompt:
                                 </span>
                                 <div className="flex flex-wrap gap-1.5">
-                                    {['⚡ Energized', '🎯 Focused', '🌿 Calm', '🔥 Motivated', '🧘 Peaceful'].map((tag) => (
+                                    {[
+                                        "What gave you the most energy today?",
+                                        "What habit felt easiest to complete?",
+                                        "What is one small victory you achieved?"
+                                    ].map((promptText) => (
                                         <button
-                                            key={tag}
+                                            key={promptText}
                                             type="button"
-                                            onClick={() => setContent(prev => prev ? `${prev} [${tag}]` : `[${tag}] `)}
-                                            className="text-[10px] font-bold px-2.5 py-1 rounded-lg border border-amber-500/30 bg-amber-950/40 text-amber-300 hover:bg-amber-900/60 hover:border-amber-400 transition-all shadow-sm"
+                                            onClick={() => setContent(prev => prev ? `${prev}\n\n${promptText}\n` : `${promptText}\n`)}
+                                            className="text-[10px] font-serif px-2.5 py-1 rounded-lg border border-amber-500/20 bg-amber-950/30 text-amber-300 hover:bg-amber-900/40 hover:border-amber-400 transition-all text-left"
                                         >
-                                            + {tag}
+                                            💡 {promptText}
                                         </button>
                                     ))}
                                 </div>
                             </div>
+                        </div>
 
                             {/* Monthly Mood & Habit Balance Synthesis */}
                             <div className="p-3 bg-gradient-to-r from-amber-950/40 via-zinc-950 to-purple-950/40 rounded-xl border border-amber-500/30 space-y-1.5 text-xs mt-3">
@@ -272,7 +267,6 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                                 </div>
                               </div>
                             </div>
-                        </div>
 
                         {/* Chronicle Entry Section with Illuminated Codex Framing & Bookmark Tab */}
                         <div className="space-y-3">

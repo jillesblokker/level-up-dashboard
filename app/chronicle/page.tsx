@@ -17,6 +17,7 @@ import { ChronicleMoodRingsCard } from '@/components/chronicle/ChronicleMoodRing
 import { EmptyState } from '@/components/ui/empty-state'
 import { ReflectionsBookcase } from '@/components/chronicle/ReflectionsBookcase'
 import { cn } from '@/lib/utils'
+import { MonthlyReflectionDigestModal } from '@/components/chronicle/MonthlyReflectionDigestModal'
 import { CollectibleRune } from '@/components/runes/collectible-rune'
 
 export default function ChroniclePage() {
@@ -24,6 +25,7 @@ export default function ChroniclePage() {
     const [isLoading, setIsLoading] = useState(true)
     const [isJournalOpen, setIsJournalOpen] = useState(false)
     const [isArchivalOpen, setIsArchivalOpen] = useState(false)
+    const [isDigestOpen, setIsDigestOpen] = useState(false)
     const [journalEntry, setJournalEntry] = useState<any | null>(null)
     const [filterDate, setFilterDate] = useState<string>('')
     const [selectedMoodFilter, setSelectedMoodFilter] = useState<'energized' | 'focused' | 'calm' | null>(null)
@@ -146,6 +148,14 @@ export default function ChroniclePage() {
                             {entries.length} {entries.length === 1 ? 'reflection archived' : 'reflections archived'}
                         </Badge>
                         <Button
+                            onClick={() => setIsDigestOpen(true)}
+                            variant="outline"
+                            className="border-amber-500/40 bg-amber-950/30 text-amber-300 hover:bg-amber-900/40 text-xs font-bold rounded-xl px-3 h-9 flex items-center gap-1.5"
+                        >
+                            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                            Monthly digest
+                        </Button>
+                        <Button
                             onClick={() => setIsArchivalOpen(true)}
                             variant="outline"
                             className="border-amber-500/30 text-amber-300 hover:bg-amber-950/40 text-xs font-bold rounded-xl px-3 h-9 flex items-center gap-1.5"
@@ -164,6 +174,7 @@ export default function ChroniclePage() {
                 </div>
 
                 <SeasonArchivalModal isOpen={isArchivalOpen} onClose={() => setIsArchivalOpen(false)} />
+                <MonthlyReflectionDigestModal isOpen={isDigestOpen} onClose={() => setIsDigestOpen(false)} entries={entries} />
 
                 {/* Concentric Astrolabe Mood Balance Rings & Monthly Reflection Synthesis */}
                 <ChronicleMoodRingsCard
