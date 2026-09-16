@@ -20,7 +20,7 @@ const TOWN_RIDDLES = [
     question: "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?",
     options: ["An echo", "A ghost", "A thought", "A shadow"],
     correctIndex: 0,
-    rewardDesc: "+150 gold & 1x blueprint scroll"
+    rewardDesc: "+150 gold & +10 Knowledge virtue"
   },
   {
     id: 'r-2',
@@ -41,7 +41,7 @@ const TOWN_RIDDLES = [
     question: "I'm light as a feather, yet the strongest knight cannot hold me for much more than a minute. What am I?",
     options: ["Breath", "A whisper", "A feather", "Gold coins"],
     correctIndex: 0,
-    rewardDesc: "+250 gold & 1x monument blueprint"
+    rewardDesc: "+200 gold & +10 Knowledge virtue"
   },
   {
     id: 'r-5',
@@ -55,7 +55,7 @@ const TOWN_RIDDLES = [
     question: "Voiceless it cries, wingless flutters, toothless bites, mouthless mutters. What is it?",
     options: ["The wind", "A brook", "Thunder", "A shadow"],
     correctIndex: 0,
-    rewardDesc: "+200 gold & 1x serene lake blueprint"
+    rewardDesc: "+200 gold & +10 Knowledge virtue"
   },
   {
     id: 'r-7',
@@ -76,42 +76,42 @@ const TOWN_RIDDLES = [
     question: "I protect your streak when a day is missed, freezing decay until you check in. What am I?",
     options: ["A Streak Scroll Shield", "A Health Elixir", "A City Tax Token", "A Paragon Crest"],
     correctIndex: 0,
-    rewardDesc: "+190 Gold & 1x Streak Scroll"
+    rewardDesc: "+190 gold & 1x streak scroll"
   },
   {
     id: 'r-10',
     question: "I carry 7 virtue hourglasses measuring Might, Knowledge, Honor, Castle, Craft, Vitality, and Wellness. What am I?",
     options: ["The House Cup", "The Town Clock", "The Dungeon Altar", "The Market Scale"],
     correctIndex: 0,
-    rewardDesc: "+300 Gold & +10 Virtue Points"
+    rewardDesc: "+250 gold & +15 Knowledge virtue"
   },
   {
     id: 'r-11',
     question: "I am the ancient shadow slumbering deep below, feeding on broken vows and idle promises until habit fires drive me back. Who am I?",
     options: ["Necrion the Shadow Lord", "The Red Cyclops", "The Abyssal Kraken", "The Stone Golem"],
     correctIndex: 0,
-    rewardDesc: "+250 Gold & 150 Character XP"
+    rewardDesc: "+250 gold & 150 character XP"
   },
   {
     id: 'r-12',
     question: "I wander from kingdom to kingdom with a lute in hand, singing ballads of brave rulers and playing soothing melodies. Who am I?",
     options: ["Alistair the Traveling Bard", "Archmage Turtoisy", "Ignisio the Sprite", "Barnaby the Scholar"],
     correctIndex: 0,
-    rewardDesc: "+180 Gold & 5 Focus Points"
+    rewardDesc: "+180 gold & +10 Knowledge virtue"
   },
   {
     id: 'r-13',
     question: "I am the wise sage who counsels patience, reminding runners that sprinting too soon snuffs out your sparks. Who am I?",
     options: ["Archmage Turtoisy", "Sparky the Drake", "Oaky the Guardian", "Flippur the Otter"],
     correctIndex: 0,
-    rewardDesc: "+200 Gold & 1x Ancient Blueprint"
+    rewardDesc: "+200 gold & +10 Knowledge virtue"
   },
   {
     id: 'r-14',
     question: "I am the proud monarch of the Sunspire Empire who rides from the Iron Peaks with imperial guards to forge an alliance. Who am I?",
     options: ["Queen Valandriel", "Princess Beatrice", "Lady Seraphina", "Empress Morgana"],
     correctIndex: 0,
-    rewardDesc: "+240 Gold & +15 House Cup Points"
+    rewardDesc: "+240 gold & +15 Knowledge virtue"
   }
 ];
 
@@ -156,6 +156,18 @@ export function AncientRiddleModal({ isOpen, onClose }: AncientRiddleModalProps)
       const today = new Date().toDateString()
       localStorage.setItem('town_riddle_solve_date', today)
       await addToCharacterStat('gold', 200, 'town-riddle-solve')
+
+      // Record House Cup Knowledge virtue points
+      try {
+        await fetch('/api/house-cup/minigame-virtue', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ minigameType: 'riddle', points: 10 }),
+        })
+      } catch (err) {
+        // Non-blocking fallback
+      }
+
       toast({
         title: "📜 Town riddle solved!",
         description: `Correct! Awarded ${riddle.rewardDesc}.`,
@@ -271,7 +283,7 @@ export function AncientRiddleModal({ isOpen, onClose }: AncientRiddleModalProps)
 
         <Button
           onClick={onClose}
-          className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold text-xs shadow-lg"
+          className="w-full h-11 bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-white font-serif font-bold text-xs rounded-xl shadow-md transition-all active:scale-95"
         >
           {isAnswered ? 'Close scroll' : 'Cancel'}
         </Button>

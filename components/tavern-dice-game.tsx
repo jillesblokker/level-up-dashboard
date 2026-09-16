@@ -618,6 +618,13 @@ export function TavernDiceGame() {
             const payout = Math.floor(selectedTier.wager * selectedTier.multiplier);
             addToCharacterStat('gold', payout, 'liars-dice-payout');
             setGoldBalance(prev => prev + payout);
+
+            // Record House Cup Honor virtue points for tavern fellowship
+            fetch('/api/house-cup/minigame-virtue', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ minigameType: 'dice_game', points: 5 }),
+            }).catch(() => {});
           }
         }, 1500);
       }

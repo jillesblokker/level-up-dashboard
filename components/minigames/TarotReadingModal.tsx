@@ -113,6 +113,13 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
 
       await setUserPreference('active_alchemy_buffs', updatedBuffs)
       window.dispatchEvent(new CustomEvent('tarot-buff-activated', { detail: updatedBuffs }))
+
+      // Record House Cup Wellness virtue points for mindfulness reflection
+      fetch('/api/house-cup/minigame-virtue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ minigameType: 'tarot', points: 5 }),
+      }).catch(() => {})
     } catch (e) {
       console.error('Failed to set tarot blessing buff:', e)
     }

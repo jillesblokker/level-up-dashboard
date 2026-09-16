@@ -23,69 +23,69 @@ import { TEXT_CONTENT } from "@/lib/text-content";
 const PROVINCES = [
   {
     id: "castle",
-    title: TEXT_CONTENT.worldMap.castle.title || "Valoreth Citadel",
-    desc: TEXT_CONTENT.worldMap.castle.desc || "The central seat of royal power, honor hourglasses, and knightly crests.",
-    buttonText: TEXT_CONTENT.worldMap.castle.button || "Enter Citadel",
-    href: "/castle",
+    title: TEXT_CONTENT.worldMap?.castle?.title || "Valoreth Citadel",
+    desc: TEXT_CONTENT.worldMap?.castle?.desc || "The central seat of royal power, hero vault, and knightly equipment.",
+    buttonText: TEXT_CONTENT.worldMap?.castle?.button || "Enter citadel",
+    href: "/character",
     icon: Crown,
     iconBg: "bg-amber-600/30 text-amber-300 border-amber-500/40",
     headerImage: "/images/headers/realm-header.webp",
-    badge: "Royal Capital",
+    badge: "Hero Vault",
     levelReq: "Level 1"
   },
   {
     id: "forest",
-    title: TEXT_CONTENT.worldMap.forest.title || "Whispering Grove",
-    desc: TEXT_CONTENT.worldMap.forest.desc || "Ancient forest grove rich in Fey herbs, botanical potions, and woodland spirits.",
-    buttonText: TEXT_CONTENT.worldMap.forest.button || "Explore Forest",
-    href: "/forest",
+    title: TEXT_CONTENT.worldMap?.forest?.title || "Whispering Grove",
+    desc: TEXT_CONTENT.worldMap?.forest?.desc || "Ancient grove rich in botanical reagents, Apotheca potion crafting, and spirits.",
+    buttonText: TEXT_CONTENT.worldMap?.forest?.button || "Visit Apotheca",
+    href: "/market",
     icon: Trees,
     iconBg: "bg-emerald-600/30 text-emerald-300 border-emerald-500/40",
     headerImage: "/images/headers/daily-hub-hero.webp",
-    badge: "Nature Sanctuary",
+    badge: "Botanical Glasshouse",
     levelReq: "Level 1"
   },
   {
     id: "mountain",
-    title: TEXT_CONTENT.worldMap.mountain.title || "Ironstone Peaks",
-    desc: TEXT_CONTENT.worldMap.mountain.desc || "Rugged mountain quarries, dwarven blacksmith anvils, and mineral veins.",
-    buttonText: TEXT_CONTENT.worldMap.mountain.button || "Ascend Peaks",
-    href: "/mountain",
+    title: TEXT_CONTENT.worldMap?.mountain?.title || "Ironstone Peaks",
+    desc: TEXT_CONTENT.worldMap?.mountain?.desc || "Rugged mountain quarries, dwarven blacksmith anvils, and sandbox building.",
+    buttonText: TEXT_CONTENT.worldMap?.mountain?.button || "Ascend peaks",
+    href: "/realm",
     icon: Mountain,
     iconBg: "bg-slate-600/30 text-slate-300 border-slate-500/40",
     headerImage: "/images/headers/kingdom-header.webp",
-    badge: "Mining District",
-    levelReq: "Level 2"
+    badge: "Sandbox Grid",
+    levelReq: "Level 1"
   },
   {
     id: "village",
-    title: TEXT_CONTENT.worldMap.village.title || "Haven Settlement",
-    desc: TEXT_CONTENT.worldMap.village.desc || "Peaceful agricultural farmlands, bakery mills, and citizen training grounds.",
-    buttonText: TEXT_CONTENT.worldMap.village.button || "Visit Village",
-    href: "/village",
+    title: TEXT_CONTENT.worldMap?.village?.title || "Haven Settlement",
+    desc: TEXT_CONTENT.worldMap?.village?.desc || "Peaceful agricultural farmlands, citizen training grounds, and daily habits.",
+    buttonText: TEXT_CONTENT.worldMap?.village?.button || "Visit settlement",
+    href: "/quests",
     icon: Compass,
     iconBg: "bg-orange-600/30 text-orange-300 border-orange-500/40",
     headerImage: "/images/headers/quests-header.webp",
-    badge: "Citizen Hub",
+    badge: "Habit Ledger",
     levelReq: "Level 1"
   },
   {
     id: "lake",
-    title: TEXT_CONTENT.worldMap.lake.title || "Serene Canal",
-    desc: TEXT_CONTENT.worldMap.lake.desc || "Crystal waterways, quiet angler docks, and aqueduct tax multipliers.",
-    buttonText: TEXT_CONTENT.worldMap.lake.button || "Sail Canal",
-    href: "/lake",
+    title: TEXT_CONTENT.worldMap?.lake?.title || "Serene Harbor",
+    desc: TEXT_CONTENT.worldMap?.lake?.desc || "Crystal waterways, airship trading expeditions, and habit-powered Ether voyages.",
+    buttonText: TEXT_CONTENT.worldMap?.lake?.button || "Visit harbor",
+    href: "/airship-harbor",
     icon: Waves,
     iconBg: "bg-blue-600/30 text-blue-300 border-blue-500/40",
     headerImage: "/images/headers/allies-header.webp",
-    badge: "Waterway Reserve",
-    levelReq: "Level 3"
+    badge: "Airship Port",
+    levelReq: "Level 1"
   },
   {
     id: "market",
-    title: TEXT_CONTENT.worldMap.market.title || "Royal Bazaar",
-    desc: TEXT_CONTENT.worldMap.market.desc || "The Grand Exchange trading post, Apotheca potion brewing, and mystic tiles.",
-    buttonText: TEXT_CONTENT.worldMap.market.button || "Visit Market",
+    title: TEXT_CONTENT.worldMap?.market?.title || "Royal Bazaar",
+    desc: TEXT_CONTENT.worldMap?.market?.desc || "The Grand Exchange trading post, commodity bartering, and mystic packs.",
+    buttonText: TEXT_CONTENT.worldMap?.market?.button || "Visit market",
     href: "/market",
     icon: ShoppingBag,
     iconBg: "bg-purple-600/30 text-purple-300 border-purple-500/40",
@@ -238,7 +238,7 @@ export default function WorldMapPage() {
 
                   <Link href={province.href} className="w-full pt-2">
                     <Button 
-                      className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold text-xs py-3 rounded-xl shadow-md min-h-[44px] flex items-center justify-center gap-2 uppercase tracking-wider"
+                      className="w-full bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-white font-serif font-bold text-xs py-3 rounded-xl shadow-md min-h-[44px] flex items-center justify-center gap-2 tracking-wide transition-all active:scale-95"
                     >
                       <MapPin className="w-4 h-4" /> {province.buttonText}
                     </Button>

@@ -129,6 +129,57 @@ export async function recordDungeonVictoryVirtuePoints(params: {
 }
 
 /**
+ * Records House Cup Virtue Energy from interactive minigames.
+ * Riddles = Knowledge, Plank Puzzle = Craft, Dice Game = Honor, Tarot = Wellness.
+ */
+export async function recordMinigameVirtuePoints(params: {
+  userId: string;
+  minigameType: 'riddle' | 'plank_puzzle' | 'dice_game' | 'tarot';
+  points?: number | undefined;
+}) {
+  const { userId, minigameType, points } = params;
+
+  let categoryId = 'knowledge';
+  let defaultPoints = 10;
+
+  switch (minigameType) {
+    case 'riddle':
+      categoryId = 'knowledge';
+      defaultPoints = 10;
+      break;
+    case 'plank_puzzle':
+      categoryId = 'craft';
+      defaultPoints = 10;
+      break;
+    case 'dice_game':
+      categoryId = 'honor';
+      defaultPoints = 5;
+      break;
+    case 'tarot':
+      categoryId = 'wellness';
+      defaultPoints = 5;
+      break;
+  }
+
+  const finalPoints = points ?? defaultPoints;
+
+  const result = await recordHouseCupPoints({
+    userId,
+    categoryId,
+    sourceType: 'quest',
+    sourceId: `minigame-${minigameType}-${Date.now()}`,
+    points: finalPoints,
+  });
+
+  return {
+    success: true,
+    categoryId,
+    points: finalPoints,
+    result,
+  };
+}
+
+/**
  * Fetches the House Cup standings for a viewer's circle (viewer + allies) for a given year (§2 & §3).
  * Integrates database ledger history & character stats so main character & allies show live points.
  */

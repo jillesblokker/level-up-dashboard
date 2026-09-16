@@ -498,9 +498,14 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
 
                 const gold = 500
                 const xp = 200
+                fetch('/api/house-cup/minigame-virtue', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ minigameType: 'plank_puzzle', points: 10 }),
+                }).catch(() => {})
                 toast({
                   title: "Labyrinth solved! 🎉",
-                  description: `You cleared the planks in ${moves + 1} moves! Earned ${gold} gold, ${xp} XP, and 3x crafting blocks.`,
+                  description: `You cleared the planks in ${moves + 1} moves! Earned ${gold} gold, ${xp} XP, and +10 Craft virtue.`,
                 })
                 setTimeout(() => {
                   onComplete(true, gold, xp)
@@ -640,9 +645,15 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
         window.dispatchEvent(new Event('character-inventory-update'));
       } catch {}
 
+      fetch('/api/house-cup/minigame-virtue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ minigameType: 'plank_puzzle', points: 10 }),
+      }).catch(() => {})
+
       toast({
         title: "Labyrinth solved! 🎉",
-        description: `You cleared the labyrinth in ${moves + 1} moves! Earned +${gold} gold, +${xp} XP, +2 essence crystals, and 'Labyrinth walker' title!`,
+        description: `You cleared the labyrinth in ${moves + 1} moves! Earned +${gold} gold, +${xp} XP, +10 Craft virtue, and 'Labyrinth walker' title!`,
       })
       
       setTimeout(() => {
