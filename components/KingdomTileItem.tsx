@@ -33,9 +33,15 @@ import { KINGDOM_TILES } from '@/lib/kingdom-tiles'
 const REDIRECT_TILES = [
   'daily-hub', 'dailyhub', 'daily_hub', 'quest-board', 'market', 'market-stalls',
   'dungeon', 'dungeon-keep', 'crystal_cavern', 'monument', 'hall_of_fame',
-  'mystic_bazaar', 'airship_harbor', 'housecup', 'observatory', 'hall_of_champions',
-  'titan_watchtower', 'castle', 'library', 'barracks', 'training-grounds',
-  'training_grounds', 'tavern', 'inn', 'town-hall', 'town_hall', 'mayor'
+  'mystic_bazaar', 'airship_harbor', 'airship-harbor', 'housecup', 'observatory',
+  'hall_of_champions', 'titan_watchtower', 'titan-watchtower', 'castle', 'library',
+  'barracks', 'training-grounds', 'training_grounds', 'tavern', 'inn', 'town-hall',
+  'town_hall', 'mayor', 'apotheca', 'siege_workshop', 'prison'
+];
+
+const MINIGAME_TILES = [
+  'dungeon', 'dungeon-keep', 'zen-garden', 'zen_garden', 'plank-labyrinth',
+  'labyrinth', 'plank_labyrinth', 'fortune_teller', 'fortune-teller'
 ];
 
 export const KingdomTileItem = React.memo(({
@@ -56,9 +62,9 @@ export const KingdomTileItem = React.memo(({
   onRotate,
   formatTimeRemaining
 }: KingdomTileItemProps) => {
-  const isReady = timer ? (timer.isReady || Date.now() >= timer.endTime) : false
   const isKingdomTile = tile.type !== 'vacant'
-  const type = tile.type?.toLowerCase()
+  const type = tile.type?.toLowerCase() || ''
+  const libraryTile = KINGDOM_TILES.find(t => t.id === type)
 
   const [isNewlyPlaced, setIsNewlyPlaced] = useState(false)
   const prevTypeRef = useRef(tile.type)
@@ -74,7 +80,7 @@ export const KingdomTileItem = React.memo(({
       if (timeoutId) clearTimeout(timeoutId)
     }
   }, [tile.type])
-  
+
   // Automatic Seasonal Tile Morphing Logic
   const getSeasonalTileOverride = (baseType: string): string => {
     if (typeof window === 'undefined') return '';
@@ -115,18 +121,19 @@ export const KingdomTileItem = React.memo(({
   };
 
   const seasonalOverrideImg = getSeasonalTileOverride(type);
-  const libraryTile = KINGDOM_TILES.find(t => t.id === type);
   const actualImage = (type === 'fortune_teller' || type === 'fortune-teller')
     ? '/images/kingdom-tiles/fortune_teller.webp'
     : (seasonalOverrideImg || libraryTile?.image || tile.image || '');
 
   const isNonProducerTile = useMemo(() => {
-    if (tile.type === 'vacant' || tile.type === 'empty') return true;
+    if (!type || type === 'vacant' || type === 'empty') return true;
+    if (REDIRECT_TILES.includes(type) || MINIGAME_TILES.includes(type)) return true;
     if (libraryTile && libraryTile.timerMinutes === 0) return true;
     if (kingdomTile && kingdomTile.timerMinutes === 0) return true;
-    const t = tile.type?.toLowerCase() || '';
-    return t.includes('road') || t.includes('path') || t.includes('cobble') || t.includes('dirt') || t === 'water' || t === 'grass' || t === 'wall' || t === 'waterway_canal';
-  }, [tile.type, libraryTile, kingdomTile]);
+    return type.includes('road') || type.includes('path') || type.includes('cobble') || type.includes('dirt') || type === 'water' || type === 'grass' || type === 'wall' || type === 'waterway_canal';
+  }, [type, libraryTile, kingdomTile]);
+
+  const isReady = !isNonProducerTile && timer ? (timer.isReady || Date.now() >= timer.endTime) : false;
 
   // Synergy Aura logic hoisted for efficiency
   let auraColor = ''

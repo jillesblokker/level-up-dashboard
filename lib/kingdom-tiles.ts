@@ -914,10 +914,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'dungeon',
     name: 'Dungeon',
-    timerMinutes: 60,
-    normalGoldRange: [15, 40],
-    luckyGoldAmount: 150,
-    luckyChance: 0.12,
+    timerMinutes: 0,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
     clickMessage: 'Delve into the depths!',
     possibleItems: [
       '/images/items/potion/potion-health.webp',
@@ -933,7 +933,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'fortune_teller',
     name: 'Fortune Teller',
-    timerMinutes: 1440, // 24 hours
+    timerMinutes: 0,
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
@@ -976,7 +976,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'plank-labyrinth',
     name: 'Plank Labyrinth',
-    timerMinutes: 30, // 30 minutes
+    timerMinutes: 0,
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
@@ -990,7 +990,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'prison',
     name: 'Iron Citadel Prison',
-    timerMinutes: 1440,
+    timerMinutes: 0,
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
@@ -1005,7 +1005,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'apotheca',
     name: 'Grand Apotheca',
-    timerMinutes: 1440,
+    timerMinutes: 0,
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
@@ -1020,10 +1020,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'siege_workshop',
     name: 'Siege Engine Workshop',
-    timerMinutes: 1440,
-    normalGoldRange: [10, 30],
-    luckyGoldAmount: 100,
-    luckyChance: 0.1,
+    timerMinutes: 0,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
     clickMessage: 'Alliance Siege Workshop: Track co-op habit milestones to unlock Catapults, Scorpions, and Trebuchets!',
     possibleItems: ['/images/items/materials/material-steel.webp'],
     itemType: 'material',
@@ -1245,7 +1245,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'airship_harbor',
     name: 'Airship Harbor',
-    timerMinutes: 1440,
+    timerMinutes: 0,
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
@@ -1260,7 +1260,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'housecup',
     name: 'Hourglass Spire',
-    timerMinutes: 1440,
+    timerMinutes: 0,
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
@@ -1275,7 +1275,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'observatory',
     name: 'Cartography Observatory',
-    timerMinutes: 1440,
+    timerMinutes: 0,
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
@@ -1290,7 +1290,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'hall_of_champions',
     name: 'Hall of Champions',
-    timerMinutes: 1440,
+    timerMinutes: 0,
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
@@ -1305,7 +1305,7 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'titan_watchtower',
     name: 'Titan Watchtower',
-    timerMinutes: 1440,
+    timerMinutes: 0,
     normalGoldRange: [0, 0],
     luckyGoldAmount: 0,
     luckyChance: 0,
@@ -1367,10 +1367,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'zen_garden',
     name: 'Zen Stone Garden',
-    timerMinutes: 180,
-    normalGoldRange: [180, 500],
-    luckyGoldAmount: 2000,
-    luckyChance: 0.22,
+    timerMinutes: 0,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
     clickMessage: 'Floor 5 Dungeon Boss Blueprint! Meditative rock garden (+15 Spell Power).',
     possibleItems: ['material-stone', 'material-crystal', 'material-deeproot'],
     itemType: 'material',

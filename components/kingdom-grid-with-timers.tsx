@@ -681,7 +681,7 @@ export function KingdomGridWithTimers({
       const isNonProducer = (ktile && ktile.timerMinutes === 0) ||
         ['vacant', 'empty', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue', 'waterway_canal'].includes(type) ||
         type.includes('road') || type.includes('path') || type.includes('cobble') || type.includes('dirt');
-      const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'fortune_teller', 'zen-garden'].includes(type);
+      const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'plank_labyrinth', 'fortune_teller', 'fortune-teller', 'zen-garden', 'zen_garden'].includes(type);
       return !isNonProducer && !isMinigame && (t.isReady || Date.now() >= t.endTime);
     }).length;
   }, [tileTimers, grid]);
@@ -706,7 +706,7 @@ export function KingdomGridWithTimers({
       const isNonProducer = (ktile && ktile.timerMinutes === 0) ||
         ['vacant', 'empty', 'path', 'dirt-path', 'road', 'cobblestone', 'water', 'grass', 'crossroad', 'straightroad', 'cornerroad', 'tsplitroad', 'wall', 'fountain', 'monument', 'statue', 'waterway_canal'].includes(type) ||
         type.includes('road') || type.includes('path') || type.includes('cobble') || type.includes('dirt');
-      const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'fortune_teller', 'zen-garden'].includes(type);
+      const isMinigame = ['dungeon', 'dungeon-keep', 'plank-labyrinth', 'labyrinth', 'plank_labyrinth', 'fortune_teller', 'fortune-teller', 'zen-garden', 'zen_garden'].includes(type);
       if (!isNonProducer && !isMinigame && (t.isReady || now >= t.endTime)) {
         return { ...t, endTime: now + (30 * 60 * 1000), isReady: false };
       }
@@ -1757,7 +1757,7 @@ export function KingdomGridWithTimers({
     }
 
     // Handle Zen Garden interaction
-    if (tile.type === 'zen-garden') {
+    if (tile.type === 'zen-garden' || (tile.type as string) === 'zen_garden') {
       setZenModalOpen(true);
       return;
     }
@@ -1765,8 +1765,8 @@ export function KingdomGridWithTimers({
     // Flavor 3: Waypoint Landmark Tiles Preview Modal
     const WAYPOINT_TILES = [
       'daily-hub', 'dailyhub', 'daily_hub', 'dungeon', 'dungeon-keep', 'quest-board', 'market',
-      'market-stalls', 'mystic_bazaar', 'airship_harbor', 'housecup',
-      'observatory', 'hall_of_champions', 'titan_watchtower', 'castle',
+      'market-stalls', 'mystic_bazaar', 'airship_harbor', 'airship-harbor', 'housecup',
+      'observatory', 'hall_of_champions', 'titan_watchtower', 'titan-watchtower', 'castle',
       'library', 'barracks', 'training-grounds', 'training_grounds', 'monument', 'hall_of_fame',
       'tavern', 'inn', 'town-hall', 'town_hall', 'mayor'
     ];
