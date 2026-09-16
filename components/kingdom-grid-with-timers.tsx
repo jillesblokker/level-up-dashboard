@@ -1768,7 +1768,7 @@ export function KingdomGridWithTimers({
       'market-stalls', 'mystic_bazaar', 'airship_harbor', 'airship-harbor', 'housecup',
       'observatory', 'hall_of_champions', 'titan_watchtower', 'titan-watchtower', 'castle',
       'library', 'barracks', 'training-grounds', 'training_grounds', 'monument', 'hall_of_fame',
-      'tavern', 'inn', 'town-hall', 'town_hall', 'mayor'
+      'tavern', 'inn', 'town-hall', 'town_hall', 'mayor', 'monastery'
     ];
     if (WAYPOINT_TILES.includes(tile.type)) {
       setSelectedWaypointTileType(tile.type);

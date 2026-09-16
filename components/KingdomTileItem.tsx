@@ -36,7 +36,7 @@ const REDIRECT_TILES = [
   'mystic_bazaar', 'airship_harbor', 'airship-harbor', 'housecup', 'observatory',
   'hall_of_champions', 'titan_watchtower', 'titan-watchtower', 'castle', 'library',
   'barracks', 'training-grounds', 'training_grounds', 'tavern', 'inn', 'town-hall',
-  'town_hall', 'mayor', 'apotheca', 'siege_workshop', 'prison'
+  'town_hall', 'mayor', 'apotheca', 'siege_workshop', 'prison', 'monastery', 'abbey'
 ];
 
 const MINIGAME_TILES = [
@@ -139,16 +139,16 @@ export const KingdomTileItem = React.memo(({
   let auraColor = ''
   let synergyLabel = ''
   if (type === 'library') { auraColor = 'blue'; synergyLabel = '+10% Knowledge XP'; }
-  else if (type === 'training-grounds') { auraColor = 'red'; synergyLabel = '+10% Might XP'; }
-  else if (type === 'zen-garden' || type === 'temple') { auraColor = 'emerald'; synergyLabel = '+10% Wellness XP'; }
-  else if (type === 'castle') { auraColor = 'amber'; synergyLabel = '+10% Honor XP'; }
+  else if (type === 'training-grounds' || type === 'iron-mine') { auraColor = 'red'; synergyLabel = '+10% Might XP'; }
+  else if (type === 'zen-garden' || type === 'temple' || type === 'monastery' || type === 'abbey') { auraColor = 'emerald'; synergyLabel = '+15% Wellness XP'; }
+  else if (type === 'castle' || type === 'hangman_station') { auraColor = 'amber'; synergyLabel = '+10% Honor XP'; }
 
   const isPending = pendingHabits.includes(type)
   const isFocused = focusCategory && (
-    (focusCategory === 'might' && ['training-grounds', 'blacksmith', 'archery', 'jousting', 'watchtower'].includes(type)) ||
-    (focusCategory === 'knowledge' && ['library', 'wizard', 'temple', 'monument'].includes(type)) ||
-    (focusCategory === 'wellness' && ['zen-garden', 'temple', 'fountain', 'well', 'pond', 'park'].includes(type)) ||
-    (focusCategory === 'honor' && ['castle', 'mansion', 'mayor', 'monument'].includes(type))
+    (focusCategory === 'might' && ['training-grounds', 'blacksmith', 'archery', 'jousting', 'watchtower', 'iron-mine', 'gold-mine'].includes(type)) ||
+    (focusCategory === 'knowledge' && ['library', 'wizard', 'temple', 'monument', 'monastery', 'abbey'].includes(type)) ||
+    (focusCategory === 'wellness' && ['zen-garden', 'temple', 'fountain', 'well', 'pond', 'park', 'monastery', 'abbey'].includes(type)) ||
+    (focusCategory === 'honor' && ['castle', 'mansion', 'mayor', 'monument', 'hangman_station'].includes(type))
   )
 
   return (

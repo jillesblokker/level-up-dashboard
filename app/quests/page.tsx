@@ -38,6 +38,7 @@ import { StreaksHubTab } from '@/components/streaks/streaks-hub-tab';
 import { StreakShieldBadge } from '@/components/StreakShieldBadge';
 import { FullPageLoading, DataLoadingState } from '@/components/ui/loading-states';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { HeraldTrumpetsOverlay } from '@/components/ui/HeraldTrumpetsOverlay';
 import { gainExperience } from '@/lib/experience-manager'
 import { gainStrengthFromQuest } from '@/lib/strength-manager'
 import { MobileLayoutWrapper, MobileScrollContainer, MobileContentWrapper } from '@/components/mobile-layout-wrapper'
@@ -283,6 +284,7 @@ export default function QuestsPage() {
   const activePartner = citizens.find(c => c.id === activePartnerId);
   const [isPartnerAnimating, setIsPartnerAnimating] = useState(false);
   const [partnerSpeech, setPartnerSpeech] = useState<string | null>(null);
+  const [showHeraldTrumpets, setShowHeraldTrumpets] = useState(false);
   const [bossQuestId, setBossQuestId] = useState<string | undefined>();
 
   // Add missing state variables
@@ -526,12 +528,10 @@ export default function QuestsPage() {
     // Only use Supabase for streak/history
   }, [userId]);
   // On quest completion change, update streak/history
-  // Trigger confetti explosion on 5/10 target hit
+  // Trigger confetti explosion and herald fanfare on 5/10 target hit
   useEffect(() => {
-    if (todaysCompleted === 5) {
-      import('canvas-confetti').then(confetti => {
-        confetti.default({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
-      });
+    if (todaysCompleted === 5 || todaysCompleted === 10) {
+      setShowHeraldTrumpets(true);
       gainGold(50, 'target-sweet-spot');
       gainExperience(100, 'target-sweet-spot');
       toast({
@@ -1350,14 +1350,7 @@ export default function QuestsPage() {
       // 5/10 Habit Target Sweet-Spot Confetti Celebration
       const currentCompletedCount = quests.filter(q => q.completed).length + 1;
       if (currentCompletedCount === 5 || currentCompletedCount === 10 || currentCompletedCount === 15) {
-        try {
-          confetti({
-            particleCount: 120,
-            spread: 80,
-            origin: { y: 0.6 },
-            colors: ['#f59e0b', '#10b981', '#6366f1', '#ec4899']
-          });
-        } catch {}
+        setShowHeraldTrumpets(true);
         const bonusGold = currentCompletedCount === 5 ? 50 : currentCompletedCount === 10 ? 100 : 150;
         addToCharacterStat('gold', bonusGold, `sweet-spot-${currentCompletedCount}`);
         toast({
@@ -3908,6 +3901,14 @@ export default function QuestsPage() {
         <ToastContainer
           toasts={questToasts.toasts}
           onDismiss={questToasts.dismissToast}
+        />
+
+        {/* Herald Trumpets Celebration Overlay */}
+        <HeraldTrumpetsOverlay
+          isOpen={showHeraldTrumpets}
+          onClose={() => setShowHeraldTrumpets(false)}
+          title="Royal Habit Milestone!"
+          subtitle="5/10 Target Sweet Spot Conquered with Honor!"
         />
       </div>
     </EnhancedErrorBoundary >

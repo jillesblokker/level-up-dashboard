@@ -45,6 +45,10 @@ export const defaultTile = (type: TileType | string): Tile => {
     if (t === 'waterway_canal') image = '/images/kingdom-tiles/WaterwayCanal.webp';
     if (t === 'astral_citadel_monument') image = '/images/kingdom-tiles/AstralCitadelMonument.webp';
     if (t === 'serene_lake') image = '/images/kingdom-tiles/SereneLake.webp';
+    if (t === 'monastery') image = '/images/kingdom-tiles/Monastery.webp';
+    if (t === 'gold-mine' || t === 'gold_mine') image = '/images/kingdom-tiles/GoldMine.webp';
+    if (t === 'iron-mine' || t === 'iron_mine') image = '/images/kingdom-tiles/IronMine.webp';
+    if (t === 'hangman_station' || t === 'hangman-station') image = '/images/kingdom-tiles/HangmanStation.webp';
 
     let name = t.charAt(0).toUpperCase() + t.slice(1);
     if (t === 'coral_reef') name = 'Mermaid';
@@ -66,6 +70,10 @@ export const defaultTile = (type: TileType | string): Tile => {
     if (t === 'prison') name = 'Iron Citadel Prison';
     if (t === 'apotheca') name = 'Grand Apotheca';
     if (t === 'abbey') name = 'Silent Abbey';
+    if (t === 'monastery') name = 'Silent Monastery';
+    if (t === 'gold-mine' || t === 'gold_mine') name = 'Gold Mine';
+    if (t === 'iron-mine' || t === 'iron_mine') name = 'Iron Mine';
+    if (t === 'hangman_station' || t === 'hangman-station') name = 'Hangman Station';
     if (t === 'waterway_canal') name = 'Waterway canal';
     if (t === 'astral_citadel_monument') name = 'Astral Citadel Monument';
     if (t === 'serene_lake') name = 'Serene Lake';
@@ -151,6 +159,10 @@ export const initialInventory: Record<string, Tile> = {
     settlement: { ...defaultTile('settlement'), cost: 300, owned: 0 },
     megapolis: { ...defaultTile('megapolis'), cost: 3000, owned: 0 },
     abbey: { ...defaultTile('abbey'), cost: 600, owned: 0 },
+    monastery: { ...defaultTile('monastery'), cost: 1200, owned: 1 },
+    'gold-mine': { ...defaultTile('gold-mine'), cost: 1500, owned: 1 },
+    'iron-mine': { ...defaultTile('iron-mine'), cost: 800, owned: 1 },
+    hangman_station: { ...defaultTile('hangman_station'), cost: 600, owned: 1 },
     waterway_canal: { ...defaultTile('waterway_canal'), cost: 750, owned: 1 },
     astral_citadel_monument: { ...defaultTile('astral_citadel_monument'), cost: 1500, owned: 1 },
     serene_lake: { ...defaultTile('serene_lake'), cost: 25, owned: 2 },
@@ -201,6 +213,10 @@ export const getTileImage = (type: TileType | string): string => {
     if (t === 'prison') return '/images/tiles/prison-tile.webp';
     if (t === 'apotheca') return '/images/tiles/apotheca-tile.webp';
     if (t === 'abbey') return '/images/tiles/abbey-tile.webp';
+    if (t === 'monastery') return '/images/kingdom-tiles/Monastery.webp';
+    if (t === 'gold-mine' || t === 'gold_mine') return '/images/kingdom-tiles/GoldMine.webp';
+    if (t === 'iron-mine' || t === 'iron_mine') return '/images/kingdom-tiles/IronMine.webp';
+    if (t === 'hangman_station' || t === 'hangman-station') return '/images/kingdom-tiles/HangmanStation.webp';
     if (t === 'waterway_canal') return '/images/kingdom-tiles/WaterwayCanal.webp';
     if (t === 'astral_citadel_monument') return '/images/kingdom-tiles/AstralCitadelMonument.webp';
     if (t === 'serene_lake') return '/images/kingdom-tiles/SereneLake.webp';

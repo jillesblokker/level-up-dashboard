@@ -118,6 +118,7 @@ class SoundManager {
     setIfNotExists('virtueToast', () => this.generateVirtueToastSound());
     setIfNotExists('zenBowl', () => this.generateZenBowlSound());
     setIfNotExists('bardLute', () => this.generateBardLuteSound());
+    setIfNotExists('heraldFanfare', () => this.generateHeraldFanfareSound());
 
     // New procedural fallbacks
     setIfNotExists('monsterSpawn', () => this.generateErrorSound()); // Ominous thud
@@ -436,6 +437,51 @@ class SoundManager {
     return buffer;
   }
 
+  private generateHeraldFanfareSound(): AudioBuffer {
+    if (!this.audioContext) return null as any;
+
+    const sampleRate = this.audioContext.sampleRate;
+    const duration = 1.6;
+    const buffer = this.audioContext.createBuffer(1, Math.floor(sampleRate * duration), sampleRate);
+    const data = buffer.getChannelData(0);
+
+    // Triumphant royal brass fanfare arpeggio: C4, G4, C5, E5, G5 (longer sustained chord)
+    const notes = [
+      { freq: 261.63, start: 0.0, duration: 0.22 }, // C4
+      { freq: 392.00, start: 0.20, duration: 0.22 }, // G4
+      { freq: 523.25, start: 0.40, duration: 0.30 }, // C5
+      { freq: 659.25, start: 0.65, duration: 0.35 }, // E5
+      { freq: 783.99, start: 0.95, duration: 0.65 }, // G5 (sustained peak)
+    ];
+
+    for (let i = 0; i < data.length; i++) {
+      const t = i / sampleRate;
+      let sample = 0;
+
+      for (const note of notes) {
+        if (t >= note.start && t < note.start + note.duration) {
+          const noteTime = t - note.start;
+          const attack = Math.min(1, noteTime / 0.03);
+          const decay = Math.max(0, 1 - (noteTime / note.duration));
+          const env = attack * decay;
+
+          // Rich brass harmonics: fundamental + 2nd + 3rd + 4th + 5th harmonics
+          const fundamental = Math.sin(2 * Math.PI * note.freq * noteTime);
+          const h2 = Math.sin(2 * Math.PI * (note.freq * 2) * noteTime) * 0.55;
+          const h3 = Math.sin(2 * Math.PI * (note.freq * 3) * noteTime) * 0.35;
+          const h4 = Math.sin(2 * Math.PI * (note.freq * 4) * noteTime) * 0.20;
+          const h5 = Math.sin(2 * Math.PI * (note.freq * 5) * noteTime) * 0.10;
+
+          const brassTone = (fundamental + h2 + h3 + h4 + h5) / 2.2;
+          sample += brassTone * env;
+        }
+      }
+      data[i] = sample * 0.45;
+    }
+
+    return buffer;
+  }
+
   // Play a sound
   async play(soundName: string): Promise<void> {
     if (!this.isEnabled || !this.audioContext || !this.sounds.has(soundName) || !isAudioGloballyEnabled()) {
@@ -599,4 +645,5 @@ export const SOUNDS = {
   VIRTUE_TOAST: 'virtueToast',
   ZEN_BOWL: 'zenBowl',
   BARD_LUTE: 'bardLute',
+  HERALD_FANFARE: 'heraldFanfare',
 } as const;

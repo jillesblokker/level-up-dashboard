@@ -11,6 +11,9 @@ export interface StoreItem {
 export interface WeaponItem extends StoreItem {
   stats: {
     attack: number;
+    defense?: number;
+    crit?: number;
+    speed?: number;
   };
 }
 
@@ -79,6 +82,30 @@ export class CityItemManager {
           attack: 12,
         },
         image: "item-bow-1"
+      },
+      {
+        id: "crossbow-arbalest",
+        name: "Heavy Arbalest Crossbow",
+        description: "Devastating armor-piercing ranged weapon.",
+        price: 260,
+        category: "weapon",
+        stats: {
+          attack: 18,
+          crit: 8
+        },
+        image: "/images/items/sword/crossbow-arbalest.webp"
+      },
+      {
+        id: "halberd-poleaxe",
+        name: "Vanguard Halberd",
+        description: "Heavy reach polearm with axe blade and defensive cleave.",
+        price: 320,
+        category: "weapon",
+        stats: {
+          attack: 24,
+          defense: 12
+        },
+        image: "/images/items/sword/halberd-poleaxe.webp"
       }
     ];
   }

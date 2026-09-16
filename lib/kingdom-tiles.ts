@@ -832,10 +832,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'quest-board',
     name: 'Quest Board',
-    timerMinutes: 60,
-    normalGoldRange: [5, 15],
-    luckyGoldAmount: 60,
-    luckyChance: 0.15,
+    timerMinutes: 0,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
     clickMessage: 'Check available quests!',
     possibleItems: [],
     itemType: 'none',
@@ -847,9 +847,9 @@ export const KINGDOM_TILES: KingdomTile[] = [
     id: 'daily-hub',
     name: TEXT_CONTENT.kingdomTiles['daily-hub'].name,
     timerMinutes: 0,
-    normalGoldRange: [12, 22],
-    luckyGoldAmount: 90,
-    luckyChance: 0.15,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
     clickMessage: TEXT_CONTENT.kingdomTiles['daily-hub'].clickMessage,
     possibleItems: [],
     itemType: 'none',
@@ -860,10 +860,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'monument',
     name: 'Hall of fame',
-    timerMinutes: 60,
-    normalGoldRange: [10, 20],
-    luckyGoldAmount: 80,
-    luckyChance: 0.12,
+    timerMinutes: 0,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
     clickMessage: 'View achievements and glory.',
     possibleItems: [
       '/images/items/materials/material-gold.webp',
@@ -896,10 +896,10 @@ export const KINGDOM_TILES: KingdomTile[] = [
   {
     id: 'market',
     name: 'Market',
-    timerMinutes: 60,
-    normalGoldRange: [10, 25],
-    luckyGoldAmount: 100,
-    luckyChance: 0.15,
+    timerMinutes: 0,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
     clickMessage: 'Trade items and resources.',
     possibleItems: [
       '/images/items/materials/material-gold.webp',
@@ -910,6 +910,77 @@ export const KINGDOM_TILES: KingdomTile[] = [
     rarity: 'common',
     image: '/images/kingdom-tiles/MarketStalls.webp',
     cost: 400
+  },
+  {
+    id: 'gold-mine',
+    name: 'Gold Mine',
+    timerMinutes: 360,
+    normalGoldRange: [350, 900],
+    luckyGoldAmount: 3500,
+    luckyChance: 0.25,
+    clickMessage: 'Deep mountain gold shaft! Harvest sparkling raw gold nuggets and gems.',
+    possibleItems: [
+      '/images/items/materials/material-crystal.webp',
+      '/images/items/materials/material-stone.webp'
+    ],
+    itemType: 'material',
+    rarity: 'epic',
+    image: '/images/kingdom-tiles/GoldMine.webp',
+    cost: 1500,
+    levelRequired: 3
+  },
+  {
+    id: 'iron-mine',
+    name: 'Iron Mine',
+    timerMinutes: 240,
+    normalGoldRange: [200, 550],
+    luckyGoldAmount: 2200,
+    luckyChance: 0.20,
+    clickMessage: 'Industrial quarry shaft! Harvest iron ingots and steel ore.',
+    possibleItems: [
+      '/images/items/materials/material-steel.webp',
+      '/images/items/materials/material-stone.webp'
+    ],
+    itemType: 'material',
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/IronMine.webp',
+    cost: 800,
+    levelRequired: 2
+  },
+  {
+    id: 'hangman_station',
+    name: 'Hangman Station',
+    timerMinutes: 180,
+    normalGoldRange: [150, 400],
+    luckyGoldAmount: 1800,
+    luckyChance: 0.18,
+    clickMessage: 'Royal justice tribunal! Collect bounty tariffs and enforce realm discipline.',
+    possibleItems: [
+      '/images/items/materials/material-logs.webp'
+    ],
+    itemType: 'material',
+    rarity: 'rare',
+    image: '/images/kingdom-tiles/HangmanStation.webp',
+    cost: 600,
+    levelRequired: 2
+  },
+  {
+    id: 'monastery',
+    name: 'Silent Monastery',
+    timerMinutes: 0,
+    normalGoldRange: [0, 0],
+    luckyGoldAmount: 0,
+    luckyChance: 0,
+    clickMessage: 'A serene gothic monastery offering daily vows of focus and reflection (+15% Wellness & Knowledge XP).',
+    possibleItems: [
+      '/images/items/scroll/scroll-scrolly.webp',
+      '/images/items/potion/potion-exp.webp'
+    ],
+    itemType: 'scroll',
+    rarity: 'epic',
+    image: '/images/kingdom-tiles/Monastery.webp',
+    cost: 1200,
+    levelRequired: 3
   },
   {
     id: 'dungeon',

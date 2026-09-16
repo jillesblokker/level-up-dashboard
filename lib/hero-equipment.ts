@@ -106,7 +106,7 @@ export function getItemSlot(item: { type: string; category?: string; id?: string
   const cat = (item.category || '').toLowerCase();
   const id = (item.id || '').toLowerCase();
 
-  if (type === 'weapon' || cat === 'weapon' || id.startsWith('sword') || id.startsWith('bow') || id.startsWith('axe') || id.startsWith('flail') || id.startsWith('staff')) {
+  if (type === 'weapon' || cat === 'weapon' || id.startsWith('sword') || id.startsWith('bow') || id.startsWith('axe') || id.startsWith('flail') || id.startsWith('staff') || id.startsWith('crossbow') || id.startsWith('halberd')) {
     return 'weapon';
   }
   if (type === 'shield' || cat === 'shield' || id.startsWith('shield') || id.startsWith('quiver')) {
