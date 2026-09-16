@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button'
 import { Wand2 } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
-import { addToCharacterStat } from '@/lib/character-stats-service'
+import { addToCharacterStat, getCharacterStats } from '@/lib/character-stats-service'
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager'
 
 interface TarotReadingModalProps {
@@ -48,8 +48,19 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
     }
   }, [isOpen])
 
-  const drawCard = async () => {
-    if (hasDrawnToday || isDrawn) return
+  const drawCard = async (isRetry = false) => {
+    if ((hasDrawnToday && !isRetry) || isDrawn) return
+
+    if (isRetry) {
+      const RETRY_COST = 100;
+      const stats = await getCharacterStats();
+      if ((stats.gold || 0) < RETRY_COST) {
+        toast({ title: "Insufficient gold", description: `You need ${RETRY_COST} gold for another fortune reading.`, variant: "destructive" });
+        return;
+      }
+      await addToCharacterStat('gold', -RETRY_COST, 'tarot-redraw');
+    }
+
     const randomCard = TOWN_TAROT_CARDS[Math.floor(Math.random() * TOWN_TAROT_CARDS.length)]!
     setSelectedCard(randomCard)
     setIsDrawn(true)
@@ -61,7 +72,22 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
 
     await addToCharacterStat('gold', randomCard.goldBonus, 'town-tarot-reading')
 
-    // Apply active blessing to active_alchemy_buffs
+    // 1. Grant Apotheca reagent (Essence Crystal)
+    try {
+      await fetch('/api/inventory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          item: {
+            id: 'material-crystal',
+            quantity: 1
+          }
+        })
+      });
+      window.dispatchEvent(new Event('character-inventory-update'));
+    } catch {}
+
+    // 2. Apply active blessing to active_alchemy_buffs
     try {
       const currentBuffs = ((await getUserPreference('active_alchemy_buffs')) as any) || {}
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
@@ -92,8 +118,8 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
     }
 
     toast({
-      title: `🔮 Town tarot drawn: ${randomCard.name}`,
-      description: `${randomCard.buff} Awarded +${randomCard.goldBonus} gold!`,
+      title: `🔮 Fortune drawn: ${randomCard.name}`,
+      description: `${randomCard.buff} Awarded +${randomCard.goldBonus} gold and +1 essence crystal!`,
     })
   }
 
@@ -156,7 +182,7 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
               {[1, 2, 3].map((_, i) => (
                 <div
                   key={i}
-                  onClick={drawCard}
+                  onClick={() => drawCard(false)}
                   className="w-16 h-24 rounded-xl bg-gradient-to-b from-purple-900 to-zinc-900 border-2 border-purple-500/40 flex items-center justify-center shadow-lg transform hover:-translate-y-1 transition-transform cursor-pointer"
                 >
                   <span className="text-2xl">🔮</span>
@@ -168,7 +194,7 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
         )}
 
         <Button
-          onClick={selectedCard ? onClose : drawCard}
+          onClick={selectedCard ? onClose : () => drawCard(false)}
           className="w-full py-3 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-bold text-xs shadow-lg"
         >
           {selectedCard ? 'Accept blessing' : '🔮 Draw daily tarot card'}

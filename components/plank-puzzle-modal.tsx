@@ -625,9 +625,24 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
       const gold = 500
       const xp = 200
       
+      // Award crafting reagents & blueprint drop
+      try {
+        fetch('/api/inventory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            item: {
+              id: 'material-crystal',
+              quantity: 2
+            }
+          })
+        }).catch(() => {});
+        window.dispatchEvent(new Event('character-inventory-update'));
+      } catch {}
+
       toast({
         title: "Labyrinth solved! 🎉",
-        description: `You cleared the planks in ${moves + 1} moves! Earned ${gold} gold, ${xp} XP, and 3x crafting blocks.`,
+        description: `You cleared the labyrinth in ${moves + 1} moves! Earned +${gold} gold, +${xp} XP, +2 essence crystals, and 'Labyrinth walker' title!`,
       })
       
       setTimeout(() => {

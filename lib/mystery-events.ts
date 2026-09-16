@@ -233,8 +233,8 @@ const riddleEvents: MysteryEvent[] = RIDDLE_DATA.map(riddle => ({
         : `Incorrect. The answer was "${riddle.correctAnswer}".`,
       reward: isCorrect ? {
         type: 'gold',
-        amount: getRandomInt(30, 50),
-        message: 'You gained gold and experience!'
+        amount: getRandomInt(75, 150),
+        message: 'You gained gold, experience, and alchemical essences for your wisdom!'
       } : {
         type: 'nothing',
         message: 'Better luck next time...'
