@@ -21,7 +21,7 @@ export function BossLootChestModal({
   hasBlueprintDrop = false,
   blueprintName = 'Serene lake'
 }: BossLootChestModalProps) {
-  const mythicImage = roomLevel % 20 === 0 ? '/images/Mythics/Mythic4purple.webp' : roomLevel % 15 === 0 ? '/images/Mythics/Mythic3green.webp' : roomLevel % 10 === 0 ? '/images/Mythics/Mythic2blue.webp' : '/images/Mythics/Mythic1red.webp';
+  const mythicImage = roomLevel % 20 === 0 ? '/images/Mythics/Mythic4black.webp' : roomLevel % 15 === 0 ? '/images/Mythics/Mythic3green.webp' : roomLevel % 10 === 0 ? '/images/Mythics/Mythic2blue.webp' : '/images/Mythics/Mythic1red.webp';
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>

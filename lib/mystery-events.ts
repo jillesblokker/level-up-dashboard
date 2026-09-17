@@ -70,7 +70,7 @@ const treasureEvents: MysteryEvent[] = [
           } else if (roll === 2) {
             return { type: 'experience', amount: getRandomInt(20, 40), message: 'You gained wisdom from deciphering the runes!' };
           } else {
-            return { type: 'item', item: [{ id: 'ancient-artifact', name: 'Ancient Artifact', description: 'A mysterious artifact from the chest.', quantity: 1, type: 'artifact', category: 'artifact', emoji: '🏺', stats: {}, image: '/images/items/artifact/ancient-artifact.webp' }], message: 'You found an ancient artifact!' };
+            return { type: 'item', item: [{ id: 'ancient-artifact', name: 'Ancient Artifact', description: 'A mysterious artifact from the chest.', quantity: 1, type: 'artifact', category: 'artifact', emoji: '🏺', stats: {}, image: '/images/items/materials/lockbox-ancient.webp' }], message: 'You found an ancient artifact!' };
           }
         })()
       },
@@ -130,7 +130,7 @@ const treasureEvents: MysteryEvent[] = [
             category: 'artifact',
             emoji: '🏺',
             stats: {},
-            image: '/images/items/artifact/ancient-artifact.webp'
+            image: '/images/items/materials/curio-skull.webp'
           }]
         }
       },
@@ -204,7 +204,7 @@ const artifactEvents: MysteryEvent[] = [
             category: 'artifact',
             emoji: '🔮',
             stats: {},
-            image: '/images/items/artifact/mysterious-artifact.webp'
+            image: '/images/items/materials/material-crystal.webp'
           }]
         }
       },

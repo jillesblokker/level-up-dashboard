@@ -1308,7 +1308,7 @@ export default function AlliesPage() {
                                              <div className="flex items-center justify-center">
                                                  <div className="relative w-16 h-16 rounded-2xl border-2 border-purple-500/40 bg-zinc-950/90 shadow-xl overflow-hidden shrink-0">
                                                      <Image
-                                                         src="/images/creatures/Sage_owl.webp"
+                                                         src="/images/creatures/SageOwl.webp"
                                                          alt="Sage Owl"
                                                          fill
                                                          className="object-contain p-1"

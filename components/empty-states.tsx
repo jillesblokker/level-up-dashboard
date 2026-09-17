@@ -150,7 +150,7 @@ export function EmptySearch({ searchTerm }: { searchTerm: string }) {
     <EmptyState
       title="No scrolls match your search"
       description={`Sage Owl checks the library archives: "No records found matching '${searchTerm}'. Adjust your query or view all items."`}
-      creatureImage="/images/creatures/Sage_owl.webp"
+      creatureImage="/images/creatures/SageOwl.webp"
       creatureName="Sage Owl"
       icon={<Search className="w-8 h-8 text-amber-400" />}
     />
@@ -162,7 +162,7 @@ export function EmptyAchievements() {
     <EmptyState
       title="No achievements unlocked yet"
       description="Sage Owl unrolls the royal hall of records: 'Complete quests, challenges, and build your kingdom to carve your name among legends!'"
-      creatureImage="/images/creatures/Sage_owl.webp"
+      creatureImage="/images/creatures/SageOwl.webp"
       creatureName="Sage Owl"
     />
   )

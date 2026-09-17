@@ -72,7 +72,7 @@ export function createEmptyKingdomGrid(): Tile[][] {
                     x,
                     y,
                     ariaLabel: `${kingdomTile.name || 'Unknown Tile'} at ${x},${y}`,
-                    image: kingdomTile.image || '/images/kingdom-tiles/default.png',
+                    image: kingdomTile.image || '/images/kingdom-tiles/Vacant.webp',
                 };
             } catch (error) {
                 console.error(`[Kingdom] Error creating tile ${type} at position (${x}, ${y}):`, error);

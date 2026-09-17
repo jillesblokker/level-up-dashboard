@@ -481,7 +481,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
       case 'siege_trebuchet':
         return '/images/kingdom-tiles/siege_trebuchet.webp'
       default:
-        return `/images/tiles/${type}-tile.webp`
+        return `/images/kingdom-tiles/Vacant.webp`
     }
   }
 
@@ -881,7 +881,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-amber-100 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/farm-tile.webp" alt="Farm" width={40} height={40} className="object-cover" />
+                      <Image src="/images/kingdom-tiles/Vegetables.webp" alt="Farm" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Farm</h4>
@@ -900,7 +900,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-amber-800 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/lumber_mill-tile.webp" alt="Lumber Mill" width={40} height={40} className="object-cover" />
+                      <Image src="/images/kingdom-tiles/Sawmill.webp" alt="Lumber Mill" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Lumber Mill</h4>
@@ -919,7 +919,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-red-900 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/market-tile.webp" alt="Market" width={40} height={40} className="object-cover" />
+                      <Image src="/images/kingdom-tiles/MarketStalls.webp" alt="Market" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Market</h4>
@@ -957,7 +957,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-blue-900 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/fountain-tile.webp" alt="Fountain" width={40} height={40} className="object-cover" />
+                      <Image src="/images/kingdom-tiles/Fountain.webp" alt="Fountain" width={40} height={40} className="object-cover" />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Water Buildings</h4>
@@ -979,7 +979,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-orange-900 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/blacksmith-tile.webp" alt="Blacksmith" width={40} height={40} className="object-cover" unoptimized />
+                      <Image src="/images/kingdom-tiles/Blacksmith.webp" alt="Blacksmith" width={40} height={40} className="object-cover" unoptimized />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Blacksmith</h4>
@@ -998,7 +998,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-amber-700 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/inn-tile.webp" alt="Inn" width={40} height={40} className="object-cover" unoptimized />
+                      <Image src="/images/kingdom-tiles/Inn.webp" alt="Inn" width={40} height={40} className="object-cover" unoptimized />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Shops & Inns</h4>
@@ -1020,7 +1020,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-purple-900 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/wizard-tile.webp" alt="Wizard" width={40} height={40} className="object-cover" unoptimized />
+                      <Image src="/images/kingdom-tiles/Wizard.webp" alt="Wizard" width={40} height={40} className="object-cover" unoptimized />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Magic & Study</h4>
@@ -1042,7 +1042,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                 <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 shadow-sm hover:border-amber-500/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="bg-green-800 p-2 rounded-lg shrink-0">
-                      <Image src="/images/tiles/vegetables-tile.webp" alt="Vegetables" width={40} height={40} className="object-cover" unoptimized />
+                      <Image src="/images/kingdom-tiles/Vegetables.webp" alt="Vegetables" width={40} height={40} className="object-cover" unoptimized />
                     </div>
                     <div>
                       <h4 className="font-bold text-amber-200">Crops</h4>

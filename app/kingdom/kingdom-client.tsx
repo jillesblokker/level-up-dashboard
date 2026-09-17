@@ -341,7 +341,7 @@ function createEmptyKingdomGrid(): Tile[][] {
           x,
           y,
           ariaLabel: `${kingdomTile.name || 'Unknown Tile'} at ${x},${y}`,
-          image: kingdomTile.image || '/images/kingdom-tiles/default.webp',
+          image: kingdomTile.image || '/images/kingdom-tiles/Vacant.webp',
         };
         logger.debug(`[Kingdom] Added ${type} tile at position (${x}, ${y})`);
       } catch (error) {
@@ -374,7 +374,7 @@ function getKingdomTileInventoryWithBuildTokens(): Tile[] {
       x: 0,
       y: 0,
       ariaLabel: `Kingdom tile: ${kt.name}`,
-      image: kt.image || '/images/kingdom-tiles/default.webp',
+      image: kt.image || '/images/kingdom-tiles/Vacant.webp',
       cost: kt.cost || 0,
       tokenCost: kt.tokenCost,
       materialCost: kt.materialCost,
@@ -1777,7 +1777,7 @@ export function KingdomClient() {
       <HeaderSection
         title={isVisiting ? `${allyProfile?.display_name || 'Friend'}'s Kingdom` : "Kingdom"}
         subtitle={isVisiting ? `${allyProfile ? getCurrentTitle(allyProfile.level).name : 'Squire'} • Level ${allyProfile?.level || 1}` : `${getCurrentTitle(playerLevel).name} • Level ${playerLevel}. Buldour heaves a granite slab: 'Place your tiles, gather gold taxes, and let's make this fortress unshakeable!'`}
-        imageSrc={coverImage || "/images/Kingdom.webp"}
+        imageSrc={coverImage || "/images/headers/kingdom-header.webp"}
         canEdit={!!user?.id && !isVisiting}
         ctaButton={
           !isVisiting && collectableTaxesCount > 0 && (

@@ -367,7 +367,7 @@ export default function ChroniclePage() {
                                     <EmptyState
                                         title="No journal entries yet"
                                         description="Sage Owl dips a quill in golden ink: 'Scribe your first private reflection to begin chronicling your thoughts and nurturing your inner wisdom.'"
-                                        creatureImage="/images/creatures/Sage_owl.webp"
+                                        creatureImage="/images/creatures/SageOwl.webp"
                                         creatureName="Sage Owl"
                                         actionLabel="Scribe first reflection"
                                         onAction={handleCreate}
