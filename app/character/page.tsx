@@ -1574,19 +1574,25 @@ export default function CharacterPage() {
                             </CardContent>
                             <CardFooter className="mt-auto pt-0">
                               {isUnlocked ? (
-                                <Button
-                                  className={`w-full ${isEquipped
-                                    ? "bg-amber-200 hover:bg-amber-300 text-amber-900"
-                                    : "bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white"
-                                    }`}
-                                  disabled={isEquipped}
-                                  onClick={() => equipTitle(title.id)}
-                                >
-                                  {isEquipped ? TEXT_CONTENT.character.titles.current : "Equip title"}
-                                </Button>
+                                isEquipped ? (
+                                  <Button
+                                    disabled
+                                    variant="outline"
+                                    className="w-full bg-zinc-900/90 border border-amber-500/50 text-amber-300 font-serif font-bold text-xs disabled:opacity-100 cursor-default shadow-xs"
+                                  >
+                                    ⭐ {TEXT_CONTENT.character.titles.current || "Current title"}
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    className="w-full font-serif font-bold text-xs"
+                                    onClick={() => equipTitle(title.id)}
+                                  >
+                                    Equip title
+                                  </Button>
+                                )
                               ) : (
-                                <Button className="w-full" variant="outline" disabled>
-                                  {TEXT_CONTENT.character.titles.locked}
+                                <Button className="w-full font-serif font-medium text-xs border-zinc-800 text-zinc-500 bg-zinc-900/50" variant="outline" disabled>
+                                  🔒 {TEXT_CONTENT.character.titles.locked}
                                 </Button>
                               )}
                             </CardFooter>

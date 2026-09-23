@@ -1506,20 +1506,21 @@ export default function DungeonPage() {
               </div>
             </div>
 
-            {/* Card 2: Expedition Command & Entry */}
-            <div className="lg:col-span-5 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between border-b border-white/5 pb-3">
+            {/* Card 2: Expedition Command & Entry (Primary Focal Card) */}
+            <div className="lg:col-span-5 bg-gradient-to-b from-zinc-900/95 via-zinc-900 to-zinc-950 border-2 border-amber-500/50 rounded-2xl p-5 sm:p-6 shadow-[0_0_35px_rgba(245,158,11,0.15)] flex flex-col space-y-4 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="space-y-3 relative z-10">
+                <div className="flex items-center justify-between border-b border-amber-500/20 pb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-base">🎯</span>
-                    <h2 className="text-sm sm:text-base font-bold text-white">Expedition command</h2>
+                    <span className="text-lg">🎯</span>
+                    <h2 className="text-sm sm:text-base font-serif font-bold text-amber-300">Expedition command</h2>
                   </div>
                   <Badge variant="outline" className={`text-xs font-mono font-bold px-2 py-0.5 ${dailyCount >= 3 ? 'border-red-500/40 text-red-400 bg-red-950/40' : 'border-emerald-500/40 text-emerald-400 bg-emerald-950/40'}`}>
                     {dailyCount >= 3 ? 'Daily limit reached' : 'Ready to deploy'}
                   </Badge>
                 </div>
 
-                <div className="bg-zinc-950/90 rounded-xl p-4 border border-white/5 space-y-2">
+                <div className="bg-zinc-950/90 rounded-xl p-4 border border-amber-500/20 space-y-2 shadow-inner">
                   <div className="flex items-center justify-between text-xs text-zinc-400">
                     <span>Daily attempts remaining</span>
                     <span className="font-mono text-zinc-200">{Math.max(0, 3 - dailyCount)} of 3</span>
@@ -1549,18 +1550,18 @@ export default function DungeonPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-auto space-y-2.5 pt-2">
+              <div className="mt-auto space-y-2.5 pt-2 relative z-10">
                 <Button
                   onClick={startRun}
                   disabled={dailyCount >= 3}
                   size="lg"
-                  className={`w-full h-12 text-sm font-bold tracking-wide transition-all rounded-xl ${
+                  className={`w-full h-12 text-sm font-serif font-bold tracking-wide transition-all rounded-xl ${
                     dailyCount >= 3
                       ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed border border-white/5'
-                      : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white border border-red-500/30 shadow-lg shadow-red-900/20 active:scale-95'
+                      : 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400/40 shadow-lg shadow-emerald-950/50 active:scale-95'
                   }`}
                 >
-                  {dailyCount >= 3 ? '🔒 Locked' : '⚔️ Enter dungeon'}
+                  {dailyCount >= 3 ? '🔒 Daily entries exhausted' : '⚔️ Enter dungeon'}
                 </Button>
 
                 {dailyCount >= 3 && (

@@ -275,7 +275,7 @@ export default function RootLayout({
                         <GameSystemsProvider>
                           <GameStoreProvider />
                           <NavBar session={null} />
-                          <main className="flex-1 relative pt-[calc(env(safe-area-inset-top,0px)+4.75rem)] md:pt-0 pb-24 lg:landscape:pb-0">
+                          <main className="flex-1 relative pt-[calc(env(safe-area-inset-top,0px)+4.75rem)] lg:landscape:pt-0 pb-24 lg:landscape:pb-0">
                             {children}
                           </main>
                           <CompanionOverlay />

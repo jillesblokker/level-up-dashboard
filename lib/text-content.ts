@@ -1418,8 +1418,8 @@ export const TEXT_CONTENT = {
         },
         titles: {
             unlocked: "Unlocked",
-            requires: "Requires Level {level}",
-            current: "Current Title",
+            requires: "Requires level {level}",
+            current: "Current title",
             achieved: "Achieved",
             locked: "Locked"
         },

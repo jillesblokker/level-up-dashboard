@@ -301,7 +301,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
       <div className="flex-1 flex flex-col justify-center items-center text-center p-6 space-y-4 bg-black z-10 w-full">
         <div className="space-y-2">
           <h3 className="text-xl sm:text-2xl font-bold text-amber-400 font-serif tracking-wide">
-            No Messages Await
+            No messages await
           </h3>
           <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto" />
         </div>
@@ -320,9 +320,9 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
             setOpen(false)
             window.location.href = '/quests'
           }}
-          className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg border border-amber-400/40 active:scale-95 transition-all text-sm mt-2 inline-flex items-center gap-2"
+          className="bg-emerald-600 hover:bg-emerald-500 text-white font-serif font-bold px-6 py-2.5 rounded-xl shadow-lg border border-emerald-400/30 active:scale-95 transition-all text-sm mt-2 inline-flex items-center gap-2"
         >
-          📜 Go to Quests
+          📜 Go to quests
         </Button>
       </div>
     </div>
@@ -373,7 +373,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
                 className="w-full border-amber-800/20 text-amber-500 hover:text-amber-400 hover:bg-amber-900/20 hover:border-amber-500/50"
               >
                 <CheckCheck className="h-4 w-4" />
-                Mark All as Read
+                Mark all as read
               </Button>
             )}
 
@@ -384,7 +384,7 @@ export function NotificationCenter({ children }: NotificationCenterProps = {}) {
                 onClick={handleDeleteAll}
                 className="w-full text-red-400/70 hover:text-red-400 hover:bg-red-900/10"
               >
-                Delete All
+                Delete all
               </Button>
             )}
           </div>
@@ -991,7 +991,7 @@ function NotificationItem({
           {/* Action Buttons for Friend Requests */}
           {notification.isServer && notification.original.type === 'friend_request' && !notification.read && (
             <div className="flex gap-2 mt-3">
-              <Button size="sm" onClick={() => handleFriendAction(notification.original, 'accept')}>Accept</Button>
+              <Button size="sm" onClick={() => handleFriendAction(notification.original, 'accept')} className="bg-emerald-600 hover:bg-emerald-500 text-white">Accept</Button>
               <Button size="sm" variant="outline" onClick={() => handleFriendAction(notification.original, 'reject')}>Decline</Button>
             </div>
           )}
@@ -999,7 +999,7 @@ function NotificationItem({
           {/* Action Buttons for Quest Requests */}
           {notification.isServer && notification.original.type === 'friend_quest_received' && !notification.read && (
             <div className="flex gap-2 mt-3">
-              <Button size="sm" onClick={() => handleQuestAction(notification.original, 'accept')} className="bg-amber-600 hover:bg-amber-700 text-white border-none">Accept Quest</Button>
+              <Button size="sm" onClick={() => handleQuestAction(notification.original, 'accept')} className="bg-emerald-600 hover:bg-emerald-500 text-white">Accept quest</Button>
               <Button size="sm" variant="outline" onClick={() => handleQuestAction(notification.original, 'reject')} className="border-amber-600/50 text-amber-200 hover:bg-amber-900/30">Decline</Button>
             </div>
           )}
@@ -1007,7 +1007,7 @@ function NotificationItem({
           {/* Action Buttons for Challenge Requests */}
           {notification.isServer && notification.original.type === 'friend_challenge_received' && !notification.read && (
             <div className="flex gap-2 mt-3">
-              <Button size="sm" onClick={() => handleChallengeAction(notification.original, 'accept')} className="bg-red-600 hover:bg-red-700 text-white border-none">Accept Challenge</Button>
+              <Button size="sm" onClick={() => handleChallengeAction(notification.original, 'accept')} className="bg-emerald-600 hover:bg-emerald-500 text-white">Accept challenge</Button>
               <Button size="sm" variant="outline" onClick={() => handleChallengeAction(notification.original, 'reject')} className="border-red-600/50 text-red-200 hover:bg-red-900/30">Decline</Button>
             </div>
           )}
@@ -1020,7 +1020,7 @@ function NotificationItem({
                 }}
                 className="text-xs font-medium text-amber-400 hover:text-amber-300 px-3 py-1.5 rounded-md border border-amber-600/30 hover:bg-amber-900/20 hover:border-amber-500/50 transition-all duration-200"
               >
-                View Details →
+                View details →
               </button>
             )}
             {!notification.read && (

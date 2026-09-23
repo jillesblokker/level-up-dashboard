@@ -259,8 +259,8 @@ export function NavBar({ session }: NavBarProps) {
 
   return (
     <>
-      <div className="hidden lg:landscape:block md:border-b bg-black md:border-zinc-800 z-10 relative">
-        <div className="flex h-16 items-center pt-0 md:pt-0 safe-area-inset-top">
+      <div className="hidden lg:landscape:block border-b bg-black border-zinc-800 z-10 relative pt-[env(safe-area-inset-top,0px)]">
+        <div className="flex h-16 items-center">
         {/* Desktop Navigation */}
         <div className="hidden md:flex">
           <MainNav />
