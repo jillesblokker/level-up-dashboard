@@ -203,7 +203,7 @@ export function SeasonalHuntItem({ item, onFound }: SeasonalHuntItemProps) {
             <div className="flex justify-center pt-1">
               <Button 
                 onClick={() => setShowModal(false)}
-                className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white font-bold px-6 py-2 rounded-xl text-xs"
+                className="font-bold px-6 py-2 rounded-xl text-xs"
               >
                 Continue Hide & Seek Hunt
               </Button>

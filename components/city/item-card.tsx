@@ -184,7 +184,7 @@ export function ItemCard({ item, onPurchase }: ItemCardProps) {
       
       <CardFooter className="pt-1">
         <Button
-          className="min-h-[44px] w-full bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-bold rounded-xl shadow-lg border border-yellow-300/40 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
+          className="min-h-[44px] w-full font-serif font-bold rounded-xl shadow-lg active:scale-95 transition-all text-xs"
           onClick={() => onPurchase(item)}
           aria-label={`Purchase ${item.name} for ${item.price} gold`}
         >

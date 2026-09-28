@@ -1024,17 +1024,18 @@ export function TavernDiceGame() {
                     <Button
                       onClick={handlePlayerRaise}
                       disabled={!isValidCurrentRaise}
-                      className="h-14 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 text-black font-serif font-bold tracking-wider text-sm rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.25)] border border-amber-400 active:scale-95 disabled:opacity-40"
+                      className="h-14 font-serif font-bold text-sm rounded-xl shadow-lg active:scale-95 disabled:opacity-40"
                     >
-                      🎲 RAISE BID ({selectedRaiseQty} × {selectedRaiseFace}s)
+                      🎲 Raise bid ({selectedRaiseQty} × {selectedRaiseFace}s)
                     </Button>
 
                     <Button
                       onClick={handlePlayerChallenge}
                       disabled={!currentBid}
-                      className="h-14 bg-gradient-to-r from-red-700 via-red-600 to-red-700 hover:from-red-600 hover:to-red-500 text-white font-serif font-black tracking-widest uppercase text-sm border border-red-400 rounded-xl shadow-xl active:scale-95 disabled:opacity-40"
+                      variant="destructive"
+                      className="h-14 font-serif font-bold text-sm rounded-xl shadow-lg active:scale-95 disabled:opacity-40"
                     >
-                      🔥 CALL LIAR!
+                      🔥 Call liar
                     </Button>
 
                   </div>

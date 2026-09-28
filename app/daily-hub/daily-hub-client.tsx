@@ -1393,10 +1393,10 @@ function AllianceDailyOathWidget() {
           onClick={handleCheckIn}
           disabled={checkedInToday || checkingIn}
           className={cn(
-            "w-full sm:w-auto h-10 px-5 rounded-xl font-bold text-xs normal-case shrink-0 transition-all shadow-lg active:scale-95",
+            "w-full sm:w-auto h-10 px-5 rounded-xl font-serif font-bold text-xs shrink-0 transition-all shadow-lg active:scale-95",
             checkedInToday
               ? "bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 cursor-default opacity-90"
-              : "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-300 text-zinc-950 border border-yellow-300/50 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+              : ""
           )}
         >
           {checkingIn ? (

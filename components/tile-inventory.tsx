@@ -1068,7 +1068,7 @@ export function TileInventory({ tiles, selectedTile, onSelectTile, onUpdateTiles
                       }
                       toast.success("Opening Grand Apotheca Glasshouse...");
                     }}
-                    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-zinc-950 font-bold text-xs px-5 py-2 rounded-xl shadow-md gap-2 uppercase tracking-wider"
+                    className="font-bold text-xs px-5 py-2 rounded-xl shadow-md gap-2 uppercase tracking-wider"
                   >
                     🧪 Brew Botanical Potions in Apotheca ✨
                   </Button>

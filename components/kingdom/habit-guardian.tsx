@@ -380,7 +380,7 @@ export function HabitGuardian({ favoritedQuests }: HabitGuardianProps) {
           </div>
           <Button
             onClick={() => setShowPicker(true)}
-            className="px-6 py-4 bg-gradient-to-r from-amber-600 to-amber-500 text-black font-extrabold rounded-xl tracking-wider hover:brightness-110"
+            className="px-6 py-4 font-extrabold rounded-xl tracking-wider"
           >
             Choose a guardian
           </Button>

@@ -340,7 +340,7 @@ export function PetitionsTab() {
 
               <Button
                 onClick={() => setActiveOutcomeModal(null)}
-                className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-extrabold tracking-wide text-xs shadow-lg rounded-xl"
+                className="w-full py-3 font-extrabold tracking-wide text-xs shadow-lg rounded-xl"
               >
                 Enact & continue ✓
               </Button>

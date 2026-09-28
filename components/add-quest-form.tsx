@@ -380,11 +380,11 @@ export function AddQuestForm({ onSuccess, onCancel, initialData }: AddQuestFormP
                 <Button
                     type="submit"
                     disabled={loading || !newQuest.name.trim()}
-                    className="h-12 px-10 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black font-bold text-lg shadow-xl shadow-amber-900/20 border-t border-white/20"
+                    className="h-12 px-10 font-serif font-bold text-base shadow-xl"
                 >
                     {loading ? (
                         <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             {TEXT_CONTENT.quests.form.submitting}
                         </div>
                     ) : (

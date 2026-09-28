@@ -195,10 +195,10 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
         <Button
           onClick={handleClaim}
           disabled={claimed || claiming}
-          className={`w-full py-3 font-bold text-xs transition-all ${
+          className={`w-full py-3 font-serif font-bold text-xs transition-all shadow-lg ${
             claimed
               ? "bg-zinc-800 text-zinc-500 border border-zinc-700 cursor-not-allowed"
-              : "bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 text-amber-950 shadow-[0_0_25px_rgba(245,158,11,0.5)]"
+              : ""
           }`}
         >
           {claiming ? "Claiming rewards..." : claimed ? "Rewards claimed ✓" : "Claim house cup rewards"}

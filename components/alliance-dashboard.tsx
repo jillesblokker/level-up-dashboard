@@ -328,9 +328,9 @@ export function AllianceDashboard() {
                         <Button 
                             onClick={handleOpenChest}
                             disabled={!checkedInToday || isOpening}
-                            className={`w-full max-w-[240px] mt-4 transition-all font-bold uppercase tracking-wider text-xs ${
+                            className={`w-full max-w-[240px] mt-4 transition-all font-serif font-bold text-xs ${
                                 checkedInToday 
-                                ? "bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-amber-950 shadow-[0_0_20px_rgba(245,158,11,0.4)]" 
+                                ? "" 
                                 : "bg-zinc-900 text-zinc-500 border border-zinc-800 cursor-not-allowed"
                             }`}
                         >
@@ -466,7 +466,7 @@ export function AllianceDashboard() {
                                         <Button
                                             size="sm"
                                             onClick={() => handleCheckIn(alliance.id, alliance.name)}
-                                            className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-amber-100 border border-amber-600 shadow-md shadow-amber-900/30 font-semibold px-4"
+                                            className="font-semibold px-4"
                                         >
                                             <Flame className="w-3.5 h-3.5 text-orange-400" />
                                             Swear today&apos;s oath

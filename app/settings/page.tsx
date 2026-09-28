@@ -363,11 +363,11 @@ export default function SettingsPage() {
               </CardContent>
               <CardFooter>
                 <Button
-                  className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white font-bold flex items-center gap-2.5"
+                  className="font-serif font-bold flex items-center gap-2.5"
                   onClick={handleSaveProfile}
                 >
                   <Save className="h-4 w-4 shrink-0" />
-                  Save Profile Changes
+                  Save profile changes
                 </Button>
               </CardFooter>
             </Card>

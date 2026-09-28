@@ -324,7 +324,7 @@ export function JournalModal({ isOpen, onClose, initialData }: JournalModalProps
                     <Button
                         onClick={handleSave}
                         disabled={isSubmitting}
-                        className="flex-[2] h-12 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-stone-950 font-serif font-bold rounded-xl shadow-lg shadow-amber-950/40 border-t border-amber-300/40 active:scale-[0.98] transition-all"
+                        className="flex-[2] h-12 font-serif font-bold rounded-xl shadow-lg active:scale-[0.98] transition-all"
                     >
                         {isSubmitting ? 'Inscribing...' : 'Inscribe chronicle'}
                     </Button>

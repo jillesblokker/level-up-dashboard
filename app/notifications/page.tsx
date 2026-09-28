@@ -277,8 +277,8 @@ export default function NotificationsPage() {
           {/* Call to action */}
           <div className="pt-8">
             <Link href="/quests">
-              <Button className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-10 py-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-amber-500/25 text-lg">
-                <Trophy className="mr-3 h-5 w-5" />
+              <Button className="px-8 py-3.5 rounded-xl font-serif font-bold transition-all shadow-lg text-base">
+                <Trophy className="mr-2.5 h-5 w-5 text-amber-300" />
                 {showMailbox ? TEXT_CONTENT.notifications.empty.all.button : TEXT_CONTENT.notifications.empty.unread.button}
               </Button>
             </Link>

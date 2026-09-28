@@ -142,7 +142,7 @@ export function HabitStoneMonumentModal({
           <div className="flex gap-3 pt-2">
             <Button
               onClick={onClose}
-              className="w-full bg-gradient-to-r from-emerald-700 via-teal-600 to-emerald-700 hover:from-emerald-600 hover:to-teal-500 text-white font-medieval font-bold py-2.5 rounded-xl border border-cyan-400/40 shadow-lg shadow-emerald-950/60 text-xs"
+              className="w-full font-serif font-bold py-2.5 rounded-xl shadow-lg text-xs"
             >
               Honor the monument
             </Button>

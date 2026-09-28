@@ -2730,9 +2730,9 @@ function RealmPageContent() {
                                     {currentTime >= activeExpedition.endTime ? (
                                         <Button
                                             onClick={claimExpeditionRewards}
-                                            className="w-full h-11 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-serif font-bold text-sm rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                                            className="w-full h-11 font-serif font-bold text-sm rounded-xl shadow-lg"
                                         >
-                                            Claim Scout Rewards 🎁
+                                            Claim scout rewards 🎁
                                         </Button>
                                     ) : (
                                         <Button disabled className="w-full h-11 bg-zinc-800 text-zinc-500 font-serif font-bold text-sm rounded-xl border border-zinc-700">
@@ -2930,7 +2930,7 @@ function RealmPageContent() {
                                             The glyphs on the pyramid walls glow with warm solar energy. Your devotion has awakened the monolith!
                                         </p>
                                         <Button
-                                            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold font-serif py-3 rounded-xl shadow-lg shadow-amber-950/40"
+                                            className="w-full font-bold font-serif py-3 rounded-xl shadow-lg"
                                             disabled={isPyramidClaiming}
                                             onClick={async () => {
                                                 const today = new Date().toDateString();
@@ -3028,7 +3028,7 @@ function RealmPageContent() {
 
                                     {wellEvent.pact.completed ? (
                                         <Button
-                                            className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold font-serif py-3 rounded-xl shadow-lg"
+                                            className="w-full font-bold font-serif py-3 rounded-xl shadow-lg"
                                             disabled={isChestClaiming}
                                             onClick={async () => {
                                                 const rewards: any[] = [
@@ -3081,7 +3081,7 @@ function RealmPageContent() {
                                     )}
 
                                     <Button
-                                        className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold font-serif py-3 rounded-xl shadow-lg border border-cyan-400/40 flex items-center justify-center gap-2 shrink-0"
+                                        className="w-full font-bold font-serif py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 shrink-0"
                                         onClick={() => {
                                             setWellEvent(null);
                                             setSewerModalOpen(true);
@@ -3193,7 +3193,7 @@ function RealmPageContent() {
                                         </>
                                     )}
                                     <Button
-                                        className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold font-serif py-3 rounded-xl shadow-lg border border-cyan-400/40 flex items-center justify-center gap-2 shrink-0"
+                                        className="w-full font-bold font-serif py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 shrink-0"
                                         onClick={() => {
                                             setWellEvent(null);
                                             setSewerModalOpen(true);
@@ -3242,10 +3242,10 @@ function RealmPageContent() {
                             </div>
 
                             <Button
-                                className="w-full bg-gradient-to-r from-red-800 to-red-900 hover:from-red-700 hover:to-red-800 text-white font-bold font-serif py-3 rounded-xl"
+                                className="w-full font-bold font-serif py-3 rounded-xl shadow-lg"
                                 onClick={() => setSphinxEvent(null)}
                             >
-                                Revert and Complete Quests
+                                Revert and complete quests
                             </Button>
                         </DialogContent>
                     </Dialog>
@@ -3287,7 +3287,7 @@ function RealmPageContent() {
 
                                     {canopyEvent.pact.completed ? (
                                         <Button
-                                            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold font-serif py-3 rounded-xl shadow-lg"
+                                            className="w-full font-bold font-serif py-3 rounded-xl shadow-lg"
                                             disabled={isCanopyClaiming}
                                             onClick={async () => {
                                                 setIsCanopyClaiming(true);
@@ -3420,7 +3420,7 @@ function RealmPageContent() {
                                         Your daily habits are fully completed today! The Glacial Obelisk glows with power.
                                     </p>
                                     <Button
-                                        className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold font-serif py-3 rounded-xl shadow-lg"
+                                        className="w-full font-bold font-serif py-3 rounded-xl shadow-lg"
                                         disabled={isObeliskClaiming}
                                         onClick={async () => {
                                             const today = new Date().toDateString();
@@ -3457,14 +3457,14 @@ function RealmPageContent() {
                                         {isObeliskClaiming ? (
                                             <span className="flex items-center justify-center gap-2">
                                                 <Loader2 className="w-4 h-4 animate-spin" />
-                                                Absorbing Shard...
+                                                Absorbing shard...
                                             </span>
                                         ) : (
                                             "Claim glacial touch ❄️"
                                         )}
                                     </Button>
                                     <Button
-                                        className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold font-serif py-3 rounded-xl shadow-lg border border-cyan-400/40 flex items-center justify-center gap-2"
+                                        className="w-full font-bold font-serif py-3 rounded-xl shadow-lg flex items-center justify-center gap-2"
                                         onClick={() => {
                                             setObeliskEvent(null);
                                             setPenguinSlideModalOpen(true);
@@ -3490,7 +3490,7 @@ function RealmPageContent() {
                                         <span className="font-bold text-amber-400">50 Gold</span>
                                     </div>
                                     <Button
-                                        className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold font-serif py-3 rounded-xl shadow-lg"
+                                        className="w-full font-bold font-serif py-3 rounded-xl shadow-lg"
                                         disabled={isObeliskClaiming}
                                         onClick={async () => {
                                             if (characterStats.gold < 50) {
@@ -3532,7 +3532,7 @@ function RealmPageContent() {
                                         )}
                                     </Button>
                                     <Button
-                                        className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold font-serif py-3 rounded-xl shadow-lg border border-cyan-400/40 flex items-center justify-center gap-2"
+                                        className="w-full font-bold font-serif py-3 rounded-xl shadow-lg flex items-center justify-center gap-2"
                                         onClick={() => {
                                             setObeliskEvent(null);
                                             setPenguinSlideModalOpen(true);
@@ -3593,7 +3593,7 @@ function RealmPageContent() {
                                             <span className="text-xs font-bold text-zinc-200">Pixie Dance</span>
                                             <p className="text-[10px] text-zinc-500 text-center">Roll the die: win Pixie Dust or risk gold loss.</p>
                                             <Button
-                                                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold text-xs py-1.5 rounded-lg mt-2"
+                                                className="w-full font-bold text-xs py-1.5 rounded-lg mt-2"
                                                 disabled={isFairyClaiming}
                                                 onClick={async () => {
                                                     if (!userId) return;
@@ -3780,7 +3780,7 @@ function RealmPageContent() {
                         {/* Place Confirmation Button */}
                         <Button
                             size="sm"
-                            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-bold text-xs h-8 shadow-md"
+                            className="w-full font-serif font-bold text-xs h-8 shadow-md"
                             onClick={() => {
                                 if (mobileNudgeCoord) {
                                     handlePlaceTile(mobileNudgeCoord.x, mobileNudgeCoord.y);
@@ -3908,13 +3908,13 @@ function ExpeditionLauncher({
             <Button
                 onClick={() => selectedScout && onLaunch(selectedScout, selectedDestination)}
                 disabled={!selectedScout || !hasEnoughCurrency}
-                className="w-full h-11 mt-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-serif font-bold text-sm rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.2)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="w-full h-11 mt-2 font-serif font-bold text-sm rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
                 {!selectedScout 
-                    ? "Select a Scout" 
+                    ? "Select a scout" 
                     : !hasEnoughCurrency
-                    ? (activeDest.id === 'weekly-abyss' ? "Insufficient Gems" : "Insufficient Gold")
-                    : `Launch Scout (${activeDest.id === 'weekly-abyss' ? `${activeDest.gemCost} Gems` : `${activeDest.cost} Gold`}) 🗺️`
+                    ? (activeDest.id === 'weekly-abyss' ? "Insufficient gems" : "Insufficient gold")
+                    : `Launch scout (${activeDest.id === 'weekly-abyss' ? `${activeDest.gemCost} gems` : `${activeDest.cost} gold`}) 🗺️`
                 }
             </Button>
         </div>

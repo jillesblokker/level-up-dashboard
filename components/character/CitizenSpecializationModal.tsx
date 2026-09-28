@@ -150,7 +150,7 @@ export function CitizenSpecializationModal({
           <Button
             disabled={!selectedClass}
             onClick={handleConfirm}
-            className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold text-xs px-5 rounded-lg shadow-md"
+            className="font-serif font-bold text-xs px-5 rounded-lg shadow-md"
           >
             Confirm specialization
           </Button>

@@ -104,7 +104,7 @@ export function JoustingTournamentModal({ isOpen: controlledIsOpen, onClose }: J
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       {!isControlled && (
         <DialogTrigger asChild>
-          <Button className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-500 hover:to-amber-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
+          <Button className="font-serif font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
             <Swords className="w-4 h-4 text-amber-300" />
             <span>Friend joust bet</span>
           </Button>

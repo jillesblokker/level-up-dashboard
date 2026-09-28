@@ -386,7 +386,7 @@ export function SiegeWorkshopModal({ open, onOpenChange, onComplete }: SiegeWork
                     <Button
                       onClick={() => handleClaimWeapon(weapon)}
                       disabled={loading}
-                      className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-zinc-950 font-bold px-4 py-2 text-xs rounded-xl shadow-lg border border-amber-400/40"
+                      className="font-bold px-4 py-2 text-xs rounded-xl shadow-lg"
                     >
                       <Sparkles className="w-4 h-4 mr-1.5" />
                       Claim

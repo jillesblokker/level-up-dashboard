@@ -291,7 +291,7 @@ export function StorybookModal({ isOpen, onClose, story, onCompleted }: Storyboo
               {/* Action Button */}
               <Button
                 onClick={handleClose}
-                className="w-full h-11 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 text-black font-serif font-bold text-sm rounded-xl shadow-lg hover:from-amber-400 hover:to-amber-500 transition-all"
+                className="w-full h-11 font-serif font-bold text-sm rounded-xl shadow-lg transition-all"
               >
                 Save tale & continue ✨
               </Button>

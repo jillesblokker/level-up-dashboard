@@ -316,7 +316,7 @@ export default function ProfilePage() {
             <h2 className="text-3xl font-bold text-amber-400 mb-4 drop-shadow-lg">{TEXT_CONTENT.profile.signIn.title}</h2>
             <p className="text-zinc-300 mb-6 text-lg leading-relaxed">{TEXT_CONTENT.profile.signIn.description}</p>
             <Button
-              className="bg-gradient-to-r from-amber-500 to-amber-700 text-white font-bold rounded-lg px-8 py-3 text-lg hover:from-amber-600 hover:to-amber-800 transition-all duration-200 shadow-lg hover:shadow-amber-500/25"
+              className="font-serif font-bold px-8 py-3 text-base shadow-lg"
               aria-label="Sign in to profile"
               onClick={() => window.location.href = '/auth/signin'}
             >
@@ -881,11 +881,11 @@ export default function ProfilePage() {
         <Button
           onClick={handleSaveProfile}
           disabled={isSaving}
-          className="bg-gradient-to-r from-amber-500 to-amber-700 text-white font-bold rounded-lg px-8 py-3 hover:from-amber-600 hover:to-amber-800 transition-all duration-200 shadow-lg hover:shadow-amber-500/25"
+          className="font-serif font-bold px-8 py-3 shadow-lg"
           aria-label="Save profile changes"
         >
           <Save className="w-5 h-5" />
-          {isSaving ? "Saving Changes..." : "Save Changes"}
+          {isSaving ? "Saving changes..." : "Save changes"}
         </Button>
       </div>
 
@@ -925,7 +925,7 @@ export default function ProfilePage() {
             <Button
               onClick={handleCropSave}
               disabled={isUploading}
-              className="bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800"
+              className="font-serif font-bold"
             >
               {isUploading ? TEXT_CONTENT.profile.avatar.cropper.saving : TEXT_CONTENT.profile.avatar.cropper.save}
             </Button>

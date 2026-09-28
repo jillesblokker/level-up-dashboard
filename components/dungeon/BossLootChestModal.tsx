@@ -92,7 +92,7 @@ export function BossLootChestModal({
 
         <Button
           onClick={onClose}
-          className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-amber-950 font-bold text-xs shadow-lg flex items-center justify-center gap-2 rounded-xl"
+          className="w-full py-3 font-serif font-bold text-xs shadow-lg flex items-center justify-center gap-2 rounded-xl"
         >
           Claim spoils <Sparkles className="w-4 h-4" />
         </Button>

@@ -971,9 +971,9 @@ export function AlchemyLabTab() {
             <div className="pt-4 border-t border-white/5 mt-4">
               <Button
                 onClick={handleOpenBagOverlay}
-                className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-zinc-950 font-bold text-xs h-9 rounded-xl shadow-md flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]"
+                className="w-full font-serif font-bold text-xs h-9 rounded-xl shadow-md flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]"
               >
-                <Sparkles className="w-3.5 h-3.5 shrink-0 text-zinc-950" /> Brew elixirs in cauldron
+                <Sparkles className="w-3.5 h-3.5 shrink-0 text-amber-300" /> Brew elixirs in cauldron
               </Button>
             </div>
           </Card>

@@ -91,9 +91,9 @@ export function SiegeBattleshipModal({ isOpen: controlledIsOpen, onClose }: Sieg
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       {!isControlled && (
         <DialogTrigger asChild>
-          <Button className="bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
-            <Bomb className="w-4 h-4 text-red-300" />
-            <span>Catapult Siege</span>
+          <Button className="font-serif font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
+            <Bomb className="w-4 h-4 text-amber-300" />
+            <span>Catapult siege</span>
           </Button>
         </DialogTrigger>
       )}

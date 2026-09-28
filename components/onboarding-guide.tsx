@@ -93,9 +93,9 @@ export function OnboardingGuide({ open, onClose, disableAllOption = false }: Onb
             <div className="space-y-6 relative z-10">
               <Button
                 onClick={handleStartOnboarding}
-                className="w-full h-14 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-bold rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all hover:scale-[1.02] flex items-center justify-center gap-2 text-lg"
+                className="w-full h-14 font-serif font-bold rounded-xl shadow-lg transition-all hover:scale-[1.02] flex items-center justify-center gap-2 text-lg"
               >
-                Start Onboarding
+                Start onboarding
                 <ArrowRight className="h-5 w-5" />
               </Button>
 

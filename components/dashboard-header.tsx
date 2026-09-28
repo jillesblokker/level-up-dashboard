@@ -88,10 +88,10 @@ export function DashboardHeader({ backgroundImage }: DashboardHeaderProps) {
               />
             </div>
             <Button
-              className="w-full bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white"
+              className="w-full font-serif font-bold text-xs"
               onClick={handleImageUpdate}
             >
-              Update Banner
+              Update banner
             </Button>
           </div>
         </DialogContent>

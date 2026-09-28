@@ -239,12 +239,12 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
                 <Button 
                   onClick={handleCompleteTask} 
                   disabled={isProcessing}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold h-12 text-base rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.4)] min-h-[48px]"
+                  className="w-full font-serif font-bold h-12 text-base rounded-xl shadow-lg min-h-[48px]"
                 >
                   {isProcessing ? (
                     <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Channeling...</>
                   ) : (
-                    "I Have Completed This Task"
+                    "I have completed this task"
                   )}
                 </Button>
               </>

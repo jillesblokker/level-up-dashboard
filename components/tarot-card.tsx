@@ -168,7 +168,7 @@ export function TarotCardDisplay() {
                             <Button
                                 onClick={handleDrawCard}
                                 disabled={isDrawing}
-                                className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold py-2.5 rounded-xl shadow-lg"
+                                className="w-full font-serif font-bold py-2.5 rounded-xl shadow-lg"
                             >
                                 {isDrawing ? (
                                     <>

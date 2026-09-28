@@ -672,9 +672,9 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                 </div>
                 <Button
                   onClick={handleStartRound}
-                  className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold font-serif text-sm px-6 py-2.5 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.4)] active:scale-95 transition-all mx-auto flex items-center gap-2"
+                  className="font-serif font-bold text-sm px-6 py-2.5 rounded-xl shadow-lg active:scale-95 transition-all mx-auto flex items-center gap-2"
                 >
-                  <Play className="w-4 h-4 fill-current text-black" />
+                  <Play className="w-4 h-4 fill-current text-white" />
                   {currentRound === 1 ? "Start battle" : `Start round ${currentRound}`}
                 </Button>
               </div>
@@ -837,9 +837,9 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
 
               <Button
                 onClick={handleClaimVictory}
-                className="w-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-black font-bold font-serif py-3 rounded-xl shadow-xl active:scale-95 transition-all text-sm flex items-center justify-center gap-2"
+                className="w-full font-serif font-bold py-3 rounded-xl shadow-xl active:scale-95 transition-all text-sm flex items-center justify-center gap-2"
               >
-                <Trophy className="w-4 h-4 fill-current text-black" /> Claim rewards & continue
+                <Trophy className="w-4 h-4 fill-current text-amber-300" /> Claim rewards & continue
               </Button>
             </div>
           )}

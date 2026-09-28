@@ -1126,14 +1126,7 @@ export default function MarketPage() {
                       </div>
                       <CardFooter className="relative z-10 pb-5 pt-2">
                         <Button 
-                          className={cn(
-                            "w-full h-12 text-sm font-black tracking-wide rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed",
-                            isCrown
-                              ? "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-yellow-500 text-zinc-950 font-black shadow-amber-500/25"
-                              : isVault
-                              ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-fuchsia-500 text-white shadow-purple-600/30"
-                              : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-600/30"
-                          )}
+                          className="w-full h-12 text-sm font-serif font-bold tracking-wide rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                           onClick={() => handleBuyPack(pack)}
                           disabled={(pack.currency === 'gems' ? gemBalance < pack.price : goldBalance < pack.price) || isProcessing}
                         >

@@ -189,16 +189,10 @@ export function InstallPrompt() {
                             <div className="flex gap-2 mb-4">
                                 <Button
                                     onClick={handleInstall}
-                                    className={cn(
-                                        "flex-1 bg-gradient-to-r from-amber-500 to-amber-600",
-                                        "hover:from-amber-400 hover:to-amber-500",
-                                        "text-amber-950 font-bold shadow-lg",
-                                        "border-2 border-amber-400/50",
-                                        "transition-all duration-200 hover:scale-105"
-                                    )}
+                                    className="flex-1 font-serif font-bold shadow-lg transition-all duration-200 hover:scale-105"
                                 >
                                     <Download className="w-4 h-4" />
-                                    Install Now
+                                    Install now
                                 </Button>
                                 <Button
                                     onClick={handleDismiss}

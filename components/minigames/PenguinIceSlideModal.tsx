@@ -605,7 +605,7 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
             <Button
               size="sm"
               onClick={onClose}
-              className="w-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-serif font-bold text-xs shadow-lg shadow-amber-950 py-2.5"
+              className="w-full font-serif font-bold text-xs py-2.5 rounded-xl shadow-md"
             >
               Close
             </Button>
@@ -617,7 +617,7 @@ export function PenguinIceSlideModal({ isOpen, onClose, onSuccess }: PenguinIceS
                 setEncounterStep(nextStep);
                 initLevel(encounterPuzzles[nextStep - 1]!);
               }}
-              className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-serif text-xs gap-1 shadow-lg shadow-cyan-950"
+              className="font-serif font-bold text-xs gap-1 rounded-xl shadow-md"
             >
               Next glacier ({encounterStep + 1}/3)
               <ArrowRight className="w-3.5 h-3.5" />

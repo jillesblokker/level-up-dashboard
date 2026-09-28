@@ -410,7 +410,7 @@ export function TitanSiegeArsenal({ onOpenWorkshop, className = "" }: TitanSiege
                     setSelectedMobileEngine(null)
                     onOpenWorkshop()
                   }}
-                  className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-zinc-950 font-bold text-xs rounded-xl"
+                  className="w-full font-bold text-xs rounded-xl"
                 >
                   <Sparkles className="w-4 h-4 mr-1.5" />
                   Open siege engine workshop

@@ -416,7 +416,7 @@ export function PackOpeningModal({ packData, ownedPackId, onClose, onClaimed }: 
           </Button>
           <Button 
             size="lg" 
-            className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-medium text-sm rounded-xl shadow-[0_0_25px_rgba(245,158,11,0.5)] animate-bounce h-11"
+            className="w-full font-serif font-bold text-sm rounded-xl shadow-lg h-11"
             onClick={onClose}
           >
             Collect

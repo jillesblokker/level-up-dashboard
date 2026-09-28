@@ -1849,7 +1849,7 @@ export default function CharacterPage() {
                                     ? "bg-zinc-800 text-zinc-400 cursor-not-allowed border border-zinc-700 hover:bg-zinc-800"
                                     : totalTreatCount <= 0
                                     ? "bg-zinc-900 border border-amber-900/40 text-amber-300/70 hover:bg-zinc-800"
-                                    : "bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white"
+                                    : ""
                                 )}
                               >
                                 {isMax

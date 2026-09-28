@@ -262,10 +262,10 @@ export function KingdomGrid({ grid, onTilePlace, selectedTile, setSelectedTile, 
             <div className="mt-4 text-center">
               <Button
                 onClick={onGridExpand}
-                className="bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900"
+                className="font-serif font-bold text-xs"
                 aria-label="Expand kingdom grid"
               >
-                🗺️ Expand Kingdom Grid
+                🗺️ Expand kingdom grid
               </Button>
             </div>
           )}

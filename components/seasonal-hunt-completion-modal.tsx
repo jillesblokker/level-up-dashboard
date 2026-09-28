@@ -179,9 +179,9 @@ export function SeasonalHuntCompletionModal({ isOpen, onClose, eventKey }: Seaso
         <div className="pt-2 flex flex-col gap-2">
           <Button
             onClick={handleClaimRewards}
-            className="w-full bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-black font-bold text-sm py-3 rounded-2xl shadow-lg border border-amber-300/40 tracking-wide uppercase font-serif"
+            className="w-full font-serif font-bold text-sm py-3 rounded-2xl shadow-lg"
           >
-            🎉 Claim Master Rewards
+            🎉 Claim master rewards
           </Button>
         </div>
       </DialogContent>

@@ -236,7 +236,7 @@ export function DailyRoutineModal({
         <Button
           onClick={handleNext}
           disabled={claimed}
-          className="w-full py-3 mt-2 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 text-amber-950 font-bold tracking-wider text-xs shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center justify-center gap-2"
+          className="w-full py-3 mt-2 font-serif font-bold text-xs shadow-lg flex items-center justify-center gap-2 rounded-xl"
         >
           {step < 2 ? (
             <>
