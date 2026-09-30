@@ -64,7 +64,20 @@ import { ActivityRingsCard } from '@/components/activity-rings-card'
 import { ChroniclesCard } from '@/components/chronicles-card'
 import dynamic from 'next/dynamic';
 const TarotCardDisplay = dynamic(() => import('@/components/tarot-card').then(m => ({ default: m.TarotCardDisplay })), {
-  loading: () => <div className="animate-pulse min-h-[180px] max-h-[250px] bg-zinc-900 rounded-xl border border-zinc-800" />,
+  loading: () => (
+    <div className="h-full min-h-[440px] flex flex-col rounded-2xl bg-[#0d0b08] border-2 border-[#42311f] shadow-[0_10px_30px_rgba(0,0,0,0.9)] overflow-hidden relative animate-pulse">
+      <div className="px-5 py-3.5 border-b border-[#2d2115] bg-gradient-to-r from-[#140e09] via-[#1a130c] to-[#140e09] flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <span className="text-amber-500/50 font-serif">✢</span>
+          <div className="h-4 w-24 bg-amber-950/40 rounded" />
+        </div>
+        <div className="h-3 w-12 bg-amber-950/30 rounded" />
+      </div>
+      <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-4">
+        <div className="w-full max-w-[260px] aspect-[3/4] rounded-2xl border-2 border-amber-900/30 bg-zinc-950/60 shadow-xl" />
+      </div>
+    </div>
+  ),
   ssr: false,
 });
 const FriendDareModal = dynamic(() => import('@/components/quests/FriendDareModal').then(m => m.FriendDareModal), { ssr: false });
@@ -312,8 +325,30 @@ export default function QuestsPage() {
   const [addQuestLoading, setAddQuestLoading] = useState(false);
   const [addQuestError, setAddQuestError] = useState<string | null>(null);
   const [favoritedQuests, setFavoritedQuests] = useState<Set<string>>(new Set());
-  const [milestones, setMilestones] = useState<any[]>([]);
-  const [challenges, setChallenges] = useState<any[]>([]);
+  const [milestones, setMilestones] = useState<any[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = getUserScopedItem('milestones-cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch {}
+    }
+    return [];
+  });
+  const [challenges, setChallenges] = useState<any[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = getUserScopedItem('challenges-cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch {}
+    }
+    return [];
+  });
   const [activeModifiers, setActiveModifiers] = useState<any[]>([]);
   const [addMilestoneModalOpen, setAddMilestoneModalOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null);
@@ -2356,6 +2391,9 @@ export default function QuestsPage() {
         logger.debug('[Challenges Frontend] ✅ COMPLETED challenges:', completedChallenges.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date, completionId: c.completionId })));
         logger.debug('[Challenges Frontend] All challenges completion status:', challengesData.map((c: any) => ({ name: c.name, completed: c.completed, date: c.date })));
         setChallenges(challengesData);
+        try {
+          setUserScopedItem('challenges-cache', JSON.stringify(challengesData));
+        } catch {}
       } else {
         logger.error('[Challenges Frontend] Challenges fetch failed:', challengesRes.status, challengesRes.statusText);
         toast({
@@ -2396,6 +2434,9 @@ export default function QuestsPage() {
         });
         logger.debug('[Challenges Frontend] All milestones completion status:', milestonesData?.map((m: any) => ({ name: m.name, completed: m.completed, date: m.date })));
         setMilestones(milestonesData || []);
+        try {
+          setUserScopedItem('milestones-cache', JSON.stringify(milestonesData || []));
+        } catch {}
       } else {
         logger.error('[Challenges Frontend] Milestones fetch failed:', milestonesRes.status, milestonesRes.statusText);
       }
