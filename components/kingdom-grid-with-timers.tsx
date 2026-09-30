@@ -743,7 +743,7 @@ export function KingdomGridWithTimers({
           // Safety check: ensure quests is an array
           if (Array.isArray(quests)) {
             // Check for specific quest-building links
-            const hasPendingMeditation = quests.some((q: any) => q.name === 'Daily Meditation' && !q.completed);
+            const hasPendingMeditation = quests.some((q: any) => (q.name === 'Meditation' || q.name === 'Daily Meditation') && !q.completed);
             if (hasPendingMeditation) pending.push('zen-garden');
 
             // --- CHAOS RIFT & MOMENTUM LOGIC ---

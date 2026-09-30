@@ -382,7 +382,7 @@ export function ZenMeditateModal({ isOpen, onClose }: ZenMeditateModalProps) {
                     const quests = await questsRes.json();
                     const allQuests = Array.isArray(quests) ? quests : (quests.quests || []);
                     const meditationQuest = allQuests.find((q: any) => 
-                        q.name === 'Daily Meditation' && !q.completed
+                        (q.name === 'Meditation' || q.name === 'Daily Meditation' || q.name === 'Zen Garden Meditation') && !q.completed
                     );
                     
                     if (meditationQuest) {
