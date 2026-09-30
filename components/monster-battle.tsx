@@ -113,6 +113,13 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
   const [stats, setStats] = useState({ attack: 0, defense: 0 })
   const [playerLevel, setPlayerLevel] = useState<number>(1)
   const [protectionCharges, setProtectionCharges] = useState<number>(0)
+  const [petSynergyGauge, setPetSynergyGauge] = useState<number>(0) // 0 to 100
+  const [activePetStrike, setActivePetStrike] = useState<{
+    petName: string;
+    skillName: string;
+    effectText: string;
+    element: string;
+  } | null>(null)
 
   // Health System
   const [playerHp, setPlayerHp] = useState(100)
@@ -327,6 +334,46 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     playerInputsRef.current.push(weaponId)
     const updatedInputs = [...playerInputsRef.current]
     setPlayerSequence(updatedInputs)
+
+    // Increase synergy gauge (+25 per correct tap)
+    const newGauge = petSynergyGauge + 25
+    if (newGauge >= 100 && activeSupporters.length > 0 && !activePetStrike) {
+      setPetSynergyGauge(0)
+      // Pick leading active pet supporter
+      const pet = activeSupporters[0]
+      const petSkills: Record<string, { name: string; effect: string }> = {
+        nature: { name: "Leaf Aegis & Mend", effect: "Healed 15 HP & boosted next round timing!" },
+        fire: { name: "Infernal Blaze Burst", effect: "Dealt 10 bonus elemental burst damage!" },
+        water: { name: "Tidal Wave Shield", effect: "Created an astral shield absorbing 15 DMG!" },
+        earth: { name: "Seismic Quake", effect: "Stunned monster & granted +25 bonus combat XP!" },
+        ice: { name: "Frostbite Surge", effect: "Slowed monster & salvaged +20 bonus gold!" },
+      }
+      const skill = petSkills[pet.type] || { name: "Guardian Strike", effect: "Dealt 10 bonus elemental burst damage!" }
+      
+      setActivePetStrike({
+        petName: pet.name,
+        skillName: skill.name,
+        effectText: skill.effect,
+        element: pet.type
+      })
+
+      if (pet.type === 'nature') {
+        setPlayerHp(prev => Math.min(100, prev + 15))
+      } else if (pet.type === 'fire') {
+        setMonsterHp(prev => Math.max(0, prev - 10))
+      }
+
+      setCombatLog(prev => [
+        `🐾 Guardian Strike: ${pet.name} unleashed ${skill.name}! ${skill.effect}`,
+        ...prev.slice(0, 4)
+      ])
+
+      setTimeout(() => {
+        setActivePetStrike(null)
+      }, 2400)
+    } else {
+      setPetSynergyGauge(Math.min(100, newGauge))
+    }
 
     // Check if entire sequence for this round is completed
     if (updatedInputs.length === currentSequenceRef.current.length) {
@@ -641,19 +688,42 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
             </div>
           </div>
 
-          {/* ACTIVE SUPPORTER STRIKERS (COMPACT) */}
+          {/* ACTIVE SUPPORTER STRIKERS & SYNERGY GAUGE */}
           {activeSupporters.length > 0 && (
-            <div className="bg-zinc-900/60 border border-amber-900/20 rounded-xl p-2.5 flex items-center justify-between gap-2 text-xs">
-              <span className="text-amber-400 text-[11px] font-bold flex items-center gap-1">
-                <Users className="w-3.5 h-3.5" /> Guardian pet supporters active
-              </span>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {activeSupporters.map(c => (
-                  <Badge key={c.id} variant="outline" className="text-[9px] border-cyan-500/40 text-cyan-300 bg-cyan-950/50 py-0.5">
-                    {c.name}: {getPassiveShortLabel(c)}
-                  </Badge>
-                ))}
+            <div className="bg-zinc-900/60 border border-amber-900/20 rounded-xl p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2 text-xs">
+                <span className="text-amber-400 text-[11px] font-bold flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5" /> Guardian pet synergy ({petSynergyGauge}%)
+                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {activeSupporters.map(c => (
+                    <Badge key={c.id} variant="outline" className="text-[9px] border-cyan-500/40 text-cyan-300 bg-cyan-950/50 py-0.5">
+                      {c.name}: {getPassiveShortLabel(c)}
+                    </Badge>
+                  ))}
+                </div>
               </div>
+
+              {/* Pet Synergy Progress Bar */}
+              <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden p-0.5">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-400 transition-all duration-300 shadow-[0_0_10px_rgba(6,182,212,0.5)]"
+                  style={{ width: `${petSynergyGauge}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ACTIVE PET STRIKE VISUAL POPUP OVERLAY */}
+          {activePetStrike && (
+            <div className="p-3 bg-gradient-to-r from-cyan-950/90 via-indigo-950/90 to-purple-950/90 border-2 border-cyan-400/80 rounded-2xl text-center space-y-1 shadow-[0_0_30px_rgba(6,182,212,0.7)] animate-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-center gap-2 text-cyan-300 font-bold font-serif text-sm sm:text-base">
+                <span className="text-lg">🐾</span>
+                <span>{activePetStrike.petName} — {activePetStrike.skillName}!</span>
+              </div>
+              <p className="text-xs text-cyan-100 font-mono font-medium">
+                {activePetStrike.effectText}
+              </p>
             </div>
           )}
 

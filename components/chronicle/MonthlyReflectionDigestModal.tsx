@@ -120,6 +120,74 @@ export function MonthlyReflectionDigestModal({ isOpen, onClose, entries }: Month
             </p>
           </div>
 
+          {/* Monthly Habit Constellation Chart */}
+          <div className="p-4 rounded-2xl bg-[#080705] border border-amber-500/30 space-y-2 relative overflow-hidden shadow-inner">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-serif font-bold text-amber-200">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Monthly habit constellation</span>
+              </div>
+              <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                {monthlyEntries.length >= 10 ? "⭐ The Paragon Astrolabe" : monthlyEntries.length >= 4 ? "✨ The Titan's Blade" : "🌟 The Novice Star"}
+              </span>
+            </div>
+
+            {/* SVG Interactive Constellation Diagram */}
+            <div className="w-full h-36 relative flex items-center justify-center bg-gradient-to-b from-indigo-950/20 via-zinc-950 to-black rounded-xl border border-amber-900/20 overflow-hidden">
+              <svg viewBox="0 0 400 140" className="w-full h-full">
+                {/* Background Cosmic Starfield */}
+                <circle cx="45" cy="25" r="1" fill="#fde68a" opacity="0.4" />
+                <circle cx="120" cy="85" r="1.5" fill="#ffffff" opacity="0.6" />
+                <circle cx="280" cy="30" r="1" fill="#fde68a" opacity="0.5" />
+                <circle cx="340" cy="110" r="1.2" fill="#67e8f9" opacity="0.7" />
+                <circle cx="190" cy="15" r="1" fill="#ffffff" opacity="0.3" />
+
+                {/* Constellation Lines connecting Virtue Stars */}
+                <line x1="60" y1="70" x2="150" y2="35" stroke="#d97706" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.7" />
+                <line x1="150" y1="35" x2="250" y2="40" stroke="#06b6d4" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.7" />
+                <line x1="250" y1="40" x2="340" y2="75" stroke="#10b981" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.7" />
+                <line x1="150" y1="35" x2="200" y2="105" stroke="#a855f7" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.7" />
+                <line x1="200" y1="105" x2="250" y2="40" stroke="#a855f7" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.7" />
+
+                {/* Star Nodes */}
+                {/* 1. Knowledge Star */}
+                <g className="cursor-pointer">
+                  <circle cx="150" cy="35" r="7" fill="#083344" stroke="#06b6d4" strokeWidth="2" />
+                  <circle cx="150" cy="35" r="3" fill="#67e8f9" />
+                  <text x="150" y="22" fill="#67e8f9" fontSize="9" fontWeight="bold" textAnchor="middle" fontFamily="serif">Knowledge</text>
+                </g>
+
+                {/* 2. Might Star */}
+                <g className="cursor-pointer">
+                  <circle cx="60" cy="70" r="7" fill="#451a03" stroke="#f59e0b" strokeWidth="2" />
+                  <circle cx="60" cy="70" r="3" fill="#fbbf24" />
+                  <text x="60" y="92" fill="#fde68a" fontSize="9" fontWeight="bold" textAnchor="middle" fontFamily="serif">Might</text>
+                </g>
+
+                {/* 3. Vitality Star */}
+                <g className="cursor-pointer">
+                  <circle cx="340" cy="75" r="7" fill="#064e3b" stroke="#10b981" strokeWidth="2" />
+                  <circle cx="340" cy="75" r="3" fill="#6ee7b7" />
+                  <text x="340" y="97" fill="#6ee7b7" fontSize="9" fontWeight="bold" textAnchor="middle" fontFamily="serif">Vitality</text>
+                </g>
+
+                {/* 4. Honor Star */}
+                <g className="cursor-pointer">
+                  <circle cx="200" cy="105" r="7" fill="#3b0764" stroke="#a855f7" strokeWidth="2" />
+                  <circle cx="200" cy="105" r="3" fill="#d8b4fe" />
+                  <text x="200" y="125" fill="#d8b4fe" fontSize="9" fontWeight="bold" textAnchor="middle" fontFamily="serif">Honor</text>
+                </g>
+
+                {/* 5. Central Zenith Star */}
+                <g className="cursor-pointer">
+                  <circle cx="250" cy="40" r="9" fill="#1c1917" stroke="#fbbf24" strokeWidth="2.5" />
+                  <circle cx="250" cy="40" r="4" fill="#ffffff" />
+                  <text x="250" y="24" fill="#fef08a" fontSize="9" fontWeight="bold" textAnchor="middle" fontFamily="serif">Reflections</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+
           {/* Habit Virtues Synergy Breakdown */}
           <div className="space-y-2.5">
             <h4 className="text-xs font-serif font-bold text-amber-200">Virtue alignment & habits</h4>

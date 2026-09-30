@@ -25,6 +25,9 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
     dragon: number;
   }>({ deeproot: 0, astral: 0, abyssal: 0, dragon: 0 });
 
+  const [isStirring, setIsStirring] = useState(false)
+  const [cauldronGlow, setCauldronGlow] = useState<'emerald' | 'amber' | 'purple' | 'cyan'>('emerald')
+
   useEffect(() => {
     if (open) {
       setResultMessage(null)
@@ -212,18 +215,40 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
 
         {brew ? (
           <div className="space-y-3 my-1">
-            {/* Compact Cauldron Brew Display */}
-            <div className="p-3.5 bg-gradient-to-br from-emerald-950/40 via-zinc-900 to-zinc-950 border border-emerald-500/30 rounded-xl flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-emerald-950/80 border border-emerald-400/50 flex items-center justify-center text-2xl shrink-0 shadow-inner">
-                🧪
+            {/* Animated Bubbling Cauldron Brew Display */}
+            <div className={`p-4 bg-gradient-to-br from-emerald-950/50 via-zinc-900 to-zinc-950 border ${
+              cauldronGlow === 'amber' ? 'border-amber-500/60 shadow-[0_0_20px_rgba(245,158,11,0.2)]' :
+              cauldronGlow === 'purple' ? 'border-purple-500/60 shadow-[0_0_20px_rgba(168,85,247,0.2)]' :
+              cauldronGlow === 'cyan' ? 'border-cyan-500/60 shadow-[0_0_20px_rgba(6,182,212,0.2)]' :
+              'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.2)]'
+            } rounded-2xl flex items-center gap-3.5 transition-all duration-500`}>
+              <div className="relative">
+                <div className={`w-14 h-14 rounded-2xl bg-zinc-950 border-2 ${
+                  cauldronGlow === 'amber' ? 'border-amber-400' :
+                  cauldronGlow === 'purple' ? 'border-purple-400' :
+                  cauldronGlow === 'cyan' ? 'border-cyan-400' :
+                  'border-emerald-400'
+                } flex items-center justify-center text-3xl shrink-0 shadow-inner relative overflow-hidden`}>
+                  {/* Bubbling liquid steam */}
+                  <span className={`inline-block select-none ${isStirring ? 'animate-spin' : 'animate-bounce'}`}>
+                    🧪
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/20 to-transparent pointer-events-none" />
+                </div>
+                {/* Floating bubbling motes */}
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
               </div>
+
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider">
-                    Today&apos;s brew
+                    Today&apos;s active brew
                   </span>
                   <span className="text-[9px] bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.2 rounded font-mono">
-                    Active
+                    Bubbling
                   </span>
                 </div>
                 <h4 className="text-sm font-bold text-emerald-100 font-serif truncate mt-0.5">{brew.name}</h4>
