@@ -10,8 +10,7 @@ export function CelebrationSystem() {
       const { newLevel } = e.detail;
       
       // Massive confetti explosion
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let confettiFn: any = null;
+      let confettiFn: any = null; // eslint-disable-line
       try {
         const mod = await import('canvas-confetti');
         confettiFn = mod.default;
