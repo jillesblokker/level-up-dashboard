@@ -10,12 +10,13 @@ export function CelebrationSystem() {
       const { newLevel } = e.detail;
       
       // Massive confetti explosion
-      let confettiMod: Awaited<typeof import('canvas-confetti')> | null = null;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let confettiFn: any = null;
       try {
-        confettiMod = await import('canvas-confetti');
+        const mod = await import('canvas-confetti');
+        confettiFn = mod.default;
       } catch {}
-      if (!confettiMod) return;
-      const confettiFn = confettiMod.default;
+      if (!confettiFn) return;
 
       const duration = 3 * 1000;
       const animationEnd = Date.now() + duration;
