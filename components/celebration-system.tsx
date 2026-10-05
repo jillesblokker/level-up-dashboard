@@ -10,12 +10,12 @@ export function CelebrationSystem() {
       const { newLevel } = e.detail;
       
       // Massive confetti explosion
-      let confettiFn: ((options?: Record<string, unknown>) => Promise<undefined> | null) | null = null;
+      let confettiMod: Awaited<typeof import('canvas-confetti')> | null = null;
       try {
-        const mod = await import('canvas-confetti');
-        confettiFn = mod.default as unknown as typeof confettiFn;
+        confettiMod = await import('canvas-confetti');
       } catch {}
-      if (!confettiFn) return;
+      if (!confettiMod) return;
+      const confettiFn = confettiMod.default;
 
       const duration = 3 * 1000;
       const animationEnd = Date.now() + duration;
