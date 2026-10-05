@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import canvasConfetti from 'canvas-confetti';
+
 import Image from 'next/image';
 
 interface ScratchCardProps {
@@ -284,12 +284,12 @@ export function ScratchCard({ cardData, isRevealed, onReveal, isWinner, fullscre
       hapticReveal();
       
       if (isWinnerRef.current) {
-        canvasConfetti({
+        import('canvas-confetti').then(m => m.default({
           particleCount: 100,
           spread: 70,
           origin: { y: 0.6 },
           colors: ['#f59e0b', '#fbbf24', '#fcd34d']
-        });
+        })).catch(() => {});
       }
 
       if (onRevealRef.current) {

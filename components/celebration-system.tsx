@@ -1,15 +1,22 @@
 "use client"
 
 import { useEffect } from "react"
-import confetti from "canvas-confetti"
+
 import { toast } from "@/components/ui/use-toast"
 
 export function CelebrationSystem() {
   useEffect(() => {
-    const handleLevelUp = (e: CustomEvent) => {
+    const handleLevelUp = async (e: CustomEvent) => {
       const { newLevel } = e.detail;
       
       // Massive confetti explosion
+      let confettiFn: typeof import('canvas-confetti').default | null = null;
+      try {
+        const mod = await import('canvas-confetti');
+        confettiFn = mod.default;
+      } catch {}
+      if (!confettiFn) return;
+
       const duration = 3 * 1000;
       const animationEnd = Date.now() + duration;
       const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
@@ -24,11 +31,11 @@ export function CelebrationSystem() {
         }
 
         const particleCount = 50 * (timeLeft / duration);
-        confetti({
+        confettiFn!({
           ...defaults, particleCount,
           origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
         });
-        confetti({
+        confettiFn!({
           ...defaults, particleCount,
           origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
         });

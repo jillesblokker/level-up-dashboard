@@ -52,7 +52,7 @@ import { getActiveEvent } from '@/lib/seasonal-events'
 import { getUserScopedItem, setUserScopedItem } from '@/lib/user-scoped-storage'
 import { getUserPreference, setUserPreference } from '@/lib/user-preferences-manager'
 import { hapticLight, hapticMedium, hapticSuccess } from '@/lib/haptics'
-import confetti from 'canvas-confetti'
+
 import { getHealthVitalitySync, getTaxMultiplier } from '@/lib/health-vitality-manager'
 
 
@@ -713,7 +713,7 @@ export function KingdomGridWithTimers({
       return t;
     }));
 
-    confetti({ particleCount: 80, spread: 80, origin: { y: 0.5 } });
+    import('canvas-confetti').then(m => m.default({ particleCount: 80, spread: 80, origin: { y: 0.5 } })).catch(() => {});
     setLuckyCelebrationAmount(totalGoldHarvested);
     toast({
       title: "🪙 Kingdom Taxes & District Production Collected!",
@@ -2063,7 +2063,7 @@ export function KingdomGridWithTimers({
           addToCharacterStat('focus_points', 5, 'astral-monument-awakened');
         })();
 
-        confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } });
+        import('canvas-confetti').then(m => m.default({ particleCount: 70, spread: 80, origin: { y: 0.6 } })).catch(() => {});
         window.dispatchEvent(new CustomEvent('coin-burst', {
           detail: { amount: 250, x: window.innerWidth / 2, y: window.innerHeight / 2 }
         }));

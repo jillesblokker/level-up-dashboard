@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import Image from 'next/image';
-import confetti from 'canvas-confetti';
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Trophy, Sparkles, Gift, ShieldCheck, Flame, Crown } from 'lucide-react';
@@ -27,22 +27,26 @@ export function SeasonalHuntCompletionModal({ isOpen, onClose, eventKey }: Seaso
     // Trigger multi-stage confetti explosion
     const duration = 2.5 * 1000;
     const animationEnd = Date.now() + duration;
+    let intervalId: any;
 
-    const interval: any = setInterval(() => {
-      const timeLeft = animationEnd - Date.now();
-      if (timeLeft <= 0) {
-        clearInterval(interval);
-        return;
-      }
-      const particleCount = 50 * (timeLeft / duration);
-      confetti({
-        particleCount,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-    }, 250);
+    import('canvas-confetti').then(m => {
+      const confettiFn = m.default;
+      intervalId = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) {
+          clearInterval(intervalId);
+          return;
+        }
+        const particleCount = 50 * (timeLeft / duration);
+        confettiFn({
+          particleCount,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      }, 250);
+    }).catch(() => {});
 
-    return () => clearInterval(interval);
+    return () => { if (intervalId) clearInterval(intervalId); };
   }, [isOpen]);
 
   if (!isOpen) return null;

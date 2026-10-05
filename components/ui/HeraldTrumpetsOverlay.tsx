@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { playSFX, SOUNDS } from "@/lib/sound-manager";
-import confetti from "canvas-confetti";
+
 import { Sparkles, Trophy } from "lucide-react";
 
 interface HeraldTrumpetsOverlayProps {
@@ -25,20 +25,22 @@ export const HeraldTrumpetsOverlay: React.FC<HeraldTrumpetsOverlayProps> = ({
     playSFX(SOUNDS.HERALD_FANFARE);
 
     // Fire dual golden confetti cannons from bottom corners
-    confetti({
-      particleCount: 60,
-      angle: 60,
-      spread: 55,
-      origin: { x: 0, y: 0.8 },
-      colors: ["#f59e0b", "#fbbf24", "#10b981", "#ffffff"]
-    });
-    confetti({
-      particleCount: 60,
-      angle: 120,
-      spread: 55,
-      origin: { x: 1, y: 0.8 },
-      colors: ["#f59e0b", "#fbbf24", "#10b981", "#ffffff"]
-    });
+    import('canvas-confetti').then(m => {
+      m.default({
+        particleCount: 60,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.8 },
+        colors: ["#f59e0b", "#fbbf24", "#10b981", "#ffffff"]
+      });
+      m.default({
+        particleCount: 60,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.8 },
+        colors: ["#f59e0b", "#fbbf24", "#10b981", "#ffffff"]
+      });
+    }).catch(() => {});
 
     const timer = setTimeout(() => {
       onClose();

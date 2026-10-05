@@ -96,10 +96,33 @@ const EconomyTransparency = dynamic(
 import { Users, Crown, Shield, FlaskConical, Wind } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TEXT_CONTENT } from "@/lib/text-content";
-import { CitizensTab } from "@/components/kingdom/citizens-tab";
-import { BarracksTab } from "@/components/kingdom/barracks-tab";
-import { AlchemyLabTab } from "@/components/kingdom/alchemy-lab-tab";
-import { AirshipHarborTab } from "@/components/kingdom/airship-harbor-tab";
+
+const TabLoadingSkeleton = () => (
+  <div className="w-full flex flex-col gap-4 py-6 px-2 animate-pulse">
+    <div className="h-8 w-48 bg-zinc-800/60 rounded-lg" />
+    <div className="h-24 w-full bg-zinc-800/40 rounded-xl" />
+    <div className="h-24 w-full bg-zinc-800/40 rounded-xl" />
+    <div className="h-16 w-full bg-zinc-800/30 rounded-xl" />
+  </div>
+);
+
+const CitizensTab = dynamic(() => import("@/components/kingdom/citizens-tab").then(m => m.CitizensTab), {
+  ssr: false,
+  loading: TabLoadingSkeleton,
+});
+const BarracksTab = dynamic(() => import("@/components/kingdom/barracks-tab").then(m => m.BarracksTab), {
+  ssr: false,
+  loading: TabLoadingSkeleton,
+});
+const AlchemyLabTab = dynamic(() => import("@/components/kingdom/alchemy-lab-tab").then(m => m.AlchemyLabTab), {
+  ssr: false,
+  loading: TabLoadingSkeleton,
+});
+const AirshipHarborTab = dynamic(() => import("@/components/kingdom/airship-harbor-tab").then(m => m.AirshipHarborTab), {
+  ssr: false,
+  loading: TabLoadingSkeleton,
+});
+
 
 type KingdomInventoryItem = (DefaultInventoryItem | ManagerInventoryItem) & {
   stats?: Record<string, number | undefined> | undefined,

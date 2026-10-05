@@ -24,7 +24,7 @@ import { motion } from "framer-motion"
 import { TEXT_CONTENT } from "@/lib/text-content"
 import { NewPlayerProgress } from "@/components/onboarding/NewPlayerProgress"
 import { useCitizensStore, isHarvestReady } from "@/stores/citizensStore"
-import confetti from 'canvas-confetti'
+
 import { hapticHeavy, hapticMedium } from '@/lib/haptics'
 import dynamic from 'next/dynamic'
 const WeeklyChallengesCard = dynamic(
@@ -200,11 +200,11 @@ export function DailyHubClient() {
         if (count === 5 || count === 10 || count === 15 || count === 20) {
             try {
                 hapticHeavy();
-                confetti({
+                import('canvas-confetti').then(m => m.default({
                     particleCount: 80,
                     spread: 70,
                     origin: { y: 0.6 }
-                });
+                })).catch(() => {});
             } catch (e) {
                 // Fail-safe
             }
@@ -475,7 +475,7 @@ export function DailyHubClient() {
         if (completedQuestIds.has(quest.id)) return
 
         // Immediate Optimistic Update
-        confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
+        import('canvas-confetti').then(m => m.default({ particleCount: 40, spread: 60, origin: { y: 0.7 } })).catch(() => {});
         const nextCount = completedQuestIds.size + 1;
         if (nextCount === 5) {
             toast.success("🔥 5/10 Daily Habit Target Hit! +25% Gold & Essences Streak Multiplier Unlocked!");
@@ -1339,7 +1339,7 @@ function AllianceDailyOathWidget() {
 
     if (result.success) {
       playSound(SOUNDS.ALLIANCE_OATH);
-      confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+      import('canvas-confetti').then(m => m.default({ particleCount: 60, spread: 70, origin: { y: 0.6 } })).catch(() => {});
       toast({
         title: "Alliance oath sworn! 🛡️",
         description: `You have fulfilled your daily oath for ${myAlliance.name}! Streak: ${result.streak || streak + 1} days.`,
@@ -1485,12 +1485,12 @@ function DailyChestStatusWidget() {
       localStorage.setItem("claimed_packs_timestamps", JSON.stringify(timestamps));
 
       // 4. Confetti celebration & SFX
-      confetti({
+      import('canvas-confetti').then(m => m.default({
         particleCount: 80,
         spread: 70,
         origin: { y: 0.6 },
         colors: ["#f59e0b", "#fbbf24", "#fcd34d", "#10b981", "#ffffff"],
-      });
+      })).catch(() => {});
       playSFX("sparkle");
       hapticMedium();
 
