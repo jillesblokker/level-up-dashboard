@@ -13,7 +13,7 @@ export function CelebrationSystem() {
       let confettiFn: ((options?: Record<string, unknown>) => Promise<undefined> | null) | null = null;
       try {
         const mod = await import('canvas-confetti');
-        confettiFn = mod.default as typeof confettiFn;
+        confettiFn = mod.default as unknown as typeof confettiFn;
       } catch {}
       if (!confettiFn) return;
 
