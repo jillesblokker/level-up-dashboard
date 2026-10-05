@@ -1231,9 +1231,9 @@ export function DailyHubClient() {
                         </Button>
                     </Link>
                     <Link href="/kingdom" className="block">
-                        <Button variant="outline" className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 bg-zinc-950 border-amber-900/30 hover:bg-amber-950/30 hover:border-amber-700/50 transition-all group active:scale-95">
+                        <Button className="w-full h-auto py-4 md:py-5 flex flex-col items-center gap-2 btn-primary-cta transition-all group active:scale-95">
                             <span className="text-2xl group-hover:scale-110 transition-transform">👑</span>
-                            <span className="text-green-200 group-hover:text-white font-serif">{TEXT_CONTENT.dailyHub.actions.kingdom}</span>
+                            <span className="font-serif">{TEXT_CONTENT.dailyHub.actions.kingdom}</span>
                         </Button>
                     </Link>
                     <Link href="/realm" className="block">

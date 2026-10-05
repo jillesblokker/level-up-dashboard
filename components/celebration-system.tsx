@@ -10,10 +10,10 @@ export function CelebrationSystem() {
       const { newLevel } = e.detail;
       
       // Massive confetti explosion
-      let confettiFn: typeof import('canvas-confetti').default | null = null;
+      let confettiFn: ((options?: Record<string, unknown>) => Promise<undefined> | null) | null = null;
       try {
         const mod = await import('canvas-confetti');
-        confettiFn = mod.default;
+        confettiFn = mod.default as typeof confettiFn;
       } catch {}
       if (!confettiFn) return;
 
