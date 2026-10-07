@@ -232,6 +232,8 @@ export default function DungeonPage() {
     isFirstClear: boolean;
     bountyAmount?: number | undefined;
     reagent: { name: string; id: string; emoji: string; desc: string; qty: number };
+    goldEarned?: number | undefined;
+    xpEarned?: number | undefined;
   } | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
 
@@ -1283,22 +1285,31 @@ export default function DungeonPage() {
         );
       }
 
-      setGameResult({
-        success: finalRun.status === 'completed',
-        rewards: {
-          ...data.rewards,
-          discoveredRecipe: data.discoveredRecipe
-        },
-        loot: finalRun.lootCollected
-      });
-      setRun(null); // Clear active run to show result
+      if (finalRun.status === 'completed') {
+        if (data.rewards) {
+          setBossDualDrop(prev => prev ? ({
+            ...prev,
+            goldEarned: data.rewards?.gold || prev.goldEarned,
+            xpEarned: data.rewards?.xp || prev.xpEarned,
+          }) : null);
+        }
+        setGameResult(null);
+      } else {
+        setGameResult({
+          success: false,
+          loot: finalRun.lootCollected
+        });
+        setRun(null);
+      }
     } catch (error) {
       logger.error("Dungeon completion error:", error);
-      setGameResult({
-        success: finalRun.status === 'completed',
-        loot: finalRun.lootCollected
-      });
-      setRun(null);
+      if (finalRun.status === 'defeated') {
+        setGameResult({
+          success: false,
+          loot: finalRun.lootCollected
+        });
+        setRun(null);
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -1308,84 +1319,118 @@ export default function DungeonPage() {
   const totalTeamHp = run ? run.party.reduce((sum, member) => sum + member.hp, 0) : 0;
   const totalTeamMaxHp = run ? run.party.reduce((sum, member) => sum + member.maxHp, 0) : 0;
 
-  // 1. RESULT SCREEN
-  if (gameResult) {
+  const renderBossDualDropModal = () => (
+    <Dialog open={!!bossDualDrop} onOpenChange={() => { setBossDualDrop(null); setRun(null); }}>
+      {bossDualDrop && (
+        <DialogContent className="max-w-md bg-zinc-950 border-2 border-amber-500/50 text-white rounded-2xl p-6 shadow-2xl font-serif max-h-[88dvh] overflow-y-auto custom-scrollbar">
+          <DialogHeader className="text-center items-center pb-2">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(245,158,11,0.5)] mb-2 animate-bounce">
+              🏆
+            </div>
+            <DialogTitle className="font-serif text-2xl text-amber-300">
+              {bossDualDrop.isFirstClear ? "First clear: Boss conquered!" : "Boss keep cleared!"}
+            </DialogTitle>
+            <DialogDescription className="text-xs text-zinc-300 font-sans">
+              {bossDualDrop.isFirstClear 
+                ? "Guaranteed first-clear rewards harvested from the keep vault!"
+                : "Dual treasures & crafting materials harvested from the keep vault."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-2 gap-3 my-3">
+            {/* Left Drop: Blueprint or Converted Bounty */}
+            <div className="rounded-xl border border-amber-500/40 bg-zinc-900/90 p-3.5 flex flex-col items-center text-center space-y-2">
+              <div className="w-12 h-12 rounded-xl bg-amber-950/60 border border-amber-500/50 flex items-center justify-center text-2xl shadow-inner">
+                {bossDualDrop.isDuplicate ? '👑' : (bossDualDrop.blueprint ? '📜' : '💰')}
+              </div>
+              <div>
+                <Badge variant="outline" className={`text-[9px] uppercase font-mono font-bold mb-1 ${
+                  bossDualDrop.isDuplicate ? 'border-yellow-500 text-yellow-300' : (bossDualDrop.blueprint ? 'border-amber-400 text-amber-300' : 'border-zinc-500 text-zinc-300')
+                }`}>
+                  {bossDualDrop.isDuplicate ? 'Duplicate converted' : (bossDualDrop.blueprint ? 'Kingdom blueprint' : 'Conqueror cache')}
+                </Badge>
+                <h4 className="text-xs font-bold text-zinc-100 font-serif line-clamp-1">
+                  {bossDualDrop.isDuplicate 
+                    ? "Royal Architect's bounty" 
+                    : (bossDualDrop.blueprint ? bossDualDrop.blueprint.name : "Keep conqueror's cache")}
+                </h4>
+                <p className="text-[10px] text-zinc-400 font-sans mt-1 leading-snug">
+                  {bossDualDrop.isDuplicate
+                    ? `+${bossDualDrop.bountyAmount || 250} Gold bonus converted to prevent duplicate blueprint tiles.`
+                    : (bossDualDrop.blueprint ? bossDualDrop.blueprint.desc : `+${bossDualDrop.bountyAmount || 150} Gold repeat victory cache.`)}
+                </p>
+              </div>
+            </div>
+
+            {/* Right Drop: Apotheca Reagent */}
+            <div className="rounded-xl border border-cyan-500/40 bg-zinc-900/90 p-3.5 flex flex-col items-center text-center space-y-2">
+              <div className="w-12 h-12 rounded-xl bg-cyan-950/60 border border-cyan-500/50 flex items-center justify-center text-2xl shadow-inner animate-pulse">
+                {bossDualDrop.reagent.emoji || '🧪'}
+              </div>
+              <div>
+                <Badge variant="outline" className="text-[9px] uppercase font-mono font-bold mb-1 border-cyan-400 text-cyan-300">
+                  Apotheca reagent (x{bossDualDrop.reagent.qty})
+                </Badge>
+                <h4 className="text-xs font-bold text-zinc-100 font-serif line-clamp-1">
+                  {bossDualDrop.reagent.name}
+                </h4>
+                <p className="text-[10px] text-zinc-400 font-sans mt-1 leading-snug">
+                  {bossDualDrop.reagent.desc || 'Rare alchemical essence for Grand Apotheca potion brewing.'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Rewards Summary */}
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className="bg-zinc-900/90 border border-amber-500/30 p-2 rounded-xl text-center">
+              <span className="text-[10px] text-zinc-400 block font-mono">Gold gained</span>
+              <span className="text-sm font-serif font-bold text-amber-400">+{bossDualDrop.goldEarned || (bossDualDrop.bountyAmount ? bossDualDrop.bountyAmount : 150)} 🪙</span>
+            </div>
+            <div className="bg-zinc-900/90 border border-blue-500/30 p-2 rounded-xl text-center">
+              <span className="text-[10px] text-zinc-400 block font-mono">XP earned</span>
+              <span className="text-sm font-serif font-bold text-blue-400">+{bossDualDrop.xpEarned || 80} ⭐</span>
+            </div>
+          </div>
+
+          <Button
+            onClick={() => {
+              setBossDualDrop(null);
+              setRun(null);
+            }}
+            className="w-full btn-primary-cta py-3 text-xs rounded-xl shadow-lg"
+          >
+            Claim victory & continue ✨
+          </Button>
+        </DialogContent>
+      )}
+    </Dialog>
+  );
+
+  // 1. DEFEAT RESULT SCREEN (Victory is handled directly by the Keep Victory & Boss Rewards Showcase modal)
+  if (gameResult && !gameResult.success) {
     return (
-      <div className={`min-h-dvh p-4 sm:p-8 flex items-center justify-center ${gameResult.success ? 'bg-gradient-to-br from-green-950 via-green-900 to-black' : 'bg-gradient-to-br from-red-950 via-red-900 to-black'} text-white animate-in fade-in duration-500 overflow-y-auto pb-safe pt-safe`}>
+      <div className="min-h-dvh p-4 sm:p-8 flex items-center justify-center bg-gradient-to-br from-red-950 via-red-900 to-black text-white animate-in fade-in duration-500 overflow-y-auto pb-safe pt-safe">
         <div className="max-w-xl w-full text-center space-y-4 sm:space-y-6 my-auto">
           <div className="space-y-2">
             <div className="text-5xl sm:text-7xl mb-2 animate-bounce">
-              {gameResult.success ? '🏆' : '💀'}
+              💀
             </div>
-            <h1 className={`text-3xl sm:text-5xl font-black uppercase tracking-tight ${gameResult.success ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,0.5)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]'}`}>
-              {gameResult.success ? 'Victory!' : 'Defeated'}
+            <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]">
+              Defeated
             </h1>
             <p className="text-xs sm:text-sm text-zinc-300 font-medium">
-              {gameResult.success ? 'Valerion dips his winged head in honor: you fought with pure persistency. The deeper rooms are opening.' : "Turtlo tucks you behind his heavy shell: 'Rest now, hero. Build your strength with today\'s habits and try again.'"}
+              Turtlo tucks you behind his heavy shell: &apos;Rest now, hero. Build your strength with today&apos;s habits and try again.&apos;
             </p>
           </div>
-
-          {gameResult.success && gameResult.rewards && (
-            <div className="bg-zinc-950/90 rounded-2xl p-4 sm:p-6 border border-white/10 space-y-4 shadow-xl">
-              <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Rewards collected</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
-                <div className="bg-yellow-500/10 p-3 sm:p-4 rounded-xl border border-yellow-500/20">
-                  <div className="text-xl sm:text-2xl font-black text-yellow-400">{gameResult.rewards.gold}</div>
-                  <div className="text-[10px] sm:text-xs text-yellow-600 font-bold uppercase">Gold</div>
-                </div>
-                <div className="bg-blue-500/10 p-3 sm:p-4 rounded-xl border border-blue-500/20">
-                  <div className="text-xl sm:text-2xl font-black text-blue-400">{gameResult.rewards.xp}</div>
-                  <div className="text-[10px] sm:text-xs text-blue-600 font-bold uppercase">XP</div>
-                </div>
-                <div className="bg-pink-500/10 p-3 sm:p-4 rounded-xl border border-pink-500/20">
-                  <div className="text-xl sm:text-2xl font-black text-pink-400">{gameResult.rewards.gems || 0}</div>
-                  <div className="text-[10px] sm:text-xs text-pink-600 font-bold uppercase">Gems</div>
-                </div>
-                <div className="bg-purple-500/10 p-3 sm:p-4 rounded-xl border border-purple-500/20">
-                  <div className="text-xl sm:text-2xl font-black text-purple-400">{gameResult.rewards.items}</div>
-                  <div className="text-[10px] sm:text-xs text-purple-600 font-bold uppercase">Items</div>
-                </div>
-              </div>
-
-              {gameResult.rewards.discoveredRecipe && (
-                <div className="mt-3 p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl flex items-center gap-3 text-left">
-                  <span className="text-3xl select-none animate-bounce">{gameResult.rewards.discoveredRecipe.emoji}</span>
-                  <div>
-                    <h4 className="text-xs font-extrabold text-purple-400">Recipe discovered!</h4>
-                    <p className="text-[11px] text-zinc-300 leading-tight mt-0.5">
-                      You discovered the formula for the <strong>{gameResult.rewards.discoveredRecipe.name}</strong>!
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {gameResult.loot && gameResult.loot.length > 0 && (
-                <div className="pt-3 border-t border-white/5">
-                  <h4 className="text-[11px] text-zinc-500 mb-2 text-left font-bold uppercase tracking-wider">Detailed loot log</h4>
-                  <ScrollArea className="h-28 min-h-[76px] w-full pr-2">
-                    <div className="space-y-1.5 text-left">
-                      {gameResult.loot.map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-xs text-zinc-300 bg-white/5 p-2 rounded-lg">
-                          <span className={item.type === 'item' ? 'text-purple-300 font-semibold' : 'text-amber-200 font-semibold'}>{item.name}</span>
-                          {item.amount && <span className="text-zinc-500 font-mono">x{item.amount}</span>}
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-              )}
-            </div>
-          )}
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
             <Button onClick={() => router.push('/kingdom')} size="lg" className="w-full sm:flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold min-h-[44px]">
               Return to kingdom
             </Button>
-            {!gameResult.success && (
-              <Button onClick={startRun} size="lg" className="w-full sm:flex-1 bg-red-600 hover:bg-red-500 text-white font-bold min-h-[44px]">
-                Try again
-              </Button>
-            )}
+            <Button onClick={startRun} size="lg" className="w-full sm:flex-1 bg-red-600 hover:bg-red-500 text-white font-bold min-h-[44px]">
+              Try again
+            </Button>
           </div>
         </div>
       </div>
@@ -1703,6 +1748,7 @@ export default function DungeonPage() {
 
           </div>
 
+          {renderBossDualDropModal()}
         </div>
       </div>
     );
@@ -2520,76 +2566,7 @@ export default function DungeonPage() {
         </div>
 
         {/* 🏆 Boss Keep Dual-Loot Victory Showcase Dialog */}
-        <Dialog open={!!bossDualDrop} onOpenChange={() => setBossDualDrop(null)}>
-          {bossDualDrop && (
-            <DialogContent className="max-w-md bg-zinc-950 border-2 border-amber-500/50 text-white rounded-2xl p-6 shadow-2xl font-serif max-h-[88dvh] overflow-y-auto custom-scrollbar">
-              <DialogHeader className="text-center items-center pb-2">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(245,158,11,0.5)] mb-2 animate-bounce">
-                  🏆
-                </div>
-                <DialogTitle className="font-serif text-2xl text-amber-300">
-                  {bossDualDrop.isFirstClear ? "First clear: Boss conquered!" : "Boss keep cleared!"}
-                </DialogTitle>
-                <DialogDescription className="text-xs text-zinc-300 font-sans">
-                  {bossDualDrop.isFirstClear 
-                    ? "Guaranteed first-clear rewards harvested from the keep vault!"
-                    : "Dual treasures & crafting materials harvested from the keep vault."}
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="grid grid-cols-2 gap-3 my-4">
-                {/* Left Drop: Blueprint or Converted Bounty */}
-                <div className="rounded-xl border border-amber-500/40 bg-zinc-900/90 p-3.5 flex flex-col items-center text-center space-y-2">
-                  <div className="w-12 h-12 rounded-xl bg-amber-950/60 border border-amber-500/50 flex items-center justify-center text-2xl shadow-inner">
-                    {bossDualDrop.isDuplicate ? '👑' : (bossDualDrop.blueprint ? '📜' : '💰')}
-                  </div>
-                  <div>
-                    <Badge variant="outline" className={`text-[9px] uppercase font-mono font-bold mb-1 ${
-                      bossDualDrop.isDuplicate ? 'border-yellow-500 text-yellow-300' : (bossDualDrop.blueprint ? 'border-amber-400 text-amber-300' : 'border-zinc-500 text-zinc-300')
-                    }`}>
-                      {bossDualDrop.isDuplicate ? 'Duplicate converted' : (bossDualDrop.blueprint ? 'Kingdom blueprint' : 'Conqueror cache')}
-                    </Badge>
-                    <h4 className="text-xs font-bold text-zinc-100 font-serif line-clamp-1">
-                      {bossDualDrop.isDuplicate 
-                        ? "Royal Architect's bounty" 
-                        : (bossDualDrop.blueprint ? bossDualDrop.blueprint.name : "Keep conqueror's cache")}
-                    </h4>
-                    <p className="text-[10px] text-zinc-400 font-sans mt-1 leading-snug">
-                      {bossDualDrop.isDuplicate
-                        ? `+${bossDualDrop.bountyAmount || 250} Gold bonus converted to prevent duplicate blueprint tiles.`
-                        : (bossDualDrop.blueprint ? bossDualDrop.blueprint.desc : `+${bossDualDrop.bountyAmount || 150} Gold repeat victory cache.`)}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Right Drop: Apotheca Reagent */}
-                <div className="rounded-xl border border-cyan-500/40 bg-zinc-900/90 p-3.5 flex flex-col items-center text-center space-y-2">
-                  <div className="w-12 h-12 rounded-xl bg-cyan-950/60 border border-cyan-500/50 flex items-center justify-center text-2xl shadow-inner animate-pulse">
-                    {bossDualDrop.reagent.emoji || '🧪'}
-                  </div>
-                  <div>
-                    <Badge variant="outline" className="text-[9px] uppercase font-mono font-bold mb-1 border-cyan-400 text-cyan-300">
-                      Apotheca reagent (x{bossDualDrop.reagent.qty})
-                    </Badge>
-                    <h4 className="text-xs font-bold text-zinc-100 font-serif line-clamp-1">
-                      {bossDualDrop.reagent.name}
-                    </h4>
-                    <p className="text-[10px] text-zinc-400 font-sans mt-1 leading-snug">
-                      {bossDualDrop.reagent.desc || 'Rare alchemical essence for Grand Apotheca potion brewing.'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <Button
-                onClick={() => setBossDualDrop(null)}
-                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-serif font-bold text-xs h-10 rounded-xl shadow-lg"
-              >
-                Claim boss treasures ✨
-              </Button>
-            </DialogContent>
-          )}
-        </Dialog>
+        {renderBossDualDropModal()}
 
       </div>
     </div>
