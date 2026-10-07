@@ -21,7 +21,7 @@ export default function RequireSignIn() {
           </span>
         </h2>
         <SignInButton>
-          <button className="px-6 py-3 bg-amber-500 text-white rounded-lg shadow hover:bg-amber-600 transition-colors text-lg font-semibold mt-2">
+          <button className="btn-primary-cta px-8 py-3 text-base font-bold shadow-xl mt-2">
             Sign in
           </button>
         </SignInButton>

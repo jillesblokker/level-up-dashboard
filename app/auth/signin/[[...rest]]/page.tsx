@@ -52,7 +52,7 @@ export default function SignInPage() {
         <div className="space-y-4">
           <button
             onClick={() => setShowClerkModal(true)}
-            className="w-full flex items-center justify-center px-4 py-3 border border-amber-900/50 text-sm font-medium rounded-md text-amber-200 bg-amber-900/10 hover:bg-amber-900/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors"
+            className="w-full btn-primary-cta py-3 text-sm focus:outline-none"
             aria-label="Sign in with Clerk"
           >
             Sign in with Clerk

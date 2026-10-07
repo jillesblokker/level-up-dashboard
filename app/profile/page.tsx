@@ -316,11 +316,11 @@ export default function ProfilePage() {
             <h2 className="text-3xl font-bold text-amber-400 mb-4 drop-shadow-lg">{TEXT_CONTENT.profile.signIn.title}</h2>
             <p className="text-zinc-300 mb-6 text-lg leading-relaxed">{TEXT_CONTENT.profile.signIn.description}</p>
             <Button
-              className="font-serif font-bold px-8 py-3 text-base shadow-lg"
+              className="btn-primary-cta font-serif font-bold px-8 py-3 text-base shadow-lg"
               aria-label="Sign in to profile"
               onClick={() => window.location.href = '/auth/signin'}
             >
-              <Crown className="w-5 h-5" />
+              <Crown className="w-5 h-5 mr-2" />
               {TEXT_CONTENT.profile.signIn.button}
             </Button>
           </div>

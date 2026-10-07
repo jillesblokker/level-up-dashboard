@@ -17,7 +17,7 @@ export function SignInButton({ className = "" }: { className?: string }) {
   return (
     <Button 
       onClick={handleSignIn} 
-      className={`bg-amber-500 hover:bg-amber-600 text-black ${className}`}
+      className={`btn-primary-cta ${className}`}
       disabled={isLoading}
     >
       {isLoading ? "Redirecting..." : "Sign in with GitHub"}

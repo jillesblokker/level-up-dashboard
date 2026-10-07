@@ -588,7 +588,6 @@ export function DailyHubClient() {
                             size="lg"
                             className="btn-primary-cta"
                         >
-                            <span className="text-xl mr-2">👑</span>
                             {TEXT_CONTENT.dailyHub.header.cta}
                         </Button>
                     </Link>

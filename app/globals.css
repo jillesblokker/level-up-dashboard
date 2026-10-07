@@ -447,6 +447,7 @@ button:focus-visible,
 }
 
 /* 4. Global RPG Button System (Button 01 Emerald Gem Primary & Button 02 Sapphire Gem Secondary) */
+.btn-primary-cta,
 [data-theme="medieval"] .btn-primary-cta,
 .theme-medieval .btn-primary-cta,
 .btn-rpg-emerald {
