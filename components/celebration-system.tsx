@@ -6,40 +6,39 @@ import { toast } from "@/components/ui/use-toast"
 
 export function CelebrationSystem() {
   useEffect(() => {
-    const handleLevelUp = async (e: CustomEvent) => {
-      const { newLevel } = e.detail;
+    const handleLevelUp = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { newLevel } = customEvent.detail || {};
       
       // Massive confetti explosion
-      let confettiFn: any = null; // eslint-disable-line
-      try {
-        const mod = await import('canvas-confetti');
-        confettiFn = mod.default;
-      } catch {}
-      if (!confettiFn) return;
+      import('canvas-confetti').then((m) => {
+        const confettiFn = m.default;
+        if (!confettiFn) return;
 
-      const duration = 3 * 1000;
-      const animationEnd = Date.now() + duration;
-      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+        const duration = 3 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
 
-      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+        const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
-      const interval: NodeJS.Timeout = setInterval(function() {
-        const timeLeft = animationEnd - Date.now();
+        const interval: NodeJS.Timeout = setInterval(function() {
+          const timeLeft = animationEnd - Date.now();
 
-        if (timeLeft <= 0) {
-          return clearInterval(interval);
-        }
+          if (timeLeft <= 0) {
+            return clearInterval(interval);
+          }
 
-        const particleCount = 50 * (timeLeft / duration);
-        confettiFn!({
-          ...defaults, particleCount,
-          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-        });
-        confettiFn!({
-          ...defaults, particleCount,
-          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-        });
-      }, 250);
+          const particleCount = 50 * (timeLeft / duration);
+          confettiFn({
+            ...defaults, particleCount,
+            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+          });
+          confettiFn({
+            ...defaults, particleCount,
+            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+          });
+        }, 250);
+      }).catch(() => {});
 
       // Toast notification
       toast({
@@ -50,9 +49,9 @@ export function CelebrationSystem() {
       });
     };
 
-    window.addEventListener('level-up', handleLevelUp as EventListener);
+    window.addEventListener('level-up', handleLevelUp);
     return () => {
-      window.removeEventListener('level-up', handleLevelUp as EventListener);
+      window.removeEventListener('level-up', handleLevelUp);
     };
   }, []);
 
