@@ -15,7 +15,7 @@ test('kingdom grid renders for authenticated users', async ({ page, context }) =
   // await context.addCookies([{name: '__session', value: 'fake_token', domain: 'localhost', path: '/'}]);
   
   // Skip this test in CI until full auth bypassing is set up
-  test.skip(!!process.env.CI, 'Requires authenticated session context');
+  test.skip(!!process.env['CI'], 'Requires authenticated session context');
 
   await page.goto('/kingdom');
   

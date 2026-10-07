@@ -337,10 +337,9 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
 
     // Increase synergy gauge (+25 per correct tap)
     const newGauge = petSynergyGauge + 25
-    if (newGauge >= 100 && activeSupporters.length > 0 && !activePetStrike) {
+    const pet = activeSupporters[0]
+    if (newGauge >= 100 && pet && !activePetStrike) {
       setPetSynergyGauge(0)
-      // Pick leading active pet supporter
-      const pet = activeSupporters[0]
       const petSkills: Record<string, { name: string; effect: string }> = {
         nature: { name: "Leaf Aegis & Mend", effect: "Healed 15 HP & boosted next round timing!" },
         fire: { name: "Infernal Blaze Burst", effect: "Dealt 10 bonus elemental burst damage!" },
