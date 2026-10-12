@@ -115,12 +115,24 @@ function isMythicCreature(id?: string, filename?: string, isMythic?: boolean): b
 
 function getCreatureImage(id?: string, filename?: string, isMythic?: boolean): string {
   const isMyth = isMythicCreature(id, filename, isMythic);
-  const rawFn = filename || (id ? (id.startsWith('mythic-') ? id.replace(/^mythic-/, '') : id) : (isMyth ? 'Mythic1red' : '001'));
-  const cleanFn = rawFn.replace(/\.(png|jpg|jpeg|webp)$/i, '');
 
   if (isMyth) {
-    return `/images/Mythics/${cleanFn}.webp?v=2`;
+    // For mythic creatures, use filename or mythic-prefixed id
+    const mythFn = filename || (id ? (id.startsWith('mythic-') ? id.replace(/^mythic-/, '') : id) : 'Mythic1red');
+    const cleanMyth = mythFn.replace(/\.(png|jpg|jpeg|webp)$/i, '');
+    return `/images/Mythics/${cleanMyth}.webp?v=2`;
   }
+
+  // For normal creatures, prefer the numerical ID (e.g. '007') which maps to the
+  // full gold-framed card art. Named files (e.g. 'Leaf.webp') are transparent cutouts
+  // without card backgrounds.
+  if (id && !id.startsWith('mythic-')) {
+    return `/images/creatures/${id}.webp`;
+  }
+
+  // Fallback to filename if no id is available
+  const rawFn = filename || '001';
+  const cleanFn = rawFn.replace(/\.(png|jpg|jpeg|webp)$/i, '');
   return `/images/creatures/${cleanFn}.webp`;
 }
 
