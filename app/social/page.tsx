@@ -612,42 +612,52 @@ export default function AlliesPage() {
 
                     {/* MY FRIENDS TAB */}
                     <TabsContent value="allies" className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-                            {/* Left Column: Active Friends Carousel (Mobile & Desktop) */}
-                            <div className="md:col-span-7 space-y-4">
+                        {/* 1. TOP BENTO SECTION: Active Friend Circle (Full Width Carousel) */}
+                        <Card className="border border-amber-900/40 bg-zinc-950/80 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden">
+                            <CardHeader className="pb-3 border-b border-amber-950/30 bg-gradient-to-r from-amber-950/20 via-zinc-950/40 to-transparent">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-lg font-bold text-amber-300 font-serif flex items-center gap-2">
-                                        <Users className="w-5 h-5 text-amber-400" />
-                                        Active friend circle
-                                    </h3>
-                                    <Badge variant="outline" className="border-amber-500/30 text-amber-400 font-mono text-xs">
-                                        {friends.length} friends
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-sm">
+                                            <Users className="w-4 h-4" />
+                                        </div>
+                                        <div>
+                                            <CardTitle className="text-base sm:text-lg font-bold text-amber-300 font-serif">
+                                                Active friend circle
+                                            </CardTitle>
+                                            <CardDescription className="text-xs text-zinc-400">
+                                                Your inner circle of companions for virtue duels, kingdom visits & quests
+                                            </CardDescription>
+                                        </div>
+                                    </div>
+                                    <Badge variant="outline" className="border-amber-500/40 text-amber-400 font-mono text-xs px-2.5 py-0.5 bg-amber-950/40 shadow-sm">
+                                        {friends.length} {friends.length === 1 ? 'friend' : 'friends'}
                                     </Badge>
                                 </div>
-
+                            </CardHeader>
+                            <CardContent className="p-4 sm:p-6">
                                 {friends.length === 0 ? (
-                                    <Card className="border border-amber-900/30 bg-zinc-950/80 p-6 text-center space-y-3">
+                                    <div className="border border-dashed border-amber-900/30 bg-zinc-900/20 rounded-xl p-8 text-center space-y-3">
                                         <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400 font-bold text-xl">
                                             👥
                                         </div>
-                                        <h4 className="text-base font-bold text-amber-300">No friends in circle yet</h4>
-                                        <p className="text-xs text-zinc-400 max-w-sm mx-auto">
-                                            Search for friends using the invite section to build your habit circle and share House Cup virtue boosts!
+                                        <h4 className="text-base font-bold text-amber-300 font-serif">No friends in circle yet</h4>
+                                        <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+                                            Search for friends using the invite section below to build your habit circle, challenge friends in virtue duels, and share House Cup boosts!
                                         </p>
-                                    </Card>
+                                    </div>
                                 ) : (
-                                    <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-3 custom-scrollbar mobile-scroll-hide">
+                                    <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-3 custom-scrollbar">
                                         {friends.map(friend => {
                                             const level = friend.stats?.level || 0;
                                             const titleInfo = getCurrentTitle(level);
 
                                             return (
-                                                <div key={friend.id} className="snap-start w-[85vw] max-w-[320px] shrink-0">
-                                                    <Card className="overflow-hidden border border-amber-900/30 hover:border-amber-500/40 transition-all duration-300 flex flex-col group/card shadow-sm hover:shadow-md bg-zinc-950/90 h-full">
+                                                <div key={friend.id} className="snap-start w-[260px] sm:w-[280px] md:w-[300px] shrink-0">
+                                                    <Card className="overflow-hidden border border-amber-900/30 hover:border-amber-500/40 transition-all duration-300 flex flex-col group/card shadow-sm hover:shadow-md bg-zinc-900/80 rounded-xl h-full">
                                                         <CardContent className="p-0 flex-1 flex flex-col">
                                                             {/* Header */}
-                                                            <div className="p-4 flex items-center gap-3 border-b border-zinc-800/60 bg-gradient-to-r from-amber-950/20 to-transparent">
-                                                                <div className="relative">
+                                                            <div className="p-3.5 flex items-center gap-3 border-b border-zinc-800/60 bg-gradient-to-r from-amber-950/20 to-transparent">
+                                                                <div className="relative shrink-0">
                                                                     <Avatar className="h-10 w-10 border border-amber-500/30 shadow-sm">
                                                                         <AvatarImage src={friend.imageUrl} />
                                                                         <AvatarFallback className="bg-amber-500/10 text-amber-400 font-bold text-xs">{friend.username.substring(0, 2).toUpperCase()}</AvatarFallback>
@@ -661,12 +671,12 @@ export default function AlliesPage() {
                                                                 </div>
 
                                                                 <div className="flex-1 min-w-0">
-                                                                    <h4 className="font-bold text-sm text-zinc-100 truncate leading-none mb-1">{friend.username}</h4>
+                                                                    <h4 className="font-bold text-sm text-zinc-100 truncate leading-tight mb-0.5">{friend.username}</h4>
                                                                     <p className="text-[10px] text-zinc-400 font-mono">
                                                                         Level {level} • {titleInfo.name}
                                                                     </p>
                                                                     <div className="mt-1 flex items-center gap-1">
-                                                                        <Badge variant="outline" className="text-[8px] border-amber-500/40 text-amber-300 bg-amber-950/40 font-mono font-bold">
+                                                                        <Badge variant="outline" className="text-[8px] border-amber-500/40 text-amber-300 bg-amber-950/40 font-mono font-bold px-1.5 py-0">
                                                                             ⚔️ Rivalry: 3W - 1L (+10 Virtue Pts)
                                                                         </Badge>
                                                                     </div>
@@ -674,23 +684,24 @@ export default function AlliesPage() {
                                                             </div>
 
                                                             {/* Hero - Character Visual */}
-                                                            <div className="py-4 flex flex-col items-center justify-center bg-gradient-to-b from-zinc-950 via-amber-950/10 to-zinc-950 flex-1 relative">
-                                                                <div className="relative w-24 h-24 mb-2 drop-shadow-md hover:scale-105 transition-transform">
+                                                            <div className="py-4 flex flex-col items-center justify-center bg-gradient-to-b from-zinc-950/60 via-amber-950/10 to-zinc-950/60 flex-1 relative min-h-[120px]">
+                                                                <div className="relative w-24 h-24 mb-1 drop-shadow-md group-hover/card:scale-105 transition-transform duration-300">
                                                                     <Image
                                                                         src={`/images/character/${titleInfo.id}.webp`}
                                                                         alt={titleInfo.name}
                                                                         fill
                                                                         className="object-contain"
+                                                                        unoptimized
                                                                     />
                                                                 </div>
                                                             </div>
 
                                                             {/* Actions */}
-                                                            <div className="p-3 grid grid-cols-2 gap-2 bg-zinc-900/60 border-t border-zinc-800/80">
+                                                            <div className="p-3 grid grid-cols-2 gap-2 bg-zinc-950/80 border-t border-zinc-800/80">
                                                                 <Button
                                                                     variant="default"
                                                                     size="sm"
-                                                                    className="w-full text-xs font-bold bg-amber-500 hover:bg-amber-600 text-zinc-950"
+                                                                    className="w-full text-xs font-bold bg-amber-500 hover:bg-amber-600 text-zinc-950 shadow-sm"
                                                                     onClick={() => router.push(`/kingdom?visit=${friend.friendId}`)}
                                                                 >
                                                                     <Crown className="w-3.5 h-3.5 mr-1" />
@@ -699,7 +710,7 @@ export default function AlliesPage() {
                                                                 <Button
                                                                     variant="outline"
                                                                     size="sm"
-                                                                    className="w-full text-xs font-bold border-amber-900/40 text-amber-400 hover:bg-amber-950/20"
+                                                                    className="w-full text-xs font-bold border-amber-900/40 text-amber-400 hover:bg-amber-950/20 hover:border-amber-500/40"
                                                                     onClick={() => openQuestModal(friend)}
                                                                 >
                                                                     <Scroll className="w-3.5 h-3.5 mr-1" />
@@ -713,41 +724,49 @@ export default function AlliesPage() {
                                         })}
                                     </div>
                                 )}
-                            </div>
+                            </CardContent>
+                        </Card>
 
-                            {/* Right Column: Invite Section & Requests Registry */}
-                            <div className="md:col-span-5 space-y-6">
-                                {/* Invite Section */}
-                                <Card className="border border-amber-900/30 bg-zinc-950/80">
-                                    <CardHeader className="pb-3">
-                                        <CardTitle className="text-base font-bold text-amber-300 flex items-center gap-2">
-                                            <UserPlus className="w-4 h-4 text-amber-400" />
-                                            Invite an Ally
-                                        </CardTitle>
-                                        <CardDescription className="text-xs text-zinc-400">
-                                            Search for players by username to send friend invites.
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
+                        {/* 2. BOTTOM BENTO GRID: Invite an ally & Invite inbox (Side-by-side on desktop, stacked on mobile) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                            {/* Invite an ally */}
+                            <Card className="border border-amber-900/40 bg-zinc-950/80 backdrop-blur-sm rounded-2xl shadow-xl flex flex-col h-full overflow-hidden">
+                                <CardHeader className="pb-3 border-b border-amber-950/30 bg-gradient-to-r from-amber-950/20 to-transparent">
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-sm">
+                                            <UserPlus className="w-4 h-4" />
+                                        </div>
+                                        <div>
+                                            <CardTitle className="text-base font-bold text-amber-300 font-serif">
+                                                Invite an ally
+                                            </CardTitle>
+                                            <CardDescription className="text-xs text-zinc-400">
+                                                Search for players by username to send friend invites
+                                            </CardDescription>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                                    <div className="space-y-4">
                                         <div className="flex gap-2">
                                             <Input
                                                 placeholder="Search username..."
                                                 value={searchQuery}
                                                 onChange={(e) => setSearchQuery(e.target.value)}
                                                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                                className="bg-zinc-900 border-zinc-800 text-xs"
+                                                className="bg-zinc-900/90 border-zinc-800 text-xs focus:border-amber-500/50"
                                             />
-                                            <Button onClick={handleSearch} disabled={isSearching} size="sm" className="bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold shrink-0">
+                                            <Button onClick={handleSearch} disabled={isSearching} size="sm" className="bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold shrink-0 px-4 shadow-sm">
                                                 {isSearching ? "Searching..." : "Search"}
                                             </Button>
                                         </div>
 
-                                        {searchResults.length > 0 && (
-                                            <div className="space-y-2">
+                                        {searchResults.length > 0 ? (
+                                            <div className="space-y-2 max-h-[220px] overflow-y-auto custom-scrollbar pr-1">
                                                 {searchResults.map(user => (
-                                                    <div key={user.id} className="flex items-center justify-between p-2.5 rounded-xl border border-zinc-800 bg-zinc-900/60">
+                                                    <div key={user.id} className="flex items-center justify-between p-2.5 rounded-xl border border-zinc-800 bg-zinc-900/60 hover:border-amber-900/40 transition-colors">
                                                         <div className="flex items-center gap-2.5 min-w-0">
-                                                            <Avatar className="h-8 w-8">
+                                                            <Avatar className="h-8 w-8 border border-zinc-700">
                                                                 <AvatarImage src={user.imageUrl} />
                                                                 <AvatarFallback className="text-xs">{user.username.substring(0, 2).toUpperCase()}</AvatarFallback>
                                                             </Avatar>
@@ -759,69 +778,99 @@ export default function AlliesPage() {
                                                     </div>
                                                 ))}
                                             </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-
-                                {/* Requests Registry */}
-                                <Card className="border border-amber-900/30 bg-zinc-950/80">
-                                    <CardHeader className="pb-3">
-                                        <CardTitle className="text-base font-bold text-amber-300 flex items-center gap-2">
-                                            <Mail className="w-4 h-4 text-amber-400" />
-                                            Requests Registry
-                                            {requests.length > 0 && <Badge variant="destructive" className="ml-1 text-[10px]">{requests.length}</Badge>}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        {requests.length === 0 ? (
-                                            <div className="border border-amber-900/20 bg-gradient-to-b from-amber-950/10 via-zinc-950 to-zinc-900/50 rounded-2xl p-5 text-center space-y-2">
-                                                <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto text-xl">
-                                                    📜
-                                                </div>
-                                                <h4 className="text-sm font-bold text-amber-300 font-serif">Registry Clear</h4>
-                                                <p className="text-[11px] text-zinc-400 max-w-xs mx-auto leading-relaxed">
-                                                    No pending ally invitations. Send requests using the invite form above!
+                                        ) : (
+                                            <div className="border border-zinc-800/60 bg-zinc-900/30 rounded-xl p-4 text-center space-y-1.5 text-zinc-400">
+                                                <p className="text-xs font-medium text-zinc-300">Invite allies to your circle</p>
+                                                <p className="text-[11px] text-zinc-500 leading-relaxed">
+                                                    Allies earn shared House Cup virtue energy, participate in 1v1 habit duels, and explore each other&apos;s kingdoms.
                                                 </p>
                                             </div>
-                                        ) : (
-                                            <div className="space-y-3">
-                                                {requests.map(req => (
-                                                    <div key={req.id} className="p-3 rounded-xl border border-zinc-800 bg-zinc-900/60 flex items-center justify-between">
-                                                        <div className="flex items-center gap-2.5">
-                                                            <Avatar className="h-8 w-8">
-                                                                <AvatarImage src={req.imageUrl} />
-                                                                <AvatarFallback className="text-xs">{req.username.substring(0, 2).toUpperCase()}</AvatarFallback>
-                                                            </Avatar>
-                                                            <div>
-                                                                <h4 className="font-semibold text-xs text-zinc-200">{req.username}</h4>
-                                                                <p className="text-[10px] text-zinc-400">
-                                                                    {req.isSender ? "Outgoing invite" : "Incoming invite"}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex gap-1.5">
-                                                            {req.isSender ? (
-                                                                <Button size="sm" variant="outline" className="text-xs h-7 px-2 border-zinc-700" onClick={() => removeFriend(req.id)}>
-                                                                    Cancel
-                                                                </Button>
-                                                            ) : (
-                                                                <>
-                                                                    <Button size="sm" className="text-xs h-7 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold" onClick={() => respondToRequest(req.id, 'accept')}>
-                                                                        Accept
-                                                                    </Button>
-                                                                    <Button size="sm" variant="ghost" className="text-xs h-7 px-2 text-zinc-400 hover:text-zinc-200" onClick={() => respondToRequest(req.id, 'reject')}>
-                                                                        Decline
-                                                                    </Button>
-                                                                </>
-                                                            )}
+                                        )}
+                                    </div>
+                                    <div className="pt-2 border-t border-zinc-800/40 flex items-center justify-between text-[11px] text-zinc-500">
+                                        <span>⚔️ Virtue duels ready</span>
+                                        <span className="text-amber-400/80 font-mono">+10 virtue per win</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Invite inbox (formerly Requests Registry) */}
+                            <Card className="border border-amber-900/40 bg-zinc-950/80 backdrop-blur-sm rounded-2xl shadow-xl flex flex-col h-full overflow-hidden">
+                                <CardHeader className="pb-3 border-b border-amber-950/30 bg-gradient-to-r from-amber-950/20 to-transparent">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-sm">
+                                                <Mail className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <CardTitle className="text-base font-bold text-amber-300 font-serif">
+                                                    Invite inbox
+                                                </CardTitle>
+                                                <CardDescription className="text-xs text-zinc-400">
+                                                    Manage incoming and outgoing ally requests
+                                                </CardDescription>
+                                            </div>
+                                        </div>
+                                        {requests.length > 0 && (
+                                            <Badge variant="destructive" className="font-mono text-xs px-2 py-0.5 shadow-sm">
+                                                {requests.length} pending
+                                            </Badge>
+                                        )}
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                                    {requests.length === 0 ? (
+                                        <div className="border border-amber-900/20 bg-gradient-to-b from-amber-950/10 via-zinc-950 to-zinc-900/50 rounded-xl p-5 text-center space-y-2 my-auto">
+                                            <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto text-xl">
+                                                📜
+                                            </div>
+                                            <h4 className="text-sm font-bold text-amber-300 font-serif">Inbox clear</h4>
+                                            <p className="text-[11px] text-zinc-400 max-w-xs mx-auto leading-relaxed">
+                                                No pending ally invitations. Send requests using the invite form!
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-2.5 max-h-[220px] overflow-y-auto custom-scrollbar pr-1 my-auto">
+                                            {requests.map(req => (
+                                                <div key={req.id} className="p-3 rounded-xl border border-zinc-800 bg-zinc-900/60 flex items-center justify-between hover:border-zinc-700 transition-colors">
+                                                    <div className="flex items-center gap-2.5 min-w-0">
+                                                        <Avatar className="h-8 w-8 border border-zinc-700">
+                                                            <AvatarImage src={req.imageUrl} />
+                                                            <AvatarFallback className="text-xs">{req.username.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="min-w-0">
+                                                            <h4 className="font-semibold text-xs text-zinc-200 truncate">{req.username}</h4>
+                                                            <p className="text-[10px] text-zinc-400">
+                                                                {req.isSender ? "Outgoing invite" : "Incoming invite"}
+                                                            </p>
                                                         </div>
                                                     </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            </div>
+                                                    <div className="flex gap-1.5 shrink-0">
+                                                        {req.isSender ? (
+                                                            <Button size="sm" variant="outline" className="text-xs h-7 px-2 border-zinc-700 hover:bg-zinc-800" onClick={() => removeFriend(req.id)}>
+                                                                Cancel
+                                                            </Button>
+                                                        ) : (
+                                                            <>
+                                                                <Button size="sm" className="text-xs h-7 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-sm" onClick={() => respondToRequest(req.id, 'accept')}>
+                                                                    Accept
+                                                                </Button>
+                                                                <Button size="sm" variant="ghost" className="text-xs h-7 px-2 text-zinc-400 hover:text-zinc-200" onClick={() => respondToRequest(req.id, 'reject')}>
+                                                                    Decline
+                                                                </Button>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    <div className="pt-2 border-t border-zinc-800/40 flex items-center justify-between text-[11px] text-zinc-500">
+                                        <span>📬 Status updates</span>
+                                        <span className="text-zinc-400 font-mono">{requests.length === 0 ? 'All caught up' : `${requests.length} pending`}</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
                     </TabsContent>
                 </Tabs>
