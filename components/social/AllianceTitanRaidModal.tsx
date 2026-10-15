@@ -1,17 +1,18 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { ShieldAlert, Swords, Trophy, Gift, Zap, CheckCircle2 } from 'lucide-react'
+import { ShieldAlert, Swords, Trophy, Gift, Zap, CheckCircle2, ChevronLeft, ChevronRight, Lock } from 'lucide-react'
 import { toast } from '@/components/ui/use-toast'
 import { TitanSiegeArsenal } from '@/components/titan-siege-arsenal'
 import { TreasureChestVisual } from '@/components/ui/treasure-chest-visual'
 import { playSFX, SOUNDS } from '@/lib/sound-manager'
 import { getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service'
 import { CollectibleRune } from '@/components/runes/collectible-rune'
+import { cn } from '@/lib/utils'
 
 interface AllianceTitanRaidModalProps {
   isOpen: boolean
@@ -19,6 +20,15 @@ interface AllianceTitanRaidModalProps {
 }
 
 export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidModalProps) {
+  const carouselRef = useRef<HTMLDivElement>(null)
+
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const scrollAmount = direction === 'left' ? -310 : 310
+      carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+    }
+  }
+
   const [titanHp, setTitanHp] = useState(6450)
   const maxHp = 10000
   const [userDamageToday, setUserDamageToday] = useState(14)
@@ -122,7 +132,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-full sm:max-w-2xl md:max-w-3xl bg-zinc-950 border border-amber-900/50 text-white rounded-2xl p-4 sm:p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
+      <DialogContent className="max-w-full sm:max-w-3xl md:max-w-4xl bg-zinc-950 border border-amber-900/50 text-white rounded-2xl p-4 sm:p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-red-400">
@@ -228,27 +238,55 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
             </div>
           </details>
 
-          {/* Fellowship Tier Chests */}
-          <div className="space-y-2">
+          {/* Fellowship Tier Chests Carousel */}
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-zinc-300 flex items-center gap-1.5 font-serif">
+              <h4 className="text-sm font-bold text-zinc-200 flex items-center gap-2 font-serif">
                 <Trophy className="w-4 h-4 text-amber-400" /> Fellowship raid victory tier chests
               </h4>
-              <span className="text-[10px] font-mono text-zinc-400 flex items-center gap-1">
-                ⏱️ Reset: <strong className="text-amber-300">4d 18h</strong>
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono text-zinc-400 hidden sm:inline-flex items-center gap-1">
+                  ⏱️ Reset: <strong className="text-amber-300">4d 18h</strong>
+                </span>
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => scrollCarousel('left')}
+                    className="h-7 w-7 rounded-lg border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 hover:text-amber-300 text-zinc-400 shadow-sm"
+                    aria-label="Previous chests"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => scrollCarousel('right')}
+                    className="h-7 w-7 rounded-lg border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 hover:text-amber-300 text-zinc-400 shadow-sm"
+                    aria-label="Next chests"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
 
             {/* Fellowship Raid Victory Co-op Damage Progress Bar */}
             <div className="bg-zinc-950/80 border border-amber-500/30 rounded-xl p-3 space-y-1.5 shadow-md">
               <div className="flex justify-between items-center text-[10px] font-mono font-bold">
-                <span className="text-amber-300">⚔️ Total raid damage: {maxHp - titanHp} / 10,000 DMG</span>
-                <span className="text-amber-400 font-bold">{Math.round(((maxHp - titanHp) / 10000) * 100)}% to celestial titan chest</span>
+                <span className="text-amber-300">⚔️ Total raid damage: {(maxHp - titanHp).toLocaleString()} / {maxHp.toLocaleString()} DMG</span>
+                <span className="text-amber-400 font-bold">{Math.round(((maxHp - titanHp) / maxHp) * 100)}% to celestial titan chest</span>
               </div>
-              <Progress value={Math.min(100, Math.round(((maxHp - titanHp) / 10000) * 100))} className="h-2 bg-zinc-900" />
+              <Progress value={Math.min(100, Math.round(((maxHp - titanHp) / maxHp) * 100))} className="h-2 bg-zinc-900" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {/* Horizontal snap carousel */}
+            <div
+              ref={carouselRef}
+              className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 pt-1 px-1 custom-scrollbar scroll-smooth"
+            >
               {CHESTS.map(chest => {
                 const totalDmgDealt = maxHp - titanHp
                 const unlocked = totalDmgDealt >= chest.reqHpDamage
@@ -257,40 +295,93 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
                 return (
                   <div
                     key={chest.tier}
-                    className="flex flex-col items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-zinc-950/80 border border-amber-900/40 shadow-lg text-center"
+                    className={cn(
+                      "w-[270px] sm:w-[290px] md:w-[310px] shrink-0 snap-start flex flex-col justify-between p-4 rounded-2xl border shadow-xl transition-all duration-300 group",
+                      chest.rarity === 'common' && 'border-amber-900/40 hover:border-amber-700/60 bg-gradient-to-b from-amber-950/20 via-zinc-950 to-zinc-950',
+                      chest.rarity === 'uncommon' && 'border-emerald-900/40 hover:border-emerald-600/60 bg-gradient-to-b from-emerald-950/20 via-zinc-950 to-zinc-950',
+                      chest.rarity === 'rare' && 'border-blue-900/40 hover:border-blue-600/60 bg-gradient-to-b from-blue-950/20 via-zinc-950 to-zinc-950',
+                      chest.rarity === 'epic' && 'border-purple-900/40 hover:border-purple-600/60 bg-gradient-to-b from-purple-950/20 via-zinc-950 to-zinc-950',
+                      chest.rarity === 'legendary' && 'border-amber-500/40 hover:border-amber-400/70 bg-gradient-to-b from-amber-950/30 via-zinc-950 to-zinc-950 shadow-[0_0_20px_rgba(245,158,11,0.1)]'
+                    )}
                   >
+                    {/* Card Header: Tier & Status */}
+                    <div className="flex items-center justify-between pb-2 border-b border-zinc-800/60">
+                      <Badge variant="outline" className="text-[10px] font-mono px-2 py-0.5 capitalize border-zinc-700 bg-zinc-900/80 text-zinc-300">
+                        Tier {chest.tier} • {chest.rarity}
+                      </Badge>
+                      {chest.claimed ? (
+                        <Badge className="bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 text-[10px] font-mono flex items-center gap-1 shadow-sm">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Claimed
+                        </Badge>
+                      ) : unlocked ? (
+                        <Badge className="bg-amber-500 text-zinc-950 font-bold text-[10px] font-mono animate-pulse shadow-md">
+                          Ready
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-zinc-900/80 border border-zinc-800 text-zinc-400 text-[10px] font-mono flex items-center gap-1">
+                          <Lock className="w-3 h-3 text-zinc-500" /> Locked
+                        </Badge>
+                      )}
+                    </div>
+
                     {/* Animated Fellowship Chest Visual */}
-                    <TreasureChestVisual
-                      state={chestState}
-                      rarity={chest.rarity}
-                      tierLabel={chest.label}
-                      className="w-full h-32 mb-1"
-                      onClick={() => unlocked && !chest.claimed && handleClaimChest(chest.tier)}
-                    />
+                    <div className="py-2 flex items-center justify-center">
+                      <TreasureChestVisual
+                        state={chestState}
+                        rarity={chest.rarity}
+                        hideLabels={true}
+                        className="w-full h-36 my-1 transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+                        onClick={() => unlocked && !chest.claimed && handleClaimChest(chest.tier)}
+                      />
+                    </div>
 
-                    {/* Rewards & Details Directly Underneath */}
-                    <div className="w-full space-y-1.5 mt-1">
-                      <div className="font-bold text-xs text-amber-300 font-serif leading-tight">{chest.label}</div>
-                      <p className="text-[10px] font-mono text-emerald-400 font-semibold bg-emerald-950/50 border border-emerald-500/30 px-1.5 py-0.5 rounded-full inline-block leading-tight">
-                        🎁 {chest.reward}
-                      </p>
+                    {/* Chest Info & Details */}
+                    <div className="w-full space-y-3 mt-1">
+                      <div className="text-center space-y-1.5">
+                        <h5 className="font-bold text-sm sm:text-base text-zinc-100 font-serif leading-tight">
+                          {chest.label}
+                        </h5>
+                        <div className="flex items-center justify-between text-[11px] font-mono px-1">
+                          <span className="text-zinc-400">Raid DMG requirement</span>
+                          <span className={unlocked ? "text-emerald-400 font-bold" : "text-amber-400/90 font-bold"}>
+                            {Math.min(totalDmgDealt, chest.reqHpDamage).toLocaleString()} / {chest.reqHpDamage.toLocaleString()}
+                          </span>
+                        </div>
+                        <Progress
+                          value={Math.min(100, Math.round((totalDmgDealt / chest.reqHpDamage) * 100))}
+                          className="h-1.5 bg-zinc-900"
+                        />
+                      </div>
 
+                      {/* Loot Reward Box */}
+                      <div className="p-2.5 rounded-xl bg-zinc-900/70 border border-zinc-800/80 text-center space-y-1">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block">
+                          Loot contents
+                        </span>
+                        <p className="text-xs font-mono font-bold text-emerald-400 leading-relaxed">
+                          🎁 {chest.reward}
+                        </p>
+                      </div>
+
+                      {/* Action Button / Requirement */}
                       <div className="pt-1">
                         {chest.claimed ? (
-                          <Badge variant="outline" className="w-full justify-center bg-zinc-900 text-zinc-400 text-[10px] py-1 border-zinc-800">
-                            <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-400" /> Claimed
+                          <Badge variant="outline" className="w-full justify-center bg-zinc-900/90 text-zinc-400 text-xs py-2.5 border-zinc-800 font-serif">
+                            <CheckCircle2 className="w-4 h-4 mr-1.5 text-emerald-400" /> Claimed
                           </Badge>
-                        ) : (
+                        ) : unlocked ? (
                           <Button
-                            disabled={!unlocked}
                             onClick={() => handleClaimChest(chest.tier)}
-                            className={unlocked 
-                              ? "w-full h-8 text-xs font-extrabold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 shadow-md" 
-                              : "w-full h-8 text-[11px] font-mono bg-zinc-900 text-zinc-500 border border-zinc-800"
-                            }
+                            className="btn-primary-cta w-full py-2.5 text-xs font-bold shadow-lg flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
                           >
-                            {unlocked ? 'Claim reward' : `${chest.reqHpDamage} DMG req.`}
+                            <Gift className="w-4 h-4" />
+                            <span>Claim reward</span>
                           </Button>
+                        ) : (
+                          <div className="w-full py-2.5 px-3 text-center rounded-xl bg-zinc-900/60 border border-zinc-800 text-zinc-500 text-xs font-mono font-medium flex items-center justify-center gap-1.5">
+                            <Lock className="w-3.5 h-3.5 text-zinc-600" />
+                            <span>{(chest.reqHpDamage - totalDmgDealt).toLocaleString()} DMG to unlock</span>
+                          </div>
                         )}
                       </div>
                     </div>

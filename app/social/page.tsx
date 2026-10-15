@@ -588,7 +588,7 @@ export default function AlliesPage() {
                             </div>
                             <Button
                                 onClick={() => setTitanModalOpen(true)}
-                                className="w-full sm:w-auto bg-gradient-to-r from-red-700 to-amber-700 hover:from-red-600 hover:to-amber-600 text-white font-serif font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg border border-red-400/40 shrink-0 flex items-center justify-center gap-2"
+                                className="btn-primary-cta w-full sm:w-auto text-xs px-5 py-2.5 h-auto shadow-lg flex items-center justify-center gap-2 font-serif font-bold shrink-0"
                             >
                                 <Swords className="w-4 h-4" />
                                 <span>Enter raid chamber</span>
