@@ -50,13 +50,17 @@ const getBuildingSubTitle = (id: string) => {
     'golden-pantheon': 'Sacred golden shrine',
     'astral_citadel_monument': 'Celestial spire & cosmic crystal orb',
     'astral-citadel-monument': 'Celestial spire & cosmic crystal orb',
-    'astral_citadel': 'Celestial spire & cosmic crystal orb'
+    'astral_citadel': 'Celestial spire & cosmic crystal orb',
+    'crystal_cavern': 'Crystalline cavern & gemstone quarry',
+    'crystal-cavern': 'Crystalline cavern & gemstone quarry'
   }
   return map[id] || 'Kingdom property'
 }
 
 const getBuildingSpecialOutput = (id: string, kt: any) => {
   const map: Record<string, string> = {
+    'crystal_cavern': 'Produces radiant crystals and rich gold nuggets from the depths.',
+    'crystal-cavern': 'Produces radiant crystals and rich gold nuggets from the depths.',
     'stable': 'Breeds sturdy mounts & supplies fresh timber/tack.',
     'blacksmith': 'Crafts refined metal materials & equipment.',
     'sawmill': 'Processes raw logs into building planks.',

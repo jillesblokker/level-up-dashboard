@@ -32,7 +32,7 @@ import { KINGDOM_TILES } from '@/lib/kingdom-tiles'
 
 const REDIRECT_TILES = [
   'daily-hub', 'dailyhub', 'daily_hub', 'quest-board', 'market', 'market-stalls',
-  'dungeon', 'dungeon-keep', 'crystal_cavern', 'monument', 'hall_of_fame',
+  'dungeon', 'dungeon-keep', 'monument', 'hall_of_fame',
   'mystic_bazaar', 'airship_harbor', 'airship-harbor', 'housecup', 'observatory',
   'hall_of_champions', 'titan_watchtower', 'titan-watchtower', 'castle', 'library',
   'barracks', 'training-grounds', 'training_grounds', 'tavern', 'inn', 'town-hall',

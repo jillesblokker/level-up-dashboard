@@ -336,7 +336,7 @@ function createEmptyKingdomGrid(): Tile[][] {
     { x: 5, y: 2, type: 'pond' as TileType },
     { x: 1, y: 3, type: 'foodcourt' as TileType },
     { x: 2, y: 3, type: 'vegetables' as TileType },
-    { x: 3, y: 3, type: 'crystal_cavern' as TileType }, // Dungeon Hub
+    { x: 3, y: 3, type: 'crystal_cavern' as TileType }, // Crystal Cavern (Gold generator)
     { x: 4, y: 3, type: 'mayor' as TileType },
     { x: 5, y: 3, type: 'tavern' as TileType }, // Social Hub
     { x: 1, y: 4, type: 'library' as TileType },

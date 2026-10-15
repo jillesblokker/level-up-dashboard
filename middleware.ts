@@ -37,6 +37,31 @@ export default clerkMiddleware(async (auth, request) => {
     }
   }
 
+  // Handle API routes with dynamic CORS and preflight
+  if (pathname.startsWith('/api/')) {
+    const origin = request.headers.get('origin');
+    if (request.method === 'OPTIONS') {
+      const preflightHeaders = new Headers();
+      if (origin) {
+        preflightHeaders.set('Access-Control-Allow-Origin', origin);
+        preflightHeaders.set('Access-Control-Allow-Credentials', 'true');
+      } else {
+        preflightHeaders.set('Access-Control-Allow-Origin', '*');
+      }
+      preflightHeaders.set('Access-Control-Allow-Methods', 'GET,DELETE,PATCH,POST,PUT,OPTIONS');
+      preflightHeaders.set('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, x-timezone, RSC, Next-Router-State-Tree');
+      preflightHeaders.set('Access-Control-Max-Age', '86400');
+      return new NextResponse(null, { status: 204, headers: preflightHeaders });
+    }
+
+    const res = NextResponse.next();
+    if (origin) {
+      res.headers.set('Access-Control-Allow-Origin', origin);
+      res.headers.set('Access-Control-Allow-Credentials', 'true');
+    }
+    return res;
+  }
+
   // If user is signed in and trying to access sign-in/sign-up, redirect to kingdom
   if (userId && (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up'))) {
     return NextResponse.redirect(new URL('/kingdom', request.url));
@@ -44,10 +69,6 @@ export default clerkMiddleware(async (auth, request) => {
 
   // Handle unauthorized non-public routes
   if (!isPublicRoute(request) && !userId) {
-    if (pathname.startsWith('/api/')) {
-      // Allow API route handlers to perform multi-tier authentication (cookies + Bearer tokens)
-      return NextResponse.next();
-    }
     // For RSC fetches and link prefetches, return a clean 401 with CORS headers instead of a 307 redirect
     // This prevents Safari and WebKit from failing with "access control checks" and crashing the client router
     if (isPrefetch || isRsc) {

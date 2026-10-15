@@ -1908,11 +1908,6 @@ export function KingdomGridWithTimers({
       router.push('/tales');
       return;
     }
-    if (tile.type === 'crystal_cavern') {
-      toast({ title: "Entering cavern...", description: "Delve into the depths." });
-      router.push('/dungeon');
-      return;
-    }
     // Removed redundant house hub to consolidate navigation
     // (Training Grounds remains the primary character portal)
 
@@ -2336,6 +2331,8 @@ export function KingdomGridWithTimers({
         itemFound = '/images/items/materials/material-grain.webp'
       } else if (kingdomTile.itemType === 'stone') {
         itemFound = '/images/items/materials/material-stone.webp'
+      } else if (kingdomTile.itemType === 'material') {
+        itemFound = '/images/items/materials/material-crystal.webp'
       }
     }
 
@@ -2426,6 +2423,19 @@ export function KingdomGridWithTimers({
               stats: {},
               category: 'material',
               rarity: 'common'
+            } as any);
+          } else if (kingdomTile.itemType === 'material') {
+            await invManager.addToKingdomInventory(userId, {
+              id: 'material-crystal',
+              name: 'Astral Crystal',
+              type: 'resource',
+              quantity: 1,
+              image: '/images/items/materials/material-crystal.webp',
+              description: 'Shimmering raw crystal mined from the depths.',
+              emoji: '💎',
+              stats: {},
+              category: 'material',
+              rarity: 'rare'
             } as any);
           }
         } catch (e) {
@@ -3297,7 +3307,7 @@ export function KingdomGridWithTimers({
           'market-stalls', 'mystic_bazaar', 'airship_harbor', 'housecup',
           'observatory', 'hall_of_champions', 'titan_watchtower', 'castle',
           'library', 'barracks', 'training-grounds', 'training_grounds', 'monument', 'hall_of_fame',
-          'tavern', 'inn', 'town-hall', 'town_hall', 'mayor', 'crystal_cavern', 'plank-labyrinth',
+          'tavern', 'inn', 'town-hall', 'town_hall', 'mayor', 'plank-labyrinth',
           'fortune_teller', 'fortune-teller', 'apotheca', 'siege_workshop', 'prison'
         ].includes(actionSheetTile.tile.type) ? () => {
           if (actionSheetTile) {
