@@ -259,8 +259,11 @@ export function NavBar({ session }: NavBarProps) {
 
   return (
     <>
-      <div className="hidden lg:landscape:block border-b bg-black border-zinc-800 z-10 relative pt-[env(safe-area-inset-top,0px)]">
-        <div className="flex h-16 items-center">
+      <div 
+        className="hidden lg:landscape:block border-b bg-black border-zinc-800 z-10 relative pb-2 sm:pb-2.5 transition-all"
+        style={{ paddingTop: 'max(calc(env(safe-area-inset-top, 0px) + 0.75rem), 1.25rem)' }}
+      >
+        <div className="flex h-14 sm:h-16 items-center">
         {/* Desktop Navigation */}
         <div className="hidden md:flex">
           <MainNav />
