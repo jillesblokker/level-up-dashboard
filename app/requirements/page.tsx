@@ -152,9 +152,9 @@ export default function RequirementsPage() {
 
   if (!currentChapter) {
     return (
-      <main className="container max-w-2xl py-8 flex flex-col items-center" aria-label="requirements-book-section">
-        <h1 className="text-4xl font-serif font-bold mb-8 text-amber-200" aria-label="book-title">Adventurer&#39;s Guide</h1>
-        <div className={`p-6 w-full min-h-[350px] flex flex-col items-center justify-center rounded-lg shadow-lg border border-amber-800/20 bg-gradient-to-b from-black to-zinc-900 ${styles['preview-card']}`} aria-label="book-page-card">
+      <main className="container max-w-2xl px-4 sm:px-6 py-6 sm:py-8 flex flex-col items-center overflow-x-hidden w-full max-w-full pb-24 pb-safe" aria-label="requirements-book-section">
+        <h1 className="text-3xl sm:text-4xl font-serif font-bold mb-6 sm:mb-8 text-amber-200 text-center" aria-label="book-title">Adventurer&#39;s guide</h1>
+        <div className={`p-4 sm:p-6 w-full min-h-[350px] flex flex-col items-center justify-center rounded-xl shadow-lg border border-amber-800/20 bg-gradient-to-b from-black to-zinc-900 ${styles['preview-card']}`} aria-label="book-page-card">
           <span className="text-lg text-amber-100">Loading chapter...</span>
         </div>
       </main>
@@ -162,36 +162,36 @@ export default function RequirementsPage() {
   }
 
   return (
-    <main className="container max-w-2xl py-8 flex flex-col items-center" aria-label="requirements-book-section">
-      <h1 className="text-4xl font-serif font-bold mb-8 text-amber-200" aria-label="book-title">Adventurer&#39;s Guide</h1>
-      <div className={`p-6 w-full min-h-[350px] flex flex-col rounded-lg shadow-lg border border-amber-800/20 bg-gradient-to-b from-black to-zinc-900 ${styles['preview-card']}`} aria-label="book-page-card">
+    <main className="container max-w-2xl px-4 sm:px-6 py-6 sm:py-8 flex flex-col items-center overflow-x-hidden w-full max-w-full pb-24 pb-safe" aria-label="requirements-book-section">
+      <h1 className="text-3xl sm:text-4xl font-serif font-bold mb-6 sm:mb-8 text-amber-200 text-center" aria-label="book-title">Adventurer&#39;s guide</h1>
+      <div className={`p-4 sm:p-6 w-full min-h-[350px] flex flex-col rounded-xl shadow-lg border border-amber-800/20 bg-gradient-to-b from-black to-zinc-900 ${styles['preview-card']}`} aria-label="book-page-card">
         <div aria-label="book-page-header" className="mb-4">
-          <h2 className="text-2xl font-serif text-amber-300" aria-label="book-chapter-title">{currentChapter.title}</h2>
+          <h2 className="text-xl sm:text-2xl font-serif text-amber-300" aria-label="book-chapter-title">{currentChapter.title}</h2>
         </div>
-        <div aria-label={currentChapter.ariaLabel} className="flex-1 flex flex-col justify-center">
+        <div aria-label={currentChapter.ariaLabel} className="flex-1 flex flex-col justify-center min-w-0">
           {currentChapter.content}
         </div>
-        <div className="flex justify-between mt-8" aria-label="book-page-footer">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 mt-6 sm:mt-8 w-full" aria-label="book-page-footer">
+          <span className="text-sm text-amber-400 font-serif order-1 sm:order-2 text-center py-1" aria-label="chapter-indicator">
+            Chapter {page + 1} of {dynamicChapters.length}
+          </span>
           <Button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
             aria-label="previous-chapter"
             variant="secondary"
-            className="font-serif text-lg"
+            className="w-full sm:w-auto font-serif text-base sm:text-lg min-h-[44px] order-2 sm:order-1"
           >
-            Previous Page
+            Previous page
           </Button>
-          <span className="text-sm text-amber-400 font-serif" aria-label="chapter-indicator">
-            Chapter {page + 1} of {dynamicChapters.length}
-          </span>
           <Button
             onClick={() => setPage((p) => Math.min(dynamicChapters.length - 1, p + 1))}
             disabled={page === dynamicChapters.length - 1}
             aria-label="next-chapter"
             variant="secondary"
-            className="font-serif text-lg"
+            className="w-full sm:w-auto font-serif text-base sm:text-lg min-h-[44px] order-3 sm:order-3"
           >
-            Next Page
+            Next page
           </Button>
         </div>
       </div>
