@@ -24,7 +24,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
 
   const scrollCarousel = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
-      const scrollAmount = direction === 'left' ? -310 : 310
+      const scrollAmount = direction === 'left' ? -250 : 250
       carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
     }
   }
@@ -132,7 +132,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-full sm:max-w-3xl md:max-w-4xl bg-zinc-950 border border-amber-900/50 text-white rounded-2xl p-4 sm:p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
+      <DialogContent className="max-w-full sm:max-w-2xl md:max-w-3xl bg-zinc-950 border border-amber-900/50 text-white rounded-2xl p-4 sm:p-6 shadow-2xl overflow-y-auto overflow-x-hidden max-h-[90vh]">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-red-400">
@@ -158,7 +158,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
           </DialogDescription>
         </DialogHeader>
 
-        <div className="my-4 space-y-4">
+        <div className="my-4 space-y-4 min-w-0 w-full overflow-hidden">
           {/* Boss Banner & Live Damage Numbers */}
           <div className="relative rounded-2xl border border-red-500/40 p-5 bg-gradient-to-r from-red-950/90 via-zinc-900 to-zinc-950 flex flex-col sm:flex-row items-center gap-4 shadow-xl overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 blur-2xl pointer-events-none" />
@@ -239,9 +239,9 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
           </details>
 
           {/* Fellowship Tier Chests Carousel */}
-          <div className="space-y-3">
+          <div className="space-y-3 min-w-0 w-full">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-bold text-zinc-200 flex items-center gap-2 font-serif">
+              <h4 className="text-xs sm:text-sm font-bold text-zinc-200 flex items-center gap-2 font-serif">
                 <Trophy className="w-4 h-4 text-amber-400" /> Fellowship raid victory tier chests
               </h4>
               <div className="flex items-center gap-2">
@@ -282,10 +282,10 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
               <Progress value={Math.min(100, Math.round(((maxHp - titanHp) / maxHp) * 100))} className="h-2 bg-zinc-900" />
             </div>
 
-            {/* Horizontal snap carousel */}
+            {/* Horizontal snap carousel - ONLY for the 5 chests */}
             <div
               ref={carouselRef}
-              className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 pt-1 px-1 custom-scrollbar scroll-smooth"
+              className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-3 pt-1 px-1 custom-scrollbar scroll-smooth w-full max-w-full touch-pan-x"
             >
               {CHESTS.map(chest => {
                 const totalDmgDealt = maxHp - titanHp
@@ -296,7 +296,7 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
                   <div
                     key={chest.tier}
                     className={cn(
-                      "w-[270px] sm:w-[290px] md:w-[310px] shrink-0 snap-start flex flex-col justify-between p-4 rounded-2xl border shadow-xl transition-all duration-300 group",
+                      "w-[220px] sm:w-[240px] shrink-0 snap-start flex flex-col justify-between p-3.5 rounded-2xl border shadow-lg transition-all duration-300 group",
                       chest.rarity === 'common' && 'border-amber-900/40 hover:border-amber-700/60 bg-gradient-to-b from-amber-950/20 via-zinc-950 to-zinc-950',
                       chest.rarity === 'uncommon' && 'border-emerald-900/40 hover:border-emerald-600/60 bg-gradient-to-b from-emerald-950/20 via-zinc-950 to-zinc-950',
                       chest.rarity === 'rare' && 'border-blue-900/40 hover:border-blue-600/60 bg-gradient-to-b from-blue-950/20 via-zinc-950 to-zinc-950',
@@ -330,19 +330,19 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
                         state={chestState}
                         rarity={chest.rarity}
                         hideLabels={true}
-                        className="w-full h-36 my-1 transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+                        className="w-full h-32 my-1 transition-transform duration-300 group-hover:scale-105 cursor-pointer"
                         onClick={() => unlocked && !chest.claimed && handleClaimChest(chest.tier)}
                       />
                     </div>
 
                     {/* Chest Info & Details */}
-                    <div className="w-full space-y-3 mt-1">
-                      <div className="text-center space-y-1.5">
-                        <h5 className="font-bold text-sm sm:text-base text-zinc-100 font-serif leading-tight">
+                    <div className="w-full space-y-2.5 mt-1">
+                      <div className="text-center space-y-1">
+                        <h5 className="font-bold text-xs sm:text-sm text-zinc-100 font-serif leading-tight">
                           {chest.label}
                         </h5>
-                        <div className="flex items-center justify-between text-[11px] font-mono px-1">
-                          <span className="text-zinc-400">Raid DMG requirement</span>
+                        <div className="flex items-center justify-between text-[10px] font-mono px-1">
+                          <span className="text-zinc-400">Raid DMG</span>
                           <span className={unlocked ? "text-emerald-400 font-bold" : "text-amber-400/90 font-bold"}>
                             {Math.min(totalDmgDealt, chest.reqHpDamage).toLocaleString()} / {chest.reqHpDamage.toLocaleString()}
                           </span>
@@ -354,11 +354,11 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
                       </div>
 
                       {/* Loot Reward Box */}
-                      <div className="p-2.5 rounded-xl bg-zinc-900/70 border border-zinc-800/80 text-center space-y-1">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block">
+                      <div className="p-2 rounded-xl bg-zinc-900/70 border border-zinc-800/80 text-center space-y-0.5">
+                        <span className="text-[9px] font-mono uppercase tracking-wider text-zinc-400 block">
                           Loot contents
                         </span>
-                        <p className="text-xs font-mono font-bold text-emerald-400 leading-relaxed">
+                        <p className="text-[11px] font-mono font-bold text-emerald-400 leading-tight">
                           🎁 {chest.reward}
                         </p>
                       </div>
@@ -366,20 +366,20 @@ export function AllianceTitanRaidModal({ isOpen, onClose }: AllianceTitanRaidMod
                       {/* Action Button / Requirement */}
                       <div className="pt-1">
                         {chest.claimed ? (
-                          <Badge variant="outline" className="w-full justify-center bg-zinc-900/90 text-zinc-400 text-xs py-2.5 border-zinc-800 font-serif">
-                            <CheckCircle2 className="w-4 h-4 mr-1.5 text-emerald-400" /> Claimed
+                          <Badge variant="outline" className="w-full justify-center bg-zinc-900/90 text-zinc-400 text-xs py-2 border-zinc-800 font-serif">
+                            <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-400" /> Claimed
                           </Badge>
                         ) : unlocked ? (
                           <Button
                             onClick={() => handleClaimChest(chest.tier)}
-                            className="btn-primary-cta w-full py-2.5 text-xs font-bold shadow-lg flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
+                            className="btn-primary-cta w-full py-2 text-xs font-bold shadow-lg flex items-center justify-center gap-1.5 active:scale-95 transition-transform h-8"
                           >
-                            <Gift className="w-4 h-4" />
+                            <Gift className="w-3.5 h-3.5" />
                             <span>Claim reward</span>
                           </Button>
                         ) : (
-                          <div className="w-full py-2.5 px-3 text-center rounded-xl bg-zinc-900/60 border border-zinc-800 text-zinc-500 text-xs font-mono font-medium flex items-center justify-center gap-1.5">
-                            <Lock className="w-3.5 h-3.5 text-zinc-600" />
+                          <div className="w-full py-1.5 px-2 text-center rounded-xl bg-zinc-900/60 border border-zinc-800 text-zinc-500 text-[11px] font-mono font-medium flex items-center justify-center gap-1">
+                            <Lock className="w-3 h-3 text-zinc-600" />
                             <span>{(chest.reqHpDamage - totalDmgDealt).toLocaleString()} DMG to unlock</span>
                           </div>
                         )}
