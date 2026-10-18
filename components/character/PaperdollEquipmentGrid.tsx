@@ -192,18 +192,18 @@ export function PaperdollEquipmentGrid({
       </div>
 
       {/* Spacious 2D Paperdoll Stage */}
-      <div className="relative w-full bg-gradient-to-b from-zinc-900/90 via-zinc-950 to-zinc-900/90 border border-zinc-800/90 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col items-center justify-center shadow-inner flex-1 min-h-[380px]">
+      <div className="relative w-full bg-gradient-to-b from-zinc-900/90 via-zinc-950 to-zinc-900/90 border border-zinc-800/90 rounded-2xl p-2 sm:p-6 md:p-8 flex flex-col items-center justify-center shadow-inner flex-1 min-h-[340px] sm:min-h-[380px] overflow-hidden">
         {/* Ambient Radial Aura Glow */}
         <div className="absolute inset-0 rounded-2xl bg-radial from-amber-500/10 via-transparent to-transparent blur-3xl pointer-events-none overflow-hidden" />
 
-        <div className="relative w-full max-w-sm flex items-center justify-center py-8 px-2 sm:px-4 min-h-[340px] sm:min-h-[380px]">
+        <div className="relative w-full max-w-sm flex items-center justify-center py-6 sm:py-8 px-1 sm:px-4 min-h-[290px] sm:min-h-[360px]">
           {/* Central Hero Character Avatar Showcase */}
-          <div className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-48 md:h-48 rounded-3xl border-2 border-amber-500/50 bg-gradient-to-b from-amber-500/10 via-zinc-900/90 to-zinc-950 p-2 shadow-[0_0_35px_rgba(245,158,11,0.2)] flex items-center justify-center overflow-hidden group">
+          <div className="relative w-28 h-28 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-2xl sm:rounded-3xl border-2 border-amber-500/50 bg-gradient-to-b from-amber-500/10 via-zinc-900/90 to-zinc-950 p-1.5 sm:p-2 shadow-[0_0_35px_rgba(245,158,11,0.2)] flex items-center justify-center overflow-hidden group">
             <Image
               src={avatarImage}
               alt={heroName}
               fill
-              className="object-contain p-2 filter drop-shadow-[0_0_20px_rgba(245,158,11,0.3)] group-hover:scale-105 transition-transform duration-300"
+              className="object-contain p-1.5 sm:p-2 filter drop-shadow-[0_0_20px_rgba(245,158,11,0.3)] group-hover:scale-105 transition-transform duration-300"
               unoptimized
             />
           </div>
@@ -272,7 +272,7 @@ export function PaperdollEquipmentGrid({
         </div>
 
         {/* Centered Relic Slot Directly Under Avatar */}
-        <div className="mt-4 sm:mt-6 z-20">
+        <div className="mt-3 sm:mt-6 z-20">
           <EquipmentSlotButton
             item={equipment.relic}
             slotConfig={SLOT_CONFIGS[6]}
@@ -283,7 +283,7 @@ export function PaperdollEquipmentGrid({
       </div>
 
       {/* Equipped Gear Overview Horizontal Tray */}
-      <div className="pt-2">
+      <div className="pt-2 w-full min-w-0">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-serif font-bold text-amber-300/90">
             Equipped gear overview
@@ -292,7 +292,7 @@ export function PaperdollEquipmentGrid({
             {Object.values(equipment).filter(Boolean).length} / 7 active sockets
           </span>
         </div>
-        <div className="flex overflow-x-auto sm:grid sm:grid-cols-4 xl:grid-cols-7 gap-2 pb-1.5 custom-scrollbar mobile-scroll-hide">
+        <div className="flex overflow-x-auto sm:grid sm:grid-cols-4 xl:grid-cols-7 gap-2 pb-1.5 custom-scrollbar mobile-scroll-hide w-full max-w-full touch-pan-x">
           {SLOT_CONFIGS.map(({ slot, label, icon }) => {
             const item = equipment[slot]
             const rarityStyle = item ? getItemRarityStyles(item.rarity) : null
@@ -490,32 +490,32 @@ function EquipmentSlotButton({
         onClick={handleSlotClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="w-16 h-16 sm:w-20 sm:h-20 md:w-22 md:h-22 rounded-2xl transition-all duration-200 flex flex-col items-center justify-center bg-zinc-950/95 shadow-xl backdrop-blur-md relative overflow-hidden group/btn hover:scale-105 active:scale-95"
+        className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl sm:rounded-2xl transition-all duration-200 flex flex-col items-center justify-center bg-zinc-950/95 shadow-xl backdrop-blur-md relative overflow-hidden group/btn hover:scale-105 active:scale-95 border border-zinc-800"
         aria-label={item ? `Inspect ${item.name}` : `Empty ${label} slot. Tap to open inventory.`}
       >
         {item ? (
-          <div className="absolute inset-0 w-full h-full p-0 overflow-hidden bg-zinc-950 flex items-center justify-center rounded-[14px] transform-gpu translate-z-0">
+          <div className="absolute inset-0 w-full h-full p-0 overflow-hidden bg-zinc-950 flex items-center justify-center rounded-[10px] sm:rounded-[14px] transform-gpu translate-z-0">
             <Image
               src={item.image}
               alt={item.name}
               fill
-              className="object-cover w-full h-full filter drop-shadow-md rounded-[14px]"
+              className="object-cover w-full h-full filter drop-shadow-md rounded-[10px] sm:rounded-[14px]"
               unoptimized
             />
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-0.5">
-            {icon}
-            <span className="text-[9px] font-bold text-zinc-400 tracking-wide capitalize">{label}</span>
-            <span className="text-[7.5px] font-mono text-amber-400/60 leading-none">
+          <div className="flex flex-col items-center gap-0.5 p-1">
+            <div className="scale-75 sm:scale-100">{icon}</div>
+            <span className="text-[7.5px] sm:text-[9px] font-bold text-zinc-400 tracking-wide capitalize leading-none">{label}</span>
+            <span className="text-[6.5px] sm:text-[7.5px] font-mono text-amber-400/60 leading-none hidden sm:inline">
               {slotConfig?.slot === 'mount' ? 'Market' : 'Dungeon loot'}
             </span>
           </div>
         )}
 
-        {/* Actionable Empty-State Hover Tooltip */}
+        {/* Actionable Empty-State Hover Tooltip (desktop only to prevent mobile overflow) */}
         {isHovered && !item && (
-          <div className={cn("absolute -bottom-8 z-30 whitespace-nowrap bg-zinc-900 border border-amber-500/40 text-[10px] text-amber-300 font-mono px-2 py-0.5 rounded-md shadow-lg pointer-events-none animate-in fade-in duration-200", getTooltipPositionClass())}>
+          <div className={cn("hidden sm:block absolute -bottom-8 z-30 whitespace-nowrap bg-zinc-900 border border-amber-500/40 text-[10px] text-amber-300 font-mono px-2 py-0.5 rounded-md shadow-lg pointer-events-none animate-in fade-in duration-200", getTooltipPositionClass())}>
             ⚔️ Empty {label.toLowerCase()} — {slotConfig?.slot === 'mount' ? 'bought in market' : 'found in dungeons'}
           </div>
         )}
@@ -523,7 +523,7 @@ function EquipmentSlotButton({
         {/* Overlay Border Frame — Sits ON TOP of the image with smooth static glow */}
         <div
           className={cn(
-            "pointer-events-none absolute inset-0 rounded-2xl border-2 z-10 transition-all duration-200",
+            "pointer-events-none absolute inset-0 rounded-xl sm:rounded-2xl border-2 z-10 transition-all duration-200",
             item
               ? getItemRarityStyles(item.rarity).border
               : 'border-zinc-800/80 text-zinc-600 opacity-60'
@@ -531,11 +531,11 @@ function EquipmentSlotButton({
         />
       </button>
 
-      {/* Interactive Micro-Tooltip Card */}
+      {/* Interactive Micro-Tooltip Card (desktop only to prevent mobile horizontal bleed) */}
       {isHovered && item && (() => {
         const rarityStyle = getItemRarityStyles(item.rarity);
         return (
-          <div className={cn("absolute bottom-full mb-2 w-48 p-3 rounded-xl bg-zinc-950/95 border shadow-2xl z-50 pointer-events-none animate-in fade-in zoom-in-95 duration-150", getTooltipPositionClass(), rarityStyle.modalBorder)}>
+          <div className={cn("hidden sm:block absolute bottom-full mb-2 w-48 p-3 rounded-xl bg-zinc-950/95 border shadow-2xl z-50 pointer-events-none animate-in fade-in zoom-in-95 duration-150", getTooltipPositionClass(), rarityStyle.modalBorder)}>
             <div className="flex items-center justify-between gap-1 mb-1">
               <span className={cn("text-xs font-bold truncate", rarityStyle.text)}>{item.name}</span>
               <span className={cn("text-[9px] font-bold capitalize px-1.5 py-0.5 rounded font-mono", rarityStyle.badge)}>

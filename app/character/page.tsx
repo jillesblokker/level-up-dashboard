@@ -877,7 +877,7 @@ export default function CharacterPage() {
 
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black overflow-x-hidden w-full max-w-full">
       <HeaderSection
         title={TEXT_CONTENT.character.header.title}
         imageSrc={coverImage}
@@ -955,12 +955,12 @@ export default function CharacterPage() {
       )}
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 pt-8 pb-28 pb-safe md:pb-12">
-        <div className="grid gap-6">
+      <div className="container mx-auto px-3 sm:px-6 pt-6 sm:pt-8 pb-28 pb-safe md:pb-12 max-w-full min-w-0 overflow-hidden">
+        <div className="grid gap-6 min-w-0 w-full">
           {/* BENTO ROW 1 — Hero Identity & Paperdoll Equipment Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch min-w-0 w-full">
             {/* Bento Tile 1A: Hero Identity & Progression */}
-            <div className="lg:col-span-5 flex flex-col justify-between gap-5 medieval-card p-6 rounded-2xl shadow-xl">
+            <div className="lg:col-span-5 flex flex-col justify-between gap-5 medieval-card p-4 sm:p-6 rounded-2xl shadow-xl min-w-0 overflow-hidden">
               <div className="space-y-4">
                 {/* Hero Title, Level & Description */}
                 <div>
@@ -1054,12 +1054,12 @@ export default function CharacterPage() {
 
                 {/* Hero Combat Rating & Attributes Console */}
                 <div className="p-3.5 bg-zinc-950/80 rounded-xl border border-amber-500/30 space-y-2.5 shadow-inner">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                     <div className="flex items-center gap-1.5">
                       <span className="text-base">🛡️</span>
                       <span className="text-zinc-200 font-bold text-xs font-serif">Combat prowess</span>
                     </div>
-                    <Badge variant="outline" className="border-amber-500/40 text-amber-300 bg-amber-950/40 text-[10px] font-mono font-bold shrink-0">
+                    <Badge variant="outline" className="border-amber-500/40 text-amber-300 bg-amber-950/40 text-[10px] font-mono font-bold self-start sm:self-auto shrink-0">
                       ⚡ Gear score: {gearStats.gearScore} (sovereign knight)
                     </Badge>
                   </div>
@@ -1138,33 +1138,33 @@ export default function CharacterPage() {
                 <h4 className="text-xs font-serif font-bold text-amber-300 normal-case tracking-wide mb-2.5 flex items-center gap-1.5">
                   <span>🧪</span> Alchemy essences vault
                 </h4>
-                <div className="grid grid-cols-2 gap-2.5 text-xs font-serif">
-                  <div className="flex items-center gap-2 p-2.5 bg-gradient-to-r from-red-950/60 via-[#181124] to-[#0f1526] rounded-xl border border-red-500/40 shadow-inner min-w-0">
-                    <span className="w-7 h-7 rounded-full border border-red-400 bg-radial from-rose-500 to-red-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(239,68,68,0.5)] shrink-0">🔥</span>
-                    <span className="text-slate-200 font-bold truncate flex-1 min-w-0">Ember</span>
-                    <span className="font-bold font-mono text-amber-300 text-xs px-2 py-0.5 rounded bg-zinc-950/80 border border-amber-500/30 shrink-0">{characterStats.ember_essence || 0}</span>
+                <div className="grid grid-cols-2 gap-2 sm:gap-2.5 text-xs font-serif min-w-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 bg-gradient-to-r from-red-950/60 via-[#181124] to-[#0f1526] rounded-xl border border-red-500/40 shadow-inner min-w-0">
+                    <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-red-400 bg-radial from-rose-500 to-red-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(239,68,68,0.5)] shrink-0">🔥</span>
+                    <span className="text-slate-200 font-bold truncate flex-1 min-w-0 text-[11px] sm:text-xs">Ember</span>
+                    <span className="font-bold font-mono text-amber-300 text-xs px-1.5 sm:px-2 py-0.5 rounded bg-zinc-950/80 border border-amber-500/30 shrink-0">{characterStats.ember_essence || 0}</span>
                   </div>
-                  <div className="flex items-center gap-2 p-2.5 bg-gradient-to-r from-cyan-950/60 via-[#111c2e] to-[#0f1526] rounded-xl border border-cyan-500/40 shadow-inner min-w-0">
-                    <span className="w-7 h-7 rounded-full border border-cyan-400 bg-radial from-cyan-400 to-cyan-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(6,182,212,0.5)] shrink-0">❄️</span>
-                    <span className="text-slate-200 font-bold truncate flex-1 min-w-0">Frost</span>
-                    <span className="font-bold font-mono text-cyan-300 text-xs px-2 py-0.5 rounded bg-zinc-950/80 border border-cyan-500/30 shrink-0">{characterStats.frost_essence || 0}</span>
+                  <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 bg-gradient-to-r from-cyan-950/60 via-[#111c2e] to-[#0f1526] rounded-xl border border-cyan-500/40 shadow-inner min-w-0">
+                    <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-cyan-400 bg-radial from-cyan-400 to-cyan-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(6,182,212,0.5)] shrink-0">❄️</span>
+                    <span className="text-slate-200 font-bold truncate flex-1 min-w-0 text-[11px] sm:text-xs">Frost</span>
+                    <span className="font-bold font-mono text-cyan-300 text-xs px-1.5 sm:px-2 py-0.5 rounded bg-zinc-950/80 border border-cyan-500/30 shrink-0">{characterStats.frost_essence || 0}</span>
                   </div>
-                  <div className="flex items-center gap-2 p-2.5 bg-gradient-to-r from-blue-950/60 via-[#0d1c33] to-[#0f1526] rounded-xl border border-blue-500/40 shadow-inner min-w-0">
-                    <span className="w-7 h-7 rounded-full border border-blue-400 bg-radial from-blue-500 to-blue-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(59,130,246,0.5)] shrink-0">💧</span>
-                    <span className="text-slate-200 font-bold truncate flex-1 min-w-0">Tide</span>
-                    <span className="font-bold font-mono text-blue-300 text-xs px-2 py-0.5 rounded bg-zinc-950/80 border border-blue-500/30 shrink-0">{characterStats.tide_essence || 0}</span>
+                  <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 bg-gradient-to-r from-blue-950/60 via-[#0d1c33] to-[#0f1526] rounded-xl border border-blue-500/40 shadow-inner min-w-0">
+                    <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-blue-400 bg-radial from-blue-500 to-blue-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(59,130,246,0.5)] shrink-0">💧</span>
+                    <span className="text-slate-200 font-bold truncate flex-1 min-w-0 text-[11px] sm:text-xs">Tide</span>
+                    <span className="font-bold font-mono text-blue-300 text-xs px-1.5 sm:px-2 py-0.5 rounded bg-zinc-950/80 border border-blue-500/30 shrink-0">{characterStats.tide_essence || 0}</span>
                   </div>
-                  <div className="flex items-center gap-2 p-2.5 bg-gradient-to-r from-emerald-950/60 via-[#0b241c] to-[#0f1526] rounded-xl border border-emerald-500/40 shadow-inner min-w-0">
-                    <span className="w-7 h-7 rounded-full border border-emerald-400 bg-radial from-emerald-500 to-emerald-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(34,197,94,0.5)] shrink-0">🍃</span>
-                    <span className="text-slate-200 font-bold truncate flex-1 min-w-0">Verdant</span>
-                    <span className="font-bold font-mono text-emerald-300 text-xs px-2 py-0.5 rounded bg-zinc-950/80 border border-emerald-500/30 shrink-0">{characterStats.verdant_essence || 0}</span>
+                  <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 bg-gradient-to-r from-emerald-950/60 via-[#0b241c] to-[#0f1526] rounded-xl border border-emerald-500/40 shadow-inner min-w-0">
+                    <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-emerald-400 bg-radial from-emerald-500 to-emerald-950 flex items-center justify-center text-xs shadow-[0_0_10px_rgba(34,197,94,0.5)] shrink-0">🍃</span>
+                    <span className="text-slate-200 font-bold truncate flex-1 min-w-0 text-[11px] sm:text-xs">Verdant</span>
+                    <span className="font-bold font-mono text-emerald-300 text-xs px-1.5 sm:px-2 py-0.5 rounded bg-zinc-950/80 border border-emerald-500/30 shrink-0">{characterStats.verdant_essence || 0}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Bento Tile 1B: Paperdoll Equipment Grid */}
-            <div className="lg:col-span-7 flex flex-col gap-4 medieval-card p-6 rounded-2xl shadow-xl">
+            <div className="lg:col-span-7 flex flex-col gap-4 medieval-card p-4 sm:p-6 rounded-2xl shadow-xl min-w-0 overflow-hidden">
               <PaperdollEquipmentGrid
                 avatarImage={`/images/character/${((characterStats as any).title || 'count').toLowerCase()}.webp`}
                 heroName={(characterStats as any).title || 'Count'}
@@ -1174,9 +1174,9 @@ export default function CharacterPage() {
           </div>
 
           {/* BENTO ROW 2 — Blessings, Altar & Empowerments */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch min-w-0 w-full">
             {/* Bento Tile 2A: Active Blessings & Altar */}
-            <div className="lg:col-span-6 flex flex-col gap-4 medieval-card p-6 rounded-2xl shadow-xl">
+            <div className="lg:col-span-6 flex flex-col gap-4 medieval-card p-4 sm:p-6 rounded-2xl shadow-xl min-w-0 overflow-hidden">
               <div className="space-y-4 flex flex-col flex-1">
                 <div className="flex justify-between items-center mb-1">
                   <div>
@@ -1382,7 +1382,7 @@ export default function CharacterPage() {
             </div>
 
             {/* Bento Tile 2B: Available Empowerments & Focus Surge */}
-            <div className="lg:col-span-6 flex flex-col gap-4 medieval-card p-6 rounded-2xl shadow-xl">
+            <div className="lg:col-span-6 flex flex-col gap-4 medieval-card p-4 sm:p-6 rounded-2xl shadow-xl min-w-0 overflow-hidden">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div>
@@ -1394,9 +1394,9 @@ export default function CharacterPage() {
                   <span className="text-[11px] text-zinc-400 font-mono bg-zinc-900 border border-white/5 px-2 py-0.5 rounded-full">2 sockets</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-serif">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-serif min-w-0">
                   {/* Perk Socket */}
-                  <div className="flex flex-col gap-3 p-3.5 bg-gradient-to-r from-purple-950/40 via-[#181124] to-[#0f1526] rounded-xl border border-purple-500/30 shadow-inner">
+                  <div className="flex flex-col gap-3 p-3.5 bg-gradient-to-r from-purple-950/40 via-[#181124] to-[#0f1526] rounded-xl border border-purple-500/30 shadow-inner min-w-0">
                     <div className="flex items-center gap-2.5">
                       <span className="w-8 h-8 rounded-xl border border-purple-400 bg-radial from-purple-500 to-purple-950 flex items-center justify-center text-sm shadow-[0_0_8px_rgba(168,85,247,0.4)] shrink-0">✨</span>
                       <div className="min-w-0 flex-1">
@@ -1419,7 +1419,7 @@ export default function CharacterPage() {
                   </div>
 
                   {/* Apotheca Elixir Socket */}
-                  <div className="flex flex-col gap-3 p-3.5 bg-gradient-to-r from-emerald-950/40 via-[#0b241c] to-[#0f1526] rounded-xl border border-emerald-500/30 shadow-inner">
+                  <div className="flex flex-col gap-3 p-3.5 bg-gradient-to-r from-emerald-950/40 via-[#0b241c] to-[#0f1526] rounded-xl border border-emerald-500/30 shadow-inner min-w-0">
                     <div className="flex items-center gap-2.5">
                       <span className="w-8 h-8 rounded-xl border border-emerald-400 bg-radial from-emerald-500 to-emerald-950 flex items-center justify-center text-sm shadow-[0_0_8px_rgba(34,197,94,0.4)] shrink-0">🧪</span>
                       <div className="min-w-0 flex-1">
@@ -1440,7 +1440,7 @@ export default function CharacterPage() {
               </div>
 
               {/* Focus Points & Surge */}
-              <div className="pt-3 mt-1 border-t border-purple-900/30 bg-gradient-to-r from-purple-950/20 via-zinc-950 to-zinc-900 p-3.5 rounded-xl border border-purple-500/20">
+              <div className="pt-3 mt-1 border-t border-purple-900/30 bg-gradient-to-r from-purple-950/20 via-zinc-950 to-zinc-900 p-3.5 rounded-xl border border-purple-500/20 min-w-0">
                 <div className="flex items-center justify-between mb-1.5 flex-wrap gap-2">
                   <div className="flex items-center gap-1.5">
                     <Brain className="w-4 h-4 text-purple-400 animate-pulse" />
@@ -1481,21 +1481,21 @@ export default function CharacterPage() {
             </div>
           </div>
 
-          {/* Responsive Character Vault Tabs (Horizontal Touch Snap Carousel) */}
-          <div id="character-vault-tabs" className="flex justify-center w-full">
-            <Tabs defaultValue="titles" value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <div className="flex overflow-x-auto snap-x snap-mandatory gap-2 pb-2 custom-scrollbar mobile-scroll-hide w-full mb-6">
-                <TabsList className="flex shrink-0 snap-start space-x-1 p-1.5 bg-zinc-950/90 border border-amber-900/40 rounded-2xl w-full max-w-2xl mx-auto shadow-lg">
-                  <TabsTrigger value="titles" className="snap-start flex-1 rounded-xl px-3 sm:px-4 py-2 text-xs font-bold tracking-wide">
+          {/* Responsive Character Vault Tabs */}
+          <div id="character-vault-tabs" className="flex justify-center w-full min-w-0">
+            <Tabs defaultValue="titles" value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0">
+              <div className="w-full mb-6 overflow-x-auto custom-scrollbar mobile-scroll-hide touch-pan-x">
+                <TabsList className="grid grid-cols-4 min-w-[320px] sm:min-w-0 space-x-1 p-1 sm:p-1.5 bg-zinc-950/90 border border-amber-900/40 rounded-2xl w-full max-w-2xl mx-auto shadow-lg">
+                  <TabsTrigger value="titles" className="rounded-xl px-1.5 sm:px-4 py-2 text-[11px] sm:text-xs font-bold tracking-wide truncate">
                     👑 {TEXT_CONTENT.character.ui.tabs.titles}
                   </TabsTrigger>
-                  <TabsTrigger value="perks" className="snap-start flex-1 rounded-xl px-3 sm:px-4 py-2 text-xs font-bold tracking-wide">
+                  <TabsTrigger value="perks" className="rounded-xl px-1.5 sm:px-4 py-2 text-[11px] sm:text-xs font-bold tracking-wide truncate">
                     ✨ {TEXT_CONTENT.character.ui.tabs.perks}
                   </TabsTrigger>
-                  <TabsTrigger value="strengths" className="snap-start flex-1 rounded-xl px-3 sm:px-4 py-2 text-xs font-bold tracking-wide">
+                  <TabsTrigger value="strengths" className="rounded-xl px-1.5 sm:px-4 py-2 text-[11px] sm:text-xs font-bold tracking-wide truncate">
                     ⚡ {TEXT_CONTENT.character.ui.tabs.strengths}
                   </TabsTrigger>
-                  <TabsTrigger value="pets" className="snap-start flex-1 rounded-xl px-3 sm:px-4 py-2 text-xs font-bold text-amber-400 tracking-wide">
+                  <TabsTrigger value="pets" className="rounded-xl px-1.5 sm:px-4 py-2 text-[11px] sm:text-xs font-bold text-amber-400 tracking-wide truncate">
                     🐾 Pets
                   </TabsTrigger>
                 </TabsList>
