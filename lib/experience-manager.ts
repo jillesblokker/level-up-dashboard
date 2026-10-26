@@ -10,6 +10,8 @@ import { getCurrentTitle } from "@/lib/title-manager"
 import { notificationService } from "@/lib/notification-service"
 import { fetchWithAuth } from '@/lib/fetchWithAuth'
 import { loadKingdomGrid } from '@/lib/supabase-persistence-client'
+import { calculateKingdomBonuses } from '@/lib/kingdom-utils'
+import { getActivePerks } from '@/lib/active-perks-manager'
 
 interface Perk {
   id: string;
@@ -49,38 +51,44 @@ async function getEquippedPerks(): Promise<Perk[]> {
   }
 }
 
-// Calculate bonus XP from perks based on activity category
+// Calculate bonus XP from character perks based on quest category
+// Perk IDs match text-content.ts: perk-might, perk-knowledge, perk-honor, perk-castle, perk-craft, perk-vitality
 function calculatePerkBonus(baseAmount: number, category: string, equippedPerks: Perk[]): number {
   let totalBonus = 0;
+  const cat = category.toLowerCase();
 
   for (const perk of equippedPerks) {
     let bonusPercentage = 0;
 
+    // Each perk grants +10% XP per level for its matching category
     switch (perk.id) {
-      case "p1": // Strength Mastery
-        if (category === "Might") {
-          bonusPercentage = perk.level * 10;
-        }
+      case "perk-might":
+        if (cat === 'might') bonusPercentage = perk.level * 10;
         break;
-      case "p2": // Endurance Training
-        if (category === "Endurance") {
-          bonusPercentage = perk.level * 10;
-        }
+      case "perk-knowledge":
+        if (cat === 'knowledge') bonusPercentage = perk.level * 10;
         break;
-      case "p4": // Quick Learner
-        if (category === "Wisdom") {
-          bonusPercentage = perk.level * 10;
-        }
+      case "perk-honor":
+        if (cat === 'honor') bonusPercentage = perk.level * 10;
         break;
-      case "p5": // Nutritional Expert
-        if (category === "Vitality") {
-          bonusPercentage = perk.level * 15;
-        }
+      case "perk-castle":
+        if (cat === 'castle') bonusPercentage = perk.level * 10;
         break;
-      case "p6": // Rest Master
-        if (category === "Resilience") {
-          bonusPercentage = perk.level * 10;
-        }
+      case "perk-craft":
+        if (cat === 'craft') bonusPercentage = perk.level * 10;
+        break;
+      case "perk-vitality":
+        if (cat === 'vitality' || cat === 'wellness') bonusPercentage = perk.level * 10;
+        break;
+      // Legacy perk IDs for backward compatibility
+      case "p1":
+        if (cat === 'might') bonusPercentage = perk.level * 10;
+        break;
+      case "p4":
+        if (cat === 'knowledge') bonusPercentage = perk.level * 10;
+        break;
+      case "p5":
+        if (cat === 'vitality' || cat === 'wellness') bonusPercentage = perk.level * 15;
         break;
     }
 
@@ -90,6 +98,38 @@ function calculatePerkBonus(baseAmount: number, category: string, equippedPerks:
   }
 
   return totalBonus;
+}
+
+// Calculate bonus XP from active potion perks (e.g. "Exp draught +25% quest EXP")
+function calculateActiveBuffBonus(baseAmount: number): number {
+  try {
+    const activePerks = getActivePerks();
+    const now = new Date();
+    for (const perk of activePerks) {
+      if (new Date(perk.expires_at) <= now) continue;
+      // Match the Exp draught buff
+      if (perk.perk_name === 'Exp draught' || perk.effect?.includes('+25% quest EXP')) {
+        return Math.floor(baseAmount * 0.25);
+      }
+    }
+  } catch (e) {
+    logger.warn('[Experience Manager] Error reading active buffs:', e);
+  }
+  return 0;
+}
+
+// Calculate bonus XP from kingdom tile bonuses (libraries, mills, etc.)
+function calculateKingdomXpBonus(baseAmount: number, grid: any[][] | null): number {
+  if (!grid || !Array.isArray(grid) || grid.length === 0) return 0;
+  try {
+    const bonuses = calculateKingdomBonuses(grid);
+    if (bonuses.xpBonusPercent > 0) {
+      return Math.floor(baseAmount * (bonuses.xpBonusPercent / 100));
+    }
+  } catch (e) {
+    logger.warn('[Experience Manager] Error calculating kingdom XP bonus:', e);
+  }
+  return 0;
 }
 
 export async function gainExperience(amount: number, source: string, category: string = 'general') {
@@ -102,14 +142,19 @@ export async function gainExperience(amount: number, source: string, category: s
     const perkBonus = calculatePerkBonus(amount, category, equippedPerks)
     let totalAmount = amount + perkBonus
 
-    // Library synergy check: +10% EXP
+    // Active potion buff bonus (e.g. Exp draught +25%)
+    const buffBonus = calculateActiveBuffBonus(amount);
+    totalAmount += buffBonus;
+
+    // Kingdom tile XP bonuses (libraries, mills, castles, daily-hub, windmill)
     try {
       const clerk = (typeof window !== 'undefined') ? ((window as any).__clerk || (window as any).Clerk || (window as any).clerk) : undefined;
       const uid = clerk?.user?.id;
       if (uid) {
         const gridData = await loadKingdomGrid(uid);
-        if (gridData && gridData.some((g: any) => g.tile && g.tile.id === 'library')) {
-          totalAmount = Math.floor(totalAmount * 1.1);
+        const kingdomXpBonus = calculateKingdomXpBonus(amount, gridData);
+        if (kingdomXpBonus > 0) {
+          totalAmount += kingdomXpBonus;
         }
       }
     } catch (e) {

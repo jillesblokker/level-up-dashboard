@@ -6,6 +6,7 @@ import { getCharacterStats, addToCharacterStat } from "@/lib/character-stats-ser
 import { createGoldGainedNotification } from "@/lib/notifications";
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { getAchievementMessage, getAchievementIdFromSource } from "@/lib/achievement-messages";
+import { getActivePerks } from '@/lib/active-perks-manager';
 
 import { formatCleanName } from "@/lib/utils";
 
@@ -15,8 +16,73 @@ export async function gainGold(amount: number, source: string, metadata?: any) {
     // Get current stats using the unified service
     const currentStats = getCharacterStats();
 
+    // Apply active Gold surge potion buff (+20% habit gold)
+    let bonusAmount = 0;
+    try {
+      const activePerks = getActivePerks();
+      const now = new Date();
+      for (const perk of activePerks) {
+        if (new Date(perk.expires_at) <= now) continue;
+        if (perk.perk_name === 'Gold surge' || perk.effect?.includes('+20% habit gold')) {
+          bonusAmount += Math.floor(amount * 0.20);
+          break;
+        }
+      }
+    } catch (e) {
+      logger.warn('[Gold Manager] Error reading active buffs:', e);
+    }
+
+    // Apply character perk bonus (+10% gold per perk level for matching category)
+    const category = metadata?.category || (typeof metadata === 'string' ? metadata : undefined);
+    if (category) {
+      try {
+        const savedPerks = localStorage.getItem("character-perks");
+        if (savedPerks) {
+          const parsed = JSON.parse(savedPerks);
+          const equippedPerks = parsed.filter((p: any) => p.active || p.unlocked);
+          const cat = category.toLowerCase();
+          for (const perk of equippedPerks) {
+            let pct = 0;
+            const lvl = perk.level || 1;
+            if (perk.id === 'perk-might' && cat === 'might') pct = lvl * 10;
+            if (perk.id === 'perk-knowledge' && cat === 'knowledge') pct = lvl * 10;
+            if (perk.id === 'perk-honor' && cat === 'honor') pct = lvl * 10;
+            if (perk.id === 'perk-castle' && cat === 'castle') pct = lvl * 10;
+            if (perk.id === 'perk-craft' && cat === 'craft') pct = lvl * 10;
+            if (perk.id === 'perk-vitality' && (cat === 'vitality' || cat === 'wellness')) pct = lvl * 10;
+            if (pct > 0) {
+              bonusAmount += Math.floor(amount * (pct / 100));
+            }
+          }
+        }
+      } catch (e) {
+        logger.warn('[Gold Manager] Error reading character perks for gold bonus:', e);
+      }
+    }
+
+    // Apply kingdom gold bonus (from markets, castles, mansions)
+    try {
+      const { calculateKingdomBonuses } = await import('@/lib/kingdom-utils');
+      const { loadKingdomGrid } = await import('@/lib/supabase-persistence-client');
+      const clerk = (typeof window !== 'undefined') ? ((window as any).__clerk || (window as any).Clerk || (window as any).clerk) : undefined;
+      const uid = clerk?.user?.id;
+      if (uid) {
+        const gridData = await loadKingdomGrid(uid);
+        if (gridData && Array.isArray(gridData) && gridData.length > 0) {
+          const bonuses = calculateKingdomBonuses(gridData);
+          if (bonuses.goldBonusPercent > 0) {
+            bonusAmount += Math.floor(amount * (bonuses.goldBonusPercent / 100));
+          }
+        }
+      }
+    } catch (e) {
+      logger.warn('[Gold Manager] Error calculating kingdom gold bonus:', e);
+    }
+
+    const totalAmount = amount + bonusAmount;
+
     // Add gold using the unified service (handles validation and syncing)
-    addToCharacterStat('gold', amount, source);
+    addToCharacterStat('gold', totalAmount, source);
 
     // Log transaction to database for audit trail
     const newBalance = currentStats.gold + amount;

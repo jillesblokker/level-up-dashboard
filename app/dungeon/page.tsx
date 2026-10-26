@@ -39,9 +39,16 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, Sparkles } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { getCharacterStats, addToCharacterStat } from '@/lib/character-stats-service';
 import { toast } from '@/components/ui/use-toast';
+import { gainGold } from '@/lib/gold-manager';
+import {
+  initBountyProgress,
+  loadBountyProgress,
+  recordBountyKill,
+  claimBountyReward,
+  type BountyProgress
+} from '@/lib/bounty-tracker';
 
 interface Loot {
   type: string;
@@ -252,12 +259,29 @@ export default function DungeonPage() {
   const { getToken, userId } = useAuth();
   const [elementBuffs, setElementBuffs] = useState<Record<string, number>>({});
   const [buildingBuffs, setBuildingBuffs] = useState<{ atkBuff: number, healingBuff: number }>({ atkBuff: 0, healingBuff: 0 });
+  const [bountyProgress, setBountyProgress] = useState<BountyProgress[]>(() => {
+    return initBountyProgress(getDailyDungeonBounties());
+  });
+  const [habitCategoryCounts, setHabitCategoryCounts] = useState<Record<string, number>>({});
   const [activePet, setActivePet] = useState<{ id: string; name: string; emoji: string; skill: string }>({
     id: 'ember-drake',
     name: 'Ember Drake',
     emoji: '🐉',
     skill: 'Flame breath (45 AOE fire DMG)'
   });
+
+  const handleClaimBounty = (bountyId: string) => {
+    const reward = claimBountyReward(bountyId);
+    if (reward) {
+      gainGold(reward.gold, 'dungeon-bounty');
+      addToCharacterStat('gems', reward.gems, 'dungeon-bounty');
+      setBountyProgress(loadBountyProgress());
+      toast({
+        title: "Bounty claimed",
+        description: `Collected +${reward.gems} gems and +${reward.gold} gold!`,
+      });
+    }
+  };
 
   // Consumable inventory counters for dungeon survival
   const [healthPotionsCount, setHealthPotionsCount] = useState<number>(0);
@@ -413,12 +437,20 @@ export default function DungeonPage() {
           const buffs: Record<string, number> = {
             Fire: 0, Water: 0, Rock: 0, Grass: 0, Ice: 0
           };
+          const catCounts: Record<string, number> = {
+            might: 0, knowledge: 0, wellness: 0, honor: 0, vitality: 0, craft: 0, castle: 0
+          };
           
           todaysCompleted.forEach((q: any) => {
             const el = getHabitElementMapping(q.category);
             buffs[el] = (buffs[el] || 0) + 1;
+            const cat = String(q.category || '').toLowerCase();
+            if (cat in catCounts) {
+              catCounts[cat] = (catCounts[cat] || 0) + 1;
+            }
           });
           setElementBuffs(buffs);
+          setHabitCategoryCounts(catCounts);
         }
 
         // Fetch Kingdom Grid
@@ -831,7 +863,11 @@ export default function DungeonPage() {
 
     const logEntries: string[] = [];
 
-    // 1. Calculate Base Stats
+    // 1. Calculate Base Stats and real habit multipliers
+    const mightMultiplier = Math.min(0.25, ((habitCategoryCounts['might'] || 0) * 5) / 100);
+    const honorMultiplier = Math.min(0.25, ((habitCategoryCounts['honor'] || 0) * 5) / 100);
+    const knowledgeMultiplier = Math.min(0.25, ((habitCategoryCounts['knowledge'] || 0) * 5) / 100);
+
     const elementalHabitBuff = (elementBuffs[activeFighter.type] || 0) * 2;
     const buildingAtkBuff = buildingBuffs.atkBuff;
     const heroGear = getEquippedGearStats();
@@ -840,14 +876,16 @@ export default function DungeonPage() {
     const heroSpdBuff = Math.round((heroGear?.spd || 0) * 0.25);
 
     const playerSpd = activeFighter.stats.spd + heroSpdBuff;
-    const playerDef = activeFighter.stats.def + heroDefBuff;
-    let playerAtk = activeFighter.stats.atk + (Math.floor(Math.random() * 5)) + elementalHabitBuff + buildingAtkBuff + heroAtkBuff;
+    const playerDef = Math.round((activeFighter.stats.def + heroDefBuff) * (1 + honorMultiplier));
+    let playerAtk = Math.round((activeFighter.stats.atk + (Math.floor(Math.random() * 5)) + elementalHabitBuff + buildingAtkBuff + heroAtkBuff) * (1 + mightMultiplier));
 
     // Enemy stats
     const enemySpd = enemyDef.stats.spd;
     let enemyDefStat = enemyDef.stats.def;
     let enemyAtk = enemyDef.stats.atk + (Math.floor(Math.random() * 5));
 
+    if (mightMultiplier > 0) logEntries.push(`⚔️ Might habits empower your strikes! (+${Math.round(mightMultiplier * 100)}% ATK)`);
+    if (honorMultiplier > 0) logEntries.push(`🛡️ Honor habits harden your defenses! (+${Math.round(honorMultiplier * 100)}% DEF)`);
     if (elementalHabitBuff > 0) logEntries.push(`✨ Daily habits empower ${activeFighter.name}! (+${elementalHabitBuff} ATK)`);
     if (buildingAtkBuff > 0) logEntries.push(`⚔️ Blacksmith sharpens your attack! (+${buildingAtkBuff} ATK)`);
     if ((heroAtkBuff > 0 || heroDefBuff > 0) && battleLog.length === 0) {
@@ -891,10 +929,15 @@ export default function DungeonPage() {
       enemyDefStat = Math.floor(enemyDefStat * 0.6);
       playerAtk = Math.floor(playerAtk * sigMove.multiplier);
       const critMult = isPlayerCrit ? 1.8 : 1.0;
-      playerFinalDmg = Math.max(1, Math.floor((playerAtk * playerTypeMult * critMult) - (enemyDefStat * 0.3)));
+      let rawSigDmg = Math.max(1, Math.floor((playerAtk * playerTypeMult * critMult) - (enemyDefStat * 0.3)));
+      if (knowledgeMultiplier > 0) {
+        rawSigDmg = Math.round(rawSigDmg * (1 + knowledgeMultiplier));
+      }
+      playerFinalDmg = rawSigDmg;
       setMonsterStatus(prev => ({ ...prev, burnTurns: 3 }));
 
       logEntries.push(`🔱 ${activeFighter.name} unleashes Tier Skill ${sigMove.emoji} ${sigMove.name}! ${isPlayerCrit ? '💥 CRITICAL OVERLORD!' : ''}`);
+      if (knowledgeMultiplier > 0) logEntries.push(`🔮 Knowledge habits amplify spell power! (+${Math.round(knowledgeMultiplier * 100)}% DMG)`);
       logEntries.push(`Dealt ${playerFinalDmg} ${activeFighter.type} signature damage to ${enemyDef.name}! 🔥 Inflicted 3 Turns of Burn!`);
     } else if (actionType === 'elemental') {
       const spell = getElementalSpell(activeFighter.type);
@@ -903,10 +946,15 @@ export default function DungeonPage() {
       enemyDefStat = Math.floor(enemyDefStat * 0.7);
       playerAtk = Math.floor(playerAtk * 1.4);
       const critMult = isPlayerCrit ? 1.6 : 1.0;
-      playerFinalDmg = Math.max(1, Math.floor((playerAtk * playerTypeMult * critMult) - (enemyDefStat * 0.4)));
+      let rawElemDmg = Math.max(1, Math.floor((playerAtk * playerTypeMult * critMult) - (enemyDefStat * 0.4)));
+      if (knowledgeMultiplier > 0) {
+        rawElemDmg = Math.round(rawElemDmg * (1 + knowledgeMultiplier));
+      }
+      playerFinalDmg = rawElemDmg;
       setMonsterStatus(prev => ({ ...prev, burnTurns: 2 }));
 
       logEntries.push(`✨ ${activeFighter.name} unleashes ${spell.emoji} ${spell.name}! ${isPlayerCrit ? '💥 CRITICAL OVERLOAD!' : ''}`);
+      if (knowledgeMultiplier > 0) logEntries.push(`🔮 Knowledge habits amplify spell power! (+${Math.round(knowledgeMultiplier * 100)}% DMG)`);
       logEntries.push(`Dealt ${playerFinalDmg} ${activeFighter.type} elemental damage to ${enemyDef.name}! 🔥 Applied Burn DoT!`);
     } else if (actionType === 'counter') {
       logEntries.push(`🛡️ ${activeFighter.name} adopts a Counter Guard stance!`);
@@ -1004,6 +1052,17 @@ export default function DungeonPage() {
     const isTeamDefeated = totalTeamHpAfterDamage <= 0;
 
     if (newMonsterHp <= 0) {
+      // Record bounty kill
+      const completedBounty = recordBountyKill(enemyDef.type);
+      setBountyProgress(loadBountyProgress());
+      if (completedBounty) {
+        logEntries.push(`🎯 Daily bounty complete! Vanquished 2 ${completedBounty.targetType} monsters! Claim your reward in the Bounty drawer!`);
+        toast({
+          title: "Daily bounty completed",
+          description: `Vanquished required ${completedBounty.targetType} monsters! Claim +${completedBounty.rewardGems} gems and +${completedBounty.rewardGold} gold!`,
+        });
+      }
+
       const loot = generateLoot(run.currentRoom);
       let newLoot = loot ? [...run.lootCollected, loot] : run.lootCollected;
 
@@ -1513,26 +1572,42 @@ export default function DungeonPage() {
                   <div className="bg-zinc-950/90 p-3.5 rounded-xl border border-red-500/30 text-center space-y-1 hover:border-red-500/50 transition-colors shadow-sm">
                     <div className="text-xl">⚔️</div>
                     <div className="text-xs font-semibold text-zinc-200">Might</div>
-                    <div className="font-mono text-xs font-bold text-red-400">+15% ATK</div>
-                    <span className="text-[9px] text-zinc-500 font-mono block">Habit buff</span>
+                    <div className="font-mono text-xs font-bold text-red-400">
+                      +{Math.min(25, (habitCategoryCounts['might'] || 0) * 5)}% ATK
+                    </div>
+                    <span className="text-[9px] text-zinc-500 font-mono block">
+                      {habitCategoryCounts['might'] || 0} completed today
+                    </span>
                   </div>
                   <div className="bg-zinc-950/90 p-3.5 rounded-xl border border-blue-500/30 text-center space-y-1 hover:border-blue-500/50 transition-colors shadow-sm">
                     <div className="text-xl">🔮</div>
                     <div className="text-xs font-semibold text-zinc-200">Knowledge</div>
-                    <div className="font-mono text-xs font-bold text-blue-400">+10% spell</div>
-                    <span className="text-[9px] text-zinc-500 font-mono block">Habit buff</span>
+                    <div className="font-mono text-xs font-bold text-blue-400">
+                      +{Math.min(25, (habitCategoryCounts['knowledge'] || 0) * 5)}% spell
+                    </div>
+                    <span className="text-[9px] text-zinc-500 font-mono block">
+                      {habitCategoryCounts['knowledge'] || 0} completed today
+                    </span>
                   </div>
                   <div className="bg-zinc-950/90 p-3.5 rounded-xl border border-emerald-500/30 text-center space-y-1 hover:border-emerald-500/50 transition-colors shadow-sm">
                     <div className="text-xl">🧘</div>
                     <div className="text-xs font-semibold text-zinc-200">Wellness</div>
-                    <div className="font-mono text-xs font-bold text-emerald-400">+10% HP</div>
-                    <span className="text-[9px] text-zinc-500 font-mono block">Habit buff</span>
+                    <div className="font-mono text-xs font-bold text-emerald-400">
+                      +{Math.min(25, ((habitCategoryCounts['wellness'] || 0) + (habitCategoryCounts['vitality'] || 0)) * 5)}% HP
+                    </div>
+                    <span className="text-[9px] text-zinc-500 font-mono block">
+                      {((habitCategoryCounts['wellness'] || 0) + (habitCategoryCounts['vitality'] || 0))} completed today
+                    </span>
                   </div>
                   <div className="bg-zinc-950/90 p-3.5 rounded-xl border border-yellow-500/30 text-center space-y-1 hover:border-yellow-500/50 transition-colors shadow-sm">
                     <div className="text-xl">👑</div>
                     <div className="text-xs font-semibold text-zinc-200">Honor</div>
-                    <div className="font-mono text-xs font-bold text-amber-300">+5% def</div>
-                    <span className="text-[9px] text-zinc-500 font-mono block">Habit buff</span>
+                    <div className="font-mono text-xs font-bold text-amber-300">
+                      +{Math.min(25, (habitCategoryCounts['honor'] || 0) * 5)}% def
+                    </div>
+                    <span className="text-[9px] text-zinc-500 font-mono block">
+                      {habitCategoryCounts['honor'] || 0} completed today
+                    </span>
                   </div>
                 </div>
               </div>
@@ -1667,7 +1742,7 @@ export default function DungeonPage() {
                     <h2 className="text-sm sm:text-base font-bold text-white">Active daily bounties</h2>
                   </div>
                   <Badge variant="outline" className="text-[10px] font-mono border-purple-500/40 text-purple-300 bg-purple-950/40">
-                    3 active
+                    {bountyProgress.filter(b => !b.claimed).length} active
                   </Badge>
                 </div>
                 <p className="text-xs text-zinc-400">
@@ -1675,23 +1750,48 @@ export default function DungeonPage() {
                 </p>
 
                 <div className="flex flex-col gap-3 pt-1">
-                  {getDailyDungeonBounties().map(bounty => (
-                    <div key={bounty.id} className="bg-zinc-950/90 p-3.5 rounded-xl border border-purple-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:border-purple-500/40 transition-colors shadow-sm">
-                      <div className="space-y-1 min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-sm text-amber-300">{bounty.title}</span>
-                          <span className="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30 font-mono shrink-0">
-                            {getTypeEmoji(bounty.targetType)} {bounty.targetType}
-                          </span>
+                  {bountyProgress.map(bounty => {
+                    const isReady = bounty.currentKills >= bounty.requiredKills && !bounty.claimed;
+                    return (
+                      <div key={bounty.bountyId} className="bg-zinc-950/90 p-3.5 rounded-xl border border-purple-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:border-purple-500/40 transition-colors shadow-sm">
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-sm text-amber-300">{bounty.targetType} hunt</span>
+                            <span className="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30 font-mono shrink-0">
+                              {getTypeEmoji(bounty.targetType)} {bounty.targetType}
+                            </span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
+                              bounty.claimed
+                                ? 'bg-zinc-800 text-zinc-400'
+                                : isReady
+                                ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40 animate-pulse'
+                                : 'bg-purple-950/80 text-purple-300'
+                            }`}>
+                              {bounty.claimed ? 'Claimed ✓' : `${bounty.currentKills}/${bounty.requiredKills} kills`}
+                            </span>
+                          </div>
+                          <p className="text-xs text-zinc-400 leading-relaxed">
+                            Defeat {bounty.requiredKills} {bounty.targetType} element monsters in the dungeon keep.
+                          </p>
                         </div>
-                        <p className="text-xs text-zinc-400 leading-relaxed">{bounty.description}</p>
+                        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 font-mono text-xs shrink-0 pt-1.5 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-purple-300 font-bold">💎 +{bounty.rewardGems} gems</span>
+                            <span className="text-amber-400 font-bold">🪙 +{bounty.rewardGold} gold</span>
+                          </div>
+                          {isReady && (
+                            <Button
+                              size="sm"
+                              onClick={() => handleClaimBounty(bounty.bountyId)}
+                              className="h-7 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg shadow-sm"
+                            >
+                              Claim reward
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1 font-mono text-xs shrink-0 pt-1.5 sm:pt-0 border-t sm:border-t-0 border-white/5">
-                        <span className="text-purple-300 font-bold">💎 +{bounty.rewardGems} gems</span>
-                        <span className="text-amber-400 font-bold">🪙 +{bounty.rewardGold} gold</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -1806,7 +1906,7 @@ export default function DungeonPage() {
               onClick={() => setShowBounties(!showBounties)}
               className="text-xs font-bold border-purple-500/40 text-purple-300 bg-purple-950/30 hover:bg-purple-900/50 h-8 rounded-xl"
             >
-              🎯 Daily bounties (3 active) {showBounties ? '▲' : '▼'}
+              🎯 Daily bounties ({bountyProgress.filter(b => !b.claimed).length} active) {showBounties ? '▲' : '▼'}
             </Button>
             <Button
               variant="ghost"
@@ -1827,23 +1927,50 @@ export default function DungeonPage() {
               <span className="text-[10px] text-zinc-400">Vanquish monsters for bonus gems & gold</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {getDailyDungeonBounties().map(bounty => (
-                <div key={bounty.id} className="bg-zinc-950/90 p-3 rounded-xl border border-purple-900/40 flex flex-col justify-between text-xs space-y-2">
-                  <div>
-                    <div className="flex items-center justify-between font-bold text-amber-300">
-                      <span>{bounty.title}</span>
-                      <span className="text-[10px] bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30 font-mono">
-                        {getTypeEmoji(bounty.targetType)} {bounty.targetType}
-                      </span>
+              {bountyProgress.map(bounty => {
+                const isReady = bounty.currentKills >= bounty.requiredKills && !bounty.claimed;
+                return (
+                  <div key={bounty.bountyId} className="bg-zinc-950/90 p-3 rounded-xl border border-purple-900/40 flex flex-col justify-between text-xs space-y-2">
+                    <div>
+                      <div className="flex items-center justify-between font-bold text-amber-300">
+                        <span>{bounty.targetType} hunt</span>
+                        <span className="text-[10px] bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30 font-mono">
+                          {getTypeEmoji(bounty.targetType)} {bounty.targetType}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-zinc-400 mt-1 leading-snug">
+                        Defeat {bounty.requiredKills} {bounty.targetType} monsters in the dungeon keep.
+                      </p>
+                      <div className="mt-2">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
+                          bounty.claimed
+                            ? 'bg-zinc-800 text-zinc-400'
+                            : isReady
+                            ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40 animate-pulse'
+                            : 'bg-purple-950/80 text-purple-300'
+                        }`}>
+                          {bounty.claimed ? 'Claimed ✓' : `${bounty.currentKills}/${bounty.requiredKills} kills`}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-[11px] text-zinc-400 mt-1 leading-snug">{bounty.description}</p>
+                    <div className="flex items-center justify-between pt-1 border-t border-white/5 font-mono text-[11px]">
+                      <div className="flex items-center gap-2">
+                        <span className="text-purple-300 font-bold">💎 +{bounty.rewardGems}</span>
+                        <span className="text-amber-400 font-bold">🪙 +{bounty.rewardGold}</span>
+                      </div>
+                      {isReady && (
+                        <Button
+                          size="sm"
+                          onClick={() => handleClaimBounty(bounty.bountyId)}
+                          className="h-6 px-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] rounded shadow-sm"
+                        >
+                          Claim
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between pt-1 border-t border-white/5 font-mono text-[11px]">
-                    <span className="text-purple-300 font-bold">💎 +{bounty.rewardGems} gems</span>
-                    <span className="text-amber-400 font-bold">🪙 +{bounty.rewardGold} gold</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

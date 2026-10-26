@@ -24,11 +24,11 @@ export function KingdomBonusesBlock({ grid, className }: KingdomBonusesBlockProp
     if (!bonuses) return null;
 
     const bonusItems = [
-        { label: 'Might Bonus', value: bonuses.strength, icon: Sword, color: 'text-red-400', bg: 'bg-red-400/10' },
-        { label: 'Intelligence Bonus', value: bonuses.intelligence, icon: Brain, color: 'text-blue-400', bg: 'bg-blue-400/10' },
-        { label: 'Vitality Bonus', value: bonuses.vitality, icon: Heart, color: 'text-green-400', bg: 'bg-green-400/10' },
-        { label: 'XP Multiplier', value: `+${bonuses.xpBonusPercent}%`, icon: TrendingUp, color: 'text-purple-400', bg: 'bg-purple-400/10' },
-        { label: 'Gold Multiplier', value: `+${bonuses.goldBonusPercent}%`, icon: Coins, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
+        { label: 'Might bonus', value: bonuses.strength, icon: Sword, color: 'text-red-400', bg: 'bg-red-400/10' },
+        { label: 'Intelligence bonus', value: bonuses.intelligence, icon: Brain, color: 'text-blue-400', bg: 'bg-blue-400/10' },
+        { label: 'Vitality bonus', value: bonuses.vitality, icon: Heart, color: 'text-green-400', bg: 'bg-green-400/10' },
+        { label: 'XP multiplier', value: `+${bonuses.xpBonusPercent}%`, icon: TrendingUp, color: 'text-purple-400', bg: 'bg-purple-400/10' },
+        { label: 'Gold multiplier', value: `+${bonuses.goldBonusPercent}%`, icon: Coins, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
     ].filter(item => typeof item.value === 'number' ? item.value > 0 : parseInt(item.value) > 0);
 
     if (bonusItems.length === 0) return null;
@@ -37,7 +37,7 @@ export function KingdomBonusesBlock({ grid, className }: KingdomBonusesBlockProp
         <Card className={cn("bg-zinc-950 border-amber-900/30", className)}>
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-bold text-amber-500 uppercase tracking-widest flex items-center gap-2">
-                    <Shield className="w-4 h-4" /> Kingdom Passive Bonuses
+                    <Shield className="w-4 h-4" /> Kingdom passive bonuses
                 </CardTitle>
             </CardHeader>
             <CardContent>
