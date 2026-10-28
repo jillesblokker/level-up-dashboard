@@ -244,6 +244,8 @@ export default function DungeonPage() {
   const [cooldowns, setCooldowns] = useState<{ burst: number; signature: number; guard: number; status: number }>({ burst: 0, signature: 0, guard: 0, status: 0 });
   const [petStrikerUsed, setPetStrikerUsed] = useState(false);
   const [monsterStatus, setMonsterStatus] = useState<MonsterStatusState>({ burnTurns: 0, sleepTurns: 0, confusionTurns: 0 });
+  const [isEnemyFainting, setIsEnemyFainting] = useState(false);
+  const [isPlayerFainting, setIsPlayerFainting] = useState(false);
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const [bossDualDrop, setBossDualDrop] = useState<{
     blueprint: { name: string; img: string; desc: string; tileId?: string | undefined } | null;
@@ -808,7 +810,7 @@ export default function DungeonPage() {
   };
 
   const fight = (actionType: 'strike' | 'elemental' | 'counter' | 'signature' | 'status' | 'potion' = 'strike') => {
-    if (!run || run.currentEncounter.type !== 'monster' || !selectedCreature) return;
+    if (!run || run.currentEncounter.type !== 'monster' || !selectedCreature || isProcessing) return;
 
     if (actionType === 'potion') {
       if (healthPotionsCount <= 0) {
@@ -829,21 +831,23 @@ export default function DungeonPage() {
 
     // Check skill cooldowns
     if (actionType === 'elemental' && cooldowns.burst > 0) {
-      toast({ title: "⏳ Skill on Cooldown!", description: `Elemental Burst requires ${cooldowns.burst} more turn(s).`, variant: "destructive" });
+      toast({ title: "⏳ Skill on cooldown", description: `Elemental burst requires ${cooldowns.burst} more turn(s).`, variant: "destructive" });
       return;
     }
     if (actionType === 'signature' && cooldowns.signature > 0) {
-      toast({ title: "⏳ Skill on Cooldown!", description: `Signature Move requires ${cooldowns.signature} more turn(s).`, variant: "destructive" });
+      toast({ title: "⏳ Skill on cooldown", description: `Signature move requires ${cooldowns.signature} more turn(s).`, variant: "destructive" });
       return;
     }
     if (actionType === 'counter' && cooldowns.guard > 0) {
-      toast({ title: "⏳ Skill on Cooldown!", description: `Counter Guard requires ${cooldowns.guard} more turn(s).`, variant: "destructive" });
+      toast({ title: "⏳ Skill on cooldown", description: `Counter guard requires ${cooldowns.guard} more turn(s).`, variant: "destructive" });
       return;
     }
     if (actionType === 'status' && cooldowns.status > 0) {
-      toast({ title: "⏳ Skill on Cooldown!", description: `Status Skill requires ${cooldowns.status} more turn(s).`, variant: "destructive" });
+      toast({ title: "⏳ Skill on cooldown", description: `Status skill requires ${cooldowns.status} more turn(s).`, variant: "destructive" });
       return;
     }
+
+    setIsProcessing(true);
 
     // Update cooldowns state
     setCooldowns(prev => ({
@@ -856,10 +860,16 @@ export default function DungeonPage() {
     const enemyId = run.currentEncounter.creatureId || '001';
     const enemyDef = CREATURE_DATA[enemyId];
 
-    if (!enemyDef) return;
+    if (!enemyDef) {
+      setIsProcessing(false);
+      return;
+    }
 
     const activeFighter = run.party.find(c => c.id === selectedCreature.id);
-    if (!activeFighter || activeFighter.hp <= 0) return;
+    if (!activeFighter || activeFighter.hp <= 0) {
+      setIsProcessing(false);
+      return;
+    }
 
     const logEntries: string[] = [];
 
@@ -978,17 +988,241 @@ export default function DungeonPage() {
 
     const newMonsterHp = Math.max(0, (run.currentEncounter.hp || 0) - playerFinalDmg - burnDmg);
 
-    // 5. Enemy Retaliation Resolution (Sleep, Confusion Check)
-    if (newMonsterHp > 0) {
+    // Apply immediate healing to player fighter if potion / status skill was used
+    const partyWithPlayerHeal = run.party.map(c => {
+      if (c.id === selectedCreature.id && healAmount > 0) {
+        return { ...c, hp: Math.min(c.maxHp, c.hp + healAmount) };
+      }
+      return c;
+    });
+
+    // 1. Immediately land player strike: update logs and lower enemy HP
+    // The CSS transition-[width] duration-700 smoothly drains the enemy HP bar!
+    setBattleLog(prev => [...prev, ...logEntries]);
+    setRun(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        party: partyWithPlayerHeal,
+        currentEncounter: {
+          ...prev.currentEncounter,
+          hp: newMonsterHp
+        }
+      };
+    });
+
+    // BRANCH A: Enemy Defeated
+    if (newMonsterHp <= 0) {
+      // Allow 750ms for the health bar to visibly drain all the way to 0 before shatter & victory
+      setTimeout(() => {
+        setIsEnemyFainting(true);
+        setMonsterStatus({ burnTurns: 0, sleepTurns: 0, confusionTurns: 0 });
+
+        const victoryLogs: string[] = [`🏆 ${enemyDef.name} fainted! Victory!`];
+
+        // Record bounty kill
+        const completedBounty = recordBountyKill(enemyDef.type);
+        setBountyProgress(loadBountyProgress());
+        if (completedBounty) {
+          victoryLogs.push(`🎯 Daily bounty complete! Vanquished 2 ${completedBounty.targetType} monsters! Claim your reward in the Bounty drawer!`);
+          toast({
+            title: "Daily bounty completed",
+            description: `Vanquished required ${completedBounty.targetType} monsters! Claim +${completedBounty.rewardGems} gems and +${completedBounty.rewardGold} gold!`,
+          });
+        }
+
+        const loot = generateLoot(run.currentRoom);
+        let newLoot = loot ? [...run.lootCollected, loot] : run.lootCollected;
+        if (loot) victoryLogs.push(`✨ Loot found: ${loot.name}`);
+
+        // BOSS DUAL DROPS: Tiered Kingdom Blueprints AND Apotheca Potion Brewing Reagents on Boss Floors (every 5 rooms)
+        if (run.currentRoom % 5 === 0) {
+          const floorTier = Math.floor(run.currentRoom / 5);
+          
+          const TIER_DROPS: Record<number, {
+            blueprint: { name: string; img: string; desc: string; tileId: string };
+            reagent: { name: string; id: string; emoji: string; desc: string; qty: number };
+          }> = {
+            1: {
+              blueprint: { name: 'Blueprint: Serene Lake', img: '/images/kingdom-tiles/SereneLake.webp', desc: 'Unlocks serene water canal tiles for your realm sandbox (+10 DEF).', tileId: 'serene_lake' },
+              reagent: { name: 'Deeproot Moss', id: 'material-deeproot', emoji: '🌿', desc: 'Rare botanical moss for Apotheca vitality brewing.', qty: 2 }
+            },
+            2: {
+              blueprint: { name: 'Blueprint: Waterway Canal', img: '/images/kingdom-tiles/WaterwayCanal.webp', desc: 'Unlocks capital water trade canals (+30% Tax Gold).', tileId: 'waterway_canal' },
+              reagent: { name: 'Astral Shard', id: 'material-astral-shard', emoji: '🌌', desc: 'Glowing starlight crystal for Apotheca EXP elixirs.', qty: 2 }
+            },
+            3: {
+              blueprint: { name: 'Blueprint: Crystal Cascades', img: '/images/kingdom-tiles/CrystalCavern.webp', desc: 'Unlocks glowing crystal waterfall tiles (+20 ATK, +20 DEF).', tileId: 'crystal_cascades' },
+              reagent: { name: 'Abyssal Pearl', id: 'material-abyssal-pearl', emoji: '🦪', desc: 'Deep sea pearl for Apotheca fortune and gem draughts.', qty: 2 }
+            },
+            4: {
+              blueprint: { name: 'Blueprint: Astral Citadel', img: '/images/kingdom-tiles/AstralCitadelMonument.webp', desc: 'Unlocks celestial star tower sanctuary (+35 ATK, +35 DEF).', tileId: 'astral_citadel' },
+              reagent: { name: 'Dragon Scale', id: 'material-dragon-scale', emoji: '🐉', desc: 'Molten wyrm scale for Apotheca dragon vigor max HP brews.', qty: 2 }
+            }
+          };
+
+          const tierData = TIER_DROPS[floorTier] || TIER_DROPS[4]!;
+          const bp = tierData.blueprint;
+          const reagent = tierData.reagent;
+
+          let isFirstClear = false;
+          let clearedBossFloors: number[] = [];
+          try {
+            clearedBossFloors = JSON.parse(localStorage.getItem('thrivehaven_cleared_boss_floors') || '[]');
+            if (!clearedBossFloors.includes(run.currentRoom)) {
+              isFirstClear = true;
+              clearedBossFloors.push(run.currentRoom);
+              localStorage.setItem('thrivehaven_cleared_boss_floors', JSON.stringify(clearedBossFloors));
+            }
+          } catch {}
+
+          const rollBlueprint = isFirstClear || Math.random() < 0.25;
+          let isDuplicate = false;
+          let blueprintDrop: any = null;
+
+          if (rollBlueprint) {
+            try {
+              const unlockedBps = JSON.parse(localStorage.getItem('thrivehaven_unlocked_blueprints') || '[]');
+              if (unlockedBps.includes(bp.name) || unlockedBps.includes(bp.tileId)) {
+                isDuplicate = true;
+              } else {
+                unlockedBps.push(bp.name);
+                unlockedBps.push(bp.tileId);
+                localStorage.setItem('thrivehaven_unlocked_blueprints', JSON.stringify(unlockedBps));
+              }
+            } catch {}
+
+            blueprintDrop = isDuplicate ? {
+              type: 'gold',
+              name: "Royal Architect's Bounty (+250 Gold)",
+              amount: 250,
+              starRating: 3
+            } : {
+              type: 'item',
+              name: bp.name,
+              itemId: bp.tileId,
+              itemStats: { def: 15, atk: 15 },
+              starRating: 4
+            };
+          } else {
+            blueprintDrop = {
+              type: 'gold',
+              name: "Keep Conqueror's Cache (+150 Gold)",
+              amount: 150,
+              starRating: 2
+            };
+          }
+
+          const reagentDrop = {
+            type: 'item',
+            name: `${reagent.name} (x${reagent.qty})`,
+            itemId: reagent.id,
+            quantity: reagent.qty,
+            itemStats: {},
+            starRating: 3
+          };
+
+          newLoot = [...newLoot, blueprintDrop, reagentDrop];
+
+          if (typeof window !== 'undefined') {
+            import('@/lib/inventory-manager').then(({ addToInventory }) => {
+              if (userId) {
+                addToInventory(userId, {
+                  id: reagent.id,
+                  name: reagent.name,
+                  type: 'material',
+                  category: 'material',
+                  quantity: reagent.qty,
+                  emoji: reagent.emoji,
+                  image: `/images/items/materials/${reagent.id}.webp`,
+                  description: reagent.desc
+                } as any).catch(() => {});
+              }
+            }).catch(() => {});
+          }
+
+          setBossDualDrop({
+            blueprint: rollBlueprint ? bp : null,
+            isDuplicate,
+            isFirstClear,
+            bountyAmount: rollBlueprint ? (isDuplicate ? 250 : undefined) : 150,
+            reagent
+          });
+
+          const dropText = isFirstClear
+            ? `🏆 FIRST CLEAR DUAL DROPS: ${bp.name} AND ${reagent.name} (x${reagent.qty})!`
+            : isDuplicate
+              ? `🏰 BOSS REPEAT CLEAR: Royal Architect's Bounty (+250g) AND ${reagent.name} (x${reagent.qty})!`
+              : rollBlueprint
+                ? `🏰 BOSS DUAL DROPS: ${bp.name} AND ${reagent.name} (x${reagent.qty})!`
+                : `🏰 BOSS CLEAR: Keep Conqueror's Cache (+150g) AND ${reagent.name} (x${reagent.qty})!`;
+
+          victoryLogs.push(dropText);
+
+          toast({
+            title: isFirstClear ? "🏆 First clear: Boss keep conquered!" : "🏆 Boss keep cleared!",
+            description: isFirstClear
+              ? `Unlocked ${bp.name} & harvested ${reagent.name} (x${reagent.qty}) for the Grand Apotheca!`
+              : `Defeated room ${run.currentRoom} boss! Harvested ${reagent.name} (x${reagent.qty}) & bonus gold!`,
+          });
+        }
+
+        setBattleLog(prev => [...prev, ...victoryLogs]);
+
+        setTimeout(() => {
+          setIsEnemyFainting(false);
+          setIsProcessing(false);
+
+          const totalTeamHp = partyWithPlayerHeal.reduce((sum, member) => sum + member.hp, 0);
+
+          if (run.currentRoom >= run.maxRooms) {
+            completeRun({
+              ...run,
+              party: partyWithPlayerHeal,
+              currentHp: totalTeamHp,
+              lootCollected: newLoot,
+              status: 'completed'
+            });
+          } else {
+            const nextEncounter = generateEncounter(run.currentRoom + 1);
+            setRun({
+              ...run,
+              party: partyWithPlayerHeal,
+              currentHp: totalTeamHp,
+              currentRoom: run.currentRoom + 1,
+              lootCollected: newLoot,
+              currentEncounter: nextEncounter
+            });
+
+            const nextEnemyId = nextEncounter.creatureId || '001';
+            const nextEnemyDef = CREATURE_DATA[nextEnemyId];
+            let advMessage = 'Victorious! Keep your active fighter or swap squad member?';
+            if (nextEnemyDef) {
+              const nextMult = getMatchupMultiplier(selectedCreature.type, nextEnemyDef.type);
+              if (nextMult > 1) advMessage = `Victorious! ${selectedCreature.name} (${selectedCreature.type}) has strong advantage vs ${nextEnemyDef.name} (${nextEnemyDef.type})!`;
+              else if (nextMult < 1) advMessage = `Victorious! Warning: ${selectedCreature.name} (${selectedCreature.type}) is weak vs ${nextEnemyDef.name} (${nextEnemyDef.type})! Consider swapping!`;
+            }
+            setMessage(advMessage);
+          }
+        }, 850);
+      }, 750);
+      return;
+    }
+
+    // BRANCH B: Enemy Survived -> Enemy Retaliates after player attack lands
+    setTimeout(() => {
+      const enemyLogs: string[] = [];
+      let enemyFinalDmg = 0;
+
       if (monsterStatus.sleepTurns > 0) {
-        logEntries.push(`💤 ${enemyDef.name} is fast asleep and skips its turn!`);
+        enemyLogs.push(`💤 ${enemyDef.name} is fast asleep and skips its turn!`);
         setMonsterStatus(prev => ({ ...prev, sleepTurns: Math.max(0, prev.sleepTurns - 1) }));
       } else if (monsterStatus.confusionTurns > 0 && Math.random() < 0.5) {
         const selfHitDmg = Math.max(1, Math.floor(enemyAtk * 0.8));
-        logEntries.push(`💫 ${enemyDef.name} is confused! It hurt itself in confusion for ${selfHitDmg} damage!`);
+        enemyLogs.push(`💫 ${enemyDef.name} is confused! It hurt itself in confusion for ${selfHitDmg} damage!`);
         setMonsterStatus(prev => ({ ...prev, confusionTurns: Math.max(0, prev.confusionTurns - 1) }));
       } else if (isPlayerDodge) {
-        logEntries.push(`💨 You DODGED ${enemyDef.name}'s attack!`);
+        enemyLogs.push(`💨 You DODGED ${enemyDef.name}'s attack!`);
       } else {
         const smartAI = calculateSmartEnemyAction(
           enemyLevel,
@@ -1004,274 +1238,86 @@ export default function DungeonPage() {
         if (actionType === 'counter') {
           enemyFinalDmg = Math.max(1, Math.floor(rawEnemyDmg * 0.4));
           const riposteDmg = Math.max(1, Math.floor(enemyAtk * 1.2));
-          logEntries.push(`🛡️ Counter Guard absorbed 60% damage from ${smartAI.moveName}! Taking only ${enemyFinalDmg} damage.`);
-          logEntries.push(`⚡ RIPOSTE COUNTER! You hit ${enemyDef.name} back for ${riposteDmg} counter damage!`);
+          enemyLogs.push(`🛡️ Counter Guard absorbed 60% damage from ${smartAI.moveName}! Taking only ${enemyFinalDmg} damage.`);
+          enemyLogs.push(`⚡ RIPOSTE COUNTER! You hit ${enemyDef.name} back for ${riposteDmg} counter damage!`);
         } else {
           enemyFinalDmg = rawEnemyDmg;
-          if (isEnemyCrit) logEntries.push(`⚠️ ${enemyDef.name} LANDS A CRITICAL HIT with ${smartAI.moveName} for ${enemyFinalDmg}!`);
-          else logEntries.push(`${enemyDef.name} executed ${smartAI.moveName} for ${enemyFinalDmg} damage.`);
+          if (isEnemyCrit) enemyLogs.push(`⚠️ ${enemyDef.name} LANDS A CRITICAL HIT with ${smartAI.moveName} for ${enemyFinalDmg}!`);
+          else enemyLogs.push(`${enemyDef.name} executed ${smartAI.moveName} for ${enemyFinalDmg} damage.`);
         }
       }
-    } else {
-      logEntries.push(`🏆 ${enemyDef.name} fainted! Victory!`);
-      setMonsterStatus({ burnTurns: 0, sleepTurns: 0, confusionTurns: 0 });
-    }
 
-    // Apply damage & healing to active fighter in party
-    let updatedParty = run.party.map(c => {
-      if (c.id === selectedCreature.id) {
-        let remainingHp = c.hp;
-        if (healAmount > 0) {
-          remainingHp = Math.min(c.maxHp, remainingHp + healAmount);
-        }
-        if (newMonsterHp > 0 && !isPlayerDodge) {
-          remainingHp = Math.max(0, remainingHp - enemyFinalDmg);
-        }
-        if (remainingHp > 0 && buildingBuffs.healingBuff > 0) {
-          remainingHp = Math.min(c.maxHp, remainingHp + buildingBuffs.healingBuff);
-        }
-        return { ...c, hp: remainingHp };
-      }
-      return c;
-    });
-
-    savePersistentPartyHp(updatedParty);
-
-    const activeFighterAfterDamage = updatedParty.find(c => c.id === selectedCreature.id)!;
-    const isFighterFainted = activeFighterAfterDamage.hp <= 0;
-
-    if (!isFighterFainted && buildingBuffs.healingBuff > 0) {
-      logEntries.push(`🍞 Bakery heals ${selectedCreature.name} for ${buildingBuffs.healingBuff} HP!`);
-    }
-
-    if (isFighterFainted && newMonsterHp > 0) {
-      logEntries.push(`💀 ${selectedCreature.name} fainted!`);
-    }
-
-    const totalTeamHpAfterDamage = updatedParty.reduce((sum, member) => sum + member.hp, 0);
-    const isTeamDefeated = totalTeamHpAfterDamage <= 0;
-
-    if (newMonsterHp <= 0) {
-      // Record bounty kill
-      const completedBounty = recordBountyKill(enemyDef.type);
-      setBountyProgress(loadBountyProgress());
-      if (completedBounty) {
-        logEntries.push(`🎯 Daily bounty complete! Vanquished 2 ${completedBounty.targetType} monsters! Claim your reward in the Bounty drawer!`);
-        toast({
-          title: "Daily bounty completed",
-          description: `Vanquished required ${completedBounty.targetType} monsters! Claim +${completedBounty.rewardGems} gems and +${completedBounty.rewardGold} gold!`,
-        });
-      }
-
-      const loot = generateLoot(run.currentRoom);
-      let newLoot = loot ? [...run.lootCollected, loot] : run.lootCollected;
-
-      if (loot) logEntries.push(`✨ Loot found: ${loot.name}`);
-
-      // BOSS DUAL DROPS: Tiered Kingdom Blueprints AND Apotheca Potion Brewing Reagents on Boss Floors (every 5 rooms)
-      if (run.currentRoom % 5 === 0) {
-        const floorTier = Math.floor(run.currentRoom / 5);
-        
-        // Tiered Blueprints & Apotheca Reagents mapping
-        const TIER_DROPS: Record<number, {
-          blueprint: { name: string; img: string; desc: string; tileId: string };
-          reagent: { name: string; id: string; emoji: string; desc: string; qty: number };
-        }> = {
-          1: {
-            blueprint: { name: 'Blueprint: Serene Lake', img: '/images/kingdom-tiles/SereneLake.webp', desc: 'Unlocks serene water canal tiles for your realm sandbox (+10 DEF).', tileId: 'serene_lake' },
-            reagent: { name: 'Deeproot Moss', id: 'material-deeproot', emoji: '🌿', desc: 'Rare botanical moss for Apotheca vitality brewing.', qty: 2 }
-          },
-          2: {
-            blueprint: { name: 'Blueprint: Waterway Canal', img: '/images/kingdom-tiles/WaterwayCanal.webp', desc: 'Unlocks capital water trade canals (+30% Tax Gold).', tileId: 'waterway_canal' },
-            reagent: { name: 'Astral Shard', id: 'material-astral-shard', emoji: '🌌', desc: 'Glowing starlight crystal for Apotheca EXP elixirs.', qty: 2 }
-          },
-          3: {
-            blueprint: { name: 'Blueprint: Crystal Cascades', img: '/images/kingdom-tiles/CrystalCavern.webp', desc: 'Unlocks glowing crystal waterfall tiles (+20 ATK, +20 DEF).', tileId: 'crystal_cascades' },
-            reagent: { name: 'Abyssal Pearl', id: 'material-abyssal-pearl', emoji: '🦪', desc: 'Deep sea pearl for Apotheca fortune and gem draughts.', qty: 2 }
-          },
-          4: {
-            blueprint: { name: 'Blueprint: Astral Citadel', img: '/images/kingdom-tiles/AstralCitadelMonument.webp', desc: 'Unlocks celestial star tower sanctuary (+35 ATK, +35 DEF).', tileId: 'astral_citadel' },
-            reagent: { name: 'Dragon Scale', id: 'material-dragon-scale', emoji: '🐉', desc: 'Molten wyrm scale for Apotheca dragon vigor max HP brews.', qty: 2 }
+      // Apply enemy retaliation damage to active fighter in party
+      let updatedParty = partyWithPlayerHeal.map(c => {
+        if (c.id === selectedCreature.id) {
+          let remainingHp = c.hp;
+          if (!isPlayerDodge && enemyFinalDmg > 0) {
+            remainingHp = Math.max(0, remainingHp - enemyFinalDmg);
           }
-        };
-
-        const tierData = TIER_DROPS[floorTier] || TIER_DROPS[4]!;
-        const bp = tierData.blueprint;
-        const reagent = tierData.reagent;
-
-        // Check if first-time boss floor clear
-        let isFirstClear = false;
-        let clearedBossFloors: number[] = [];
-        try {
-          clearedBossFloors = JSON.parse(localStorage.getItem('thrivehaven_cleared_boss_floors') || '[]');
-          if (!clearedBossFloors.includes(run.currentRoom)) {
-            isFirstClear = true;
-            clearedBossFloors.push(run.currentRoom);
-            localStorage.setItem('thrivehaven_cleared_boss_floors', JSON.stringify(clearedBossFloors));
+          if (remainingHp > 0 && buildingBuffs.healingBuff > 0) {
+            remainingHp = Math.min(c.maxHp, remainingHp + buildingBuffs.healingBuff);
           }
-        } catch {}
-
-        // Drop calculation: Guaranteed 100% on first clear; 25% chance on repeat clears
-        const rollBlueprint = isFirstClear || Math.random() < 0.25;
-        let isDuplicate = false;
-        let blueprintDrop: any = null;
-
-        if (rollBlueprint) {
-          try {
-            const unlockedBps = JSON.parse(localStorage.getItem('thrivehaven_unlocked_blueprints') || '[]');
-            if (unlockedBps.includes(bp.name) || unlockedBps.includes(bp.tileId)) {
-              isDuplicate = true;
-            } else {
-              unlockedBps.push(bp.name);
-              unlockedBps.push(bp.tileId);
-              localStorage.setItem('thrivehaven_unlocked_blueprints', JSON.stringify(unlockedBps));
-            }
-          } catch {}
-
-          blueprintDrop = isDuplicate ? {
-            type: 'gold',
-            name: "Royal Architect's Bounty (+250 Gold)",
-            amount: 250,
-            starRating: 3
-          } : {
-            type: 'item',
-            name: bp.name,
-            itemId: bp.tileId,
-            itemStats: { def: 15, atk: 15 },
-            starRating: 4
-          };
-        } else {
-          // Repeat clear without blueprint roll yields Keep Conqueror's Cache (+150 gold)
-          blueprintDrop = {
-            type: 'gold',
-            name: "Keep Conqueror's Cache (+150 Gold)",
-            amount: 150,
-            starRating: 2
-          };
+          return { ...c, hp: remainingHp };
         }
+        return c;
+      });
 
-        const reagentDrop = {
-          type: 'item',
-          name: `${reagent.name} (x${reagent.qty})`,
-          itemId: reagent.id,
-          quantity: reagent.qty,
-          itemStats: {},
-          starRating: 3
-        };
+      savePersistentPartyHp(updatedParty);
 
-        newLoot = [...newLoot, blueprintDrop, reagentDrop];
+      const activeFighterAfterDamage = updatedParty.find(c => c.id === selectedCreature.id)!;
+      const isFighterFainted = activeFighterAfterDamage.hp <= 0;
 
-        // Deposit reagent into inventory
-        if (typeof window !== 'undefined') {
-          import('@/lib/inventory-manager').then(({ addToInventory }) => {
-            if (userId) {
-              addToInventory(userId, {
-                id: reagent.id,
-                name: reagent.name,
-                type: 'material',
-                category: 'material',
-                quantity: reagent.qty,
-                emoji: reagent.emoji,
-                image: `/images/items/materials/${reagent.id}.webp`,
-                description: reagent.desc
-              } as any).catch(() => {});
-            }
-          }).catch(() => {});
-        }
-
-        setBossDualDrop({
-          blueprint: rollBlueprint ? bp : null,
-          isDuplicate,
-          isFirstClear,
-          bountyAmount: rollBlueprint ? (isDuplicate ? 250 : undefined) : 150,
-          reagent
-        });
-
-        const dropText = isFirstClear
-          ? `🏆 FIRST CLEAR DUAL DROPS: ${bp.name} AND ${reagent.name} (x${reagent.qty})!`
-          : isDuplicate
-            ? `🏰 BOSS REPEAT CLEAR: Royal Architect's Bounty (+250g) AND ${reagent.name} (x${reagent.qty})!`
-            : rollBlueprint
-              ? `🏰 BOSS DUAL DROPS: ${bp.name} AND ${reagent.name} (x${reagent.qty})!`
-              : `🏰 BOSS CLEAR: Keep Conqueror's Cache (+150g) AND ${reagent.name} (x${reagent.qty})!`;
-
-        logEntries.push(dropText);
-
-        toast({
-          title: isFirstClear ? "🏆 First clear: Boss keep conquered!" : "🏆 Boss keep cleared!",
-          description: isFirstClear
-            ? `Unlocked ${bp.name} & harvested ${reagent.name} (x${reagent.qty}) for the Grand Apotheca!`
-            : `Defeated room ${run.currentRoom} boss! Harvested ${reagent.name} (x${reagent.qty}) & bonus gold!`,
-        });
+      if (!isFighterFainted && buildingBuffs.healingBuff > 0) {
+        enemyLogs.push(`🍞 Bakery heals ${selectedCreature.name} for ${buildingBuffs.healingBuff} HP!`);
       }
 
-      if (run.currentRoom >= run.maxRooms) {
-        completeRun({
-          ...run,
+      const totalTeamHpAfterDamage = updatedParty.reduce((sum, member) => sum + member.hp, 0);
+      const isTeamDefeated = totalTeamHpAfterDamage <= 0;
+
+      // Update state so the active fighter's HP bar visibly glides down!
+      setBattleLog(prev => [...prev, ...enemyLogs]);
+      setRun(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
           party: updatedParty,
-          currentHp: totalTeamHpAfterDamage,
-          lootCollected: newLoot,
-          status: 'completed'
-        });
-      } else {
+          currentHp: totalTeamHpAfterDamage
+        };
+      });
+
+      if (isTeamDefeated) {
         setTimeout(() => {
-          const nextEncounter = generateEncounter(run.currentRoom + 1);
-          setRun({
-            ...run,
-            party: updatedParty,
-            currentHp: totalTeamHpAfterDamage,
-            currentRoom: run.currentRoom + 1,
-            lootCollected: newLoot,
-            currentEncounter: nextEncounter
-          });
-          
-          if (isFighterFainted) {
+          setIsPlayerFainting(true);
+          setTimeout(() => {
+            setIsPlayerFainting(false);
+            setIsProcessing(false);
+            setBattleLog(prev => [...prev, "💀 Hailey glides in and covers the team in a protective frost: 'Squad down! Retreating to the safety camp.'"]);
+            completeRun({
+              ...run,
+              party: updatedParty,
+              currentHp: 0,
+              status: 'defeated'
+            });
+          }, 800);
+        }, 750);
+      } else if (isFighterFainted) {
+        setTimeout(() => {
+          setIsPlayerFainting(true);
+          setTimeout(() => {
+            setIsPlayerFainting(false);
+            setIsProcessing(false);
+            setBattleLog(prev => [...prev, `💀 ${selectedCreature.name} fainted! Deploy another fighter to continue the battle!`]);
             setSelectedCreature(null);
             setBattlePhase('select');
-            setMessage(`Victorious, but ${selectedCreature.name} fainted! Deploy a new fighter!`);
-          } else {
-            const nextEnemyId = nextEncounter.creatureId || '001';
-            const nextEnemyDef = CREATURE_DATA[nextEnemyId];
-            let advMessage = 'Victorious! Keep your active fighter or swap squad member?';
-            if (nextEnemyDef) {
-              const nextMult = getMatchupMultiplier(selectedCreature.type, nextEnemyDef.type);
-              if (nextMult > 1) advMessage = `Victorious! ${selectedCreature.name} (${selectedCreature.type}) has STRONG ADVANTAGE vs ${nextEnemyDef.name} (${nextEnemyDef.type})!`;
-              else if (nextMult < 1) advMessage = `Victorious! Warning: ${selectedCreature.name} (${selectedCreature.type}) is WEAK vs ${nextEnemyDef.name} (${nextEnemyDef.type})! Consider swapping!`;
-            }
-            setMessage(advMessage);
-          }
-        }, 1500);
+            setMessage(`${selectedCreature.name} fainted! Select another fighter!`);
+          }, 800);
+        }, 750);
+      } else {
+        setTimeout(() => {
+          setIsProcessing(false);
+        }, 700);
       }
-    } else if (isTeamDefeated) {
-      logEntries.push("💀 Hailey glides in and covers the team in a protective frost: 'Squad down! Retreating to the safety camp.'");
-      setBattleLog(prev => [...prev, ...logEntries]);
-      completeRun({
-        ...run,
-        party: updatedParty,
-        currentHp: 0,
-        status: 'defeated'
-      });
-    } else if (isFighterFainted) {
-      logEntries.push(`💀 ${selectedCreature.name} fainted! Deploy another fighter to continue the battle!`);
-      setBattleLog(prev => [...prev, ...logEntries]);
-      setRun({
-        ...run,
-        party: updatedParty,
-        currentHp: totalTeamHpAfterDamage,
-        currentEncounter: { ...run.currentEncounter, hp: newMonsterHp }
-      });
-      setSelectedCreature(null);
-      setBattlePhase('select');
-      setMessage(`${selectedCreature.name} fainted! Select another fighter!`);
-    } else {
-      setBattleLog(prev => [...prev, ...logEntries]);
-      setRun({
-        ...run,
-        party: updatedParty,
-        currentHp: totalTeamHpAfterDamage,
-        currentEncounter: { ...run.currentEncounter, hp: newMonsterHp }
-      });
-    }
+    }, 650);
   };
 
   const openTreasure = () => {
@@ -2045,11 +2091,11 @@ export default function DungeonPage() {
                   <div className={`absolute inset-0 bg-gradient-to-tr ${(getTypeColor(enemyDef.type).split(' ')[0] || 'text-zinc-500').replace('text-', 'from-')}/25 to-transparent blur-2xl rounded-full opacity-60 group-hover:opacity-85 transition-opacity`}></div>
                   
                   {/* Slash Beam Overlay on Defeat */}
-                  {(run.currentEncounter.hp || 0) <= 0 && (
+                  {isEnemyFainting && (
                     <div className="absolute top-1/2 left-[-30%] w-[160%] h-3 bg-gradient-to-r from-red-600 via-amber-300 to-red-600 animate-slash-beam z-40 pointer-events-none rounded-full shadow-[0_0_30px_#ef4444]" />
                   )}
 
-                  <div className={`relative w-full max-w-[310px] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col ${(run.currentEncounter.hp || 0) <= 0 ? 'animate-card-shatter-top pointer-events-none' : ''}`}>
+                  <div className={`relative w-full max-w-[310px] transition-all duration-300 ${getTypeColor(enemyDef.type)} border-2 rounded-2xl overflow-hidden bg-zinc-950 shadow-2xl flex flex-col ${isEnemyFainting ? 'animate-card-shatter-top pointer-events-none' : ''}`}>
                     
                     {/* Creature Card Canvas (Equal Aspect & Height for Mythic & Standard Cards) */}
                     {(() => {
@@ -2118,10 +2164,10 @@ export default function DungeonPage() {
                           <span>HP</span>
                           <span className="font-mono">{run.currentEncounter.hp} / {run.currentEncounter.maxHp}</span>
                         </div>
-                        <div className="w-full bg-zinc-900 h-2 rounded-full overflow-hidden border border-white/5">
+                        <div className="w-full bg-zinc-900/90 h-3 rounded-full overflow-hidden border border-red-950/50 p-0.5 shadow-inner">
                           <div
-                            className="h-full bg-gradient-to-r from-red-600 to-red-500 transition-all duration-500"
-                            style={{ width: `${((run.currentEncounter.hp || 0) / (run.currentEncounter.maxHp || 1)) * 100}%` }}
+                            className="h-full rounded-full bg-gradient-to-r from-red-600 via-rose-500 to-red-500 transition-[width] duration-700 ease-out shadow-sm"
+                            style={{ width: `${Math.max(0, Math.min(100, ((run.currentEncounter.hp || 0) / (run.currentEncounter.maxHp || 1)) * 100))}%` }}
                           />
                         </div>
                       </div>
