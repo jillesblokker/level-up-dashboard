@@ -34,7 +34,7 @@ import { useGameStore } from '@/stores/game-store'
 // Dynamic lazy-loaded modals to eliminate hundreds of KB from initial page chunk
 const KingdomTileModal = dynamic(() => import('./kingdom-tile-modal').then(m => m.KingdomTileModal), { ssr: false });
 const ZenMeditateModal = dynamic(() => import('./kingdom/ZenMeditateModal').then(m => m.ZenMeditateModal), { ssr: false });
-const KingdomSummaryModal = dynamic(() => import('./kingdom-summary-modal').then(m => m.KingdomSummaryModal), { ssr: false });
+import { KingdomSummaryModal } from './kingdom-summary-modal';
 const FortuneTellerModal = dynamic(() => import('./fortune-teller-modal').then(m => m.FortuneTellerModal), { ssr: false });
 const PrisonModal = dynamic(() => import('@/components/kingdom/prison-modal').then(m => m.PrisonModal), { ssr: false });
 const ApothecaModal = dynamic(() => import('@/components/kingdom/apotheca-modal').then(m => m.ApothecaModal), { ssr: false });
@@ -2572,6 +2572,9 @@ export function KingdomGridWithTimers({
     }
 
     const collectedRewards: any[] = [];
+    const itemsToProcess: { image: string; name: string; type: string }[] = [];
+    const timerUpdates: { x: number; y: number; newEndTime: number; tileId: string; wasLucky: boolean; goldEarned: number; experienceAwarded: number }[] = [];
+
     const updatedTimers = tileTimers.map(t => {
       if (t.isReady || (t.endTime && Date.now() >= t.endTime)) {
         const kingdomTile = KINGDOM_TILES.find(kt => kt.id === t.tileId || kt.name.toLowerCase() === t.tileId?.toLowerCase());
@@ -2627,13 +2630,6 @@ export function KingdomGridWithTimers({
         ? Math.ceil(baseExperience * activeEvent.xpMultiplier)
         : baseExperience;
 
-      // Award gold and experience
-      const { goldManager } = await loadManagers();
-      const { expManager } = await loadManagers();
-      
-      goldManager.gainGold(goldEarned, `tile-collect:${kingdomTile.id}`);
-      expManager.gainExperience(experienceAwarded, `tile-collect:${kingdomTile.id}`, 'general');
-
       // Add to summary
       const itemFoundPath = kingdomTile.possibleItems.length > 0 ? getRandomItem(kingdomTile.possibleItems) : null;
       
@@ -2645,6 +2641,12 @@ export function KingdomGridWithTimers({
           .split('-')
           .map(word => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ');
+
+        itemsToProcess.push({
+          image: itemFoundPath,
+          name: itemName,
+          type: kingdomTile.itemType
+        });
       }
 
       collectedRewards.push({
@@ -2670,46 +2672,21 @@ export function KingdomGridWithTimers({
         };
       }
 
-      // Persist to API (non-blocking)
-      fetchAuthRetry('/api/property-timers', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ x, y, isReady: false, endTime: new Date(newEndTime).toISOString() })
-      }).catch(e => logger.error('Failed to persist timer in batch', e));
-
-      fetchAuthRetry('/api/kingdom-events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tileId: kingdomTile.id, wasLucky, goldEarned, experienceAwarded })
-      }).catch(e => logger.error('Failed to log event in batch', e));
-
-      if (onGoldEarned) onGoldEarned(goldEarned);
-      if (onItemFound && itemFoundPath) {
-        const foundItemData = {
-          image: itemFoundPath,
-          name: itemName,
-          type: kingdomTile.itemType
-        };
-        
-        (async () => {
-          try {
-            const { invManager } = await loadManagers();
-            if (userId) {
-              await invManager.addToKingdomInventory(userId, {
-                ...foundItemData,
-                quantity: 1,
-                category: 'material'
-              } as any);
-            }
-          } catch (e) {
-            logger.error('Failed to add batch found item to inventory', e);
-          }
-        })();
-
-        onItemFound(foundItemData);
-      }
+      timerUpdates.push({
+        x,
+        y,
+        newEndTime,
+        tileId: kingdomTile.id,
+        wasLucky,
+        goldEarned,
+        experienceAwarded
+      });
     }
 
+    const totalGoldGained = collectedRewards.reduce((sum, r) => sum + (r.goldEarned || 0), 0);
+    const totalExpGained = collectedRewards.reduce((sum, r) => sum + (r.experienceEarned || 0), 0);
+
+    // Optimistic UI: Open modal and update local state immediately (0ms delay)
     setTileTimers(updatedTimers);
     window.dispatchEvent(new CustomEvent('kingdom-taxes-count-update', { detail: { count: 0 } }));
     window.dispatchEvent(new CustomEvent('kingdom-building-collected'));
@@ -2717,21 +2694,63 @@ export function KingdomGridWithTimers({
     
     setSummaryRewards(collectedRewards);
     setShowSummaryModal(true);
-    
-    const totalGoldGained = collectedRewards.reduce((sum, r) => sum + (r.goldEarned || 0), 0);
-    const totalExpGained = collectedRewards.reduce((sum, r) => sum + (r.experienceEarned || 0), 0);
 
     toast({ 
-      title: "💰 Kingdom taxes harvested!", 
+      title: "💰 Royal taxes harvested!", 
       description: `Leaf and Rockie gather the harvest bags: collected from ${readyTimers.length} buildings (+${totalGoldGained.toLocaleString()} gold, +${totalExpGained.toLocaleString()} xp).` 
     });
 
     notificationService.addNotification(
-      "💰 Kingdom taxes harvested!",
+      "💰 Royal taxes harvested!",
       `Leaf and Rockie gather the harvest bags: collected from ${readyTimers.length} buildings (+${totalGoldGained.toLocaleString()} gold, +${totalExpGained.toLocaleString()} xp).`,
       "success",
       "medium"
     );
+
+    // Process background persistence & single aggregated gold/exp grants non-blockingly
+    (async () => {
+      try {
+        const { goldManager, expManager, invManager } = await loadManagers();
+        if (totalGoldGained > 0) {
+          await goldManager.gainGold(totalGoldGained, 'royal-taxes-collect');
+          if (onGoldEarned) onGoldEarned(totalGoldGained);
+        }
+        if (totalExpGained > 0) {
+          await expManager.gainExperience(totalExpGained, 'royal-taxes-collect', 'general');
+        }
+
+        // Add discovered goods to inventory
+        if (itemsToProcess.length > 0) {
+          for (const itemData of itemsToProcess) {
+            if (userId) {
+              await invManager.addToKingdomInventory(userId, {
+                ...itemData,
+                quantity: 1,
+                category: 'material'
+              } as any).catch((e: any) => logger.error('Failed to add batch found item to inventory', e));
+            }
+            if (onItemFound) onItemFound(itemData);
+          }
+        }
+      } catch (e) {
+        logger.error('Failed to process background tax rewards batch', e);
+      }
+
+      // Background persistence for property timers and events
+      timerUpdates.forEach(({ x, y, newEndTime, tileId, wasLucky, goldEarned, experienceAwarded }) => {
+        fetchAuthRetry('/api/property-timers', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ x, y, isReady: false, endTime: new Date(newEndTime).toISOString() })
+        }).catch((e: any) => logger.error('Failed to persist timer in batch', e));
+
+        fetchAuthRetry('/api/kingdom-events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tileId, wasLucky, goldEarned, experienceAwarded })
+        }).catch((e: any) => logger.error('Failed to log event in batch', e));
+      });
+    })();
   }
 
   useEffect(() => {

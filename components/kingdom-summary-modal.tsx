@@ -37,7 +37,7 @@ export function KingdomSummaryModal({
   isOpen,
   onClose,
   rewards,
-  title = "Royal treasury tax receipt",
+  title = "Royal taxes",
   description
 }: KingdomSummaryModalProps) {
   const totalGold = useMemo(() => rewards.reduce((sum, r) => sum + (r.goldEarned || 0), 0), [rewards])
@@ -68,7 +68,7 @@ export function KingdomSummaryModal({
   if (rewards.length === 0) return null
 
   // Ensure title adheres to strict sentence case and strips emojis
-  const cleanTitle = (title || "Royal treasury tax receipt")
+  const cleanTitle = (title || "Royal taxes")
     .replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
     .trim()
     .toLowerCase()
@@ -145,6 +145,9 @@ export function KingdomSummaryModal({
                         src={item.image}
                         alt={item.name}
                         fill
+                        unoptimized
+                        sizes="64px"
+                        priority
                         className="object-contain p-1 drop-shadow-md group-hover:scale-110 transition-transform"
                         onError={(e) => {
                           const target = e.currentTarget as HTMLImageElement
