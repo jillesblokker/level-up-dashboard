@@ -32,7 +32,7 @@ import { getCharacterStats, addToCharacterStat } from '@/lib/character-stats-ser
 import { useGameStore } from '@/stores/game-store'
 
 // Dynamic lazy-loaded modals to eliminate hundreds of KB from initial page chunk
-const KingdomTileModal = dynamic(() => import('./kingdom-tile-modal').then(m => m.KingdomTileModal), { ssr: false });
+import { KingdomTileModal } from './kingdom-tile-modal';
 const ZenMeditateModal = dynamic(() => import('./kingdom/ZenMeditateModal').then(m => m.ZenMeditateModal), { ssr: false });
 import { KingdomSummaryModal } from './kingdom-summary-modal';
 const FortuneTellerModal = dynamic(() => import('./fortune-teller-modal').then(m => m.FortuneTellerModal), { ssr: false });

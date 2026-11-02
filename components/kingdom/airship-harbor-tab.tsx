@@ -916,24 +916,26 @@ export function AirshipHarborTab() {
       const vesselCargoBonus = currentVessel.cargoBonus || 0;
       const vesselExpBonus = currentVessel.expBonus || 0;
 
-      // 1. Add base rewards + tube bonus + vessel tier bonus to inventory
-      for (const item of voyageRegion.rewards) {
-        const extraQty = (hasBonusCargo ? 1 : 0) + vesselCargoBonus;
-        await fetch('/api/inventory', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            item: {
-              id: item.id,
-              quantity: item.quantity + extraQty
-            }
-          })
-        });
-      }
+      // 1. Add base rewards + tube bonus + vessel tier bonus to inventory in parallel batch
+      await Promise.all(
+        voyageRegion.rewards.map(item => {
+          const extraQty = (hasBonusCargo ? 1 : 0) + vesselCargoBonus;
+          return fetch('/api/inventory', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              item: {
+                id: item.id,
+                quantity: item.quantity + extraQty
+              }
+            })
+          });
+        })
+      );
 
       // 2. Add bonus gold if gold tube was pressurized
       if (hasBonusGold) {
-        await addToCharacterStat('gold', 150, 'airship-vacuum-tube');
+        addToCharacterStat('gold', 150, 'airship-vacuum-tube');
       }
 
       // 3. Unlock 3 citizens & grant expedition XP + affection
@@ -958,12 +960,14 @@ export function AirshipHarborTab() {
           savedPrefs[cId].affection = Math.min(100, (savedPrefs[cId].affection || 0) + 15);
         }
       });
-      await setUserPreference('citizens_state', savedPrefs);
-      await setUserPreference('active_expeditions', { active: false });
+      await Promise.all([
+        setUserPreference('citizens_state', savedPrefs),
+        setUserPreference('active_expeditions', { active: false })
+      ]);
 
       toast({
-        title: "Cargo chests claimed! 🪙📦",
-        description: `Your 3 crew members returned safely! Each earned +${expEarned} XP and +15 affection.${vesselCargoBonus > 0 ? ` (+${vesselCargoBonus} cargo from ${currentVessel.name})` : ""}`
+        title: "Cargo claimed",
+        description: `Crew returned (+${expEarned} XP, +15 affection).`
       });
 
       window.dispatchEvent(new Event('character-inventory-update'));
@@ -1430,7 +1434,7 @@ export function AirshipHarborTab() {
                     : "bg-zinc-950 text-zinc-600 border border-zinc-800 cursor-not-allowed"
                 )}
               >
-                {isClaiming ? <>Unlocking sea-chests...</> : <>Pop cargo chest locks & dock ship</>}
+                {isClaiming ? <>Claiming...</> : <>Claim cargo</>}
               </Button>
             </div>
 

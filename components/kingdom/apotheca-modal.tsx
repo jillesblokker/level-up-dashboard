@@ -80,14 +80,14 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
       const data = await res.json()
       setResultMessage(data.message)
       toast({
-        title: "Decoction consumed",
+        title: "Brew consumed",
         description: data.message,
       })
       await fetchFreshCharacterStats()
       if (onComplete) onComplete()
     } catch (err: any) {
       toast({
-        title: "Brew error",
+        title: "Brew failed",
         description: err.message || "Failed to drink daily decoction.",
         variant: "destructive"
       })
@@ -97,6 +97,25 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
   }
 
   const handleCraftBossElixir = async (elixirId: string, name: string) => {
+    const reagentKey = elixirId.includes('deeproot') ? 'deeproot' :
+      elixirId.includes('astral') ? 'astral' :
+      elixirId.includes('abyssal') ? 'abyssal' : 'dragon';
+
+    // Immediate visual reaction (0ms)
+    setIsStirring(true);
+    setCauldronGlow(
+      elixirId.includes('deeproot') ? 'emerald' :
+      elixirId.includes('astral') ? 'purple' :
+      elixirId.includes('abyssal') ? 'cyan' : 'amber'
+    );
+    setReagentCounts(prev => ({ ...prev, [reagentKey]: Math.max(0, prev[reagentKey] - 1) }));
+
+    if (typeof window !== 'undefined') {
+      import('canvas-confetti').then(confetti => {
+        confetti.default({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+      }).catch(() => {});
+    }
+
     setLoading(true)
     try {
       const res = await fetch('/api/kingdom/apotheca', {
@@ -110,26 +129,23 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
       }
       const data = await res.json()
       setResultMessage(data.message)
-      if (typeof window !== 'undefined') {
-        import('canvas-confetti').then(confetti => {
-          confetti.default({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-        }).catch(() => {});
-      }
       toast({
-        title: "Master elixir distilled! ✨",
+        title: "Brew complete",
         description: data.message,
       })
       await fetchFreshCharacterStats()
       await loadReagents()
       if (onComplete) onComplete()
     } catch (err: any) {
+      await loadReagents();
       toast({
-        title: "Alchemy error",
+        title: "Brew failed",
         description: err.message || "Failed to distill master elixir.",
         variant: "destructive"
       })
     } finally {
       setLoading(false)
+      setTimeout(() => setIsStirring(false), 800)
     }
   }
 
@@ -145,14 +161,14 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
       const data = await res.json()
       setResultMessage(data.message)
       toast({
-        title: "Distillation complete",
+        title: "Water distilled",
         description: data.message,
       })
       await fetchFreshCharacterStats()
       if (onComplete) onComplete()
     } catch (err: any) {
       toast({
-        title: "Trade error",
+        title: "Trade failed",
         description: err.message || "Failed to trade botanical material.",
         variant: "destructive"
       })
@@ -165,7 +181,7 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
     const stats = getCharacterStats()
     if ((stats.focus_points || 0) < 5) {
       toast({
-        title: "Insufficient focus points",
+        title: "Low focus",
         description: "You need 5 focus points to double brew.",
         variant: "destructive"
       })
@@ -177,14 +193,14 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
       await addToCharacterStat('focus_points', -5, 'focus-double-brew')
       await addToCharacterStat('gold', 300, 'focus-double-brew-gold')
       toast({
-        title: "Double elixir distilled",
+        title: "Double brew",
         description: "Spent 5 focus points. Granted +300 gold & double potion effect.",
       })
       await fetchFreshCharacterStats()
       if (onComplete) onComplete()
       onOpenChange(false)
     } catch (err: any) {
-      toast({ title: "Brew error", description: err.message, variant: "destructive" })
+      toast({ title: "Brew failed", description: err.message, variant: "destructive" })
     } finally {
       setLoading(false)
     }
@@ -292,7 +308,7 @@ export function ApothecaModal({ open, onOpenChange, onComplete }: ApothecaModalP
                 <div className="space-y-2 pt-2 border-t border-zinc-800/80">
                   <div className="flex items-center justify-between">
                     <h5 className="text-[11px] font-mono font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <span>🏆</span> Boss reagent elixirs
+                      <span>🏆</span> Boss elixirs
                     </h5>
                     <span className="text-[10px] text-zinc-500">From dungeon keep floors</span>
                   </div>

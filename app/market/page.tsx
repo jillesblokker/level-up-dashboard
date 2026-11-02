@@ -294,7 +294,7 @@ export default function MarketPage() {
 
     if (goldBalance < totalCost) {
       toast({
-        title: "Insufficient Gold",
+        title: "Low gold",
         description: `You need ${totalCost} gold for this purchase.`,
         variant: "destructive"
       })
@@ -309,7 +309,7 @@ export default function MarketPage() {
 
     setGoldBalance(prev => prev - totalCost)
     toast({
-      title: "Purchase Successful",
+      title: "Purchase complete",
       description: `Bought ${qty} ${material.name} for ${totalCost} gold.`
     })
     setQuantities(prev => ({ ...prev, [material.id]: 0 }))
@@ -328,7 +328,7 @@ export default function MarketPage() {
 
     if (currentOwned < qty) {
       toast({
-        title: "Insufficient Materials",
+        title: "Low stock",
         description: `You only have ${currentOwned} ${material.name}.`,
         variant: "destructive"
       })
@@ -343,17 +343,53 @@ export default function MarketPage() {
     setGoldBalance(prev => prev + totalValue) // Optimistic update
 
     toast({
-      title: "Sale Successful",
+      title: "Sale complete",
       description: `Sold ${qty} ${material.name} for ${totalValue} gold.`
     })
     setQuantities(prev => ({ ...prev, [material.id]: 0 }))
+  }
+
+  const handleLiquidateSurplus = async () => {
+    if (isProcessing) return
+    let totalGoldGained = 0
+    let itemsSold = 0
+
+    MATERIALS.forEach(mat => {
+      const owned = getInventoryQuantity(mat.id)
+      if (owned > 50) {
+        const surplus = owned - 50
+        const value = surplus * mat.sellPrice
+        totalGoldGained += value
+        itemsSold += surplus
+        updateTileQuantity(mat.id as TileType, -surplus)
+      }
+    })
+
+    if (totalGoldGained === 0) {
+      toast({
+        title: "No surplus",
+        description: "All material stocks are within the 50 reserve threshold."
+      })
+      return
+    }
+
+    setIsProcessing(true)
+    setTimeout(() => setIsProcessing(false), 600)
+
+    addToCharacterStat('gold', totalGoldGained, 'market-liquidate-surplus')
+    setGoldBalance(prev => prev + totalGoldGained)
+
+    toast({
+      title: "Surplus sold",
+      description: `Sold ${itemsSold} surplus materials for +${totalGoldGained.toLocaleString()} gold.`
+    })
   }
 
   const handleBuyPack = (packType: any) => {
     if (isProcessing) return
     if (packType.cooldownType && isPackOnCooldown(packType)) {
       toast({
-        title: "Pack on Cooldown",
+        title: "Pack cooldown",
         description: `This pack can only be claimed once per ${packType.cooldownType === 'mystery' ? 'day' : packType.cooldownType}.`,
         variant: "destructive"
       })
@@ -369,12 +405,12 @@ export default function MarketPage() {
         if (typeof window !== "undefined") {
           localStorage.setItem("unlock_packs_timestamps", JSON.stringify(updated))
         }
-        toast({ title: "Unlocking Started", description: "Come back in 3 hours to claim your mystery chest!" })
+        toast({ title: "Unlock started", description: "Come back in 3 hours to claim your mystery chest!" })
         return
       }
       const diff = currentTime - unlockStarted
       if (diff < 3 * 60 * 60 * 1000) {
-        toast({ title: "Still Unlocking", description: "The mystery chest is not ready yet.", variant: "destructive" })
+        toast({ title: "Chest locked", description: "The mystery chest is not ready yet.", variant: "destructive" })
         return
       }
       
@@ -397,7 +433,7 @@ export default function MarketPage() {
 
     if (balance < packType.price) {
       toast({
-        title: `Insufficient ${currencyLabel}`,
+        title: "Low balance",
         description: `You need ${packType.price} ${currencyLabel} to buy this pack.`,
         variant: "destructive"
       })
@@ -454,7 +490,7 @@ export default function MarketPage() {
     }
 
     toast({
-      title: "🎴 Pack Added to Inventory!",
+      title: "Pack claimed",
       description: `Bought ${packType.title || 'Pack'}! Click your Owned Packs in the Mystic Bazaar to unpack anytime.`
     })
   }
@@ -1216,6 +1252,16 @@ export default function MarketPage() {
                   </select>
                   <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400/70" />
                 </div>
+
+                <Button
+                  onClick={handleLiquidateSurplus}
+                  disabled={isProcessing}
+                  variant="outline"
+                  className="h-9 px-3 text-xs font-serif font-bold border-amber-500/40 bg-amber-950/30 hover:bg-amber-900/40 text-amber-200 rounded-lg flex items-center gap-1.5 transition-all"
+                  title="Sell materials above 50 reserve"
+                >
+                  <span>💰</span> Liquidate surplus
+                </Button>
               </div>
             </div>
 
@@ -1379,6 +1425,16 @@ export default function MarketPage() {
                   </select>
                   <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400/70" />
                 </div>
+
+                <Button
+                  onClick={handleLiquidateSurplus}
+                  disabled={isProcessing}
+                  variant="outline"
+                  className="h-9 px-3 text-xs font-serif font-bold border-amber-500/40 bg-amber-950/30 hover:bg-amber-900/40 text-amber-200 rounded-lg flex items-center gap-1.5 transition-all"
+                  title="Sell materials above 50 reserve"
+                >
+                  <span>💰</span> Liquidate surplus
+                </Button>
               </div>
             </div>
 
@@ -1486,7 +1542,7 @@ export default function MarketPage() {
           onClose={() => setOpeningPack(null)} 
           onClaimed={(isNew) => {
             toast({
-              title: isNew ? "NEW Mythic Discovered! 🎉" : "Card Claimed!",
+              title: isNew ? "New mythic" : "Card claimed",
               description: isNew ? "A new creature has been unlocked in your collection." : "It has been added to your Mythics collection."
             })
           }} 

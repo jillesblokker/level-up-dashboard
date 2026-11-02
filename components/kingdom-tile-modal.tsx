@@ -56,7 +56,7 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
               "font-medieval text-xl sm:text-2xl tracking-tight font-bold break-words",
               reward.isLucky ? "text-amber-300" : "text-amber-100"
             )}>
-              {reward.isLucky ? 'Fortune smiles upon you' : "The day's harvest"}
+              {reward.isLucky ? 'Lucky harvest' : 'Tile harvest'}
             </DialogTitle>
           </div>
           <DialogDescription id="kingdom-tile-modal-description" className="text-zinc-400 text-xs italic">
@@ -103,6 +103,9 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
                   src={reward.itemFound.image}
                   alt={reward.itemFound.name}
                   fill
+                  unoptimized
+                  priority
+                  sizes="40px"
                   className="object-contain p-1"
                   onError={(e) => {
                     const target = e.currentTarget as HTMLImageElement
@@ -128,7 +131,7 @@ export function KingdomTileModal({ isOpen, onClose, reward }: KingdomTileModalPr
             onClick={onClose}
             className="w-full py-5 font-serif text-sm font-bold btn-rpg-emerald rounded-xl shadow-lg transition-all active:scale-[0.98]"
           >
-            Collect & continue
+            Collect harvest
           </Button>
         </div>
       </DialogContent>

@@ -210,13 +210,13 @@ export function CitizensTab() {
           }).catch(() => {});
         }
         toast({
-          title: "Royal feast held! 🍖👑",
-          description: `Gathered ${res.count} citizens across ${feastBatchesCount} banquet course${feastBatchesCount > 1 ? 's' : ''} for ${res.goldSpent.toLocaleString()} gold! +5% bonus affection awarded to all guests.`,
+          title: "Royal feast",
+          description: `Fed ${res.count} citizens for ${res.goldSpent.toLocaleString()} gold with +5% bonus affection!`,
         });
         await loadInventoryFood();
       } else {
         toast({
-          title: "Feast could not be held",
+          title: "Feast failed",
           description: res.error || "Could not hold feast.",
           variant: "destructive"
         });
@@ -598,10 +598,10 @@ export function CitizensTab() {
                 >
                   <Utensils className="w-4 h-4 text-amber-300" />
                   {hungryCitizens.length === 0 
-                    ? "All citizens fed ✨" 
+                    ? "All fed" 
                     : totalPantryFood < hungryCitizens.length 
-                      ? "Need more food in pantry" 
-                      : `Hold royal feast (${hungryCitizens.length})`}
+                      ? "Low food" 
+                      : `Royal feast (${hungryCitizens.length})`}
                 </Button>
               </div>
             </div>
@@ -962,7 +962,7 @@ export function CitizensTab() {
                                 <div className="w-full rounded-lg border border-amber-800/40 bg-zinc-950 overflow-hidden">
                                   <div className="flex items-center justify-between px-3 py-2 bg-amber-950/30 border-b border-amber-800/30">
                                     <span className="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
-                                      <Utensils className="w-3 h-3" />Choose food to feed
+                                      <Utensils className="w-3 h-3" />Choose food
                                     </span>
                                     <button
                                       onClick={() => setFeedModalCitizenId(null)}
@@ -1341,7 +1341,7 @@ export function CitizensTab() {
                           <div className="w-full rounded-lg border border-amber-800/40 bg-zinc-950 overflow-hidden">
                             <div className="flex items-center justify-between px-3 py-2 bg-amber-950/30 border-b border-amber-800/30">
                               <span className="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
-                                <Utensils className="w-3 h-3" />Choose food to feed
+                                <Utensils className="w-3 h-3" />Choose food
                               </span>
                               <button
                                 onClick={() => setFeedModalCitizenId(null)}
