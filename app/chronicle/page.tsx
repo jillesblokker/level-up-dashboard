@@ -144,9 +144,6 @@ export default function ChroniclePage() {
                     </div>
 
                     <div className="flex items-center gap-2.5 flex-wrap">
-                        <Badge variant="outline" className="text-xs font-mono text-amber-400 border-amber-500/30 bg-amber-950/40 px-3 py-1">
-                            {entries.length} {entries.length === 1 ? 'reflection archived' : 'reflections archived'}
-                        </Badge>
                         <Button
                             onClick={() => setIsDigestOpen(true)}
                             variant="outline"
@@ -168,7 +165,7 @@ export default function ChroniclePage() {
                             className="btn-primary-cta text-xs px-4 h-9 flex items-center gap-1.5 shadow-md font-serif font-bold rounded-xl"
                         >
                             <PenTool className="w-3.5 h-3.5" />
-                            Scribe reflection
+                            Reflect
                         </Button>
                     </div>
                 </div>
@@ -195,8 +192,8 @@ export default function ChroniclePage() {
                     </div>
 
                     {/* Card 2: Weekly Growth Insights & Scribe CTA */}
-                    <div className="lg:col-span-5 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between gap-4">
-                        <div className="space-y-3">
+                    <div className="lg:col-span-5 bg-[#0e1217]/85 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between gap-4 h-full">
+                        <div className="space-y-4 flex-1 flex flex-col">
                             <div className="flex items-center justify-between border-b border-white/5 pb-3">
                                 <div className="flex items-center gap-2 text-amber-400">
                                     <Sparkles className="w-5 h-5 text-amber-400" />
@@ -208,7 +205,7 @@ export default function ChroniclePage() {
                                     7-day cadence
                                 </Badge>
                             </div>
-                            <WeeklyGrowthInsightsCard />
+                            <WeeklyGrowthInsightsCard className="flex-1" />
                         </div>
 
                         <div className="pt-2">
@@ -217,7 +214,7 @@ export default function ChroniclePage() {
                                 className="w-full h-11 text-xs font-serif font-bold bg-amber-950/40 hover:bg-amber-900/50 text-amber-200 border border-amber-500/30 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all active:scale-95"
                             >
                                 <PenTool className="w-3.5 h-3.5 text-amber-400" />
-                                <span>Scribe today&apos;s reflection</span>
+                                <span>Reflect</span>
                             </Button>
                         </div>
                     </div>
