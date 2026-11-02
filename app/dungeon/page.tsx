@@ -1046,19 +1046,19 @@ export default function DungeonPage() {
           }> = {
             1: {
               blueprint: { name: 'Blueprint: Serene Lake', img: '/images/kingdom-tiles/SereneLake.webp', desc: 'Unlocks serene water canal tiles for your realm sandbox (+10 DEF).', tileId: 'serene_lake' },
-              reagent: { name: 'Deeproot Moss', id: 'material-deeproot', emoji: '🌿', desc: 'Rare botanical moss for Apotheca vitality brewing.', qty: 2 }
+              reagent: { name: 'Deeproot moss', id: 'material-deeproot', emoji: '🌿', desc: 'Botanical moss for Apotheca vitality brewing.', qty: 2 }
             },
             2: {
               blueprint: { name: 'Blueprint: Waterway Canal', img: '/images/kingdom-tiles/WaterwayCanal.webp', desc: 'Unlocks capital water trade canals (+30% Tax Gold).', tileId: 'waterway_canal' },
-              reagent: { name: 'Astral Shard', id: 'material-astral-shard', emoji: '🌌', desc: 'Glowing starlight crystal for Apotheca EXP elixirs.', qty: 2 }
+              reagent: { name: 'Astral shard', id: 'material-astral-shard', emoji: '🌌', desc: 'Starlight crystal for Apotheca EXP elixirs.', qty: 2 }
             },
             3: {
               blueprint: { name: 'Blueprint: Crystal Cascades', img: '/images/kingdom-tiles/CrystalCavern.webp', desc: 'Unlocks glowing crystal waterfall tiles (+20 ATK, +20 DEF).', tileId: 'crystal_cascades' },
-              reagent: { name: 'Abyssal Pearl', id: 'material-abyssal-pearl', emoji: '🦪', desc: 'Deep sea pearl for Apotheca fortune and gem draughts.', qty: 2 }
+              reagent: { name: 'Abyssal pearl', id: 'material-abyssal-pearl', emoji: '🦪', desc: 'Deep sea pearl for Apotheca fortune draughts.', qty: 2 }
             },
             4: {
               blueprint: { name: 'Blueprint: Astral Citadel', img: '/images/kingdom-tiles/AstralCitadelMonument.webp', desc: 'Unlocks celestial star tower sanctuary (+35 ATK, +35 DEF).', tileId: 'astral_citadel' },
-              reagent: { name: 'Dragon Scale', id: 'material-dragon-scale', emoji: '🐉', desc: 'Molten wyrm scale for Apotheca dragon vigor max HP brews.', qty: 2 }
+              reagent: { name: 'Dragon scale', id: 'material-dragon-scale', emoji: '🐉', desc: 'Wyrm scale for Apotheca dragon vigor brews.', qty: 2 }
             }
           };
 
@@ -1440,7 +1440,7 @@ export default function DungeonPage() {
   const renderBossDualDropModal = () => (
     <Dialog open={!!bossDualDrop} onOpenChange={() => { setBossDualDrop(null); setRun(null); }}>
       {bossDualDrop && (
-        <DialogContent className="max-w-md bg-zinc-950 border-2 border-amber-500/50 text-white rounded-2xl p-6 shadow-2xl font-serif max-h-[88dvh] overflow-y-auto custom-scrollbar">
+        <DialogContent className="max-w-lg bg-zinc-950 border-2 border-amber-500/50 text-white rounded-2xl p-6 shadow-2xl font-serif max-h-[88dvh] overflow-y-auto custom-scrollbar">
           <DialogHeader className="text-center items-center pb-2">
             <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(245,158,11,0.5)] mb-2 animate-bounce">
               🏆
@@ -1455,44 +1455,44 @@ export default function DungeonPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid grid-cols-2 gap-3 my-3">
+          <div className="grid grid-cols-2 gap-4 my-4">
             {/* Left Drop: Blueprint or Converted Bounty */}
-            <div className="rounded-xl border border-amber-500/40 bg-zinc-900/90 p-3.5 flex flex-col items-center text-center space-y-2">
+            <div className="rounded-xl border border-amber-500/40 bg-zinc-900/90 p-4 flex flex-col items-center text-center space-y-2.5">
               <div className="w-12 h-12 rounded-xl bg-amber-950/60 border border-amber-500/50 flex items-center justify-center text-2xl shadow-inner">
                 {bossDualDrop.isDuplicate ? '👑' : (bossDualDrop.blueprint ? '📜' : '💰')}
               </div>
               <div>
-                <Badge variant="outline" className={`text-[9px] uppercase font-mono font-bold mb-1 ${
+                <Badge variant="outline" className={`text-[9px] uppercase font-mono font-bold mb-1.5 ${
                   bossDualDrop.isDuplicate ? 'border-yellow-500 text-yellow-300' : (bossDualDrop.blueprint ? 'border-amber-400 text-amber-300' : 'border-zinc-500 text-zinc-300')
                 }`}>
-                  {bossDualDrop.isDuplicate ? 'Duplicate converted' : (bossDualDrop.blueprint ? 'Kingdom blueprint' : 'Conqueror cache')}
+                  {bossDualDrop.isDuplicate ? 'Duplicate converted' : (bossDualDrop.blueprint ? 'Blueprint' : 'Victory cache')}
                 </Badge>
-                <h4 className="text-xs font-bold text-zinc-100 font-serif line-clamp-1">
+                <h4 className="text-xs font-bold text-zinc-100 font-serif">
                   {bossDualDrop.isDuplicate 
-                    ? "Royal Architect's bounty" 
-                    : (bossDualDrop.blueprint ? bossDualDrop.blueprint.name : "Keep conqueror's cache")}
+                    ? "Architect's bounty" 
+                    : (bossDualDrop.blueprint ? bossDualDrop.blueprint.name : "Conqueror's cache")}
                 </h4>
-                <p className="text-[10px] text-zinc-400 font-sans mt-1 leading-snug">
+                <p className="text-[10px] text-zinc-400 font-sans mt-1.5 leading-snug">
                   {bossDualDrop.isDuplicate
-                    ? `+${bossDualDrop.bountyAmount || 250} Gold bonus converted to prevent duplicate blueprint tiles.`
+                    ? `+${bossDualDrop.bountyAmount || 250} Gold converted from duplicate blueprint.`
                     : (bossDualDrop.blueprint ? bossDualDrop.blueprint.desc : `+${bossDualDrop.bountyAmount || 150} Gold repeat victory cache.`)}
                 </p>
               </div>
             </div>
 
             {/* Right Drop: Apotheca Reagent */}
-            <div className="rounded-xl border border-cyan-500/40 bg-zinc-900/90 p-3.5 flex flex-col items-center text-center space-y-2">
+            <div className="rounded-xl border border-cyan-500/40 bg-zinc-900/90 p-4 flex flex-col items-center text-center space-y-2.5">
               <div className="w-12 h-12 rounded-xl bg-cyan-950/60 border border-cyan-500/50 flex items-center justify-center text-2xl shadow-inner animate-pulse">
                 {bossDualDrop.reagent.emoji || '🧪'}
               </div>
               <div>
-                <Badge variant="outline" className="text-[9px] uppercase font-mono font-bold mb-1 border-cyan-400 text-cyan-300">
-                  Apotheca reagent (x{bossDualDrop.reagent.qty})
+                <Badge variant="outline" className="text-[9px] uppercase font-mono font-bold mb-1.5 border-cyan-400 text-cyan-300">
+                  Reagent (x{bossDualDrop.reagent.qty})
                 </Badge>
-                <h4 className="text-xs font-bold text-zinc-100 font-serif line-clamp-1">
+                <h4 className="text-xs font-bold text-zinc-100 font-serif">
                   {bossDualDrop.reagent.name}
                 </h4>
-                <p className="text-[10px] text-zinc-400 font-sans mt-1 leading-snug">
+                <p className="text-[10px] text-zinc-400 font-sans mt-1.5 leading-snug">
                   {bossDualDrop.reagent.desc || 'Rare alchemical essence for Grand Apotheca potion brewing.'}
                 </p>
               </div>
@@ -1501,11 +1501,11 @@ export default function DungeonPage() {
 
           {/* Rewards Summary */}
           <div className="grid grid-cols-2 gap-2 mb-3">
-            <div className="bg-zinc-900/90 border border-amber-500/30 p-2 rounded-xl text-center">
+            <div className="bg-zinc-900/90 border border-amber-500/30 p-2.5 rounded-xl text-center">
               <span className="text-[10px] text-zinc-400 block font-mono">Gold gained</span>
               <span className="text-sm font-serif font-bold text-amber-400">+{bossDualDrop.goldEarned || (bossDualDrop.bountyAmount ? bossDualDrop.bountyAmount : 150)} 🪙</span>
             </div>
-            <div className="bg-zinc-900/90 border border-blue-500/30 p-2 rounded-xl text-center">
+            <div className="bg-zinc-900/90 border border-blue-500/30 p-2.5 rounded-xl text-center">
               <span className="text-[10px] text-zinc-400 block font-mono">XP earned</span>
               <span className="text-sm font-serif font-bold text-blue-400">+{bossDualDrop.xpEarned || 80} ⭐</span>
             </div>
