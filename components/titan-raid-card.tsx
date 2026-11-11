@@ -68,12 +68,12 @@ export function TitanRaidCard() {
         if (typeof window !== 'undefined') {
           import('canvas-confetti').then(c => c.default({ particleCount: 80, spread: 70, origin: { y: 0.6 } })).catch(() => {});
         }
-        toast({ title: "🏆 Victory chest claimed!", description: data.message });
+        toast({ title: "Chest claimed", description: data.message });
       } else {
         toast({ title: "Claim failed", description: data.error || "Failed to claim rewards.", variant: "destructive" });
       }
     } catch (e) {
-      toast({ title: "Error", description: "Failed to connect to server.", variant: "destructive" });
+      toast({ title: "Claim error", description: "Failed to connect to server.", variant: "destructive" });
     } finally {
       setClaiming(false);
     }
@@ -155,12 +155,12 @@ export function TitanRaidCard() {
             </Badge>
             {remainingHp < titan.totalHp / 2 && !isDefeated && (
               <Badge className="bg-red-950 text-red-300 border border-red-500/50 text-[10px] font-bold animate-pulse">
-                ⚠️ Angry (+30% dmg)
+                ⚠️ Enraged (+30%)
               </Badge>
             )}
             {isDefeated && (
               <Badge className="bg-emerald-950 text-emerald-300 border border-emerald-500/50 flex items-center gap-1 font-bold text-[10px]">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Boss defeated!
+                <CheckCircle2 className="w-3.5 h-3.5" /> Boss defeated
               </Badge>
             )}
           </div>
@@ -172,7 +172,7 @@ export function TitanRaidCard() {
             className="h-7 text-xs text-amber-300/90 border-amber-900/50 bg-amber-950/20 hover:bg-amber-900/40 hover:text-amber-200 rounded-lg flex items-center gap-1.5 px-2.5"
           >
             <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-            <span>All 12 titans</span>
+            <span>View lore</span>
           </Button>
         </div>
 
@@ -193,9 +193,9 @@ export function TitanRaidCard() {
             <span className="text-base sm:text-lg select-none shrink-0 mt-0.5">📜</span>
             <div className="space-y-1">
               <div className="text-xs font-medium text-amber-400/90 flex items-center gap-1.5">
-                <span>Realm threat dispatch</span>
+                <span>Threat dispatch</span>
                 <span className="text-zinc-500">•</span>
-                <span className="font-normal text-zinc-400 font-sans capitalize">{titan.element} elemental threat</span>
+                <span className="font-normal text-zinc-400 font-sans capitalize">{titan.element} threat</span>
               </div>
               <p className="text-xs sm:text-[13px] text-zinc-200 font-serif italic leading-relaxed">
                 &ldquo;{titan.storyIntro || titan.description}&rdquo;
@@ -370,9 +370,9 @@ export function TitanRaidCard() {
             {/* Overall Defeat Status / Notice */}
             <div className="pt-2 text-center text-xs text-zinc-400">
               {isDefeated ? (
-                <span className="text-emerald-400 font-medium">✨ Titan Wyrm repelled! Claim any remaining victory chests above.</span>
+                <span className="text-emerald-400 font-medium">Titan repelled. Claim your victory chests.</span>
               ) : (
-                <span>Complete daily habits to deal strike damage and unlock the next milestone chest!</span>
+                <span>Complete habits to deal damage and unlock chests.</span>
               )}
             </div>
           </div>
@@ -387,11 +387,11 @@ export function TitanRaidCard() {
           <div className="flex items-center gap-2 text-amber-400">
             <BookOpen className="w-5 h-5" />
             <DialogTitle className="text-lg sm:text-xl font-serif font-bold text-amber-300">
-              Monthly titan raid chronicle
+              Titan chronicle
             </DialogTitle>
           </div>
           <DialogDescription className="text-xs text-zinc-400">
-            Twelve primal titans threaten the realm across the year. Rally with your fellowship allies to repel each sovereign!
+            Twelve primal titans threaten the realm throughout the year. Rally allies to repel each sovereign.
           </DialogDescription>
         </DialogHeader>
 

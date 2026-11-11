@@ -349,11 +349,11 @@ export function DailyHubClient() {
                 logger.warn('Error saving active perk to localStorage:', err)
             }
 
-            toast.success(`${buff.name} activated! ${buff.effect} for ${buff.durationHours} hours.`)
+            toast.success("Buff active", { description: `${buff.name} enabled for ${buff.durationHours}h` })
             await loadActivePerks()
         } catch (error) {
             logger.error('Failed to activate buff:', error)
-            toast.error('Failed to activate buff. Please try again.')
+            toast.error("Buff failed")
         } finally {
             setActivatingBuffId(null)
         }
@@ -478,7 +478,7 @@ export function DailyHubClient() {
         import('canvas-confetti').then(m => m.default({ particleCount: 40, spread: 60, origin: { y: 0.7 } })).catch(() => {});
         const nextCount = completedQuestIds.size + 1;
         if (nextCount === 5) {
-            toast.success("🔥 5/10 Daily Habit Target Hit! +25% Gold & Essences Streak Multiplier Unlocked!");
+            toast.success("Target hit", { description: "+25% streak multiplier unlocked" });
         }
         setCompletedQuestIds(prev => new Set(prev).add(quest.id))
         setFavoritedQuests(prev => prev.map(q =>
@@ -609,8 +609,8 @@ export function DailyHubClient() {
                             <div className="flex items-center gap-2">
                                 <span className="text-xl">🔥</span>
                                 <div>
-                                    <h3 className="text-sm font-bold font-serif text-amber-300">Expedition companion</h3>
-                                    <p className="text-[11px] text-zinc-400">Daily synergy & focus</p>
+                                    <h3 className="text-sm font-bold font-serif text-amber-300">Companion</h3>
+                                    <p className="text-[11px] text-zinc-400">Morning focus</p>
                                 </div>
                             </div>
                             {stats.streakDays > 0 ? (() => {
@@ -633,7 +633,7 @@ export function DailyHubClient() {
                                   <Link
                                     href="/quests?tab=recovery"
                                     className={cn("flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-bold font-mono transition-all hover:scale-105 active:scale-95 cursor-pointer", badgeClass)}
-                                    title={`${streakTitle}: ${days} days • Tap to open streak save & recovery`}
+                                    title={`${streakTitle}: ${days} days • Streak recovery`}
                                   >
                                       <Flame className={cn("w-3.5 h-3.5 animate-bounce", flameClass)} style={{ animationDuration: '2s' }} />
                                       <span>Day {days} streak</span>
@@ -644,7 +644,7 @@ export function DailyHubClient() {
                               <Link
                                 href="/quests?tab=recovery"
                                 className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/40 text-cyan-300 text-xs font-bold font-mono transition-all hover:scale-105"
-                                title="Open streak save & recovery"
+                                title="Streak recovery"
                               >
                                 <span>❄️ Streak save</span>
                               </Link>
@@ -657,8 +657,8 @@ export function DailyHubClient() {
                                 <div className="flex items-center gap-2">
                                     <span className="text-xl animate-bounce">⚠️</span>
                                     <div>
-                                        <h4 className="font-bold text-red-400 text-xs">Streak shield cracking!</h4>
-                                        <p className="text-[10px] text-zinc-300">Complete 1 quest before midnight to keep it burning.</p>
+                                        <h4 className="font-bold text-red-400 text-xs">Streak warning</h4>
+                                        <p className="text-[10px] text-zinc-300">Complete 1 quest before midnight.</p>
                                     </div>
                                 </div>
                                 <Button
@@ -669,7 +669,7 @@ export function DailyHubClient() {
                                     }}
                                     className="bg-red-700 hover:bg-red-600 text-white font-bold text-[10px] px-2.5 py-1 rounded-lg shrink-0"
                                 >
-                                    Do a quest
+                                    View quests
                                 </Button>
                             </div>
                         )}
@@ -913,71 +913,50 @@ export function DailyHubClient() {
                     </div>
                 </div>
 
-                {/* How to build habits guide */}
-                <Card className="bg-zinc-950 border-amber-900/40 overflow-hidden">
-                    <CardContent className="p-6 md:p-8">
-                        <h2 className="text-xl md:text-2xl font-bold text-amber-500 font-medieval tracking-wide mb-6">How to build habits</h2>
-
-                        <div className="flex flex-col md:flex-row gap-8 items-center">
-                            {/* Left Side: Steps List */}
-                            <div className="flex-1 space-y-5">
-                                <div className="flex gap-4">
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">1</div>
-                                    <div>
-                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Daily habits</h3>
-                                        <p className="text-xs text-zinc-300 leading-relaxed">Completing tasks to earn resources.</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-4">
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">2</div>
-                                    <div>
-                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Expanding realm</h3>
-                                        <p className="text-xs text-zinc-300 leading-relaxed">Using resources to grow your map.</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-4">
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">3</div>
-                                    <div>
-                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Daily kingdom</h3>
-                                        <p className="text-xs text-zinc-300 leading-relaxed">Managing and maintaining your new territory.</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-4">
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">4</div>
-                                    <div>
-                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Competitive friends</h3>
-                                        <p className="text-xs text-zinc-300 leading-relaxed">Engaging with friends and rivals.</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-4">
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-500 font-bold border border-amber-700/50">5</div>
-                                    <div>
-                                        <h3 className="text-amber-400 font-bold text-base mb-0.5">Building character</h3>
-                                        <p className="text-xs text-zinc-300 leading-relaxed">Leveling up your personal stats based on progress.</p>
-                                    </div>
-                                </div>
+                {/* Habit loop guide (expandable to keep morning view clean) */}
+                <details className="group rounded-2xl border border-amber-900/40 bg-zinc-950/80 p-4 transition-all shadow-xl">
+                    <summary className="flex cursor-pointer items-center justify-between text-xs font-serif font-bold text-amber-400">
+                        <span className="flex items-center gap-2">
+                            <span>📖</span>
+                            <span>Habit guide</span>
+                        </span>
+                        <span className="text-[11px] font-sans font-normal text-zinc-400 group-open:hidden">
+                            Tap to view loop
+                        </span>
+                    </summary>
+                    <div className="pt-4 flex flex-col md:flex-row gap-6 items-center border-t border-amber-900/20 mt-3">
+                        <div className="flex-1 space-y-3">
+                            <div className="flex gap-3 items-center">
+                                <span className="w-6 h-6 rounded-full bg-amber-950 border border-amber-700/50 flex items-center justify-center text-xs font-bold text-amber-400 shrink-0">1</span>
+                                <span className="text-xs text-zinc-300"><strong>Daily habits:</strong> Complete routines to earn gold and essences.</span>
                             </div>
-
-                            {/* Right Side: Image */}
-                            <div className="flex-1 w-full max-w-md">
-                                <div className="relative aspect-square rounded-xl overflow-hidden border border-amber-900/30 shadow-2xl bg-zinc-950">
-                                    <NextImage
-                                        src="/images/placeholders/gameplay-loop.webp"
-                                        alt="Level up gameplay loop"
-                                        fill
-                                        priority
-                                        className="object-contain p-2"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent pointer-events-none mix-blend-overlay" />
-                                </div>
+                            <div className="flex gap-3 items-center">
+                                <span className="w-6 h-6 rounded-full bg-amber-950 border border-amber-700/50 flex items-center justify-center text-xs font-bold text-amber-400 shrink-0">2</span>
+                                <span className="text-xs text-zinc-300"><strong>Expanding realm:</strong> Use materials to place and upgrade tiles.</span>
+                            </div>
+                            <div className="flex gap-3 items-center">
+                                <span className="w-6 h-6 rounded-full bg-amber-950 border border-amber-700/50 flex items-center justify-center text-xs font-bold text-amber-400 shrink-0">3</span>
+                                <span className="text-xs text-zinc-300"><strong>Kingdom taxes:</strong> Harvest passive resources from your settlement.</span>
+                            </div>
+                            <div className="flex gap-3 items-center">
+                                <span className="w-6 h-6 rounded-full bg-amber-950 border border-amber-700/50 flex items-center justify-center text-xs font-bold text-amber-400 shrink-0">4</span>
+                                <span className="text-xs text-zinc-300"><strong>Allies & dares:</strong> Race friends to hit your daily sweet spot.</span>
+                            </div>
+                            <div className="flex gap-3 items-center">
+                                <span className="w-6 h-6 rounded-full bg-amber-950 border border-amber-700/50 flex items-center justify-center text-xs font-bold text-amber-400 shrink-0">5</span>
+                                <span className="text-xs text-zinc-300"><strong>Character stats:</strong> Level attributes and unlock titles.</span>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
+                        <div className="w-full md:w-48 aspect-video md:aspect-square relative rounded-xl overflow-hidden border border-amber-900/30 shrink-0 bg-zinc-950">
+                            <NextImage
+                                src="/images/placeholders/gameplay-loop.webp"
+                                alt="Gameplay loop"
+                                fill
+                                className="object-contain p-2"
+                            />
+                        </div>
+                    </div>
+                </details>
 
                 {/* BENTO ROW 2 — Habit execution & active perks */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
@@ -1493,10 +1472,10 @@ function DailyChestStatusWidget() {
       playSFX("sparkle");
       hapticMedium();
 
-      toast.success("Free daily chest claimed! Added to your mystery card vault.");
+      toast.success("Chest claimed", { description: "Added to card vault" });
       updateStatus();
     } catch (e) {
-      toast.error("Failed to claim daily chest.");
+      toast.error("Claim failed");
     } finally {
       setIsClaiming(false);
     }
@@ -1523,12 +1502,12 @@ function DailyChestStatusWidget() {
         </MedievalOrbIcon>
         <div>
           <h4 className="font-bold text-sm text-white font-serif">
-            Free daily chest
+            Daily chest
           </h4>
           <p className="text-[11px] text-zinc-400 font-sans mt-0.5">
             {isReady
-              ? "Claim today's free daily gift to unlock mystery creature cards & rare alchemy essences."
-              : `Opened today. Next free chest unlocks at midnight (${timeUntilReset} remaining).`}
+              ? "Unlock creature cards and essences."
+              : `Opened today. Resets in ${timeUntilReset}.`}
           </p>
         </div>
       </div>
@@ -1545,7 +1524,7 @@ function DailyChestStatusWidget() {
               : "bg-zinc-900 border border-zinc-800 text-zinc-500 cursor-not-allowed opacity-60 hover:bg-zinc-900"
           )}
         >
-          {isClaiming ? "Claiming..." : "Claim free chest 🎁"}
+          {isClaiming ? "Claiming..." : "Claim chest"}
         </Button>
 
         <Link href="/market?tab=mystic-shop" className="w-full sm:w-auto">
@@ -1553,7 +1532,7 @@ function DailyChestStatusWidget() {
             size="sm"
             className="w-full sm:w-auto text-xs font-medium rounded-xl px-3 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 flex items-center justify-center gap-1"
           >
-            Mystic bazaar →
+            Mystic bazaar
           </Button>
         </Link>
       </div>

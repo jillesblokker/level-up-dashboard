@@ -30,7 +30,7 @@ const CARDS: { id: CardType; name: string; task: string; quote: string; image: s
     task: 'Do 10 push ups',
     quote: '"A true king sometimes needs to lead by example and makes his hands dirty."',
     image: '/images/fortune-cards/fortune_card_king.webp',
-    reward: '1 Random Material'
+    reward: '1 Material'
   },
   {
     id: 'joker',
@@ -38,7 +38,7 @@ const CARDS: { id: CardType; name: string; task: string; quote: string; image: s
     task: 'Clean up at least 1 item',
     quote: '"Even a trickster must occasionally clean up their own mess."',
     image: '/images/fortune-cards/fortune_card_joker.webp',
-    reward: '1 Mythic Scratch Card'
+    reward: '1 Scratch card'
   },
   {
     id: 'ace',
@@ -107,8 +107,8 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
         }
 
         toast({
-          title: `🔮 Fortune claimed: ${card?.name || 'Tarot Card'}!`,
-          description: `You received: ${card?.reward || 'Daily blessing'}!`,
+          title: "Fortune claimed",
+          description: card?.reward || 'Daily blessing',
         });
 
         if (onComplete) onComplete();
@@ -129,8 +129,8 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
       const data = await response.json()
       
       toast({
-        title: "Fortune Claimed!",
-        description: `You received: ${data.rewardMessage}`,
+        title: "Fortune claimed",
+        description: data.rewardMessage,
       })
 
       // Refresh stats
@@ -143,7 +143,7 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
     } catch (error) {
       console.error(error)
       toast({
-        title: "Error",
+        title: "Claim failed",
         description: "The spirits are silent. Try again later.",
         variant: "destructive"
       })
@@ -159,10 +159,10 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
       <DialogContent className="max-w-full sm:max-w-[560px] border-2 border-emerald-800/60 bg-slate-950/95 backdrop-blur-md p-4 sm:p-6 rounded-2xl overflow-y-auto max-h-[90dvh] shadow-2xl">
         <DialogHeader className="px-8 sm:px-10 pb-2 mb-2">
           <DialogTitle className="text-2xl font-medieval text-emerald-400 text-center break-words">
-            🔮 The fortune teller
+            🔮 Fortune teller
           </DialogTitle>
           <DialogDescription className="text-center text-emerald-200/80 text-xs sm:text-sm">
-            {!selectedCard ? "Pick a card to reveal your destiny..." : "Your fate is sealed."}
+            {!selectedCard ? "Choose a fate card." : "Fate revealed."}
           </DialogDescription>
         </DialogHeader>
 
@@ -222,16 +222,16 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
                   <p className="text-xs sm:text-sm italic text-emerald-100/80 leading-relaxed">&quot;{selectedData.quote.replace(/"/g, '')}&quot;</p>
                 </div>
 
-                <div className="bg-slate-900/90 border border-emerald-500/40 rounded-xl p-4 w-full text-center space-y-2 shadow-lg">
-                  <div className="flex items-center justify-between text-xs text-slate-400 font-semibold border-b border-emerald-900/40 pb-1.5 mb-1">
-                    <span>Your Destiny Task</span>
-                    <span className="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30">
-                      🔮 24h Tarot Blessing
+                <div className="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-4 w-full text-center space-y-2 shadow-lg">
+                  <div className="flex items-center justify-between text-xs text-slate-400 font-medium border-b border-emerald-900/40 pb-1.5 mb-1">
+                    <span>Destiny task</span>
+                    <span className="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                      Daily blessing
                     </span>
                   </div>
                   <p className="text-base sm:text-lg text-white font-bold">{selectedData.task}</p>
-                  <div className="pt-2 border-t border-emerald-900/40 flex items-center justify-center gap-1.5 text-xs text-emerald-400 font-bold">
-                    <span>✨ Reward:</span>
+                  <div className="pt-2 border-t border-emerald-900/40 flex items-center justify-center gap-1.5 text-xs text-emerald-400 font-medium">
+                    <span className="text-slate-400">Reward:</span>
                     <span>{selectedData.reward}</span>
                   </div>
                 </div>
@@ -239,12 +239,12 @@ export function FortuneTellerModal({ open, onOpenChange, x, y, tileId, onComplet
                 <Button 
                   onClick={handleCompleteTask} 
                   disabled={isProcessing}
-                  className="w-full font-serif font-bold h-12 text-base rounded-xl shadow-lg min-h-[48px]"
+                  className="w-full font-serif font-bold h-11 text-sm rounded-xl shadow-lg min-h-[44px]"
                 >
                   {isProcessing ? (
-                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Channeling...</>
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Claiming...</>
                   ) : (
-                    "I have completed this task"
+                    "Complete task"
                   )}
                 </Button>
               </>

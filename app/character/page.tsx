@@ -200,16 +200,16 @@ export default function CharacterPage() {
     const currentAffection = petAffections[pet.id] ?? 50;
     if (currentAffection >= 100) {
       toast({
-        title: "Max affection reached ❤️",
-        description: `${pet.name} is already at 100% affection and completely satisfied.`,
+        title: "Max affection",
+        description: `${pet.name} is already at 100% affection.`,
       });
       return;
     }
 
     if (totalTreatCount <= 0) {
       toast({
-        title: "No botanical treats in inventory 🍎",
-        description: "Harvest your kingdom vegetable farm or visit the market trading post to acquire botanical treats.",
+        title: "No treats",
+        description: "Harvest vegetable farms or visit the market to acquire treats.",
         variant: "destructive"
       });
       return;
@@ -251,8 +251,8 @@ export default function CharacterPage() {
     }
 
     toast({
-      title: `Fed ${pet.name}! 🍎`,
-      description: `Increased pet affection to ${updatedAffection}% (+5% boost, passive yield strengthened).`,
+      title: "Pet fed",
+      description: `${pet.name} affection raised to ${updatedAffection}% (+5% yields).`,
     });
   };
 
@@ -559,7 +559,7 @@ export default function CharacterPage() {
       }));
 
       toast({
-        title: "Title Equipped",
+        title: "Title equipped",
         description: `You are now known as ${equipped.name}`,
       });
     }
@@ -589,7 +589,7 @@ export default function CharacterPage() {
 
       if (response.ok && data.success) {
         toast({
-          title: "Ascension Successful!",
+          title: "Ascension complete",
           description: "You have been reborn with new power. Level reset to 1.",
         });
 
@@ -612,7 +612,7 @@ export default function CharacterPage() {
         }));
       } else {
         toast({
-          title: "Ascension Failed",
+          title: "Ascension failed",
           description: data.error || "Could not process ascension.",
           variant: "destructive"
         });
@@ -1757,18 +1757,18 @@ export default function CharacterPage() {
               <TabsContent value="pets" className="mt-6">
                 <div className="max-w-7xl mx-auto w-full space-y-6">
                   {/* Botanical treats inventory & guidance banner */}
-                  <div className="p-3.5 bg-gradient-to-r from-amber-950/40 via-zinc-950 to-amber-950/30 border border-amber-500/30 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-inner">
+                  <div className="p-3.5 bg-gradient-to-r from-amber-950/40 via-zinc-950 to-amber-950/30 border border-amber-500/30 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-inner">
                     <div className="flex items-center gap-2.5 text-xs text-zinc-300">
                       <span className="text-xl">🍎</span>
                       <span className="font-serif">
-                        <strong className="text-amber-300 font-bold">Botanical treat feeding:</strong> Feed golden apples or honeyed berries to increase pet affection (+5%) and boost passive kingdom yields. Treats drop rarely from vegetable farms or can be purchased in the market trading post.
+                        <strong className="text-amber-300 font-bold">Pet treats:</strong> Feed botanical treats to increase affection (+5%) and boost passive yields.
                       </span>
                     </div>
                     <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-950/60 border border-amber-500/40 text-xs text-amber-200">
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-950/60 border border-amber-500/40 text-xs text-amber-200">
                         <span>🍎</span>
                         <span className="font-mono font-bold text-amber-300">{totalTreatCount}</span>
-                        <span className="text-zinc-400">treats owned</span>
+                        <span className="text-zinc-400">treats</span>
                       </div>
                     </div>
                   </div>
