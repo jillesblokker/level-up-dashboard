@@ -283,7 +283,7 @@ export default function AlliesPage() {
                 const error = await res.json();
                 if (res.status === 500) {
                     toast({
-                        title: "System Update Required",
+                        title: "Update required",
                         description: "The social features database tables are missing. Please run the migration script.",
                         variant: "destructive",
                         duration: 10000
@@ -360,7 +360,7 @@ export default function AlliesPage() {
             });
 
             if (res.ok) {
-                toast({ title: "Challenge Sent! ⚔️", description: `You have challenged ${selectedFriend.username} to a duel.` });
+                toast({ title: "Duel sent", description: `You have challenged ${selectedFriend.username} to a duel.` });
                 setChallengeModalOpen(false);
                 setChallengeForm({
                     name: "",
@@ -392,7 +392,7 @@ export default function AlliesPage() {
             });
 
             if (res.ok) {
-                toast({ title: "Quest Sent", description: TEXT_CONTENT.social.modals.quest.toast.success.replace('{username}', selectedFriend.username) });
+                toast({ title: "Quest sent", description: TEXT_CONTENT.social.modals.quest.toast.success.replace('{username}', selectedFriend.username) });
                 setQuestModalOpen(false);
                 setQuestForm({
                     title: "",
@@ -421,12 +421,12 @@ export default function AlliesPage() {
             const data = await res.json();
             if (res.ok) {
                 toast({
-                    title: "Mercenary Hired!",
+                    title: "Mercenary hired",
                     description: `${friend.username} joined your party! +20% ${data.buff.stat} for 24h.`,
                     className: "bg-amber-900 border-amber-500 text-amber-100"
                 });
             } else {
-                toast({ title: "Hire Failed", description: data.error || "Could not hire friend", variant: "destructive" });
+                toast({ title: "Hire failed", description: data.error || "Could not hire friend", variant: "destructive" });
             }
         } catch (error) {
             toast({ title: "Error", description: "Failed to connect to the Tavern", variant: "destructive" });
@@ -509,7 +509,7 @@ export default function AlliesPage() {
                         </TabsTrigger>
                         <TabsTrigger value="alliances" className="flex items-center gap-2 py-2.5 h-full px-5 rounded-xl text-xs font-bold font-serif transition-all whitespace-nowrap min-h-[40px]">
                             <Shield className="w-4 h-4 text-amber-500" />
-                            <span>Titan raid & fellowships</span>
+                            <span>Fellowships</span>
                             <CollectibleRune
                                 id="thurisaz_raid"
                                 runeId="thurisaz"
@@ -521,12 +521,12 @@ export default function AlliesPage() {
                         </TabsTrigger>
                         <TabsTrigger value="allies" className="flex items-center gap-2 py-2.5 h-full px-5 rounded-xl text-xs font-bold font-serif transition-all whitespace-nowrap min-h-[40px]">
                             <Users className="w-4 h-4 text-amber-400" />
-                            Allies & friends
+                            Friends
                             {friends.length > 0 && <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{friends.length}</Badge>}
                         </TabsTrigger>
                         <TabsTrigger value="legends" className="flex items-center gap-2 py-2.5 h-full px-5 rounded-xl text-xs font-bold font-serif transition-all whitespace-nowrap min-h-[40px]">
                             <Crown className="w-4 h-4 text-amber-300" />
-                            Hall of legends
+                            Legends
                         </TabsTrigger>
                         <TabsTrigger value="tavern-dice" className="flex items-center gap-2 py-2.5 h-full px-5 rounded-xl text-xs font-bold font-serif transition-all whitespace-nowrap min-h-[40px]">
                             <Dices className="w-4 h-4 text-amber-400" />
@@ -543,14 +543,14 @@ export default function AlliesPage() {
                                     ⚔️
                                 </div>
                                 <div>
-                                    <h3 className="font-medieval text-lg font-bold text-amber-300">1v1 Virtue duel daily habit race</h3>
+                                    <h3 className="font-medieval text-lg font-bold text-amber-300">Virtue duel</h3>
                                     <p className="text-xs text-zinc-300 mt-0.5">
-                                        First friend to reach their 5/10 daily habit sweet spot wins <span className="font-bold text-amber-400">+10 House Cup virtue points</span> for both players!
+                                        First friend to reach 5 daily habits wins <span className="font-bold text-amber-400">+10 House Cup virtue points</span> for both players.
                                     </p>
                                 </div>
                             </div>
                             <Badge className="bg-amber-600/30 border border-amber-400/60 text-amber-300 font-bold px-4 py-1.5 text-xs shrink-0">
-                                Race active today
+                                Race active
                             </Badge>
                         </div>
                         <HouseCupPanel />
@@ -567,7 +567,7 @@ export default function AlliesPage() {
                                 <div>
                                     <div className="flex items-center gap-2 flex-wrap">
                                         <h3 className="font-medieval text-base sm:text-lg font-bold text-red-200">
-                                            Fellowship Titan Wyrm raid
+                                            Fellowship raid
                                         </h3>
                                         <CollectibleRune
                                             id="thurisaz_raid"
@@ -578,11 +578,11 @@ export default function AlliesPage() {
                                             className="text-red-400"
                                         />
                                         <Badge className="bg-red-900/60 text-red-300 border border-red-500/40 text-[10px] font-bold px-2 py-0.5 font-mono">
-                                            Habits deal raid DMG
+                                            Habits deal damage
                                         </Badge>
                                     </div>
                                     <p className="text-xs text-zinc-300 mt-1 max-w-xl">
-                                        Assemble with your fellowship to strike down the colossal weekly raid boss. Daily habits deal real damage and unlock shared victory chests!
+                                        Strike down the weekly raid boss with your fellowship to unlock shared victory chests.
                                     </p>
                                 </div>
                             </div>
@@ -591,7 +591,7 @@ export default function AlliesPage() {
                                 className="btn-primary-cta w-full sm:w-auto text-xs px-5 py-2.5 h-auto shadow-lg flex items-center justify-center gap-2 font-serif font-bold shrink-0"
                             >
                                 <Swords className="w-4 h-4" />
-                                <span>Enter raid chamber</span>
+                                <span>Enter raid</span>
                             </Button>
                         </div>
 

@@ -45,11 +45,11 @@ export function FriendDareModal({ isOpen, onClose, onSendDare }: FriendDareModal
           <div className="flex items-center gap-2 text-amber-400">
             <Swords className="w-6 h-6" />
             <DialogTitle className="text-xl font-bold tracking-wide text-amber-100">
-              Issue friend dare & virtue duel
+              Virtue duel
             </DialogTitle>
           </div>
           <DialogDescription className="text-zinc-400 text-xs mt-1">
-            Dare a friend to complete a habit today! Completing habit dares awards <span className="text-amber-400 font-bold">+10 bonus House Cup virtue points</span> to both issuer and recipient!
+            Dare a friend to complete a habit today for +10 House Cup virtue points.
           </DialogDescription>
         </DialogHeader>
 
@@ -58,8 +58,8 @@ export function FriendDareModal({ isOpen, onClose, onSendDare }: FriendDareModal
             <div className="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 mx-auto flex items-center justify-center animate-bounce">
               <Sparkles className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-sm text-zinc-100">Dare issued to {friendName}!</h4>
-            <p className="text-xs text-zinc-400">Awarded +10 virtue points to your House Cup hourglass!</p>
+            <h4 className="font-bold text-sm text-zinc-100">Dare sent to {friendName}</h4>
+            <p className="text-xs text-zinc-400">+10 virtue points awarded.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="my-4 space-y-4">

@@ -342,8 +342,8 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
 
         if (currentFocus >= FOCUS_COST) {
           toast({
-            title: "Labyrinth already used (1/1) 🧩",
-            description: `Locked until midnight. Spend ${FOCUS_COST} focus points to reset and play again?`,
+            title: "Labyrinth locked",
+            description: `Locked until midnight. Spend ${FOCUS_COST} focus points to reset?`,
             action: (
               <ToastAction
                 altText={`Reset (${FOCUS_COST} FP)`}
@@ -362,8 +362,8 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
                   window.dispatchEvent(new CustomEvent('minigame-reset', { detail: { type: 'plank-labyrinth' } }));
                   window.dispatchEvent(new CustomEvent('open-plank-labyrinth'));
                   toast({
-                    title: "Labyrinth unlocked! 🧠",
-                    description: `Spent ${FOCUS_COST} focus points! The plank labyrinth has been reset.`
+                    title: "Labyrinth unlocked",
+                    description: `Spent ${FOCUS_COST} focus points to reset.`
                   });
                 }}
               >
@@ -373,8 +373,8 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
           });
         } else {
           toast({
-            title: "Labyrinth locked (1/1) 🧩",
-            description: `The labyrinth is locked until midnight. Earn ${FOCUS_COST - currentFocus} more focus points (you have ${currentFocus}) to unlock immediately!`,
+            title: "Labyrinth locked",
+            description: `Locked until midnight. Need ${FOCUS_COST - currentFocus} more focus points to unlock.`,
             variant: "destructive",
             action: (
               <ToastAction altText="View focus" onClick={() => window.location.href = '/character'}>
@@ -504,8 +504,8 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
                   body: JSON.stringify({ minigameType: 'plank_puzzle', points: 10 }),
                 }).catch(() => {})
                 toast({
-                  title: "Labyrinth solved! 🎉",
-                  description: `You cleared the planks in ${moves + 1} moves! Earned ${gold} gold, ${xp} XP, and +10 Craft virtue.`,
+                  title: "Labyrinth solved",
+                  description: `Cleared in ${moves + 1} moves! +${gold}g, +${xp} XP, and +10 Craft virtue.`,
                 })
                 setTimeout(() => {
                   onComplete(true, gold, xp)
@@ -652,8 +652,8 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
       }).catch(() => {})
 
       toast({
-        title: "Labyrinth solved! 🎉",
-        description: `You cleared the labyrinth in ${moves + 1} moves! Earned +${gold} gold, +${xp} XP, +10 Craft virtue, and 'Labyrinth walker' title!`,
+        title: "Labyrinth solved",
+        description: `Cleared in ${moves + 1} moves! +${gold}g, +${xp} XP, and 'Labyrinth walker' title!`,
       })
       
       setTimeout(() => {
@@ -689,10 +689,10 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
       <DialogContent className="max-w-lg w-full bg-zinc-950/95 border border-amber-900/40 text-white rounded-2xl p-3 sm:p-5 shadow-2xl overflow-y-auto max-h-[88vh] font-serif pb-safe">
         <DialogHeader className="text-center border-b border-amber-900/20 pb-2.5 px-8 sm:px-10">
           <DialogTitle className="text-2xl sm:text-3xl font-serif font-bold tracking-wide text-amber-400 break-words">
-            Plank Labyrinth
+            Plank labyrinth
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400 italic">
-            Slide the heavy oak barriers to clear the water channel. Guide your ship to the open sea.
+            Slide oak barriers to guide your ship to the open sea.
           </DialogDescription>
         </DialogHeader>
 
@@ -866,7 +866,7 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
                   disabled={hasWon || !selectedId}
                   onClick={() => moveSelected("up")}
                   className="bg-gradient-to-b from-zinc-800 to-zinc-900 hover:from-zinc-700 hover:to-zinc-800 border border-amber-900/30 text-white rounded-lg h-9 w-9 shadow active:scale-95 transition-all"
-                  aria-label="Move Selected Plank Up"
+                  aria-label="Move plank up"
                 >
                   <ArrowUp className="w-4 h-4 text-amber-400" />
                 </Button>
@@ -876,7 +876,7 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
                     disabled={hasWon || !selectedId}
                     onClick={() => moveSelected("left")}
                     className="bg-gradient-to-b from-zinc-800 to-zinc-900 hover:from-zinc-700 hover:to-zinc-800 border border-amber-900/30 text-white rounded-lg h-9 w-9 shadow active:scale-95 transition-all"
-                    aria-label="Move Selected Plank Left"
+                    aria-label="Move plank left"
                   >
                     <ArrowLeft className="w-4 h-4 text-amber-400" />
                   </Button>
@@ -885,7 +885,7 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
                     disabled={hasWon || !selectedId}
                     onClick={() => moveSelected("right")}
                     className="bg-gradient-to-b from-zinc-800 to-zinc-900 hover:from-zinc-700 hover:to-zinc-800 border border-amber-900/30 text-white rounded-lg h-9 w-9 shadow active:scale-95 transition-all"
-                    aria-label="Move Selected Plank Right"
+                    aria-label="Move plank right"
                   >
                     <ArrowRight className="w-4 h-4 text-amber-400" />
                   </Button>
@@ -895,7 +895,7 @@ export function PlankPuzzleModal({ isOpen, onClose, onComplete }: PlankPuzzleMod
                   disabled={hasWon || !selectedId}
                   onClick={() => moveSelected("down")}
                   className="bg-gradient-to-b from-zinc-800 to-zinc-900 hover:from-zinc-700 hover:to-zinc-800 border border-amber-900/30 text-white rounded-lg h-9 w-9 shadow active:scale-95 transition-all"
-                  aria-label="Move Selected Plank Down"
+                  aria-label="Move plank down"
                 >
                   <ArrowDown className="w-4 h-4 text-amber-400" />
                 </Button>

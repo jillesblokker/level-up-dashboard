@@ -72,8 +72,8 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
 
       setClaimed(true);
       toast({
-        title: "Rewards claimed! 🏆",
-        description: `Received ${gold.toLocaleString()} gold & ${essence} essences! Title unlocked: Paragon of virtue.`,
+        title: "Rewards claimed",
+        description: `+${gold.toLocaleString()} gold and ${essence} essences. Title unlocked: Paragon of virtue.`,
       });
 
       setTimeout(() => {
@@ -95,10 +95,10 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
       <Dialog open={isOpen} onOpenChange={(op) => { if (!op) onClose(); }}>
         <DialogContent className="max-w-md bg-zinc-950 border border-amber-900/40 text-amber-100 p-8 text-center">
           <DialogHeader className="sr-only">
-            <DialogTitle>House cup standings</DialogTitle>
+            <DialogTitle>House cup recap</DialogTitle>
           </DialogHeader>
           <Sparkles className="w-8 h-8 text-amber-400 animate-spin mx-auto mb-3" />
-          <p className="font-medieval text-lg">Gathering house cup standings...</p>
+          <p className="font-medieval text-lg">Gathering standings...</p>
         </DialogContent>
       </Dialog>
     );
@@ -118,15 +118,15 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
             <Trophy className="w-6 h-6 text-amber-400 animate-bounce" />
           </div>
           <DialogTitle className="font-medieval text-2xl text-amber-300 tracking-wide">
-            {isAnnual ? `The house cup ${recapData?.year || 2026} celebration` : `Monthly virtue recap`}
+            House cup recap
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400 italic">
-            Honoring consistency, virtue energy, and sovereign habit momentum across the realm.
+            Virtue energy standings across the realm.
           </DialogDescription>
         </DialogHeader>
 
         {/* Champion Showcase Banner */}
-        <div className="my-4 p-4 rounded-xl bg-gradient-to-r from-amber-900/40 via-zinc-900 to-amber-900/40 border border-amber-500/30 text-center relative overflow-hidden">
+        <div className="my-4 p-4 rounded-2xl bg-gradient-to-r from-amber-900/40 via-zinc-900 to-amber-900/40 border border-amber-500/30 text-center relative overflow-hidden">
           <div className="absolute -top-3 -right-3 w-16 h-16 bg-amber-500/10 rounded-full blur-xl pointer-events-none" />
           <div className="flex items-center justify-center gap-2 text-xs font-semibold text-amber-400 mb-1">
             <Crown className="w-4 h-4 text-amber-300" />
@@ -140,13 +140,13 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
 
         {/* User Stats & Ally Scaling Info */}
         <div className="grid grid-cols-2 gap-2 mb-4 text-center">
-          <div className="p-3 bg-zinc-950/80 rounded-xl border border-amber-900/30">
+          <div className="p-3 bg-zinc-950/80 rounded-2xl border border-amber-900/30">
             <div className="text-[10px] text-zinc-400 font-semibold">Your score</div>
             <div className="font-medieval text-lg text-amber-300 mt-0.5">
               {viewerStanding.total_points.toLocaleString()} pts
             </div>
           </div>
-          <div className="p-3 bg-zinc-950/80 rounded-xl border border-amber-900/30">
+          <div className="p-3 bg-zinc-950/80 rounded-2xl border border-amber-900/30">
             <div className="text-[10px] text-zinc-400 font-semibold flex items-center justify-center gap-1">
               <Users className="w-3 h-3 text-amber-400" /> Participating friends
             </div>
@@ -201,7 +201,7 @@ export function HouseCupRecapModal({ isOpen, onClose, type = 'monthly' }: HouseC
               : ""
           }`}
         >
-          {claiming ? "Claiming rewards..." : claimed ? "Rewards claimed ✓" : "Claim house cup rewards"}
+          {claiming ? "Claiming..." : claimed ? "Rewards claimed" : "Claim rewards"}
         </Button>
       </DialogContent>
     </Dialog>

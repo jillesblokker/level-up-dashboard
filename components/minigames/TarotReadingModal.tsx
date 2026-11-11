@@ -15,14 +15,14 @@ interface TarotReadingModalProps {
 }
 
 const TOWN_TAROT_CARDS = [
-  { name: 'The King’s Sun ☀️', buff: '+20% Gold on all habit completions today!', icon: '☀️', goldBonus: 150 },
-  { name: 'The Dragon of Might 🐉', buff: '+15% Dungeon Fighter Attack Power today!', icon: '🐉', goldBonus: 200 },
-  { name: 'The Sage of Wisdom 🦉', buff: 'Double Experience on all Knowledge habits!', icon: '🦉', goldBonus: 180 },
-  { name: 'The Aegis Shield 🛡️', buff: 'Streak Protection active for the next 24 hours!', icon: '🛡️', goldBonus: 120 },
-  { name: 'The Star of Abundance ⭐', buff: '+3 Extra Botanical Alchemy Reagents awarded!', icon: '⭐', goldBonus: 250 },
-  { name: 'The Alchemist Cauldron 🧪', buff: 'Double Potion Brew Yield in the Apotheca!', icon: '🧪', goldBonus: 175 },
-  { name: 'The Airship Propeller ⛵', buff: 'Double Airship Flight Speed on voyages today!', icon: '⛵', goldBonus: 220 },
-  { name: 'The House Cup Crown 👑', buff: '+10 Bonus Virtue Points awarded to your House!', icon: '👑', goldBonus: 300 }
+  { name: 'The King’s Sun ☀️', buff: '+20% gold from habits today', icon: '☀️', goldBonus: 150 },
+  { name: 'The Dragon of Might 🐉', buff: '+15% dungeon attack today', icon: '🐉', goldBonus: 200 },
+  { name: 'The Sage of Wisdom 🦉', buff: '2× exp from knowledge habits', icon: '🦉', goldBonus: 180 },
+  { name: 'The Aegis Shield 🛡️', buff: 'Streak protection for 24 hours', icon: '🛡️', goldBonus: 120 },
+  { name: 'The Star of Abundance ⭐', buff: '+3 botanical reagents', icon: '⭐', goldBonus: 250 },
+  { name: 'The Alchemist Cauldron 🧪', buff: '2× potion brew yield', icon: '🧪', goldBonus: 175 },
+  { name: 'The Airship Propeller ⛵', buff: '2× airship flight speed', icon: '⛵', goldBonus: 220 },
+  { name: 'The House Cup Crown 👑', buff: '+10 house virtue points', icon: '👑', goldBonus: 300 }
 ]
 
 export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
@@ -125,8 +125,8 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
     }
 
     toast({
-      title: `🔮 Fortune drawn: ${randomCard.name}`,
-      description: `${randomCard.buff} Awarded +${randomCard.goldBonus} gold and +1 essence crystal!`,
+      title: "Tarot drawn",
+      description: `${randomCard.buff} (+${randomCard.goldBonus}g, +1 crystal)`,
     })
   }
 
@@ -140,10 +140,10 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
             <Wand2 className="w-6 h-6 text-purple-300 animate-spin" />
           </div>
           <DialogTitle className="text-2xl font-medieval text-purple-200 break-words">
-            Town fortune tarot reading
+            Tarot reading
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-300 italic leading-relaxed pt-1">
-            The fairy mystic reads the shifting Ether currents across Thrivehaven. Draw a daily card to reveal how today’s discipline channels ancient blessings into the realm!
+            Draw a daily card for a 24-hour habit blessing.
           </DialogDescription>
         </DialogHeader>
 
@@ -164,9 +164,9 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
             </div>
             <p className="text-xs text-zinc-200 font-serif italic leading-snug pt-0.5">
               {selectedCard ? (
-                <span>&ldquo;A wondrous draw! The stars shine upon your habits today! May this blessing guide your deeds.&rdquo;</span>
+                <span>&ldquo;A wondrous draw! May this blessing guide your deeds today.&rdquo;</span>
               ) : (
-                <span>&ldquo;Tee-hee! The ethereal currents dance around us! Pick a card, traveler—let&apos;s see what fortune the fae have spun for your kingdom today!&rdquo;</span>
+                <span>&ldquo;Pick a card to reveal your daily realm blessing.&rdquo;</span>
               )}
             </p>
           </div>
@@ -177,10 +177,10 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
             <div className="text-5xl animate-bounce">{selectedCard.icon}</div>
             <h4 className="font-bold text-amber-300 text-lg">{selectedCard.name}</h4>
             <p className="text-xs text-purple-200 font-bold bg-purple-950/60 p-2.5 rounded-xl border border-purple-800/40">
-              ✨ Active blessing: {selectedCard.buff}
+              Daily blessing: {selectedCard.buff}
             </p>
             <span className="text-[10px] text-emerald-400 font-mono font-bold block">
-              + {selectedCard.goldBonus} gold offering claimed
+              +{selectedCard.goldBonus} gold claimed
             </span>
           </div>
         ) : (
@@ -196,7 +196,7 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
                 </div>
               ))}
             </div>
-            <p className="text-xs text-zinc-400 italic">Focus your intention and tap any card to reveal today&apos;s town fortune.</p>
+            <p className="text-xs text-zinc-400 italic">Tap any card to reveal your fortune.</p>
           </div>
         )}
 
@@ -204,7 +204,7 @@ export function TarotReadingModal({ isOpen, onClose }: TarotReadingModalProps) {
           onClick={selectedCard ? onClose : () => drawCard(false)}
           className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-white font-bold text-xs shadow-lg rounded-xl"
         >
-          {selectedCard ? 'Accept blessing' : 'Draw daily tarot card'}
+          {selectedCard ? 'Accept blessing' : 'Draw tarot'}
         </Button>
       </DialogContent>
     </Dialog>

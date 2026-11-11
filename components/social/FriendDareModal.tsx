@@ -35,13 +35,13 @@ export function FriendDareModal({ isOpen, onClose, friendName = 'Friend' }: Frie
       } catch {}
 
       toast({
-        title: "1v1 habit race dare sent! ⚔️",
-        description: `Challenged ${friendName} to a 5/10 habit target race! First to reach target wins +10 House Cup virtue points to both and +150 gold!`,
+        title: "Duel sent",
+        description: `Challenged ${friendName} to 5 habits.`,
       })
       onClose()
     } catch {
       toast({
-        title: "Duel error",
+        title: "Duel failed",
         description: "Failed to issue habit duel dare.",
         variant: "destructive"
       })
@@ -57,19 +57,19 @@ export function FriendDareModal({ isOpen, onClose, friendName = 'Friend' }: Frie
           <div className="flex items-center gap-2 text-amber-400">
             <Sword className="w-6 h-6" />
             <DialogTitle className="text-lg font-bold text-amber-100">
-              1v1 daily habit race dare
+              Virtue duel
             </DialogTitle>
           </div>
           <DialogDescription className="text-zinc-400 text-xs mt-1">
-            Challenge <strong className="text-amber-300">{friendName}</strong> to a head-to-head daily habit completion race!
+            Race <strong className="text-amber-300">{friendName}</strong> to 5 daily habits.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="my-4 space-y-3 p-4 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs">
+        <div className="my-4 space-y-3 p-4 bg-zinc-900/80 rounded-2xl border border-zinc-800 text-xs">
           {/* Side-by-Side 1v1 Habit Race Tracker Bar */}
           <div className="space-y-2 pb-2 border-b border-zinc-800">
             <div className="flex items-center justify-between text-xs font-bold text-amber-300 font-serif">
-              <span>⚔️ Live habit race progress</span>
+              <span>Race progress</span>
               <span className="text-[10px] font-mono text-emerald-400">Target: 5 habits</span>
             </div>
             
@@ -116,10 +116,6 @@ export function FriendDareModal({ isOpen, onClose, friendName = 'Friend' }: Frie
               <Trophy className="w-3.5 h-3.5" /> Habit duelist
             </span>
           </div>
-
-          <p className="text-[11px] text-zinc-500 italic mt-2 border-t border-zinc-800/80 pt-2">
-            *Both you and {friendName} earn +10 bonus virtue points upon completing your daily 5 habit sweet spot!
-          </p>
         </div>
 
         <DialogFooter className="flex gap-2">
