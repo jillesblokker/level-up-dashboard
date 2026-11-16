@@ -65,7 +65,7 @@ export function MonthlyReflectionDigestModal({ isOpen, onClose, entries }: Month
         <div className="relative z-10 flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 scrollbar-hide">
           {/* Header */}
           <DialogHeader className="text-center items-center pb-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-[10px] font-mono font-bold text-amber-400 uppercase tracking-widest shadow-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-950/40 border border-amber-500/30 text-xs font-sans font-medium text-amber-300 shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               Monthly synthesis
             </div>
@@ -77,30 +77,30 @@ export function MonthlyReflectionDigestModal({ isOpen, onClose, entries }: Month
             </DialogDescription>
           </DialogHeader>
 
-          {/* 3 Stats Overview Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950/80 border border-amber-900/40 text-center flex flex-col items-center justify-between min-h-[105px] shadow-sm">
-              <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider block">Reflections</span>
-              <span className="text-2xl sm:text-3xl font-bold font-serif text-amber-300 my-1">
+          {/* 3 Stats Overview Cards with Generous Whitespace */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-5 sm:p-6 rounded-2xl bg-zinc-950/80 border border-amber-900/40 text-center flex flex-col items-center justify-center min-h-[120px] shadow-sm space-y-1.5">
+              <span className="text-xs text-zinc-400 font-sans font-medium">Reflections</span>
+              <span className="text-2xl sm:text-3xl font-bold font-serif text-amber-300">
                 {monthlyEntries.length}
               </span>
-              <span className="text-[10px] text-zinc-500 block">{totalWords} total words</span>
+              <span className="text-xs text-zinc-500">{totalWords} total words</span>
             </div>
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950/80 border border-amber-900/40 text-center flex flex-col items-center justify-between min-h-[105px] shadow-sm">
-              <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider block">Spirit aura</span>
-              <span className="text-2xl sm:text-3xl font-bold font-serif text-emerald-400 my-1">
+            <div className="p-5 sm:p-6 rounded-2xl bg-zinc-950/80 border border-amber-900/40 text-center flex flex-col items-center justify-center min-h-[120px] shadow-sm space-y-1.5">
+              <span className="text-xs text-zinc-400 font-sans font-medium">Spirit aura</span>
+              <span className="text-2xl sm:text-3xl font-bold font-serif text-emerald-400">
                 {avgMood} <span className="text-xs font-normal text-zinc-500">/ 5</span>
               </span>
-              <span className="text-[10px] text-emerald-400/80 block">Mood resonance</span>
+              <span className="text-xs text-emerald-400/80">Mood resonance</span>
             </div>
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950/80 border border-amber-900/40 text-center flex flex-col items-center justify-between min-h-[105px] shadow-sm">
-              <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider block">Primary state</span>
-              <span className="text-sm sm:text-base font-bold font-serif text-purple-300 my-1 break-words leading-tight">
+            <div className="p-5 sm:p-6 rounded-2xl bg-zinc-950/80 border border-amber-900/40 text-center flex flex-col items-center justify-center min-h-[120px] shadow-sm space-y-1.5">
+              <span className="text-xs text-zinc-400 font-sans font-medium">Primary state</span>
+              <span className="text-base sm:text-lg font-bold font-serif text-purple-300 leading-snug px-1">
                 {getDominantMoodLabel()}
               </span>
-              <span className="text-[10px] text-purple-400/80 block">Dominant mood</span>
+              <span className="text-xs text-purple-400/80">Dominant mood</span>
             </div>
           </div>
 
@@ -128,7 +128,7 @@ export function MonthlyReflectionDigestModal({ isOpen, onClose, entries }: Month
                 <span>Monthly habit constellation</span>
               </div>
               <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full">
-                {monthlyEntries.length >= 10 ? "⭐ The Paragon Astrolabe" : monthlyEntries.length >= 4 ? "✨ The Titan's Blade" : "🌟 The Novice Star"}
+                {monthlyEntries.length >= 10 ? "⭐ The paragon astrolabe" : monthlyEntries.length >= 4 ? "✨ The titan's blade" : "🌟 The novice star"}
               </span>
             </div>
 

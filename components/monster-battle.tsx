@@ -49,7 +49,7 @@ const monsterData = {
     description: 'A shadow beast of Necrion with scales forged in the Void Drift.',
     difficulty: 'Hard',
     achievementId: '201',
-    achievementTitle: 'Ancient Dragon Slayer',
+    achievementTitle: 'Dragon slayer',
     achievementDesc: 'Face the ancient winged beast. Watch its movements closely and strike true.',
   },
   goblin: {
@@ -58,7 +58,7 @@ const monsterData = {
     description: 'A mischievous shadow creature feeding on broken streaks.',
     difficulty: 'Easy',
     achievementId: '202',
-    achievementTitle: 'Goblin Hunter',
+    achievementTitle: 'Goblin hunter',
     achievementDesc: 'The crafty looting menace hides in the shadows. Match its cunning moves.',
   },
   troll: {
@@ -67,7 +67,7 @@ const monsterData = {
     description: 'A massive troll with incredible strength.',
     difficulty: 'Medium',
     achievementId: '203',
-    achievementTitle: 'Troll Crusher',
+    achievementTitle: 'Troll crusher',
     achievementDesc: 'A mountain of muscle blocks your path. Mimic its brute force to bring it down.',
   },
   wizard: {
@@ -76,7 +76,7 @@ const monsterData = {
     description: 'A powerful wizard with dark magic.',
     difficulty: 'Hard',
     achievementId: '204',
-    achievementTitle: 'Dark Wizard Vanquisher',
+    achievementTitle: 'Wizard vanquisher',
     achievementDesc: 'Magic swirls in complex patterns. Memorize the arcane sequence to dispel the darkness.',
   },
   pegasus: {
@@ -85,7 +85,7 @@ const monsterData = {
     description: 'A majestic winged horse with divine powers.',
     difficulty: 'Medium',
     achievementId: '205',
-    achievementTitle: 'Pegasus Tamer',
+    achievementTitle: 'Pegasus tamer',
     achievementDesc: 'A majestic creature of the clouds. Follow its graceful flight to earn its trust.',
   },
   fairy: {
@@ -94,7 +94,7 @@ const monsterData = {
     description: 'A magical fairy with nature magic.',
     difficulty: 'Easy',
     achievementId: '206',
-    achievementTitle: 'Fairy Friend',
+    achievementTitle: 'Fairy friend',
     achievementDesc: 'Small and swift, dancing in the light. Keep up with the fae\'s rhythm.',
   }
 }
@@ -392,8 +392,8 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     ])
 
     toast({
-      title: `⚔️ Round ${currentRound} cleared!`,
-      description: `Dealt 20 DMG to ${monster.name}!`,
+      title: "Round cleared",
+      description: `Dealt 20 damage to ${monster.name}.`,
     })
 
     if (currentRound === 5 || nextMonsterHp === 0) {
@@ -435,8 +435,8 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
       }).catch(console.error)
 
       toast({
-        title: "🛡️ Barrier protected!",
-        description: `Step ${stepNumber} mistake (clicked ${enteredName}, expected ${expectedName}), but potion absorbed all damage!`,
+        title: "Barrier protected",
+        description: `Barrier absorbed damage from ${monster.name}.`,
       })
       setCombatLog(prev => [
         `🛡️ Round ${currentRound} mistake on step ${stepNumber}: Barrier absorbed ${monster.name}'s strike!`,
@@ -455,8 +455,8 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
       ])
 
       toast({
-        title: "Round sequence failed!",
-        description: `Step ${stepNumber}: Pressed ${enteredName}, but needed ${expectedName}. Took ${dmgTaken} DMG!`,
+        title: "Round failed",
+        description: `Needed ${expectedName}. Took ${dmgTaken} damage.`,
         variant: "destructive",
       })
 
@@ -509,8 +509,8 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
         body: JSON.stringify({ achievementId: monster.achievementId })
       }).then(() => {
         toast({
-          title: `🏆 Achievement unlocked: ${monster.achievementTitle}`,
-          description: monster.achievementDesc,
+          title: "Title unlocked",
+          description: monster.achievementTitle,
         })
       }).catch((error: any) => {
         logger.error('Failed to unlock achievement:', error)
@@ -541,8 +541,8 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
     setGameState('lost')
     setPlayerHp(0)
     toast({
-      title: "Defeat!",
-      description: `${monster.name} was too strong this time. Train your focus and try again!`,
+      title: "Battle lost",
+      description: `${monster.name} was too strong. Try again!`,
       variant: "destructive",
     })
   }
@@ -767,14 +767,14 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
               <div className="p-3 bg-emerald-950/40 border border-emerald-500/40 rounded-xl text-center space-y-1 animate-in fade-in">
                 <div className="text-emerald-300 font-serif font-bold text-sm sm:text-base flex items-center justify-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>Your turn! Enter the {sequence.length} blocks ({playerSequence.length}/{sequence.length})</span>
+                  <span>Your turn ({playerSequence.length}/{sequence.length})</span>
                 </div>
                 <p className="text-[11px] text-zinc-400 font-mono">
                   {playerSequence.length === 0
-                    ? "Click the first weapon block to begin."
+                    ? "Tap weapon to strike."
                     : playerSequence.length < sequence.length
-                    ? `Next: tap step ${playerSequence.length + 1} of ${sequence.length}`
-                    : "Validating sequence..."}
+                    ? `Step ${playerSequence.length + 1} of ${sequence.length}`
+                    : "Validating strike..."}
                 </p>
               </div>
             )}
@@ -908,7 +908,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                 onClick={handleClaimVictory}
                 className="w-full font-serif font-bold py-3 rounded-xl shadow-xl active:scale-95 transition-all text-sm flex items-center justify-center gap-2"
               >
-                <Trophy className="w-4 h-4 fill-current text-amber-300" /> Claim rewards & continue
+                <Trophy className="w-4 h-4 fill-current text-amber-300" /> Claim rewards
               </Button>
             </div>
           )}
@@ -937,7 +937,7 @@ export function MonsterBattle({ isOpen, onClose, monsterType, onBattleComplete }
                 variant="outline"
                 className="w-full border-zinc-700 text-zinc-300 hover:bg-zinc-900 font-serif"
               >
-                Return to realm
+                Return home
               </Button>
             </div>
           )}

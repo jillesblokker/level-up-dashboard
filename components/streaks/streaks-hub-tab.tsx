@@ -110,8 +110,8 @@ export function StreaksHubTab({ currentStreak, longestStreak = 0, userId, token 
 
       const durationText = campfireDays >= 60 ? '2 months' : campfireDays >= 30 ? '1 month' : `${campfireDays} days`;
       toast({
-        title: "Campfire guard lit! 🏕️",
-        description: `Your streak is safely paused for ${durationText}. Citizens will tend the hearth while you rest.`,
+        title: "Guard lit",
+        description: `Streak safely paused for ${durationText}.`,
       });
     } else {
       localStorage.removeItem('thrivehaven_campfire_guard');
@@ -119,8 +119,8 @@ export function StreaksHubTab({ currentStreak, longestStreak = 0, userId, token 
       setCampfireUntil(null);
 
       toast({
-        title: "Campfire guard extinguished",
-        description: "Welcome back, King! Daily habit tracking has resumed.",
+        title: "Guard extinguished",
+        description: "Habit tracking has resumed.",
       });
     }
   };
@@ -135,8 +135,8 @@ export function StreaksHubTab({ currentStreak, longestStreak = 0, userId, token 
     const clicked = updated.find(q => q.id === id);
     if (clicked?.completed) {
       toast({
-        title: `${clicked.title} completed! ✨`,
-        description: "Mercy restorative step recorded.",
+        title: "Routine done",
+        description: "Restorative step recorded.",
       });
     }
   };
@@ -153,8 +153,8 @@ export function StreaksHubTab({ currentStreak, longestStreak = 0, userId, token 
       await addToCharacterStat('gold', 50, 'mercy-streak-recovery');
       
       toast({
-        title: "Streak healed! 🔥",
-        description: "Your mercy rituals re-kindled the sacred flame! Streak restored.",
+        title: "Streak healed",
+        description: "Sacred flame re-kindled and streak restored.",
       });
 
       // Clear completed mercy quests
@@ -166,7 +166,7 @@ export function StreaksHubTab({ currentStreak, longestStreak = 0, userId, token 
       window.dispatchEvent(new Event('character-stats-update'));
     } catch {
       toast({
-        title: "Repair error",
+        title: "Repair failed",
         description: "Could not finalize streak healing.",
         variant: "destructive"
       });
@@ -222,13 +222,13 @@ export function StreaksHubTab({ currentStreak, longestStreak = 0, userId, token 
               size="sm"
               className="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-200 text-xs font-serif shadow-md"
             >
-              🗿 View stone monuments
+              Stone monuments
             </Button>
             <div className="px-3 py-2 rounded-xl bg-zinc-950/80 border border-amber-500/30 text-right">
               <span className="text-[10px] text-zinc-400 block uppercase font-mono">Streak status</span>
               <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5 justify-end">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                {campfireActive ? 'Campfire guard active' : 'Active & blazing'}
+                {campfireActive ? 'Campfire active' : 'Active & blazing'}
               </span>
             </div>
           </div>
@@ -251,7 +251,7 @@ export function StreaksHubTab({ currentStreak, longestStreak = 0, userId, token 
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-sm sm:text-base font-serif font-bold text-amber-200">
-                  Campfire guard (vacation pause)
+                  Campfire guard
                 </h3>
                 {campfireActive && (
                   <Badge className="bg-emerald-950 border-emerald-500/50 text-emerald-300 text-[10px]">
@@ -260,7 +260,7 @@ export function StreaksHubTab({ currentStreak, longestStreak = 0, userId, token 
                 )}
               </div>
               <p className="text-xs text-zinc-400 leading-relaxed mt-0.5 max-w-xl">
-                Visiting the outer realms, ill, or taking a restorative break? Light the campfire guard to safely pause all habit streak decay without penalty. Your citizens tend the kingdom hearth while you rest.
+                Pause habit streak decay without penalty while you rest.
               </p>
             </div>
           </div>
@@ -387,7 +387,7 @@ export function StreaksHubTab({ currentStreak, longestStreak = 0, userId, token 
             ) : (
               <Flame className="w-3.5 h-3.5 mr-1.5" />
             )}
-            Re-kindle streak
+            Heal streak
           </Button>
         </div>
       </div>

@@ -351,7 +351,7 @@ export function RiddleChallenge({ onEarnXp, onSpendGold, gold = 1000 }: RiddleCh
               <Brain className="h-6 w-6 text-purple-400" />
             </div>
             <div>
-              <CardTitle className="text-xl font-serif text-white uppercase tracking-tight">
+              <CardTitle className="text-xl font-serif text-white tracking-tight">
                 {TEXT_CONTENT.riddleChallenge.ui.title}
               </CardTitle>
               <CardDescription className="text-zinc-500 text-xs font-medium">

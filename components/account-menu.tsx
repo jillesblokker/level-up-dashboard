@@ -201,7 +201,7 @@ export function AccountMenu() {
               <FileText className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">Requirements</span>
-                <p className="text-xs text-zinc-400">View system requirements</p>
+                <p className="text-xs text-zinc-400">System specs</p>
               </div>
             </Link>
 
@@ -210,13 +210,13 @@ export function AccountMenu() {
               role="menuitem"
               tabIndex={0}
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
-              aria-label="Design System page"
+              aria-label="Design system page"
               onClick={() => setIsOpen(false)}
             >
               <Crown className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
-                <span className="text-base font-medium text-white">Design System</span>
-                <p className="text-xs text-zinc-400">View design components</p>
+                <span className="text-base font-medium text-white">Design system</span>
+                <p className="text-xs text-zinc-400">Component library</p>
               </div>
             </Link>
 
@@ -231,7 +231,7 @@ export function AccountMenu() {
               <Database className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">Admin</span>
-                <p className="text-xs text-zinc-400">Manage data & settings</p>
+                <p className="text-xs text-zinc-400">Realm data</p>
               </div>
             </Link>
 
@@ -246,7 +246,7 @@ export function AccountMenu() {
               <Monitor className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">Monitoring</span>
-                <p className="text-xs text-zinc-400">View performance metrics</p>
+                <p className="text-xs text-zinc-400">System telemetry</p>
               </div>
             </Link>
 
@@ -261,7 +261,7 @@ export function AccountMenu() {
               <Settings className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">Settings</span>
-                <p className="text-xs text-zinc-400">App preferences</p>
+                <p className="text-xs text-zinc-400">Preferences</p>
               </div>
             </Link>
 
@@ -270,13 +270,13 @@ export function AccountMenu() {
               role="menuitem"
               tabIndex={0}
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
-              aria-label="Daily Hub page"
+              aria-label="Daily hub page"
               onClick={() => setIsOpen(false)}
             >
               <Sun className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
-                <span className="text-base font-medium text-white">Daily Hub</span>
-                <p className="text-xs text-zinc-400">View streaks and news</p>
+                <span className="text-base font-medium text-white">Daily hub</span>
+                <p className="text-xs text-zinc-400">Morning focus</p>
               </div>
             </Link>
 
@@ -291,7 +291,7 @@ export function AccountMenu() {
               <ShoppingBag className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
                 <span className="text-base font-medium text-white">Market</span>
-                <p className="text-xs text-zinc-400">Buy card packs and materials</p>
+                <p className="text-xs text-zinc-400">Trade goods</p>
               </div>
             </Link>
 
@@ -300,13 +300,13 @@ export function AccountMenu() {
               role="menuitem"
               tabIndex={0}
               className="block min-h-[52px] md:min-h-[44px] flex items-center gap-3 p-3 touch-manipulation rounded-lg hover:bg-amber-500/10 focus:bg-amber-500/10 transition-all duration-200"
-              aria-label="Log Center page"
+              aria-label="Log center page"
               onClick={() => setIsOpen(false)}
             >
               <Bug className="h-5 w-5 text-amber-400" />
               <div className="flex-1 text-left">
-                <span className="text-base font-medium text-white">Log Center</span>
-                <p className="text-xs text-zinc-400">View debug logs</p>
+                <span className="text-base font-medium text-white">Log center</span>
+                <p className="text-xs text-zinc-400">System logs</p>
               </div>
             </Link>
           </div>

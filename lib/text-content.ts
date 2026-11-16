@@ -1013,19 +1013,19 @@ export const TEXT_CONTENT = {
     },
     riddleChallenge: {
         success: {
-            title: "Correct!",
-            description: "You've earned {xpAmount} XP for your wisdom!"
+            title: "Correct",
+            description: "You earned {xpAmount} XP for your wisdom."
         },
         failure: {
-            title: "Incorrect!",
-            description: "You've lost {goldAmount} gold coins. Try again!"
+            title: "Incorrect",
+            description: "You lost {goldAmount} gold coins. Try again!"
         },
         insufficientGold: {
-            title: "Not enough gold!",
+            title: "Low gold",
             description: "You need at least 50 gold to attempt this riddle."
         },
         ui: {
-            title: "Riddle Challenge",
+            title: "Sphinx riddle",
             description: "Answer correctly to earn 50 XP. Wrong answers cost 50 gold.",
             correctOverlay: "Well done, wise one! Your answer is correct.",
             incorrectOverlay: "The correct answer is: {answer}"
@@ -1698,35 +1698,35 @@ export const TEXT_CONTENT = {
             clearAll: "Clear All Messages"
         },
         tabs: {
-            all: "All Messages",
-            unread: "Unread Messages"
+            all: "All messages",
+            unread: "Unread"
         },
         toasts: {
             markedRead: {
-                title: "All notifications marked as read",
-                desc: "Sage Owl tucks the empty scroll satchel under its wing: you're completely caught up on realm news."
+                title: "All marked read",
+                desc: "Sage Owl tucks the empty scroll satchel under its wing: you're completely caught up."
             },
             deleted: {
                 title: "Notification deleted",
                 desc: "The message has been removed from your inbox."
             },
             cleared: {
-                title: "All notifications cleared",
-                desc: "Your inbox is now empty and ready for new messages."
+                title: "All cleared",
+                desc: "Your inbox is now empty."
             }
         },
         empty: {
             all: {
-                title: "No Messages Await",
+                title: "No notifications",
                 message: "Icey sits quietly atop the mailbox: 'Nothing new in the box today. Clear more quests to trigger events!'",
                 description: "Complete quests and explore your realm to receive notifications from your loyal subjects.",
-                button: "Embark on Your Quest"
+                button: "View quests"
             },
             unread: {
-                title: "All Messages Read",
+                title: "All caught up",
                 message: "You've caught up on all your kingdom's news and updates.",
                 description: "Continue your adventures to receive new notifications from your realm.",
-                button: "Continue Your Journey"
+                button: "View quests"
             }
         },
         time: {

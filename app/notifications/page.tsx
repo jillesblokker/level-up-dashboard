@@ -44,7 +44,7 @@ export default function NotificationsPage() {
         read: false,
         timestamp: new Date().toISOString(),
         action: {
-          label: "View Achievement",
+          label: "View title",
           href: "/character",
         },
       },
@@ -472,8 +472,11 @@ export default function NotificationsPage() {
                     {filteredNotifications.map((notification) => (
                       <Card
                         key={notification.id}
-                        className={`bg-gradient-to-b from-zinc-900/50 to-black/50 border-amber-800/30 w-full min-h-[120px] md:min-h-[100px] hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer ${!notification.read ? "border-l-4 border-l-amber-500" : ""
-                          }`}
+                        className={`bg-zinc-950/80 border rounded-2xl w-full min-h-[120px] md:min-h-[100px] hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 cursor-pointer ${
+                          !notification.read
+                            ? "border-amber-500/50 bg-amber-950/10 shadow-[0_0_15px_rgba(245,158,11,0.08)]"
+                            : "border-zinc-800/80"
+                        }`}
                         onClick={() => markAsRead(notification.id)}
                       >
                         <CardContent className="p-6 h-full flex flex-col justify-center">

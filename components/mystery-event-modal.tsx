@@ -107,9 +107,9 @@ export function MysteryEventModal({
                 <div className="relative z-10 flex-1 overflow-y-auto p-6 scrollbar-hide">
                     <div className="flex flex-col items-center">
                         <DialogHeader className="w-full text-center items-center px-4 sm:px-6">
-                            <div className={cn("inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border text-xs font-bold uppercase tracking-widest mb-4", style.border, style.accent)}>
+                            <div className={cn("inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border text-xs font-serif font-bold mb-4", style.border, style.accent)}>
                                 <Icon className="w-3 h-3" />
-                                Mystery Event
+                                Mystery event
                             </div>
                             <DialogTitle className="text-3xl font-serif text-white tracking-tight mb-2 break-words">
                                 {event.title}
@@ -182,7 +182,7 @@ export function MysteryEventModal({
                             <div className="w-full py-8 flex flex-col items-center justify-center gap-4">
                                 <div className={cn("w-12 h-12 border-4 border-t-transparent rounded-full animate-spin", style.accent)}
                                     style={{ borderColor: 'currentColor', borderTopColor: 'transparent' }} />
-                                <p className="text-zinc-400 font-medium animate-pulse">Processing your choice...</p>
+                                <p className="text-zinc-400 font-medium animate-pulse">Processing...</p>
                             </div>
                         )}
                     </div>
