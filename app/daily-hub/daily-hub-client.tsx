@@ -43,6 +43,10 @@ const DailyRoutineModal = dynamic(
   () => import('@/components/daily-routine-modal').then((mod) => mod.DailyRoutineModal),
   { ssr: false }
 )
+const RoyalPotCard = dynamic(
+  () => import('@/components/royal-pot-card').then((mod) => mod.RoyalPotCard),
+  { ssr: false, loading: () => <div className="animate-pulse h-64 bg-zinc-900/60 rounded-2xl border border-amber-900/30" /> }
+)
 import NextImage from "next/image"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { getCurrentChapter, getNextChapter } from "@/lib/chronicles-data"
@@ -1177,7 +1181,10 @@ export function DailyHubClient() {
                     </div>
                 </div>
 
-                {/* BENTO ROW 3 — Growth, consistency & challenges */}
+                {/* BENTO ROW 3 — Monthly royal pot (Duolingo-style shared community bounty) */}
+                <RoyalPotCard />
+
+                {/* BENTO ROW 4 — Growth, consistency & challenges */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
                     {/* Bento Tile 3A: Weekly Challenges */}
                     <div className="lg:col-span-7 h-full">
